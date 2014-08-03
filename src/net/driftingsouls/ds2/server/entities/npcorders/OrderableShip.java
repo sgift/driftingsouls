@@ -21,7 +21,6 @@ package net.driftingsouls.ds2.server.entities.npcorders;
 import net.driftingsouls.ds2.server.entities.Rasse;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Immutable;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -38,7 +37,6 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name="orders_ships")
-@Immutable
 public class OrderableShip {
 	@Id @GeneratedValue
 	private int id;
@@ -47,7 +45,10 @@ public class OrderableShip {
 	@ForeignKey(name="orders_ships_fk_shiptypes")
 	private ShipType shipType;
 	private int cost;
-	private int rasse;
+	@ManyToOne
+	@JoinColumn
+	@ForeignKey(name="orderable_ship_fk_rasse")
+	private Rasse rasse;
 
 	/**
 	 * Konstruktor.
@@ -66,15 +67,15 @@ public class OrderableShip {
 	public OrderableShip(ShipType shipType, Rasse rasse, int cost)
 	{
 		this.shipType = shipType;
-		this.rasse = rasse.getId();
+		this.rasse = rasse;
 		this.cost = cost;
 	}
 
 	/**
-	 * Gibt die ID der Rasse zurueck, die das Schiff ordern kann.
+	 * Gibt die Rasse zurueck, die das Schiff ordern kann.
 	 * @return Die Rasse
 	 */
-	public int getRasse()
+	public Rasse getRasse()
 	{
 		return this.rasse;
 	}
@@ -101,5 +102,32 @@ public class OrderableShip {
 	 */
 	public int getId() {
 		return this.id;
+	}
+
+	/**
+	 * Setzt den Schiffstyps des bestellten Schiffes.
+	 * @param shipType Der Schiffstyp
+	 */
+	public void setShipType(ShipType shipType)
+	{
+		this.shipType = shipType;
+	}
+
+	/**
+	 * Die Kosten der Bestellung.
+	 * @param cost  Die Kosten
+	 */
+	public void setCost(int cost)
+	{
+		this.cost = cost;
+	}
+
+	/**
+	 * Setzt die Rasse, die das Schiff ordern kann.
+	 * @param rasse Die Rasse
+	 */
+	public void setRasse(Rasse rasse)
+	{
+		this.rasse = rasse;
 	}
 }

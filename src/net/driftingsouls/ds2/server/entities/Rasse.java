@@ -72,6 +72,17 @@ public class Rasse
 	/**
 	 * Prueft, ob die Rasse direkt oder indirekt Mitglied in einer anderen Rasse ist.
 	 *
+	 * @param rasse die Rasse, in der die Mitgliedschaft geprueft werden soll
+	 * @return <code>true</code>, falls die Rasse Mitglied ist
+	 */
+	public boolean isMemberIn(@Nonnull Rasse rasse)
+	{
+		return isMemberIn(rasse.getId());
+	}
+
+	/**
+	 * Prueft, ob die Rasse direkt oder indirekt Mitglied in einer anderen Rasse ist.
+	 *
 	 * @param rasse die ID der Rasse, in der die Mitgliedschaft geprueft werden soll
 	 * @return <code>true</code>, falls die Rasse Mitglied ist
 	 */

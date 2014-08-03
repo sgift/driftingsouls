@@ -10,6 +10,7 @@ import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintrag;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeInfo;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeMaxValues;
+import net.driftingsouls.ds2.server.entities.npcorders.OrderableShip;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.SchiffstypModifikation;
@@ -47,6 +48,7 @@ public class ObjectLabelGenerator
         registerSpecialGenerator(UpgradeInfo.class, (ui) -> ui.getType().getName()+"#"+ui.getUpgradeType());
 		registerSpecialGenerator(SchiffstypModifikation.class, (sm) -> "["+sm.getId()+"] "+sm.toString());
 		registerSpecialGenerator(Ally.class, Ally::getPlainname);
+		registerSpecialGenerator(OrderableShip.class, (os) -> "["+os.getRasse().getName()+"] "+os.getShipType().getNickname());
     }
 
 	@SuppressWarnings("unchecked")
