@@ -255,6 +255,12 @@ public class EditorForm8<E> implements FormElementCreator<E>
 		return custom(new MultiSelectionGenerator<>(label, generateName(getter), type, type, getter, setter));
 	}
 
+	@Override
+	public <T, V extends Collection<T>> CollectionGenerator<E, T, V> collection(String label, Class<T> type, Function<E, V> getter, BiConsumer<E, V> setter, Consumer<FormElementCreator<T>> subFormGenerator)
+	{
+		return custom(new CollectionGenerator<>(label, generateName(getter), type, getter, setter, subFormGenerator, modus, plugin));
+	}
+
 	private String generateName(Object object)
 	{
 		String suffix = object instanceof String ? (String)object : object.getClass().getSimpleName();
@@ -347,7 +353,7 @@ public class EditorForm8<E> implements FormElementCreator<E>
 
 	protected List<ColumnDefinition<E>> getColumnDefinitions()
 	{
-		return this.fields.stream().map(CustomFieldGenerator::getColumnDefinition).collect(Collectors.toList());
+		return this.fields.stream().map(CustomFieldGenerator::getColumnDefinition).filter(cd -> cd != null).collect(Collectors.toList());
 	}
 
 	protected List<String> getEntityValues(E entity)

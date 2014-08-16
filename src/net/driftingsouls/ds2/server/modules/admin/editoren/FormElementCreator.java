@@ -1,7 +1,9 @@
 package net.driftingsouls.ds2.server.modules.admin.editoren;
 
+import java.util.Collection;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -78,6 +80,9 @@ public interface FormElementCreator<E>
 	 * @param setter Der setter fuer den momentanen Wert
 	 */
 	<T> MultiSelectionGenerator<E,T> multiSelection(String label, Class<T> type, Function<E, Set<T>> getter, BiConsumer<E, Set<T>> setter);
+
+
+	<T,V extends Collection<T>> CollectionGenerator<E,T,V> collection(String label, Class<T> type, Function<E,V> getter, BiConsumer<E,V> setter, Consumer<FormElementCreator<T>> subFormGenerator);
 
 	FormElementCreator<E> ifAdding();
 

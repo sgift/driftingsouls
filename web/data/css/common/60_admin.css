@@ -77,8 +77,17 @@
 }
 
 #admin .adminEditor table {
-    min-width:50%;
+    min-width:90%;
     border-spacing: 5px;
+}
+
+#admin .adminEditor .ui-jqgrid table {
+	border-spacing: 0;
+	min-width:100%;
+}
+
+#admin .adminEditor .subTableWrapper {
+	width: 500px;
 }
 
 #admin .adminEditor input[type=text],
