@@ -134,6 +134,80 @@ Admin.createEntityTable = function(params) {
 	});
 };
 
+Admin.createEditTable = function(name, model) {
+	function postprocessRowData(rowData) {
+		for( var i=0; i < rowData.length; i++ ) {
+			var row = rowData[i];
+
+			for( var j=0; j < model.colModel.length; j++ ) {
+				var colModel = model.colModel[j];
+
+				if( colModel.edittype === 'select' ) {
+					// value statt label uebertragen
+					// (standardmaessig gibt jqgrid hier das label zurueck!)
+					var optionsList = colModel.editoptions.value.split(';');
+
+					for( var k=0; k < optionsList.length; k++ ) {
+						var option = optionsList[k].split(':');
+						if( row[colModel.name] === option[1] ) {
+							row[colModel.name] = option[0];
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	function saveRowData($table) {
+		var rowData = $table.jqGrid('getRowData');
+		postprocessRowData(rowData);
+		$('#'+name+'_data').val(JSON.stringify(rowData))
+	}
+
+	var lastsel2 = null;
+
+	var $table = $('#' + name);
+	model.datatype = "local";
+	model.rowList = [];
+	model.pgbuttons = false;
+	model.pgtext = null;
+	model.viewrecords = true;
+
+	model.onSelectRow = function(id){
+		if(id && id!==lastsel2){
+			$table.restoreRow(lastsel2);
+			$table.editRow(id,true);
+			lastsel2=id;
+		}
+	};
+	$table.jqGrid(model);
+	$table.jqGrid('navGrid','#gridpager',{refresh:false,search:false,edit:false,add:false,del:false},{},{},{}, {});
+
+	$table.jqGrid('navButtonAdd','#gridpager',{caption:'Hinzufügen',
+		buttonicon:"ui-icon-plus",
+		onClickButton: function(){
+			$table.jqGrid('addRowData', $table.getGridParam('reccount')+1, {}, 'last');
+			saveRowData($table);
+		},
+		position:"last"});
+
+	$table.jqGrid('navButtonAdd','#gridpager',{caption:'Entfernen',
+		buttonicon:"ui-icon-trash",
+		onClickButton: function(){
+			if( lastsel2 != null ) {
+				$table.jqGrid('delRowData', lastsel2);
+				saveRowData($table);
+			}
+		},
+		position:"last"});
+
+	$table.on('jqGridInlineAfterSaveRow', function(evt){
+		lastsel2=null;
+		saveRowData($table);
+	});
+};
+
 jQuery.extend($.fn.fmatter , {
 	picture : function(cellvalue, options, rowdata) {
 		return '<img class="gridpicture" src="'+cellvalue+'" />';

@@ -348,12 +348,12 @@ public class EditorForm8<E> implements FormElementCreator<E>
 	@SuppressWarnings("unchecked")
 	public <T extends E> FormElementCreator<T> ifEntityClass(Class<T> entityClass)
 	{
-		return new ConditionalFormElementCreator<>(plugin, this::generateName, (FormElementCreator<T>) this, entity -> entityClass.isAssignableFrom(entity.getClass()));
+		return new ConditionalFormElementCreator<>(plugin, this::generateName, (FormElementCreator<T>) this, entity -> entityClass.isAssignableFrom(entity.getClass()), modus);
 	}
 
-	protected List<ColumnDefinition<E>> getColumnDefinitions()
+	protected List<ColumnDefinition<E>> getColumnDefinitions(boolean forEditing)
 	{
-		return this.fields.stream().map(CustomFieldGenerator::getColumnDefinition).filter(cd -> cd != null).collect(Collectors.toList());
+		return this.fields.stream().map(cfg -> cfg.getColumnDefinition(forEditing)).filter(cd -> cd != null).collect(Collectors.toList());
 	}
 
 	protected List<String> getEntityValues(E entity)

@@ -23,8 +23,6 @@ import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.SingularAttribute;
 import java.io.IOException;
 import java.io.Serializable;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -130,7 +128,7 @@ public class EditPlugin8<T> implements AdminPlugin
 		}
 		else if( isAddDisplayed() )
 		{
-			T entity = createEntity();
+			T entity = EntityUtils.createEntity(this.clazz);
 			form = new EditorForm8<>(EditorMode.CREATE, this.getPluginClass());
 			configureFor(form);
 			beginEditorTable(echo, this.getPluginClass(), -1);
@@ -155,14 +153,14 @@ public class EditPlugin8<T> implements AdminPlugin
 		EditorForm8<T> form = new EditorForm8<>(EditorMode.CREATE, EditPlugin8.this.getPluginClass());
 		configureFor(form);
 
-		T entity = createEntity();
+		T entity = EntityUtils.createEntity(this.clazz);
 		form.applyRequestValues(request, entity);
 
 		EditPlugin8.this.clazz = form.getEntityClassRequestValue(request, entity);
 		if( entity.getClass() != EditPlugin8.this.clazz )
 		{
 			// Klasse wurde geaendert - erneut anwenden
-			entity = createEntity();
+			entity = EntityUtils.createEntity(this.clazz);
 			form.applyRequestValues(request, entity);
 		}
 
@@ -239,7 +237,7 @@ public class EditPlugin8<T> implements AdminPlugin
 		{
 			model.colModel.get(0).width = 50;
 		}
-		for (ColumnDefinition columnDefinition : form.getColumnDefinitions())
+		for (ColumnDefinition columnDefinition : form.getColumnDefinitions(false))
 		{
 			model.colNames.add(columnDefinition.getLabel());
 			JqGridColumnViewModel colModel = new JqGridColumnViewModel(columnDefinition.getId(), columnDefinition.getFormatter());
@@ -265,7 +263,7 @@ public class EditPlugin8<T> implements AdminPlugin
 		{
 			model.colModel.get(0).width = 50;
 		}
-		for (ColumnDefinition columnDefinition : form.getColumnDefinitions())
+		for (ColumnDefinition columnDefinition : form.getColumnDefinitions(false))
 		{
 			model.colNames.add(columnDefinition.getLabel());
 			model.colModel.add(new JqGridColumnViewModel(columnDefinition.getId(), columnDefinition.getFormatter()));
@@ -410,24 +408,6 @@ public class EditPlugin8<T> implements AdminPlugin
 		echo.append("</div>");
 	}
 
-	private T createEntity()
-	{
-		try
-		{
-			Constructor<? extends T> constructor = this.clazz.getDeclaredConstructor();
-			constructor.setAccessible(true);
-			return constructor.newInstance();
-		}
-		catch (NoSuchMethodException e)
-		{
-			throw new AssertionError("Kein default-Konstruktor fuer Entity '"+this.clazz.getName()+"' vorhanden");
-		}
-		catch (InvocationTargetException | InstantiationException | IllegalAccessException e)
-		{
-			throw new IllegalStateException("Konnte Entity '"+this.clazz.getName()+"' nicht instantiieren");
-		}
-	}
-
 	protected final @Nonnull Session getDB()
 	{
 		return ContextMap.getContext().getDB();
@@ -566,7 +546,7 @@ public class EditPlugin8<T> implements AdminPlugin
 		if( sortColumn != null )
 		{
 			SingularAttribute<T, ?> dbSortColumn = null;
-			for (ColumnDefinition<T> columnDefinition : form.getColumnDefinitions())
+			for (ColumnDefinition<T> columnDefinition : form.getColumnDefinitions(false))
 			{
 				if( sortColumn.equals(columnDefinition.getId()) )
 				{
@@ -600,7 +580,7 @@ public class EditPlugin8<T> implements AdminPlugin
 	{
 		List<Predicate> predicates = new ArrayList<>();
 		Request request = ContextMap.getContext().getRequest();
-		for (ColumnDefinition<T> columnDefinition : form.getColumnDefinitions())
+		for (ColumnDefinition<T> columnDefinition : form.getColumnDefinitions(false))
 		{
 			String val = request.getParameter(columnDefinition.getId());
 			if( val == null )

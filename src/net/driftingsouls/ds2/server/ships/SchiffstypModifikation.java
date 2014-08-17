@@ -800,7 +800,7 @@ public class SchiffstypModifikation
 			effekte.add("srs="+ srs);
 		}
 		for( Schiffswaffenkonfiguration conf: this.waffen) {
-			effekte.add("weapons=" + conf.getWaffe().getId() + "/" + conf.getAnzahl() + "/" + conf.getHitze());
+			effekte.add("weapons=" + (conf.getWaffe() != null ? conf.getWaffe().getId() : "null") + "/" + conf.getAnzahl() + "/" + conf.getHitze());
 		}
 		return StringUtils.join(effekte, ";");
 	}

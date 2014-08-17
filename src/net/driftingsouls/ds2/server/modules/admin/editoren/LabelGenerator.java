@@ -38,7 +38,7 @@ public class LabelGenerator<V, T> implements CustomFieldGenerator<V>
 	}
 
 	@Override
-	public ColumnDefinition getColumnDefinition()
+	public ColumnDefinition getColumnDefinition(boolean forEditing)
 	{
 		return new ColumnDefinition(id, label, String.class);
 	}

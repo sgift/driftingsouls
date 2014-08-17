@@ -41,9 +41,9 @@ class ConditionalFormElementCreator<E> implements FormElementCreator<E>
 		}
 
 		@Override
-		public ColumnDefinition<E> getColumnDefinition()
+		public ColumnDefinition<E> getColumnDefinition(boolean forEditing)
 		{
-			return this.inner.getColumnDefinition();
+			return this.inner.getColumnDefinition(false);
 		}
 
 		@Override
@@ -61,13 +61,15 @@ class ConditionalFormElementCreator<E> implements FormElementCreator<E>
 	private Function<Object, String> idGenerator;
 	private FormElementCreator<E> inner;
 	private Function<E,Boolean> condition;
+	private EditorMode editorMode;
 
-	ConditionalFormElementCreator(Class<?> plugin, Function<Object,String> idGenerator, FormElementCreator<E> inner, Function<E, Boolean> condition)
+	ConditionalFormElementCreator(Class<?> plugin, Function<Object,String> idGenerator, FormElementCreator<E> inner, Function<E, Boolean> condition, EditorMode editorMode)
 	{
 		this.plugin = plugin;
 		this.idGenerator = idGenerator;
 		this.inner = inner;
 		this.condition = condition;
+		this.editorMode = editorMode;
 	}
 
 	@Override
@@ -122,7 +124,7 @@ class ConditionalFormElementCreator<E> implements FormElementCreator<E>
 	@Override
 	public <T, V extends Collection<T>> CollectionGenerator<E, T, V> collection(String label, Class<T> type, Function<E, V> getter, BiConsumer<E, V> setter, Consumer<FormElementCreator<T>> subFormGenerator)
 	{
-		throw new UnsupportedOperationException();
+		return custom(new CollectionGenerator<>(label, idGenerator.apply(getter), type, getter, setter, subFormGenerator, editorMode, plugin));
 	}
 
 	@Override

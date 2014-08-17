@@ -1,6 +1,8 @@
 package net.driftingsouls.ds2.server.modules.admin.editoren;
 
 import javax.persistence.metamodel.SingularAttribute;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ColumnDefinition<E>
 {
@@ -9,6 +11,9 @@ public class ColumnDefinition<E>
 	private final Class<?> viewType;
 	private final String formatter;
 	private final SingularAttribute<E,?> dbColumn;
+	private boolean editable;
+	private String edittype;
+	private Map<String,String> editoptions = new HashMap<>();
 
 	public ColumnDefinition(String id, String label, Class<?> viewType)
 	{
@@ -57,5 +62,34 @@ public class ColumnDefinition<E>
 	public SingularAttribute<E,?> getDbColumn()
 	{
 		return dbColumn;
+	}
+
+	public boolean isEditable()
+	{
+		return editable;
+	}
+
+	public void setEditable(boolean editable)
+	{
+		this.editable = editable;
+	}
+
+	public String getEditType()
+	{
+		return edittype;
+	}
+
+	public void setEditType(String edittype)
+	{
+		this.edittype = edittype;
+	}
+
+	public void addEditOption(String key, String label) {
+		editoptions.put(key, label);
+	}
+
+	public Map<String, String> getEditOptions()
+	{
+		return editoptions;
 	}
 }

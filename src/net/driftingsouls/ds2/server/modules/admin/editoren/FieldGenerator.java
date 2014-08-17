@@ -153,9 +153,22 @@ public class FieldGenerator<E, T> implements CustomFieldGenerator<E>
 	}
 
 	@Override
-	public ColumnDefinition<E> getColumnDefinition()
+	public ColumnDefinition<E> getColumnDefinition(boolean forEditing)
 	{
-		return new ColumnDefinition<>(name, label, viewType, Cargo.class.isAssignableFrom(viewType) ? "cargo" : null, dbColumn);
+		ColumnDefinition<E> def = new ColumnDefinition<>(name, label, viewType, Cargo.class.isAssignableFrom(viewType) ? "cargo" : null, dbColumn);
+		if( forEditing )
+		{
+			def.setEditable(!Cargo.class.isAssignableFrom(viewType));
+			if( !this.selectionOptions.isEmpty() )
+			{
+				def.setEditType("select");
+				for (Map.Entry<Serializable, Object> entry : this.selectionOptions.entrySet())
+				{
+					def.addEditOption(HtmlUtils.identifierToString(entry.getKey()), HtmlUtils.objectLabelToString(entry.getKey(), entry.getValue()));
+				}
+			}
+		}
+		return def;
 	}
 
 	@Override

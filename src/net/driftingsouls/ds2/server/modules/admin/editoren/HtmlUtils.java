@@ -42,15 +42,7 @@ public final class HtmlUtils
 
 		for (Map.Entry<Serializable, Object> entry : new TreeMap<>(optionsIntrl).entrySet())
 		{
-			String label;
-			if (entry.getValue() instanceof String || entry.getKey() == entry.getValue())
-			{
-				label = entry.getValue() != null ? entry.getValue().toString() : "";
-			}
-			else
-			{
-				label = new ObjectLabelGenerator().generateFor(entry.getKey(), entry.getValue());
-			}
+			String label = objectLabelToString(entry.getKey(), entry.getValue());
 
 			model.options.put(identifierToString(entry.getKey()), label);
 		}
@@ -94,6 +86,13 @@ public final class HtmlUtils
 			echo.append(" selected=\"selected\"");
 		}
 		String label;
+		label = objectLabelToString(identifier, value);
+		echo.append(">").append(label).append("</option>");
+	}
+
+	public static String objectLabelToString(Serializable identifier, Object value)
+	{
+		String label;
 		if (value instanceof String || identifier == value)
 		{
 			label = value != null ? value.toString() : "";
@@ -102,10 +101,10 @@ public final class HtmlUtils
 		{
 			label = new ObjectLabelGenerator().generateFor(identifier, value);
 		}
-		echo.append(">").append(label).append("</option>");
+		return label;
 	}
 
-	private static String identifierToString(Serializable identifier)
+	public static String identifierToString(Serializable identifier)
 	{
 		if( identifier instanceof Enum )
 		{

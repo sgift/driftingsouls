@@ -64,19 +64,6 @@ public class ParameterReader
 
 	}
 
-	/**
-	 * Entfernt einen Parameter. Bei einer anschliessenden
-	 * Registrierung des Parameters, ist der Wert leer.
-	 *
-	 * @param parameter Der Parametername
-	 */
-	public void unsetParameter(String parameter)
-	{
-		parameter = buildParameterName(parameter);
-		this.request.setParameter(parameter, null);
-		this.parameter.remove(parameter);
-	}
-
 	protected void parseSubParameter(String subparam)
 	{
 		subParameter = subparam;

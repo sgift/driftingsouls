@@ -118,7 +118,7 @@ public class DynamicContentFieldGenerator<V> implements CustomFieldGenerator<V>
 	}
 
 	@Override
-	public ColumnDefinition<V> getColumnDefinition()
+	public ColumnDefinition<V> getColumnDefinition(boolean forEditing)
 	{
 		return new ColumnDefinition<>(name, label, String.class, "picture");
 	}

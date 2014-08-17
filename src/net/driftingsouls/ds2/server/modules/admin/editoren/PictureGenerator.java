@@ -41,7 +41,7 @@ public class PictureGenerator<E> implements CustomFieldGenerator<E>
 	}
 
 	@Override
-	public ColumnDefinition<E> getColumnDefinition()
+	public ColumnDefinition<E> getColumnDefinition(boolean forEditing)
 	{
 		return new ColumnDefinition<>(id, label, String.class, "picture");
 	}

@@ -93,7 +93,7 @@ public class EntityClassGenerator<E> implements CustomFieldGenerator<E>
 	}
 
 	@Override
-	public ColumnDefinition<E> getColumnDefinition()
+	public ColumnDefinition<E> getColumnDefinition(boolean forEditing)
 	{
 		return new ColumnDefinition<>(name, label, Class.class);
 	}
