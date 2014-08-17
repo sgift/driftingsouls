@@ -1,11 +1,13 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
+import net.driftingsouls.ds2.server.entities.Weapon;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import net.driftingsouls.ds2.server.ships.SchiffstypModifikation;
+import net.driftingsouls.ds2.server.ships.Schiffswaffenkonfiguration;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -65,7 +67,16 @@ public class EditSchiffstypModifikation implements EntityEditor<SchiffstypModifi
 		form.field("Mindest-Crew", Integer.class, SchiffstypModifikation::getMinCrew, SchiffstypModifikation::setMinCrew);
 		form.field("EMP verfliegen", Double.class, SchiffstypModifikation::getLostInEmpChance, SchiffstypModifikation::setLostInEmpChance);
 		form.field("Kopfgeld", BigInteger.class, SchiffstypModifikation::getBounty, SchiffstypModifikation::setBounty);
-		//private Set<Schiffswaffenkonfiguration> waffen = new HashSet<>();
+		form.collection("Waffen",
+				Schiffswaffenkonfiguration.class,
+				SchiffstypModifikation::getWaffen,
+				SchiffstypModifikation::setWaffen,
+				subform -> {
+					subform.field("Waffe", Weapon.class, Schiffswaffenkonfiguration::getWaffe, Schiffswaffenkonfiguration::setWaffe);
+					subform.field("Anzahl", Integer.class, Schiffswaffenkonfiguration::getAnzahl, Schiffswaffenkonfiguration::setAnzahl);
+					subform.field("Hitze", Integer.class, Schiffswaffenkonfiguration::getHitze, Schiffswaffenkonfiguration::setHitze);
+					subform.field("Max-Überhitzung", Integer.class, Schiffswaffenkonfiguration::getMaxUeberhitzung, Schiffswaffenkonfiguration::setMaxUeberhitzung);
+				});
 
 		form.postUpdateTask("Schiffe aktualisieren",
 				(SchiffstypModifikation mod) -> Common.cast(ContextMap.getContext().getDB()
