@@ -59,59 +59,71 @@ public class ErrorHandlerFilter implements Filter
 					reporter.reportTickInProgress((TickInProgressException)ex);
 					return;
 				}
-				else if(ex instanceof StaleStateException )
+				if(ex instanceof StaleStateException )
 				{
 					reporter.reportStaleState((StaleStateException)ex);
 					return;
 				}
-				else if((ex instanceof GenericJDBCException) && (((GenericJDBCException)ex).getSQLException().getMessage() != null) && ((GenericJDBCException)ex).getSQLException().getMessage().startsWith("Beim Warten auf eine Sperre wurde die") )
-				{
-					reporter.reportSqlLock((GenericJDBCException)ex);
-					return;
-				}
-				else if(ex instanceof NotLoggedInException)
+				if(ex instanceof NotLoggedInException)
 				{
 					reporter.reportNotLoggedIn((NotLoggedInException)ex);
 					return;
 				}
-				else if(ex instanceof AccountInVacationModeException)
+				if(ex instanceof AccountInVacationModeException)
 				{
 					reporter.reportInVacation((AccountInVacationModeException)ex);
 					return;
+				}
+				if( ex instanceof GenericJDBCException )
+				{
+					GenericJDBCException gex = (GenericJDBCException)ex;
+					String msg = gex.getSQLException().getMessage();
+					if( msg != null && (
+							msg.startsWith("Beim Warten auf eine Sperre wurde die") ||
+							msg.startsWith("Lock wait timeout exceeded")) )
+					{
+						reporter.reportSqlLock((GenericJDBCException) ex);
+						return;
+					}
 				}
 				ex = ExceptionUtils.getCause(ex);
 			}
 			while(ex != null);
 
-			StringBuilder infos = new StringBuilder(100);
-			HttpServletRequest req = (HttpServletRequest)request;
-			Map<String, String[]> params = req.getParameterMap();
-			for(Map.Entry<String, String[]> param: params.entrySet())
-			{
-				infos.append(param.getKey());
-				infos.append(" => ");
-				String[] values = param.getValue();
-				for(int i = 0; i < values.length; i++)
-				{
-					infos.append(values[i]);
-					if(i != values.length - 1)
-					{
-						infos.append(" || ");
-					}
-				}
-				infos.append("\n");
-			}
+			String infos = erzeugeRequestInformationen((HttpServletRequest) request);
 
 			Throwable mailThrowable = e;
 			while( ExceptionUtils.getCause(mailThrowable) != null ) {
 				mailThrowable = ExceptionUtils.getCause(mailThrowable);
 			}
 
-			Common.mailThrowable(mailThrowable, "Unexpected exception", infos.toString());
+			Common.mailThrowable(mailThrowable, "Unexpected exception", infos);
 			log.info("", e);
 
 			reporter.reportUnexpected(e);
 		}
+	}
+
+	private String erzeugeRequestInformationen(HttpServletRequest request)
+	{
+		StringBuilder infos = new StringBuilder(100);
+		Map<String, String[]> params = request.getParameterMap();
+		for(Map.Entry<String, String[]> param: params.entrySet())
+		{
+			infos.append(param.getKey());
+			infos.append(" => ");
+			String[] values = param.getValue();
+			for(int i = 0; i < values.length; i++)
+			{
+				infos.append(values[i]);
+				if(i != values.length - 1)
+				{
+					infos.append(" || ");
+				}
+			}
+			infos.append("\n");
+		}
+		return infos.toString();
 	}
 
 	@Override
