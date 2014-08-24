@@ -345,7 +345,7 @@ public class TradepostController extends Controller
 			return;
 		}
 
-		if( !salesprices.containsKey(aitem.getID()) )
+		if( salesprices.get(aitem.getID()) == null )
 		{
 			return;
 		}
