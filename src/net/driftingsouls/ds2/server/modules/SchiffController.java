@@ -53,6 +53,7 @@ import net.driftingsouls.ds2.server.modules.schiffplugins.SchiffPlugin;
 import net.driftingsouls.ds2.server.modules.schiffplugins.SensorsDefault;
 import net.driftingsouls.ds2.server.modules.schiffplugins.UnitsDefault;
 import net.driftingsouls.ds2.server.modules.schiffplugins.WerftDefault;
+import net.driftingsouls.ds2.server.services.HandelspostenService;
 import net.driftingsouls.ds2.server.ships.Alarmstufe;
 import net.driftingsouls.ds2.server.ships.SchiffSprungService;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -70,7 +71,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,12 +88,16 @@ public class SchiffController extends Controller
 	private Log log = LogFactory.getLog(SchiffController.class);
 	private TemplateViewResultFactory templateViewResultFactory;
 	private SchiffSprungService schiffSprungService;
+	private HandelspostenService handelspostenService;
 
 	@Autowired
-	public SchiffController(TemplateViewResultFactory templateViewResultFactory, SchiffSprungService schiffSprungService)
+	public SchiffController(TemplateViewResultFactory templateViewResultFactory,
+							SchiffSprungService schiffSprungService,
+							HandelspostenService handelspostenService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
 		this.schiffSprungService = schiffSprungService;
+		this.handelspostenService = handelspostenService;
 
 		setPageTitle("Schiff");
 	}
@@ -854,15 +858,9 @@ public class SchiffController extends Controller
 		}
 
 		// Aktion: Schnelllink GTU-Handelsdepot
-		Iterator<?> handel = db.createQuery("from Ship where id>0 and system=:sys and x=:x and y=:y and locate('tradepost',status)!=0")
-				.setInteger("sys", ship.getSystem())
-				.setInteger("x", ship.getX())
-				.setInteger("y", ship.getY())
-				.iterate();
-
-		if (handel.hasNext())
+		Ship handelShip = handelspostenService.findeHandelspostenInSektor(ship);
+		if ( handelShip != null )
 		{
-			Ship handelShip = (Ship) handel.next();
 			t.setVar("sector.handel", handelShip.getId(),
 					"sector.handel.name", Common._plaintitle(handelShip.getName()));
 		}

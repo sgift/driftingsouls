@@ -23,7 +23,6 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.bases.Werft;
 import net.driftingsouls.ds2.server.battles.Battle;
-import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
@@ -32,10 +31,12 @@ import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.SchiffController;
+import net.driftingsouls.ds2.server.services.HandelspostenService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
@@ -49,6 +50,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.FlushMode;
 import org.hibernate.Query;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -64,6 +66,14 @@ import java.util.Map;
 @Component
 public class SensorsDefault implements SchiffPlugin {
 	private static final Log log = LogFactory.getLog(SensorsDefault.class);
+
+	private HandelspostenService handelspostenService;
+
+	@Autowired
+	public SensorsDefault(HandelspostenService handelspostenService)
+	{
+		this.handelspostenService = handelspostenService;
+	}
 
 	@Action(ActionType.DEFAULT)
 	public String action(Parameters caller, String order, int showonly, int showid) {
@@ -88,7 +98,7 @@ public class SensorsDefault implements SchiffPlugin {
 		SchiffController controller = caller.controller;
 
 		org.hibernate.Session db = controller.getDB();
-		User user = (User)controller.getUser();
+		User user = (User) ContextMap.getContext().getActiveUser();
 		TemplateEngine t = caller.t;
 
 		t.setFile("_PLUGIN_"+pluginid, "schiff.sensors.default.html");
@@ -519,7 +529,7 @@ public class SensorsDefault implements SchiffPlugin {
 				}
 
 				// Anfunken
-				if (aship.isTradepost() && aship.getOwner().getRace() == Faction.GTU_RASSE && aship.isTradepostVisible(user, user.getRelations()))
+				if (handelspostenService.isKommunikationMoeglich(aship, ship))
 				{
 					t.setVar("sships.action.communicate", aship.getId());
 				}

@@ -1,17 +1,12 @@
 package net.driftingsouls.ds2.server.modules.schiffplugins;
 
-import net.driftingsouls.ds2.server.ContextCommon;
-import net.driftingsouls.ds2.server.config.Faction;
-import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.VersteigerungSchiff;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.services.HandelspostenService;
 import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipType;
-import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -20,6 +15,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class Handelsposten implements SchiffPlugin
 {
+	private HandelspostenService handelspostenService;
+
+	@Autowired
+	public Handelsposten(HandelspostenService handelspostenService)
+	{
+		this.handelspostenService = handelspostenService;
+	}
+
 	@Action(ActionType.DEFAULT)
 	public String action(Parameters caller, Ship communicate, String option)
 	{
@@ -44,21 +47,7 @@ public class Handelsposten implements SchiffPlugin
 		}
 		if( versteigerungsbetrag != null )
 		{
-			int ticks = 15;
-			int curtick = ContextMap.getContext().get(ContextCommon.class).getTick();
-			ticks += curtick;
-
-			Session db = ContextMap.getContext().getDB();
-
-			User user = caller.ship.getOwner();
-			ShipType st = caller.ship.getBaseType();
-
-			VersteigerungSchiff v = new VersteigerungSchiff(user, st, versteigerungsbetrag);
-			v.setBieter((User) db.get(User.class, Faction.GTU));
-			v.setTick(ticks);
-			db.persist(v);
-
-			caller.ship.destroy();
+			handelspostenService.versteigereSchiff(caller.ship, versteigerungsbetrag);
 
 			return "Ihr Schiff wurde nun in die Liste der aktuell laufenden Versteigerungen eingetragen. Wir benachichtigen Sie sobald die Versteigerung abgelaufen ist.";
 		}
@@ -67,7 +56,9 @@ public class Handelsposten implements SchiffPlugin
 
 	@Action(ActionType.DEFAULT)
 	public void output(Parameters caller, Ship communicate, String option) {
-		if( "quit".equals(option) || communicate == null )
+		if( "quit".equals(option) ||
+				communicate == null ||
+				!handelspostenService.isKommunikationMoeglich(communicate, caller.ship) )
 		{
 			return;
 		}

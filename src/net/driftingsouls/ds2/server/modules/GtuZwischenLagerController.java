@@ -35,9 +35,9 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.services.HandelspostenService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -63,11 +63,14 @@ import java.util.List;
 public class GtuZwischenLagerController extends Controller
 {
 	private TemplateViewResultFactory templateViewResultFactory;
+	private HandelspostenService handelspostenService;
 
 	@Autowired
-	public GtuZwischenLagerController(TemplateViewResultFactory templateViewResultFactory)
+	public GtuZwischenLagerController(TemplateViewResultFactory templateViewResultFactory,
+									  HandelspostenService handelspostenService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.handelspostenService = handelspostenService;
 
 		setPageTitle("GTU-Lager");
 	}
@@ -81,15 +84,9 @@ public class GtuZwischenLagerController extends Controller
 		}
 	}
 
-	private Ship ermittleHandelspostenFuerSchiff(Session db, Ship ship)
+	private Ship ermittleHandelspostenFuerSchiff(Ship ship)
 	{
-		Ship handel = (Ship) db.createQuery("from Ship where id>0 and owner.id<0 and locate('tradepost',status)!=0 and " +
-				"system=:sys and x=:x and y=:y")
-				.setInteger("sys", ship.getSystem())
-				.setInteger("x", ship.getX())
-				.setInteger("y", ship.getY())
-				.setMaxResults(1)
-				.uniqueResult();
+		Ship handel = handelspostenService.findeHandelspostenInSektor(ship);
 		if (handel == null)
 		{
 			throw new ValidierungException("Es existiert kein Handelsposten in diesem Sektor", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
@@ -196,9 +193,8 @@ public class GtuZwischenLagerController extends Controller
 	private void validiereGtuZwischenlager(GtuZwischenlager tradeentry, Ship ship)
 	{
 		User user = (User) this.getUser();
-		org.hibernate.Session db = getDB();
 
-		Ship handel = ermittleHandelspostenFuerSchiff(db, ship);
+		Ship handel = ermittleHandelspostenFuerSchiff(ship);
 		if ((tradeentry == null) || (tradeentry.getPosten() != handel) || ((tradeentry.getUser1() != user) && (tradeentry.getUser2() != user)))
 		{
 			throw new ValidierungException("Es wurde kein passender Handelseintrag gefunden", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
@@ -296,7 +292,8 @@ public class GtuZwischenLagerController extends Controller
 		t.setBlock("_GTUZWISCHENLAGER", "tradelist.listitem", "tradelist.list");
 		t.setBlock("tradelist.listitem", "res.listitem", "res.list");
 
-		Ship handel = ermittleHandelspostenFuerSchiff(db, ship);
+		Ship handel = ermittleHandelspostenFuerSchiff(ship);
+		validiereHandelspostenKontaktierbar(handel, ship);
 
 		List<?> tradelist = db.createQuery("from GtuZwischenlager where posten=:posten and (user1= :user or user2= :user)")
 				.setEntity("posten", handel)
@@ -351,5 +348,13 @@ public class GtuZwischenLagerController extends Controller
 			t.parse("tradelist.list", "tradelist.listitem", true);
 		}
 		return t;
+	}
+
+	private void validiereHandelspostenKontaktierbar(Ship handel, Ship ship)
+	{
+		if( !handelspostenService.isKommunikationMoeglich(handel, ship) )
+		{
+			throw new ValidierungException("Das Schiff kann keinen Kontakt zu einem Handelsposten aufnehmen");
+		}
 	}
 }
