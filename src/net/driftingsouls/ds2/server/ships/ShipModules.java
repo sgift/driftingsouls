@@ -629,11 +629,6 @@ public class ShipModules implements ShipTypeData {
 	}
 
 	@Override
-	public Object clone() throws CloneNotSupportedException {
-		return super.clone();
-	}
-
-	@Override
 	public int getAblativeArmor() {
 		return ablativeArmor;
 	}
@@ -720,4 +715,53 @@ public class ShipModules implements ShipTypeData {
 	public int getVersion() {
 		return this.version;
 	}
+
+    /**
+     * Klont die Moduldaten des Schiffes.
+     * @return Der Klon
+     */
+    @Override
+    public Object clone()
+    {
+        ShipModules clone = new ShipModules(this.ship);
+        clone.modules = this.modules;
+        clone.nickname = this.nickname;
+        clone.picture = this.picture;
+        clone.ru = this.ru;
+        clone.rd = this.rd;
+        clone.ra = this.ra;
+        clone.rm = this.rm;
+        clone.eps = this.eps;
+        clone.cost = this.cost;
+        clone.hull = this.hull;
+        clone.panzerung = this.panzerung;
+        clone.cargo = this.cargo;
+        clone.nahrungcargo = this.nahrungcargo;
+        clone.heat = this.heat;
+        clone.crew = this.crew;
+        clone.weapons = this.weapons;
+        clone.maxHeat = this.maxHeat;
+        clone.torpedoDef = this.torpedoDef;
+        clone.shields = this.shields;
+        clone.size = this.size;
+        clone.jDocks = this.jDocks;
+        clone.aDocks = this.aDocks;
+        clone.sensorRange = this.sensorRange;
+        clone.hydro = this.hydro;
+        clone.deutFactor = this.deutFactor;
+        clone.reCost = this.reCost;
+        clone.flags = this.flags;
+        clone.werft = this.werft;
+        clone.oneWayWerft = this.oneWayWerft;
+        clone.ablativeArmor = this.ablativeArmor;
+        clone.srs = this.srs;
+        clone.minCrew = this.minCrew;
+        clone.lostInEmpChance = this.lostInEmpChance;
+        clone.maxunitsize = this.maxunitsize;
+        clone.unitspace = this.unitspace;
+        clone.versorger = this.versorger;
+        clone.bounty = this.bounty;
+        clone.version = this.version;
+        return clone;
+    }
 }

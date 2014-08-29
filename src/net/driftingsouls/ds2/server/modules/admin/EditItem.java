@@ -130,7 +130,16 @@ public class EditItem implements EntityEditor<Item>
 		}
 
 		Ship ship = (Ship) ContextMap.getContext().getDB().get(Ship.class, shipId);
-		ShipTypeData oldTypeData = ship.getTypeData();
+        boolean modules = ship.getModules().length > 0;
+        // Clone bei Modulen notwendig. Sonst werden auch die gespeicherten neu berechnet.
+        ShipTypeData oldTypeData;
+        try{
+            oldTypeData = modules ? (ShipTypeData)ship.getTypeData().clone() : ship.getTypeData();
+        }
+        catch(CloneNotSupportedException e)
+        {
+            oldTypeData = ship.getTypeData();
+        }
 		ship.recalculateModules();
 		ship.postUpdateShipType(oldTypeData);
 
