@@ -26,11 +26,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
-import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipClasses;
-import net.driftingsouls.ds2.server.ships.ShipType;
-import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
+import net.driftingsouls.ds2.server.ships.*;
 import net.driftingsouls.ds2.server.ships.ShipType_;
 
 import javax.annotation.Nonnull;
@@ -120,14 +116,6 @@ public class EditShiptypes implements EntityEditor<ShipType>
 						.setEntity("type", shiptype)
 						.list()),
 				(ShipType oldShiptype, ShipType shipType, Integer shipId) -> aktualisiereSchiff(oldShiptype, shipId)
-		);
-
-		form.postUpdateTask("Schiffe in Schlachten aktualisieren",
-				(ShipType shiptype) ->
-						Common.cast(ContextMap.getContext().getDB().createQuery("select id from BattleShip where ship.shiptype=:type")
-								.setEntity("type", shiptype)
-								.list()),
-				this::aktualisiereSchiffInSchlacht
 		);
 	}
 
@@ -220,48 +208,19 @@ public class EditShiptypes implements EntityEditor<ShipType>
 		return true;
 	}
 
-	private void aktualisiereSchiffInSchlacht(ShipType oldShiptype, ShipType shiptype, Integer battleShipId)
-	{
-		BattleShip battleShip = (BattleShip) ContextMap.getContext().getDB().get(BattleShip.class, battleShipId);
-
-		ShipTypeData type = battleShip.getShip().getTypeData();
-		// Weight the difference between the old and the new value
-		Map<String, Double> factor = new HashMap<>();
-		if (type.getHull() == shiptype.getHull())
-		{
-			factor.put("hull", battleShip.getHull() / (double) oldShiptype.getHull());
-		}
-		else
-		{
-			factor.put("hull", battleShip.getHull() / (double) type.getHull());
-		}
-		if (type.getShields() == shiptype.getShields())
-		{
-			factor.put("shields", battleShip.getShields() / (double) oldShiptype.getShields());
-		}
-		else
-		{
-			factor.put("shields", battleShip.getShields() / (double) type.getShields());
-		}
-		if (type.getAblativeArmor() == shiptype.getAblativeArmor())
-		{
-			factor.put("ablativearmor", battleShip.getAblativeArmor() / (double) oldShiptype.getAblativeArmor());
-		}
-		else
-		{
-			factor.put("ablativearmor", battleShip.getAblativeArmor() / (double) type.getAblativeArmor());
-		}
-
-		battleShip.setShields((int) Math.floor(type.getShields() * factor.get("shields")));
-		battleShip.setHull((int) Math.floor(type.getHull() * factor.get("hull")));
-		battleShip.setAblativeArmor((int) Math.floor(type.getAblativeArmor() * factor.get("ablativearmor")));
-	}
-
 	private void aktualisiereSchiff(ShipType oldShiptype, Integer shipId)
 	{
 		Ship ship = (Ship) ContextMap.getContext().getDB().get(Ship.class, shipId);
 		boolean modules = ship.getModules().length > 0;
-		ShipTypeData oldType = modules ? ship.getTypeData() : oldShiptype;
+        // Clone bei Modulen notwendig. Sonst werden auch die gespeicherten neu berechnet.
+        ShipTypeData oldType;
+        try{
+            oldType = modules ? (ShipTypeData)ship.getTypeData().clone() : oldShiptype;
+        }
+        catch(CloneNotSupportedException e)
+        {
+            oldType = oldShiptype;
+        }
 
 		ship.recalculateModules();
 		ShipTypeData type = ship.getTypeData();
@@ -310,5 +269,13 @@ public class EditShiptypes implements EntityEditor<ShipType>
 		{
 			ship.recalculateShipStatus();
 		}
+
+        if(ship.getBattle() != null)
+        {
+            BattleShip battleShip = (BattleShip) ContextMap.getContext().getDB().get(BattleShip.class, shipId);
+            battleShip.setHull((int) Math.floor(type.getHull() * (battleShip.getHull() / (double) oldType.getHull())));
+            battleShip.setShields((int) Math.floor(type.getShields() * (battleShip.getShields() / (double) oldType.getShields())));
+            battleShip.setAblativeArmor((int) Math.floor(type.getAblativeArmor() * (battleShip.getAblativeArmor() / (double) oldType.getAblativeArmor())));
+        }
 	}
 }
