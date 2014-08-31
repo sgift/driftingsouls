@@ -86,7 +86,7 @@ public class Handelsposten implements SchiffPlugin
 		}
 		switch( option ) {
 			case "start":
-				addAnswer(t, "lager", "Ich müsste mal ein Blick ins Lager werfen!", "ds?module=gtuzwischenlager&ship="+data.getId());
+				addAnswer(t, "lager", "Ich müsste mal ein Blick ins Lager werfen!", "ds?module=gtuzwischenlager&ship="+data.getId()+"&handelsposten="+communicate.getId());
 				addAnswer(t, "versteigern", "Ich möchte dieses Schiff versteigern", false);
 				addAnswer(t, "quit", "Und Tschüss!", false);
 				break;

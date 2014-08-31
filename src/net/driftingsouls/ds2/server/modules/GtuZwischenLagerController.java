@@ -84,16 +84,6 @@ public class GtuZwischenLagerController extends Controller
 		}
 	}
 
-	private Ship ermittleHandelspostenFuerSchiff(Ship ship)
-	{
-		Ship handel = handelspostenService.findeHandelspostenInSektor(ship);
-		if (handel == null)
-		{
-			throw new ValidierungException("Es existiert kein Handelsposten in diesem Sektor", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
-		}
-		return handel;
-	}
-
 	/**
 	 * Transferiert nach der Bezahlung (jetzt) eigene Waren aus einem Handelsuebereinkommen
 	 * auf das aktuelle Schiff.
@@ -101,14 +91,14 @@ public class GtuZwischenLagerController extends Controller
 	 * @param tradeentry Die ID des Zwischenlager-Eintrags
 	 */
 	@Action(ActionType.DEFAULT)
-	public Object transportOwnAction(Ship ship, @UrlParam(name = "entry") GtuZwischenlager tradeentry)
+	public Object transportOwnAction(Ship ship, @UrlParam(name = "entry") GtuZwischenlager tradeentry, Ship handelsposten)
 	{
 		org.hibernate.Session db = getDB();
 		User user = (User) this.getUser();
 
 		validiereSchiff(ship);
 
-		validiereGtuZwischenlager(tradeentry, ship);
+		validiereGtuZwischenlager(tradeentry, ship, handelsposten);
 
 		//  Der Handelspartner
 		// Die (zukuenftig) eigenen Waren
@@ -168,6 +158,7 @@ public class GtuZwischenLagerController extends Controller
 
 			TemplateEngine t = templateViewResultFactory.createFor(this);
 			t.setVar("global.shipid", ship.getId());
+			t.setVar("global.handelsposten", handelsposten.getId());
 			t.setBlock("_GTUZWISCHENLAGER", "transferlist.res.listitem", "transferlist.res.list");
 			Resources.echoResList(t, reslist, "transferlist.res.list");
 			t.setVar("global.transferlist", 1);
@@ -190,12 +181,11 @@ public class GtuZwischenLagerController extends Controller
 		return new RedirectViewResult("viewEntry").withMessage("Transferiere Waren\n\n"+Resources.resourceListToBBCode(reslist));
 	}
 
-	private void validiereGtuZwischenlager(GtuZwischenlager tradeentry, Ship ship)
+	private void validiereGtuZwischenlager(GtuZwischenlager tradeentry, Ship ship, Ship handelsposten)
 	{
 		User user = (User) this.getUser();
 
-		Ship handel = ermittleHandelspostenFuerSchiff(ship);
-		if ((tradeentry == null) || (tradeentry.getPosten() != handel) || ((tradeentry.getUser1() != user) && (tradeentry.getUser2() != user)))
+		if ((tradeentry == null) || (tradeentry.getPosten() != handelsposten) || ((tradeentry.getUser1() != user) && (tradeentry.getUser2() != user)))
 		{
 			throw new ValidierungException("Es wurde kein passender Handelseintrag gefunden", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
 		}
@@ -216,7 +206,7 @@ public class GtuZwischenLagerController extends Controller
 	 * @param tradeentry Die ID des Zwischenlager-Eintrags
 	 */
 	@Action(ActionType.DEFAULT)
-	public TemplateEngine viewEntryAction(Ship ship, @UrlParam(name = "entry") GtuZwischenlager tradeentry, RedirectViewResult redirect)
+	public TemplateEngine viewEntryAction(Ship ship, @UrlParam(name = "entry") GtuZwischenlager tradeentry, Ship handelsposten, RedirectViewResult redirect)
 	{
 		User user = (User) this.getUser();
 		TemplateEngine t = templateViewResultFactory.createFor(this);
@@ -228,8 +218,9 @@ public class GtuZwischenLagerController extends Controller
 			t.setVar("global.message", Common._text(redirect.getMessage()));
 		}
 		t.setVar("global.shipid", ship.getId());
+		t.setVar("global.handelsposten", handelsposten.getId());
 
-		validiereGtuZwischenlager(tradeentry, ship);
+		validiereGtuZwischenlager(tradeentry, ship, handelsposten);
 
 		t.setVar("global.entry", 1);
 
@@ -278,7 +269,7 @@ public class GtuZwischenLagerController extends Controller
 	 * @param ship Die ID des Schiffes, welches auf das GTU-Zwischenlager zugreifen will
 	 */
 	@Action(ActionType.DEFAULT)
-	public TemplateEngine defaultAction(Ship ship)
+	public TemplateEngine defaultAction(Ship ship, Ship handelsposten)
 	{
 		org.hibernate.Session db = getDB();
 		User user = (User) this.getUser();
@@ -287,16 +278,16 @@ public class GtuZwischenLagerController extends Controller
 		validiereSchiff(ship);
 
 		t.setVar("global.shipid", ship.getId());
+		t.setVar("global.handelsposten", handelsposten.getId());
 
 		t.setVar("global.tradelist", 1);
 		t.setBlock("_GTUZWISCHENLAGER", "tradelist.listitem", "tradelist.list");
 		t.setBlock("tradelist.listitem", "res.listitem", "res.list");
 
-		Ship handel = ermittleHandelspostenFuerSchiff(ship);
-		validiereHandelspostenKontaktierbar(handel, ship);
+		validiereHandelspostenKontaktierbar(handelsposten, ship);
 
 		List<?> tradelist = db.createQuery("from GtuZwischenlager where posten=:posten and (user1= :user or user2= :user)")
-				.setEntity("posten", handel)
+				.setEntity("posten", handelsposten)
 				.setEntity("user", user)
 				.list();
 		for (Object aTradelist : tradelist)
@@ -354,7 +345,7 @@ public class GtuZwischenLagerController extends Controller
 	{
 		if( !handelspostenService.isKommunikationMoeglich(handel, ship) )
 		{
-			throw new ValidierungException("Das Schiff kann keinen Kontakt zu einem Handelsposten aufnehmen");
+			throw new ValidierungException("Das Schiff kann keinen Kontakt zum Handelsposten aufnehmen");
 		}
 	}
 }

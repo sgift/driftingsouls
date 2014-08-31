@@ -26,6 +26,14 @@ public class HandelspostenService
 	 * @return <code>true</code> falls es mit diesem kommunizieren darf
 	 */
 	public boolean isKommunikationMoeglich(Ship handelsposten, Ship handelndesSchiff) {
+		if( handelsposten == null || handelndesSchiff == null )
+		{
+			return false;
+		}
+		if( !handelsposten.getLocation().sameSector(0, handelndesSchiff, 0) )
+		{
+			return false;
+		}
 		if( !handelsposten.isTradepost() ||
 				handelsposten.getOwner().getRace() != Faction.GTU_RASSE ||
 				!handelndesSchiff.canUseSrs() ||
