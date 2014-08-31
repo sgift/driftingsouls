@@ -1,5 +1,9 @@
-package net.driftingsouls.ds2.server.entities;
+package net.driftingsouls.ds2.server.services;
 
+import net.driftingsouls.ds2.server.entities.ComNetChannel;
+import net.driftingsouls.ds2.server.entities.ComNetEntry;
+import net.driftingsouls.ds2.server.entities.ComNetVisit;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.hibernate.Query;

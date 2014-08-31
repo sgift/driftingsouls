@@ -23,7 +23,7 @@ import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.config.Rang;
 import net.driftingsouls.ds2.server.entities.ComNetChannel;
 import net.driftingsouls.ds2.server.entities.ComNetEntry;
-import net.driftingsouls.ds2.server.entities.ComNetService;
+import net.driftingsouls.ds2.server.services.ComNetService;
 import net.driftingsouls.ds2.server.entities.ComNetVisit;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.ally.Ally;

@@ -21,7 +21,7 @@ package net.driftingsouls.ds2.server.modules;
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.entities.ComNetService;
+import net.driftingsouls.ds2.server.services.ComNetService;
 import net.driftingsouls.ds2.server.entities.GuiHelpText;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;

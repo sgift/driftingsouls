@@ -14,7 +14,7 @@ import net.driftingsouls.ds2.server.entities.UserRank;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.FactionShopOrder;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionAktionsMeldung;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintrag;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintragService;
+import net.driftingsouls.ds2.server.services.FraktionsGuiEintragService;
 import net.driftingsouls.ds2.server.entities.npcorders.Order;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderOffizier;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderShip;

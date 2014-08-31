@@ -43,7 +43,7 @@ import net.driftingsouls.ds2.server.entities.fraktionsgui.FactionShopEntry;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.FactionShopOrder;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionAktionsMeldung;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintrag;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintragService;
+import net.driftingsouls.ds2.server.services.FraktionsGuiEintragService;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.Versteigerung;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeInfo;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeJob;

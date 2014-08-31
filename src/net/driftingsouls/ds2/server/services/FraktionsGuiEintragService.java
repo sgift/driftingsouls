@@ -1,6 +1,7 @@
-package net.driftingsouls.ds2.server.entities.fraktionsgui;
+package net.driftingsouls.ds2.server.services;
 
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintrag;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.hibernate.Session;
@@ -10,7 +11,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 /**
- * Serviceklasse fuer {@link FraktionsGuiEintrag}.
+ * Serviceklasse fuer {@link net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintrag}.
  */
 public class FraktionsGuiEintragService
 {
