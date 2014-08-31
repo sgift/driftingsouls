@@ -2567,7 +2567,7 @@ public class ErsteigernController extends Controller
 
 		// Nun den normalen Shop ausgeben
 		List<?> shopentryList = db.createQuery(
-				"from FactionShopEntry where faction = :faction and type!=2")
+				"from FactionShopEntry where faction = :faction and type!=2 order by minRank asc, price asc")
 				.setEntity("faction", factionObj.getUser()).list();
 		for (Object aShopentryList : shopentryList)
 		{
