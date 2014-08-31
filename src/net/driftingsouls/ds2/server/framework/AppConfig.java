@@ -1,10 +1,36 @@
 package net.driftingsouls.ds2.server.framework;
 
-import org.springframework.context.annotation.*;
+import org.hibernate.Session;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.annotation.Scope;
+
+import javax.persistence.EntityManager;
 
 @org.springframework.context.annotation.Configuration
 @ComponentScan(basePackages = "net.driftingsouls.ds2.server")
 @ImportResource( { "/WEB-INF/cfg/spring.xml" } )
 public class AppConfig
 {
+	@Bean
+	@Scope("request")
+	Context currentContext()
+	{
+		return ContextMap.getContext();
+	}
+
+	@Bean
+	@Scope("request")
+	Session currentSession()
+	{
+		return ContextMap.getContext().getDB();
+	}
+
+	@Bean
+	@Scope("request")
+	EntityManager currentEntityManager()
+	{
+		return ContextMap.getContext().getEM();
+	}
 }

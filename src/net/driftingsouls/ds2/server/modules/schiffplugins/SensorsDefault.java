@@ -50,8 +50,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.FlushMode;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Controller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -63,16 +65,19 @@ import java.util.Map;
  * @author Christopher Jung
  *
  */
-@Component
+@Controller
+@Scope("request")
 public class SensorsDefault implements SchiffPlugin {
 	private static final Log log = LogFactory.getLog(SensorsDefault.class);
 
 	private HandelspostenService handelspostenService;
+	private Session db;
 
 	@Autowired
-	public SensorsDefault(HandelspostenService handelspostenService)
+	public SensorsDefault(HandelspostenService handelspostenService, Session db)
 	{
 		this.handelspostenService = handelspostenService;
+		this.db = db;
 	}
 
 	@Action(ActionType.DEFAULT)
@@ -95,9 +100,7 @@ public class SensorsDefault implements SchiffPlugin {
 		String pluginid = caller.pluginId;
 		Ship ship = caller.ship;
 		ShipTypeData shiptype = caller.shiptype;
-		SchiffController controller = caller.controller;
 
-		org.hibernate.Session db = controller.getDB();
 		User user = (User) ContextMap.getContext().getActiveUser();
 		TemplateEngine t = caller.t;
 
@@ -154,7 +157,7 @@ public class SensorsDefault implements SchiffPlugin {
 			-> Immer anzeigen, wenn die sensoren (noch so gerade) funktionieren
 		*/
 		if( ship.getSensors() > 0 ) {
-			outputBases(caller, db, user, t, order);
+			outputBases(caller, user, t, order);
 		}
 
 		//
@@ -165,38 +168,38 @@ public class SensorsDefault implements SchiffPlugin {
 				Nebel
 			*/
 
-			outputNebel(caller, db, t);
+			outputNebel(caller, t);
 
 			/*
 				Jumpnodes
 			*/
 
-			outputJumpnodes(caller, db, user, t);
+			outputJumpnodes(caller, user, t);
 
 			/*
 				Schlachten
 			*/
-			outputBattles(caller, db, user, t);
+			outputBattles(caller, user, t);
 
 			/*
 				Subraumspalten (durch Sprungantriebe)
 			*/
 
-			outputSubraumspalten(caller, db, t);
+			outputSubraumspalten(caller, t);
 
 			/*
 				Schiffe
 			*/
 
-			outputShips(caller, db, user, t, order, showonly, showid);
+			outputShips(caller, user, t, order, showonly, showid);
 		}
 
 		t.parse(caller.target,"_PLUGIN_"+pluginid);
 	}
 
 	private void outputShips(Parameters caller,
-			org.hibernate.Session db, User user, TemplateEngine t,
-			String order, int showOnly, int showId)
+						User user, TemplateEngine t,
+						String order, int showOnly, int showId)
 	{
 		List<Integer> fleetlist = null;
 		ShipTypeData shiptype = caller.shiptype;
@@ -799,7 +802,7 @@ public class SensorsDefault implements SchiffPlugin {
 		}
 	}
 
-	private void outputBases(Parameters caller, org.hibernate.Session db, User user,
+	private void outputBases(Parameters caller, User user,
 			TemplateEngine t, String order)
 	{
 		final long dataOffizierCount = (Long)db.createQuery("select count(*) from Offizier where stationiertAufSchiff=:dest")
@@ -915,8 +918,7 @@ public class SensorsDefault implements SchiffPlugin {
 		}
 	}
 
-	private void outputNebel(Parameters caller, org.hibernate.Session db,
-			TemplateEngine t)
+	private void outputNebel(Parameters caller, TemplateEngine t)
 	{
 		ShipTypeData shiptype = caller.shiptype;
 		Ship ship = caller.ship;
@@ -929,7 +931,7 @@ public class SensorsDefault implements SchiffPlugin {
 		}
 	}
 
-	private void outputJumpnodes(Parameters caller, org.hibernate.Session db, User user, TemplateEngine t)
+	private void outputJumpnodes(Parameters caller, User user, TemplateEngine t)
 	{
 		t.setBlock("_SENSORS","nodes.listitem","nodes.list");
 
@@ -960,8 +962,7 @@ public class SensorsDefault implements SchiffPlugin {
 		}
 	}
 
-	private void outputBattles(Parameters caller, org.hibernate.Session db,
-			User user, TemplateEngine t)
+	private void outputBattles(Parameters caller, User user, TemplateEngine t)
 	{
 		ShipTypeData shiptype = caller.shiptype;
 		Ship ship = caller.ship;
@@ -1021,7 +1022,7 @@ public class SensorsDefault implements SchiffPlugin {
 		}
 	}
 
-	private void outputSubraumspalten(Parameters caller, org.hibernate.Session db, TemplateEngine t)
+	private void outputSubraumspalten(Parameters caller, TemplateEngine t)
 	{
 		Ship ship = caller.ship;
 		final long jumps = (Long)db.createQuery("select count(*) from Jump where x=:x and y=:y and system=:sys")
