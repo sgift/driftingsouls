@@ -13,21 +13,21 @@ import javax.persistence.EntityManager;
 @ImportResource( { "/WEB-INF/cfg/spring.xml" } )
 public class AppConfig
 {
-	@Bean
+	@Bean(destroyMethod = "")
 	@Scope("request")
 	Context currentContext()
 	{
 		return ContextMap.getContext();
 	}
 
-	@Bean
+	@Bean(destroyMethod = "")
 	@Scope("request")
 	Session currentSession()
 	{
 		return ContextMap.getContext().getDB();
 	}
 
-	@Bean
+	@Bean(destroyMethod = "")
 	@Scope("request")
 	EntityManager currentEntityManager()
 	{
