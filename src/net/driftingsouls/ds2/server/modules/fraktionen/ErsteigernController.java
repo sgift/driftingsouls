@@ -16,7 +16,7 @@
  *	License along with this library; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package net.driftingsouls.ds2.server.modules;
+package net.driftingsouls.ds2.server.modules.fraktionen;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
@@ -64,7 +64,6 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactor
 import net.driftingsouls.ds2.server.ships.JumpNodeRouter;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
-import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -95,376 +94,6 @@ import java.util.stream.Collectors;
 @Module(name = "ersteigern")
 public class ErsteigernController extends Controller
 {
-	/**
-	 * Ein Eintrag im Shop.
-	 *
-	 * @author Christopher Jung
-	 */
-	private abstract static class ShopEntry
-	{
-		private int id;
-		private User factionID;
-		private FactionShopEntry.Type type;
-		private String resource;
-		private long price;
-		private long lpKosten;
-		private int availability;
-
-		/**
-		 * Konstruktor.
-		 *
-		 * @param data Die SQL-Ergebniszeile zum Eintrag
-		 */
-		public ShopEntry(FactionShopEntry data)
-		{
-			this.id = data.getId();
-			this.factionID = data.getFaction();
-			this.type = data.getType();
-			this.resource = data.getResource();
-			this.price = data.getPrice();
-			this.lpKosten = data.getLpKosten();
-			this.availability = data.getAvailability();
-		}
-
-		/**
-		 * Gibt die ID des Eintrags zurueck.
-		 *
-		 * @return Die ID
-		 */
-		public int getID()
-		{
-			return this.id;
-		}
-
-		/**
-		 * Gibt die Fraktion zurueck, der der Eintrag gehoert.
-		 *
-		 * @return Die Fraktion
-		 */
-		@SuppressWarnings("unused")
-		public User getFactionID()
-		{
-			return this.factionID;
-		}
-
-		/**
-		 * Gibt den Typ des Eintrags zurueck.
-		 *
-		 * @return Der Typ
-		 */
-		public FactionShopEntry.Type getType()
-		{
-			return this.type;
-		}
-
-		/**
-		 * Gibt den Namen des Eintrags zurueck.
-		 *
-		 * @return Der Name
-		 */
-		public abstract String getName();
-
-		/**
-		 * Gibt das zum Eintrag gehoerende Bild zurueck.
-		 *
-		 * @return Das Bild
-		 */
-		public abstract String getImage();
-
-		/**
-		 * Gibt einen zum Eintrag gehoerenden Link zurueck.
-		 *
-		 * @return Der Link
-		 */
-		public abstract String getLink();
-
-		/**
-		 * Gibt die LP-Kosten fuer den Eintrag zurueck.
-		 *
-		 * @return Die LP-Kosten
-		 */
-		public long getLpKosten()
-		{
-			return this.lpKosten;
-		}
-
-		/**
-		 * Gibt die Verfuegbarkeit des Eintrags zurueck.
-		 *
-		 * @return Die Verfuegbarkeit
-		 */
-		public int getAvailability()
-		{
-			return this.availability;
-		}
-
-		/**
-		 * Gibt die Verfuegbarkeit des Eintrags als Text zurueck.
-		 *
-		 * @return Die Verfuegbarkeit als Text
-		 */
-		public String getAvailabilityName()
-		{
-			switch (this.getAvailability())
-			{
-				case 0:
-					return "Genug vorhanden";
-				case 1:
-					return "Nur noch 1-3 vorhanden";
-				case 2:
-					return "Nicht verf&uuml;gbar";
-			}
-			return "";
-		}
-
-		/**
-		 * Gibt die mit der Verfuegbarkeit assoziierte Farbe zurueck.
-		 *
-		 * @return Die Farbe der Verfuegbarkeit
-		 */
-		public String getAvailabilityColor()
-		{
-			switch (this.getAvailability())
-			{
-				case 0:
-					return "#55DD55";
-				case 1:
-					return "#FFFF44";
-				case 2:
-					return "#CC2222";
-			}
-			return "";
-		}
-
-		/**
-		 * Soll die Verkaufsmenge angezeigt werden?
-		 *
-		 * @return <code>true</code>, falls die Verkaufsmenge angezeigt werden soll
-		 */
-		public boolean showAmountInput()
-		{
-			return true;
-		}
-
-		/**
-		 * Gibt den Kaufpreis zurueck.
-		 *
-		 * @return Der Kaufpreis
-		 */
-		public long getPrice()
-		{
-			return price;
-		}
-
-		/**
-		 * Gibt den Kaufpreis als Text zurueck.
-		 *
-		 * @return Der Kaufpreis als Text
-		 */
-		public String getPriceAsText()
-		{
-			return Common.ln(this.getPrice());
-		}
-
-		/**
-		 * Gibt den Verkaufsinhalt, den der Eintrag enthaelt, zurueck. Der Typ ist Abhaengig vom
-		 * Typen des Eintrags.
-		 *
-		 * @return Der Verkaufsinhalt
-		 */
-		public String getResource()
-		{
-			return this.resource;
-		}
-	}
-
-	/**
-	 * Repraesentiert ein Shopeintrag, welcher ein Schiff enthaelt.
-	 *
-	 * @author Christopher Jung
-	 */
-	private static class ShopShipEntry extends ShopEntry
-	{
-		private ShipTypeData shiptype;
-
-		/**
-		 * Konstruktor.
-		 *
-		 * @param data Die SQL-Ergebniszeile des Shopeintrags
-		 */
-		public ShopShipEntry(FactionShopEntry data)
-		{
-			super(data);
-
-			this.shiptype = Ship.getShipType(Integer.parseInt(this.getResource()));
-		}
-
-		@Override
-		public String getName()
-		{
-			return this.shiptype.getNickname();
-		}
-
-		@Override
-		public String getImage()
-		{
-			return this.shiptype.getPicture();
-		}
-
-		@Override
-		public String getLink()
-		{
-			return Common.buildUrl("default", "module", "schiffinfo", "ship", shiptype.getTypeId());
-		}
-	}
-
-	/**
-	 * Repraesentiert ein Shopeintrag, welcher eine Resource enthaelt.
-	 *
-	 * @author Christopher Jung
-	 */
-	private static class ShopResourceEntry extends ShopEntry
-	{
-		private ResourceEntry resourceEntry;
-
-		/**
-		 * Konstruktor.
-		 *
-		 * @param data Die SQL-Ergebniszeile des Shopeintrags
-		 */
-		public ShopResourceEntry(FactionShopEntry data)
-		{
-			super(data);
-
-			Cargo cargo = new Cargo();
-			cargo.addResource(Resources.fromString(this.getResource()), 1);
-			cargo.setOption(Cargo.Option.SHOWMASS, false);
-			cargo.setOption(Cargo.Option.LARGEIMAGES, true);
-			this.resourceEntry = cargo.getResourceList().iterator().next();
-		}
-
-		@Override
-		public String getName()
-		{
-			return Cargo.getResourceName(resourceEntry.getId());
-		}
-
-		@Override
-		public String getImage()
-		{
-			return resourceEntry.getImage();
-		}
-
-		@Override
-		public String getLink()
-		{
-			return Common.buildUrl("details", "module", "iteminfo", "item", resourceEntry
-					.getId().getItemID());
-		}
-
-		@Override
-		public String getAvailabilityName()
-		{
-			return super.getAvailabilityName();
-		}
-	}
-
-	/**
-	 * Repraesentiert ein Shopeintrag, welcher einen Ganymede-Transport enthaelt.
-	 *
-	 * @author Christopher Jung
-	 */
-	private static class ShopGanyTransportEntry extends ShopEntry
-	{
-		/**
-		 * Die Schiffstypen-ID einer Ganymede.
-		 */
-		public static final int SHIPTYPE_GANYMEDE = 33;
-
-		private long minprice = Long.MAX_VALUE;
-		private long maxprice = Long.MIN_VALUE;
-		private int ganytransid;
-
-		/**
-		 * Konstruktor.
-		 *
-		 * @param data Die SQL-Ergebniszeile des Shopeintrags
-		 */
-		public ShopGanyTransportEntry(FactionShopEntry[] data)
-		{
-			super(data[0]);
-
-			for (FactionShopEntry aData : data)
-			{
-				if (aData.getPrice() < this.minprice)
-				{
-					this.minprice = aData.getPrice();
-				}
-				if (aData.getPrice() > this.maxprice)
-				{
-					this.maxprice = aData.getPrice();
-				}
-				this.ganytransid = data[0].getId();
-			}
-		}
-
-		@Override
-		public long getLpKosten()
-		{
-			return 0;
-		}
-
-		@Override
-		public int getID()
-		{
-			return ganytransid;
-		}
-
-		@Override
-		public long getPrice()
-		{
-			return (this.minprice != this.maxprice) ? (this.minprice + this.maxprice) / 2
-					: this.minprice;
-		}
-
-		@Override
-		public String getPriceAsText()
-		{
-			return (this.minprice != this.maxprice) ? (Common.ln(this.minprice) + " - " + Common
-					.ln(this.maxprice)) : (Common.ln(this.minprice)) + "<br />pro System";
-		}
-
-		@Override
-		public String getName()
-		{
-			return "Ganymede-Transport";
-		}
-
-		@Override
-		public String getImage()
-		{
-			return "./data/interface/ganymede_transport.png";
-		}
-
-		@Override
-		public String getLink()
-		{
-			return "#";
-		}
-
-		@Override
-		public boolean showAmountInput()
-		{
-			return false;
-		}
-
-		@Override
-		public int getAvailability()
-		{
-			return 0;
-		}
-	}
-
 	private TemplateViewResultFactory templateViewResultFactory;
 	private ConfigService configService;
 
@@ -2411,122 +2040,11 @@ public class ErsteigernController extends Controller
 
 		if (factionObj.getUser() != user)
 		{
-			List<?> orderentryList = db
-					.createQuery(
-							"from FactionShopOrder as fso "
-									+ "where fso.shopEntry.faction= :faction and fso.user= :user and fso.status<4")
-					.setEntity("faction", factionObj.getUser())
-					.setEntity("user", user)
-					.list();
-			for (Object anOrderentryList : orderentryList)
-			{
-				FactionShopOrder order = (FactionShopOrder) anOrderentryList;
-
-				FactionShopEntry shopentry = order.getShopEntry();
-				ShopEntry shopEntryObj;
-
-				String entryadddata = "";
-				if (shopentry.getType() == FactionShopEntry.Type.SHIP)
-				{ // Schiff
-					shopEntryObj = new ShopShipEntry(shopentry);
-				}
-				else if (shopentry.getType() == FactionShopEntry.Type.ITEM)
-				{ // Cargo
-					shopEntryObj = new ShopResourceEntry(shopentry);
-				}
-				else if (shopentry.getType() == FactionShopEntry.Type.TRANSPORT)
-				{ // Ganytransport
-					shopEntryObj = new ShopGanyTransportEntry(new FactionShopEntry[]{shopentry});
-
-					String[] tmp = StringUtils.split(order.getAddData(), "@");
-
-					Ship gany = (Ship) db.get(Ship.class, Integer.parseInt(tmp[0]));
-					if (gany != null)
-					{
-						String ganyname = Common._plaintitle(gany.getName());
-
-						String[] coords = StringUtils.split(tmp[1], "->");
-						entryadddata = ganyname + " (" + gany.getId() + ")<br />nach " + coords[1];
-					}
-				}
-				else
-				{
-					throw new RuntimeException("Unbekannter Shopeintrag-Typ '"
-							+ shopentry.getType() + "'");
-				}
-
-				t.setVar(
-						"orderentry.name", shopEntryObj.getName(),
-						"orderentry.adddata", entryadddata,
-						"orderentry.type.image", shopEntryObj.getImage(),
-						"orderentry.link", shopEntryObj.getLink(),
-						"orderentry.id", order.getId(),
-						"orderentry.price", Common.ln(order.getPrice()),
-						"orderentry.lpkosten", order.getLpKosten() > 0 ? Common.ln(shopentry.getLpKosten()*order.getCount()) : "",
-						"orderentry.count", Common.ln(order.getCount()),
-						"orderentry.status", getStatusName(order.getStatus()),
-						"orderentry.bgcolor", getStatusColor(order.getStatus()));
-
-				t.parse("shop.orderlist.list", "shop.orderlist.listitem", true);
-			}
+			eigeneBestellungenImShopAnzeigen(db, user, factionObj, t);
 		}
 		else
 		{
-			t.setVar("shop.owner", 1);
-
-			List<?> orderentryList = db
-					.createQuery(
-							"from FactionShopOrder as fso "
-									+ "where fso.shopEntry.faction = :faction and fso.status < 4 "
-									+ "order by case when fso.status=0 then fso.status else fso.date end asc")
-					.setInteger("faction", factionObj.getUser().getId()).list();
-			for (Object anOrderentryList : orderentryList)
-			{
-				FactionShopOrder order = (FactionShopOrder) anOrderentryList;
-
-				FactionShopEntry shopentry = order.getShopEntry();
-				ShopEntry shopEntryObj = null;
-
-				String entryadddata = "";
-				if (shopentry.getType() == FactionShopEntry.Type.SHIP)
-				{ // Schiff
-					shopEntryObj = new ShopShipEntry(shopentry);
-
-					entryadddata = "LK: " + order.getAddData();
-				}
-				else if (shopentry.getType() == FactionShopEntry.Type.ITEM)
-				{ // Cargo
-					shopEntryObj = new ShopResourceEntry(shopentry);
-					entryadddata = "LK: " + order.getAddData();
-				}
-				else if (shopentry.getType() == FactionShopEntry.Type.TRANSPORT)
-				{ // Ganytransport
-					String[] tmp = StringUtils.split(order.getAddData(), "@");
-					int ganyid = Integer.parseInt(tmp[0]);
-
-					String[] coords = StringUtils.split(tmp[1], "->");
-
-					entryadddata = ganyid + "<br />" + coords[0] + " - " + coords[1];
-					shopEntryObj = new ShopGanyTransportEntry(new FactionShopEntry[]{shopentry});
-				}
-
-				User ownerobj = order.getUser();
-
-				t.setVar("orderentry.name", shopEntryObj.getName(),
-						"orderentry.adddata", entryadddata,
-						"orderentry.owner", order.getUser().getId(),
-						"orderentry.owner.name", Common._title(ownerobj.getName()),
-						"orderentry.link", shopEntryObj.getLink(),
-						"orderentry.id", order.getId(),
-						"orderentry.price", Common.ln(order.getPrice()),
-						"orderentry.lpkosten", order.getLpKosten() > 0 ? Common.ln(order.getLpKosten()) : "",
-						"orderentry.count", Common.ln(order.getCount()),
-						"orderentry.status", order.getStatus(),
-						"orderentry.status.name", getStatusName(order.getStatus()),
-						"orderentry.bgcolor", getStatusColor(order.getStatus()));
-
-				t.parse("shop.shopownerlist.list", "shop.shopownerlist.listitem", true);
-			}
+			alleBestellungenImShopAnzeigen(db, factionObj, t);
 		}
 
 		// Zuerst alle Ganymed-Transportdaten auslesen
@@ -2600,6 +2118,127 @@ public class ErsteigernController extends Controller
 			t.parse("shop.list", "shop.listitem", true);
 		}
 		return t;
+	}
+
+	private void alleBestellungenImShopAnzeigen(Session db, FraktionsGuiEintrag factionObj, TemplateEngine t)
+	{
+		t.setVar("shop.owner", 1);
+
+		List<?> orderentryList = db
+				.createQuery(
+						"from FactionShopOrder as fso "
+								+ "where fso.shopEntry.faction = :faction and fso.status < 4 "
+								+ "order by case when fso.status=0 then fso.status else fso.date end asc")
+				.setInteger("faction", factionObj.getUser().getId()).list();
+		for (Object anOrderentryList : orderentryList)
+		{
+			FactionShopOrder order = (FactionShopOrder) anOrderentryList;
+
+			FactionShopEntry shopentry = order.getShopEntry();
+			ShopEntry shopEntryObj = null;
+
+			String entryadddata = "";
+			if (shopentry.getType() == FactionShopEntry.Type.SHIP)
+			{ // Schiff
+				shopEntryObj = new ShopShipEntry(shopentry);
+
+				entryadddata = "LK: " + order.getAddData();
+			}
+			else if (shopentry.getType() == FactionShopEntry.Type.ITEM)
+			{ // Cargo
+				shopEntryObj = new ShopResourceEntry(shopentry);
+				entryadddata = "LK: " + order.getAddData();
+			}
+			else if (shopentry.getType() == FactionShopEntry.Type.TRANSPORT)
+			{ // Ganytransport
+				String[] tmp = StringUtils.split(order.getAddData(), "@");
+				int ganyid = Integer.parseInt(tmp[0]);
+
+				String[] coords = StringUtils.split(tmp[1], "->");
+
+				entryadddata = ganyid + "<br />" + coords[0] + " - " + coords[1];
+				shopEntryObj = new ShopGanyTransportEntry(new FactionShopEntry[]{shopentry});
+			}
+
+			User ownerobj = order.getUser();
+
+			t.setVar("orderentry.name", shopEntryObj.getName(),
+					"orderentry.adddata", entryadddata,
+					"orderentry.owner", order.getUser().getId(),
+					"orderentry.owner.name", Common._title(ownerobj.getName()),
+					"orderentry.link", shopEntryObj.getLink(),
+					"orderentry.id", order.getId(),
+					"orderentry.price", Common.ln(order.getPrice()),
+					"orderentry.lpkosten", order.getLpKosten() > 0 ? Common.ln(order.getLpKosten()) : "",
+					"orderentry.count", Common.ln(order.getCount()),
+					"orderentry.status", order.getStatus(),
+					"orderentry.status.name", getStatusName(order.getStatus()),
+					"orderentry.bgcolor", getStatusColor(order.getStatus()));
+
+			t.parse("shop.shopownerlist.list", "shop.shopownerlist.listitem", true);
+		}
+	}
+
+	private void eigeneBestellungenImShopAnzeigen(Session db, User user, FraktionsGuiEintrag factionObj, TemplateEngine t)
+	{
+		List<?> orderentryList = db
+				.createQuery(
+						"from FactionShopOrder as fso "
+								+ "where fso.shopEntry.faction= :faction and fso.user= :user and fso.status<4")
+				.setEntity("faction", factionObj.getUser())
+				.setEntity("user", user)
+				.list();
+		for (Object anOrderentryList : orderentryList)
+		{
+			FactionShopOrder order = (FactionShopOrder) anOrderentryList;
+
+			FactionShopEntry shopentry = order.getShopEntry();
+			ShopEntry shopEntryObj;
+
+			String entryadddata = "";
+			if (shopentry.getType() == FactionShopEntry.Type.SHIP)
+			{ // Schiff
+				shopEntryObj = new ShopShipEntry(shopentry);
+			}
+			else if (shopentry.getType() == FactionShopEntry.Type.ITEM)
+			{ // Cargo
+				shopEntryObj = new ShopResourceEntry(shopentry);
+			}
+			else if (shopentry.getType() == FactionShopEntry.Type.TRANSPORT)
+			{ // Ganytransport
+				shopEntryObj = new ShopGanyTransportEntry(new FactionShopEntry[]{shopentry});
+
+				String[] tmp = StringUtils.split(order.getAddData(), "@");
+
+				Ship gany = (Ship) db.get(Ship.class, Integer.parseInt(tmp[0]));
+				if (gany != null)
+				{
+					String ganyname = Common._plaintitle(gany.getName());
+
+					String[] coords = StringUtils.split(tmp[1], "->");
+					entryadddata = ganyname + " (" + gany.getId() + ")<br />nach " + coords[1];
+				}
+			}
+			else
+			{
+				throw new RuntimeException("Unbekannter Shopeintrag-Typ '"
+						+ shopentry.getType() + "'");
+			}
+
+			t.setVar(
+					"orderentry.name", shopEntryObj.getName(),
+					"orderentry.adddata", entryadddata,
+					"orderentry.type.image", shopEntryObj.getImage(),
+					"orderentry.link", shopEntryObj.getLink(),
+					"orderentry.id", order.getId(),
+					"orderentry.price", Common.ln(order.getPrice()),
+					"orderentry.lpkosten", order.getLpKosten() > 0 ? Common.ln(shopentry.getLpKosten()*order.getCount()) : "",
+					"orderentry.count", Common.ln(order.getCount()),
+					"orderentry.status", getStatusName(order.getStatus()),
+					"orderentry.bgcolor", getStatusColor(order.getStatus()));
+
+			t.parse("shop.orderlist.list", "shop.orderlist.listitem", true);
+		}
 	}
 
 	/**
