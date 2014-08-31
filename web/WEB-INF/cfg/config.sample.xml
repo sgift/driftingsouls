@@ -30,7 +30,4 @@
 	<setting type="string" name="LOXPATH" value="/home/bktheg/public_html/ds2/lox/" />
 	<setting type="string" name="EXCEPTION_MAIL" value="bktheg@web.de" />
 	<setting type="string" name="EXCEPTION_MAIL_PREFIX" value="[DS2J]" />
-	<!-- Register -->
-	<setting type="string" name="REGISTER_BASELAYOUT" value="1,0,2,6,17,0,0,2,0,0,0,0,0,0,0,7,0,0,0,0,7,0,0,0,0,4,0,0,0,3,4,0,0,0,5,4,0,0,0,5" />
-	<setting type="string" name="REGISTER_BASECARGO" value="16|3500|0|0;17|1500|0|0;18|2500|0|0;19|3500|0|0;20|3500|0|0;22|1000|0|0;23|2500|0|0;24|2500|0|0;25|500|0|0" />
 </config>
