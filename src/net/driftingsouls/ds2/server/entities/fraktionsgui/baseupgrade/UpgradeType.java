@@ -158,7 +158,44 @@ public enum UpgradeType
 		{
 			return "+" + Common.ln(modwert) + " Cargo";
 		}
-	};
+	},
+    EPS("EPSUpgrade", "Energiespeicher-Ausbau")
+    {
+        @Override
+        public void doWork(UpgradeInfo info, Base base)
+        {
+            int mod = info.getModWert();
+            base.setMaxEnergy(base.getMaxEnergy() + mod);
+        }
+
+        @Override
+        public boolean checkUpgrade(UpgradeInfo upgrade, Base base)
+        {
+            Optional<UpgradeMaxValues> upgrademaxvalue = base.getKlasse().getUpgradeMaxValues().stream().filter(u -> u.getUpgradeType() == UpgradeType.EPS).findFirst();
+            if (upgrademaxvalue.isPresent())
+            {
+                long actualvalue = base.getMaxEnergy();
+                int maxvalue = upgrademaxvalue.get().getMaximalwert();
+                if (actualvalue + upgrade.getModWert() <= maxvalue)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public String errorMsg()
+        {
+            return "Dieser Auftrag überschreitet die Maximalgrenze des Energiespeichers.";
+        }
+
+        @Override
+        public String getUpgradeText(int modwert)
+        {
+            return "+" + Common.ln(modwert) + " Energiespeicher";
+        }
+    };
 
 	private final String name;
 	private final String description;
