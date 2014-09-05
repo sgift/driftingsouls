@@ -30,6 +30,7 @@ import net.driftingsouls.ds2.server.config.items.Quality;
 import net.driftingsouls.ds2.server.config.items.Schiffsbauplan;
 import net.driftingsouls.ds2.server.config.items.Schiffsmodul;
 import net.driftingsouls.ds2.server.config.items.SchiffsmodulSet;
+import net.driftingsouls.ds2.server.config.items.Schiffsmodul_;
 import net.driftingsouls.ds2.server.config.items.Schiffsverbot;
 import net.driftingsouls.ds2.server.config.items.Ware;
 import net.driftingsouls.ds2.server.entities.FactoryEntry;
@@ -111,8 +112,8 @@ public class EditItem implements EntityEditor<Item>
 		List<ModuleSlot> list = Common.cast(ContextMap.getContext().getDB().createCriteria(ModuleSlot.class).list());
 		form.ifEntityClass(Schiffsmodul.class).multiSelection("Slots", String.class, Schiffsmodul::getSlots, Schiffsmodul::setSlots)
 				.withOptions(list.stream().collect(Collectors.toMap(ModuleSlot::getSlotType, ModuleSlot::getName)));
-		form.ifEntityClass(Schiffsmodul.class).field("Modifikation", SchiffstypModifikation.class, Schiffsmodul::getMods, Schiffsmodul::setMods);
-		form.ifEntityClass(Schiffsmodul.class).field("Set", SchiffsmodulSet.class, Schiffsmodul::getSet, Schiffsmodul::setSet).withNullOption("[Kein Set]");
+		form.ifEntityClass(Schiffsmodul.class).field("Modifikation", SchiffstypModifikation.class, Schiffsmodul::getMods, Schiffsmodul::setMods).dbColumn(Schiffsmodul_.mods);
+		form.ifEntityClass(Schiffsmodul.class).field("Set", SchiffsmodulSet.class, Schiffsmodul::getSet, Schiffsmodul::setSet).withNullOption("[Kein Set]").dbColumn(Schiffsmodul_.set);
 
 		form.postUpdateTask("Schiffe mit Modulen aktualisieren",
 				(Item item) -> item instanceof Schiffsmodul ? Common.cast(ContextMap.getContext().getDB()
