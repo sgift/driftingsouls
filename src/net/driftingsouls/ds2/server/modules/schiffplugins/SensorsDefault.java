@@ -835,7 +835,7 @@ public class SensorsDefault implements SchiffPlugin {
 					"base.image", base.getKlasse().getLargeImage(),
 					"base.transfer", (base.getOwner().getId() != 0),
 					"base.unittausch", (base.getOwner().getId() == caller.ship.getOwner().getId() && caller.shiptype.getUnitSpace() > 0),
-					"base.colonize", ((base.getOwner().getId() == 0) || (base.getOwner().getId() == -1)) && caller.shiptype.hasFlag(ShipTypeFlag.COLONIZER),
+					"base.colonize", (base.getOwner().getId() == 0) && caller.shiptype.hasFlag(ShipTypeFlag.COLONIZER),
 					"base.action.repair", 0);
 
 			if (base.getOwner() == user)
@@ -848,11 +848,11 @@ public class SensorsDefault implements SchiffPlugin {
 			{
 				ownername = "-";
 			}
-			if (base.getOwner().getId() == -1)
+			if (base.getOwner().getId() == 0)
 			{
-				ownername = "verlassen";
+				ownername = "Verlassen";
 			}
-			if (!ownername.equals("-") && (base.getOwner().getId() != -1) && (base.getOwner() != user))
+			if ((base.getOwner().getId() != 0) && (base.getOwner() != user))
 			{
 				t.setVar("base.pm", 1);
 			}
