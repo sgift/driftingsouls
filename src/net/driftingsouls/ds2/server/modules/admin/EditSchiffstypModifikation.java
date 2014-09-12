@@ -58,7 +58,7 @@ public class EditSchiffstypModifikation implements EntityEditor<SchiffstypModifi
 		form.field("Deuteriumsammeln", Integer.class, SchiffstypModifikation::getDeutFactor, SchiffstypModifikation::setDeutFactor);
 		form.multiSelection("Flags", ShipTypeFlag.class, SchiffstypModifikation::getFlags, SchiffstypModifikation::setFlags);
 		form.field("Werft (Slots)", Integer.class, SchiffstypModifikation::getWerft, SchiffstypModifikation::setWerft);
-		form.field("Einmalwerft", ShipType.class, SchiffstypModifikation::getOneWayWerft, SchiffstypModifikation::setOneWayWerft);
+		form.field("Einmalwerft", ShipType.class, SchiffstypModifikation::getOneWayWerft, SchiffstypModifikation::setOneWayWerft).withNullOption("[Keine]");
 		form.field("Ablative Panzerung", Integer.class, SchiffstypModifikation::getAblativeArmor, SchiffstypModifikation::setAblativeArmor);
 		Map<Boolean, String> srsOptions = new HashMap<>();
 		srsOptions.put(Boolean.TRUE, "Ja");

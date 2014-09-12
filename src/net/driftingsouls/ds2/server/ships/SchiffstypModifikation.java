@@ -706,7 +706,7 @@ public class SchiffstypModifikation
 	public String toString()
 	{
 		List<String> effekte = new ArrayList<>();
-		if ( nickname != null) {
+		if ( nickname != null && !nickname.isEmpty()) {
 			effekte.add("nickname=" + nickname);
 		}
 		if ( ru != 0) {
@@ -1091,7 +1091,7 @@ public class SchiffstypModifikation
 
 		@Override
 		public String getNickname() {
-			if( SchiffstypModifikation.this.getNickname() == null ) {
+			if( SchiffstypModifikation.this.nickname == null || SchiffstypModifikation.this.nickname.isEmpty() ) {
 				return inner.getNickname();
 			}
 			return SchiffstypModifikation.this.getNickname();
@@ -1099,10 +1099,10 @@ public class SchiffstypModifikation
 
 		@Override
 		public ShipType getOneWayWerft() {
-			if( SchiffstypModifikation.this.getOneWayWerft() == null ) {
+			if( SchiffstypModifikation.this.oneWayWerft == null ) {
 				return inner.getOneWayWerft();
 			}
-			return SchiffstypModifikation.this.getOneWayWerft();
+			return SchiffstypModifikation.this.oneWayWerft;
 		}
 
 		@Override
@@ -1116,10 +1116,10 @@ public class SchiffstypModifikation
 
 		@Override
 		public String getPicture() {
-			if( SchiffstypModifikation.this.getPicture() == null ) {
+			if( SchiffstypModifikation.this.picture == null || SchiffstypModifikation.this.picture.isEmpty() ) {
 				return inner.getPicture();
 			}
-			return SchiffstypModifikation.this.getPicture();
+			return SchiffstypModifikation.this.picture;
 		}
 
 		@Override
