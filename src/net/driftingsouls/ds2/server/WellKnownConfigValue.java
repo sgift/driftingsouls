@@ -189,6 +189,10 @@ public class WellKnownConfigValue<T> implements ConfigValueDescriptor<T>
 	 * Die URL zur Bamboo-Installation.
 	 */
 	public static final ConfigValueDescriptor<String> BAMBOO_URL = new WellKnownConfigValue<>(String.class, "bamboo_url", "http://dev.drifting-souls.net/bamboo/", "Die URL zur Bamboo-Installation.");
+    /**
+     * Die maximale Anzahl gleichzeitiger dynamischer JumpNodes.
+     */
+    public static final ConfigValueDescriptor<Integer> MAX_DYN_JN = new WellKnownConfigValue<>(Integer.class, "max_dyn_jn", "0", "Die maximale Anzahl gleichzeitig auftretender dynamischer JumpNodes.");
 
 	private String name;
 	private String description;

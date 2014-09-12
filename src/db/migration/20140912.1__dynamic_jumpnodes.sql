@@ -1,0 +1,9 @@
+create table dynamic_jn_config (id integer not null auto_increment, inrange integer not null, maxdauer integer not null, maxnextmovement integer not null, mindauer integer not null, minnextmovement integer not null, outrange integer not null, primary key (id)) ENGINE=InnoDB;
+create table dynamic_jn_config_startsystems (dynamic_jn_config_id integer not null, startsystems_id integer not null, primary key (dynamic_jn_config_id, startsystems_id)) ENGINE=InnoDB;
+create table dynamic_jn_config_zielsystems (dynamic_jn_config_id integer not null, zielsystems_id integer not null, primary key (dynamic_jn_config_id, zielsystems_id)) ENGINE=InnoDB;
+create table dynamic_jumpnode (id integer not null auto_increment, inrange integer not null, nextmove integer not null, move integer not null, outrange integer not null, restdauer integer not null, jumpnode_id integer, primary key (id)) ENGINE=InnoDB;
+alter table dynamic_jn_config_startsystems add index FKC49077E48E2BE31D (startsystems_id), add constraint FKC49077E48E2BE31D foreign key (startsystems_id) references systems (id);
+alter table dynamic_jn_config_startsystems add index FKC49077E48F4E2D4A (dynamic_jn_config_id), add constraint FKC49077E48F4E2D4A foreign key (dynamic_jn_config_id) references dynamic_jn_config (id);
+alter table dynamic_jn_config_zielsystems add index FKDCA094ACE4BB19D1 (zielsystems_id), add constraint FKDCA094ACE4BB19D1 foreign key (zielsystems_id) references systems (id);
+alter table dynamic_jn_config_zielsystems add index FKDCA094AC8F4E2D4A (dynamic_jn_config_id), add constraint FKDCA094AC8F4E2D4A foreign key (dynamic_jn_config_id) references dynamic_jn_config (id);
+alter table dynamic_jumpnode add index FKC9B28330BB02C3F (jumpnode_id), add constraint FKC9B28330BB02C3F foreign key (jumpnode_id) references jumpnodes (id);
