@@ -1,6 +1,7 @@
 package net.driftingsouls.ds2.server.modules.admin.editoren;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -83,6 +84,8 @@ public interface FormElementCreator<E>
 
 
 	<T,V extends Collection<T>> CollectionGenerator<E,T,V> collection(String label, Class<T> type, Function<E,V> getter, BiConsumer<E,V> setter, Consumer<FormElementCreator<T>> subFormGenerator);
+
+	<KT,VT,V extends Map<KT,VT>> MapGenerator<E,KT,VT,V> map(String label, Class<KT> keyType, Class<VT> valueType, Function<E,V> getter, BiConsumer<E,V> setter, Consumer<FormElementCreator<MapEntryRef<KT,VT>>> subFormGenerator);
 
 	FormElementCreator<E> ifAdding();
 

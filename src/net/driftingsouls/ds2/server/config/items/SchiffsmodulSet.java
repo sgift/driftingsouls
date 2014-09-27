@@ -58,4 +58,24 @@ public class SchiffsmodulSet extends Item
 	{
 		return new IEModuleSetMeta(this.getName(), this.setEffekte);
 	}
+
+	/**
+	 * Gibt die Set-Effekte des Itemtyps zurueck. Der Key ist die Anzahl der mindestens eingebauten Items
+	 * dieses Sets in einem Schiff. Der Value ist der dann jeweils eintretende Effekt
+	 * @return Die Set-Effekte
+	 */
+	public Map<Integer, SchiffstypModifikation> getSetEffekte()
+	{
+		return setEffekte;
+	}
+
+	/**
+	 * Setzt die Set-Effekte des Itemtyps. Der Key ist die Anzahl der mindestens eingebauten Items
+	 * dieses Sets in einem Schiff. Der Value ist der dann jeweils eintretende Effekt
+	 * @param setEffekte Die Set-Effekte
+	 */
+	public void setSetEffekte(Map<Integer, SchiffstypModifikation> setEffekte)
+	{
+		this.setEffekte = setEffekte;
+	}
 }

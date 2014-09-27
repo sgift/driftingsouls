@@ -42,6 +42,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
+import net.driftingsouls.ds2.server.modules.admin.editoren.MapEntryRef;
 import net.driftingsouls.ds2.server.ships.SchiffstypModifikation;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
@@ -114,6 +115,11 @@ public class EditItem implements EntityEditor<Item>
 				.withOptions(list.stream().collect(Collectors.toMap(ModuleSlot::getSlotType, ModuleSlot::getName)));
 		form.ifEntityClass(Schiffsmodul.class).field("Modifikation", SchiffstypModifikation.class, Schiffsmodul::getMods, Schiffsmodul::setMods).dbColumn(Schiffsmodul_.mods);
 		form.ifEntityClass(Schiffsmodul.class).field("Set", SchiffsmodulSet.class, Schiffsmodul::getSet, Schiffsmodul::setSet).withNullOption("[Kein Set]").dbColumn(Schiffsmodul_.set);
+
+		form.ifEntityClass(SchiffsmodulSet.class).map("Effekte", Integer.class, SchiffstypModifikation.class, SchiffsmodulSet::getSetEffekte, SchiffsmodulSet::setSetEffekte, subform -> {
+			subform.field("Itemanzahl", Integer.class, MapEntryRef::getKey, MapEntryRef::setKey);
+			subform.field("Modifikation", SchiffstypModifikation.class, MapEntryRef::getValue, MapEntryRef::setValue);
+		});
 
 		form.postUpdateTask("Schiffe mit Modulen aktualisieren",
 				(Item item) -> item instanceof Schiffsmodul ? Common.cast(ContextMap.getContext().getDB()

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -259,6 +260,12 @@ public class EditorForm8<E> implements FormElementCreator<E>
 	public <T, V extends Collection<T>> CollectionGenerator<E, T, V> collection(String label, Class<T> type, Function<E, V> getter, BiConsumer<E, V> setter, Consumer<FormElementCreator<T>> subFormGenerator)
 	{
 		return custom(new CollectionGenerator<>(label, generateName(getter), type, getter, setter, subFormGenerator, modus, plugin));
+	}
+
+	@Override
+	public <KT, VT, V extends Map<KT, VT>> MapGenerator<E, KT, VT, V> map(String label, Class<KT> keyType, Class<VT> valueType, Function<E, V> getter, BiConsumer<E, V> setter, Consumer<FormElementCreator<MapEntryRef<KT, VT>>> subFormGenerator)
+	{
+		return custom(new MapGenerator<>(label, generateName(getter), keyType, valueType, getter, setter, subFormGenerator, modus, plugin));
 	}
 
 	private String generateName(Object object)

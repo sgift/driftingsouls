@@ -4,6 +4,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Request;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -125,6 +126,12 @@ class ConditionalFormElementCreator<E> implements FormElementCreator<E>
 	public <T, V extends Collection<T>> CollectionGenerator<E, T, V> collection(String label, Class<T> type, Function<E, V> getter, BiConsumer<E, V> setter, Consumer<FormElementCreator<T>> subFormGenerator)
 	{
 		return custom(new CollectionGenerator<>(label, idGenerator.apply(getter), type, getter, setter, subFormGenerator, editorMode, plugin));
+	}
+
+	@Override
+	public <KT, VT, V extends Map<KT, VT>> MapGenerator<E, KT, VT, V> map(String label, Class<KT> keyType, Class<VT> valueType, Function<E, V> getter, BiConsumer<E, V> setter, Consumer<FormElementCreator<MapEntryRef<KT, VT>>> subFormGenerator)
+	{
+		return custom(new MapGenerator<>(label, idGenerator.apply(getter), keyType, valueType, getter, setter, subFormGenerator, editorMode, plugin));
 	}
 
 	@Override
