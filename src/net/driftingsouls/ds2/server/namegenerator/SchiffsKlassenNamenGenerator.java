@@ -29,6 +29,7 @@ public enum SchiffsKlassenNamenGenerator
 					return "CTCv";
 				case SCHWERER_KREUZER:
 				case KREUZER:
+				case FREGATTE:
 					return "GTC";
 				case STATION:
 					return "GTI";
@@ -64,6 +65,7 @@ public enum SchiffsKlassenNamenGenerator
 					return "GVCv";
 				case SCHWERER_KREUZER:
 				case KREUZER:
+				case FREGATTE:
 					return "GVC";
 				case STATION:
 					return "GVI";

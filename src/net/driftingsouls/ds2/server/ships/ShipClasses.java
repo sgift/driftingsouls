@@ -110,7 +110,11 @@ public enum ShipClasses {
 	/**
 	 * Die Schiffsklasse "Felsbrocken". ID 20.
 	 */
-	FELSBROCKEN("Felsbrocken", "Felsbrocken", true, false);
+	FELSBROCKEN("Felsbrocken", "Felsbrocken", true, false),
+	/**
+	 * Die Schiffsklasse "Fregatte". ID 21.
+	 */
+	FREGATTE("Fregatte", "Fregatten", true, false);
 
 	private String singular;
 	private String plural;

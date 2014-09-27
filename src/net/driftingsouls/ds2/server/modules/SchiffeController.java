@@ -205,7 +205,7 @@ public class SchiffeController extends Controller
 
 				if (kampfOnly == 0)
 				{
-					sql_only = "s.shiptype.shipClass in (2,4,5,6,7,9,15,16,17)";
+					sql_only = "s.shiptype.shipClass in (2,4,5,6,7,9,15,16,17,21)";
 				}
 				else
 				{
