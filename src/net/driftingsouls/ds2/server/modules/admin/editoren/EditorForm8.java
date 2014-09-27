@@ -296,7 +296,7 @@ public class EditorForm8<E> implements FormElementCreator<E>
 				echo.append("<tr><td colspan='2'></td><td><input type=\"submit\" name=\"change\" value=\"Hinzufügen\"></td></tr>\n");
 			}
 
-			if( this.allowDelete.apply(entity) )
+			if( modus != EditorMode.CREATE && this.allowDelete.apply(entity) )
 			{
 				if (modus == EditorMode.UPDATE && !deleteTasks.isEmpty())
 				{
