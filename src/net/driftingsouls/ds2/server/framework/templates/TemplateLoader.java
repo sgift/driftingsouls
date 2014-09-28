@@ -110,8 +110,8 @@ public class TemplateLoader
 			return;
 		}
 
-		LoadedTemplate loadedTemplate = templateMap.get(convertFileNameToClassName(filename));
-		if( loadedTemplate != null && loadedTemplate.lastModified > file.lastModified() )
+		LoadedTemplate loadedTemplate = templateMap.get(filename);
+		if( loadedTemplate != null && loadedTemplate.lastModified >= file.lastModified() )
 		{
 			return;
 		}
