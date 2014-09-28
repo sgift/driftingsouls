@@ -18,16 +18,23 @@
  */
 package net.driftingsouls.ds2.server.framework.templates;
 
+import net.driftingsouls.ds2.server.framework.Common;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import javax.tools.JavaCompiler;
+import javax.tools.JavaFileObject;
+import javax.tools.ToolProvider;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,22 +45,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import net.driftingsouls.ds2.server.framework.Common;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import javax.tools.FileObject;
-import javax.tools.ForwardingJavaFileManager;
-import javax.tools.JavaCompiler;
-import javax.tools.JavaFileManager;
-import javax.tools.JavaFileObject;
-import javax.tools.SimpleJavaFileObject;
-import javax.tools.StandardJavaFileManager;
-import javax.tools.ToolProvider;
 
 /**
  * <h1>Der Template-Compiler.</h1>
@@ -272,7 +263,7 @@ public class TemplateCompiler {
 
 	private String file;
 	private String outputPath;
-	private String clsoutputpath;
+	private TemplateCompilerOutputHandler outputHandler;
 	private String subPackage;
 
 	/**
@@ -280,22 +271,22 @@ public class TemplateCompiler {
 	 * @param file Die zu kompilierende Datei
 	 * @param outputPath Das Ausgabeverzeichnis, in dem die kompilierte Datei abgelegt werden soll
 	 */
-	public TemplateCompiler(String file, String outputPath, String clsoutputpath) {
-		this(file, outputPath, clsoutputpath, null);
+	public TemplateCompiler(String file, String outputPath, TemplateCompilerOutputHandler outputHandler) {
+		this(file, outputPath, outputHandler, null);
 	}
 
 	/**
 	 * Konstruktor.
 	 * @param file Die zu kompilierende Datei
 	 * @param outputPath Das Ausgabeverzeichnis, in dem die nach Java uebersetze Datei abgelegt werden soll
-	 * @param clsoutputpath Das Ausgabeverzeichnis, in dem die kompilierte Java-Klasse abgelegt werden soll
+	 * @param outputHandler Der Handler, der die produzierten Javaklassen weiterverarbeitet
 	 * @param subPackage Das zu verwendende Overlay-Paket. <code>null</code>, falls das Template in kein Overlay-Paket gehoert
 	 */
-	public TemplateCompiler(String file, String outputPath, String clsoutputpath, String subPackage) {
+	public TemplateCompiler(String file, String outputPath,TemplateCompilerOutputHandler outputHandler, String subPackage) {
 		this.file = file;
 		this.outputPath = outputPath;
 		this.subPackage = subPackage;
-		this.clsoutputpath = clsoutputpath;
+		this.outputHandler = outputHandler;
 	}
 
 	private String parse_if( String bedingung ) {
@@ -698,9 +689,12 @@ public class TemplateCompiler {
 		newfile.append("\t}\n");
 		newfile.append("}");
 
-		try (BufferedWriter writer = new BufferedWriter(new FileWriter(new File(outputPath + "/" + bfname + ".java"))))
+		if( outputPath != null )
 		{
-			writer.write(newfile.toString());
+			try (BufferedWriter writer = new BufferedWriter(new FileWriter(new File(outputPath + "/" + bfname + ".java"))))
+			{
+				writer.write(newfile.toString());
+			}
 		}
 
 		compileTemplateClass(bfname, newfile);
@@ -718,16 +712,7 @@ public class TemplateCompiler {
 
 			for (MemJavaFileObject memJavaFileObject : fileManager.getFiles())
 			{
-				File clsFile = new File(clsoutputpath + "/" + memJavaFileObject.getFilename());
-				log.info("writing " + clsFile.getAbsolutePath());
-				if( !clsFile.getParentFile().isDirectory() )
-				{
-					clsFile.getParentFile().mkdirs();
-				}
-				try(OutputStream out = new FileOutputStream(clsFile) )
-				{
-					IOUtils.write(memJavaFileObject.getClassBytes(), out);
-				}
+				outputHandler.handle(memJavaFileObject);
 			}
 
 		}
@@ -753,83 +738,7 @@ public class TemplateCompiler {
 		return strBuilder.toString();
 	}
 
-	public class MemJavaFileManager extends
-			ForwardingJavaFileManager<StandardJavaFileManager>
-	{
-		private final List<MemJavaFileObject> files = new ArrayList<>();
-
-		public MemJavaFileManager( JavaCompiler compiler )
-		{
-			super( compiler.getStandardFileManager( null, null, null ) );
-		}
-
-		@Override
-		public JavaFileObject getJavaFileForOutput( JavaFileManager.Location location,
-													String className,
-													JavaFileObject.Kind kind,
-													FileObject sibling )
-		{
-			MemJavaFileObject fileObject = new MemJavaFileObject( className );
-			files.add( fileObject );
-			return fileObject;
-		}
-
-		public List<MemJavaFileObject> getFiles() {
-			return files;
-		}
-	}
-
-	class MemJavaFileObject extends SimpleJavaFileObject
-	{
-		private final ByteArrayOutputStream baos = new ByteArrayOutputStream( 8192 );
-		private final String className;
-
-		MemJavaFileObject( String className )
-		{
-			super( URI.create( "string:///" + className.replace( '.', '/' ) + Kind.CLASS.extension ),
-					Kind.CLASS );
-			this.className = className;
-		}
-
-		public String getClassName()
-		{
-			return className;
-		}
-
-		public String getFilename() {
-			return className.replace( '.', '/' ) + Kind.CLASS.extension;
-		}
-
-		public byte[] getClassBytes()
-		{
-			return baos.toByteArray();
-		}
-
-		@Override public OutputStream openOutputStream()
-		{
-			return baos;
-		}
-	}
-
-	public class StringJavaFileObject extends SimpleJavaFileObject
-	{
-		private final CharSequence code;
-
-		public StringJavaFileObject( String name, CharSequence code )
-		{
-			super( URI.create("string:///" + name.replace('.', '/') + Kind.SOURCE.extension),
-					Kind.SOURCE );
-			this.code = code;
-		}
-
-		@Override
-		public CharSequence getCharContent( boolean ignoreEncodingErrors )
-		{
-			return code;
-		}
-	}
-
-	private static void compileDirectory( File dir, String outputPath, String clsoutputpath, String subPackage ) throws IOException {
+	private static void compileDirectory( File dir, String outputPath, TemplateCompilerOutputHandler outputHandler, String subPackage ) throws IOException {
 		File[] files = dir.listFiles();
 		assert files != null;
 		for (File file1 : files)
@@ -843,7 +752,7 @@ public class TemplateCompiler {
 				if (!compiledFile.exists() || (compiledFile.lastModified() < file1.lastModified()))
 				{
 					log.info("compiling " + file);
-					TemplateCompiler compiler = new TemplateCompiler(file, outputPath, clsoutputpath, subPackage);
+					TemplateCompiler compiler = new TemplateCompiler(file, outputPath, outputHandler, subPackage);
 					compiler.compile();
 				}
 			}
@@ -857,7 +766,32 @@ public class TemplateCompiler {
 						throw new IOException("Konnte Verzeichnis " + subOutputPath + " nicht erstellen");
 					}
 				}
-				compileDirectory(file1, subOutputPath, clsoutputpath, subPackage != null ? subPackage + "." + file1.getName() : file1.getName());
+				compileDirectory(file1, subOutputPath, outputHandler, subPackage != null ? subPackage + "." + file1.getName() : file1.getName());
+			}
+		}
+	}
+
+	private static class MemJavaFileWriter implements TemplateCompilerOutputHandler
+	{
+		private final String clsoutputpath;
+
+		private MemJavaFileWriter(String clsoutputpath)
+		{
+			this.clsoutputpath = clsoutputpath;
+		}
+
+		@Override
+		public void handle(MemJavaFileObject memJavaFileObject) throws IOException
+		{
+			File clsFile = new File(clsoutputpath + "/" + memJavaFileObject.getFilename());
+			log.info("writing " + clsFile.getAbsolutePath());
+			if( !clsFile.getParentFile().isDirectory() )
+			{
+				clsFile.getParentFile().mkdirs();
+			}
+			try(OutputStream out = new FileOutputStream(clsFile) )
+			{
+				IOUtils.write(memJavaFileObject.getClassBytes(), out);
 			}
 		}
 	}
@@ -880,12 +814,12 @@ public class TemplateCompiler {
 		// Wenn es sich um ein Verzeichnis handelt, dann alle HTML-Dateien kompilieren,
 		// sofern sie neuer sind als die kompilierten Fassungen
 		if( new File(file).isDirectory() ) {
-			compileDirectory(new File(file), outputPath, clsoutputpath, null);
+			compileDirectory(new File(file), outputPath, new MemJavaFileWriter(clsoutputpath), null);
 		}
 		// Wenn direkt eine Datei angegeben wurde, dann diese auf jeden Fall kompilieren
 		else {
 			log.info("compiling "+file);
-			TemplateCompiler compiler = new TemplateCompiler(file, outputPath, clsoutputpath);
+			TemplateCompiler compiler = new TemplateCompiler(file, outputPath, new MemJavaFileWriter(clsoutputpath));
 			compiler.compile();
 		}
 	}
