@@ -120,6 +120,20 @@ public class SchiffeController extends Controller
 		return new RedirectViewResult("default");
 	}
 
+	/**
+	 * Aendert den Anzeigemodus fuer Handelsposten.
+	 *
+	 * @param showHandelsposten Falls <code>true</code> werden nur Handelsposten angezeigt
+	 */
+	@Action(ActionType.DEFAULT)
+	public RedirectViewResult changeHandelsposten(boolean showHandelsposten)
+	{
+		User user = (User)getUser();
+		user.setUserValue(WellKnownUserValue.TBLORDER_SCHIFFE_SHOWHANDELSPOSTEN, showHandelsposten);
+
+		return new RedirectViewResult("default");
+	}
+
 	private static final int MAX_SHIPS_PER_PAGE = 250;
 
 	/**
@@ -145,6 +159,7 @@ public class SchiffeController extends Controller
 
 		String ord = user.getUserValue(WellKnownUserValue.TBLORDER_SCHIFFE_ORDER);
 		int showjaeger = user.getUserValue(WellKnownUserValue.TBLORDER_SCHIFFE_SHOWJAEGER);
+		boolean showHandelsposten = user.getUserValue(WellKnownUserValue.TBLORDER_SCHIFFE_SHOWHANDELSPOSTEN);
 
 		Map<String, String> ordermapper = new HashMap<>();
 		ordermapper.put("id", "s.id");
@@ -192,7 +207,13 @@ public class SchiffeController extends Controller
 				query += "(s.shiptype.shipClass=13 or s.shiptype.shipClass=11) order by " + ow;
 				break;
 			case "cargo":
+				if( showHandelsposten )
+				{
+					query += "(locate('tradepost',s.status)!=0 or locate('tradepost',s.shiptype.flags)!=0 or (s.modules is not null and locate('tradepost',m.flags)!=0)) and ";
+				}
+
 				query += "s.shiptype.shipClass=8 order by " + ow;
+
 				break;
 			case "trans":
 				query += "s.shiptype.shipClass=1 order by " + ow;
@@ -221,6 +242,10 @@ public class SchiffeController extends Controller
 
 		switch (only)
 		{
+			case "cargo":
+				t.setVar("only.stationen", 1,
+						"only.stationen.showHandelsposten", (showHandelsposten ? "checked=\"checked\"" : ""));
+				break;
 			case "tank":
 				t.setVar("only.tank", 1);
 				break;
@@ -241,8 +266,6 @@ public class SchiffeController extends Controller
 				t.setVar("only.other", 1);
 				break;
 		}
-
-		String[] alarms = {"green", "yellow", "red"};
 
 		int shiplistcount = 0;
 

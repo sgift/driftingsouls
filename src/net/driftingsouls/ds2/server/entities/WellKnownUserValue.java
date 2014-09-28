@@ -23,6 +23,7 @@ public class WellKnownUserValue<T>
 	public static final WellKnownUserValue<Boolean> GAMEPLAY_USER_UNIT_BUILD_PM = new WellKnownUserValue<>(Boolean.class, "GAMEPLAY/user/unit_build_pm", "true");
 	public static final WellKnownUserValue<String> TBLORDER_SCHIFFE_ORDER = new WellKnownUserValue<>(String.class, "TBLORDER/schiffe/order", "id");
 	public static final WellKnownUserValue<Integer> TBLORDER_SCHIFFE_SHOWJAEGER = new WellKnownUserValue<>(Integer.class, "TBLORDER/schiffe/showjaeger", "0");
+	public static final WellKnownUserValue<Boolean> TBLORDER_SCHIFFE_SHOWHANDELSPOSTEN = new WellKnownUserValue<>(Boolean.class, "TBLORDER/schiffe/showhandelsposten", "false");
 	public static final WellKnownUserValue<String> TBLORDER_UEBERSICHT_BOX = new WellKnownUserValue<>(String.class, "TBLORDER/uebersicht/box", "bookmarks");
 	public static final WellKnownUserValue<String> TBLORDER_KS_ATTACKMODE = new WellKnownUserValue<>(String.class, "TBLORDER/ks/attackmode", "");
 	public static final WellKnownUserValue<String> TBLORDER_SCHIFF_SENSORORDER = new WellKnownUserValue<>(String.class, "TBLORDER/schiff/sensororder", "id");

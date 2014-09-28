@@ -19,6 +19,18 @@
 	{if only.tank}
 		<td class="noBorderS" align="right">{!link_to Sammelbefehl an alle Tanker, default, module:deutall, css_class:ok}</td>
 	{/endif}
+	{if only.stationen}
+		<td class="noBorderS" align="right">
+			<form action="./ds" method="post" style="margin:0px">
+				<div>
+					<input type="checkbox" name="showHandelsposten" id="form_showHandelsposten" value="1" {only.stationen.showHandelsposten} />
+					<label for="form_showHandelsposten">Nur Handelsposten anzeigen?</label>
+					{!form_create_hidden changeHandelsposten, only:cargo, low:$global.low, crewless:$global.crewless}
+					<input type="submit" value="ok" />
+				</div>
+			</form>
+		</td>
+	{/endif}
 	{if only.kampf}
 		<td class="noBorderS" align="right">
 		<form action="./ds" method="post" style="margin:0px">
@@ -29,6 +41,7 @@
 					<option value="5" {only.kampf.selected5}>Korvetten</option>
 					<option value="6" {only.kampf.selected6}>Kreuzer</option>
 					<option value="7" {only.kampf.selected7}>Schwere Kreuzer</option>
+					<option value="21" {only.kampf.selected21}>Fregatte</option>
 					<option value="9" {only.kampf.selected9}>J&auml;ger</option>
 					<option value="15" {only.kampf.selected15}>Tr&auml;ger</option>
 					<option value="16" {only.kampf.selected16}>Kommandoschiffe</option>
