@@ -12,11 +12,13 @@ public class TemplateViewResultFactory
 {
 	private static final String MASTERTEMPLATE = "__MASTERTEMPLATE";
 	private Version version;
+	private TemplateLoader templateLoader;
 
 	@Autowired
-	public TemplateViewResultFactory(Version version)
+	public TemplateViewResultFactory(Version version, TemplateLoader templateLoader)
 	{
 		this.version = version;
+		this.templateLoader = templateLoader;
 	}
 
 	private void setzeTemplateViaControllerNamen(TemplateEngine engine, Object controller)
@@ -30,7 +32,7 @@ public class TemplateViewResultFactory
 
 	private TemplateEngine createTemplateEngine(String masterTemplateId)
 	{
-		TemplateEngine templateEngine = new TemplateEngine(masterTemplateId);
+		TemplateEngine templateEngine = new TemplateEngine(masterTemplateId, templateLoader);
 
 		templateEngine.setVar("global.module", ContextMap.getContext().getRequest().getParameter("module"));
 		templateEngine.setVar("global.version", version.getVersion());

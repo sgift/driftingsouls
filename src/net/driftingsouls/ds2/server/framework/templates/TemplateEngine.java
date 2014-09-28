@@ -29,16 +29,12 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-// TODO: Runtime-functions
 
 /**
  * Das Template-Engine.
@@ -47,7 +43,6 @@ import java.util.Set;
  */
 public class TemplateEngine implements ViewResult
 {
-	private static final String PACKAGE = "net.driftingsouls.ds2.server.templates";
 	private static final Log log = LogFactory.getLog(TemplateEngine.class);
 
 	private Map<String,Template> file = new HashMap<>();
@@ -69,23 +64,16 @@ public class TemplateEngine implements ViewResult
 	
 	private Map<String,String> varNameMap = new HashMap<>();
 	private String masterTemplateId;
+	private TemplateLoader templateLoader;
 
 	/**
 	 * Konstruktor.
 	 */
-	public TemplateEngine() {
-		// EMPTY
-	}
-
-	/**
-	 * Konstruktor.
-	 */
-	public TemplateEngine(String masterTemplateId) {
+	public TemplateEngine(String masterTemplateId, TemplateLoader templateLoader) {
 		this.masterTemplateId = masterTemplateId;
+		this.templateLoader = templateLoader;
 	}
 
-	private static Map<String,Template> templateMap = Collections.synchronizedMap(new HashMap<>());
-	
 	/**
 	 * Registriert eine Template-Datei im TemplateEngine unter einem bestimmten Namen.
 	 * Die Template-Datei muss in kompilierter Form unter <code>net.driftingsouls.ds2.server.templates</code>
@@ -102,30 +90,19 @@ public class TemplateEngine implements ViewResult
 			return false;
 		}
 		
-		if( !templateMap.containsKey(filename) ) {
-			String fname = new File(filename).getName();
-			fname = fname.substring(0,fname.length()-".html".length()).replace(".", "");
-
-			try {
-				Class<?> tmpl = Class.forName(PACKAGE+"."+fname);
-				Template t = (Template)tmpl.newInstance();
-				templateMap.put(filename, t);
-			}
-			catch( Exception e ) {
-				log.debug("FAILED: Loading class "+PACKAGE+"."+fname+" as "+handle, e);
-				return false;
-			}
+		Template t = templateLoader.load(filename);
+		if( t == null ) {
+			log.debug("FAILED: Loading "+filename+" as "+handle);
+			return false;
 		}
-
-		Template t = templateMap.get(filename);
 		t.prepare(this, handle);
 	
 		this.file.put(handle, t);
-		
+
 		if( log.isDebugEnabled() ) {
-			log.debug("Loaded class "+PACKAGE+"."+filename+" as "+handle);
+			log.debug("Loaded class "+t.getClass().getName()+" as "+handle);
 		}
-		
+
 		return true;
 	}
 
