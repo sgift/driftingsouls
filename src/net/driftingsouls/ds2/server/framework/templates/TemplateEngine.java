@@ -52,12 +52,6 @@ public class TemplateEngine implements ViewResult
 
 	private Map<String,Template> file = new HashMap<>();
 
-	/* 
-	 * relative filenames are relative to this pathname 
-	 * overlay is checked first - then base 
-	 */
-	private String overlay = null;
-
 	private Map<String,Object> varvals = new HashMap<>();
 
 	/*
@@ -108,36 +102,22 @@ public class TemplateEngine implements ViewResult
 			return false;
 		}
 		
-		if( !templateMap.containsKey(overlay+'.'+filename) ) {
+		if( !templateMap.containsKey(filename) ) {
 			String fname = new File(filename).getName();
 			fname = fname.substring(0,fname.length()-".html".length()).replace(".", "");
-						
-			boolean gotTemplate = false;
-			if( overlay != null ) {
-				try {
-					Class<?> tmpl = Class.forName(PACKAGE+"."+overlay+"."+fname);
-					Template t = (Template)tmpl.newInstance();
-					templateMap.put(overlay+'.'+filename, t);
-					gotTemplate = true;
-				}
-				catch( ReflectiveOperationException e ) {
-					// EMPTY
-				}
+
+			try {
+				Class<?> tmpl = Class.forName(PACKAGE+"."+fname);
+				Template t = (Template)tmpl.newInstance();
+				templateMap.put(filename, t);
 			}
-			if( !gotTemplate ) {
-				try {
-					Class<?> tmpl = Class.forName(PACKAGE+"."+fname);
-					Template t = (Template)tmpl.newInstance();
-					templateMap.put(overlay+'.'+filename, t);
-				}
-				catch( Exception e ) {
-					log.debug("FAILED: Loading class "+PACKAGE+"."+fname+" as "+handle, e);
-					return false;
-				}
+			catch( Exception e ) {
+				log.debug("FAILED: Loading class "+PACKAGE+"."+fname+" as "+handle, e);
+				return false;
 			}
 		}
 
-		Template t = templateMap.get(overlay+'.'+filename);
+		Template t = templateMap.get(filename);
 		t.prepare(this, handle);
 	
 		this.file.put(handle, t);
