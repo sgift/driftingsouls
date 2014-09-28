@@ -35,6 +35,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -45,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * <h1>Der Template-Compiler.</h1>
@@ -507,6 +511,8 @@ public class TemplateCompiler {
 	 * @throws IOException
 	 */
 	public void compile() throws IOException {
+		log.info("compiling "+file);
+
 		String baseFileName = new File(file).getName();
 		baseFileName = baseFileName.substring(0, baseFileName.lastIndexOf(".html"));
 
@@ -703,11 +709,13 @@ public class TemplateCompiler {
 	private void compileTemplateClass(String className, StringBuilder javaSourceCode) throws IOException
 	{
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		List<String> optionList = getCompilerOptions();
+
 		try(MemJavaFileManager fileManager = new MemJavaFileManager( compiler ))
 		{
 			JavaFileObject javaFile = new StringJavaFileObject(className, javaSourceCode.toString());
 			Collection<JavaFileObject> units = Collections.singleton(javaFile);
-			JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, null, null, null, units);
+			JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, null, optionList, null, units);
 			task.call();
 
 			for (MemJavaFileObject memJavaFileObject : fileManager.getFiles())
@@ -716,6 +724,42 @@ public class TemplateCompiler {
 			}
 
 		}
+	}
+
+	private List<String> getCompilerOptions()
+	{
+		List<String> optionList = new ArrayList<>();
+		if( getClass().getClassLoader() instanceof URLClassLoader)
+		{
+			URL[] urls = ((URLClassLoader) getClass().getClassLoader()).getURLs();
+			List<String> paths = new ArrayList<>();
+			for( URL url : urls ) {
+				try
+				{
+					File f;
+					try
+					{
+						f = new File(url.toURI());
+					}
+					catch (URISyntaxException e)
+					{
+						f = new File(url.getPath());
+					}
+					paths.add(f.getAbsolutePath());
+				}
+				catch( IllegalArgumentException e )
+				{
+					// IGNORE
+				}
+			}
+			String pathSeparator = System.getProperty("path.separator");
+			optionList.addAll(Arrays.asList("-classpath", paths.stream().collect(Collectors.joining(pathSeparator))));
+		}
+		else
+		{
+			optionList.addAll(Arrays.asList("-classpath", System.getProperty("java.class.path")));
+		}
+		return optionList;
 	}
 
 	private String readTemplate() throws IOException
@@ -751,7 +795,6 @@ public class TemplateCompiler {
 				File compiledFile = new File(outputPath + "/" + bfname + ".java");
 				if (!compiledFile.exists() || (compiledFile.lastModified() < file1.lastModified()))
 				{
-					log.info("compiling " + file);
 					TemplateCompiler compiler = new TemplateCompiler(file, outputPath, outputHandler, subPackage);
 					compiler.compile();
 				}
@@ -818,7 +861,6 @@ public class TemplateCompiler {
 		}
 		// Wenn direkt eine Datei angegeben wurde, dann diese auf jeden Fall kompilieren
 		else {
-			log.info("compiling "+file);
 			TemplateCompiler compiler = new TemplateCompiler(file, outputPath, new MemJavaFileWriter(clsoutputpath));
 			compiler.compile();
 		}

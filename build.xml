@@ -191,11 +191,11 @@
 		</java>
 	</target>
 
-	<target name="compile" depends="compile-ds,templates" description="Compile meta target">
+	<target name="compile" depends="compile-ds" description="Compile meta target">
 	</target>
 
 	<!-- ==================== jar Target ===================================== -->
-	<target name="jar" depends="templates,compile" description="Create a jar">
+	<target name="jar" depends="compile,templates" description="Create a jar">
 		<delete file="${build.home}/WEB-INF/classes/META-INF/ds.version" />
 		<tstamp>
 			<format property="touch.time" pattern="yyyy-MM-dd HH:mm"/>
@@ -307,6 +307,7 @@
 			<arg value="${build.home}" />
 			<jvmarg value="${jetty.jvmargs}" />
 			<jvmarg value="-DDS_PORT=${jetty.port}" />
+			<jvmarg value="-DDS_TEMPLATE_DIR=${basedir}/templates" />
 			<jvmarg value="-Dcom.sun.management.jmxremote" />
 			<jvmarg value="-Dcom.sun.management.jmxremote.authenticate=false" />
 			<jvmarg value="-Dcom.sun.management.jmxremote.port=${jetty.jmxport}" />
