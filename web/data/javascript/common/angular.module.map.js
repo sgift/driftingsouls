@@ -418,8 +418,8 @@ angular.module('ds.map', ['ds.service.ds','ds.starmap'])
 				}
 
 				StarmapService.get().unhighlightGroup('fokusaktion');
-				StarmapService.get().highlight({x:x,y:y}, 'fokusaktion');
-				if( typeof(x) === 'Number' && typeof(y) === 'Number' ) {
+				if( typeof(x) === 'number' && typeof(y) === 'number' ) {
+					StarmapService.get().highlight({x:x,y:y}, 'fokusaktion');
 					fokusaktion.ziel = {x: x, y: y};
 					fokusaktion.zielMarkiert();
 				}
