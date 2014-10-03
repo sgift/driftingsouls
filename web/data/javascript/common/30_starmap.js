@@ -929,17 +929,38 @@ return function(jqElement) {
 
 	/**
 	 * Springt zum angegebenen Sektor. Die Karte wird (sofern die Grenzen
-	 * es erlauben) direkt auf dem Sektor zentriert.
-	 * @param x {number} Die X-Koordinate des Sektors
-	 * @param y {number} Die Y-Koordinate des Sektors
+	 * es erlauben) direkt auf dem Sektor zentriert. Falls eine der Koordinatenangaben ein
+	 * oder mehrere x-Zeichen enthaelt wird eine grobe Positionierung durchgefuehrt.
+	 * @param x {object} Die X-Koordinate des Sektors
+	 * @param y {object} Die Y-Koordinate des Sektors
 	 */
 	function gotoLocation(x, y) {
 		var mapview = $('#mapview');
 		var width = Math.floor((mapview.width())/SECTOR_IMAGE_SIZE);
 		var height = Math.floor((mapview.height())/SECTOR_IMAGE_SIZE);
 
-		var targetX = Math.max(1, x-Math.floor(width/2));
-		var targetY = Math.max(1, y-Math.floor(height/2));
+		var tmpx = x;
+		var tmpy = y;
+		if( typeof(tmpx) !== 'Number' ) {
+			if( tmpx.indexOf('x') === 0 ) {
+				tmpx = __currentSystem.width/2
+			}
+			else {
+				tmpx = parseInt(tmpx.replace('x', 5))
+			}
+		}
+
+		if( typeof(tmpy) !== 'Number' ) {
+			if( tmpy.indexOf('x') === 0 ) {
+				tmpy = __currentSystem.height/2
+			}
+			else {
+				tmpy = parseInt(tmpy.replace('x', 5))
+			}
+		}
+
+		var targetX = Math.max(1, tmpx-Math.floor(width/2));
+		var targetY = Math.max(1, tmpy-Math.floor(height/2));
 
 		if( targetX > __currentSystem.width ) {
 			targetX = __currentSystem.width-width;

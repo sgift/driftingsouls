@@ -113,9 +113,6 @@
 				<br />{!link_to [frei], default, module:werft, css_class:nonbold, css_style:color:#CCAA33, ship:$ship.id}
 			{/endif}
 		{/endif}
-		{if ship.longscan}
-			<br /><a href="./ds?module=client#/map/{ship.system}/{ship.x}/{ship.y}" class="nonbold" style="color:#CCAA33">[scan]</a>
-		{/endif}
 		</td>
 		<td class="schiffData">
 			<a class="tooltip" onclick="ShiptypeBox.show({ship.type});return false;"
@@ -126,7 +123,7 @@
 				</span>
 			</a>
 		</td>
-		<td class="schiffData">{ship.location}</td>
+		<td class="schiffData"><a class="forschinfo" href="./client#/map/{ship.location.url}">{ship.location}</a></td>
 		<td class="schiffData"><span style="color:{ship.hullcolor}">{ship.hull}</span>
 		{if ship.ablativearmor}
 			<br /><span style="color:#808080"> {ship.ablativearmor}</span>

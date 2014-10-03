@@ -116,21 +116,9 @@ public class SensorsDefault implements SchiffPlugin {
 
 		t.setVar(
 				"global.ship", ship.getId(),
-				"global.ship.system", ship.getLocation().getSystem(),
-				"global.ship.x", ship.getLocation().getX(),
-				"global.ship.y", ship.getLocation().getY(),
 				"global.pluginid", pluginid,
 				"ship.sensors.location", ship.getLocation().displayCoordinates(true),
 				"global.awac", shiptype.hasFlag(ShipTypeFlag.SRS_AWAC) || shiptype.hasFlag(ShipTypeFlag.SRS_EXT_AWAC) );
-
-		int sensorrange = ship.getEffectiveScanRange();
-
-		if ( ( sensorrange > 0 ) && ( ship.getCrew() >= shiptype.getMinCrew()/3 ) ) {
-			Nebel.Typ nebel = Nebel.getNebula(ship.getLocation());
-			if( nebel == null || nebel.allowsScan() ) {
-				t.setVar("global.longscan",1);
-			}
-		}
 
 		String order = user.getUserValue(WellKnownUserValue.TBLORDER_SCHIFF_SENSORORDER);
 

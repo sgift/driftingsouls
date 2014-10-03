@@ -422,6 +422,7 @@ public class SchiffeController extends Controller
 					"ship.type", ship.getType(),
 					"ship.type.name", shiptype.getNickname(),
 					"ship.location", ship.getLocation().displayCoordinates(false),
+					"ship.location.url", ship.getLocation().urlFragment(),
 					"ship.e", Common.ln(ship.getEnergy()),
 					"ship.hull", Common.ln(ship.getHull()),
 					"ship.hullcolor", hullcolor,

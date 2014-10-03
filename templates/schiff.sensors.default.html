@@ -1,18 +1,14 @@
 {if has.srs}
 	<table width="95%" class="show" cellpadding="3" cellspacing="3">
 	<tr>
-		<td class="schiff" valign="middle">Sensoren
-			{if global.longscan}
-				&nbsp;-&nbsp;<a href="./ds?module=client#/map/{global.ship.system}/{global.ship.x}/{global.ship.y}"><img style="vertical-align:top" src="data/interface/schiffe/scan.gif" alt="Sensoren" /></a>
-			{/endif}
-		</td>
+		<td class="schiff" valign="middle">Sensoren</td>
 	</tr>
 	<tr><td class="Border">
 	{if global.goodscan}
-		<span style="font-weight:bold; color:#ff0505">Scan von {ship.sensors.location}</span><br />
+		<span style="font-weight:bold; color:#ff0505">Scan von <a style="color:inherit" href="./client#/map/{ship.location.url}">{ship.sensors.location}</a></span><br />
 	{/endif}
 	{if global.badscan}
-		<span style="font-weight:bold; color:#ff0505">Basen in {ship.sensors.location}</span><br />
+		<span style="font-weight:bold; color:#ff0505">Basen in <a style="color:inherit" href="./client#/map/{ship.location.url}">{ship.sensors.location}</a></span><br />
 	{/endif}
 
 	{if global.scan}

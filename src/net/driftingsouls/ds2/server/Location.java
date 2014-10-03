@@ -18,9 +18,9 @@
  */
 package net.driftingsouls.ds2.server;
 
-import java.io.Serializable;
-
 import net.driftingsouls.ds2.server.entities.Nebel;
+
+import java.io.Serializable;
 
 /**
  * Eine Positionsklasse.
@@ -257,6 +257,41 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 
 		return text.toString();
 	}
+
+	/**
+	 * Gibt die fuer den Benutzer sichtbaren Koordinaten als URL-Fragment fuer die Sternenkarte zurueck
+	 * (z.B. <code>4/50/51</code> fuer die Position <code>4:50/51</code>).
+	 * EMP wird dabei beruecksichtigt.
+	 *
+	 * @return Das URL-Fragment.
+	 */
+	public String urlFragment()
+	{
+		Nebel.Typ nebulaType = Nebel.getNebula(this);
+
+		StringBuilder text = new StringBuilder(8);
+		text.append(system);
+		text.append("/");
+
+		if( nebulaType == Nebel.Typ.LOW_EMP ) {
+			text.append(x / 10);
+			text.append("x/");
+			text.append(y / 10);
+			text.append('x');
+
+			return text.toString();
+		}
+		else if( (nebulaType == Nebel.Typ.MEDIUM_EMP) || (nebulaType == Nebel.Typ.STRONG_EMP) ) {
+			text.append("xx/xx");
+			return text.toString();
+		}
+		text.append(x);
+		text.append('/');
+		text.append(y);
+
+		return text.toString();
+	}
+
 
 	@Override
 	public Location getLocation() {

@@ -966,8 +966,8 @@ public class ErsteigernController extends Controller
 		for (Ship aposten : gzlliste)
 		{
 			t.setVar("gtuzwischenlager.name", Common._plaintitle(aposten.getName()),
-					"gtuzwischenlager.x", aposten.getX(), "gtuzwischenlager.y", aposten.getY(),
-					"gtuzwischenlager.system", aposten.getSystem());
+					"gtuzwischenlager.location", aposten.getLocation().displayCoordinates(true),
+					"gtuzwischenlager.location.url", aposten.getLocation().urlFragment());
 
 			t.parse("gtuzwischenlager.list", "gtuzwischenlager.listitem", true);
 		}
