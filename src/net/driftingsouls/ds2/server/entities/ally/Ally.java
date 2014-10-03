@@ -109,6 +109,9 @@ public class Ally {
 	@Version
 	private int version;
 
+	@OneToMany(mappedBy = "ally")
+	private Set<AllyPosten> posten;
+
 	/**
 	 * Konstruktor.
 	 */
@@ -139,6 +142,7 @@ public class Ally {
 		this.name = name;
 		this.plainname = Common._titleNoFormat(name);
 		this.president = president;
+		this.posten = new HashSet<>();
 	}
 
 	/**
@@ -443,6 +447,15 @@ public class Ally {
 	 */
 	public long getMemberCount() {
 		return members.size();
+	}
+
+	/**
+	 * Gibt die Posten der Allianz zurueck.
+	 * @return Die Posten
+	 */
+	public Set<AllyPosten> getPosten()
+	{
+		return this.posten;
 	}
 
 	/**

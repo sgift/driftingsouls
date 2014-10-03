@@ -204,15 +204,9 @@ public class AllyListController extends Controller
 	
 		// Minister ausgeben
 		t.setBlock( "_ALLYLIST", "ally.minister.listitem", "ally.minister.list" );
-		
-		List<?> posten = getDB().createQuery("from AllyPosten as ap left join fetch ap.user " +
-				"where ap.ally= :ally")
-			.setEntity("ally", ally)
-			.list();
-		for (Object aPosten : posten)
-		{
-			AllyPosten aposten = (AllyPosten) aPosten;
 
+		for (AllyPosten aposten : ally.getPosten())
+		{
 			if (aposten.getUser() == null)
 			{
 				continue;

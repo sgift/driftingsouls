@@ -38,6 +38,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.RedirectViewR
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.services.AllyPostenService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tasks.Task;
@@ -64,15 +65,17 @@ import java.util.stream.Collectors;
 public class AllyController extends Controller
 {
 	private static final Log log = LogFactory.getLog(AllyController.class);
-	private static final double MAX_POSTENCOUNT = 0.3;
+
 
 	private TemplateViewResultFactory templateViewResultFactory;
+	private AllyPostenService allyPostenService;
 	private Ally ally = null;
 
 	@Autowired
-	public AllyController(TemplateViewResultFactory templateViewResultFactory)
+	public AllyController(TemplateViewResultFactory templateViewResultFactory, AllyPostenService allyPostenService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.allyPostenService = allyPostenService;
 
 		setPageTitle("Allianz");
 	}
@@ -431,11 +434,7 @@ public class AllyController extends Controller
 			return new RedirectViewResult("showPosten").withMessage("Fehler: Der angegebene Posten ist ungueltig");
 		}
 
-		if (posten.getUser() != null)
-		{
-			posten.getUser().setAllyPosten(null);
-		}
-		getDB().delete(posten);
+		allyPostenService.loesche(posten);
 
 		return new RedirectViewResult("showPosten").withMessage("Posten gelöscht");
 	}
@@ -506,23 +505,15 @@ public class AllyController extends Controller
 			return new RedirectViewResult("showPosten").withMessage("Fehler: Jedem Mitglied darf maximal ein Posten zugewiesen werden");
 		}
 
-		long postencount = (Long) getDB()
-				.createQuery("select count(*) from AllyPosten where ally=" + this.ally.getId()).iterate().next();
-		long membercount = this.ally.getMemberCount();
-
-		int maxposten = (int) Math.round(membercount * MAX_POSTENCOUNT);
-		if (maxposten < 2)
-		{
-			maxposten = 2;
-		}
+		int postencount = allyPostenService.getAnzahlPostenDerAllianz(ally);
+		int maxposten = allyPostenService.getMaxPostenDerAllianz(ally);
 
 		if (maxposten <= postencount)
 		{
 			return new RedirectViewResult("showPosten").withMessage("Fehler: Sie haben bereits die maximale Anzahl an Posten erreicht");
 		}
 
-		AllyPosten posten = new AllyPosten(this.ally, name);
-		getDB().persist(posten);
+		AllyPosten posten = allyPostenService.erstelle(this.ally, name);
 		formuser.setAllyPosten(posten);
 
 		return new RedirectViewResult("showPosten").withMessage("Der Posten " + Common._plaintitle(name) + " wurde erstellt und zugewiesen");
@@ -733,7 +724,7 @@ public class AllyController extends Controller
 			return new RedirectViewResult("showAllySettings").withMessage("Das Logo ist leider zu groß. Bitte w&auml;hle eine Datei mit maximal 300kB Größe<br />");
 		}
 
-		String message = null;
+		String message;
 		String uploaddir = Configuration.getAbsolutePath() + "data/logos/ally/";
 		try
 		{
@@ -1058,18 +1049,10 @@ public class AllyController extends Controller
 		t.setVar("show", show);
 		t.setVar("ally.message", redirect != null ? redirect.getMessage() : null);
 
-		org.hibernate.Session db = getDB();
-
 		List<User> allymember = this.ally.getMembers();
 
-		long postencount = (Long) db.createQuery("select count(*) from AllyPosten where ally=" + this.ally.getId()).iterate().next();
-
-		int membercount = allymember.size();
-		int maxposten = (int) Math.round(membercount * MAX_POSTENCOUNT);
-		if (maxposten < 2)
-		{
-			maxposten = 2;
-		}
+		int postencount = allyPostenService.getAnzahlPostenDerAllianz(ally);
+		int maxposten = allyPostenService.getMaxPostenDerAllianz(ally);
 
 		t.setVar("show.posten", 1,
 				"show.posten.count", postencount,
@@ -1080,13 +1063,8 @@ public class AllyController extends Controller
 		t.setBlock("_ALLY", "show.posten.modify.listitem", "show.posten.modify.list");
 		t.setBlock("show.posten.modify.listitem", "show.posten.modify.userlist.listitem", "show.posten.modify.userlist.list");
 
-		List<?> posten = db.createQuery("from AllyPosten as ap left join fetch ap.user where ap.ally= :ally")
-				.setEntity("ally", this.ally)
-				.list();
-		for (Object aPosten : posten)
+		for (AllyPosten aposten : ally.getPosten())
 		{
-			AllyPosten aposten = (AllyPosten) aPosten;
-
 			t.setVar("show.posten.modify.name", Common._plaintitle(aposten.getName()),
 					"show.posten.modify.id", aposten.getId(),
 					"show.posten.modify.userlist.list", "");
@@ -1543,13 +1521,8 @@ public class AllyController extends Controller
 
 		t.setBlock("_ALLY", "ally.posten.listitem", "ally.posten.list");
 
-		List<?> posten = getDB().createQuery("from AllyPosten as ap left join fetch ap.user " +
-				"where ap.ally= :ally")
-				.setEntity("ally", this.ally)
-				.list();
-		for (Object aPosten : posten)
+		for (AllyPosten aposten : ally.getPosten())
 		{
-			AllyPosten aposten = (AllyPosten) aPosten;
 			if (aposten.getUser() == null)
 			{
 				continue;
