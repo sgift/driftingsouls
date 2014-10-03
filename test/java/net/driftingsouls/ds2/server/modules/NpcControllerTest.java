@@ -16,6 +16,7 @@ import net.driftingsouls.ds2.server.entities.npcorders.OrderableOffizier;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderableShip;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ViewMessage;
+import net.driftingsouls.ds2.server.services.FraktionsGuiEintragService;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +40,7 @@ public class NpcControllerTest extends DBSingleTransactionTest
 		rasse.setHead(user);
 
 		getContext().setActiveUser(user);
-		controller = new NpcController();
+		controller = new NpcController(new FraktionsGuiEintragService());
 	}
 
 	@Test

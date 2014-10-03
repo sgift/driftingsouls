@@ -39,6 +39,7 @@ import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -59,16 +60,17 @@ import java.util.stream.Collectors;
 @Module(name = "npc")
 public class NpcController extends Controller
 {
+	private FraktionsGuiEintragService fraktionsGuiEintragService;
 	private boolean isHead = false;
 	private boolean shop = false;
 
 	/**
 	 * Konstruktor.
-	 *
 	 */
-	public NpcController()
+	@Autowired
+	public NpcController(FraktionsGuiEintragService fraktionsGuiEintragService)
 	{
-		super();
+		this.fraktionsGuiEintragService = fraktionsGuiEintragService;
 	}
 
 	@Override
@@ -86,7 +88,7 @@ public class NpcController extends Controller
 			this.isHead = true;
 		}
 
-		FraktionsGuiEintrag fraktionsGuiEintrag = new FraktionsGuiEintragService().findeNachUser(user);
+		FraktionsGuiEintrag fraktionsGuiEintrag = fraktionsGuiEintragService.findeNachUser(user);
 		if (fraktionsGuiEintrag != null && fraktionsGuiEintrag.getSeiten().contains(FraktionsGuiEintrag.Seite.SHOP))
 		{
 			this.shop = true;

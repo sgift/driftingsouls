@@ -96,12 +96,16 @@ public class ErsteigernController extends Controller
 {
 	private TemplateViewResultFactory templateViewResultFactory;
 	private ConfigService configService;
+	private FraktionsGuiEintragService fraktionsGuiEintragService;
 
 	@Autowired
-	public ErsteigernController(TemplateViewResultFactory templateViewResultFactory, ConfigService configService)
+	public ErsteigernController(TemplateViewResultFactory templateViewResultFactory,
+			ConfigService configService,
+			FraktionsGuiEintragService fraktionsGuiEintragService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
 		this.configService = configService;
+		this.fraktionsGuiEintragService = fraktionsGuiEintragService;
 
 		setPageTitle("Fraktionen");
 	}
@@ -123,7 +127,7 @@ public class ErsteigernController extends Controller
 			}
 		}
 
-		FraktionsGuiEintrag faction = new FraktionsGuiEintragService().findeNachUser(factionUser);
+		FraktionsGuiEintrag faction = fraktionsGuiEintragService.findeNachUser(factionUser);
 
 		validiereFraktion(faction);
 
@@ -145,7 +149,7 @@ public class ErsteigernController extends Controller
 
 			t.setBlock("_ERSTEIGERN", "global.factionmenu.listitem", "global.factionmenu.list");
 
-			List<FraktionsGuiEintrag> fraktionen = new FraktionsGuiEintragService().findeAlle();
+			List<FraktionsGuiEintrag> fraktionen = fraktionsGuiEintragService.findeAlle();
 			for (FraktionsGuiEintrag eintrag : fraktionen)
 			{
 				t.setVar(
@@ -181,7 +185,7 @@ public class ErsteigernController extends Controller
 
 	private FraktionsGuiEintrag ermittleStandardFraktionFuerSpieler(User user)
 	{
-		List<FraktionsGuiEintrag> fraktionen = new FraktionsGuiEintragService().findeAlle();
+		List<FraktionsGuiEintrag> fraktionen = fraktionsGuiEintragService.findeAlle();
 		for (FraktionsGuiEintrag eintrag : fraktionen)
 		{
 			if (eintrag.getUser() == user)
