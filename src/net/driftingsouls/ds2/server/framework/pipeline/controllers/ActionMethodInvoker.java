@@ -203,7 +203,7 @@ public class ActionMethodInvoker
 			}
 		}
 
-		throw new NoSuchMethodException();
+		throw new NoSuchMethodException("Keine Methode fuer Action '"+action+"' in Klasse '"+objekt.getClass().getName()+"' gefunden");
 	}
 
 	private void printHeader(ParameterReader parameterReader, OutputHandler handler) throws IOException
