@@ -2,52 +2,6 @@
 
 /* jasmine specs for controllers go here */
 describe('NPC controllers', function() {
-	var dsMock = {
-		__expect : null,
-		__repsonse : null,
-		__success : null,
-		instance : function() {
-			var self = this;
-			return function(params, options) {
-				console.log("call: "+params+" and expect "+self.__expect);
-				expect(self.__expect).toNotBe(null);
-				expect(params).toEqual(self.__expect);
-				self.__expect = null;
-				return {
-					success : function(callback) {
-						self.__success = {callback:callback, response:self.__response};
-					}
-				};
-			};
-		},
-		flush : function() {
-			if( this.__success != null ) {
-				this.__success.callback(this.__success.response);
-			}
-		},
-		expect : function(params) {
-			console.log("expect: "+params);
-			this.__expect = params;
-			this.__response = null;
-			
-			var self = this;
-			return {
-				respond : function(response) {
-					self.__response = response;
-				}
-			};
-		}
-	}
-
-	beforeEach(function(){
-		this.addMatchers({
-			toEqualData: function(expected) {
-				return angular.equals(this.actual, expected);
-			}
-		});
-	});
-
-
 	beforeEach(module('ds.service.ds'));
 	beforeEach(module('ds.npc'));
 
@@ -57,7 +11,7 @@ describe('NPC controllers', function() {
 
 	describe('NpcLpController', function(){
 		var scope, ctrl;
-		
+
 		var userResponse = {
 				menu: {head:false, shop:false},
 				user : {name:'testuser', id:9999, race:1, plainname:'testuser'},
@@ -65,23 +19,23 @@ describe('NPC controllers', function() {
 				lpBeiNpc : 42,
 				lpListe : [
 					{
-						id:1, 
-						grund:'weil halt', 
-						anmerkung:'foobar', 
-						anzahlPunkte:4321, 
-						zeitpunkt:12345678, 
+						id:1,
+						grund:'weil halt',
+						anmerkung:'foobar',
+						anzahlPunkte:4321,
+						zeitpunkt:12345678,
 						verliehenDurch:{name:'testnpc',id:-9999,race:2,plainname:'testnpc'}
 					}
 				]
 			};
-		
+
 		function expectUserRequest() {
-			dsMock.expect({module:'npc', action:'lpMenu', edituser:9999})
+			dsMock.expect({module:'npc', action:'lpMenu', alleMeldungen:0, edituser:9999})
 				.respond(userResponse);
 		}
 
 		beforeEach(inject(function($rootScope, $controller) {
-			dsMock.expect({module:'npc', action:'lpMenu'})
+			dsMock.expect({module:'npc', action:'lpMenu', alleMeldungen:0})
 				.respond({
 					menu: {head:false, shop:false}
 				});
