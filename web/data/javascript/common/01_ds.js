@@ -72,6 +72,9 @@ var DS = {
 		if( url.indexOf('#') > -1 ) {
 			url = url.substring(0,url.indexOf('#'));
 		}
+		if( url.indexOf('/ds',url.length-3) === -1 ) {
+			url = url.substring(0,url.lastIndexOf('/'))+'/ds'
+		}
 		return url;
 	},
 
