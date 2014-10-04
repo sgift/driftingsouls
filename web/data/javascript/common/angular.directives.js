@@ -677,14 +677,32 @@ angular.module('ds.directives', [])
 		}
 	}
 
-	function computeVoronoiDiagram(graph, coordTransformer) {
-		var voronoi = new Voronoi();
+	function computeVoronoiDiagramBBox(graph, coordTransformer) {
 		var bbox = {
 			xl:0,
 			xr:0,
 			yt:0,
 			yb:0
 		};
+
+		for( var i=0; i < graph.nodes.length; i++ ) {
+			var node = graph.nodes[i];
+
+			var x = node.posX || coordTransformer.transformX(node.layoutPosX);
+			var y = node.posY || coordTransformer.transformY(node.layoutPosY);
+
+			if( bbox.xr < x+coordTransformer.getNodeWidth()+10 ) {
+				bbox.xr = x+coordTransformer.getNodeWidth()+10;
+			}
+			if( bbox.yb < y+coordTransformer.getNodeHeight()+10 ) {
+				bbox.yb = y+coordTransformer.getNodeHeight()+10;
+			}
+		}
+		return bbox
+	}
+
+	function computeVoronoiDiagram(graph, voronoiBbox, coordTransformer) {
+		var voronoi = new Voronoi();
 		var vertices = [];
 
 		for( var i=0; i < graph.nodes.length; i++ ) {
@@ -699,22 +717,15 @@ angular.module('ds.directives', [])
 				nodeId: i,
 				group: node.group
 			});
-
-			if( bbox.xr < x+coordTransformer.getNodeWidth()+10 ) {
-				bbox.xr = x+coordTransformer.getNodeWidth()+10;
-			}
-			if( bbox.yb < y+coordTransformer.getNodeHeight()+10 ) {
-				bbox.yb = y+coordTransformer.getNodeHeight()+10;
-			}
 		}
 		// a 'vertex' is an object exhibiting 'x' and 'y' properties. The
 		// Voronoi object will add a unique 'voronoiId' property to all
 		// vertices. The 'voronoiId' can be used as a key to lookup the
 		// associated cell in 'diagram.cells'.
-		return voronoi.compute(vertices, bbox);
+		return voronoi.compute(vertices, voronoiBbox);
 	}
 
-	function renderVoronoiDiagram(targetEl, diagram) {
+	function renderVoronoiDiagram(targetEl, diagram, voronoiBbox) {
 		if( diagram.edges.length == 0 ) {
 			return;
 		}
@@ -801,6 +812,14 @@ angular.module('ds.directives', [])
 			if(v2.y > maxY ) {
 				maxY = v2.y;
 			}
+		}
+
+		if( maxX < voronoiBbox.xr ) {
+			maxX = voronoiBbox.xr
+		}
+
+		if( maxY < voronoiBbox.yb ) {
+			maxY = voronoiBbox.yb
 		}
 
 		svg.setAttribute("style", "position:absolute;left:0px;top:0px;display:block;width:"+maxX+"px;height:"+maxY+"px");
@@ -1018,8 +1037,9 @@ angular.module('ds.directives', [])
 					}
 
 					if( attr.groupNodes ) {
-						var voronoi = computeVoronoiDiagram(graph, coordTransformer);
-						renderVoronoiDiagram(iterStartElement.parent(), voronoi);
+						var voronoiBbox = computeVoronoiDiagramBBox(graph, coordTransformer);
+						var voronoi = computeVoronoiDiagram(graph, voronoiBbox, coordTransformer);
+						renderVoronoiDiagram(iterStartElement.parent(), voronoi, voronoiBbox);
 					}
 					lastOrder = nextOrder;
 				});
