@@ -18,12 +18,11 @@
  */
 package net.driftingsouls.ds2.server.tasks;
 
-import java.util.List;
-
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-
 import org.hibernate.Query;
+
+import java.util.List;
 
 /**
  * Der Taskmanager.
@@ -40,7 +39,7 @@ public class Taskmanager {
 		 * data1 - die ID der Allianz
 		 * data2 - die ID des Spielers, der den Antrag gestellt hat
 		 */
-		ALLY_NEW_MEMBER(1, new HandleAllyNewMember()),
+		ALLY_NEW_MEMBER(1, HandleAllyNewMember.class),
 		/**
 		 * Gruendung einer Allianz.
 		 *
@@ -48,25 +47,25 @@ public class Taskmanager {
 		 * data2 - die Anzahl der noch fehlenden Unterstuetzungen (vgl. TASK_ALLY_FOUND_CONFIRM)
 		 * data3 - die Spieler, die in die neu gegruendete Allianz sollen, jeweils durch ein , getrennt (Pos: 0 -> Praesident/Gruender)
 		 */
-		ALLY_FOUND(2, new HandleAllyFound()),
+		ALLY_FOUND(2, HandleAllyFound.class),
 		/**
 		 *  Ein Unterstuetzungsantrag fuer eine Allianzgruendung.
 		 *
 		 * 	data1 - die TaskID der zugehoerigen TASK_ALLY_FOUND-Task
 		 *  data2 - die ID des angeschriebenen Spielers (um dessen Unterstuetzung gebeten wurde)
 		 */
-		ALLY_FOUND_CONFIRM(3, new HandleAllyFoundConfirm()),
+		ALLY_FOUND_CONFIRM(3, HandleAllyFoundConfirm.class),
 		/**
 		 * Eine Allianz hat weniger als 3 Mitglieder (Praesi eingerechnet) und ist daher von der Aufloesung bedroht.
 		 *
 		 * data1 - die ID der betroffenen Allianz
 		 */
-		ALLY_LOW_MEMBER(4, new HandleAllyLowMember()),
+		ALLY_LOW_MEMBER(4, HandleAllyLowMember.class),
 		/**
 		 * Zerstoert ein Schiff beim Timeout der Task.
 		 * data1 - Die ID des Schiffes
 		 */
-		SHIP_DESTROY_COUNTDOWN(5, new HandleShipDestroyCountdown()),
+		SHIP_DESTROY_COUNTDOWN(5, HandleShipDestroyCountdown.class),
 		/**
 		 * Ein Gany-Transportauftrag.
 		 *
@@ -74,19 +73,19 @@ public class Taskmanager {
 		 * data2 - Schiffs-ID [Wird von der Task selbst gesetzt!]
 		 * data3 - Status [autom. gesetzt: Nichts = Warte auf Schiff od. flug zur Ganymede; 1 = Gany-Transport; 2 = Rueckweg]
 		 */
-		GANY_TRANSPORT(7, new HandleGanyTransport()),
+		GANY_TRANSPORT(7, HandleGanyTransport.class),
 		/**
 		 * Ein Ausbau-Auftrag.
 		 *
 		 * data1 - Die Auftrags-ID
 		 * data2 - Die Anzahl der bisherigen Versuche den Task durchzuführen
 		 */
-		UPGRADE_JOB(8, new HandleUpgradeJob());
+		UPGRADE_JOB(8, HandleUpgradeJob.class);
 
 		private int typeID;
-		private TaskHandler cls;
+		private Class<? extends TaskHandler> cls;
 
-		private Types( int typeID, TaskHandler cls ) {
+		private Types( int typeID, Class<? extends TaskHandler> cls ) {
 			this.typeID = typeID;
 			this.cls = cls;
 		}
@@ -100,10 +99,10 @@ public class Taskmanager {
 		}
 
 		/**
-		 * Gibt die Instanz einer Klasse zurueck, die fuer die Verarbeitung von Ereignissen zustaendig ist.
-		 * @return die Ereignisverarbeitungsklasseninstanz
+		 * Gibt die Klasse zurueck, die fuer die Verarbeitung von Ereignissen zustaendig ist.
+		 * @return die Ereignisverarbeitungsklasse
 		 */
-		protected TaskHandler getHandlerClass() {
+		protected Class<? extends TaskHandler> getHandlerClass() {
 			return cls;
 		}
 
@@ -269,7 +268,9 @@ public class Taskmanager {
 	public void handleTask( String taskid, String signal ) {
 		Task task = getTaskByID(taskid);
 		if( task != null ) {
-			TaskHandler handler = task.getType().getHandlerClass();
+			Class<? extends TaskHandler> handlerClass = task.getType().getHandlerClass();
+
+			TaskHandler handler = ContextMap.getContext().getBean(handlerClass, null);
 			if( handler != null ) {
 				handler.handleEvent(task, signal);
 			}

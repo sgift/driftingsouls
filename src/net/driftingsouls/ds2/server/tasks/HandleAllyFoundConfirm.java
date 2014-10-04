@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.tasks;
 
+import org.springframework.stereotype.Service;
+
 /**
  * TASK_ALLY_FOUND_CONFIRM
  * 		Ein Unterstuetzungsantrag fuer eine Allianzgruendung.
@@ -27,7 +29,8 @@ package net.driftingsouls.ds2.server.tasks;
  *  - data3 -> unbenutzt  
  *  @author Christopher Jung
  */
-class HandleAllyFoundConfirm implements TaskHandler {
+@Service
+public class HandleAllyFoundConfirm implements TaskHandler {
 
 	@Override
 	public void handleEvent(Task task, String event) {	

@@ -26,6 +26,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import org.springframework.stereotype.Service;
 
 /**
  * TASK_ALLY_FOUND
@@ -36,7 +37,8 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
  *  - data3 -> die Spieler, die in die neu gegruendete Allianz sollen, jeweils durch ein , getrennt (Pos: 0 -> Praesident/Gruender)  
  *  @author Christopher Jung
  */
-class HandleAllyFound implements TaskHandler {
+@Service
+public class HandleAllyFound implements TaskHandler {
 
 	@Override
 	public void handleEvent(Task task, String event) {	

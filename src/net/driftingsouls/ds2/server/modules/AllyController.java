@@ -38,6 +38,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.RedirectViewR
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.services.AllianzService;
 import net.driftingsouls.ds2.server.services.AllyPostenService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -66,14 +67,17 @@ public class AllyController extends Controller
 {
 	private static final Log log = LogFactory.getLog(AllyController.class);
 
-
+	private AllianzService allianzService;
 	private TemplateViewResultFactory templateViewResultFactory;
 	private AllyPostenService allyPostenService;
 	private Ally ally = null;
 
 	@Autowired
-	public AllyController(TemplateViewResultFactory templateViewResultFactory, AllyPostenService allyPostenService)
+	public AllyController(AllianzService allianzService,
+			TemplateViewResultFactory templateViewResultFactory,
+			AllyPostenService allyPostenService)
 	{
+		this.allianzService = allianzService;
 		this.templateViewResultFactory = templateViewResultFactory;
 		this.allyPostenService = allyPostenService;
 
@@ -131,29 +135,6 @@ public class AllyController extends Controller
 		}
 	}
 
-	private boolean isUserInAllyFoundBlock(User user)
-	{
-		Taskmanager taskmanager = Taskmanager.getInstance();
-
-		Task[] tasks = taskmanager.getTasksByData(Taskmanager.Types.ALLY_FOUND, "*", "*", "*");
-		if (tasks.length > 0)
-		{
-			for (Task task : tasks)
-			{
-				int[] users = Common.explodeToInt(",", task.getData3());
-				for (int user1 : users)
-				{
-					if (user1 == user.getId())
-					{
-						return true;
-					}
-				}
-			}
-		}
-
-		return false;
-	}
-
 	/**
 	 * Leitet die Gruendung einer Allianz ein. Die Aktion erstellt
 	 * die notwendigen Tasks und benachrichtigt die Unterstuetzer der Gruendung.
@@ -191,7 +172,7 @@ public class AllyController extends Controller
 			return new RedirectViewResult("showCreateAlly").withMessage("<span style=\"color:red\">Einer der angegebenen Unterstützer ist ungültig</span>\n");
 		}
 
-		if (isUserInAllyFoundBlock(confuser1))
+		if (allianzService.isUserAnAllianzgruendungBeteiligt(confuser1))
 		{
 			confuser1 = null;
 		}
@@ -205,7 +186,7 @@ public class AllyController extends Controller
 			}
 		}
 
-		if (isUserInAllyFoundBlock(confuser2))
+		if (allianzService.isUserAnAllianzgruendungBeteiligt(confuser2))
 		{
 			confuser2 = null;
 		}
@@ -263,7 +244,7 @@ public class AllyController extends Controller
 			return new RedirectViewResult("defaultNoAlly").withMessage("Die angegebene Allianz existiert nicht");
 		}
 
-		if (isUserInAllyFoundBlock(user))
+		if (allianzService.isUserAnAllianzgruendungBeteiligt(user))
 		{
 			return new RedirectViewResult("defaultNoAlly").withMessage("Es gibt eine oder mehrere Anfragen an sie zwecks Unterstützung einer Allianzgründung. Sie m&uuml;ssen diese Anfragen erst bearbeiten bevor sie einer Allianz beitreten können.");
 		}
@@ -300,7 +281,7 @@ public class AllyController extends Controller
 
 		String taskid = taskmanager.addTask(Taskmanager.Types.ALLY_NEW_MEMBER, 35, Integer.toString(zielAllianz.getId()), Integer.toString(user.getId()), "");
 
-		List<User> supermembers = zielAllianz.getSuperMembers();
+		List<User> supermembers = allianzService.getAllianzfuehrung(zielAllianz);
 		for (User supermember : supermembers)
 		{
 			PM.send(user, supermember.getId(),
@@ -832,7 +813,7 @@ public class AllyController extends Controller
 		PM.send(user, this.ally.getPresident().getId(), "Allianz verlassen",
 				"Ich habe die Allianz verlassen");
 
-		ally.removeUser(user);
+		allianzService.entferneMitglied(ally, user);
 		this.ally = null;
 
 		return new RedirectViewResult("defaultNoAlly").withMessage("Allianz verlassen");
@@ -868,7 +849,7 @@ public class AllyController extends Controller
 		{
 			PM.sendToAlly(user, this.ally, "Allianz aufgel&ouml;st", "Die Allianz wurde mit sofortiger Wirkung aufgel&ouml;st");
 
-			this.ally.destroy();
+			allianzService.loeschen(this.ally);
 			this.ally = null;
 
 			return new RedirectViewResult("defaultNoAlly").withMessage("Die Allianz wurde aufgelöst");
@@ -928,7 +909,7 @@ public class AllyController extends Controller
 			return new RedirectViewResult("showMembers").withMessage("Dieser Spieler ist nicht Mitglied ihrer Allianz");
 		}
 
-		this.ally.removeUser(kickuser);
+		this.allianzService.entferneMitglied(ally, kickuser);
 
 		PM.send(this.ally.getPresident(), kickuser.getId(), "Aus der Allianz geworfen", "Ich habe dich aus der Allianz geworfen.");
 

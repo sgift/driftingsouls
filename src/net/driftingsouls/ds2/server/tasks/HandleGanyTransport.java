@@ -30,6 +30,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.JumpNodeRouter;
 import net.driftingsouls.ds2.server.ships.Ship;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,7 +47,8 @@ import java.util.Map;
  *
  *  @author Christopher Jung
  */
-class HandleGanyTransport implements TaskHandler
+@Service
+public class HandleGanyTransport implements TaskHandler
 {
 	@Override
 	public void handleEvent(Task task, String event)

@@ -19,17 +19,11 @@
 package net.driftingsouls.ds2.server.entities.ally;
 
 import net.driftingsouls.ds2.server.ContextCommon;
-import net.driftingsouls.ds2.server.battles.Battle;
-import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.config.Rang;
-import net.driftingsouls.ds2.server.entities.ComNetChannel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.tasks.Taskmanager;
-import org.hibernate.Query;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.ForeignKey;
 
@@ -49,7 +43,6 @@ import javax.persistence.Version;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
@@ -419,26 +412,29 @@ public class Ally {
 	}
 
 	/**
-	 * Gibt die Liste aller Mitglieder zurueck, welche Minister und/oder Praesident sind.
-	 * @return Die Liste aller Spieler mit Minister-/Praesidentenposten
-	 */
-	@SuppressWarnings("unchecked")
-	public List<User> getSuperMembers() {
-		return ContextMap.getContext()
-			.getDB()
-			.createQuery("select distinct u from User u join u.ally a " +
-					"where a.id= :allyId and (u.allyposten is not null or a.president.id=u.id)")
-			.setInteger("allyId", this.getId())
-			.list();
-	}
-
-	/**
 	 * Gibt die Liste aller Mitglieder zurueck.
 	 * @return Die Liste aller Spieler der Allianz
 	 */
 	@SuppressWarnings("unchecked")
 	public List<User> getMembers() {
 		return new ArrayList<>(members);
+	}
+
+	/**
+	 * Entfernt alle Mitglieder aus der Allianz.
+	 */
+	public void removeAllMembers()
+	{
+		this.members.clear();
+	}
+
+	/**
+	 * Entfernt ein Mitglied aus der Allianz.
+	 * @param member Das Mitglied
+	 */
+	public void removeMember(User member)
+	{
+		this.members.remove(member);
 	}
 
 	/**
@@ -459,108 +455,6 @@ public class Ally {
 	}
 
 	/**
-	 * Loescht die Allianz.
-	 *
-	 */
-	public void destroy() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
-		List<?> chnList = db.createQuery("from ComNetChannel where allyOwner=:owner")
-			.setInteger("owner", this.id)
-			.list();
-		for (Object aChnList : chnList)
-		{
-			ComNetChannel channel = (ComNetChannel) aChnList;
-
-			db.createQuery("delete from ComNetVisit where channel=:channel")
-					.setEntity("channel", channel)
-					.executeUpdate();
-
-			db.createQuery("delete from ComNetEntry where channel=:channel")
-					.setEntity("channel", channel)
-					.executeUpdate();
-
-			db.delete(channel);
-		}
-
-		int tick = ContextMap.getContext().get(ContextCommon.class).getTick();
-
-		List<?> uids = db.createQuery("from User where ally=:ally")
-			.setEntity("ally", this)
-			.list();
-		for (Object uid : uids)
-		{
-			User auser = (User) uid;
-
-			auser.addHistory(Common.getIngameTime(tick) + ": Verlassen der Allianz " + this.name + " im Zuge der Aufl&ouml;sung dieser Allianz");
-			auser.setAlly(null);
-			if (auser.getAllyPosten() != null)
-			{
-				AllyPosten posten = auser.getAllyPosten();
-				auser.setAllyPosten(null);
-				db.delete(posten);
-			}
-			auser.setName(auser.getNickname());
-		}
-
-		db.createQuery("delete from AllyPosten where ally=:ally")
-			.setEntity("ally", this)
-			.executeUpdate();
-
-		// Delete Ally from running Battles
-		Set<Battle> battles = new LinkedHashSet<>();
-
-		Query battleQuery = db.createQuery("from Battle " +
-				"where ally1 = :ally or ally2 = :ally")
-			.setInteger("ally", this.getId());
-
-		battles.addAll(Common.cast(battleQuery.list(), Battle.class));
-
-		for( Battle battle : battles ) {
-			if(battle.getAlly(0) == this.getId())
-			{
-				battle.setAlly(0, 0);
-			}
-			if (battle.getAlly(1) == this.getId())
-			{
-				battle.setAlly(1, 0);
-			}
-		}
-
-		this.members.clear();
-		db.delete(this);
-	}
-
-	/**
-	 * Entfernt einen Spieler aus der Allianz.
-	 * @param user Der Spieler
-	 */
-	public void removeUser(User user) {
-		final Context context = ContextMap.getContext();
-		final org.hibernate.Session db = context.getDB();
-
-		members.remove(user);
-		user.setAlly(null);
-		user.setAllyPosten(null);
-		user.setName(user.getNickname());
-
-		db.createQuery("update Battle set ally1=0 where commander1= :user and ally1= :ally")
-			.setEntity("user", user)
-			.setInteger("ally", this.id)
-			.executeUpdate();
-
-		db.createQuery("update Battle set ally2=0 where commander2= :user and ally2= :ally")
-			.setEntity("user", user)
-			.setInteger("ally", this.id)
-			.executeUpdate();
-
-		int tick = context.get(ContextCommon.class).getTick();
-		user.addHistory(Common.getIngameTime(tick)+": Verlassen der Allianz "+this.name);
-
-		checkForLowMemberCount();
-	}
-
-	/**
 	 * Fuegt einen User zu dieser Allianz hinzu.
 	 * Achtung: Der User wird ausschliesslich hinzugefuegt, weitere Verwaltungsmassnahmen
 	 * (z.B. Namensaenderungen) sind gesondert durchzufuehren.
@@ -570,33 +464,6 @@ public class Ally {
 	{
 		user.setAlly(this);
 		members.add(user);
-	}
-
-	/**
-	 * Prueft, ob die Allianz noch genug Mitglieder hat um ihr
-	 * Fortbestehen zu sichern. Falls dies nicht mehr der Fall ist
-	 * wird eine entsprechende Task gesetzt und die Mitglieder davon
-	 * in kenntnis gesetzt.
-	 *
-	 */
-	public void checkForLowMemberCount() {
-		final org.hibernate.Session db = ContextMap.getContext().getDB();
-
-		// Ist der Praesident kein NPC (negative ID) ?
-		if( this.president.getId() > 0 ) {
-			long count = this.getMemberCount();
-			if( count < 3 ) {
-				Taskmanager.getInstance().addTask(Taskmanager.Types.ALLY_LOW_MEMBER, 21, Integer.toString(this.id), "", "" );
-
-				final User nullUser = (User)db.get(User.class, 0);
-
-				List<User> supermembers = this.getSuperMembers();
-				for( User supermember : supermembers ) {
-					PM.send(nullUser, supermember.getId(), "Drohende Allianzaufl&oum;sung",
-							"[Automatische Nachricht]\nAchtung!\nDurch den j&uuml;ngsten Weggang eines Allianzmitglieds hat deine Allianz zu wenig Mitglieder um weiterhin zu bestehen. Du hast nun 21 Ticks Zeit diesen Zustand zu &auml;ndern. Andernfalls wird die Allianz aufgel&ouml;&szlig;t.");
-				}
-			}
-		}
 	}
 
 	/**

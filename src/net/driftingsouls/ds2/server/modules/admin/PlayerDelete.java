@@ -28,6 +28,7 @@ import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.services.AllianzService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import org.apache.commons.logging.Log;
@@ -49,7 +50,7 @@ public class PlayerDelete implements AdminPlugin
 {
 	private static final Log log = LogFactory.getLog(PlayerDelete.class);
 
-    @Override
+	@Override
 	public void output(StringBuilder echo) throws IOException
 	{
 		Context context = ContextMap.getContext();
@@ -116,7 +117,8 @@ public class PlayerDelete implements AdminPlugin
 
 					final User sourceUser = (User)db.get(User.class, 0);
 
-					List<User> supermembers = ally.getSuperMembers();
+					AllianzService allianzService = context.getBean(AllianzService.class, null);
+					List<User> supermembers = allianzService.getAllianzfuehrung(ally);
 					for( User supermember : supermembers )
 					{
 						if( supermember.getId() == userid )

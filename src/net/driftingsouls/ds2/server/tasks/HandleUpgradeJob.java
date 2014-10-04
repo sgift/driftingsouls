@@ -33,6 +33,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
+import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
@@ -49,7 +50,8 @@ import java.util.Random;
  *
  *  @author Christoph Peltz
  */
-class HandleUpgradeJob implements TaskHandler
+@Service
+public class HandleUpgradeJob implements TaskHandler
 {
 	private static final int ITEM_BBS = 182;
 	private static final int ITEM_RE = 6;

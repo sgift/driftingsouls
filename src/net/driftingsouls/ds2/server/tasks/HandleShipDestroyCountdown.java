@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.tasks;
 
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
+import org.springframework.stereotype.Service;
 
 /**
  * TASK_SHIP_DESTROY_COUNTDOWN
@@ -31,7 +32,8 @@ import net.driftingsouls.ds2.server.ships.Ship;
  *  
  *  @author Christopher Jung
  */
-class HandleShipDestroyCountdown implements TaskHandler {
+@Service
+public class HandleShipDestroyCountdown implements TaskHandler {
 
 	@Override
 	public void handleEvent(Task task, String event) {	
