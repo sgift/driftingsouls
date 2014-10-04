@@ -271,20 +271,20 @@
 <script type="text/javascript">
 <!--
 	function showShip( ship ) {
-		opener.parent.frames['main'].location.href = getDsUrl()+'?module=schiff&ship='+ship;
+		opener.parent.frames['main'].location.href = DS.getUrl()+'?module=schiff&ship='+ship;
 	}
 
 	function refreshOwn() {
-		window.location.href = getDsUrl()+'?module=fleetmgnt&fleet={fleet.id}';
+		window.location.href = DS.getUrl()+'?module=fleetmgnt&fleet={fleet.id}';
 	}
 
 	function removeShip( ship ) {
-		opener.parent.frames['main'].location.href = getDsUrl()+'?module=schiff&ship='+ship+'&action=join&join=0';
+		opener.parent.frames['main'].location.href = DS.getUrl()+'?module=schiff&ship='+ship+'&action=join&join=0';
 		window.setTimeout("refreshOwn()", 1000);
 	}
 
 	function showBattle( battle, ship ) {
-		opener.parent.frames['main'].location.href = getDsUrl()+'?module=angriff&battle='+battle+'&ship='+ship;
+		opener.parent.frames['main'].location.href = DS.getUrl()+'?module=angriff&battle='+battle+'&ship='+ship;
 		window.close();
 	}
 

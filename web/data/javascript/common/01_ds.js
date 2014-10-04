@@ -1,15 +1,3 @@
-function ask(text,url)
-{
-	if( confirm(text) ) {
-		DS.location.setCurrent(url);
-	}
-}
-
-function getDsUrl()
-{
-	return DS.getUrl();
-}
-
 var DS = {
 	location : {
 		getCurrent : function() {

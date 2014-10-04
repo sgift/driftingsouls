@@ -33,9 +33,9 @@
 					{/endif}
 					<div class="sectorlabel {if schiff.navigation.nav.warn}warn{/endif}">
 						{if schiff.navigation.nav.warn}
-							<div class="label" onclick="ask('Wenn sie in diese Richtung fliegen werden Schiffe auf Alarmstufe Rot auf sie feuern!\nWollen sie diese Aktion wirklich ausf&uuml;hren?',getDsUrl()+'?module=schiff&amp;ship={ship.id}&amp;action=plugin&amp;plugin={global.pluginid}&amp;navigation_ops[act]={schiff.navigation.nav.direction}&amp;navigation_ops[count]=1')">
+							<div class="label" onclick="DS.ask('Wenn sie in diese Richtung fliegen werden Schiffe auf Alarmstufe Rot auf sie feuern!\nWollen sie diese Aktion wirklich ausf&uuml;hren?',DS.getUrl()+'?module=schiff&amp;ship={ship.id}&amp;action=plugin&amp;plugin={global.pluginid}&amp;navigation_ops[act]={schiff.navigation.nav.direction}&amp;navigation_ops[count]=1')">
 						{else}
-							<div class="label" onclick="document.location.href=getDsUrl()+'?module=schiff&amp;ship={ship.id}&amp;action=plugin&amp;plugin={global.pluginid}&amp;navigation_ops[act]={schiff.navigation.nav.direction}&amp;navigation_ops[count]=1'">
+							<div class="label" onclick="document.location.href=DS.getUrl()+'?module=schiff&amp;ship={ship.id}&amp;action=plugin&amp;plugin={global.pluginid}&amp;navigation_ops[act]={schiff.navigation.nav.direction}&amp;navigation_ops[count]=1'">
 						{/endif}
 							{schiff.navigation.nav.location}
 						</div>

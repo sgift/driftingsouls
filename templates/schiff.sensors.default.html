@@ -156,8 +156,8 @@
 						{if battle.fixedjoin}
 							<a class="redborder" href="./ds?module=angriff&amp;battle={battle.id}&amp;addship={global.ship}"><img src="data/interface/schiffe/schiff_battle.gif" alt="teilnehmen" /></a>
 						{else}
-							<a class="redborder" href="javascript:ask('Wollen sie wirklich auf Seiten der {battle.side1} angreifen?',getDsUrl()+'?module=angriff&amp;battle={battle.id}&amp;addship={global.ship}&amp;forcejoin=1')"><img src="data/interface/schiffe/schiff_battle_side1.gif" alt="teilnehmen auf Seite 2" /></a>
-							<a class="redborder" href="javascript:ask('Wollen sie wirklich auf Seiten der {battle.side2} angreifen?',getDsUrl()+'?module=angriff&amp;battle={battle.id}&amp;addship={global.ship}&amp;forcejoin=2')"><img src="data/interface/schiffe/schiff_battle_side2.gif" alt="teilnehmen auf Seite 2" /></a>
+							<a class="redborder" href="javascript:DS.ask('Wollen sie wirklich auf Seiten der {battle.side1} angreifen?',DS.getUrl()+'?module=angriff&amp;battle={battle.id}&amp;addship={global.ship}&amp;forcejoin=1')"><img src="data/interface/schiffe/schiff_battle_side1.gif" alt="teilnehmen auf Seite 2" /></a>
+							<a class="redborder" href="javascript:DS.ask('Wollen sie wirklich auf Seiten der {battle.side2} angreifen?',DS.getUrl()+'?module=angriff&amp;battle={battle.id}&amp;addship={global.ship}&amp;forcejoin=2')"><img src="data/interface/schiffe/schiff_battle_side2.gif" alt="teilnehmen auf Seite 2" /></a>
 						{/endif}
 					{/endif}
 					{if battle.viewable}
@@ -323,7 +323,7 @@
 				{/endif}
 				<td class="show2" align="left">
 					{if sships.action.angriff}
-						<a class="redborder tooltip" href="javascript:ask('Wollen sie die {sships.type.name} wirklich angreifen?',getDsUrl()+'?module=angriff&amp;ship={global.ship}&amp;attack={sships.id}')">
+						<a class="redborder tooltip" href="javascript:DS.ask('Wollen sie die {sships.type.name} wirklich angreifen?',DS.getUrl()+'?module=angriff&amp;ship={global.ship}&amp;attack={sships.id}')">
 							<img src="data/interface/schiffe/schiff_angriff.gif" alt="" />
 							<span class="ttcontent">{sships.type.name} angreifen</span>
 						</a>
