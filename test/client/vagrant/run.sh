@@ -12,7 +12,7 @@ java -jar "test/lib/jstestdriver/JsTestDriver.jar" \
 	 --port ${PORT} \
      --browserTimeout 20000 \
      --browser ${CHROMIUM} \
-     --config "config/jsTestDriver.conf" \
+     --config "jsTestDriver.conf" \
      --basePath "." \
      --tests all \
      --reset \
