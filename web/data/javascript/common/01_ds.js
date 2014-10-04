@@ -1,7 +1,7 @@
 function ask(text,url)
 {
 	if( confirm(text) ) {
-		window.location.href = url;
+		DS.location.setCurrent(url);
 	}
 }
 
@@ -11,6 +11,14 @@ function getDsUrl()
 }
 
 var DS = {
+	location : {
+		getCurrent : function() {
+			return window.location.href;
+		},
+		setCurrent : function(url) {
+			window.location.href = url;
+		}
+	},
 	ln : function(number, decimals, decimal_sep, thousands_sep) {
 		// siehe [http://stackoverflow.com/questions/149055/how-can-i-format-numbers-as-money-in-javascript]
 
@@ -27,18 +35,16 @@ var DS = {
 		   	i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) +
 		   	(c ? d + Math.abs(n - i).toFixed(c).slice(2) : '');
 	},
+	/**
+	 * Prueft, ob der angegebene Fehler anzeigt, dass der Benutzer momentan nicht eingeloggt ist.
+	 * @param jsonResult Das JSON-Objekt mit dem Fehler
+	 * @returns {boolean} true falls dem so ist
+	 */
 	istNichtEingeloggtFehler : function(jsonResult) {
-		if( typeof jsonResult.errors !== 'undefined' && jsonResult.errors.length > 0 ) {
-			for( var i=0; i < jsonResult.errors.length; i++ ) {
-				if( jsonResult.errors[i].description.indexOf('nicht eingeloggt') ) {
-					return true;
-				}
-			}
-		}
-		else if( typeof jsonResult.message !== 'undefined' && jsonResult.message.type === 'error' ) {
+		if( typeof jsonResult.message !== 'undefined' && jsonResult.message.type === 'error' ) {
 			var msg = jsonResult.message;
 
-			return jsonResult.message.description.indexOf('nicht eingeloggt');
+			return msg.cls.indexOf('NotLoggedInException') > -1;
 		}
 
 		return false;
@@ -58,13 +64,18 @@ var DS = {
 	ask : function(text,url)
 	{
 		if( confirm(text) ) {
-			window.location.href = url;
+			DS.location.setCurrent(url);
 		}
 	},
 
+	/**
+	 * Gibt die URL zur aktuell laufenden DS-Version zurueck.
+	 * Die URL endet immer mit /ds
+	 * @returns {string} Die URL
+	 */
 	getUrl : function()
 	{
-		var url = location.href;
+		var url = DS.location.getCurrent();
 		if( url.indexOf('?') > -1 )
 		{
 			url = url.substring(0,url.indexOf('?'));
