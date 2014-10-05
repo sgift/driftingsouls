@@ -225,7 +225,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 				else
 				{
 					echo.append("<a class=\"forschinfo\" " +
-							"href=\"javascript:ask(" +
+							"href=\"javascript:DS.ask(" +
 							"'Achtung!\\nWenn Sie diese Technologie erforschen verlieren sie den GCP-Schutz. Dies bedeutet, dass Sie sowohl angreifen als auch angegriffen werden k&ouml;nnen'," +
 							"'./ds?module=building&amp;col=" + base.getId() + "&amp;field=" + field + "&amp;res=" + tech.getID() + "'" +
 							")\">" + Common._plaintitle(tech.getName()) + "</a>\n");
