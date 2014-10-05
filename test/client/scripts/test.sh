@@ -1,10 +1,6 @@
 #!/bin/bash
 
-BASE_DIR=`dirname $0`
-
-java -jar "$BASE_DIR/../test/lib/jstestdriver/JsTestDriver.jar" \
-     --config "$BASE_DIR/../jsTestDriver.conf" \
-     --basePath "$BASE_DIR/.." \
-     --tests all \
-     --reset \
-     --testOutput "$BASE_DIR/../log"
+cd karma
+export CHROME_BIN=`which chromium-browser`
+nodejs ./node_modules/karma/bin/karma start ds.conf.js --single-run
+cd ..

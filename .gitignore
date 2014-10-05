@@ -4,6 +4,9 @@
 /db/update.sql
 /web/WEB-INF/cfg/config.xml.orig
 /test/cfg/config.xml
+/test/client/vagrant/.vm_v*
+/test/client/vagrant/.vagrant
+/test/client/log/*
 /src/hibernate.cfg.xml
 /atlassian-ide-plugin.xml
 /web/WEB-INF/cfg/schema.sql
