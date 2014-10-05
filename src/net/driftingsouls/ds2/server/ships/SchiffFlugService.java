@@ -10,8 +10,10 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.services.SchlachtErstellenService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nonnull;
@@ -27,6 +29,14 @@ import java.util.stream.Collectors;
 @Service
 public class SchiffFlugService
 {
+	private SchlachtErstellenService schlachtErstellenService;
+
+	@Autowired
+	public SchiffFlugService(SchlachtErstellenService schlachtErstellenService)
+	{
+		this.schlachtErstellenService = schlachtErstellenService;
+	}
+
 	/**
 	 * Die verschiedenen Zustaende, die zum Ende eines Fluges gefuehrt haben koennen.
 	 */
@@ -63,6 +73,8 @@ public class SchiffFlugService
 			this.status = status;
 		}
 	}
+
+
 
 	private static MovementResult moveSingle(Ship ship, ShipTypeData shiptype, Offizier offizier, int direction, int distance, long adocked, boolean forceLowHeat, boolean verbose, StringBuilder out) {
 		boolean moved = false;
@@ -781,7 +793,7 @@ public class SchiffFlugService
 		}
 
 		Ship ship = attackShips.get(0); //Take some ship .. no special mechanism here.
-		Battle.create(ship.getOwner().getId(), ship.getId(), schiff.getId(), true);
+		schlachtErstellenService.erstelle(ship.getOwner(), ship.getId(), schiff.getId(), true);
 	}
 
 	/**

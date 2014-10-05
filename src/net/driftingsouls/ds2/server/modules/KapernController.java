@@ -41,6 +41,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.services.SchlachtErstellenService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -71,12 +72,16 @@ import java.util.Map.Entry;
 public class KapernController extends Controller
 {
 	private TemplateViewResultFactory templateViewResultFactory;
+	private SchlachtErstellenService schlachtErstellenService;
 	private ConfigService configService;
 
 	@Autowired
-	public KapernController(TemplateViewResultFactory templateViewResultFactory, ConfigService configService)
+	public KapernController(TemplateViewResultFactory templateViewResultFactory,
+			SchlachtErstellenService schlachtErstellenService,
+			ConfigService configService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.schlachtErstellenService = schlachtErstellenService;
 		this.configService = configService;
 	}
 
@@ -526,7 +531,7 @@ public class KapernController extends Controller
 				User source = (User) getDB().get(User.class, -1);
 				PM.send(source, targetShip.getOwner().getId(), "Kaperversuch entdeckt", "Ihre Schiffe haben einen Kaperversuch bei " + targetShip.getLocation().displayCoordinates(false) + " vereitelt und den Gegner angegriffen");
 
-				Battle battle = Battle.create(targetShip.getOwner().getId(), targetShip.getId(), ownShip.getId(), true);
+				Battle battle = schlachtErstellenService.erstelle(targetShip.getOwner(), targetShip.getId(), ownShip.getId(), true);
 
 				t.setVar(
 						"kapern.message", "Ihr Kaperversuch wurde entdeckt und einige gegnerischen Schiffe haben das Feuer er&ouml;ffnet",

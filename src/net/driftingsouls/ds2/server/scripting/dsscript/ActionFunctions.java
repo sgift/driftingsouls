@@ -20,7 +20,6 @@ package net.driftingsouls.ds2.server.scripting.dsscript;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.cargo.Resources;
@@ -33,6 +32,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.scripting.ShipUtils;
 import net.driftingsouls.ds2.server.scripting.transfer.TransferStrategy;
 import net.driftingsouls.ds2.server.scripting.transfer.TransferStrategyFactory;
+import net.driftingsouls.ds2.server.services.SchlachtErstellenService;
 import net.driftingsouls.ds2.server.ships.SchiffSprungService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
@@ -368,7 +368,8 @@ public class ActionFunctions {
 				return STOP;
 			}
 
-			Battle.create(ship.getOwner().getId(), ship.getId(), aship.getId());
+			SchlachtErstellenService schlachtErstellenService = ContextMap.getContext().getBean(SchlachtErstellenService.class, null);
+			schlachtErstellenService.erstelle(ship.getOwner(), ship.getId(), aship.getId());
 
 			// TODO: Nach der Migration von Batte wieder entfernen
 			db.refresh(ship);

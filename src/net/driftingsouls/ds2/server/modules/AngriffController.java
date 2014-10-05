@@ -43,6 +43,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungEx
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.modules.ks.*;
+import net.driftingsouls.ds2.server.services.SchlachtErstellenService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.units.UnitCargo;
@@ -72,10 +73,14 @@ public class AngriffController extends Controller
 	private final Map<String,Class<? extends BasicKSMenuAction>> menuActions = new HashMap<>();
 
 	private TemplateViewResultFactory templateViewResultFactory;
+	private SchlachtErstellenService schlachtErstellenService;
 
 	@Autowired
-	public AngriffController(ConfigService configService, TemplateViewResultFactory templateViewResultFactory) {
+	public AngriffController(ConfigService configService,
+			TemplateViewResultFactory templateViewResultFactory,
+			SchlachtErstellenService schlachtErstellenService) {
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.schlachtErstellenService = schlachtErstellenService;
 
 		setPageTitle("Schlacht");
 
@@ -522,7 +527,7 @@ public class AngriffController extends Controller
 		Battle battle;
 		if( battleID == 0 ) {
 			try {
-				battle = Battle.create(user.getId(), ownShipID, enemyShipID);
+				battle = schlachtErstellenService.erstelle(user, ownShipID, enemyShipID);
 			}
 			catch( IllegalArgumentException e ) {
 				throw new ValidierungException(e.getMessage());
