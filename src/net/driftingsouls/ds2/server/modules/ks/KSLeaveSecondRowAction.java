@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.modules.ks;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
+import net.driftingsouls.ds2.server.battles.BattleShipFlag;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -49,13 +50,13 @@ public class KSLeaveSecondRowAction extends BasicKSAction {
 	public Result validate(Battle battle) {
 		BattleShip ownShip = battle.getOwnShip();
 		
-		if( (ownShip.getAction() & Battle.BS_SECONDROW) == 0 || (ownShip.getAction() & Battle.BS_DESTROYED) != 0 ||
-			 ownShip.getShip().isLanded() || ownShip.getShip().isDocked() || (ownShip.getAction() & Battle.BS_FLUCHT) != 0 ||
-			( ownShip.getAction() & Battle.BS_JOIN ) != 0 ) {
+		if( !ownShip.hasFlag(BattleShipFlag.SECONDROW) || ownShip.hasFlag(BattleShipFlag.DESTROYED) ||
+			 ownShip.getShip().isLanded() || ownShip.getShip().isDocked() || ownShip.hasFlag(BattleShipFlag.FLUCHT) ||
+			ownShip.hasFlag(BattleShipFlag.JOIN) ) {
 			return Result.ERROR;
 		}
 		
-		if( (ownShip.getAction() & Battle.BS_SECONDROW_BLOCKED) != 0 ) {
+		if( ownShip.hasFlag(BattleShipFlag.SECONDROW_BLOCKED) ) {
 			return Result.ERROR;
 		}
 
@@ -116,20 +117,19 @@ public class KSLeaveSecondRowAction extends BasicKSAction {
 		
 		battle.logme( ownShip.getName()+" fliegt zur Front\n" );
 		battle.logenemy( Battle.log_shiplink(ownShip.getShip())+" fliegt zur Front\n" );
-		
-		int action = ownShip.getAction();
-		
-		action ^= Battle.BS_SECONDROW;
-		action |= Battle.BS_SECONDROW_BLOCKED;
-		
-		ownShip.setAction(action);
+
+		ownShip.removeFlag(BattleShipFlag.SECONDROW);
+		ownShip.addFlag(BattleShipFlag.SECONDROW_BLOCKED);
 		
 		int remove = 0;
 		for(BattleShip ship: battle.getOwnShips())
 		{
-			if((ship.getShip().isLanded() || ship.getShip().isDocked()) && ship.getShip().getBaseShip().getId() == ownShip.getShip().getId() && (ship.getAction() & Battle.BS_SECONDROW) != 0 )
+			if((ship.getShip().isLanded() || ship.getShip().isDocked()) &&
+					ship.getShip().getBaseShip().getId() == ownShip.getShip().getId() &&
+					ship.hasFlag(BattleShipFlag.SECONDROW) )
 			{
-				ship.setAction((ship.getAction() ^ Battle.BS_SECONDROW) | Battle.BS_SECONDROW_BLOCKED);
+				ship.removeFlag(BattleShipFlag.SECONDROW);
+				ship.addFlag(BattleShipFlag.SECONDROW_BLOCKED);
 				remove++;
 			}
 		}

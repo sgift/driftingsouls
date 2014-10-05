@@ -20,8 +20,7 @@ package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.battles.BattleShipFlag;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
@@ -60,15 +59,15 @@ public class KSFluchtAllAction extends BasicKSAction {
 		for( int i=0; i < ownShips.size(); i++ ) {
 			BattleShip aship = ownShips.get(i);
 			
-			if( (aship.getAction() & Battle.BS_DESTROYED) != 0 ) {
+			if( aship.hasFlag(BattleShipFlag.DESTROYED) ) {
 				continue;
 			}
 			
-			if( (aship.getAction() & Battle.BS_FLUCHT) != 0 ) {
+			if( aship.hasFlag(BattleShipFlag.FLUCHT) ) {
 				continue;
 			}
 			
-			if( (aship.getAction() & Battle.BS_JOIN) != 0 ) {
+			if( aship.hasFlag(BattleShipFlag.JOIN) ) {
 				continue;
 			}
 			 
@@ -112,14 +111,14 @@ public class KSFluchtAllAction extends BasicKSAction {
 
 		
 			battle.logme( aship.getName()+" flieht n&auml;chste Runde\n" );
-			aship.setAction(aship.getAction() | Battle.BS_FLUCHTNEXT);
+			aship.addFlag(BattleShipFlag.FLUCHTNEXT);
 			
 			int remove = 1;
 			for (BattleShip s : ownShips)
 			{
 				if (s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == aship.getId())
 				{
-					s.setAction(s.getAction() | Battle.BS_FLUCHTNEXT);
+					s.addFlag(BattleShipFlag.FLUCHTNEXT);
 
 					remove++;
 				}

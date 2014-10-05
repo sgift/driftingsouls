@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.modules.ks;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
+import net.driftingsouls.ds2.server.battles.BattleShipFlag;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -127,9 +128,10 @@ public class KSUndockAllAction extends BasicKSAction {
 		List<BattleShip> ownShips = battle.getOwnShips();
 		for (BattleShip s : ownShips)
 		{
-			if ((s.getAction() & Battle.BS_SECONDROW) != 0 && !s.getTypeData().hasFlag(ShipTypeFlag.SECONDROW))
+			if (s.hasFlag(BattleShipFlag.SECONDROW) && !s.getTypeData().hasFlag(ShipTypeFlag.SECONDROW))
 			{
-				s.setAction((s.getAction() ^ Battle.BS_SECONDROW) | Battle.BS_SECONDROW_BLOCKED);
+				s.removeFlag(BattleShipFlag.SECONDROW);
+				s.addFlag(BattleShipFlag.SECONDROW_BLOCKED);
 			}
 		}
 

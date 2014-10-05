@@ -74,7 +74,7 @@ public class KSCheatRegenerateEnemyAction extends BasicKSAction {
 		enemyShip.setWeapons(100);
 		enemyShip.setSensors(100);
 		enemyShip.setComm(100);
-		enemyShip.setAction(0);
+		enemyShip.removeAllFlags();
 		
 		battle.logme( "CHEAT: Gegnerisches Schiff regeneriert\n" );
 		battle.logenemy( "CHEAT: [color=green]"+enemyShip.getName()+"[/color] regeneriert\n" );

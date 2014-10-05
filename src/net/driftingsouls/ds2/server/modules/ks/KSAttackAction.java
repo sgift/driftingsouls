@@ -22,6 +22,7 @@ import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
+import net.driftingsouls.ds2.server.battles.BattleShipFlag;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.config.Weapons;
@@ -380,7 +381,7 @@ public class KSAttackAction extends BasicKSAction {
 
 		int remove = 1; // Anzahl der zerstoerten Schiffe
 
-		eShip.setAction(eShip.getAction() | Battle.BS_DESTROYED);
+		eShip.addFlag(BattleShipFlag.DESTROYED);
 
 		if( eShip.getDestroyer() == 0 )
 		{
@@ -397,7 +398,7 @@ public class KSAttackAction extends BasicKSAction {
 			if (s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == eShip.getId())
 			{
 				remove++;
-				s.setAction(s.getAction() | Battle.BS_DESTROYED);
+				s.addFlag(BattleShipFlag.DESTROYED);
 				if (s.getDestroyer() == 0)
 				{
 					s.setDestroyer(id);
@@ -698,18 +699,16 @@ public class KSAttackAction extends BasicKSAction {
 		}
 
 		if( !ship_intact ) {
-			if( (eShip.getAction() & Battle.BS_HIT) != 0 ) {
-				eShip.setAction(eShip.getAction() ^ Battle.BS_HIT);
-			}
-			eShip.setAction(eShip.getAction() | Battle.BS_DESTROYED);
+			eShip.removeFlag(BattleShipFlag.HIT);
+			eShip.addFlag(BattleShipFlag.DESTROYED);
 		}
 		else {
-			eShip.setAction(eShip.getAction() | Battle.BS_HIT);
-			if( (eShip.getAction() & Battle.BS_FLUCHTNEXT) != 0 && (eShip.getEngine() == 0) && (eShipType.getCost() > 0) ) {
-				eShip.setAction(eShip.getAction() ^ Battle.BS_FLUCHTNEXT);
+			eShip.addFlag(BattleShipFlag.HIT);
+			if(eShip.hasFlag(BattleShipFlag.FLUCHTNEXT) && (eShip.getEngine() == 0) && (eShipType.getCost() > 0) ) {
+				eShip.removeFlag(BattleShipFlag.FLUCHTNEXT);
 			}
-			if( (eShip.getAction() & Battle.BS_FLUCHT) != 0 && (eShip.getEngine() == 0) && (eShipType.getCost() > 0) ) {
-				eShip.setAction(eShip.getAction() ^ Battle.BS_FLUCHT);
+			if(eShip.hasFlag(BattleShipFlag.FLUCHT) && (eShip.getEngine() == 0) && (eShipType.getCost() > 0) ) {
+				eShip.removeFlag(BattleShipFlag.FLUCHT);
 				battle.logme( "+ Flucht gestoppt\n" );
 				battle.logenemy( "[color=red]+ Flucht gestoppt[/color]\n" );
 			}
@@ -957,11 +956,11 @@ public class KSAttackAction extends BasicKSAction {
 	}
 
 	private boolean shipHasToBeDefended(BattleShip selectedShip) {
-		if((selectedShip.getAction() & Battle.BS_JOIN) != 0 )
+		if(selectedShip.hasFlag(BattleShipFlag.JOIN) )
 		{
 			return false;
 		}
-		else if((selectedShip.getAction() & Battle.BS_SECONDROW) != 0)
+		else if(selectedShip.hasFlag(BattleShipFlag.SECONDROW))
 		{
 			return false;
 		}
@@ -999,19 +998,15 @@ public class KSAttackAction extends BasicKSAction {
 					gottarget = true;
 					continue;
 				}
-				else if ((eship.getAction() & Battle.BS_DESTROYED) != 0)
+				else if (eship.hasFlag(BattleShipFlag.DESTROYED))
 				{
 					continue;
 				}
-				else if ((eship.getAction() & Battle.BS_FLUCHT) != 0 && (this.enemyShip.getAction() & Battle.BS_FLUCHT) == 0)
+				else if (eship.hasFlag(BattleShipFlag.FLUCHT) != enemyShip.hasFlag(BattleShipFlag.FLUCHT))
 				{
 					continue;
 				}
-				else if ((eship.getAction() & Battle.BS_FLUCHT) == 0 && (this.enemyShip.getAction() & Battle.BS_FLUCHT) != 0)
-				{
-					continue;
-				}
-				else if ((eship.getAction() & Battle.BS_JOIN) != 0)
+				else if ( eship.hasFlag(BattleShipFlag.JOIN) )
 				{
 					continue;
 				}
@@ -1288,13 +1283,13 @@ public class KSAttackAction extends BasicKSAction {
             return Result.ERROR;
         }
 
-        if( (this.ownShip.getAction() & Battle.BS_DISABLE_WEAPONS) != 0 )
+        if( this.ownShip.hasFlag(BattleShipFlag.DISABLE_WEAPONS) )
         {
             battle.logme( "Das Schiff kann seine Waffen in diesem Kampf nicht mehr abfeuern\n" );
             return Result.ERROR;
         }
 
-        if( (this.ownShip.getAction() & Battle.BS_BLOCK_WEAPONS) != 0 )
+        if( this.ownShip.hasFlag(BattleShipFlag.BLOCK_WEAPONS) )
         {
             battle.logme( "Sie k&ouml;nnen in dieser Runde keine Waffen mehr abfeuern\n" );
             return Result.ERROR;
@@ -1366,7 +1361,7 @@ public class KSAttackAction extends BasicKSAction {
 
                 ShipTypeData enemyShipType = this.enemyShip.getTypeData();
 
-                if( (this.ownShip.getAction() & Battle.BS_SECONDROW) != 0 &&
+                if( this.ownShip.hasFlag(BattleShipFlag.SECONDROW) &&
                         !this.localweapon.isLongRange() &&
                         !this.localweapon.isVeryLongRange() )
                 {
@@ -1405,7 +1400,7 @@ public class KSAttackAction extends BasicKSAction {
                     break;
                 }
 
-                if( (this.enemyShip.getAction() & Battle.BS_DESTROYED) != 0 )
+                if( this.enemyShip.hasFlag(BattleShipFlag.DESTROYED) )
                 {
                     battle.logme( "Das angegebene Ziel ist bereits zerst&ouml;rt\n" );
                     breakFlag = true;
@@ -1413,7 +1408,7 @@ public class KSAttackAction extends BasicKSAction {
                     break;
                 }
 
-                if( (this.enemyShip.getAction() & Battle.BS_FLUCHT) != 0 && !ownShipType.hasFlag(ShipTypeFlag.ABFANGEN) )
+                if( this.enemyShip.hasFlag(BattleShipFlag.FLUCHT) && !ownShipType.hasFlag(ShipTypeFlag.ABFANGEN) )
                 {
                     battle.logme( "Ihr Schiff kann keine fl&uuml;chtenden Schiffe abfangen\n" );
                     breakFlag = true;
@@ -1421,8 +1416,7 @@ public class KSAttackAction extends BasicKSAction {
                     break;
                 }
 
-                if( (this.enemyShip.getAction() & Battle.BS_SECONDROW) != 0 &&
-                        !this.localweapon.isVeryLongRange() )
+                if( this.enemyShip.hasFlag(BattleShipFlag.SECONDROW) && !this.localweapon.isVeryLongRange() )
                 {
                     battle.logme( "Ihre Waffen k&ouml;nnen das angegebene Ziel nicht erreichen\n" );
                     breakFlag = true;
@@ -1430,7 +1424,7 @@ public class KSAttackAction extends BasicKSAction {
                     break;
                 }
 
-                if( (this.enemyShip.getAction() & Battle.BS_JOIN) != 0 )
+                if( this.enemyShip.hasFlag(BattleShipFlag.JOIN) )
                 {
                     battle.logme( "Sie k&ouml;nnen nicht auf einem Schiff feuern, dass gerade erst der Schlacht beitritt\n" );
                     breakFlag = true;
@@ -1590,14 +1584,14 @@ public class KSAttackAction extends BasicKSAction {
         }
 
         this.ownShip.getShip().setBattleAction(true);
-        this.ownShip.setAction(this.ownShip.getAction() | Battle.BS_SHOT);
+        this.ownShip.addFlag(BattleShipFlag.SHOT);
 
         if( !firstentry )
         {
             battle.logenemy("]]></action>\n");
         }
 
-        if( (battle.getEnemyShip(oldenemyship).getAction() & Battle.BS_DESTROYED) == 0 )
+        if( !battle.getEnemyShip(oldenemyship).hasFlag(BattleShipFlag.DESTROYED) )
         {
             battle.setEnemyShipIndex(oldenemyship);
         }

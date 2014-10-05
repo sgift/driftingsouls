@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
+import net.driftingsouls.ds2.server.battles.BattleShipFlag;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.config.Weapons;
@@ -74,15 +75,15 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 		BattleShip ownShip = battle.getOwnShip();
 		BattleShip enemyShip = battle.getEnemyShip();
 	
-		if( (ownShip.getAction() & Battle.BS_JOIN) != 0 ) {
+		if( ownShip.hasFlag(BattleShipFlag.JOIN) ) {
 			return Result.ERROR;
 		}
 		
-		if( (enemyShip.getAction() & Battle.BS_JOIN) != 0 ) {
+		if( enemyShip.hasFlag(BattleShipFlag.JOIN) ) {
 			return Result.ERROR;
 		}
 		
-		if( (enemyShip.getAction() & Battle.BS_DESTROYED) != 0 ) {
+		if( enemyShip.hasFlag(BattleShipFlag.DESTROYED) ) {
 			return Result.ERROR;
 		}
 		if(ownShip.getShip().isLanded()) 
@@ -90,13 +91,13 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 			return Result.ERROR;
 		}
 		
-		if( (ownShip.getAction() & Battle.BS_FLUCHT) != 0 ) {
+		if( ownShip.hasFlag(BattleShipFlag.FLUCHT) ) {
 			return Result.ERROR;
 		}
 		
 		ShipTypeData ownShipType = ownShip.getTypeData();
 		
-		if( (enemyShip.getAction() & Battle.BS_FLUCHT) != 0 &&	!ownShipType.hasFlag(ShipTypeFlag.ABFANGEN) ) {
+		if( enemyShip.hasFlag(BattleShipFlag.FLUCHT) && !ownShipType.hasFlag(ShipTypeFlag.ABFANGEN) ) {
 			return Result.ERROR;
 		}
 		
@@ -162,25 +163,25 @@ public class KSMenuAttackMuniSelectAction extends BasicKSMenuAction {
 		
 		String attmode = this.getAttMode();
 		
-		if( (ownShip.getAction() & Battle.BS_SECONDROW) != 0 &&
+		if( ownShip.hasFlag(BattleShipFlag.SECONDROW) &&
 			!Weapons.get().weapon(weapon).hasFlag(Weapon.Flags.LONG_RANGE) &&
 			!Weapons.get().weapon(weapon).hasFlag(Weapon.Flags.VERY_LONG_RANGE) ) {
 			battle.logme("Diese Waffe hat nicht die notwendige Reichweite um aus der zweiten Reihe heraus abgefeuert zu werden\n");
 			return Result.ERROR;	
 		}
 		
-		if( (enemyShip.getAction() & Battle.BS_SECONDROW) != 0 && 
+		if( enemyShip.hasFlag(BattleShipFlag.SECONDROW) &&
 			!Weapons.get().weapon(weapon).hasFlag(Weapon.Flags.VERY_LONG_RANGE)	) {
 			battle.logme("Diese Waffe hat nicht die notwendige Reichweite um in die zweiten Reihe des Gegners abgefeuert zu werden\n");
 			return Result.ERROR;
 		}
 		
-		if( (ownShip.getAction() & Battle.BS_BLOCK_WEAPONS) != 0 ) {
+		if( ownShip.hasFlag(BattleShipFlag.BLOCK_WEAPONS) ) {
 			battle.logme( "Sie k&ouml;nnen in dieser Runde keine Waffen mehr abfeuern\n" );
 			return Result.ERROR;
 		}
 		
-		if( (ownShip.getAction() & Battle.BS_DISABLE_WEAPONS) != 0 ) {
+		if( ownShip.hasFlag(BattleShipFlag.DISABLE_WEAPONS) ) {
 			battle.logme( "Das Schiff kann seine Waffen in diesem Kampf nicht mehr abfeuern\n" );
 			return Result.ERROR;
 		}

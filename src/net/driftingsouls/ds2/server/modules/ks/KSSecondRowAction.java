@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.modules.ks;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
+import net.driftingsouls.ds2.server.battles.BattleShipFlag;
 import net.driftingsouls.ds2.server.battles.Side;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -50,13 +51,14 @@ public class KSSecondRowAction extends BasicKSAction {
 	public Result validate(Battle battle) {
 		BattleShip ownShip = battle.getOwnShip();
 		
-		if( (ownShip.getAction() & Battle.BS_SECONDROW) != 0 || (ownShip.getAction() & Battle.BS_DESTROYED) != 0 ||
-			( ownShip.getShip().getEngine() == 0 ) || ownShip.getShip().isLanded() || ownShip.getShip().isLanded() || (ownShip.getAction() & Battle.BS_FLUCHT) != 0 ||
-			( ownShip.getAction() & Battle.BS_JOIN ) != 0 ) {
+		if( ownShip.hasFlag(BattleShipFlag.SECONDROW) || ownShip.hasFlag(BattleShipFlag.DESTROYED) ||
+				ownShip.getShip().getEngine() == 0 || ownShip.getShip().isLanded() ||
+				ownShip.getShip().isDocked() || ownShip.hasFlag(BattleShipFlag.FLUCHT) ||
+			ownShip.hasFlag(BattleShipFlag.JOIN) ) {
 			return Result.ERROR;
 		}
 		
-		if( (ownShip.getAction() & Battle.BS_SECONDROW_BLOCKED) != 0 ) {
+		if( ownShip.hasFlag(BattleShipFlag.SECONDROW_BLOCKED) ) {
 			return Result.ERROR;
 		}
 		
@@ -150,14 +152,10 @@ public class KSSecondRowAction extends BasicKSAction {
 		
 		battle.logme( ownShip.getName()+" fliegt in die zweite Reihe\n" );
 		battle.logenemy( Battle.log_shiplink(ownShip.getShip())+" fliegt in die zweite Reihe\n" );
-		
-		int action = ownShip.getAction();
-		
-		action |= Battle.BS_SECONDROW;
-		action |= Battle.BS_SECONDROW_BLOCKED;
-		action |= Battle.BS_BLOCK_WEAPONS;
-		
-		ownShip.setAction(action);
+
+		ownShip.addFlag(BattleShipFlag.SECONDROW);
+		ownShip.addFlag(BattleShipFlag.SECONDROW_BLOCKED);
+		ownShip.addFlag(BattleShipFlag.BLOCK_WEAPONS);
 
 		int remove = 1;
 		List<BattleShip> ownShips = battle.getOwnShips();
@@ -166,7 +164,8 @@ public class KSSecondRowAction extends BasicKSAction {
 			if (s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == ownShip.getId())
 			{
 				if(!s.getShip().isLanded()){
-					s.setAction(s.getAction() | Battle.BS_SECONDROW | Battle.BS_SECONDROW_BLOCKED);
+					s.addFlag(BattleShipFlag.SECONDROW);
+					s.addFlag(BattleShipFlag.SECONDROW_BLOCKED);
 					remove++;
 				}
 			}

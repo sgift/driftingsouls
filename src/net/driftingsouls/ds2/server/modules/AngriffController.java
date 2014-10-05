@@ -22,6 +22,7 @@ import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
+import net.driftingsouls.ds2.server.battles.BattleShipFlag;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.cargo.Resources;
@@ -170,15 +171,15 @@ public class AngriffController extends Controller
 					"shipinfo.weapons",			ship.getShip().getWeapons(),
 					"shipinfo.comm",			ship.getShip().getComm(),
 					"shipinfo.sensors",			ship.getShip().getSensors(),
-					"shipinfo.showtmp",			(ship.getAction() & Battle.BS_HIT) != 0 || (ship.getAction() & Battle.BS_DESTROYED) != 0,
-					"shipinfo.tmp.hull",		((ship.getAction() & Battle.BS_DESTROYED) != 0 ? 0 : Common.ln(ship.getHull()) ),
-					"shipinfo.tmp.shields",		((ship.getAction() & Battle.BS_DESTROYED) != 0 ? 0 : Common.ln(ship.getShields())),
+					"shipinfo.showtmp",			ship.hasFlag(BattleShipFlag.HIT) || ship.hasFlag(BattleShipFlag.DESTROYED),
+					"shipinfo.tmp.hull",		ship.hasFlag(BattleShipFlag.DESTROYED) ? 0 : Common.ln(ship.getHull()),
+					"shipinfo.tmp.shields",		ship.hasFlag(BattleShipFlag.DESTROYED) ? 0 : Common.ln(ship.getShields()),
 					"shipinfo.tmp.engine",		ship.getEngine(),
 					"shipinfo.tmp.weapons",		ship.getWeapons(),
 					"shipinfo.tmp.comm",		ship.getComm(),
 					"shipinfo.tmp.sensors",		ship.getSensors(),
 					"shipinfo.tmp.panzerung",	(int)Math.round(shipType.getPanzerung()*ship.getHull()/(double)shipType.getHull()), 
-					"shipinfo.tmp.ablativeArmor", ((ship.getAction() & Battle.BS_DESTROYED) != 0 ? 0 : Common.ln(ship.getAblativeArmor())));
+					"shipinfo.tmp.ablativeArmor", ship.hasFlag(BattleShipFlag.DESTROYED) ? 0 : Common.ln(ship.getAblativeArmor()));
 
 		// Ablative Panzerung
 		if(ship.getShip().getAblativeArmor() < shipType.getAblativeArmor()/2)
@@ -382,7 +383,7 @@ public class AngriffController extends Controller
 		
 					// Ist das gegnerische Schiff zerstoert? Falls ja, dass Angriffsmenue deaktivieren
 					if( ( action.toString().equals("attack") || action.toString().equals("groupattack") ) &&
-						((enemyShip.getAction() & Battle.BS_DESTROYED) != 0 || (ownShip.getAction() & Battle.BS_FLUCHT) != 0 || ownShip.getShip().isLanded()) ) {
+						(enemyShip.hasFlag(BattleShipFlag.DESTROYED) || ownShip.hasFlag(BattleShipFlag.FLUCHT) || ownShip.getShip().isLanded()) ) {
 						action.setLength(0);
 					}
 					
@@ -629,14 +630,14 @@ public class AngriffController extends Controller
 					"ownship.type.image",		ownShipType.getPicture(),
 					"ownship.owner.name",		Common._title(oUser.getName()),
 					"ownship.owner.id",			ownShip.getOwner().getId(),
-					"ownship.action.hit",		ownShip.getAction() & Battle.BS_HIT,
-					"ownship.action.flucht",	ownShip.getAction() & Battle.BS_FLUCHT,
-					"ownship.action.destroyed",	ownShip.getAction() & Battle.BS_DESTROYED,
-					"ownship.action.shot",		(!battle.isGuest() ? ownShip.getAction() & Battle.BS_SHOT : 0),
-					"ownship.action.join",		(ownShip.getAction() & Battle.BS_JOIN) != 0,
-					"ownship.action.secondrow",	(ownShip.getAction() & Battle.BS_SECONDROW) != 0,
-					"ownship.action.fluchtnext",	(!battle.isGuest() ? ownShip.getAction() & Battle.BS_FLUCHTNEXT : 0),
-					"ownship.mangelnahrung",		(!battle.isGuest() ? ownShip.getShip().getStatus().contains("mangel_nahrung") : 0),
+					"ownship.action.hit",		ownShip.hasFlag(BattleShipFlag.HIT),
+					"ownship.action.flucht",	ownShip.hasFlag(BattleShipFlag.FLUCHT),
+					"ownship.action.destroyed",	ownShip.hasFlag(BattleShipFlag.DESTROYED),
+					"ownship.action.shot",		!battle.isGuest() && ownShip.hasFlag(BattleShipFlag.SHOT),
+					"ownship.action.join",		ownShip.hasFlag(BattleShipFlag.JOIN),
+					"ownship.action.secondrow",	ownShip.hasFlag(BattleShipFlag.SECONDROW),
+					"ownship.action.fluchtnext", !battle.isGuest() && ownShip.hasFlag(BattleShipFlag.FLUCHTNEXT),
+					"ownship.mangelnahrung", !battle.isGuest() ? ownShip.getShip().getStatus().contains("mangel_nahrung") : 0,
 					"ownship.mangelreaktor",	(!battle.isGuest() ? ownShip.getShip().getStatus().contains("mangel_reaktor") : 0),
 					"enemyship.id",				enemyShip.getId(),
 					"enemyship.name",			enemyShip.getName(),
@@ -645,11 +646,11 @@ public class AngriffController extends Controller
 					"enemyship.type.image",		enemyShipType.getPicture(),
 					"enemyship.owner.name",		Common._title(eUser.getName()),
 					"enemyship.owner.id",		enemyShip.getOwner().getId(),
-					"enemyship.action.hit",		enemyShip.getAction() & Battle.BS_HIT,
-					"enemyship.action.flucht",	enemyShip.getAction() & Battle.BS_FLUCHT,
-					"enemyship.action.destroyed",	enemyShip.getAction() & Battle.BS_DESTROYED,
-					"enemyship.action.join",		enemyShip.getAction() & Battle.BS_JOIN,
-					"enemyship.action.secondrow",	enemyShip.getAction() & Battle.BS_SECONDROW );
+					"enemyship.action.hit",		enemyShip.hasFlag(BattleShipFlag.HIT),
+					"enemyship.action.flucht",	enemyShip.hasFlag(BattleShipFlag.FLUCHT),
+					"enemyship.action.destroyed",	enemyShip.hasFlag(BattleShipFlag.DESTROYED),
+					"enemyship.action.join",		enemyShip.hasFlag(BattleShipFlag.JOIN),
+					"enemyship.action.secondrow",	enemyShip.hasFlag(BattleShipFlag.SECONDROW) );
 
 		Nebel.Typ nebula = Nebel.getNebula(ownShip.getShip().getLocation());
 		if( nebula == null || nebula.allowsScan() )
@@ -842,13 +843,13 @@ public class AngriffController extends Controller
 							"ship.owner.id",		aship.getOwner().getId(),
 							"ship.energy",			energy,
 							"ship.active",			(aship == ownShip),
-							"ship.action.hit",		aship.getAction() & Battle.BS_HIT,
-							"ship.action.flucht",	aship.getAction() & Battle.BS_FLUCHT,
-							"ship.action.destroyed",	aship.getAction() & Battle.BS_DESTROYED,
-							"ship.action.join",			aship.getAction() & Battle.BS_JOIN,
-							"ship.action.secondrow",	aship.getAction() & Battle.BS_SECONDROW,
-							"ship.action.fluchtnext",	(!battle.isGuest() ? aship.getAction() & Battle.BS_FLUCHTNEXT : 0),
-							"ship.action.shot",			(!battle.isGuest() ? aship.getAction() & Battle.BS_SHOT : 0),
+							"ship.action.hit",		aship.hasFlag(BattleShipFlag.HIT),
+							"ship.action.flucht",	aship.hasFlag(BattleShipFlag.FLUCHT),
+							"ship.action.destroyed",	aship.hasFlag(BattleShipFlag.DESTROYED),
+							"ship.action.join",			aship.hasFlag(BattleShipFlag.JOIN),
+							"ship.action.secondrow",	aship.hasFlag(BattleShipFlag.SECONDROW),
+							"ship.action.fluchtnext", !battle.isGuest() && aship.hasFlag(BattleShipFlag.FLUCHTNEXT),
+							"ship.action.shot", !battle.isGuest() && aship.hasFlag(BattleShipFlag.SHOT),
                             "ship.mangelnahrung",       !battle.isGuest() && (aship.getShip().getStatus().contains("mangel_nahrung")),
 							"ship.mangelreaktor",       !battle.isGuest() && aship.getShip().getStatus().contains("mangel_reaktor"));
 	
@@ -886,7 +887,6 @@ public class AngriffController extends Controller
                 groupoffset = (shiptypegroupcount.get(aship.getShip().getType()) - 1) / SHIPGROUPSIZE;
 
                 final String key = aship.getShip().getType() + ":" + groupoffset;
-                int shipAction = aship.getAction();
 
                 GroupEntry data;
                 if (!groupdata.containsKey(key))
@@ -899,26 +899,26 @@ public class AngriffController extends Controller
                     data = groupdata.get(key);
                 }
 
-                if ((shipAction & Battle.BS_DESTROYED) != 0) {
+                if (aship.hasFlag(BattleShipFlag.DESTROYED)) {
                     data.destcount++;
                 }
-                if ((shipAction & Battle.BS_HIT) != 0) {
+                if (aship.hasFlag(BattleShipFlag.HIT)) {
                     data.hitcount++;
                 }
-                if ((shipAction & Battle.BS_FLUCHT) != 0) {
+                if (aship.hasFlag(BattleShipFlag.FLUCHT)) {
                     data.fluchtcount++;
                 }
-                if ((shipAction & Battle.BS_JOIN) != 0) {
+                if (aship.hasFlag(BattleShipFlag.JOIN)) {
                     data.joincount++;
                 }
-                if ((shipAction & Battle.BS_SECONDROW) != 0) {
+                if (aship.hasFlag(BattleShipFlag.SECONDROW)) {
                     data.srcount++;
                 }
                 if (!battle.isGuest()) {
-                    if ((shipAction & Battle.BS_SHOT) != 0) {
+                    if (aship.hasFlag(BattleShipFlag.SHOT)) {
                         data.shotcount++;
                     }
-                    if ((shipAction & Battle.BS_FLUCHTNEXT) != 0) {
+                    if (aship.hasFlag(BattleShipFlag.FLUCHTNEXT)) {
                         data.fluchtnextcount++;
                     }
                     if (aship.getShip().getStatus().contains("mangel_nahrung")) {
@@ -1074,11 +1074,11 @@ public class AngriffController extends Controller
 							"ship.owner.name",		Common._title(aUser.getName()),
 							"ship.owner.id",		aship.getOwner().getId(),
 							"ship.active",			(aship == enemyShip),
-							"ship.action.hit",		aship.getAction() & Battle.BS_HIT,
-							"ship.action.flucht",	aship.getAction() & Battle.BS_FLUCHT,
-							"ship.action.join",		aship.getAction() & Battle.BS_JOIN,
-							"ship.action.secondrow",	aship.getAction() & Battle.BS_SECONDROW,
-							"ship.action.destroyed",	aship.getAction() & Battle.BS_DESTROYED );
+							"ship.action.hit",		aship.hasFlag(BattleShipFlag.HIT),
+							"ship.action.flucht",	aship.hasFlag(BattleShipFlag.FLUCHT),
+							"ship.action.join",		aship.hasFlag(BattleShipFlag.JOIN),
+							"ship.action.secondrow",	aship.hasFlag(BattleShipFlag.SECONDROW),
+							"ship.action.destroyed",	aship.hasFlag(BattleShipFlag.DESTROYED) );
 	
 				if( firstEntry ) {
 					firstEntry = false;
@@ -1118,8 +1118,6 @@ public class AngriffController extends Controller
                 groupoffset = (shiptypegroupcount.get(aship.getShip().getType()) - 1) / SHIPGROUPSIZE;
 
                 final String key = aship.getShip().getType() + ":" + groupoffset;
-                int shipAction = aship.getAction();
-
                 GroupEntry data;
                 if (!groupdata.containsKey(key))
                 {
@@ -1131,19 +1129,19 @@ public class AngriffController extends Controller
                     data = groupdata.get(key);
                 }
 
-                if ((shipAction & Battle.BS_DESTROYED) != 0) {
+                if (aship.hasFlag(BattleShipFlag.DESTROYED)) {
                     data.destcount++;
                 }
-                if ((shipAction & Battle.BS_HIT) != 0) {
+                if (aship.hasFlag(BattleShipFlag.HIT)) {
                     data.hitcount++;
                 }
-                if ((shipAction & Battle.BS_FLUCHT) != 0) {
+                if (aship.hasFlag(BattleShipFlag.FLUCHT)) {
                     data.fluchtcount++;
                 }
-                if ((shipAction & Battle.BS_JOIN) != 0) {
+                if (aship.hasFlag(BattleShipFlag.JOIN)) {
                     data.joincount++;
                 }
-                if ((shipAction & Battle.BS_SECONDROW) != 0) {
+                if (aship.hasFlag(BattleShipFlag.SECONDROW)) {
                     data.srcount++;
                 }
             }

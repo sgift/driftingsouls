@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
+import net.driftingsouls.ds2.server.battles.BattleShipFlag;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
@@ -156,12 +157,12 @@ public abstract class BasicKSAction {
 		if( this.requireOwnShipReady ) {
 			BattleShip ownShip = battle.getOwnShip();
 	
-			if( (ownShip.getAction() & Battle.BS_FLUCHT) != 0 ) {
+			if( ownShip.hasFlag(BattleShipFlag.FLUCHT) ) {
 				battle.logme( "Das Schiff flieht gerade\n" );
 				return Result.ERROR;
 			}
 	
-			if( (ownShip.getAction() & Battle.BS_JOIN) != 0 ) {
+			if( ownShip.hasFlag(BattleShipFlag.JOIN) ) {
 				battle.logme( "Das Schiff tritt erst gerade der Schlacht bei\n" );
 				return Result.ERROR;
 			}	

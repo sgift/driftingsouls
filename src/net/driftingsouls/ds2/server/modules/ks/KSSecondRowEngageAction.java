@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.modules.ks;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
+import net.driftingsouls.ds2.server.battles.BattleShipFlag;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -68,10 +69,7 @@ public class KSSecondRowEngageAction extends BasicKSAction {
 		List<BattleShip> enemyShips = battle.getEnemyShips();
 		for (BattleShip eShip : enemyShips)
 		{
-			if ((eShip.getAction() & Battle.BS_SECONDROW) != 0)
-			{
-				eShip.setAction(eShip.getAction() ^ Battle.BS_SECONDROW);
-			}
+			eShip.removeFlag(BattleShipFlag.SECONDROW);
 		}
 		
 		battle.logme( "Ihre Schiffe r&uuml;cken vor und durchbrechen die feindlichen Linien\n");

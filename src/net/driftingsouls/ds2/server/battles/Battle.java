@@ -92,50 +92,6 @@ public class Battle implements Locatable
 	 */
 	public static final int LOGFORMAT = 2;
 
-	//
-	// Aktionskonstanten von Schiffen in der Schlacht (battles_ships->action)
-	//
-	/**
-	 * Schiff wird am Rundenende geloescht.
-	 */
-	public static final int BS_DESTROYED = 1;
-	/**
-	 * Schiff verlaesst am Rundenende die Schlacht.
-	 */
-	public static final int BS_FLUCHT = 2;
-	/**
-	 * Schiff ist getroffen (Wertabgleich ships und battles_ships!).
-	 */
-	public static final int BS_HIT = 4;
-	/**
-	 * Das Schiff hat gefeuernt.
-	 */
-	public static final int BS_SHOT = 8;
-	/**
-	 * Schiff tritt der Schlacht bei.
-	 */
-	public static final int BS_JOIN = 16;
-	/**
-	 * Schiff befindet sich in der zweiten Reihe.
-	 */
-	public static final int BS_SECONDROW = 32;
-	/**
-	 * Schiff flieht naechste Runde.
-	 */
-	public static final int BS_FLUCHTNEXT = 64;
-	/**
-	 *  Schiff hat bereits eine zweite Reihe aktion in der Runde ausgefuehrt.
-	 */
-	public static final int BS_SECONDROW_BLOCKED = 128;
-	/**
-	 * Waffen sind bis zum Rundenende blockiert.
-	 */
-	public static final int BS_BLOCK_WEAPONS = 256;
-	/**
-	 * Waffen sind bis zum Kampfende blockiert.
-	 */
-	public static final int BS_DISABLE_WEAPONS = 512;
-
 	// Flags fuer Schlachten
 	/**
 	 * Erste Runde.
@@ -365,13 +321,13 @@ public class Battle implements Locatable
 		double owncaps = 0;
 		double secondrowcaps = 0;
         for (BattleShip aship : shiplist) {
-            if ((aship.getAction() & BS_JOIN) != 0) {
+            if (aship.hasFlag(BattleShipFlag.JOIN)) {
                 continue;
             }
             ShipTypeData type = aship.getTypeData();
 
             double size = type.getSize();
-            if ((aship.getAction() & BS_SECONDROW) != 0) {
+            if (aship.hasFlag(BattleShipFlag.SECONDROW)) {
                 if (!aship.getShip().isDocked() && !aship.getShip().isLanded()) {
                     secondrowcaps += size;
                 }
@@ -507,7 +463,7 @@ public class Battle implements Locatable
 				BattleShip aship = enemyShips.get(i);
 
 				if( !aship.getShip().isLanded() &&
-						(aship.getAction() & Battle.BS_DESTROYED) == 0 && (aship.getAction() & Battle.BS_SECONDROW) == 0 ) {
+						!aship.hasFlag(BattleShipFlag.DESTROYED) && !aship.hasFlag(BattleShipFlag.SECONDROW) ) {
 					return i;
 				}
 			}
@@ -528,7 +484,7 @@ public class Battle implements Locatable
 			}
 			else if( foundOld && (aship.getShip().getType() == enemyShip.getShip().getType()) &&
 					!aship.getShip().isLanded() &&
-					(aship.getAction() & Battle.BS_DESTROYED) == 0 && (aship.getAction() & Battle.BS_SECONDROW) == 0 ) {
+					!aship.hasFlag(BattleShipFlag.DESTROYED) && !aship.hasFlag(BattleShipFlag.SECONDROW) ) {
 				return i;
 			}
 		}
@@ -541,7 +497,7 @@ public class Battle implements Locatable
 			}
 			if( (aship.getShip().getType() == enemyShip.getShip().getType()) &&
 					!aship.getShip().isLanded() &&
-					(aship.getAction() & Battle.BS_DESTROYED) == 0 && (aship.getAction() & Battle.BS_SECONDROW) == 0 ) {
+					!aship.hasFlag(BattleShipFlag.DESTROYED) && !aship.hasFlag(BattleShipFlag.SECONDROW) ) {
 				return i;
 			}
 		}
@@ -733,11 +689,11 @@ public class Battle implements Locatable
                     continue;
                 }
 
-                int sid2Action = 0;
+				BattleShip sid2bs = new BattleShip(this, dockedShip);
 
                 ShipTypeData stype = dockedShip.getTypeData();
                 if (stype.getShipClass() == ShipClasses.GESCHUETZ) {
-                    sid2Action = BS_BLOCK_WEAPONS;
+                    sid2bs.addFlag(BattleShipFlag.BLOCK_WEAPONS);
                 }
 
                 shiplist.add(dockedShip.getId());
@@ -746,11 +702,9 @@ public class Battle implements Locatable
                 // Das neue Schiff in die Liste der eigenen Schiffe eintragen
                 if (!shiptype.hasFlag(ShipTypeFlag.INSTANT_BATTLE_ENTER) &&
                         !stype.hasFlag(ShipTypeFlag.INSTANT_BATTLE_ENTER)) {
-                    sid2Action = sid2Action | BS_JOIN;
+                    sid2bs.addFlag(BattleShipFlag.JOIN);
                 }
 
-                BattleShip sid2bs = new BattleShip(this, dockedShip);
-                sid2bs.setAction(sid2Action);
                 sid2bs.setSide(this.ownSide);
 
                 getOwnShips().add(sid2bs);
@@ -762,15 +716,13 @@ public class Battle implements Locatable
                 dockedShip.setBattle(this);
             }
 
-            int sidAction = 0;
+			BattleShip aBattleShip = new BattleShip(this, aship);
 
-            // Das neue Schiff in die Liste der eigenen Schiffe eintragen
+			// Das neue Schiff in die Liste der eigenen Schiffe eintragen
             if (!shiptype.hasFlag(ShipTypeFlag.INSTANT_BATTLE_ENTER)) {
-                sidAction = BS_JOIN;
+                aBattleShip.addFlag(BattleShipFlag.JOIN);
             }
 
-            BattleShip aBattleShip = new BattleShip(this, aship);
-            aBattleShip.setAction(sidAction);
             aBattleShip.setSide(side);
 
             getOwnShips().add(aBattleShip);
@@ -973,7 +925,7 @@ public class Battle implements Locatable
 
 		// Falls die gewaehlten Schiffe gelandet (oder zerstoert) sind -> neue Schiffe suchen
 		while( activeSEnemy < enemyShips.size() &&
-			  ( (this.enemyShips.get(activeSEnemy).getAction() & BS_DESTROYED) != 0 ||
+			  ( this.enemyShips.get(activeSEnemy).hasFlag(BattleShipFlag.DESTROYED) ||
 			 	this.enemyShips.get(activeSEnemy).getShip().isLanded() ) ) {
 			this.activeSEnemy++;
 		}
@@ -1111,7 +1063,7 @@ public class Battle implements Locatable
 			List<BattleShip> shiplist = new ArrayList<>(sides.get(i));
             for (BattleShip ship : shiplist)
             {
-                if ((ship.getAction() & BS_HIT) != 0)
+                if (ship.hasFlag(BattleShipFlag.HIT))
                 {
                     ship.getShip().setAblativeArmor(ship.getAblativeArmor());
                     ship.getShip().setHull(ship.getHull());
@@ -1120,9 +1072,9 @@ public class Battle implements Locatable
                     ship.getShip().setWeapons(ship.getWeapons());
                     ship.getShip().setComm(ship.getComm());
                     ship.getShip().setSensors(ship.getSensors());
-                    ship.setAction(ship.getAction() ^ BS_HIT);
+                    ship.removeFlag(BattleShipFlag.HIT);
                 }
-                else if ((ship.getAction() & BS_DESTROYED) != 0)
+                else if (ship.hasFlag(BattleShipFlag.DESTROYED))
                 {
                     if ( new ConfigService().getValue(WellKnownConfigValue.DESTROYABLE_SHIPS) )
                     {
@@ -1154,13 +1106,13 @@ public class Battle implements Locatable
                     }
                     else
                     {
-                        ship.setAction(ship.getAction() ^ BS_DESTROYED);
+                        ship.removeFlag(BattleShipFlag.DESTROYED);
                         continue; //Das Schiff kann nicht zerstoert werden
                     }
                 }
 
 
-                if ((ship.getAction() & BS_FLUCHT) != 0) {
+                if ( ship.hasFlag(BattleShipFlag.FLUCHT)) {
                     ShipTypeData ashipType = ship.getTypeData();
                     if (ashipType.getCost() > 0) {
                         removeShip(ship, true);
@@ -1171,35 +1123,28 @@ public class Battle implements Locatable
                     }
                 }
 
-                if ((ship.getAction() & BS_SHOT) != 0) {
-                    ship.setAction(ship.getAction() ^ BS_SHOT);
-                }
+                ship.removeFlag(BattleShipFlag.SHOT);
+                ship.removeFlag(BattleShipFlag.SECONDROW_BLOCKED);
 
-                if ((ship.getAction() & BS_SECONDROW_BLOCKED) != 0) {
-                    ship.setAction(ship.getAction() ^ BS_SECONDROW_BLOCKED);
-                }
-
-                if ((ship.getAction() & BS_BLOCK_WEAPONS) != 0) {
+                if (ship.hasFlag(BattleShipFlag.BLOCK_WEAPONS)) {
                     if (!((ship.getTypeData().getShipClass() == ShipClasses.GESCHUETZ) && ship.getShip().isDocked())) {
-                        ship.setAction(ship.getAction() ^ BS_BLOCK_WEAPONS);
+                        ship.removeFlag(BattleShipFlag.BLOCK_WEAPONS);
                     }
                 }
 
-                if ((i == 0) && this.hasFlag(FLAG_DROP_SECONDROW_0) &&
-                        (ship.getAction() & BS_SECONDROW) != 0) {
-                    ship.setAction(ship.getAction() ^ BS_SECONDROW);
+                if ((i == 0) && this.hasFlag(FLAG_DROP_SECONDROW_0)) {
+                    ship.removeFlag(BattleShipFlag.SECONDROW);
                 }
-                else if ((i == 1) && this.hasFlag(FLAG_DROP_SECONDROW_1) &&
-                        (ship.getAction() & BS_SECONDROW) != 0) {
-                    ship.setAction(ship.getAction() ^ BS_SECONDROW);
+                else if ((i == 1) && this.hasFlag(FLAG_DROP_SECONDROW_1)) {
+					ship.removeFlag(BattleShipFlag.SECONDROW);
                 }
 
-                if ((ship.getAction() & BS_JOIN) != 0) {
+                if (ship.hasFlag(BattleShipFlag.JOIN)) {
                     ShipTypeData ashipType = ship.getTypeData();
 					if (ashipType.hasFlag(ShipTypeFlag.SECONDROW)) {
 						shipsSecond.add(ship);
 					}
-                    ship.setAction(ship.getAction() ^ BS_JOIN);
+                    ship.removeFlag(BattleShipFlag.JOIN);
                 }
 
                 Map<String, Integer> heat = ship.getWeaponHeat();
@@ -1208,8 +1153,9 @@ public class Battle implements Locatable
                     heat.put(weaponName, 0);
                 }
 
-                if ((ship.getAction() & BS_FLUCHTNEXT) != 0) {
-                    ship.setAction((ship.getAction() ^ BS_FLUCHTNEXT) | BS_FLUCHT);
+                if (ship.hasFlag(BattleShipFlag.FLUCHTNEXT)) {
+					ship.removeFlag(BattleShipFlag.FLUCHTNEXT);
+					ship.addFlag(BattleShipFlag.FLUCHT);
                 }
 
                 ship.getShip().setWeaponHeat(heat);
@@ -1218,7 +1164,7 @@ public class Battle implements Locatable
 
 			for(BattleShip second : shipsSecond){
 				if(this.isSecondRowStable(i, second)){
-					second.setAction(second.getAction() | BS_SECONDROW);
+					second.addFlag(BattleShipFlag.SECONDROW);
 				}
 			}
 		}

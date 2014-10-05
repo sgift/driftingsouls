@@ -22,6 +22,7 @@ import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
+import net.driftingsouls.ds2.server.battles.BattleShipFlag;
 import net.driftingsouls.ds2.server.battles.Side;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
@@ -78,15 +79,15 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 			{
 				if (battle.getBattleValue(Side.OWN) - aship.getBattleValue() > 0)
 				{
-					if (((aship.getAction() & Battle.BS_SECONDROW_BLOCKED) == 0) &&
-						((aship.getAction() & Battle.BS_SHOT) == 0) &&
-						((aship.getAction() & Battle.BS_SECONDROW) == 0) &&
+					if (!aship.hasFlag(BattleShipFlag.SECONDROW_BLOCKED) &&
+						!aship.hasFlag(BattleShipFlag.SHOT) &&
+						!aship.hasFlag(BattleShipFlag.SECONDROW) &&
 						(aship.getEngine() > 0) &&
-						((aship.getAction() & Battle.BS_DESTROYED) == 0) &&
+						!aship.hasFlag(BattleShipFlag.DESTROYED) &&
 						!aship.getShip().isLanded() &&
 						!aship.getShip().isDocked() &&
-						((aship.getAction() & Battle.BS_JOIN) == 0) &&
-						((aship.getAction() & Battle.BS_FLUCHT) == 0) &&
+						!aship.hasFlag(BattleShipFlag.JOIN) &&
+						!aship.hasFlag(BattleShipFlag.FLUCHT) &&
 						((ashiptype.getMinCrew() == 0) || (aship.getCrew() >= ashiptype.getMinCrew() / 2d)))
 					{
 						battle.removeShip(aship, false);

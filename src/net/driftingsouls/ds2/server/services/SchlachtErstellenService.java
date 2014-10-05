@@ -4,6 +4,7 @@ import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
+import net.driftingsouls.ds2.server.battles.BattleShipFlag;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
@@ -119,7 +120,7 @@ public class SchlachtErstellenService
 
 			boolean ownShip = false;
 			if ((shiptype.getShipClass() == ShipClasses.GESCHUETZ) && (aShip.isDocked() || aShip.isLanded())) {
-				battleShip.setAction(battleShip.getAction() | Battle.BS_DISABLE_WEAPONS);
+				battleShip.addFlag(BattleShipFlag.DISABLE_WEAPONS);
 			}
 
 			if (((tmpOwnShip.getOwner().getAlly() != null) && (tmpUser.getAlly() == tmpOwnShip.getOwner().getAlly())) || (user.getId() == tmpUser.getId())) {
@@ -500,7 +501,7 @@ public class SchlachtErstellenService
 		{
 			if((ship.getSide() == 0 && firstRowExists) || (ship.getSide() == 1 && firstRowEnemyExists))
 			{
-				ship.setAction(Battle.BS_SECONDROW);
+				ship.addFlag(BattleShipFlag.SECONDROW);
 				if(ship.getTypeData().getJDocks() == 0)
 				{
 					continue;
@@ -517,7 +518,7 @@ public class SchlachtErstellenService
 					BattleShip aship = battleShipMap.get(landedShip);
 					if(aship != null)
 					{
-						aship.setAction(Battle.BS_SECONDROW);
+						aship.addFlag(BattleShipFlag.SECONDROW);
 					}
 				}
 			}

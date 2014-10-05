@@ -20,8 +20,7 @@ package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.battles.BattleShipFlag;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
@@ -50,10 +49,9 @@ public class KSFluchtSingleAction extends BasicKSAction {
 			return result;
 		}
 		
-		Context context = ContextMap.getContext();
 		BattleShip ownShip = battle.getOwnShip();
 
-		if( (ownShip.getAction() & Battle.BS_DESTROYED) != 0 ) {
+		if( ownShip.hasFlag(BattleShipFlag.DESTROYED) ) {
 			battle.logme( "Dieses Schiff explodiert am Ende der Runde\n" );
 			return Result.ERROR;
 		}
@@ -104,7 +102,7 @@ public class KSFluchtSingleAction extends BasicKSAction {
 
 		battle.logme( ownShip.getName()+" wird n&auml;chste Runde fl&uuml;chten\n" );
 			
-		ownShip.setAction(ownShip.getAction() | Battle.BS_FLUCHTNEXT);
+		ownShip.addFlag(BattleShipFlag.FLUCHTNEXT);
 
 		int remove = 1;
 		List<BattleShip> ownShips = battle.getOwnShips();
@@ -112,7 +110,7 @@ public class KSFluchtSingleAction extends BasicKSAction {
 		{
 			if (s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == ownShip.getId())
 			{
-				s.setAction(s.getAction() | Battle.BS_FLUCHTNEXT);
+				s.addFlag(BattleShipFlag.FLUCHTNEXT);
 
 				remove++;
 			}

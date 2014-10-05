@@ -33,6 +33,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 
+import javax.annotation.Nonnull;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -250,19 +251,42 @@ public class BattleShip {
 	}
 
 	/**
-	 * Gibt die Aktionsflags des Schiffes zurueck.
-	 * @return Die Aktionsflags
+	 * Prueft, ob das angegebene Flag fuer das Schiff gesetzt ist.
+	 * @param flag Das Flag
+	 * @return <code>true</code>, falls dem so ist
 	 */
-	public int getAction() {
-		return action;
+	public boolean hasFlag(@Nonnull BattleShipFlag flag)
+	{
+		return (this.action & flag.getBit()) != 0;
 	}
 
 	/**
-	 * Setzt die Aktionsflags des Schiffes.
-	 * @param action Die Aktionsflags
+	 * Fuegt das angegebene Flag zum Schiff hinzu.
+	 * @param flag das Flag
 	 */
-	public void setAction(int action) {
-		this.action = action;
+	public void addFlag(@Nonnull BattleShipFlag flag)
+	{
+		this.action |= flag.getBit();
+	}
+
+	/**
+	 * Entfernt das angegebene Flag vom Schiff.
+	 * @param flag das Flag
+	 */
+	public void removeFlag(@Nonnull BattleShipFlag flag)
+	{
+		if( hasFlag(flag) )
+		{
+			this.action ^= flag.getBit();
+		}
+	}
+
+	/**
+	 * Entfernt alle Flags vom Schiff.
+	 */
+	public void removeAllFlags()
+	{
+		this.action = 0;
 	}
 
 	/**
@@ -431,7 +455,7 @@ public class BattleShip {
 	 */
 	public boolean isJoining()
 	{
-		return (getAction() & Battle.BS_JOIN) != 0;
+		return hasFlag(BattleShipFlag.JOIN);
 	}
 	
 	/**
@@ -462,7 +486,7 @@ public class BattleShip {
 	 */
 	public boolean isSecondRow()
 	{
-		return (getAction() & Battle.BS_SECONDROW) != 0;
+		return hasFlag(BattleShipFlag.SECONDROW);
 	}
 	
 	/**

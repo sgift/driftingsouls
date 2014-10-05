@@ -18,11 +18,10 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import java.io.IOException;
-
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
+import net.driftingsouls.ds2.server.battles.BattleShipFlag;
 import net.driftingsouls.ds2.server.battles.Side;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -30,6 +29,8 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+
+import java.io.IOException;
 
 /**
  * Ermoeglicht den Angriff auf die zweite Reihe des Gegners.
@@ -62,8 +63,8 @@ public class KSSecondRowAttackAction extends BasicKSAction {
 		boolean hasDestroyer = false;
 		for(BattleShip aship: battle.getOwnShips()) 
 		{
-			if( (aship.getAction() & Battle.BS_FLUCHT) != 0 || (aship.getAction() & Battle.BS_JOIN) != 0 ||
-				(aship.getAction() & Battle.BS_SECONDROW) != 0 ) 
+			if( aship.hasFlag(BattleShipFlag.FLUCHT) || aship.hasFlag(BattleShipFlag.JOIN) ||
+				aship.hasFlag(BattleShipFlag.SECONDROW) )
 			{
 				continue;
 			}

@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
+import net.driftingsouls.ds2.server.battles.BattleShipFlag;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.Weapon;
@@ -62,7 +63,7 @@ public class KSMenuGroupAttackAction extends BasicKSMenuAction {
 		BattleShip ownShip = battle.getOwnShip();
 		BattleShip enemyShip = battle.getEnemyShip();
 	
-		if( (ownShip.getAction() & Battle.BS_JOIN) != 0 ) {
+		if( ownShip.hasFlag(BattleShipFlag.JOIN) ) {
 			return Result.ERROR;
 		}
 		
@@ -72,7 +73,7 @@ public class KSMenuGroupAttackAction extends BasicKSMenuAction {
 		}
 		*/
 		
-		if( (enemyShip.getAction() & Battle.BS_DESTROYED) != 0 ) {
+		if( ownShip.hasFlag(BattleShipFlag.DESTROYED) ) {
 			return Result.ERROR;
 		}
 		
@@ -82,13 +83,13 @@ public class KSMenuGroupAttackAction extends BasicKSMenuAction {
 		}
 		*/
 		
-		if( (ownShip.getAction() & Battle.BS_FLUCHT) != 0 ) {
+		if( ownShip.hasFlag(BattleShipFlag.FLUCHT) ) {
 			return Result.ERROR;
 		}
 		
 		ShipTypeData ownShipType = ownShip.getTypeData();
 		
-		if( (enemyShip.getAction() & Battle.BS_FLUCHT) != 0 &&	!ownShipType.hasFlag(ShipTypeFlag.ABFANGEN) ) {
+		if( enemyShip.hasFlag(BattleShipFlag.FLUCHT) && !ownShipType.hasFlag(ShipTypeFlag.ABFANGEN) ) {
 			return Result.ERROR;
 		}
 		
@@ -149,12 +150,12 @@ public class KSMenuGroupAttackAction extends BasicKSMenuAction {
 		BattleShip ownShip = battle.getOwnShip();
 		BattleShip enemyShip = battle.getEnemyShip();
 		
-		if( (ownShip.getAction() & Battle.BS_BLOCK_WEAPONS) != 0 ) {
+		if( ownShip.hasFlag(BattleShipFlag.BLOCK_WEAPONS) ) {
 			battle.logme( "Sie k&ouml;nnen in dieser Runde keine Waffen mehr abfeuern\n" );
 			return Result.ERROR;
 		}
 		
-		if( (ownShip.getAction() & Battle.BS_DISABLE_WEAPONS) != 0 ) {
+		if( ownShip.hasFlag(BattleShipFlag.DISABLE_WEAPONS) ) {
 			battle.logme( "Das Schiff kann seine Waffen in diesem Kampf nicht mehr abfeuern\n" );
 			return Result.ERROR;
 		}
@@ -194,13 +195,13 @@ public class KSMenuGroupAttackAction extends BasicKSMenuAction {
 			
 			Weapon weapon = Weapons.get().weapon(weaponname);
 			
-			if( (ownShip.getAction() & Battle.BS_SECONDROW) != 0 &&
+			if( ownShip.hasFlag(BattleShipFlag.SECONDROW) &&
 				!weapon.hasFlag(Weapon.Flags.LONG_RANGE) &&
 				!weapon.hasFlag(Weapon.Flags.VERY_LONG_RANGE) ) {
 				continue;
 			}
 			
-			if( (enemyShip.getAction() & Battle.BS_SECONDROW) != 0 && 
+			if( enemyShip.hasFlag(BattleShipFlag.SECONDROW) &&
 				!weapon.hasFlag(Weapon.Flags.VERY_LONG_RANGE) ) {
 				continue;
 			}

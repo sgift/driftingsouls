@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
+import net.driftingsouls.ds2.server.battles.BattleShipFlag;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -92,13 +93,12 @@ public class KSMenuFluchtAction extends BasicKSMenuAction {
 			else {
 				gotone = true;	
 			}
-	
-			int action = ownShip.getAction();
-			if( (action & Battle.BS_JOIN) == 0 && (action & Battle.BS_DESTROYED) == 0 && 
-				(action & Battle.BS_FLUCHT) == 0 && !ownShip.getShip().isLanded() && !ownShip.getShip().isDocked() && 
+
+			if( !ownShip.hasFlag(BattleShipFlag.JOIN) && !ownShip.hasFlag(BattleShipFlag.DESTROYED) &&
+				!ownShip.hasFlag(BattleShipFlag.FLUCHT) && !ownShip.getShip().isLanded() && !ownShip.getShip().isDocked() &&
 				(ownShip.getShip().getEngine() > 0) && 
 				( !ownShip.getShip().isBattleAction() || fluchtmode.equals("next") ) && 
-				gotone && ( (action & Battle.BS_FLUCHTNEXT) == 0 || fluchtmode.equals("current")) ) {
+				gotone && ( !ownShip.hasFlag(BattleShipFlag.FLUCHTNEXT) || fluchtmode.equals("current")) ) {
 					
 				if( ownShip.getEngine() > 0 ) {
 					this.menuEntry(t, "Flucht",
@@ -117,8 +117,8 @@ public class KSMenuFluchtAction extends BasicKSMenuAction {
 			{
 				ShipTypeData ashiptype = aship.getTypeData();
 
-				if ((aship.getAction() & Battle.BS_JOIN) == 0 && (aship.getAction() & Battle.BS_DESTROYED) == 0 &&
-						(aship.getAction() & Battle.BS_FLUCHT) == 0 && !ownShip.getShip().isLanded() && !ownShip.getShip().isDocked() && (aship.getShip().getEngine() > 0) &&
+				if (!aship.hasFlag(BattleShipFlag.FLUCHT) && !aship.hasFlag(BattleShipFlag.DESTROYED) &&
+						!aship.hasFlag(BattleShipFlag.FLUCHT) && !ownShip.getShip().isLanded() && !ownShip.getShip().isDocked() && (aship.getShip().getEngine() > 0) &&
 						!aship.getShip().isBattleAction() && gotone)
 				{
 

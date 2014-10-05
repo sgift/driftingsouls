@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.modules.ks;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
+import net.driftingsouls.ds2.server.battles.BattleShipFlag;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.comm.PM;
@@ -65,15 +66,14 @@ public class KSKapernAction extends BasicKSAction {
 		BattleShip ownShip = battle.getOwnShip();
 		BattleShip enemyShip = battle.getEnemyShip();
 
-		if( (ownShip.getAction() & Battle.BS_SECONDROW) != 0 ||
-				(enemyShip.getAction() & Battle.BS_SECONDROW) != 0 ) {
+		if( ownShip.hasFlag(BattleShipFlag.SECONDROW) || enemyShip.hasFlag(BattleShipFlag.SECONDROW) ) {
 			return Result.ERROR;
 		}
 
 		if( (ownShip.getShip().getWeapons() == 0) || (ownShip.getShip().getEngine() == 0) ||
-				(ownShip.getCrew() <= 0) || (ownShip.getAction() & Battle.BS_FLUCHT) != 0 ||
-				(ownShip.getAction() & Battle.BS_JOIN) != 0 || (enemyShip.getAction() & Battle.BS_FLUCHT) != 0 ||
-				(enemyShip.getAction() & Battle.BS_JOIN) != 0 || (enemyShip.getAction() & Battle.BS_DESTROYED) != 0 ) {
+				(ownShip.getCrew() <= 0) || ownShip.hasFlag(BattleShipFlag.FLUCHT) ||
+				ownShip.hasFlag(BattleShipFlag.JOIN) || enemyShip.hasFlag(BattleShipFlag.FLUCHT) ||
+				enemyShip.hasFlag(BattleShipFlag.JOIN) || enemyShip.hasFlag(BattleShipFlag.DESTROYED) ) {
 			return Result.ERROR;
 		}
 
