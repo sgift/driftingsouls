@@ -261,34 +261,35 @@ return function(jqElement) {
 	 * @constructor
 	 */
 	var Legend = function(screen, mapSize) {
-		this.__screen = screen;
-		this.__currentShiftOffset = [0, 0];
-		this.__size = {minx:0, miny:0, maxx:0, maxy:0};
+		var __screen = screen;
+		var __currentShiftOffset = [0, 0];
+		var __size = {minx:0, miny:0, maxx:0, maxy:0};
 
-		this.__renderLegend = function(mapSize)
+		function __renderLegend(mapSize)
 		{
-			this.__size = {minx:mapSize.minx, maxx:mapSize.maxx, miny:mapSize.miny, maxy:mapSize.maxy};
+			__size = {minx:mapSize.minx, maxx:mapSize.maxx, miny:mapSize.miny, maxy:mapSize.maxy};
 			var legend = "<div id=\"legend\">";
 			legend += "<div class='top'>";
 			legend += "<div class='corner'>x/y</div>";
-			legend += this.__printLegend("hbar", this.__size.minx, this.__size.maxx);
+			legend += __printLegend("hbar", __size.minx, __size.maxx);
 			legend += "</div>";
 
 			legend += "<div class='left'>";
-			legend += this.__printLegend("vbar", this.__size.miny, this.__size.maxy);
+			legend += __printLegend("vbar", __size.miny, __size.maxy);
 			legend += "</div>";
 
 			legend += "<div class='right'>";
-			legend += this.__printLegend("vbar", this.__size.miny, this.__size.maxy);
+			legend += __printLegend("vbar", __size.miny, __size.maxy);
 			legend += "</div>";
 
 			legend += "<div class='bottom'>";
 			legend += "<div class='corner'>x/y</div>";
-			legend += this.__printLegend("hbar", this.__size.minx, this.__size.maxx);
+			legend += __printLegend("hbar", __size.minx, __size.maxx);
 			legend += "</div></div>";
 			return legend;
-		};
-		this.__printLegend = function(cls, start, end)
+		}
+
+		function __printLegend(cls, start, end)
 		{
 			var legend = "<div class=\""+cls+"\"><div class=\"scroll\">";
 			for(var x = start; x <= end; x++)
@@ -297,55 +298,68 @@ return function(jqElement) {
 			}
 			legend += "</div></div>";
 			return legend;
-		};
+		}
+
+		/**
+		 * Bereitet eine Verschiebeoperation vor.
+		 * @name Legend.prepareShift
+		 * @param moveX {number} Der Offset in X-Richtung in Pixel
+		 * @param moveY {number} Der Offset in Y-Richtung in Pixel
+		 */
 		this.prepareShift = function(moveX, moveY) {
-			var hbar = $('#legend .hbar .scroll');
-			var vbar = $('#legend .vbar .scroll');
+			var $legend = $('#legend');
+			var hbar = $legend.find('.hbar .scroll');
+			var vbar = $legend.find('.vbar .scroll');
 
-			this.__currentShiftOffset = [this.__currentShiftOffset[0]-moveX, this.__currentShiftOffset[1]-moveY];
+			__currentShiftOffset = [__currentShiftOffset[0]-moveX, __currentShiftOffset[1]-moveY];
 
-			if( this.__currentShiftOffset[0] >= SECTOR_IMAGE_SIZE ) {
-				this.__currentShiftOffset[0] -= SECTOR_IMAGE_SIZE;
+			if( __currentShiftOffset[0] >= SECTOR_IMAGE_SIZE ) {
+				__currentShiftOffset[0] -= SECTOR_IMAGE_SIZE;
 
-				hbar.prepend("<div>"+(this.__size.minx-1)+"</div>");
+				hbar.prepend("<div>"+(__size.minx-1)+"</div>");
 
-				this.__size.minx -= 1;
+				__size.minx -= 1;
 			}
-			else if( this.__screen.widthGap(this.__currentShiftOffset[0], this.__size.minx,this.__size.maxx) > 0 ) {
-				var cnt = this.__screen.widthGap(this.__currentShiftOffset[0], this.__size.minx,this.__size.maxx);
-				var content = "";
-				for( var i=1; i <= cnt; ++i ) {
-					content += "<div>"+(this.__size.maxx+i)+"</div>";
+			else if( __screen.widthGap(__currentShiftOffset[0], __size.minx,__size.maxx) > 0 ) {
+				var cntw = __screen.widthGap(__currentShiftOffset[0], __size.minx,__size.maxx);
+				var contentw = "";
+				for( var w=1; w <= cntw; ++w ) {
+					contentw += "<div>"+(__size.maxx+w)+"</div>";
 				}
-				hbar.append(content);
-				this.__size.maxx += cnt;
+				hbar.append(contentw);
+				__size.maxx += cntw;
 			}
 
-			if( this.__currentShiftOffset[1] >= SECTOR_IMAGE_SIZE ) {
-				this.__currentShiftOffset[1] -= SECTOR_IMAGE_SIZE;
+			if( __currentShiftOffset[1] >= SECTOR_IMAGE_SIZE ) {
+				__currentShiftOffset[1] -= SECTOR_IMAGE_SIZE;
 
-				vbar.prepend("<div>"+(this.__size.miny-1)+"</div>");
-				this.__size.miny -= 1;
+				vbar.prepend("<div>"+(__size.miny-1)+"</div>");
+				__size.miny -= 1;
 			}
-			else if( this.__screen.heightGap(this.__currentShiftOffset[1], this.__size.miny,this.__size.maxy) > 0 ) {
-				var cnt = this.__screen.heightGap(this.__currentShiftOffset[1], this.__size.miny,this.__size.maxy);
-				var content = "";
-				for( var i=1; i <= cnt; ++i ) {
-					content += "<div>"+(this.__size.maxy+i)+"</div>";
+			else if( __screen.heightGap(__currentShiftOffset[1], __size.miny,__size.maxy) > 0 ) {
+				var cnth = __screen.heightGap(__currentShiftOffset[1], __size.miny,__size.maxy);
+				var contenth = "";
+				for( var h=1; h <= cnth; ++h ) {
+					contenth += "<div>"+(__size.maxy+h)+"</div>";
 				}
-				vbar.append(content);
-				this.__size.maxy += cnt;
+				vbar.append(contenth);
+				__size.maxy += cnth;
 			}
 		};
+		/**
+		 * Speichert die Verschiebeoperation und aktualisiert die Darstellung.
+		 * @name Legend.storeShift
+		 */
 		this.storeShift = function() {
-			var hbar = $('#legend .hbar .scroll');
-			var vbar = $('#legend .vbar .scroll');
+			var $legend = $('#legend');
+			var hbar = $legend.find('.hbar .scroll');
+			var vbar = $legend.find('.vbar .scroll');
 
-			hbar.css('left' , (this.__currentShiftOffset[0])+'px');
-			vbar.css('top' , (this.__currentShiftOffset[1])+'px');
+			hbar.css('left' , (__currentShiftOffset[0])+'px');
+			vbar.css('top' , (__currentShiftOffset[1])+'px');
 		};
 
-		jqElement.append(this.__renderLegend(mapSize));
+		jqElement.append(__renderLegend(mapSize));
 	};
 	/**
 	 * Der Hintergrund (Tiles) der Sternenkarte. Dieser besteht aus einzelnen Kacheln.
@@ -384,6 +398,12 @@ return function(jqElement) {
 			return tiles;
 		};
 
+		/**
+		 * Bereitet eine Verschiebeoperation vor.
+		 * @name Tiles.prepareShift
+		 * @param moveX {number} Der Offset in X-Richtung in Pixel
+		 * @param moveY {number} Der Offset in Y-Richtung in Pixel
+		 */
 		this.prepareShift = function(moveX, moveY) {
 			var tiles = $('#tiles');
 			if( isNaN(moveX) || isNaN(this.__currentShiftOffset[0]) ) {
@@ -728,7 +748,7 @@ return function(jqElement) {
 				}
 			}
 			$('#tileOverlay').append(highlight)
-		}
+		};
 
 		/**
 		 * Entfernt das Highlight einer bestimmten Gruppe von einem Sektor.
@@ -743,7 +763,7 @@ return function(jqElement) {
 				highlightGroup = "DEFAULT";
 			}
 			$('#tileOverlay').find('.highlight[data-highlight-x='+sectorX+'][data-highlight-y='+sectorY+'][data-highlight-group='+highlightGroup+']').remove();
-		}
+		};
 
 		/**
 		 * Entfernt alle Highlights die zu einer Gruppe gehoeren.
@@ -756,7 +776,7 @@ return function(jqElement) {
 				highlightGroup = "DEFAULT";
 			}
 			$('#tileOverlay').find('.highlight[data-highlight-group='+highlightGroup+']').remove();
-		}
+		};
 
 		/**
 		 * Bereitet eine Verschiebeoperation vor.
@@ -783,7 +803,7 @@ return function(jqElement) {
 		 */
 		this.reload = function() {
 			doServerRequest(__currentSize);
-		}
+		};
 
 		var content = __renderOverlay(data);
 		$('#mapview').append(content);
@@ -941,7 +961,7 @@ return function(jqElement) {
 
 		var tmpx = x;
 		var tmpy = y;
-		if( typeof(tmpx) !== 'Number' ) {
+		if( typeof(tmpx) === 'string' ) {
 			if( tmpx.indexOf('x') === 0 ) {
 				tmpx = __currentSystem.width/2
 			}
@@ -950,7 +970,7 @@ return function(jqElement) {
 			}
 		}
 
-		if( typeof(tmpy) !== 'Number' ) {
+		if( typeof(tmpy) === 'string' ) {
 			if( tmpy.indexOf('x') === 0 ) {
 				tmpy = __currentSystem.height/2
 			}
