@@ -165,8 +165,10 @@ public class KSSecondRowAction extends BasicKSAction {
 		{
 			if (s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == ownShip.getId())
 			{
-				s.setAction(s.getAction() | Battle.BS_SECONDROW | Battle.BS_SECONDROW_BLOCKED);
-				remove++;
+				if(!s.getShip().isLanded()){
+					s.setAction(s.getAction() | Battle.BS_SECONDROW | Battle.BS_SECONDROW_BLOCKED);
+					remove++;
+				}
 			}
 		}
 		
