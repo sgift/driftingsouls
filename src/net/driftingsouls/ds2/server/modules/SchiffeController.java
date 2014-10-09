@@ -97,7 +97,7 @@ public class SchiffeController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult changeOrderAction(String order)
 	{
-		if (Common.inArray(order, new String[]{"id", "name", "type", "sys", "crew", "hull", "e"}))
+		if (Common.inArray(order, new String[]{"id", "name", "type", "sys", "crew", "hull", "alarm", "e"}))
 		{
 			User user = (User)getUser();
 			user.setUserValue(WellKnownUserValue.TBLORDER_SCHIFFE_ORDER, order);
@@ -168,6 +168,7 @@ public class SchiffeController extends Controller
 		ordermapper.put("sys", "s.system,s.x+s.y,s.id");
 		ordermapper.put("crew", "s.crew,s.id");
 		ordermapper.put("hull", "s.hull,s.id");
+		ordermapper.put("alarm", "s.alarm desc,s.id");
 		ordermapper.put("e", "s.e,s.id");
 
 		String ow = ordermapper.get(ord);
