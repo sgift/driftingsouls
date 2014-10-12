@@ -701,7 +701,7 @@ public class AngriffController extends Controller
 		
 		-----------------------------------------------------------*/
 		
-		if( battle.getEnemyLog(true).length() > 0 ) {
+		if( battle.getEnemyLog().length() > 0 ) {
 			battle.writeLog();
 		}
 		

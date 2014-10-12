@@ -1010,15 +1010,11 @@ public class Battle implements Locatable
 	}
 
 	/**
-	 * Gibt die fuer den Gegner/fuer das Kampflog zu speichernden Nachrichten zurueck.
-	 * @param raw Sollen die Nachrichten im Rohformat (unformatiert) zurueckgegeben werden?
+	 * Gibt die fuer den Gegner/fuer das Kampflog zu speichernden Nachrichten (unformatiert) zurueck.
 	 * @return die Nachrichten
 	 */
-	public String getEnemyLog( boolean raw ) {
-		if( raw ) {
-			return this.logenemybuffer.toString();
-		}
-		return StringUtils.replace(this.logenemybuffer.toString(), "\n", "<br />");
+	public String getEnemyLog() {
+		return this.logenemybuffer.toString();
 	}
 
 	/**
@@ -1318,7 +1314,7 @@ public class Battle implements Locatable
 	public void writeLog() {
 		if( (this.ownShips.size() > 0) && (this.enemyShips.size() > 0) ) {
 			synchronized(LOG_WRITE_LOCK) {
-				Common.writeLog("battles/battle_id"+this.id+".log", this.getEnemyLog(true));
+				Common.writeLog("battles/battle_id"+this.id+".log", this.getEnemyLog());
 			}
 		}
 	}
