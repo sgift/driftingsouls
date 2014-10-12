@@ -793,7 +793,7 @@ public class SchiffFlugService
 		}
 
 		Ship ship = attackShips.get(0); //Take some ship .. no special mechanism here.
-		schlachtErstellenService.erstelle(ship.getOwner(), ship.getId(), schiff.getId(), true);
+		schlachtErstellenService.erstelle(ship.getOwner(), ship, schiff, true);
 	}
 
 	/**

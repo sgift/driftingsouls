@@ -531,7 +531,7 @@ public class KapernController extends Controller
 				User source = (User) getDB().get(User.class, -1);
 				PM.send(source, targetShip.getOwner().getId(), "Kaperversuch entdeckt", "Ihre Schiffe haben einen Kaperversuch bei " + targetShip.getLocation().displayCoordinates(false) + " vereitelt und den Gegner angegriffen");
 
-				Battle battle = schlachtErstellenService.erstelle(targetShip.getOwner(), targetShip.getId(), ownShip.getId(), true);
+				Battle battle = schlachtErstellenService.erstelle(targetShip.getOwner(), targetShip, ownShip, true);
 
 				t.setVar(
 						"kapern.message", "Ihr Kaperversuch wurde entdeckt und einige gegnerischen Schiffe haben das Feuer er&ouml;ffnet",
