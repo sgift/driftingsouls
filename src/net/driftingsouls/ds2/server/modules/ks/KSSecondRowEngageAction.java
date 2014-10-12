@@ -18,13 +18,10 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.battles.BattleShipFlag;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import java.io.IOException;
@@ -63,9 +60,7 @@ public class KSSecondRowEngageAction extends BasicKSAction {
 			battle.logme("Die Aktion kann nicht ausgef&uuml;hrt werden");
 			return Result.ERROR;
 		}
-		
-		Context context = ContextMap.getContext();
-		
+
 		List<BattleShip> enemyShips = battle.getEnemyShips();
 		for (BattleShip eShip : enemyShips)
 		{
@@ -73,10 +68,8 @@ public class KSSecondRowEngageAction extends BasicKSAction {
 		}
 		
 		battle.logme( "Ihre Schiffe r&uuml;cken vor und durchbrechen die feindlichen Linien\n");
-		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
-		battle.logenemy("Die feindlichen Schiffe r&uuml;cken vor und durchbrechen trotz heftigen Widerstands die Linien\n");
-		battle.logenemy("]]></action>\n");	
-		
+		battle.log(new SchlachtLogAktion(battle.getOwnSide(), "Die feindlichen Schiffe r&uuml;cken vor und durchbrechen trotz heftigen Widerstands die Linien"));
+
 		if( battle.getOwnSide() == 0 ) {
 			battle.setFlag(Battle.FLAG_BLOCK_SECONDROW_1, true);
 		}

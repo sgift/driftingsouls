@@ -19,9 +19,13 @@
 package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.battles.SchlachtLog;
+import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
+import net.driftingsouls.ds2.server.battles.SchlachtLogEintrag;
+import net.driftingsouls.ds2.server.battles.SchlachtLogKommandantWechselt;
+import net.driftingsouls.ds2.server.battles.SchlachtLogRundeBeendet;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
@@ -29,48 +33,29 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.xml.sax.Attributes;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.SequenceInputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Zeigt das Kampflog an.
  * @author Christopher Jung
  *
  */
-public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHandler {
+public class KSMenuHistoryAction extends BasicKSMenuAction {
 	private static final Log log = LogFactory.getLog(KSMenuHistoryAction.class);
 	private String text = "";
 	private boolean showOK = true;
 	private boolean showTakeCommand = false;
 	
 	private StringBuilder history_text = new StringBuilder();
-	private String history_tag = "";
-	private final Set<String >history_validTags = new HashSet<>();
-	private boolean trimHistory = false;
 	private int historyPage = -1;
 	private int historyCurrentpage = 0;
 	private int historyMaxpage = 0;
 	private Map<Integer,String> historySides = new HashMap<>();
-	private boolean historyShowtag = true;
-	
+
 	private final Map<Integer,Boolean> filter = new HashMap<>();
 
 	/**
@@ -78,15 +63,6 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 	 *
 	 */
 	public KSMenuHistoryAction() {
-		this.history_validTags.add("battle");
-		this.history_validTags.add("fileinfo");
-		this.history_validTags.add("coords");
-		this.history_validTags.add("side1");
-		this.history_validTags.add("side2");
-		this.history_validTags.add("startdate");
-		this.history_validTags.add("action");
-		this.history_validTags.add("endturn");
-		
 		this.historySides.put( -1, "Das Tickscript" );
 		
 		this.text = "";
@@ -134,174 +110,6 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 		return this.historyCurrentpage == this.historyMaxpage;
 	}
 
-	@Override
-	public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException
-	{
-		Context context = ContextMap.getContext();
-		this.historyShowtag = true;
-
-		if( this.history_validTags.contains(localName.toLowerCase()) )
-		{
-			this.history_tag = localName.toLowerCase();
-			this.trimHistory = true;
-			
-			int side = 0;
-			if( atts.getValue("side") != null )
-			{
-				side = Integer.parseInt(atts.getValue("side"));
-			}
-	
-			if( this.history_tag.equals("endturn") ) {
-				if( atts.getValue("type").equals("all") )
-				{
-					if( showCurrentPage() )
-					{
-						if( (side == -1) || this.filter.get(side) )
-						{
-							this.history_text.append("[tooltip="+Common.date("d.m.Y H:i:s", Long.parseLong(atts.getValue("time")))+"][img]./data/interface/ks/icon_side"+side+".png[/img][/tooltip] ");
-							this.history_text.append(this.historySides.get(side)).append(" hat die Runde beendet\n");
-						}
-						else
-						{
-							this.historyShowtag = false;
-						}
-					}
-					this.historyCurrentpage++;
-					this.historyMaxpage++;
-					if( this.historyPage == -1 )
-					{
-						this.history_text.setLength(0);
-					}
-				}
-				else
-				{
-					if( showCurrentPage() )
-					{
-						if( (side > -1) && !this.filter.get(side) )
-						{
-							this.historyShowtag = false;
-							return;	
-						}
-						this.history_text.append("[tooltip="+Common.date("d.m.Y H:i:s", Long.parseLong(atts.getValue("time")))+"][img]./data/interface/ks/icon_side"+side+".png[/img][/tooltip] ");
-						this.history_text.append(this.historySides.get(side)).append(" hat die Runde beendet\n");
-					}
-				}
-			} 
-			else if( this.history_tag.equals("action") && showCurrentPage() )
-			{
-				
-				if( (side > -1) && !this.filter.get(side) )
-				{
-					this.historyShowtag = false;
-					return;	
-				}
-						
-				this.history_text.append("[tooltip="+Common.date("d.m.Y H:i:s", Long.parseLong(atts.getValue("time")))+"][img]./data/interface/ks/icon_side"+side+".png[/img][/tooltip] ");
-			} 
-			else if( this.history_tag.equals("side1") || this.history_tag.equals("side2") )
-			{
-				int thisSide = 0;
-				if( this.history_tag.equals("side2") )
-				{
-					thisSide = 1;
-				}
-				User auser = (User)context.getDB().get(User.class, Integer.parseInt(atts.getValue("commander")));
-				if( auser == null )
-				{
-					this.historySides.put(thisSide, "Unbekannter Spieler ("+atts.getValue("commander")+")");
-				}
-				else
-				{
-					this.historySides.put(thisSide, "<a class=\"profile\" style=\"color:#000050\" href=\""+Common.buildUrl("default", "module", "userprofile", "user", auser.getId())+"\">"+Common._titleNoFormat(auser.getName())+"</a>");
-				}
-			} 
-		}
-		else
-		{
-			List<String> params = new ArrayList<>();
-	
-			for( int i=0; i < atts.getLength(); i++ )
-			{
-				params.add(atts.getQName(i)+"=\""+atts.getValue(i)+"\"");
-			}
-
-			if( showCurrentPage()  )
-			{
-				this.history_text.append("<").append(qName).append(" ").append(Common.implode(" ", params)).append(">");
-			}
-		}
-	}
-	
-	@Override
-	public void characters(char[] ch, int start, int length) throws SAXException {
-		if( !this.historyShowtag ) {
-			return;
-		}
-		if( !this.history_tag.equals("action") ) {
-			return;
-		}
-	
-		String data = new String(ch, start, length);
-		if( this.trimHistory ) {
-			this.trimHistory = false;
-			data = data.trim();
-		}
-	
-		if( showCurrentPage() ) {
-			this.history_text.append(data);
-		}		
-	}
-
-	@Override
-	public void endElement(String uri, String localName, String qName) throws SAXException {
-		if( !this.historyShowtag ) {
-			return;
-		}
-		if( !this.history_validTags.contains(localName.toLowerCase()) ) {
-			this.history_text.append("</").append(localName).append(">");
-		}		
-	}
-	
-	@Override
-	public void endDocument() throws SAXException {
-		// EMPTY		
-	}
-
-	@Override
-	public void endPrefixMapping(String prefix) throws SAXException {
-		// EMPTY
-	}
-
-	@Override
-	public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
-		// EMPTY
-	}
-
-	@Override
-	public void processingInstruction(String target, String data) throws SAXException {
-		// EMPTY
-	}
-
-	@Override
-	public void setDocumentLocator(Locator locator) {
-		// EMPTY
-	}
-
-	@Override
-	public void skippedEntity(String name) throws SAXException {
-		// EMPTY
-	}
-
-	@Override
-	public void startDocument() throws SAXException {
-		// EMPTY
-	}
-
-	@Override
-	public void startPrefixMapping(String prefix, String uri) throws SAXException {
-		// EMPTY
-	}
-	
 	@Override
 	public Result execute(TemplateEngine t, Battle battle) throws IOException {
 		Result result = super.execute(t, battle);
@@ -366,13 +174,10 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 					"global.showlog.actionstr",		actionstr );
 		
 		try {
-			File ksLog = new File(Configuration.getLogPath()+"battles/battle_id"+battle.getId()+".log");
-			if( !ksLog.isFile() ) {
-				t.setVar( "global.showlog.log", "Fehler: Konnte Kampflog nicht &ouml;ffnen");
-				return Result.ERROR;
+			if( battle.getSchlachtLog() != null )
+			{
+				parseLog(battle.getSchlachtLog());
 			}
-			
-			parseLog(ksLog);
 			
 			BBCodeParser bbcodeparser = BBCodeParser.getNewInstance();
 			bbcodeparser.registerHandler( "tooltip", 2, "<a class='tooltip' href=\"#\">$1<span class='ttcontent'>$2</span></a>" );
@@ -393,14 +198,87 @@ public class KSMenuHistoryAction extends BasicKSMenuAction implements ContentHan
 		return Result.OK;
 	}
 
-	private void parseLog(File ksLog) throws SAXException, IOException
+	private void parseLog(SchlachtLog ksLog) throws SAXException, IOException
 	{
-		XMLReader parser = XMLReaderFactory.createXMLReader();
-		
-		parser.setContentHandler(this);
-		try (InputStream in = new SequenceInputStream(new FileInputStream(ksLog), new ByteArrayInputStream("</battle>".getBytes())))
+		for (SchlachtLogEintrag eintrag : ksLog.getEintraege())
 		{
-			parser.parse(new InputSource(in));
+			if( eintrag instanceof SchlachtLogAktion )
+			{
+				erzeugeAnzeige((SchlachtLogAktion)eintrag);
+			}
+			else if( eintrag instanceof SchlachtLogKommandantWechselt )
+			{
+				erzeugeAnzeige((SchlachtLogKommandantWechselt)eintrag);
+			}
+			else if( eintrag instanceof SchlachtLogRundeBeendet )
+			{
+				erzeugeAnzeige((SchlachtLogRundeBeendet) eintrag);
+			}
+		}
+	}
+
+	private void erzeugeAnzeige(SchlachtLogAktion eintrag)
+	{
+		if ((eintrag.getSeite() > -1) && !this.filter.get(eintrag.getSeite()))
+		{
+			return;
+		}
+
+		if( showCurrentPage() ) {
+			this.history_text.append("[tooltip=").append(Common.date("d.m.Y H:i:s", eintrag.getZeitpunkt())).append("][img]./data/interface/ks/icon_side").append(eintrag.getSeite()).append(".png[/img][/tooltip] ");
+			this.history_text.append(eintrag.getText().trim());
+			this.history_text.append("\n\n");
+		}
+	}
+
+	private void erzeugeAnzeige(SchlachtLogKommandantWechselt eintrag)
+	{
+		int thisSide = eintrag.getSeite();
+		Context context = ContextMap.getContext();
+		User auser = (User)context.getDB().get(User.class, eintrag.getUserId());
+		if( auser == null )
+		{
+			this.historySides.put(thisSide, Common._titleNoFormat(eintrag.getName())+" ("+eintrag.getUserId()+")");
+		}
+		else
+		{
+			this.historySides.put(thisSide, "<a class=\"profile\" style=\"color:#000050\" href=\""+Common.buildUrl("default", "module", "userprofile", "user", auser.getId())+"\">"+Common._titleNoFormat(auser.getName())+"</a>");
+		}
+	}
+
+	private void erzeugeAnzeige(SchlachtLogRundeBeendet rbEintrag)
+	{
+		if( rbEintrag.getTyp() == SchlachtLogRundeBeendet.Modus.ALLE )
+		{
+			if( showCurrentPage() )
+			{
+				if( (rbEintrag.getSeite() == -1) || this.filter.get(rbEintrag.getSeite()) )
+				{
+					this.history_text.append("[tooltip=").append(Common.date("d.m.Y H:i:s", rbEintrag.getZeitpunkt())).append("]");
+					this.history_text.append("[img]./data/interface/ks/icon_side").append(rbEintrag.getSeite()).append(".png[/img][/tooltip] ");
+					this.history_text.append(this.historySides.get(rbEintrag.getSeite())).append(" hat die Runde beendet\n");
+					this.history_text.append("\n\n");
+				}
+			}
+			this.historyCurrentpage++;
+			this.historyMaxpage++;
+			if( this.historyPage == -1 )
+			{
+				this.history_text.setLength(0);
+			}
+		}
+		else
+		{
+			if( showCurrentPage() )
+			{
+				if( (rbEintrag.getSeite() > -1) && !this.filter.get(rbEintrag.getSeite()) )
+				{
+					return;
+				}
+				this.history_text.append("[tooltip=").append(Common.date("d.m.Y H:i:s", rbEintrag.getZeitpunkt())).append("][img]./data/interface/ks/icon_side").append(rbEintrag.getSeite()).append(".png[/img][/tooltip] ");
+				this.history_text.append(this.historySides.get(rbEintrag.getSeite())).append(" hat die Runde beendet\n");
+				this.history_text.append("\n\n");
+			}
 		}
 	}
 }

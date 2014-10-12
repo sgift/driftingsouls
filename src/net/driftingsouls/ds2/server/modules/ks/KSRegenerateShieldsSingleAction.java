@@ -18,16 +18,13 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import java.io.IOException;
-
-import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+
+import java.io.IOException;
 
 /**
  * Laedt die Schilde des gerade ausgewaehlten Schiffes wieder auf.
@@ -49,7 +46,6 @@ public class KSRegenerateShieldsSingleAction extends BasicKSAction {
 			return result;
 		}
 		
-		Context context = ContextMap.getContext();
 		BattleShip ownShip = battle.getOwnShip();
 		ShipTypeData ownShipType = ownShip.getTypeData();
 		
@@ -79,8 +75,6 @@ public class KSRegenerateShieldsSingleAction extends BasicKSAction {
 			load = ownShip.getShip().getEnergy();
 		}
 
-		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
-
 		ownShip.getShip().setEnergy(ownShip.getShip().getEnergy() - load);
 		ownShip.getShip().setShields(ownShip.getShip().getShields() + load*shieldfactor);
 		if( ownShip.getShip().getShields() > ownShipType.getShields() ) {
@@ -88,7 +82,7 @@ public class KSRegenerateShieldsSingleAction extends BasicKSAction {
 		}
 
 		battle.logme( "Schilde nun bei "+ownShip.getShip().getShields()+"/"+ownShipType.getShields()+"\n" );
-		battle.logenemy("Die "+Battle.log_shiplink(ownShip.getShip())+" hat ihre Schilde aufgeladen\n");
+		battle.log(new SchlachtLogAktion(battle.getOwnSide(),"Die "+Battle.log_shiplink(ownShip.getShip())+" hat ihre Schilde aufgeladen"));
 
 		ownShip.getShip().setBattleAction(true);
 
@@ -99,8 +93,6 @@ public class KSRegenerateShieldsSingleAction extends BasicKSAction {
 		}
 		ownShip.setShields(curShields);
 
-		battle.logenemy("]]></action>\n");
-		
 		ownShip.getShip().recalculateShipStatus();
 			
 		return Result.OK;

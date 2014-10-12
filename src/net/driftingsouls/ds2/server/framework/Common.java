@@ -369,14 +369,27 @@ public class Common {
 	/**
 	 * Erzeugt aus einem Zeitstempel und einem Formatierungsmuster einen Datumsstring.
 	 * Vgl. date(...)-Befehl in php.
-	 * 
+	 *
 	 * @param pattern Das Formatierungsmuster
 	 * @param time Der Zeitstempel
 	 * @return Das formatierte Datum
 	 */
-	public static String date(String pattern, long time) {
+	public static String date(String pattern, long time)
+	{
+		return date(pattern, new Date(time * 1000));
+	}
+
+	/**
+	 * Erzeugt aus einem Zeitstempel und einem Formatierungsmuster einen Datumsstring.
+	 * Vgl. date(...)-Befehl in php.
+	 * 
+	 * @param pattern Das Formatierungsmuster
+	 * @param date Der Zeitpunkt
+	 * @return Das formatierte Datum
+	 */
+	public static String date(String pattern, Date date) {
 		Calendar cal = Calendar.getInstance();
-		cal.setTime(new Date(time*1000));
+		cal.setTime(date);
 		
 		StringBuilder buffer = new StringBuilder();
 		for( int i=0; i < pattern.length(); i++ ) {

@@ -29,7 +29,6 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -45,6 +44,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.CacheMode;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
+import org.hibernate.Session;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -59,10 +59,10 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -86,11 +86,6 @@ import java.util.Set;
 public class Battle implements Locatable
 {
 	private static final Log log = LogFactory.getLog(Battle.class);
-
-	/**
-	 * Die Versionsnummer des Logformats.
-	 */
-	public static final int LOGFORMAT = 2;
 
 	// Flags fuer Schlachten
 	/**
@@ -139,6 +134,10 @@ public class Battle implements Locatable
 	private long lastaction;
 	private long lastturn;
 	private int flags;
+	@OneToOne(cascade = {})
+	@JoinColumn
+	@ForeignKey(name="battles_fk_schlachtlog")
+	private SchlachtLog schlachtLog;
 
 	@Version
 	private int version;
@@ -176,8 +175,6 @@ public class Battle implements Locatable
 
 	@Transient
 	private StringBuilder logoutputbuffer = new StringBuilder();
-	@Transient
-	private StringBuilder logenemybuffer = new StringBuilder();
 
 	/**
 	 * Generiert eine Stringrepraesentation eines Schiffes, welche
@@ -739,12 +736,12 @@ public class Battle implements Locatable
 		if( shiplist.size() > 1 )
 		{
 			int addedShips = shiplist.size()-1;
-			this.logenemy("<action side=\""+this.ownSide+"\" time=\""+Common.time()+"\" tick=\""+tick+"\"><![CDATA[\nDie "+log_shiplink(shipd)+" ist zusammen mit "+addedShips+" weiteren Schiffen der Schlacht beigetreten\n]]></action>\n");
+			this.log(new SchlachtLogAktion(this.ownSide, "Die " + log_shiplink(shipd) + " ist zusammen mit " + addedShips + " weiteren Schiffen der Schlacht beigetreten"));
 			this.logme( "Die "+log_shiplink(shipd)+" ist zusammen mit "+addedShips+" weiteren Schiffen der Schlacht beigetreten\n\n" );
 		}
 		else
 		{
-			this.logenemy("<action side=\""+this.ownSide+"\" time=\""+Common.time()+"\" tick=\""+tick+"\"><![CDATA[\nDie "+log_shiplink(shipd)+" ist der Schlacht beigetreten\n]]></action>\n");
+			this.log(new SchlachtLogAktion(this.ownSide, "Die " + log_shiplink(shipd) + " ist der Schlacht beigetreten"));
 			this.logme("Die "+log_shiplink(shipd)+" ist der Schlacht beigetreten\n\n");
 
 			shipd.setBattle(this);
@@ -1002,27 +999,22 @@ public class Battle implements Locatable
 	}
 
 	/**
-	 * Loggt eine Nachricht fuer den Gegner/fuer das Kampflog.
-	 * @param text Die zu loggende Nachricht
+	 * Fuegt einen Eintrag zum Schlachtlog hinzu.
+	 * @param eintrag Der Eintrag
 	 */
-	public void logenemy( String text ) {
-		this.logenemybuffer.append(text);
-	}
+	public void log(SchlachtLogEintrag eintrag)
+	{
+		Context context = ContextMap.getContext();
+		Session db = context.getDB();
+		int tick = context.get(ContextCommon.class).getTick();
+		eintrag.setTick(tick);
 
-	/**
-	 * Gibt die fuer den Gegner/fuer das Kampflog zu speichernden Nachrichten (unformatiert) zurueck.
-	 * @return die Nachrichten
-	 */
-	public String getEnemyLog() {
-		return this.logenemybuffer.toString();
-	}
-
-	/**
-	 * Leert den Nachrichtenpuffer fuer den Gegner/fuer das Kampflog.
-	 *
-	 */
-	public void clearEnemyLog() {
-		this.logenemybuffer.setLength(0);
+		if( this.schlachtLog == null ) {
+			this.schlachtLog = new SchlachtLog(this, tick);
+			db.persist(this.schlachtLog);
+		}
+		this.schlachtLog.add(eintrag);
+		db.persist(eintrag);
 	}
 
 	/**
@@ -1094,7 +1086,6 @@ public class Battle implements Locatable
                         ShipLost lost = new ShipLost(ship.getShip());
                         lost.setDestAlly(destroyerAlly);
                         lost.setDestOwner(destroyer);
-                        lost.setBattleLog(Configuration.getLogPath() + "battles/battle_id" + getId() + ".log");
                         db.save(lost);
 
                         destroyShip(ship);
@@ -1267,19 +1258,15 @@ public class Battle implements Locatable
 
 		for( int i=0; i < 2; i++ ) {
 			if( !calledByUser && this.getTakeCommands()[i] != 0 ) {
-				this.logenemy("<action side=\""+i+"\" time=\""+Common.time()+"\" tick=\""+tick+"\"><![CDATA[\n");
-
 				User com = (User)context.getDB().get(User.class, this.getTakeCommands()[i]);
 
 				PM.send(com, this.getCommanders()[i].getId(), "Schlacht &uuml;bernommen", "Ich habe die Leitung der Schlacht bei "+this.getLocation().displayCoordinates(false)+" &uuml;bernommen.");
 
-				this.logenemy("[Automatisch] "+Common._titleNoFormat(com.getName())+" kommandiert nun die gegnerischen Truppen\n\n");
+				this.log(new SchlachtLogAktion(i, "[Automatisch] "+Common._titleNoFormat(com.getName())+" kommandiert nun die gegnerischen Truppen"));
 
 				this.setCommander(i, com);
 
-				this.logenemy("]]></action>\n");
-
-				this.logenemy("<side"+(i+1)+" commander=\""+this.getCommanders()[i].getId()+"\" ally=\""+this.getAllys()[i]+"\" />\n");
+				this.log(new SchlachtLogKommandantWechselt(i, this.getCommanders()[i]));
 
 				this.setTakeCommand(i, 0);
 			}
@@ -1306,19 +1293,6 @@ public class Battle implements Locatable
 		return true;
 	}
 
-	private static final Object LOG_WRITE_LOCK = new Object();
-
-	/**
-	 * Schreibt das aktuelle Kampflog in die Logdatei.
-	 */
-	public void writeLog() {
-		if( (this.ownShips.size() > 0) && (this.enemyShips.size() > 0) ) {
-			synchronized(LOG_WRITE_LOCK) {
-				Common.writeLog("battles/battle_id"+this.id+".log", this.getEnemyLog());
-			}
-		}
-	}
-
 	@Transient
 	private boolean deleted = false;
 
@@ -1328,8 +1302,6 @@ public class Battle implements Locatable
 	 * @param side2points Die Punkte, die die zweite Seite bekommen soll (Positiv meint Schlacht gewonnen; Negativ meint Schlacht verloren)
 	 */
 	public void endBattle(int side1points, int side2points) {
-		this.writeLog();
-
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 
@@ -1344,17 +1316,6 @@ public class Battle implements Locatable
 			.setEntity("battle", this)
 			.executeUpdate();
 		db.createQuery("update Ship set battle=null,battleAction=0 where id>0 and battle=:battle")
-			.setEntity("battle", this)
-			.executeUpdate();
-
-		Common.writeLog("battles/battle_id"+this.id+".log", "</battle>");
-
-		final String newlog = Configuration.getLogPath()+"battles/ended/"+Common.time()+"_id"+this.id+".log";
-		new File(Configuration.getLogPath()+"battles/battle_id"+this.id+".log")
-			.renameTo(new File(newlog));
-
-		db.createQuery("update ShipLost set battle=0,battleLog=:log where battle=:battle")
-			.setString("log", newlog)
 			.setEntity("battle", this)
 			.executeUpdate();
 
@@ -1906,5 +1867,23 @@ public class Battle implements Locatable
 		{
 			this.ally2 = ally;
 		}
+	}
+
+	/**
+	 * Gibt das Log zu dieser Schlacht zurueck.
+	 * @return Das Log
+	 */
+	public SchlachtLog getSchlachtLog()
+	{
+		return schlachtLog;
+	}
+
+	/**
+	 * Setzt das Log zu dieser Schlacht.
+	 * @param schlachtLog Das Log
+	 */
+	public void setSchlachtLog(SchlachtLog schlachtLog)
+	{
+		this.schlachtLog = schlachtLog;
 	}
 }

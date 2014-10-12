@@ -18,13 +18,10 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.battles.BattleShipFlag;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
@@ -110,13 +107,10 @@ public class KSLeaveSecondRowAction extends BasicKSAction {
 			return Result.ERROR;
 		}
 		
-		Context context = ContextMap.getContext();
 		BattleShip ownShip = battle.getOwnShip();
-		 
-		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
-		
+
 		battle.logme( ownShip.getName()+" fliegt zur Front\n" );
-		battle.logenemy( Battle.log_shiplink(ownShip.getShip())+" fliegt zur Front\n" );
+		battle.log(new SchlachtLogAktion(battle.getOwnSide(), Battle.log_shiplink(ownShip.getShip())+" fliegt zur Front\n"));
 
 		ownShip.removeFlag(BattleShipFlag.SECONDROW);
 		ownShip.addFlag(BattleShipFlag.SECONDROW_BLOCKED);
@@ -138,9 +132,7 @@ public class KSLeaveSecondRowAction extends BasicKSAction {
 		{
 			battle.logme(remove +" an "+ownShip.getName()+" gedockte Schiffe fliegen zur Front\n");
 		}
-		
-		battle.logenemy("]]></action>\n");
-	
+
 		return Result.OK;
 	}
 }

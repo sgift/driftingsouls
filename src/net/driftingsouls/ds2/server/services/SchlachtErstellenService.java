@@ -5,30 +5,29 @@ import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.battles.BattleShipFlag;
+import net.driftingsouls.ds2.server.battles.SchlachtLog;
+import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
+import net.driftingsouls.ds2.server.battles.SchlachtLogKommandantWechselt;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
-import org.apache.commons.lang.SystemUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.FlushMode;
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nonnull;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -234,8 +233,8 @@ public class SchlachtErstellenService
 
 		insertShipsIntoDatabase(battle, battle.getEnemyShips(), startlist, idlist);
 		if( startlist.size() > 0 ) {
-			battle.logme(startlist.size()+" J&auml;ger sind automatisch gestartet\n");
-			battle.logenemy("<action side=\"1\" time=\""+Common.time()+"\" tick=\""+tick+"\"><![CDATA[\n"+startlist.size()+" J&auml;ger sind automatisch gestartet\n]]></action>\n");
+			battle.logme(startlist.size() + " J&auml;ger sind automatisch gestartet\n");
+			battle.log(new SchlachtLogAktion(1, startlist.size() + " J&auml;ger sind automatisch gestartet"));
 
 			startlist.clear();
 		}
@@ -261,8 +260,8 @@ public class SchlachtErstellenService
 
 		insertShipsIntoDatabase(battle, battle.getOwnShips(), startlist, idlist);
 		if( startOwn && startlist.size() > 0 ) {
-			battle.logme(startlist.size()+" J&auml;ger sind automatisch gestartet\n");
-			battle.logenemy("<action side=\"0\" time=\""+Common.time()+"\" tick=\""+tick+"\"><![CDATA[\n"+startlist.size()+" J&auml;ger sind automatisch gestartet\n]]></action>\n");
+			battle.logme(startlist.size() + " J&auml;ger sind automatisch gestartet\n");
+			battle.log(new SchlachtLogAktion(0, startlist.size() + " Jäger sind automatisch gestartet"));
 		}
 		battle.getOwnShips().add(ownBattleShip);
 		battle.setFiringShip(ownBattleShip.getShip());
@@ -270,8 +269,7 @@ public class SchlachtErstellenService
 		//
 		// Log erstellen
 		//
-		createBattleLog(battle, ownBattleShip, enemyBattleShip, tick);
-
+		createBattleLog(db, battle, ownBattleShip, enemyBattleShip, tick);
 
 		//
 		// Beziehungen aktualisieren
@@ -359,64 +357,14 @@ public class SchlachtErstellenService
 		return battle;
 	}
 
-	private void createBattleLog(Battle battle, BattleShip ownBattleShip, BattleShip enemyBattleShip, int tick)
+	private void createBattleLog(Session db, Battle battle, BattleShip ownBattleShip, BattleShip enemyBattleShip, int tick)
 	{
-		Ship ownShip = ownBattleShip.getShip();
-		try {
-			BufferedWriter writer = new BufferedWriter(new FileWriter(Configuration.getLogPath()+"battles/battle_id"+battle.getId()+".log"));
-			writer.append("<?xml version='1.0' encoding='UTF-8'?>\n");
-			writer.append("<battle>\n");
-			writer.append("<fileinfo format=\""+Battle.LOGFORMAT+"\" />\n");
-			writer.append("<coords x=\"");
-			writer.append(String.valueOf(ownShip.getX()));
-			writer.append("\" y=\"");
-			writer.append(String.valueOf(ownShip.getY()));
-			writer.append("\" system=\"");
-			writer.append(String.valueOf(ownShip.getSystem()));
-			writer.append("\" />\n");
+		SchlachtLog log = new SchlachtLog(battle, tick);
+		db.persist(log);
+		battle.setSchlachtLog(log);
 
-			if( ownBattleShip.getOwner().getAlly() != null ) {
-				writer.append("<side1 commander=\"");
-				writer.append(String.valueOf(ownBattleShip.getOwner().getId()));
-				writer.append("\" ally=\"");
-				writer.append(String.valueOf(ownBattleShip.getOwner().getAlly().getId()));
-				writer.append("\" />\n");
-			}
-			else
-			{
-				writer.append("<side1 commander=\"");
-				writer.append(String.valueOf(ownBattleShip.getOwner().getId()));
-				writer.append("\" />\n");
-			}
-
-			if( enemyBattleShip.getOwner().getAlly() != null ) {
-				writer.append("<side2 commander=\"");
-				writer.append(String.valueOf(enemyBattleShip.getOwner().getId()));
-				writer.append("\" ally=\"");
-				writer.append(String.valueOf(enemyBattleShip.getOwner().getAlly().getId()));
-				writer.append("\" />\n");
-			}
-			else
-			{
-				writer.append("<side2 commander=\"");
-				writer.append(String.valueOf(enemyBattleShip.getOwner().getId()));
-				writer.append("\" />\n");
-			}
-
-			writer.append("<startdate tick=\"");
-			writer.append(String.valueOf(tick));
-			writer.append("\" time=\"");
-			writer.append(String.valueOf(Common.time()));
-			writer.append("\" />\n");
-			writer.close();
-
-			if( SystemUtils.IS_OS_UNIX ) {
-				Runtime.getRuntime().exec("chmod 0666 "+Configuration.getLogPath()+"battles/battle_id"+battle.getId()+".log");
-			}
-		}
-		catch( IOException e ) {
-			LOG.error("Konnte KS-Log fuer Schlacht "+battle.getId()+" nicht erstellen", e);
-		}
+		battle.log(new SchlachtLogKommandantWechselt(0, ownBattleShip.getOwner()));
+		battle.log(new SchlachtLogKommandantWechselt(1, enemyBattleShip.getOwner()));
 	}
 
 	private void insertShipsIntoDatabase(Battle battle, List<BattleShip> ships, List<Integer> startlist, List<Integer> idlist)

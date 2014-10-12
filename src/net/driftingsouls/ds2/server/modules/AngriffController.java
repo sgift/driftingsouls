@@ -700,11 +700,7 @@ public class AngriffController extends Controller
 			Menue
 		
 		-----------------------------------------------------------*/
-		
-		if( battle.getEnemyLog().length() > 0 ) {
-			battle.writeLog();
-		}
-		
+
 		StringBuilder actionBuilder = new StringBuilder(ksaction);
 		if( !this.showMenu( t, battle, actionBuilder ) ) {
 			return null;

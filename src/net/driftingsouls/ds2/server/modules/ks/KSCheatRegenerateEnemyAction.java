@@ -18,11 +18,10 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
-import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -54,8 +53,6 @@ public class KSCheatRegenerateEnemyAction extends BasicKSAction {
 		
 		BattleShip enemyShip = battle.getEnemyShip();
 
-		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
-
 		ShipTypeData enemyShipType = enemyShip.getTypeData();
 		enemyShip.getShip().setCrew(enemyShipType.getCrew());
 		enemyShip.getShip().setHull(enemyShipType.getHull());
@@ -77,10 +74,8 @@ public class KSCheatRegenerateEnemyAction extends BasicKSAction {
 		enemyShip.removeAllFlags();
 		
 		battle.logme( "CHEAT: Gegnerisches Schiff regeneriert\n" );
-		battle.logenemy( "CHEAT: [color=green]"+enemyShip.getName()+"[/color] regeneriert\n" );
+		battle.log(new SchlachtLogAktion(battle.getOwnSide(), "CHEAT: [color=green]"+enemyShip.getName()+"[/color] regeneriert"));
 
-		battle.logenemy("]]></action>\n");
-		
 		enemyShip.getShip().recalculateShipStatus();
 
 		return Result.OK;

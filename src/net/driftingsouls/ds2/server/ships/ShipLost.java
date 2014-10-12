@@ -19,15 +19,19 @@
 package net.driftingsouls.ds2.server.ships;
 
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
+import net.driftingsouls.ds2.server.battles.SchlachtLog;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.ConfigService;
+import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
@@ -62,6 +66,10 @@ public class ShipLost {
 	@Column(name="battlelog")
 	@Index(name="shiplost_battlelog")
 	private String battleLog;
+	@ManyToOne
+	@JoinColumn
+	@ForeignKey(name="shiplost_fk_schlachtlog")
+	private SchlachtLog schlachtLog;
 	
 	@Version
 	private int version;
@@ -90,7 +98,18 @@ public class ShipLost {
 		
 		if( ship.getBattle() != null ) {
 			setBattle(ship.getBattle().getId());
+			this.schlachtLog = ship.getBattle().getSchlachtLog();
 		}
+	}
+
+	/**
+	 * Gibt das Log zur Schlacht zurueck, an der das Schiff beteiligt war.
+	 * Falls das Log nicht vorliegt wird <code>null</code> zurueckgegeben.
+	 * @return Das Log oder <code>null</code>
+	 */
+	public SchlachtLog getSchlachtLog()
+	{
+		return schlachtLog;
 	}
 
 	/**
@@ -131,14 +150,6 @@ public class ShipLost {
 	 */
 	public String getBattleLog() {
 		return battleLog;
-	}
-
-	/**
-	 * Setzt den Dateinamen des Schlachtlogs.
-	 * @param battleLog Das Schlachtlog
-	 */
-	public void setBattleLog(String battleLog) {
-		this.battleLog = battleLog;
 	}
 
 	/**

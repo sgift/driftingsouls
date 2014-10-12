@@ -18,12 +18,10 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.battles.BattleShipFlag;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -85,12 +83,7 @@ public class KSUndockAllAction extends BasicKSAction {
 			battle.logme( "Validation failed\n" );
 			return Result.ERROR;
 		}
-
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
 		BattleShip ownShip = battle.getOwnShip();
-
-		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
 
 		ownShip.getShip().setBattleAction(true);
 
@@ -136,9 +129,7 @@ public class KSUndockAllAction extends BasicKSAction {
 		}
 
 		battle.logme((startList.size()+undockList.size())+" Schiffe wurden abgedockt");
-		battle.logenemy((startList.size()+undockList.size())+" Schiffe wurden von der "+Battle.log_shiplink(ownShip.getShip())+" abgedockt\n");
-
-		battle.logenemy("]]></action>\n");
+		battle.log(new SchlachtLogAktion(battle.getOwnSide(), (startList.size()+undockList.size())+" Schiffe wurden von der "+Battle.log_shiplink(ownShip.getShip())+" abgedockt"));
 
 		ownShip.getShip().recalculateShipStatus();
 

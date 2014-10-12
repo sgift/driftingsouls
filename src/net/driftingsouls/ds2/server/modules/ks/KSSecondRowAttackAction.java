@@ -18,14 +18,11 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.battles.BattleShipFlag;
+import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
 import net.driftingsouls.ds2.server.battles.Side;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -98,9 +95,7 @@ public class KSSecondRowAttackAction extends BasicKSAction {
 			battle.logme("Die Aktion kann nicht ausgef&uuml;hrt werden");
 			return Result.ERROR;
 		}
-		
-		Context context = ContextMap.getContext();
-		
+
 		if( battle.getOwnSide() == 0 ) {
 			battle.setFlag(Battle.FLAG_DROP_SECONDROW_1, true);
 		}
@@ -109,10 +104,8 @@ public class KSSecondRowAttackAction extends BasicKSAction {
 		}
 		
 		battle.logme( "Ihre Schiffe r&uuml;cken vor und dr&auml;ngen die feindlichen Linien unter schwerem Feuer langsam zur&uuml;ck");
-		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
-		battle.logenemy("Die feindlichen Schiffe r&uuml;cken unter schwerem Feuer langsam vor und dr&auml;ngen trotz heftigsten Widerstands die Linien zur&uuml;ck\n");
-		battle.logenemy("]]></action>\n");	
-		
+		battle.log(new SchlachtLogAktion(battle.getOwnSide(), "Die feindlichen Schiffe rücken unter schwerem Feuer langsam vor und drängen trotz heftigsten Widerstands die Linien zurück\n"));
+
 		return Result.OK;
 	}
 }

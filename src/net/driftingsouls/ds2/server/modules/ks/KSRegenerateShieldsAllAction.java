@@ -18,12 +18,9 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
@@ -53,9 +50,7 @@ public class KSRegenerateShieldsAllAction extends BasicKSAction {
 		if( result != Result.OK ) {
 			return result;
 		}
-		
-		Context context = ContextMap.getContext();
-		
+
 		int shipcount = 0;
 		StringBuilder eshieldlog = new StringBuilder();
 		
@@ -104,7 +99,7 @@ public class KSRegenerateShieldsAllAction extends BasicKSAction {
 			}
 
 			battle.logme(ownShip.getName() + ": Schilde bei " + ownShip.getShip().getShields() + "/" + ownShipType.getShields() + "\n");
-			eshieldlog.append(Battle.log_shiplink(ownShip.getShip()) + ": Schilde aufgeladen\n");
+			eshieldlog.append(Battle.log_shiplink(ownShip.getShip())).append(": Schilde aufgeladen\n");
 
 			ownShip.getShip().setBattleAction(true);
 
@@ -122,9 +117,7 @@ public class KSRegenerateShieldsAllAction extends BasicKSAction {
 		}
 
 		if( shipcount > 0 ) {	
-			battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
-			battle.logenemy(eshieldlog.toString());
-			battle.logenemy("]]></action>\n");
+			battle.log(new SchlachtLogAktion(battle.getOwnSide(), eshieldlog.toString()));
 		}
 	
 		return Result.OK;

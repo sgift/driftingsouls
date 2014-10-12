@@ -18,13 +18,13 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
-import java.util.List;
-
-import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.battles.SchlachtLogRundeBeendet;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
+
+import java.util.List;
 
 /**
  * Fuehrt den Tick fuer Schlachten aus.
@@ -74,9 +74,7 @@ public class BattleTick extends TickController {
 				if( battle.endTurn(false) )
 				{
 					// Daten nur aktualisieren, wenn die Schlacht auch weiterhin existiert
-					battle.logenemy("<endturn type=\"all\" side=\"-1\" time=\""+Common.time()+"\" tick=\""+getContext().get(ContextCommon.class).getTick()+"\" />\n");
-
-					battle.writeLog();
+					battle.log(new SchlachtLogRundeBeendet(-1, SchlachtLogRundeBeendet.Modus.ALLE));
 				}
 			}
 		}

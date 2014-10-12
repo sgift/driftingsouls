@@ -18,10 +18,9 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
-import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
@@ -67,8 +66,6 @@ public class KSUndockAction extends BasicKSAction {
         Context context = ContextMap.getContext();
         BattleShip ownShip = battle.getOwnShip();
 
-        battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
-
         ownShip.getShip().setBattleAction(true);
 
         if(ownShip.getShip().isLanded())
@@ -81,9 +78,7 @@ public class KSUndockAction extends BasicKSAction {
         }
 
         battle.logme("Die "+Battle.log_shiplink(ownShip.getShip())+" wurde abgedockt");
-        battle.logenemy("Die "+Battle.log_shiplink(ownShip.getShip())+" wurde abgedockt\n");
-
-        battle.logenemy("]]></action>\n");
+		battle.log(new SchlachtLogAktion(battle.getOwnSide(), "Die "+Battle.log_shiplink(ownShip.getShip())+" wurde abgedockt"));
 
         ownShip.getShip().recalculateShipStatus();
 

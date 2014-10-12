@@ -18,12 +18,11 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
+import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.Resources;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
@@ -111,10 +110,8 @@ public class KSDischargeBatteriesAllAction extends BasicKSAction {
 			shipcount++;
 		}
 
-		if( shipcount > 0 ) {	
-			battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
-			battle.logenemy(ebattslog.toString());
-			battle.logenemy("]]></action>\n");
+		if( shipcount > 0 ) {
+			battle.log(new SchlachtLogAktion(battle.getOwnSide(), ebattslog.toString()));
 		}
 
 		return Result.OK;

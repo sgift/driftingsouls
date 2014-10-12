@@ -18,18 +18,15 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import java.io.IOException;
-
-import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
+import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.Resources;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+
+import java.io.IOException;
 
 /**
  * Entlaedt die Reservebatterien auf dem gerade ausgewaehlten Schiff.
@@ -67,8 +64,7 @@ public class KSDischargeBatteriesSingleAction extends BasicKSAction {
 			battle.logme("Die Aktion kann nicht ausgef&uuml;hrt werden");
 			return Result.ERROR;
 		}
-		
-		Context context = ContextMap.getContext();
+
 		BattleShip ownShip = battle.getOwnShip();
 		ShipTypeData ownShipType = ownShip.getTypeData();
 		
@@ -88,16 +84,11 @@ public class KSDischargeBatteriesSingleAction extends BasicKSAction {
 		
 		ownShip.getShip().setCargo(mycargo);
 
-		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
-
-			
 		battle.logme( ownShip.getName()+": "+batterien+" Reservebatterien entladen\n" );
-		battle.logenemy(Battle.log_shiplink(ownShip.getShip())+": Reservebatterien entladen\n");
+		battle.log(new SchlachtLogAktion(battle.getOwnSide(), Battle.log_shiplink(ownShip.getShip()) + ": Reservebatterien entladen"));
 		
 		ownShip.getShip().recalculateShipStatus();
-		
-		battle.logenemy("]]></action>\n");
-		
+
 		return Result.OK;
 	}
 }

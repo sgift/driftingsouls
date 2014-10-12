@@ -92,11 +92,11 @@ public class AutoFire
             for(Map.Entry<Weapon, Integer> weapon: shipWeapons.entrySet())
             {
                 log.info("\tFiring weapon: " + weapon.getKey().getId());
-                int maxHeat = Integer.valueOf(maxHeats.get(weapon.getKey().getId()));
+                int maxHeat = maxHeats.get(weapon.getKey().getId());
                 int heat =  0;
                 if(heats.containsKey(weapon.getKey().getId()))
                 {
-                    heat = Integer.valueOf(heats.get(weapon.getKey().getId()));
+                    heat = heats.get(weapon.getKey().getId());
                 }
                 
                 Set<Munition> ammunition = getPossibleAmmunition(firingShip.getShip(), weapon.getKey());
@@ -160,8 +160,6 @@ public class AutoFire
                 }
             }
         }
-
-        battle.writeLog();
     }
     
     private Set<Munition> getPossibleAmmunition(Ship ship, Weapon weapon)

@@ -18,15 +18,13 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.battles.BattleShipFlag;
+import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
 import net.driftingsouls.ds2.server.battles.Side;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
@@ -70,7 +68,7 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 		}
 		
 		List<BattleShip> shiplist = battle.getShips(Side.OWN);
-		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+ContextMap.getContext().get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
+		StringBuilder msg = new StringBuilder();
 		for (BattleShip aship : new ArrayList<>(shiplist))
 		{
 			ShipTypeData ashiptype = aship.getShip().getTypeData();
@@ -92,17 +90,17 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 					{
 						battle.removeShip(aship, false);
 						battle.logme(Battle.log_shiplink(aship.getShip()) + "ist durchgebrochen\n");
-						battle.logenemy(Battle.log_shiplink(aship.getShip()) + "ist durchgebrochen\n");
+						msg.append(Battle.log_shiplink(aship.getShip())).append("ist durchgebrochen\n");
 					}
 				}
 			}
 			else
 			{
-				battle.logenemy("]]></action>\n");
+				battle.log(new SchlachtLogAktion(battle.getOwnSide(), msg.toString()));
 				return Result.OK;
 			}
 		}
-		battle.logenemy("]]></action>\n");
+		battle.log(new SchlachtLogAktion(battle.getOwnSide(), msg.toString()));
 		return Result.OK;
 		
 	}

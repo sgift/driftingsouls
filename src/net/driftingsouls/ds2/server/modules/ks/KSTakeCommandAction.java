@@ -18,8 +18,9 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
+import net.driftingsouls.ds2.server.battles.SchlachtLogKommandantWechselt;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -77,10 +78,8 @@ public class KSTakeCommandAction extends BasicKSAction {
 		}
 		*/
 		battle.setCommander(battle.getOwnSide(), user);
-		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
-		battle.logenemy("[userprofile="+user.getId()+",profile_alog]"+Common._titleNoFormat(user.getName())+"[/userprofile] hat die Schlacht &uuml;bernommen\n\n");
-		battle.logenemy("]]></action>\n");
-		battle.logenemy("<side"+(battle.getOwnSide()+1)+" commander=\""+battle.getCommander(battle.getOwnSide()).getId()+"\" ally=\""+battle.getAlly(battle.getOwnSide())+"\" />\n");
+		battle.log(new SchlachtLogAktion(battle.getOwnSide(), "[userprofile="+user.getId()+",profile_alog]"+Common._titleNoFormat(user.getName())+"[/userprofile] hat die Schlacht übernommen"));
+		battle.log(new SchlachtLogKommandantWechselt(battle.getOwnSide(), battle.getCommander(battle.getOwnSide())));
 
 		return Result.OK;
 	}

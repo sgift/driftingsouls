@@ -21,6 +21,8 @@ package net.driftingsouls.ds2.server.tick.regular;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
+import net.driftingsouls.ds2.server.battles.SchlachtLogKommandantWechselt;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
@@ -187,21 +189,15 @@ public class RestTick extends TickController {
 					{
 						this.log("\t\tUser" + user.getId() + ": Die Leitung der Schlacht " + battle.getId() + " wurde an " + newcommander.getName() + " (" + newcommander.getId() + ") uebergeben");
 
-						battle.logenemy("<action side=\"" + battle.getOwnSide() + "\" time=\"" + Common.time() + "\" tick=\"" + getContext().get(ContextCommon.class).getTick() + "\"><![CDATA[\n");
-
 						PM.send(user, newcommander.getId(), "Schlacht &uuml;bernommen", "Die Leitung der Schlacht bei " + battle.getLocation().displayCoordinates(false) + " wurde dir automatisch &uuml;bergeben, da der bisherige Kommandant in den Vacationmodus gewechselt ist");
 
-						battle.logenemy(Common._titleNoFormat(newcommander.getName()) + " kommandiert nun die gegnerischen Truppen\n\n");
+						battle.log(new SchlachtLogAktion(battle.getOwnSide(), Common._titleNoFormat(newcommander.getName()) + " kommandiert nun die gegnerischen Truppen"));
 
 						battle.setCommander(battle.getOwnSide(), newcommander);
 
-						battle.logenemy("]]></action>\n");
-
-						battle.logenemy("<side" + (battle.getOwnSide() + 1) + " commander=\"" + battle.getCommander(battle.getOwnSide()).getId() + "\" ally=\"" + battle.getAlly(battle.getOwnSide()) + "\" />\n");
+						battle.log(new SchlachtLogKommandantWechselt(battle.getOwnSide(), battle.getCommander(battle.getOwnSide())));
 
 						battle.setTakeCommand(battle.getOwnSide(), 0);
-
-						battle.writeLog();
 					}
 					else
 					{

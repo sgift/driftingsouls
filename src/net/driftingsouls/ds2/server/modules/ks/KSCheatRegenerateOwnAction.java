@@ -18,11 +18,10 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
-import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -39,23 +38,24 @@ import java.util.HashMap;
  */
 public class KSCheatRegenerateOwnAction extends BasicKSAction {
 	@Override
-	public Result execute(TemplateEngine t, Battle battle) throws IOException {
+	public Result execute(TemplateEngine t, Battle battle) throws IOException
+	{
 		Result result = super.execute(t, battle);
-		if( result != Result.OK ) {
+		if (result != Result.OK)
+		{
 			return result;
 		}
-		
+
 		Context context = ContextMap.getContext();
-		
-		if( !new ConfigService().getValue(WellKnownConfigValue.ENABLE_CHEATS) ) {
+
+		if (!new ConfigService().getValue(WellKnownConfigValue.ENABLE_CHEATS))
+		{
 			context.addError("Cheats sind deaktiviert!");
 			return Result.HALT;
 		}
-		
+
 		BattleShip ownShip = battle.getOwnShip();
 
-		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
-		
 		ShipTypeData ownShipType = ownShip.getTypeData();
 		ownShip.getShip().setCrew(ownShipType.getCrew());
 		ownShip.getShip().setHull(ownShipType.getHull());
@@ -67,7 +67,7 @@ public class KSCheatRegenerateOwnAction extends BasicKSAction {
 		ownShip.getShip().setComm(100);
 		ownShip.getShip().setHeat(0);
 		ownShip.getShip().setWeaponHeat(new HashMap<>());
-		
+
 		ownShip.setHull(ownShip.getShip().getHull());
 		ownShip.setShields(ownShip.getShip().getShields());
 		ownShip.setEngine(100);
@@ -75,14 +75,12 @@ public class KSCheatRegenerateOwnAction extends BasicKSAction {
 		ownShip.setSensors(100);
 		ownShip.setComm(100);
 		ownShip.removeAllFlags();
-		
-		battle.logme( "CHEAT: Gegnerisches Schiff regeneriert\n" );
-		battle.logenemy( "CHEAT: [color=green]"+ownShip.getName()+"[/color] regeneriert\n" );
 
-		battle.logenemy("]]></action>\n");
-		
+		battle.logme("CHEAT: Gegnerisches Schiff regeneriert\n");
+		battle.log(new SchlachtLogAktion(battle.getOwnSide(), "CHEAT: [color=green]" + ownShip.getName() + "[/color] regeneriert"));
+
 		ownShip.getShip().recalculateShipStatus();
-		
+
 		return Result.OK;
 	}
 }

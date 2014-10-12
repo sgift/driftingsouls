@@ -22,6 +22,7 @@ import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.battles.BattleShipFlag;
+import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.comm.PM;
@@ -158,7 +159,7 @@ public class KSKapernAction extends BasicKSAction {
 		String msg = "";
 		if( !ownUnits.isEmpty() && !(enemyUnits.isEmpty() && enemyShip.getCrew() == 0) ) {
 			battle.logme("Die Einheiten st&uuml;rmen das Schiff\n");
-			msg = "Die Einheiten der "+Battle.log_shiplink(ownShip.getShip())+" st&uuml;rmen die "+Battle.log_shiplink(enemyShip.getShip())+"\n";
+			msg = "Die Einheiten der "+Battle.log_shiplink(ownShip.getShip())+" stürmen die "+Battle.log_shiplink(enemyShip.getShip())+"\n";
 
 			UnitCargo toteeigeneUnits = new TransientUnitCargo();
 			UnitCargo totefeindlicheUnits = new TransientUnitCargo();
@@ -256,14 +257,12 @@ public class KSKapernAction extends BasicKSAction {
 				attoffizier.gainExperience(Offizier.Ability.COM, 5);
 			}
 			battle.logme("Schiff wird widerstandslos &uuml;bernommen\n");
-			msg += "Das Schiff "+Battle.log_shiplink(enemyShip.getShip())+" wird an die "+Battle.log_shiplink(ownShip.getShip())+" &uuml;bergeben\n";
+			msg += "Das Schiff "+Battle.log_shiplink(enemyShip.getShip())+" wird an die "+Battle.log_shiplink(ownShip.getShip())+" übergeben\n";
 		}
 
 		ownUnits.addCargo(saveunits);
 
-		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
-		battle.logenemy(msg);
-		battle.logenemy("]]></action>\n");
+		battle.log(new SchlachtLogAktion(battle.getOwnSide(), msg));
 		ownShip.getShip().setBattleAction(true);
 		ownShip.setUnits(ownUnits);
 

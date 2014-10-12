@@ -18,9 +18,10 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
+import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
+import net.driftingsouls.ds2.server.battles.SchlachtLogKommandantWechselt;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -86,17 +87,13 @@ public class KSNewCommanderAction extends BasicKSAction {
 			return Result.ERROR;
 		} 
 
-		battle.logenemy("<action side=\""+battle.getOwnSide()+"\" time=\""+Common.time()+"\" tick=\""+context.get(ContextCommon.class).getTick()+"\"><![CDATA[\n");
-
 		PM.send(user, com.getId(), "Schlacht &uuml;bergeben", "Ich habe dir die Leitung der Schlacht bei "+battle.getLocation().displayCoordinates(false)+" &uuml;bergeben.");
 
-		battle.logenemy("[userprofile="+com.getId()+",profile_alog]"+Common._titleNoFormat(com.getName())+"[/userprofile] kommandiert nun die gegnerischen Truppen\n\n");
+		battle.log(new SchlachtLogAktion(battle.getOwnSide(), "[userprofile="+com.getId()+",profile_alog]"+Common._titleNoFormat(com.getName())+"[/userprofile] kommandiert nun die gegnerischen Truppen"));
 
 		battle.setCommander(battle.getOwnSide(), com);
 
-		battle.logenemy("]]></action>\n");
-
-		battle.logenemy("<side"+(battle.getOwnSide()+1)+" commander=\""+battle.getCommander(battle.getOwnSide()).getId()+"\" ally=\""+battle.getAlly(battle.getOwnSide())+"\" />\n");
+		battle.log(new SchlachtLogKommandantWechselt(battle.getOwnSide(), battle.getCommander(battle.getOwnSide())));
 
 		battle.setTakeCommand(battle.getOwnSide(), 0);
 		
