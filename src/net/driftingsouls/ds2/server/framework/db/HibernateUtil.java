@@ -108,7 +108,6 @@ public class HibernateUtil
 		// Add ds-specific utility functions
 		configuration.addSqlFunction("pow", new StandardSQLFunction("pow", DoubleType.INSTANCE));
 		configuration.addSqlFunction("floor", new StandardSQLFunction("floor", LongType.INSTANCE));
-		configuration.addSqlFunction("ncp", new NullCompFunction());
 		configuration.addSqlFunction("bit_and", new SQLFunctionTemplate(IntegerType.INSTANCE, "?1 & ?2"));
 		configuration.addSqlFunction("bit_or", new SQLFunctionTemplate(IntegerType.INSTANCE, "?1 | ?2"));
 
