@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -271,19 +270,7 @@ public class HttpRequest implements Request {
 				constr.setAccessible(true);
 				obj = constr.newInstance();
 			}
-			catch( InstantiationException e ) {
-				log.error("getFromSession for "+cls.getName()+" failed", e);
-				return null;
-			}
-			catch( IllegalAccessException e ) {
-				log.error("getFromSession for "+cls.getName()+" failed", e);
-				return null;
-			}
-			catch( InvocationTargetException e ) {
-				log.error("getFromSession for "+cls.getName()+" failed", e);
-				return null;
-			}
-			catch( NoSuchMethodException e ) {
+			catch( ReflectiveOperationException e ) {
 				log.error("getFromSession for "+cls.getName()+" failed", e);
 				return null;
 			}

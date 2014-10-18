@@ -1,10 +1,10 @@
 package net.driftingsouls.ds2.server;
 
 import net.driftingsouls.ds2.server.framework.BasicContext;
-import net.driftingsouls.ds2.server.framework.CmdLineRequest;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.EmptyPermissionResolver;
 import net.driftingsouls.ds2.server.framework.SimpleResponse;
+import net.driftingsouls.ds2.server.framework.TestRequest;
 import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -35,7 +35,7 @@ final class DBTestUtils
 	{
 		ApplicationContext springContext = new AnnotationConfigApplicationContext(TestAppConfig.class);
 
-		BasicContext context = new BasicContext(new CmdLineRequest(new String[0]), new SimpleResponse(), new EmptyPermissionResolver(), springContext);
+		BasicContext context = new BasicContext(new TestRequest(), new SimpleResponse(), new EmptyPermissionResolver(), springContext);
 		ContextMap.addContext(context);
 	}
 

@@ -8,6 +8,7 @@ import org.apache.commons.logging.LogFactory;
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,6 +23,7 @@ public class TestRequest implements Request
 	private Log log = LogFactory.getLog(TestRequest.class);
 
 	private Map<String,String> params = new HashMap<>();
+	private Map<Class<?>,Object> sessionScope = new HashMap<>();
 
 	/**
 	 * Erstellt ein neues (leeres) Request-Objekt.
@@ -163,11 +165,22 @@ public class TestRequest implements Request
 		return new ArrayList<>();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T getFromSession(Class<T> cls) {
-		log.error("getFromSession not supported");
-
-		return null;
+		if( !sessionScope.containsKey(cls) )
+		{
+			try {
+				Constructor<T> constr = cls.getConstructor();
+				constr.setAccessible(true);
+				sessionScope.put(cls, constr.newInstance());
+			}
+			catch( ReflectiveOperationException e ) {
+				log.error("getFromSession for " + cls.getName() + " failed", e);
+				return null;
+			}
+		}
+		return (T)sessionScope.get(cls);
 	}
 
 	@Override

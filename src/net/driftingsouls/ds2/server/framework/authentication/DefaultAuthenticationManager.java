@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.framework.authentication;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
@@ -28,6 +29,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Permission;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
+import net.driftingsouls.ds2.server.user.authentication.AccountInVacationModeException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
@@ -88,7 +90,18 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 			throw new WrongPasswordException();
 		}
 
+		checkAccountNotInVacationMode(user);
+
 		return finishLogin(user, rememberMe);
+	}
+
+	private void checkAccountNotInVacationMode(BasicUser basicuser)
+	{
+		User user = (User) basicuser;
+		if (user.isInVacation())
+		{
+			throw new AccountInVacationModeException(user.getVacationCount());
+		}
 	}
 
 	private BasicUser finishLogin(BasicUser user,  boolean rememberMe) throws AuthenticationException
@@ -134,9 +147,11 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		db.save(permanentSession);
 	}
 
-	private void checkLoginDisabled() throws LoginDisabledException {
+	private void checkLoginDisabled() throws LoginDisabledException
+	{
 		String disablelogin = configService.getValue(WellKnownConfigValue.DISABLE_LOGIN);
-		if( !disablelogin.isEmpty() ) {
+		if (!disablelogin.isEmpty())
+		{
 			throw new LoginDisabledException(disablelogin);
 		}
 	}
