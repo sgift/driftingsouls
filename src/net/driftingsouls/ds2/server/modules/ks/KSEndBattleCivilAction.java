@@ -18,14 +18,14 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import java.io.IOException;
-
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+
+import java.io.IOException;
 
 /**
  * Ermoeglicht es eine Schlacht zu beenden, wenn der Gegner nur noch zivile Schiffe hat.
@@ -72,7 +72,10 @@ public class KSEndBattleCivilAction extends BasicKSAction {
 		Context context = ContextMap.getContext();
 		User user = (User)context.getActiveUser();
 		
-		context.getResponse().getWriter().append("Sie haben die Schlacht gewonnen.");
+		context.getResponse().getWriter().append("Du hast die Schlacht bei <a class='forschinfo' href='./client#/map/")
+						.append(battle.getLocation().urlFragment()).append("'>")
+						.append(battle.getLocation().displayCoordinates(false))
+						.append("</a> gewonnen.");
 
 		PM.send(user, battle.getCommander(battle.getEnemySide()).getId(), "Schlacht verloren", "Der Gegner hat die Schlacht beendet, da du nur noch zivile Schiffe hattest. Du hast die Schlacht bei "+battle.getLocation().displayCoordinates(false)+" gegen [userprofile="+user.getId()+"]"+user.getName()+"[/userprofile] somit verloren!");
 

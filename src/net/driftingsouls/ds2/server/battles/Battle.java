@@ -1175,7 +1175,10 @@ public class Battle implements Locatable
 			if( calledByUser ) {
 				try
 				{
-                    context.getResponse().getWriter().append("Du hast die Schlacht gegen ");
+                    context.getResponse().getWriter().append("Du hast die Schlacht bei <a class='forschinfo' href='./client#/map/")
+						.append(this.getLocation().urlFragment()).append("'>")
+						.append(this.getLocation().displayCoordinates(false))
+						.append("</a> gegen ");
                     context.getResponse().getWriter().append(Common._title(this.getCommanders()[this.enemySide].getName()));
                     context.getResponse().getWriter().append(" mit einem Unentschieden beendet!");
                 }
@@ -1206,7 +1209,10 @@ public class Battle implements Locatable
 			if( calledByUser ) {
 				try
 				{
-                    context.getResponse().getWriter().append("Du hast die Schlacht gegen ");
+                    context.getResponse().getWriter().append("Du hast die Schlacht bei <a class='forschinfo' href='./client#/map/")
+						.append(this.getLocation().urlFragment()).append("'>")
+						.append(this.getLocation().displayCoordinates(false))
+						.append("</a> gegen ");
                     context.getResponse().getWriter().append(Common._title(this.getCommanders()[this.enemySide].getName()));
                     context.getResponse().getWriter().append(" verloren!");
                 }
@@ -1236,7 +1242,10 @@ public class Battle implements Locatable
 			if( calledByUser ) {
 				try
 				{
-                    context.getResponse().getWriter().append("Du hast die Schlacht gegen ");
+                    context.getResponse().getWriter().append("Du hast die Schlacht bei <a class='forschinfo' href='./client#/map/")
+						.append(this.getLocation().urlFragment()).append("'>")
+						.append(this.getLocation().displayCoordinates(false))
+						.append("</a> gegen ");
                     context.getResponse().getWriter().append(Common._title(this.getCommanders()[this.enemySide].getName()));
                     context.getResponse().getWriter().append(" gewonnen!");
                 }

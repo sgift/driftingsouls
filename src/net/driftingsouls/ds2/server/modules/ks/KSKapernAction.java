@@ -379,7 +379,11 @@ public class KSKapernAction extends BasicKSAction {
 
 				User commander = battle.getCommander(battle.getOwnSide());
 
-				context.getResponse().getWriter().append("Du hast das letzte gegnerische Schiff gekapert und somit die Schlacht gewonnen!");
+				context.getResponse().getWriter()
+						.append("Du hast das letzte gegnerische Schiff gekapert und somit die Schlacht bei <a class='forschinfo' href='./client#/map/")
+						.append(battle.getLocation().urlFragment()).append("'>")
+						.append(battle.getLocation().displayCoordinates(false))
+						.append("</a> gewonnen!");
 				PM.send(commander, battle.getCommander(battle.getEnemySide()).getId(), "Schlacht verloren", "Du hast die Schlacht bei "+battle.getLocation().displayCoordinates(false)+" gegen "+user.getName()+" verloren, da dein letztes Schiff gekapert wurde!");
 
 				return Result.HALT;
