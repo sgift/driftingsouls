@@ -87,28 +87,6 @@ public class Battle implements Locatable
 {
 	private static final Log log = LogFactory.getLog(Battle.class);
 
-	// Flags fuer Schlachten
-	/**
-	 * Erste Runde.
-	 */
-	public static final int FLAG_FIRSTROUND = 1;
-	/**
-	 * Entfernt die zweite Reihe auf Seite 0.
-	 */
-	public static final int FLAG_DROP_SECONDROW_0 = 2;
-	/**
-	 * Entfernt die zweite Reihe auf Seite 1.
-	 */
-	public static final int FLAG_DROP_SECONDROW_1 = 4;
-	/**
-	 * Blockiert die zweite Reihe auf Seite 0.
-	 */
-	public static final int FLAG_BLOCK_SECONDROW_0 = 8;
-	/**
-	 * Blockiert die zweite Reihe auf Seite 1.
-	 */
-	public static final int FLAG_BLOCK_SECONDROW_1 = 16;
-
 	@Id @GeneratedValue
 	private int id;
 	private int x;
@@ -364,15 +342,15 @@ public class Battle implements Locatable
 	 * @param flag Das Flag
 	 * @return <code>true</code>, falls die Schlacht das Flag besitzt
 	 */
-	public boolean hasFlag( int flag ) {
-		return (this.flags & flag) != 0;
+	public boolean hasFlag( BattleFlag flag ) {
+		return (this.flags & flag.getBit()) != 0;
 	}
 
 	/**
 	 * Fuegt der Schlacht das angegebene Flag hinzu.
 	 * @param flag Das Flag
 	 */
-	public void setFlag( int flag ) {
+	public void setFlag( BattleFlag flag ) {
 		setFlag(flag, true);
 	}
 
@@ -381,12 +359,12 @@ public class Battle implements Locatable
 	 * @param flag Das Flag
 	 * @param status <code>true</code>, falls das Flag hinzugefuegt werden soll. Andernfalls <code>false</code>
 	 */
-	public void setFlag( int flag, boolean status ) {
+	public void setFlag( BattleFlag flag, boolean status ) {
 		if( status ) {
-			this.flags |= flag;
+			this.flags |= flag.getBit();
 		}
-		else if( (this.flags & flag) != 0 ) {
-			this.flags ^= flag;
+		else if( (this.flags & flag.getBit()) != 0 ) {
+			this.flags ^= flag.getBit();
 		}
 	}
 
@@ -1119,10 +1097,10 @@ public class Battle implements Locatable
                     }
                 }
 
-                if ((i == 0) && this.hasFlag(FLAG_DROP_SECONDROW_0)) {
+                if ((i == 0) && this.hasFlag(BattleFlag.DROP_SECONDROW_0)) {
                     ship.removeFlag(BattleShipFlag.SECONDROW);
                 }
-                else if ((i == 1) && this.hasFlag(FLAG_DROP_SECONDROW_1)) {
+                else if ((i == 1) && this.hasFlag(BattleFlag.DROP_SECONDROW_1)) {
 					ship.removeFlag(BattleShipFlag.SECONDROW);
                 }
 
@@ -1281,22 +1259,22 @@ public class Battle implements Locatable
 			}
 		}
 
-		if( this.hasFlag(FLAG_FIRSTROUND) ) {
-			this.setFlag(FLAG_FIRSTROUND, false);
+		if( this.hasFlag(BattleFlag.FIRSTROUND) ) {
+			this.setFlag(BattleFlag.FIRSTROUND, false);
 		}
 
-		this.setFlag(FLAG_BLOCK_SECONDROW_0, false);
-		this.setFlag(FLAG_BLOCK_SECONDROW_1, false);
+		this.setFlag(BattleFlag.BLOCK_SECONDROW_0, false);
+		this.setFlag(BattleFlag.BLOCK_SECONDROW_1, false);
 
-		if(this.hasFlag(FLAG_DROP_SECONDROW_0))
+		if(this.hasFlag(BattleFlag.DROP_SECONDROW_0))
 		{
-			this.setFlag(FLAG_DROP_SECONDROW_0, false);
-			this.setFlag(FLAG_BLOCK_SECONDROW_0, true);
+			this.setFlag(BattleFlag.DROP_SECONDROW_0, false);
+			this.setFlag(BattleFlag.BLOCK_SECONDROW_0, true);
 		}
-		if(this.hasFlag(FLAG_DROP_SECONDROW_1))
+		if(this.hasFlag(BattleFlag.DROP_SECONDROW_1))
 		{
-			this.setFlag(FLAG_DROP_SECONDROW_1, false);
-			this.setFlag(FLAG_BLOCK_SECONDROW_1, true);
+			this.setFlag(BattleFlag.DROP_SECONDROW_1, false);
+			this.setFlag(BattleFlag.BLOCK_SECONDROW_1, true);
 		}
 
 		return true;

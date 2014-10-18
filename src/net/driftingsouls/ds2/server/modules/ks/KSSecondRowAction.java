@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.battles.BattleFlag;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.battles.BattleShipFlag;
 import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
@@ -59,19 +60,19 @@ public class KSSecondRowAction extends BasicKSAction {
 			return Result.ERROR;
 		}
 		
-		if( (battle.getOwnSide() == 0) && battle.hasFlag(Battle.FLAG_DROP_SECONDROW_0) ) {
+		if( (battle.getOwnSide() == 0) && battle.hasFlag(BattleFlag.DROP_SECONDROW_0) ) {
 			return Result.ERROR;
 		}
 		
-		if( (battle.getOwnSide() == 1) && battle.hasFlag(Battle.FLAG_DROP_SECONDROW_1) ) {
+		if( (battle.getOwnSide() == 1) && battle.hasFlag(BattleFlag.DROP_SECONDROW_1) ) {
 			return Result.ERROR;
 		}
 		
-		if( (battle.getOwnSide() == 0) && battle.hasFlag(Battle.FLAG_BLOCK_SECONDROW_0) ) {
+		if( (battle.getOwnSide() == 0) && battle.hasFlag(BattleFlag.BLOCK_SECONDROW_0) ) {
 			return Result.ERROR;
 		}
 		
-		if( (battle.getOwnSide() == 1) && battle.hasFlag(Battle.FLAG_BLOCK_SECONDROW_1) ) {
+		if( (battle.getOwnSide() == 1) && battle.hasFlag(BattleFlag.BLOCK_SECONDROW_1) ) {
 			return Result.ERROR;
 		}
 		

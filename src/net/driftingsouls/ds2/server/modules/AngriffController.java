@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.modules;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.battles.BattleFlag;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.battles.BattleShipFlag;
 import net.driftingsouls.ds2.server.cargo.Cargo;
@@ -661,17 +662,17 @@ public class AngriffController extends Controller
 					"ownship.location.system", loc.getSystem());
 		}
 		
-		if( (battle.getOwnSide() == 0) && battle.hasFlag( Battle.FLAG_BLOCK_SECONDROW_0) ) {
+		if( (battle.getOwnSide() == 0) && battle.hasFlag(BattleFlag.BLOCK_SECONDROW_0) ) {
 			t.setVar("ownside.secondrow.blocked", 1);
 		}
-		else if( (battle.getOwnSide() == 1) && battle.hasFlag( Battle.FLAG_BLOCK_SECONDROW_1) ) {
+		else if( (battle.getOwnSide() == 1) && battle.hasFlag(BattleFlag.BLOCK_SECONDROW_1) ) {
 			t.setVar("ownside.secondrow.blocked", 1);
 		}
 		
-		if( (battle.getEnemySide() == 0) && battle.hasFlag( Battle.FLAG_BLOCK_SECONDROW_0) ) {
+		if( (battle.getEnemySide() == 0) && battle.hasFlag(BattleFlag.BLOCK_SECONDROW_0) ) {
 			t.setVar("enemyside.secondrow.blocked", 1);
 		}
-		else if( (battle.getEnemySide() == 1) && battle.hasFlag( Battle.FLAG_BLOCK_SECONDROW_1) ) {
+		else if( (battle.getEnemySide() == 1) && battle.hasFlag(BattleFlag.BLOCK_SECONDROW_1) ) {
 			t.setVar("enemyside.secondrow.blocked", 1);
 		}
 		

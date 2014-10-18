@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.battles.BattleFlag;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.battles.BattleShipFlag;
 import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
@@ -44,15 +45,15 @@ public class KSSecondRowAttackAction extends BasicKSAction {
 	
 	@Override
 	public Result validate(Battle battle) {
-		if( battle.hasFlag(Battle.FLAG_FIRSTROUND) ) {
+		if( battle.hasFlag(BattleFlag.FIRSTROUND) ) {
 			return Result.ERROR;
 		}
 		
-		if( (battle.getOwnSide() == 0) && battle.hasFlag(Battle.FLAG_DROP_SECONDROW_1) ) {
+		if( (battle.getOwnSide() == 0) && battle.hasFlag(BattleFlag.DROP_SECONDROW_1) ) {
 			return Result.ERROR;
 		}
 		
-		if( (battle.getOwnSide() == 1) && battle.hasFlag(Battle.FLAG_DROP_SECONDROW_0) ) {
+		if( (battle.getOwnSide() == 1) && battle.hasFlag(BattleFlag.DROP_SECONDROW_0) ) {
 			return Result.ERROR;
 		}
 		
@@ -97,10 +98,10 @@ public class KSSecondRowAttackAction extends BasicKSAction {
 		}
 
 		if( battle.getOwnSide() == 0 ) {
-			battle.setFlag(Battle.FLAG_DROP_SECONDROW_1, true);
+			battle.setFlag(BattleFlag.DROP_SECONDROW_1, true);
 		}
 		else {
-			battle.setFlag(Battle.FLAG_DROP_SECONDROW_0, true);
+			battle.setFlag(BattleFlag.DROP_SECONDROW_0, true);
 		}
 		
 		battle.logme( "Ihre Schiffe r&uuml;cken vor und dr&auml;ngen die feindlichen Linien unter schwerem Feuer langsam zur&uuml;ck");

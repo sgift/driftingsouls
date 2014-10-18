@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.battles.BattleFlag;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.battles.BattleShipFlag;
 import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
@@ -71,10 +72,10 @@ public class KSSecondRowEngageAction extends BasicKSAction {
 		battle.log(new SchlachtLogAktion(battle.getOwnSide(), "Die feindlichen Schiffe r&uuml;cken vor und durchbrechen trotz heftigen Widerstands die Linien"));
 
 		if( battle.getOwnSide() == 0 ) {
-			battle.setFlag(Battle.FLAG_BLOCK_SECONDROW_1, true);
+			battle.setFlag(BattleFlag.BLOCK_SECONDROW_1, true);
 		}
 		else {
-			battle.setFlag(Battle.FLAG_BLOCK_SECONDROW_0, true);
+			battle.setFlag(BattleFlag.BLOCK_SECONDROW_0, true);
 		}
 		
 		return Result.OK;

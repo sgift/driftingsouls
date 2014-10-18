@@ -3,6 +3,7 @@ package net.driftingsouls.ds2.server.services;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.battles.BattleFlag;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.battles.BattleShipFlag;
 import net.driftingsouls.ds2.server.battles.SchlachtLog;
@@ -206,7 +207,7 @@ public class SchlachtErstellenService
 		battle.setAlly(1, enemyBattleShip.getOwner().getAlly() != null ? enemyBattleShip.getOwner().getAlly().getId() : 0);
 		battle.setCommander(0, ownBattleShip.getOwner());
 		battle.setCommander(1, enemyBattleShip.getOwner());
-		battle.setFlag(Battle.FLAG_FIRSTROUND);
+		battle.setFlag(BattleFlag.FIRSTROUND);
 		db.save(battle);
 
 		//
