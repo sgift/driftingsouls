@@ -210,7 +210,12 @@ Admin.createEditTable = function(name, model) {
 
 jQuery.extend($.fn.fmatter , {
 	picture : function(cellvalue, options, rowdata) {
-		return '<img class="gridpicture" src="'+cellvalue+'" />';
+		if( cellvalue != null && cellvalue != '' ) {
+			return '<img class="gridpicture" src="' + cellvalue + '" />';
+		}
+		else {
+			return '';
+		}
 	},
 	textarea : function(cellvalue, options, rowdata) {
 		return '<div class="gridtextarea">'+cellvalue+'</div>';

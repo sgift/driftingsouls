@@ -32,7 +32,7 @@ public class EditSchiffstypModifikation implements EntityEditor<SchiffstypModifi
 	{
 		form.allowAdd();
 		form.field("Name", String.class, SchiffstypModifikation::getNickname, SchiffstypModifikation::setNickname);
-		form.field("Bild", String.class, SchiffstypModifikation::getPicture, SchiffstypModifikation::setPicture);
+		form.dynamicContentField("Bild", SchiffstypModifikation::getPicture, SchiffstypModifikation::setPicture);
 		form.field("Uranreaktor", Integer.class, SchiffstypModifikation::getRu, SchiffstypModifikation::setRu);
 		form.field("Deuteriumreaktor", Integer.class, SchiffstypModifikation::getRd, SchiffstypModifikation::setRd);
 		form.field("Antimateriereaktor", Integer.class, SchiffstypModifikation::getRa, SchiffstypModifikation::setRa);
