@@ -1738,7 +1738,7 @@ public class KSAttackAction extends BasicKSAction {
 
 
 		// Minimum bei 5% bei zerstoerbaren Waffen
-		if( this.localweapon.getDestroyable() > 0 ) {
+		if( this.localweapon.getDestroyable() > 0 && trefferWS > 5) {
             trefferWS -= antitorptrefferws;
             trefferWS -= fighterdef;
             if(trefferWS < 5)
