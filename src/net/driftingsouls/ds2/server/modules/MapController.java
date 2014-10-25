@@ -19,6 +19,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
 import net.driftingsouls.ds2.server.map.AdminFieldView;
 import net.driftingsouls.ds2.server.map.AdminStarmap;
@@ -70,7 +71,9 @@ public class MapController extends Controller
 	}
 
 	@Action(value = ActionType.AJAX)
-	public ViewMessage speichereSystemkarteAction()
+	public ViewMessage speichereSystemkarteAction(
+			@UrlParam(name="sys#x") Map<StarSystem,Integer> xWerte,
+			@UrlParam(name="sys#y") Map<StarSystem,Integer> yWerte)
 	{
 		if (!hasPermission(WellKnownAdminPermission.STARMAP_SYSTEMAUSWAHL))
 		{
@@ -82,14 +85,16 @@ public class MapController extends Controller
 		List<StarSystem> systems = Common.cast(db.createCriteria(StarSystem.class).list());
 		for (StarSystem system : systems)
 		{
-			int x = getRequest().getParameterInt("sys" + system.getID() + "x");
-			int y = getRequest().getParameterInt("sys" + system.getID() + "y");
+			Integer x = xWerte.get(system);
+			Integer y = yWerte.get(system);
 
-			if (x != 0 || y != 0)
+			if( x == null || y == null )
 			{
-				system.setMapX(x);
-				system.setMapY(y);
+				continue;
 			}
+
+			system.setMapX(x);
+			system.setMapY(y);
 		}
 
 		return ViewMessage.success("Systeme gespeichert");

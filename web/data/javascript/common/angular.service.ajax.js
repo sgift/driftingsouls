@@ -552,12 +552,20 @@
 		return {
 			/**
 			 * @memberof MapControllerStub
+			 * @param {object.<object,number>} xWerte 
+			 * @param {object.<object,number>} yWerte 
 			 * @returns {DsAjaxPromise_MapControllerStub_speichereSystemkarteAction}
 			 **/
-			speichereSystemkarte : function() {
-				var options = {};
+			speichereSystemkarte : function(xWerte,yWerte) {
+				var options={};
 				options.module='map';
 				options.action='speichereSystemkarte';
+				angular.forEach(xWerte, function(value,key) {
+					options['sys'+key+'x']=value;
+				});
+				angular.forEach(yWerte, function(value,key) {
+					options['sys'+key+'y']=value;
+				});
 				return ds(options);
 			},
 			/**
@@ -1001,18 +1009,6 @@
 	/**
 	 * @class
 	 **/
-	var DsAjaxPromise_SchiffAjaxControllerStub_fliegeSchiffAction = {
-		/**
-		 * @name success
-		 * @function
-		 * @param {function(data:object)} callback
-		 * @memberof DsAjaxPromise_SchiffAjaxControllerStub_fliegeSchiffAction
-		 **/
-		success : function(callback) {}
-	};
-	/**
-	 * @class
-	 **/
 	var DsAjaxPromise_SchiffAjaxControllerStub_alarmAction = {
 		/**
 		 * @name success
@@ -1047,26 +1043,22 @@
 		success : function(callback) {}
 	};
 	/**
+	 * @class
+	 **/
+	var DsAjaxPromise_SchiffAjaxControllerStub_fliegeSchiffAction = {
+		/**
+		 * @name success
+		 * @function
+		 * @param {function(data:object)} callback
+		 * @memberof DsAjaxPromise_SchiffAjaxControllerStub_fliegeSchiffAction
+		 **/
+		success : function(callback) {}
+	};
+	/**
 	 * @class {object} SchiffAjaxControllerStub
 	 **/
 	function SchiffAjaxControllerStub(ds) {
 		return {
-			/**
-			 * @memberof SchiffAjaxControllerStub
-			 * @param {object} schiff 
-			 * @param {number} x 
-			 * @param {number} y 
-			 * @returns {DsAjaxPromise_SchiffAjaxControllerStub_fliegeSchiffAction}
-			 **/
-			fliegeSchiff : function(schiff,x,y) {
-				var options={};
-				options.module='schiffAjax';
-				options.action='fliegeSchiff';
-				options.schiff=schiff;
-				options.x=x;
-				options.y=y;
-				return ds(options);
-			},
 			/**
 			 * @memberof SchiffAjaxControllerStub
 			 * @param {object} schiff 
@@ -1107,6 +1099,22 @@
 				options.action='springenViaSchiff';
 				options.schiff=schiff;
 				options.sprungpunktSchiff=sprungpunktSchiff;
+				return ds(options);
+			},
+			/**
+			 * @memberof SchiffAjaxControllerStub
+			 * @param {object} schiff 
+			 * @param {number} x 
+			 * @param {number} y 
+			 * @returns {DsAjaxPromise_SchiffAjaxControllerStub_fliegeSchiffAction}
+			 **/
+			fliegeSchiff : function(schiff,x,y) {
+				var options={};
+				options.module='schiffAjax';
+				options.action='fliegeSchiff';
+				options.schiff=schiff;
+				options.x=x;
+				options.y=y;
 				return ds(options);
 			}		
 		}
