@@ -1,19 +1,21 @@
-package net.driftingsouls.ds2.server.framework.pipeline.controllers;
+package net.driftingsouls.ds2.server.framework.pipeline.controllers.jsstubs;
 
 import net.driftingsouls.ds2.server.framework.AnnotationUtils;
 import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
 
-import java.io.Closeable;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
@@ -21,50 +23,6 @@ import java.util.stream.Collectors;
 
 public class JsServiceGenerator
 {
-	private static class JsWriter implements Closeable
-	{
-		private Writer writer;
-		private int indent;
-
-		private JsWriter(Writer writer)
-		{
-			this.writer = writer;
-		}
-
-		public JsWriter writeLine(String text) throws IOException
-		{
-			doIndent();
-			writer.write(text+"\n");
-			return this;
-		}
-
-		public JsWriter doIndent() throws IOException
-		{
-			for (int i = 0; i < indent; i++)
-			{
-				writer.write('\t');
-			}
-			return this;
-		}
-
-		public JsWriter write(String text) throws IOException
-		{
-			writer.write(text);
-			return this;
-		}
-
-		public JsWriter indent(int indentMod)
-		{
-			indent += indentMod;
-			return this;
-		}
-
-		@Override
-		public void close() throws IOException
-		{
-			writer.close();
-		}
-	}
 
 	private static Set<Class<?>> detectedViewModels = new HashSet<>();
 
@@ -80,30 +38,52 @@ public class JsServiceGenerator
 			writer.writeLine("/*").indent(1);
 			writer.writeLine("Automatisch generierte Datei. Zum generieren bitte JsServiceGenerator aufrufen.");
 			writer.indent(-1).writeLine("*/");
-			writer.writeLine("angular.module('ds.ajax', ['ds.service.ds'])");
+
+			writer.writeLine("(function() {").indent(1);
+			writer.writeLine("var angularModule = angular.module('ds.service.ajax', ['ds.service.ds']);");
 
 			SortedSet<Class<?>> ctrlClasses = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(Module.class);
 			for (Class<?> ctrlClass : ctrlClasses)
 			{
-				writeJsForController(writer, ctrlClass);
+				writeJsForController(writer, new ControllerAnalyser(ctrlClass));
 			}
-			writer.writeLine(";");
 
 			writeViewModelDeclarations(writer);
+			writer.indent(-1).writeLine("})();");
 		}
 	}
 
 	public static void writeViewModelDeclarations(JsWriter writer) throws IOException
 	{
 		Set<String> processedPackages = new HashSet<>();
+		Set<Class<?>> processedViewModels = new HashSet<>();
 
-		for (Class<?> detectedViewModel : detectedViewModels)
+		while( !processedViewModels.equals(detectedViewModels) )
 		{
-			String viewModelName = mapViewModelName(detectedViewModel);
-			jsDocDeclareNamespace(writer, viewModelName.substring(0, viewModelName.lastIndexOf('.')), processedPackages);
-			writer.writeLine("/**");
-			writer.writeLine(" * @typedef {object} "+viewModelName);
-			writer.writeLine(" **/");
+			for (Class<?> detectedViewModel : new HashSet<>(detectedViewModels))
+			{
+				if( processedViewModels.contains(detectedViewModel) )
+				{
+					continue;
+				}
+				String viewModelName = mapViewModelName(detectedViewModel);
+				jsDocDeclareNamespace(writer, viewModelName.substring(0, viewModelName.lastIndexOf('.')), processedPackages);
+				writer.writeLine("/**");
+				writer.writeLine(" * @typedef {object} " + viewModelName);
+
+				for (Field field : detectedViewModel.getFields())
+				{
+					if (!Modifier.isPublic(field.getModifiers()) || Modifier.isStatic(field.getModifiers()))
+					{
+						continue;
+					}
+					writer.writeLine(" * @property {" + mapTypeToJsDoc(field.getType(), field.getGenericType()) + "} " + field.getName());
+				}
+
+				writer.writeLine(" **/");
+
+				processedViewModels.add(detectedViewModel);
+			}
 		}
 	}
 
@@ -125,30 +105,42 @@ public class JsServiceGenerator
 		declaredNamespaces.add(namespace);
 	}
 
-	private static void writeJsForController(JsWriter writer, Class<?> ctrlClass) throws IOException
+	private static void writeJsForController(JsWriter writer, ControllerAnalyser controllerAnalyser) throws IOException
 	{
-		Module module = ctrlClass.getAnnotation(Module.class);
+		List<Method> actionMethods = controllerAnalyser.findActionMethods();
+		if( actionMethods.isEmpty() )
+		{
+			return;
+		}
 
-		writer.writeLine("// "+ctrlClass.getCanonicalName());
-		writer.writeLine(".factory('"+getStubNameFromClass(ctrlClass)+"', ['ds', function(ds) {")
-				.indent(1)
-				.writeLine("return {")
-				.indent(1);
+		writer.writeLine("// "+ controllerAnalyser.getFullName());
 
+		for (Method method : actionMethods)
+		{
+			writer.writeLine("/**");
+			writer.writeLine(" * @class");
+			writer.writeLine(" **/");
+			writer.writeLine("var DsAjaxPromise_"+controllerAnalyser.getStubName()+"_"+method.getName()+" = {").indent(1);
+			writer.writeLine("/**");
+			writer.writeLine(" * @name success");
+			writer.writeLine(" * @function");
+			writer.writeLine(" * @param {function(data:"+mapTypeToJsDoc(method.getReturnType(), null)+")} callback");
+			writer.writeLine(" * @memberof DsAjaxPromise_"+controllerAnalyser.getStubName()+"_"+method.getName());
+			writer.writeLine(" **/");
+			writer.writeLine("success : function(callback) {}");
+			writer.indent(-1).writeLine("};");
+		}
+
+
+		writer.writeLine("/**");
+		writer.writeLine(" * @class {object} "+ controllerAnalyser.getStubName());
+		writer.writeLine(" **/");
+		writer.writeLine("function "+ controllerAnalyser.getStubName()+"(ds) {").indent(1);
+		writer.writeLine("return {").indent(1);
 		boolean first = true;
 
-		for (Method method : ctrlClass.getMethods())
+		for (Method method : actionMethods)
 		{
-			if( !method.isAnnotationPresent(Action.class) )
-			{
-				continue;
-			}
-			Action action = method.getAnnotation(Action.class);
-			if( action.value() != ActionType.AJAX )
-			{
-				continue;
-			}
-
 			if( !first ) {
 				writer.write(",\n");
 			}
@@ -157,63 +149,62 @@ public class JsServiceGenerator
 
 
 			if( method.getParameters().length == 0 ) {
-				writeParameterlessStub(writer, module, method);
+				writeParameterlessStub(writer, controllerAnalyser, method);
 			}
 			else
 			{
-				writeMethodWithParameters(writer, module, method);
+				writeMethodWithParameters(writer, controllerAnalyser, method);
 			}
 		}
+		writer.indent(-1).writeLine("").writeLine("}");
+		writer.indent(-1).writeLine("}");
 
-		writer.indent(-1)
-				.writeLine("")
-				.writeLine("}")
-				.indent(-1).writeLine("}])");
+		writer.writeLine("angularModule = angularModule.factory('" + controllerAnalyser.getStubName() + "', ['ds', " + controllerAnalyser.getStubName() + "]);");
 	}
 
-	private static void writeMethodWithParameters(JsWriter writer, Module module, Method method) throws IOException
+	private static void writeMethodWithParameters(JsWriter writer, ControllerAnalyser controllerAnalyser, Method method) throws IOException
 	{
 		String stubName = getStubNameNameFromMethod(method);
 		String actionName = getActionNameFromMethod(method);
-		writeJsDocFor(writer, method);
+		writeJsDocFor(writer, controllerAnalyser, method);
 		writer.doIndent().write("" + stubName + " : function(");
 		writer.write(Arrays.stream(method.getParameters()).map(Parameter::getName).collect(Collectors.joining(",")));
 		writer.write(") {\n");
 		writer.indent(1).writeLine("var options={};");
-		writer.writeLine("options.module='" + module.name() + "';");
+		writer.writeLine("options.module='" + controllerAnalyser.getModuleName() + "';");
 		writer.writeLine("options.action='" + actionName + "';");
 		for (Parameter parameter : method.getParameters())
 		{
-			if( parameter.isAnnotationPresent(UrlParam.class) )
+			UrlParam param = parameter.getAnnotation(UrlParam.class);
+			String paramName = param != null ? param.name() : parameter.getName();
+
+			if (Map.class.isAssignableFrom(parameter.getType()) && param != null)
 			{
-				UrlParam param = parameter.getAnnotation(UrlParam.class);
-				if( Map.class.isAssignableFrom(parameter.getType()) )
-				{
-					int idx = param.name().indexOf('#');
-					String paramFirstPart = idx == 0 ? "" : param.name().substring(0, idx);
-					String paramLastPart = idx >= param.name().length()-1  ? "" : param.name().substring(idx+1);
-					writer.writeLine("angular.forEach("+parameter.getName()+", function(key,value) {").indent(1);
-					writer.writeLine("options['" + paramFirstPart + "'+key+'" + paramLastPart + "']=value;");
-					writer.indent(-1).writeLine("});");
-				}
-				else
-				{
-					writer.writeLine("options." + param.name() + "=" + parameter.getName() + ";");
-				}
+				int idx = param.name().indexOf('#');
+				String paramFirstPart = idx == 0 ? "" : param.name().substring(0, idx);
+				String paramLastPart = idx >= param.name().length() - 1 ? "" : param.name().substring(idx + 1);
+				writer.writeLine("angular.forEach(" + parameter.getName() + ", function(value,key) {").indent(1);
+				writer.writeLine("options['" + paramFirstPart + "'+key+'" + paramLastPart + "']=value;");
+				writer.indent(-1).writeLine("});");
+			}
+			else if( Boolean.class.isAssignableFrom(parameter.getType()) || Boolean.TYPE == parameter.getType() )
+			{
+				writer.writeLine("options." + paramName + "=" + parameter.getName() + " ? 1 : 0;");
 			}
 			else
 			{
-				writer.writeLine("options." + parameter.getName() + "=" + parameter.getName() + ";");
+				writer.writeLine("options." + paramName + "=" + parameter.getName() + ";");
 			}
+
 		}
 		writer.writeLine("return ds(options);");
 		writer.indent(-1).doIndent().write("}");
 	}
 
-	private static void writeJsDocFor(JsWriter writer, Method method) throws IOException
+	private static void writeJsDocFor(JsWriter writer, ControllerAnalyser controllerAnalyser, Method method) throws IOException
 	{
 		writer.writeLine("/**");
-		writer.writeLine(" *");
+		writer.writeLine(" * @memberof "+controllerAnalyser.getStubName());
 		Parameter[] parameters = method.getParameters();
 		for (int i = 0; i < parameters.length; i++)
 		{
@@ -221,19 +212,19 @@ public class JsServiceGenerator
 			Type type = method.getGenericParameterTypes()[i];
 			writer.writeLine(" * @param {" + mapTypeToJsDoc(parameter.getType(), type) + "} " + parameter.getName() + " ");
 		}
-		writer.writeLine(" * @returns {"+mapTypeToJsDoc(method.getReturnType(), null)+"}");
+		writer.writeLine(" * @returns {DsAjaxPromise_"+controllerAnalyser.getStubName()+"_"+method.getName()+"}");
 		writer.writeLine(" **/");
 	}
 
-	private static void writeParameterlessStub(JsWriter writer, Module module, Method method) throws IOException
+	private static void writeParameterlessStub(JsWriter writer, ControllerAnalyser controllerAnalyser, Method method) throws IOException
 	{
 		String stubName = getStubNameNameFromMethod(method);
 		String actionName = getActionNameFromMethod(method);
 
-		writeJsDocFor(writer, method);
+		writeJsDocFor(writer, controllerAnalyser, method);
 		writer.writeLine(stubName + " : function() {").indent(1);
 		writer.writeLine("var options = {};");
-		writer.writeLine("options.module='" + module.name() + "';");
+		writer.writeLine("options.module='" + controllerAnalyser.getModuleName() + "';");
 		writer.writeLine("options.action='" + actionName + "';");
 		writer.writeLine("return ds(options);");
 		writer.indent(-1).doIndent().write("}");
@@ -265,6 +256,16 @@ public class JsServiceGenerator
 		{
 			detectedViewModels.add(cls);
 			return mapViewModelName(cls);
+		}
+
+		Class<?> enclosingType = cls;
+		while((enclosingType = enclosingType.getEnclosingClass()) != null)
+		{
+			if (enclosingType.isAnnotationPresent(ViewModel.class))
+			{
+				detectedViewModels.add(cls);
+				return mapViewModelName(cls);
+			}
 		}
 
 		return "object";
@@ -311,10 +312,5 @@ public class JsServiceGenerator
 		}
 
 		return name;
-	}
-
-	private static String getStubNameFromClass(Class<?> ctrlClass)
-	{
-		return ctrlClass.getSimpleName()+"Stub";
 	}
 }
