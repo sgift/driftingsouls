@@ -1,280 +1,233 @@
 'use strict';
-
-angular.module('ds.npc', ['ds.service.ds'])
-.factory('dsNpc', ['ds', function(ds) {
-	return {
-		awardMedal : function(options) {
-			options.module='npc';
-			options.action='awardMedal';
-			return ds(options);
-		},
-		changeRank : function(options) {
-			options.module='npc';
-			options.action='changeRank';
-			return ds(options);
-		},
-		meldungBearbeitet : function(options) {
-			options.module='npc';
-			options.action='meldungBearbeitet';
-			return ds(options);
-		},
-		deleteLp : function(options) {
-			options.module='npc';
-			options.action='deleteLp';
-			return ds(options);
-		},
-		editLp : function(options) {
-			options.module='npc';
-			options.action='editLp';
-			return ds(options);
-		},
-		changeOrderLocation : function(options) {
-			options.module='npc';
-			options.action='changeOrderLocation';
-			return ds(options);
-		},
-		orderShips : function(options) {
-			options.module='npc';
-			options.action='orderShips';
-			return ds(options);
-		},
-		order : function(options) {
-			options.module='npc';
-			options.action='order';
-			return ds(options);
-		},
-		shopMenu : function(options) {
-			options.module='npc';
-			options.action='shopMenu';
-			return ds(options);
-		},
-		lpMenu : function(options) {
-			options.module='npc';
-			options.action='lpMenu';
-			return ds(options);
-		},
-		raengeMenu : function(options) {
-			options.module='npc';
-			options.action='raengeMenu';
-			return ds(options);
-		},
-		orderMenu : function(options) {
-			options.module='npc';
-			options.action='orderMenu';
-			return ds(options);
+(function() {
+	/**
+	 *
+	 * @param $scope
+	 * @param {NpcControllerStub} NpcControllerStub
+	 * @constructor
+	 */
+	function NpcShopController($scope, NpcControllerStub) {
+		function refresh() {
+			NpcControllerStub
+				.shopMenu()
+				.success(function (data) {
+					$scope.menu = data.menu;
+					$scope.transporter = data.transporter;
+				});
 		}
-	};
-}])
-.controller('NpcShopController', ['$scope', 'dsNpc', function($scope, dsNpc) {
-	function refresh() {
-		dsNpc
-		.shopMenu({edituser:$scope.editUserId})
-		.success(function(data) {
-			$scope.menu = data.menu;
-			$scope.transporter = data.transporter;
-		});
-	}
-	refresh();
-}])
-.controller('DummyController', ['$scope', 'dsNpc', function($scope, dsNpc) {
-	$scope.transport = {};
-	$scope.transport.ship = {};
-	$scope.transport.ship.name = "Testschiff";
-	$scope.transport.status = "Teststatus";
-}])
-.controller('NpcLpController', ['$scope', 'dsNpc', function($scope, dsNpc) {
-	function refresh() {
-		dsNpc
-		.lpMenu({
-				edituser:$scope.editUserId,
-				alleMeldungen:$scope.alleMeldungenAnzeigen ? 1 : 0
-		})
-		.success(function(data) {
-			$scope.menu = data.menu;
-			$scope.edituser = data.user;
-			$scope.edituserPresent =  $scope.edituser != null;
-			$scope.meldungen = data.meldungen;
-			$scope.lpListe = data.lpListe;
-			$scope.rang = data.rang;
-			$scope.lpBeiNpc = data.lpBeiNpc;
-			$scope.alleMeldungenAnzeigen = data.alleMeldungen;
-			
-			$scope.lpNeu = {
-				grund: "",
-				anmerkungen: "",
-				punkte: "",
-				pm:true
-			};
-		});
-	}
 
-	$scope.meldungBearbeitet = function(meldung) {
-		dsNpc.meldungBearbeitet({
-			meldung:meldung.id
-		})
-		.success(function(data) {
-			if( data.message.type === 'success' ) {
-				refresh();
-			}
-		});
-	}
-
-	$scope.alleMeldungenChanged = function() {
 		refresh();
 	}
-	
-	$scope.changeUser = function() {
-		refresh();
+
+	/**
+	 *
+	 * @param $scope
+	 * @param {NpcControllerStub} NpcControllerStub
+	 * @constructor
+	 */
+	function DummyController($scope, NpcControllerStub) {
+		$scope.transport = {};
+		$scope.transport.ship = {};
+		$scope.transport.ship.name = "Testschiff";
+		$scope.transport.status = "Teststatus";
 	}
-	
-	$scope.lpAendern = function() {
-		dsNpc.editLp({
-			edituser:$scope.edituser.id,
-			grund:$scope.lpNeu.grund,
-			anmerkungen:$scope.lpNeu.anmerkungen,
-			punkte:$scope.lpNeu.punkte,
-			pm:$scope.lpNeu.pm ? 1 : 0
-		})
-		.success(function(data) {
-			if( data.message.type === 'success' ) {
-				refresh();
-			}
-		});
-	}
-	
-	$scope.lpLoeschen = function(lp) {
-		dsNpc.deleteLp({
-			edituser:$scope.edituser.id,
-			lp:lp.id
-		})
-		.success(function(data) {
-			if( data.message.type === 'success' ) {
-				refresh();
-			}
-		});
-	}
-	
-	refresh();
-}])
-.controller('NpcRaengeController', ['$scope', 'dsNpc', '$routeParams', function($scope, dsNpc, $routeParams) {
-	function refresh() {
-		dsNpc
-		.raengeMenu({edituser:$scope.editUserId})
-		.success(function(data) {
-			$scope.menu = data.menu;
-			$scope.edituser = data.user;
-			$scope.edituserPresent =  $scope.edituser != null;
-			$scope.raenge = data.raenge;
-			$scope.medals = data.medals;
-			$scope.medalSelected = -1;
-			
-			if( $scope.raenge ) {
-				$scope.aktiverRang = $scope.raenge[0];
-				
-				angular.forEach($scope.raenge, function(value) {
-					if( value.id == data.aktiverRang ) {
-						$scope.aktiverRang = value;
+
+	/**
+	 *
+	 * @param $scope
+	 * @param {NpcControllerStub} NpcControllerStub
+	 * @constructor
+	 */
+	function NpcLpController($scope, NpcControllerStub) {
+		function refresh() {
+			NpcControllerStub
+				.lpMenu($scope.editUserId, $scope.alleMeldungenAnzeigen)
+				.success(function (data) {
+					$scope.menu = data.menu;
+					$scope.edituser = data.user;
+					$scope.edituserPresent = $scope.edituser != null;
+					$scope.meldungen = data.meldungen;
+					$scope.lpListe = data.lpListe;
+					$scope.rang = data.rang;
+					$scope.lpBeiNpc = data.lpBeiNpc;
+					$scope.alleMeldungenAnzeigen = data.alleMeldungen;
+
+					$scope.lpNeu = {
+						grund: "",
+						anmerkungen: "",
+						punkte: "",
+						pm: true
+					};
+				});
+		}
+
+		$scope.meldungBearbeitet = function (meldung) {
+			NpcControllerStub.meldungBearbeitet(meldung.id)
+				.success(function (data) {
+					if (data.message.type === 'success') {
+						refresh();
 					}
 				});
-			}
-		});
-	}
-	
-	$scope.changeUser = function() {
+		};
+
+		$scope.alleMeldungenChanged = function () {
+			refresh();
+		};
+
+		$scope.changeUser = function () {
+			refresh();
+		};
+
+		$scope.lpAendern = function () {
+			NpcControllerStub.editLp(
+				$scope.edituser.id,
+				$scope.lpNeu.grund,
+				$scope.lpNeu.anmerkungen,
+				$scope.lpNeu.punkte,
+				$scope.lpNeu.pm
+			)
+				.success(function (data) {
+					if (data.message.type === 'success') {
+						refresh();
+					}
+				});
+		};
+
+		$scope.lpLoeschen = function (lp) {
+			NpcControllerStub.deleteLp($scope.edituser.id, lp.id)
+				.success(function (data) {
+					if (data.message.type === 'success') {
+						refresh();
+					}
+				});
+		};
+
 		refresh();
 	}
-	
-	$scope.rangAendern = function() {
-		dsNpc.changeRank({
-			edituser:$scope.edituser.id, 
-			rank:$scope.aktiverRang.id
-		});
-	}
-	
-	$scope.medailleVergeben = function() {
-		if( $scope.medalSelected == -1 ) {
-			$scope.message = 'Du musst einen Orden auswählen';
-			return;
+
+	/**
+	 *
+	 * @param $scope
+	 * @param {NpcControllerStub} NpcControllerStub
+	 * @param $routeParams
+	 * @constructor
+	 */
+	function NpcRaengeController($scope, NpcControllerStub, $routeParams) {
+		function refresh() {
+			NpcControllerStub
+				.raengeMenu($scope.editUserId)
+				.success(function (data) {
+					$scope.menu = data.menu;
+					$scope.edituser = data.user;
+					$scope.edituserPresent = $scope.edituser != null;
+					$scope.raenge = data.raenge;
+					$scope.medals = data.medals;
+					$scope.medalSelected = -1;
+
+					if ($scope.raenge) {
+						$scope.aktiverRang = $scope.raenge[0];
+
+						angular.forEach($scope.raenge, function (value) {
+							if (value.id == data.aktiverRang) {
+								$scope.aktiverRang = value;
+							}
+						});
+					}
+				});
 		}
-		dsNpc.awardMedal({
-			edituser:$scope.edituser.id,
-			reason:$scope.begruendung,
-			medal:$scope.medalSelected
-		});
+
+		$scope.changeUser = function () {
+			refresh();
+		};
+
+		$scope.rangAendern = function () {
+			NpcControllerStub.changeRank($scope.edituser.id, $scope.aktiverRang.id);
+		};
+
+		$scope.medailleVergeben = function () {
+			if ($scope.medalSelected == -1) {
+				$scope.message = 'Du musst einen Orden auswählen';
+				return;
+			}
+			NpcControllerStub.awardMedal($scope.edituser.id, $scope.medalSelected, $scope.begruendung);
+		};
+
+		$scope.editUserId = $routeParams.userId;
+
+		refresh();
 	}
-	
-	$scope.editUserId = $routeParams.userId;
-	
-	refresh();
-}])
-.controller('NpcOrderController', ['$scope','dsNpc',function($scope, dsNpc) {
-	function refresh() {
-		dsNpc.orderMenu({}).success(function(data) {
-			$scope.menu = data.menu;
-			$scope.ships = data.ships;
-			angular.forEach($scope.ships, function(ship) {
-				ship.neworder = 0;
-			});
-			$scope.offiziere = data.offiziere;
-			$scope.npcpunkte = data.npcpunkte;
-			$scope.lieferpositionen = data.lieferpositionen;
-			$scope.shipflags = {
-				disableiff:false,
-				nichtkaperbar:false,
-				handelsposten:false
-			};
-			angular.forEach($scope.lieferpositionen, function(pos) {
-				pos.label = pos.name+" ("+pos.pos+")";
-			});
-			if( data.aktuelleLieferposition ) {
-				for( var i=0; i < data.lieferpositionen.length; i++ ) {
-					if( data.lieferpositionen[i].pos === data.aktuelleLieferposition ) {
-						$scope.lieferposition = data.lieferpositionen[i];
+
+	/**
+	 *
+	 * @param $scope
+	 * @param {NpcControllerStub} NpcControllerStub
+	 * @constructor
+	 */
+	function NpcOrderController($scope, NpcControllerStub) {
+		function refresh() {
+			NpcControllerStub.orderMenu().success(function (data) {
+				$scope.menu = data.menu;
+				$scope.ships = data.ships;
+				angular.forEach($scope.ships, function (ship) {
+					ship.neworder = 0;
+				});
+				$scope.offiziere = data.offiziere;
+				$scope.npcpunkte = data.npcpunkte;
+				$scope.lieferpositionen = data.lieferpositionen;
+				$scope.shipflags = {
+					disableiff: false,
+					nichtkaperbar: false,
+					handelsposten: false
+				};
+				angular.forEach($scope.lieferpositionen, function (pos) {
+					pos.label = pos.name + " (" + pos.pos + ")";
+				});
+				if (data.aktuelleLieferposition) {
+					for (var i = 0; i < data.lieferpositionen.length; i++) {
+						if (data.lieferpositionen[i].pos === data.aktuelleLieferposition) {
+							$scope.lieferposition = data.lieferpositionen[i];
+						}
 					}
 				}
-			}
-		});
-	}
-	
-	$scope.orderShips = function() {
-		var params = {};
-		if( $scope.shipflags.disableiff ) {
-			params.shipflag_disableiff = 1;
+			});
 		}
-		if( $scope.shipflags.nichtkaperbar ) {
-			params.shipflag_nichtkaperbar=1;
-		}
-		if( $scope.shipflags.handelsposten ) {
-			params.shipflag_handelsposten=1;
-		}
-		angular.forEach($scope.ships, function(ship) {
-			if( ship.neworder > 0 ) {
-				params["ship"+ship.id+"_count"]=ship.neworder;
-			}
-		});
-		dsNpc.orderShips(params)
-		.success(function(data) {
-			if( data.message.type === 'success' ) {
-				refresh();
-			}
-		});
+
+		$scope.orderShips = function () {
+			var params = {};
+			angular.forEach($scope.ships, function (ship) {
+				if (ship.neworder > 0) {
+					params[ship.id] = ship.neworder;
+				}
+			});
+			NpcControllerStub.orderShips($scope.shipflags.disableiff,$scope.shipflags.handelsposten,$scope.shipflags.nichtkaperbar,params)
+				.success(function (data) {
+					if (data.message.type === 'success') {
+						refresh();
+					}
+				});
+		};
+
+		$scope.orderOffizier = function (offizier, count) {
+			NpcControllerStub.order(offizier.id, count)
+				.success(function (data) {
+					if (data.message.type === 'success') {
+						refresh();
+					}
+				});
+		};
+
+		$scope.lieferpositionAendern = function () {
+			NpcControllerStub.changeOrderLocation($scope.lieferposition != null ? $scope.lieferposition.pos : "");
+		};
+
+		refresh();
 	}
-	
-	$scope.orderOffizier = function(offizier, count) {
-		dsNpc.order({order:offizier.id, count:count})
-		.success(function(data) {
-			if( data.message.type === 'success' ) {
-				refresh();
-			}
-		});
-	}
-	
-	$scope.lieferpositionAendern = function() {
-		dsNpc.changeOrderLocation({
-			lieferposition:$scope.lieferposition != null ? $scope.lieferposition.pos : ""
-		});
-	}
-	
-	refresh();
-}]
-);
+
+	angular.module('ds.npc', ['ds.service.ds', 'ds.service.ajax'])
+		.controller('NpcShopController', ['$scope', 'NpcControllerStub', NpcShopController])
+		.controller('DummyController', ['$scope', 'NpcControllerStub', DummyController])
+		.controller('NpcLpController', ['$scope', 'NpcControllerStub', NpcLpController])
+		.controller('NpcRaengeController', ['$scope', 'NpcControllerStub', '$routeParams', NpcRaengeController])
+		.controller('NpcOrderController', ['$scope', 'NpcControllerStub', NpcOrderController]
+	);
+})();
