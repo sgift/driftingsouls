@@ -1765,6 +1765,10 @@ public class Ship implements Locatable,Transfering,Feeding {
 		org.hibernate.Session db = context.getDB();
 		StringBuilder outputbuffer = MESSAGE.get();
 
+		dockships = Arrays.stream(dockships)
+				.filter(s -> s.getTypeData().hasFlag(ShipTypeFlag.JAEGER))
+				.toArray(Ship[]::new);
+
 		//No superdock for landing
 		Ship[] help = performLandingChecks(false, dockships);
 		boolean errors = false;

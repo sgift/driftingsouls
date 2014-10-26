@@ -170,7 +170,7 @@ public class ShipTest extends DBSingleTransactionTest
 	 * Testet das Andocken von Containern an ein Schiff
 	 */
 	@Test
-	public void gegebenEinSchiffEinesSpielersOhneSuperDockRechtenUndEinContainerEinesAnderenSpielers_dock_sollteDiesenContainerAndocken()
+	public void gegebenEinSchiffEinesSpielersOhneSuperDockRechtenUndEinContainerEinesAnderenSpielers_dock_sollteDiesenContainerNichtAndocken()
 	{
 		// setup
 		this.tanker.setOwner(user3);
@@ -466,5 +466,162 @@ public class ShipTest extends DBSingleTransactionTest
 		assertThat(dockedShips.size(), is(1));
 		assertThat(dockedShips.contains(this.container1), is(true));
 		assertThat(dockedShips.contains(this.container2), is(false));
+	}
+
+
+	@Test
+	public void gegebenEinSchiffOhneGelandeteJaeger_land_sollteDenJaegerLandenUndDenCargoNichtVeraendern()
+	{
+		// setup
+		assertThat(this.jaeger1.isLanded() || this.jaeger1.isDocked(), is(false));
+		assertThat(this.jaeger2.isLanded() || this.jaeger2.isDocked(), is(false));
+		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
+		assertThat(this.container1.getTypeData().getCargo(), is(1500L));
+		assertThat(this.container2.getTypeData().getCargo(), is(1500L));
+
+		// run
+		boolean dock = this.tanker.land(this.jaeger1);
+
+		// assert
+		assertThat(dock, is(false));
+		assertThat(this.jaeger1.getBaseShip().getId(), is(this.tanker.getId()));
+		assertThat(this.jaeger2.isLanded() || this.jaeger2.isDocked(), is(false));
+		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
+		assertThat(this.jaeger1.getTypeData().getCargo(), is(1500L));
+		assertThat(this.jaeger2.getTypeData().getCargo(), is(1500L));
+		assertThat(this.jaeger1.getCargo().isEmpty(), is(false));
+		assertThat(this.jaeger2.getCargo().isEmpty(), is(true));
+		assertThat(this.tanker.getCargo().isEmpty(), is(false));
+	}
+
+	@Test
+	public void gegebenEinSchiffMitEinemGelandetenJaeger_land_sollteDenJaegerLandenUndDenCargoNichtVeraendern()
+	{
+		// setup
+		assertThat(this.tanker.land(this.jaeger1), is(false));
+
+		// run
+		boolean dock = this.tanker.land(this.jaeger2);
+
+		// assert
+		assertThat(dock, is(false));
+		assertThat(this.jaeger1.getBaseShip().getId(), is(this.tanker.getId()));
+		assertThat(this.jaeger2.getBaseShip().getId(), is(this.tanker.getId()));
+		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
+		assertThat(this.jaeger1.getTypeData().getCargo(), is(1500L));
+		assertThat(this.jaeger2.getTypeData().getCargo(), is(1500L));
+		assertThat(this.jaeger1.getCargo().isEmpty(), is(false));
+		assertThat(this.jaeger2.getCargo().isEmpty(), is(true));
+	}
+
+	@Test
+	public void gegebenEinSchiffMitEinemGelandetenjaegerUndGenauDiesenJaegerAlsZiel_land_sollteDenJaegerNichtErneutLanden()
+	{
+		// setup
+		assertThat(this.tanker.land(this.jaeger1), is(false));
+
+		// run
+		boolean dock = this.tanker.land(this.jaeger1);
+
+		// assert
+		assertThat(dock, is(true));
+		assertThat(this.jaeger1.getBaseShip().getId(), is(this.tanker.getId()));
+		assertThat(this.jaeger2.isLanded() || this.jaeger2.isDocked(), is(false));
+		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
+		assertThat(this.jaeger1.getTypeData().getCargo(), is(1500L));
+		assertThat(this.jaeger2.getTypeData().getCargo(), is(1500L));
+		assertThat(this.jaeger1.getCargo().isEmpty(), is(false));
+		assertThat(this.jaeger2.getCargo().isEmpty(), is(true));
+		assertThat(this.jaeger1.getCargo().getResourceCount(this.testWare), is(7L));
+	}
+
+	@Test
+	public void gegebenEinSchiffEinesSpielersMitSuperDockRechtenUndEinJaegerEinesAnderenSpielers_land_sollteDiesenJaegerNichtLanden()
+	{
+		// setup
+		this.tanker.setOwner(user2);
+
+		assertThat(this.jaeger1.isLanded() || this.jaeger1.isDocked(), is(false));
+		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
+		assertThat(this.jaeger1.getTypeData().getCargo(), is(1500L));
+
+		// run
+		boolean dock = this.tanker.land(this.jaeger1);
+
+		// assert
+		assertThat(dock, is(true));
+		assertThat(this.jaeger1.isLanded() || this.jaeger1.isDocked(), is(false));
+		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
+		assertThat(this.jaeger1.getTypeData().getCargo(), is(1500L));
+		assertThat(this.jaeger1.getCargo().isEmpty(), is(false));
+		assertThat(this.jaeger1.getCargo().getResourceCount(this.testWare), is(7L));
+	}
+
+	@Test
+	public void gegebenEinSchiffEinesSpielersOhneSuperDockRechtenUndEinJaegerEinesAnderenSpielers_land_sollteDiesenJaegerNichtLanden()
+	{
+		// setup
+		this.tanker.setOwner(user3);
+
+		assertThat(this.jaeger1.isLanded() || this.jaeger1.isDocked(), is(false));
+		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
+		assertThat(this.jaeger1.getTypeData().getCargo(), is(1500L));
+
+		// run
+		boolean dock = this.tanker.land(this.jaeger1);
+
+		// assert
+		assertThat(dock, is(true));
+		assertThat(this.jaeger1.isLanded() || this.jaeger1.isDocked(), is(false));
+		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
+		assertThat(this.jaeger1.getTypeData().getCargo(), is(1500L));
+		assertThat(this.jaeger1.getCargo().isEmpty(), is(false));
+		assertThat(this.jaeger1.getCargo().getResourceCount(this.testWare), is(7L));
+	}
+
+	@Test
+	public void gegebenEinSchiffUndMehrereGleichzeitigZuLandendeJaeger_land_sollteDieseAlleLandenAberDenCargoNichtVeraendern()
+	{
+		// setup
+		assertThat(this.jaeger1.isLanded() || this.jaeger1.isDocked(), is(false));
+		assertThat(this.jaeger2.isLanded() || this.jaeger2.isDocked(), is(false));
+		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
+		assertThat(this.jaeger1.getTypeData().getCargo(), is(1500L));
+		assertThat(this.jaeger2.getTypeData().getCargo(), is(1500L));
+
+		// run
+		boolean dock = this.tanker.land(this.jaeger1, this.jaeger2);
+
+		// assert
+		assertThat(dock, is(false));
+		assertThat(this.jaeger1.getBaseShip().getId(), is(this.tanker.getId()));
+		assertThat(this.jaeger2.getBaseShip().getId(), is(this.tanker.getId()));
+		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
+		assertThat(this.jaeger1.getTypeData().getCargo(), is(1500L));
+		assertThat(this.jaeger2.getTypeData().getCargo(), is(1500L));
+		assertThat(this.jaeger1.getCargo().isEmpty(), is(false));
+		assertThat(this.jaeger2.getCargo().isEmpty(), is(true));
+		assertThat(this.jaeger1.getCargo().getResourceCount(this.testWare), is(7L));
+	}
+
+	@Test
+	public void gegebenEinSchiffUndEinZuLandenderContainer_land_sollteDiesenNichtLanden()
+	{
+		// setup
+		assertThat(this.jaeger1.isLanded() || this.jaeger1.isDocked(), is(false));
+		assertThat(this.jaeger2.isLanded() || this.jaeger2.isDocked(), is(false));
+		assertThat(this.container1.isLanded() || this.container1.isDocked(), is(false));
+		assertThat(this.tanker.getTypeData().getCargo(), is(1500L));
+		assertThat(this.jaeger1.getTypeData().getCargo(), is(1500L));
+		assertThat(this.jaeger2.getTypeData().getCargo(), is(1500L));
+
+		// run
+		boolean dock = this.tanker.land(this.container1);
+
+		// assert
+		assertThat(dock, is(false));
+		assertThat(this.jaeger1.isLanded() || this.jaeger1.isDocked(), is(false));
+		assertThat(this.jaeger2.isLanded() || this.jaeger2.isDocked(), is(false));
+		assertThat(this.container1.isLanded() || this.container1.isDocked(), is(false));
 	}
 }
