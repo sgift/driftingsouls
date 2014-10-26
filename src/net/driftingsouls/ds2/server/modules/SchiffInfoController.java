@@ -196,6 +196,7 @@ public class SchiffInfoController extends Controller
 		{
 			OrderableShip order = (OrderableShip) db.createQuery("from OrderableShip where shipType=:type")
 				.setEntity("type", ship)
+				.setMaxResults(1)
 				.uniqueResult();
 
 			if (order != null)

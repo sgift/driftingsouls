@@ -83,23 +83,23 @@ var Stats = {
 		var removeDataset = function(key) {
 			delete selectedDatasets[key];
 			redraw();
-		}
+		};
 		var removeAllDatasets = function() {
 			selectedDatasets = [];
 			redraw();
-		}
+		};
 
 		if( datasetsEl != null ) {
 			datasetsEl.find('input').on('click', function(event) {
 				var tar = $(event.target);
 				var key = tar.attr('ds-stats-key');
-				if( tar.attr('checked') && typeof selectedDatasets[key] === 'undefined' ) {
+				if( tar.prop('checked') && typeof selectedDatasets[key] === 'undefined' ) {
 					if( !multiSelect ) {
 						removeAllDatasets();
 					}
 					showDataset(key);
 				}
-				else if( !tar.attr('checked') && typeof selectedDatasets[key] !== 'undefined' ) {
+				else if( !tar.prop('checked') && typeof selectedDatasets[key] !== 'undefined' ) {
 					removeDataset(key);
 				}
 			});
@@ -110,7 +110,7 @@ var Stats = {
 				.find('input')
 				.first();
 
-			firstInput.attr('checked', true);
+			firstInput.prop('checked', true);
 			showDataset(firstInput.attr('ds-stats-key'));
 		}
 		else if( datasets.length == 1 ){

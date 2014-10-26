@@ -46,7 +46,6 @@ img {
 	position:relative;
 	width:40px;
 	height:15px;
-	z-index:100;
 }
 #menu li.actionfield {
 	float:right;
@@ -54,7 +53,6 @@ img {
 	margin:0 1px 0 0;
 	position:relative;
 	height:15px;
-	z-index:100;
 	text-align:right;
 	white-space: nowrap;
 	width: auto;

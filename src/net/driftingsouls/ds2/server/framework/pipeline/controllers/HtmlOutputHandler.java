@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Arrays;
+import java.util.List;
 import java.util.TreeSet;
 
 /**
@@ -105,15 +106,20 @@ public class HtmlOutputHandler extends OutputHandler
 		File libdir = new File(jsdir.getAbsolutePath()+"/libs");
 		File commondir = new File(jsdir.getAbsolutePath()+"/common");
 
-		sb.append("<script src=\"./data/javascript").append("/libs/jquery-1.8.2.min.js\" type=\"text/javascript\"></script>\n");
-		sb.append("<script src=\"./data/javascript").append("/libs/jquery-ui-1.9.1.min.js\" type=\"text/javascript\"></script>\n");
+		List<String> specialJsLibs = Arrays.asList("jquery-2.1.1.min.js", "jquery-ui-1.11.2.min.js");
+
+		for (String specialJsLib : specialJsLibs)
+		{
+			sb.append("<script src=\"./data/javascript/libs/").append(specialJsLib).append("\" type=\"text/javascript\"></script>\n");
+		}
+
 		for( String filename : new TreeSet<>(Arrays.asList(libdir.list())) )
 		{
-			if( filename.startsWith("jquery-1") || filename.startsWith("jquery-ui-1") || !filename.endsWith(".js") )
+			if( specialJsLibs.contains(filename) || !filename.endsWith(".js") )
 			{
 				continue;
 			}
-			sb.append("<script src=\"./data/javascript").append("/libs/").append(filename).append("\" type=\"text/javascript\"></script>\n");
+			sb.append("<script src=\"./data/javascript/libs/").append(filename).append("\" type=\"text/javascript\"></script>\n");
 		}
 
 		for( String filename : new TreeSet<>(Arrays.asList(commondir.list())) )
