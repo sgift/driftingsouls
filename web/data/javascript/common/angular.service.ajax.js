@@ -1220,6 +1220,39 @@
 		}
 	}
 	angularModule = angularModule.factory('StatsControllerStub', ['ds', StatsControllerStub]);
+	// net.driftingsouls.ds2.server.modules.TechListeController
+	/**
+	 * @class
+	 **/
+	var DsAjaxPromise_TechListeControllerStub_defaultAction = {
+		/**
+		 * @name success
+		 * @function
+		 * @param {function(data:ds.viewmodel.modules.TechListeController.TechListeViewModel)} callback
+		 * @memberof DsAjaxPromise_TechListeControllerStub_defaultAction
+		 **/
+		success : function(callback) {}
+	};
+	/**
+	 * @class {object} TechListeControllerStub
+	 **/
+	function TechListeControllerStub(ds) {
+		return {
+			/**
+			 * @memberof TechListeControllerStub
+			 * @param {number} rasse 
+			 * @returns {DsAjaxPromise_TechListeControllerStub_defaultAction}
+			 **/
+			defaultAction : function(rasse) {
+				var options={};
+				options.module='techliste';
+				options.action='default';
+				options.rasse=rasse;
+				return ds(options);
+			}		
+		}
+	}
+	angularModule = angularModule.factory('TechListeControllerStub', ['ds', TechListeControllerStub]);
 	/**
 	 * @namespace ds
 	 **/
@@ -1409,6 +1442,18 @@
 	 * @property {object} rows
 	 **/
 	/**
+	 * @namespace ds.viewmodel.modules.TechListeController
+	 **/
+	/**
+	 * @typedef {object} ds.viewmodel.modules.TechListeController.TechListeViewModel
+	 * @property {object} auswaehlbareRassen
+	 * @property {string} rassenName
+	 * @property {object} erforscht
+	 * @property {object} erforschbar
+	 * @property {object} nichtErforscht
+	 * @property {object} unsichtbar
+	 **/
+	/**
 	 * @typedef {object} ds.viewmodel.modules.MapController.SystemauswahlViewModel
 	 * @property {number} system
 	 * @property {boolean} adminSichtVerfuegbar
@@ -1419,31 +1464,6 @@
 	 * @typedef {object} ds.viewmodel.modules.OptionsController.GeneriereSchiffsNamenBeispieleViewModel
 	 **/
 	/**
-	 * @namespace ds.viewmodel.modules.stats.AjaxStatistic.DataViewModel
-	 **/
-	/**
-	 * @typedef {object} ds.viewmodel.modules.stats.AjaxStatistic.DataViewModel.KeyViewModel
-	 * @property {number} id
-	 * @property {string} name
-	 **/
-	/**
-	 * @typedef {object} ds.viewmodel.modules.admin.editoren.EntitySelectionViewModel
-	 * @property {boolean} allowSelection
-	 * @property {boolean} allowAdd
-	 * @property {object} input
-	 **/
-	/**
-	 * @namespace ds.viewmodel.bases
-	 **/
-	/**
-	 * @namespace ds.viewmodel.bases.Building
-	 **/
-	/**
-	 * @typedef {object} ds.viewmodel.bases.Building.BuildingUiViewModel
-	 * @property {ds.viewmodel.bases.Building.BuildingUiViewModel.CPViewModel} consumes
-	 * @property {ds.viewmodel.bases.Building.BuildingUiViewModel.CPViewModel} produces
-	 **/
-	/**
 	 * @namespace ds.viewmodel.modules.viewmodels
 	 **/
 	/**
@@ -1452,16 +1472,6 @@
 	 * @property {number} id
 	 * @property {string} name
 	 * @property {string} plainname
-	 **/
-	/**
-	 * @typedef {object} ds.viewmodel.modules.viewmodels.GebaeudeAufBasisViewModel
-	 * @property {number} id
-	 * @property {string} name
-	 * @property {string} picture
-	 * @property {boolean} active
-	 * @property {boolean} deakable
-	 * @property {boolean} kommandozentrale
-	 * @property {string} type
 	 **/
 	/**
 	 * @typedef {object} ds.viewmodel.modules.admin.editoren.JqGridViewModel
@@ -1485,20 +1495,22 @@
 	 * @property {boolean} forceFit
 	 **/
 	/**
-	 * @namespace ds.viewmodel.modules.MapController.MapViewModel
+	 * @namespace ds.viewmodel.framework.ViewMessage
 	 **/
 	/**
-	 * @typedef {object} ds.viewmodel.modules.MapController.MapViewModel.SystemViewModel
-	 * @property {number} id
-	 * @property {number} width
-	 * @property {number} height
+	 * @typedef {object} ds.viewmodel.framework.ViewMessage.ViewMessageDetails
+	 * @property {string} description
+	 * @property {string} type
+	 * @property {boolean} redirect
+	 * @property {string} cls
 	 **/
 	/**
-	 * @typedef {object} ds.viewmodel.modules.MapController.MapViewModel.SizeViewModel
-	 * @property {number} minx
-	 * @property {number} miny
-	 * @property {number} maxx
-	 * @property {number} maxy
+	 * @namespace ds.viewmodel.modules.MapController.SectorViewModel
+	 **/
+	/**
+	 * @typedef {object} ds.viewmodel.modules.MapController.SectorViewModel.NebelViewModel
+	 * @property {number} type
+	 * @property {string} image
 	 **/
 	/**
 	 * @namespace ds.viewmodel.modules.BaseController.AjaxViewModel
@@ -1526,24 +1538,6 @@
 	 * @property {ds.viewmodel.modules.BaseController.AjaxViewModel.CoreViewModel} core
 	 **/
 	/**
-	 * @namespace ds.viewmodel.framework.ViewMessage
-	 **/
-	/**
-	 * @typedef {object} ds.viewmodel.framework.ViewMessage.ViewMessageDetails
-	 * @property {string} description
-	 * @property {string} type
-	 * @property {boolean} redirect
-	 * @property {string} cls
-	 **/
-	/**
-	 * @namespace ds.viewmodel.modules.MapController.SectorViewModel
-	 **/
-	/**
-	 * @typedef {object} ds.viewmodel.modules.MapController.SectorViewModel.NebelViewModel
-	 * @property {number} type
-	 * @property {string} image
-	 **/
-	/**
 	 * @namespace ds.viewmodel.modules.ImpObjectsController.JsonViewModel
 	 **/
 	/**
@@ -1552,18 +1546,69 @@
 	 * @property {number} id
 	 **/
 	/**
-	 * @namespace ds.viewmodel.bases.Building.BuildingUiViewModel
+	 * @typedef {object} ds.viewmodel.modules.admin.editoren.EntitySelectionViewModel
+	 * @property {boolean} allowSelection
+	 * @property {boolean} allowAdd
+	 * @property {object} input
 	 **/
 	/**
-	 * @typedef {object} ds.viewmodel.bases.Building.BuildingUiViewModel.CPViewModel
-	 * @property {object} cargo
-	 * @property {ds.viewmodel.bases.Building.BuildingUiViewModel.EnergyViewModel} energy
+	 * @namespace ds.viewmodel.bases
+	 **/
+	/**
+	 * @namespace ds.viewmodel.bases.Building
+	 **/
+	/**
+	 * @typedef {object} ds.viewmodel.bases.Building.BuildingUiViewModel
+	 * @property {ds.viewmodel.bases.Building.BuildingUiViewModel.CPViewModel} consumes
+	 * @property {ds.viewmodel.bases.Building.BuildingUiViewModel.CPViewModel} produces
+	 **/
+	/**
+	 * @namespace ds.viewmodel.modules.MapController.MapViewModel
+	 **/
+	/**
+	 * @typedef {object} ds.viewmodel.modules.MapController.MapViewModel.SystemViewModel
+	 * @property {number} id
+	 * @property {number} width
+	 * @property {number} height
+	 **/
+	/**
+	 * @typedef {object} ds.viewmodel.modules.viewmodels.GebaeudeAufBasisViewModel
+	 * @property {number} id
+	 * @property {string} name
+	 * @property {string} picture
+	 * @property {boolean} active
+	 * @property {boolean} deakable
+	 * @property {boolean} kommandozentrale
+	 * @property {string} type
+	 **/
+	/**
+	 * @typedef {object} ds.viewmodel.modules.MapController.MapViewModel.SizeViewModel
+	 * @property {number} minx
+	 * @property {number} miny
+	 * @property {number} maxx
+	 * @property {number} maxy
+	 **/
+	/**
+	 * @namespace ds.viewmodel.modules.stats.AjaxStatistic.DataViewModel
+	 **/
+	/**
+	 * @typedef {object} ds.viewmodel.modules.stats.AjaxStatistic.DataViewModel.KeyViewModel
+	 * @property {number} id
+	 * @property {string} name
 	 **/
 	/**
 	 * @typedef {object} ds.viewmodel.modules.BaseController.AjaxViewModel.CoreViewModel
 	 * @property {number} id
 	 * @property {string} name
 	 * @property {boolean} active
+	 **/
+	/**
+	 * @namespace ds.viewmodel.bases.Building.BuildingUiViewModel
+	 **/
+	/**
+	 * @typedef {object} ds.viewmodel.bases.Building.BuildingUiViewModel.CPViewModel
+	 * @property {object} cargo
+	 * @property {ds.viewmodel.bases.Building.BuildingUiViewModel.EnergyViewModel} energy
 	 **/
 	/**
 	 * @typedef {object} ds.viewmodel.bases.Building.BuildingUiViewModel.EnergyViewModel

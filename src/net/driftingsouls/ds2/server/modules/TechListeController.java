@@ -28,15 +28,15 @@ import net.driftingsouls.ds2.server.entities.Forschungszentrum;
 import net.driftingsouls.ds2.server.entities.Rasse;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
-import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.modules.viewmodels.ResourceEntryViewModel;
 import org.hibernate.Session;
-import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -53,23 +53,48 @@ import java.util.Map;
 @Module(name="techliste")
 public class TechListeController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
-
-	@Autowired
-	public TechListeController(TemplateViewResultFactory templateViewResultFactory)
+	@ViewModel
+	public static class RasseViewModel
 	{
-		this.templateViewResultFactory = templateViewResultFactory;
-		setPageTitle("Forschungen");
+		public int id;
+		public String picture;
 	}
 
-	/**
-	 * Zeigt die Techliste an.
-	 * @param rasse Die Rasse, deren Technologien angezeigt werden sollen
-	 */
-	@Action(ActionType.DEFAULT)
-	public TemplateEngine defaultAction(int rasse) {
+	@ViewModel
+	public static class TechListeViewModel
+	{
+		public List<RasseViewModel> auswaehlbareRassen = new ArrayList<>();
+		public String rassenName;
+		public List<ForschungViewModel> erforscht = new ArrayList<>();
+		public List<ForschungViewModel> erforschbar = new ArrayList<>();
+		public List<ForschungViewModel> nichtErforscht = new ArrayList<>();
+		public List<ForschungViewModel> unsichtbar = new ArrayList<>();
+	}
+
+	@ViewModel
+	public static class BenoetigteForschungViewModel
+	{
+		public int id;
+		public String name;
+	}
+
+	@ViewModel
+	public static class ForschungViewModel
+	{
+		public int id;
+		public String image;
+		public String name;
+		public int dauer;
+		public Integer verbleibendeDauer;
+		public int spezialisierungspunkte;
+		public List<ResourceEntryViewModel> kosten = new ArrayList<>();
+		public List<BenoetigteForschungViewModel> benoetigteForschungen = new ArrayList<>();
+	}
+
+	@Action(ActionType.AJAX)
+	public TechListeViewModel defaultAction(int rasse)
+	{
 		org.hibernate.Session db = getDB();
-		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User)getUser();
 
 		if( rasse == 0 )
@@ -85,130 +110,82 @@ public class TechListeController extends Controller
 			rasse = user.getRace();
 		}
 
-		StringBuilder rassenliste = new StringBuilder(100);
-
+		TechListeViewModel viewModel = new TechListeViewModel();
 		for( Rasse aRasse : Rassen.get() ) {
-			if( aRasse.isExtPlayable() || aRasse.isPlayable() ) {
-				rassenliste.append("<a href='").append(Common.buildUrl("default", "rasse", aRasse.getId())).append("'>");
-				rassenliste.append("<img style='border:0px' src='./data/interface/rassen/").append(aRasse.getId()).append(".png' />");
-				rassenliste.append("</a>");
+			if( aRasse.isExtPlayable() || aRasse.isPlayable() )
+			{
+				RasseViewModel rasseViewModel = new RasseViewModel();
+				rasseViewModel.id = aRasse.getId();
+				rasseViewModel.picture = "./data/interface/rassen/" + aRasse.getId() + ".png";
+				viewModel.auswaehlbareRassen.add(rasseViewModel);
 			}
 		}
 
-		String rassenlisteStr = rassenliste.toString();
+		viewModel.rassenName = Rassen.get().rasse(rasse).getName();
 
-		t.setVar(	"race.name",	Rassen.get().rasse(rasse).getName(),
-					"race.list",	rassenlisteStr );
-
-		Map<Integer,Forschung>  researched = new LinkedHashMap<>();
-		Map<Integer,Forschung>  researchable = new LinkedHashMap<>();
-		Map<Integer,Forschung>  notResearchable = new LinkedHashMap<>();
-		Map<Integer,Forschung>  invisible = new LinkedHashMap<>();
+		Map<Integer,Forschung> researched = new LinkedHashMap<>();
+		Map<Integer,Forschung> researchable = new LinkedHashMap<>();
+		Map<Integer,Forschung> notResearchable = new LinkedHashMap<>();
+		Map<Integer,Forschung> invisible = new LinkedHashMap<>();
 
 		//Alle Forschungen durchgehen
 		gruppiereForschungenNachStatus(rasse, db, user, researched, researchable, notResearchable, invisible);
 
-		t.setBlock("_TECHLISTE","tech.listitem","none");
-
-		t.setBlock("_TECHLISTE","tech.researchable.listitem","none");
-		t.setBlock("tech.researchable.listitem","res.listitem", "res.list" );
-
-		Map<String,Collection<Forschung>> keys = new LinkedHashMap<>();
-		keys.put("researched", researched.values());
-		keys.put("researchable", researchable.values());
-		keys.put("notResearchable", notResearchable.values());
-		keys.put("invisible", invisible.values());
-
 		Map<Integer, Integer> currentResearches = ermittleLaufendeForschungen(db, user);
 
-		for( Map.Entry<String, Collection<Forschung>> entry: keys.entrySet() ) {
-			String mykey = entry.getKey();
-			Collection<Forschung> var = entry.getValue();
+		viewModel.erforscht = gruppeVonForschungenAnzeigen(currentResearches, "researched", researched.values());
+		viewModel.erforschbar = gruppeVonForschungenAnzeigen(currentResearches, "researchable", researchable.values());
+		viewModel.nichtErforscht = gruppeVonForschungenAnzeigen(currentResearches, "notResearchable", notResearchable.values());
+		viewModel.unsichtbar = gruppeVonForschungenAnzeigen(currentResearches, "invisible", invisible.values());
 
-			gruppeVonForschungenAnzeigen(t, currentResearches, mykey, var);
-		}
-
-		return t;
+		return viewModel;
 	}
 
-	private void gruppeVonForschungenAnzeigen(TemplateEngine t, Map<Integer, Integer> currentResearches, String gruppenname, Collection<Forschung> forschungsliste)
+	private List<ForschungViewModel> gruppeVonForschungenAnzeigen(Map<Integer, Integer> currentResearches, String gruppenname, Collection<Forschung> forschungsliste)
 	{
-		int count = 0;
-
+		List<ForschungViewModel> result = new ArrayList<>();
 		if( forschungsliste.size() == 0 ) {
-			return;
+			return result;
 		}
 
-		String prefix = "";
-		if( gruppenname.equals("researchable") ) {
-			prefix = "researchable.";
-		}
+		for( Forschung forschung : forschungsliste) {
+			ForschungViewModel viewModel = new ForschungViewModel();
 
-		for( Forschung result : forschungsliste) {
-			t.setVar(	"tech.id",			result.getID(),
-						"tech.image",		result.getImage(),
-						  "tech.name",		Common._title(result.getName()),
-						  "tech.dauer",		result.getTime(),
-						  "res.list",			"",
-						  "tech.remaining",	currentResearches.get(result.getID()),
-						  "tech.specpoints",	result.getSpecializationCosts());
+			viewModel.id = forschung.getID();
+			viewModel.image = forschung.getImage();
+			viewModel.name = Common._title(forschung.getName());
+			viewModel.dauer = forschung.getTime();
+			viewModel.verbleibendeDauer = currentResearches.get(forschung.getID());
+			viewModel.spezialisierungspunkte = forschung.getSpecializationCosts();
 
 			// Kosten der Forschung ausgeben
-			Cargo costs = result.getCosts();
+			Cargo costs = forschung.getCosts();
 			costs.setOption(Cargo.Option.SHOWMASS, false);
 
 			ResourceList reslist = costs.getResourceList();
-			int respos = 0;
 
 			for( ResourceEntry res : reslist ) {
-				t.setVar(	"waren",			"",
-							"warenb",			res.getImage(),
-							"tech.cost",		res.getCargo1(),
-							  "tech.cost.space",	(respos < reslist.size() - 1 ? 1 : 0 ) );
-
-				t.parse("res.list","res.listitem",true);
-
-				respos++;
+				viewModel.kosten.add(ResourceEntryViewModel.map(res));
 			}
-
-			boolean resentry = false;
 
 			// Benoetigte Forschungen ausgeben
 			if( !gruppenname.equals("researchable") ) {
 				for( int i=1; i <= 3; i++ ) {
-					Forschung forschung = result.getRequiredResearch(i);
-					if( forschung != null && (forschung.isVisibile((User)getUser()) || hasPermission(WellKnownPermission.FORSCHUNG_ALLES_SICHTBAR)) ) {
-						String req = forschung.getName();
-
-						t.setVar(	"tech.req"+i+".id", forschung.getID(),
-									"tech.req"+i+".name",	req );
-
-						resentry = true;
-					}
-					else {
-						t.setVar(	"tech.req"+i+".id",		"",
-									"tech.req"+i+".name",	"");
+					Forschung benoetigteForschung = forschung.getRequiredResearch(i);
+					if( benoetigteForschung != null && (benoetigteForschung.isVisibile((User)getUser()) || hasPermission(WellKnownPermission.FORSCHUNG_ALLES_SICHTBAR)) )
+					{
+						BenoetigteForschungViewModel benoetigteForschungViewModel = new BenoetigteForschungViewModel();
+						benoetigteForschungViewModel.id = benoetigteForschung.getID();
+						benoetigteForschungViewModel.name = benoetigteForschung.getName();
+						viewModel.benoetigteForschungen.add(benoetigteForschungViewModel);
 					}
 				}
 			}
-			if( !resentry ) {
-				t.setVar("tech.noreq",1);
-			}
-			else {
-				t.setVar("tech.noreq",0);
-			}
 
-			count++;
-
-			if( count % 3 == 0 ) {
-				t.setVar( "tech.newline", 1 );
-			}
-			else {
-				t.setVar( "tech.newline", 0 );
-			}
-
-			t.parse("tech."+ gruppenname +".list","tech."+prefix+"listitem",true);
+			result.add(viewModel);
 		}
+
+		return result;
 	}
 
 	private Map<Integer, Integer> ermittleLaufendeForschungen(Session db, User user)

@@ -1,0 +1,47 @@
+/*
+	Techliste
+*/
+#techliste .rassenauswahl {
+	width: 300px;
+	margin-bottom: 10px;
+}
+
+#techliste .forschungsboxen,
+#techliste .forschungsliste {
+	width:740px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+#techliste .forschungsbox {
+	float:left;
+	width:32%;
+	height:200px;
+	text-align: center;
+}
+
+#techliste .forschungsliste table {
+	width: 100%;
+}
+
+#techliste .forschungsliste td:first-child {
+	width: 300px;
+}
+#techliste .forschungsliste td:nth-child(2) {
+	width: 150px;
+}
+
+#techliste .kosteneintrag {
+	white-space: nowrap;
+	margin-right: 4px;
+	display: inline-block;
+}
+#techliste .kosteneintrag img {
+	margin-right: 1px;
+	vertical-align: middle;
+	float: left;
+}
+#techliste .benoetigteForschungen {
+	padding-left: 20px;
+	margin: 0;
+}

@@ -4,6 +4,7 @@ angular.module('ds.application',
 	[
 	'ds.npc',
 	'ds.map',
+	'ds.module.techliste',
 	'ds.demo',
 	'ds.directives',
 	'ui',
@@ -20,6 +21,7 @@ angular.module('ds.application',
 		.when('/npc/shop', {templateUrl: 'data/cltemplates/npc/shop.html', controller: 'NpcShopController'})
 		.when('/map', {templateUrl: 'data/cltemplates/map.html', controller: 'MapController'})
 		.when('/map/:system/:x/:y', {templateUrl: 'data/cltemplates/map.html', controller: 'MapController'})
+		.when('/techliste', {templateUrl: 'data/cltemplates/techliste/techliste.html', controller: 'TechListeController'})
 		.otherwise({redirectTo: '/map'});
 	
 }]);
