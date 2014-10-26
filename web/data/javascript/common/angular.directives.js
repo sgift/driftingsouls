@@ -50,6 +50,15 @@ angular.module('ds.directives', [])
 			});
 	};
 })
+.directive('dsBindHtmlUnsafe', [function() {
+	return function(scope, element, attr) {
+		element.addClass('ds-binding').data('$binding', attr.dsBindHtmlUnsafe);
+		scope.$watch(attr.dsBindHtmlUnsafe, function(value) {
+			element.html(value || '');
+			DsTooltip.update(element);
+		});
+	};
+}])
 .directive('dsPopupControlOpen', ['PopupService', function(PopupService) {
 	return {
 		restrict : 'A',
