@@ -359,7 +359,7 @@ return function(jqElement) {
 			vbar.css('top' , (__currentShiftOffset[1])+'px');
 		};
 
-		jqElement.append(__renderLegend(mapSize));
+		jqElement.prepend(__renderLegend(mapSize));
 	};
 	/**
 	 * Der Hintergrund (Tiles) der Sternenkarte. Dieser besteht aus einzelnen Kacheln.
@@ -527,8 +527,7 @@ return function(jqElement) {
 
 						overlay.append(highlight);
 					});
-					oldOverlay.remove();
-					$('#mapview').append(overlay);
+					oldOverlay.replaceWith(overlay);
 					__reloadTriggered = false;
 				});
 		}
