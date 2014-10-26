@@ -1224,7 +1224,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 
 		//Only workless people can be transfered, when there is enough space on the ship
 		int maxAmount = ship.getTypeData().getCrew() - ship.getCrew();
-		int workless = getBewohner() - getArbeiter();
+		int workless = Math.max(getBewohner() - getArbeiter(), 0);
 		amount = Math.min(amount, maxAmount);
 		amount = Math.min(amount, workless);
 		ship.setCrew(ship.getCrew() + amount);
