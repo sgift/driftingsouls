@@ -18,36 +18,16 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
-import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
-import net.driftingsouls.ds2.server.battles.Battle;
-import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.ResourceEntry;
-import net.driftingsouls.ds2.server.cargo.ResourceList;
-import net.driftingsouls.ds2.server.comm.PM;
-import net.driftingsouls.ds2.server.config.ConfigFelsbrocken;
-import net.driftingsouls.ds2.server.config.ConfigFelsbrockenSystem;
 import net.driftingsouls.ds2.server.config.DynamicJumpNodeConfig;
-import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.DynamicJumpNode;
-import net.driftingsouls.ds2.server.entities.Jump;
-import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.UserFlag;
-import net.driftingsouls.ds2.server.entities.statistik.StatShips;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.ConfigValue;
-import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipType;
-import net.driftingsouls.ds2.server.tasks.Task;
-import net.driftingsouls.ds2.server.tasks.Taskmanager;
+import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
+import net.driftingsouls.ds2.server.framework.db.batch.SingleUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
 import org.apache.commons.lang.math.RandomUtils;
-import org.hibernate.StaleObjectStateException;
-import org.hibernate.Transaction;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * Berechnet dynamische JumpNodes.
@@ -64,12 +44,12 @@ public class DynJNTick extends TickController {
     private void decreaseRemainingTime()
     {
         org.hibernate.Session db = getDB();
-        Transaction transaction = db.beginTransaction();
+        List<DynamicJumpNode> dynjnlist = db.createQuery("from DynamicJumpNode").list();
 
-        try
+        new EvictableUnitOfWork<DynamicJumpNode>("DynJNTick - decreaseRemainingTime")
         {
-            List<DynamicJumpNode> dynjnlist = db.createQuery("from DynamicJumpNode").list();
-            for(DynamicJumpNode dynjn : dynjnlist)
+            @Override
+            public void doWork(DynamicJumpNode dynjn) throws Exception
             {
                 if(dynjn.getRestdauer() <= 1)
                 {
@@ -80,26 +60,18 @@ public class DynJNTick extends TickController {
                     dynjn.setRestdauer(dynjn.getRestdauer()-1);
                 }
             }
-            transaction.commit();
-        }
-        catch(RuntimeException e)
-        {
-            transaction.rollback();
-            this.log("Exception: "+e);
-            e.printStackTrace();
-            Common.mailThrowable(e, "DynJNTick Exception", "decreaseRemainingTime failed");
-        }
+        }.executeFor(dynjnlist);
     }
 
     private void moveDynJN()
     {
         org.hibernate.Session db = getDB();
-        Transaction transaction = db.beginTransaction();
+        List<DynamicJumpNode> dynjnlist = db.createQuery("from DynamicJumpNode").list();
 
-        try
+        new EvictableUnitOfWork<DynamicJumpNode>("DynJNTick - moveDynJN")
         {
-            List<DynamicJumpNode> dynjnlist = db.createQuery("from DynamicJumpNode").list();
-            for(DynamicJumpNode dynjn : dynjnlist)
+            @Override
+            public void doWork(DynamicJumpNode dynjn) throws Exception
             {
                 if(dynjn.getNextMove() <= 1)
                 {
@@ -110,60 +82,46 @@ public class DynJNTick extends TickController {
                     dynjn.setNextMove(dynjn.getNextMove()-1);
                 }
             }
-            transaction.commit();
-        }
-        catch(RuntimeException e)
-        {
-            transaction.rollback();
-            this.log("Exception: "+e);
-            e.printStackTrace();
-            Common.mailThrowable(e, "DynJNTick Exception", "decreaseRemainingTime failed");
-        }
+        }.executeFor(dynjnlist);
     }
 
     private void spawnDynJN()
     {
-        org.hibernate.Session db = getDB();
-
-        Transaction transaction = db.beginTransaction();
-        try
+        new SingleUnitOfWork("DynJNTick - spawnDynJN")
         {
-            long dynjnactive = (long)db.createQuery("SELECT count(*) FROM DynamicJumpNode").uniqueResult();
-            int dynjnwanted = Integer.valueOf(new ConfigService().get(WellKnownConfigValue.MAX_DYN_JN).getValue());
-            long dynjnneeded = dynjnwanted - dynjnactive;
-
-            this.log("Active Dynamische JN: "+dynjnactive);
-            this.log("Max Dyn JN: "+dynjnwanted);
-            this.log("Erstelle "+dynjnneeded+" Dyn JN");
-
-            if(dynjnneeded <= 0)
+            @Override
+            public void doWork() throws Exception
             {
-                return;
+                org.hibernate.Session db = getDB();
+
+                long dynjnactive = (long) db.createQuery("SELECT count(*) FROM DynamicJumpNode").uniqueResult();
+                int dynjnwanted = Integer.valueOf(new ConfigService().get(WellKnownConfigValue.MAX_DYN_JN).getValue());
+                long dynjnneeded = dynjnwanted - dynjnactive;
+
+                log("Active Dynamische JN: " + dynjnactive);
+                log("Max Dyn JN: " + dynjnwanted);
+                log("Erstelle " + dynjnneeded + " Dyn JN");
+
+                 if (dynjnneeded <= 0)
+                 {
+                    return;
+                 }
+
+                  List<DynamicJumpNodeConfig> dynjnconfigs = db.createQuery("from DynamicJumpNodeConfig").list();
+
+                  if (dynjnconfigs.isEmpty())
+                  {
+                      log("Keine Dynamischen SprungpunktConfigs gefunden.");
+                      return;
+                  }
+
+                  for (int i = 0; i < dynjnneeded; i++)
+                  {
+                      int rnd = RandomUtils.nextInt(dynjnconfigs.size());
+                      dynjnconfigs.get(rnd).spawnJumpNode();
+                  }
             }
-
-            List<DynamicJumpNodeConfig> dynjnconfigs = db.createQuery("from DynamicJumpNodeConfig").list();
-
-            if(dynjnconfigs.isEmpty())
-            {
-                this.log("Keine Dynamischen SprungpunktConfigs gefunden.");
-                return;
-            }
-
-            for(int i=0;i<dynjnneeded; i++)
-            {
-                int rnd = RandomUtils.nextInt(dynjnconfigs.size());
-                dynjnconfigs.get(rnd).spawnJumpNode();
-            }
-
-            transaction.commit();
-        }
-        catch(RuntimeException e)
-        {
-            transaction.rollback();
-            this.log("Exception: "+e);
-            e.printStackTrace();
-            Common.mailThrowable(e, "DynJNTick Exception", "spawnDynJN failed");
-        }
+        }.execute();
     }
 
 	@Override

@@ -101,10 +101,6 @@ create table weapon_flags (Weapon_id varchar(255) not null, flags integer) ENGIN
 create table weapon_munition (Weapon_id varchar(255) not null, munition varchar(255)) ENGINE=InnoDB;
 create table werft_queues (id integer not null auto_increment, flagschiff boolean not null, item integer not null, costsPerTick longtext not null, energyPerTick integer not null, position integer not null, remaining integer not null, scheduled boolean not null, slots integer not null, building integer not null, werft integer not null, primary key (id)) ENGINE=InnoDB;
 create table werften (werfttype char(1) not null, id integer not null auto_increment, flagschiff boolean not null, type integer not null, version integer not null, komplex boolean, linkedWerft integer, linked integer, shipid integer, primary key (id)) ENGINE=InnoDB;
-create table dynamic_jn_config (id integer not null auto_increment, inrange integer not null, maxdauer integer not null, maxnextmovement integer not null, mindauer integer not null, minnextmovement integer not null, outrange integer not null, primary key (id)) ENGINE=InnoDB;
-create table dynamic_jn_config_startsystems (dynamic_jn_config_id integer not null, startsystems_id integer not null, primary key (dynamic_jn_config_id, startsystems_id)) ENGINE=InnoDB;
-create table dynamic_jn_config_zielsystems (dynamic_jn_config_id integer not null, zielsystems_id integer not null, primary key (dynamic_jn_config_id, zielsystems_id)) ENGINE=InnoDB;
-create table dynamic_jumpnode (id integer not null auto_increment, inrange integer not null, nextmove integer not null, move integer not null, outrange integer not null, restdauer integer not null, jumpnode_id integer, primary key (id)) ENGINE=InnoDB;
 alter table academy_queue_entry add index academy_queues_fk_academy (academy_id), add constraint academy_queues_fk_academy foreign key (academy_id) references academy (id);
 alter table ally add index ally_fk_users (president), add constraint ally_fk_users foreign key (president) references users (id);
 alter table ally_posten add index ally_posten_fk_ally (ally), add constraint ally_posten_fk_ally foreign key (ally) references ally (id);
@@ -265,9 +261,4 @@ alter table werft_queues add index werft_queues_fk_ship_types (building), add co
 alter table werft_queues add index werft_queues_fk_werften (werft), add constraint werft_queues_fk_werften foreign key (werft) references werften (id);
 alter table werften add index werften_fk_werften (linkedWerft), add constraint werften_fk_werften foreign key (linkedWerft) references werften (id);
 alter table werften add index werften_fk_bases (linked), add constraint werften_fk_bases foreign key (linked) references bases (id);
-alter table werften add index werften_fk_ships (shipid), add constraint werften_fk_ships foreign key (shipid) references ships (id);
-alter table dynamic_jn_config_startsystems add index FKC49077E48E2BE31D (startsystems_id), add constraint FKC49077E48E2BE31D foreign key (startsystems_id) references systems (id);
-alter table dynamic_jn_config_startsystems add index FKC49077E48F4E2D4A (dynamic_jn_config_id), add constraint FKC49077E48F4E2D4A foreign key (dynamic_jn_config_id) references dynamic_jn_config (id);
-alter table dynamic_jn_config_zielsystems add index FKDCA094ACE4BB19D1 (zielsystems_id), add constraint FKDCA094ACE4BB19D1 foreign key (zielsystems_id) references systems (id);
-alter table dynamic_jn_config_zielsystems add index FKDCA094AC8F4E2D4A (dynamic_jn_config_id), add constraint FKDCA094AC8F4E2D4A foreign key (dynamic_jn_config_id) references dynamic_jn_config (id);
-alter table dynamic_jumpnode add index FKC9B28330BB02C3F (jumpnode_id), add constraint FKC9B28330BB02C3F foreign key (jumpnode_id) references jumpnodes (id);
+alter table werften add index werften_fk_ships (shipid), add constraint werften_fk_ships foreign key (shipid) references ships (id)

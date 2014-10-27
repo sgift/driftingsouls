@@ -2,8 +2,8 @@ create table dynamic_jn_config (id integer not null auto_increment, inrange inte
 create table dynamic_jn_config_startsystems (dynamic_jn_config_id integer not null, startsystems_id integer not null, primary key (dynamic_jn_config_id, startsystems_id)) ENGINE=InnoDB;
 create table dynamic_jn_config_zielsystems (dynamic_jn_config_id integer not null, zielsystems_id integer not null, primary key (dynamic_jn_config_id, zielsystems_id)) ENGINE=InnoDB;
 create table dynamic_jumpnode (id integer not null auto_increment, inrange integer not null, nextmove integer not null, move integer not null, outrange integer not null, restdauer integer not null, jumpnode_id integer, primary key (id)) ENGINE=InnoDB;
-alter table dynamic_jn_config_startsystems add index FKC49077E48E2BE31D (startsystems_id), add constraint FKC49077E48E2BE31D foreign key (startsystems_id) references systems (id);
-alter table dynamic_jn_config_startsystems add index FKC49077E48F4E2D4A (dynamic_jn_config_id), add constraint FKC49077E48F4E2D4A foreign key (dynamic_jn_config_id) references dynamic_jn_config (id);
-alter table dynamic_jn_config_zielsystems add index FKDCA094ACE4BB19D1 (zielsystems_id), add constraint FKDCA094ACE4BB19D1 foreign key (zielsystems_id) references systems (id);
-alter table dynamic_jn_config_zielsystems add index FKDCA094AC8F4E2D4A (dynamic_jn_config_id), add constraint FKDCA094AC8F4E2D4A foreign key (dynamic_jn_config_id) references dynamic_jn_config (id);
-alter table dynamic_jumpnode add index FKC9B28330BB02C3F (jumpnode_id), add constraint FKC9B28330BB02C3F foreign key (jumpnode_id) references jumpnodes (id);
+alter table dynamic_jn_config_startsystems add index IDX_startsystems_id (startsystems_id), add constraint FOREIGN_KEY_startsystems_id_systems_id foreign key (startsystems_id) references systems (id);
+alter table dynamic_jn_config_startsystems add index IDX_config_id (dynamic_jn_config_id), add constraint FOREIGN_KEY_config_id_dynamic_jn_condig_id foreign key (dynamic_jn_config_id) references dynamic_jn_config (id);
+alter table dynamic_jn_config_zielsystems add index IDX_zielsystems_id (zielsystems_id), add constraint FOREIGN_KEY_zielsystems_id_systems_id foreign key (zielsystems_id) references systems (id);
+alter table dynamic_jn_config_zielsystems add index IDX_config_id (dynamic_jn_config_id), add constraint FOREIGN_KEY_config_id_dynamic_jn_condig_id foreign key (dynamic_jn_config_id) references dynamic_jn_config (id);
+alter table dynamic_jumpnode add index IDX_id (jumpnode_id), add constraint FOREIGN_KEY_jn_id_jumpnodes_id foreign key (jumpnode_id) references jumpnodes (id);
