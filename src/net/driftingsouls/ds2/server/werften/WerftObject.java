@@ -1127,6 +1127,11 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * @return true, wenn kein Fehler aufgetreten ist
 	 */
 	public boolean repairShip(@Nonnull Ship ship, boolean testonly) {
+		if(!ship.getLocation().sameSector(0, this.getLocation(), this.getSize()))
+		{
+			MESSAGE.get().append("Diese Werft befindet sich nicht an der gleichen Position wie das Schiff.");
+			return false;
+		}
 		if(this.isEinwegWerft())
 		{
 			MESSAGE.get().append("Diese Werft ist vollständig auf ihr einziges Bauprojekt konzentriert.");
