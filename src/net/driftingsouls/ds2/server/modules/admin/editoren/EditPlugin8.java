@@ -2,6 +2,7 @@ package net.driftingsouls.ds2.server.modules.admin.editoren;
 
 import com.google.gson.Gson;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
@@ -297,8 +298,8 @@ public class EditPlugin8<T> implements AdminPlugin
 
 				Map<Serializable,Object> options = new HashMap<>();
 
-				List<?> entities = db.createCriteria(baseClass).list();
-				options.putAll(entities.stream().collect(Collectors.toMap(db::getIdentifier, v -> new ObjectLabelGenerator().generateFor(null, v))));
+				List<T> entities = Common.cast(db.createCriteria(baseClass).list());
+				options.putAll(entities.stream().collect(Collectors.toMap(db::getIdentifier, (T v) -> new ObjectLabelGenerator().generateFor(null, v))));
 				if (isAddDisplayed())
 				{
 					options.put(null, "[Neu]");
@@ -333,7 +334,7 @@ public class EditPlugin8<T> implements AdminPlugin
 
 				Map<Serializable,Object> options = new HashMap<>();
 
-				List<?> entities = db.createCriteria(baseClass).list();
+				List<T> entities = Common.cast(db.createCriteria(baseClass).list());
 				options.putAll(entities.stream().collect(Collectors.toMap(db::getIdentifier, v -> new ObjectLabelGenerator().generateFor(null, v))));
 				if (isAddDisplayed())
 				{
