@@ -18,16 +18,12 @@
  */
 package net.driftingsouls.ds2.server.framework;
 
-import com.googlecode.flyway.core.Flyway;
-import com.googlecode.flyway.core.api.MigrationVersion;
-import com.googlecode.flyway.core.util.Resource;
-import com.googlecode.flyway.core.util.scanner.classpath.ClassPathScanner;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
+import net.driftingsouls.ds2.server.framework.db.DatabaseMigrator;
 import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.Locale;
 
@@ -59,7 +55,7 @@ public class DriftingSouls {
 
 		if( !Configuration.isProduction() )
 		{
-			upgradeDatabase();
+			new DatabaseMigrator().upgradeDatabase(Configuration.getDbUrl(), Configuration.getDbUser(), Configuration.getDbPassword(), false);
 		}
 
 		LOG.info("Initializing Hibernate");
@@ -74,34 +70,5 @@ public class DriftingSouls {
 
 		// Init BBCodeParser
 		BBCodeParser.getInstance();
-	}
-
-	private void upgradeDatabase() throws IOException
-	{
-		LOG.info("Aktualisiere Datenbank");
-		Flyway flyway = new Flyway();
-		flyway.setDataSource(Configuration.getDbUrl(), Configuration.getDbUser(), Configuration.getDbPassword());
-		flyway.setInitOnMigrate(true);
-		flyway.setSqlMigrationPrefix("");
-		flyway.setLocations("db/migration");
-		flyway.setInitVersion(detectLatestDbVersion(flyway));
-		flyway.migrate();
-	}
-
-	private MigrationVersion detectLatestDbVersion(Flyway flyway) throws IOException
-	{
-		MigrationVersion version = MigrationVersion.EMPTY;
-		ClassPathScanner scanner = new ClassPathScanner();
-		Resource[] resources = scanner.scanForResources("db/migration", flyway.getSqlMigrationPrefix(), flyway.getSqlMigrationSuffix());
-		for (Resource res : resources)
-		{
-			String filename = res.getFilename();
-			MigrationVersion thisVersion = MigrationVersion.fromVersion(filename.substring(0, filename.indexOf("__")));
-			if( thisVersion.compareTo(version) > 0 )
-			{
-				version = thisVersion;
-			}
-		}
-		return version;
 	}
 }
