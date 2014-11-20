@@ -22,6 +22,7 @@ import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.entities.DynamicJumpNode;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.apache.commons.lang.math.RandomUtils;
+import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -39,9 +40,11 @@ public class DynamicJumpNodeConfig
     @GeneratedValue
     private int id;
     @ManyToMany
+    @ForeignKey(name="dynamic_jn_config_fk_startsystems", inverseName="dynamic_jn_config_startsystems_fk_systems")
     @JoinTable(name="dynamic_jn_config_startsystems")
     private Set<StarSystem> startsystems = new HashSet<>();
     @ManyToMany
+    @ForeignKey(name="dynamic_jn_config_fk_zielsystems", inverseName="dynamic_jn_config_zielsystems_fk_systems")
     @JoinTable(name="dynamic_jn_config_zielsystems")
     private Set<StarSystem> zielsystems = new HashSet<>();
     private int inrange;

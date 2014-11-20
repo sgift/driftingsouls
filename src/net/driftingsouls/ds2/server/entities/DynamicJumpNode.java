@@ -23,6 +23,7 @@ import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.apache.commons.lang.math.RandomUtils;
+import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.*;
 
@@ -36,6 +37,7 @@ public class DynamicJumpNode
     @Id @GeneratedValue
     private int id;
     @ManyToOne
+    @ForeignKey(name="dynamic_jn_fk_jumpnodes")
     private JumpNode jumpnode;
     private int restdauer;
     private int inrange;
