@@ -20,21 +20,7 @@ package net.driftingsouls.ds2.server.tick;
 
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.tick.regular.AcademyTick;
-import net.driftingsouls.ds2.server.tick.regular.AutofireTick;
-import net.driftingsouls.ds2.server.tick.regular.BaseTick;
-import net.driftingsouls.ds2.server.tick.regular.BattleTick;
-import net.driftingsouls.ds2.server.tick.regular.ForschungsTick;
-import net.driftingsouls.ds2.server.tick.regular.KaserneTick;
-import net.driftingsouls.ds2.server.tick.regular.NPCOrderTick;
-import net.driftingsouls.ds2.server.tick.regular.NPCScriptTick;
-import net.driftingsouls.ds2.server.tick.regular.RTCTick;
-import net.driftingsouls.ds2.server.tick.regular.RestTick;
-import net.driftingsouls.ds2.server.tick.regular.SchiffsTick;
-import net.driftingsouls.ds2.server.tick.regular.TicksperreAufhebenTick;
-import net.driftingsouls.ds2.server.tick.regular.TicksperreSetzenTick;
-import net.driftingsouls.ds2.server.tick.regular.UserTick;
-import net.driftingsouls.ds2.server.tick.regular.WerftTick;
+import net.driftingsouls.ds2.server.tick.regular.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -98,6 +84,9 @@ public class RegularTick extends AbstractTickExecuter
 		
 				publishStatus("berechne Schlachten");
 				execTick(BattleTick.class, false);
+
+                publishStatus("berechne dynamische JumpNodes");
+                execTick(DynJNTick.class, false);
 		
 				publishStatus("berechne Sonstiges");
 				execTick(RestTick.class, false);

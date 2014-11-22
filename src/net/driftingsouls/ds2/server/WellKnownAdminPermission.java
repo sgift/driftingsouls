@@ -28,6 +28,7 @@ public enum WellKnownAdminPermission implements PermissionDescriptor
 	EDIT_CONFIG_VALUES("EditConfigValues"),
 	EDIT_CORE("EditCore"),
     EDIT_DI("EditDI"),
+    EDIT_DYN_JN("EditDynJN"),
 	EDIT_FACTORY_ENTRY("EditFactoryEntry"),
 	EDIT_FRAKTIONS_ANGEBOT("EditFraktionsAngebot"),
 	EDIT_FRAKTIONS_GUI_EINTRAG("EditFraktionsGuiEintrag"),
