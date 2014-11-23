@@ -18,6 +18,12 @@
  */
 package net.driftingsouls.ds2.server.cargo;
 
+import org.junit.Test;
+
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
+
+
 public class CargoTest
 {
 	@Test

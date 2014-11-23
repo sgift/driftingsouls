@@ -31,6 +31,12 @@ import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 
 import java.util.List;
 
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
+
 /**
  * Testet die Werftimplementierung
  * @author Christopher Jung

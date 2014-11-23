@@ -2,6 +2,10 @@ package net.driftingsouls.ds2.server.framework;
 
 import net.driftingsouls.ds2.server.DBTest;
 
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
 public class ConfigServiceTest extends DBTest
 {
 	@Test

@@ -13,6 +13,12 @@ import net.driftingsouls.ds2.server.ships.ShipType;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
+
 
 public class SchlachtErstellenServiceTest extends DBSingleTransactionTest
 {

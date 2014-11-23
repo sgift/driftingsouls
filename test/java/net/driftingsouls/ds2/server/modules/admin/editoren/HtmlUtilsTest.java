@@ -4,6 +4,10 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
 public class HtmlUtilsTest
 {
 	@Test

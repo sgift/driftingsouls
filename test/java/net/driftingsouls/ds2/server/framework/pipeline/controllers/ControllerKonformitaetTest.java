@@ -7,6 +7,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.SortedSet;
 
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import static org.junit.Assert.*;
+
 public class ControllerKonformitaetTest
 {
 	@Test

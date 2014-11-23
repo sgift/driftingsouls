@@ -26,6 +26,13 @@ import net.driftingsouls.ds2.server.scripting.roles.NopRole;
 import net.driftingsouls.ds2.server.scripting.roles.Role;
 import net.driftingsouls.ds2.server.scripting.roles.parser.RoleDefinition;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
+
 /**
  * Tests fuer den Role-Interpreter
  * @author Christopher Jung

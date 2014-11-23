@@ -27,6 +27,13 @@ import net.driftingsouls.ds2.server.scripting.ScriptParserContext;
 import net.driftingsouls.ds2.server.scripting.roles.interpreter.Attribute;
 import net.driftingsouls.ds2.server.scripting.roles.interpreter.Interpreter;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
+
 /**
  * Testet das javax.script-Interface fuer das Rollensystem
  * @author Christopher Jung

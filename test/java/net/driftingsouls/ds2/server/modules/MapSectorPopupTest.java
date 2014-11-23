@@ -11,6 +11,11 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipType;
 
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
 public class MapSectorPopupTest extends DBSingleTransactionTest
 {
 	private StarSystem sys;

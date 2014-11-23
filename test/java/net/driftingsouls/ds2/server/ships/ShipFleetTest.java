@@ -6,6 +6,12 @@ import net.driftingsouls.ds2.server.entities.User;
 
 import java.util.List;
 
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
+
 public class ShipFleetTest extends DBSingleTransactionTest
 {
 	private ShipFleet fleet1;

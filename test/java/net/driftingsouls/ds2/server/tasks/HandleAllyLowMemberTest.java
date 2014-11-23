@@ -32,6 +32,12 @@ import net.driftingsouls.ds2.server.framework.ConfigValue;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
+
 /**
  * Testcase fuer HandleAllyLowMember
  * @author Christopher Jung

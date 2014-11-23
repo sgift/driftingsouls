@@ -1,6 +1,8 @@
 package net.driftingsouls.ds2.server.framework;
 
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
+
+import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
