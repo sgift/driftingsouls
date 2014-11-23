@@ -42,9 +42,6 @@ public class KSDischargeBatteriesClassAction extends KSDischargeBatteriesAllActi
 
 	@Override
 	protected boolean validateShipExt(BattleShip ship, ShipTypeData shiptype) {
-		if( shiptype.getShipClass() != this.battsclass ) {
-			return false;
-		}
-		return true;
-	}
+        return shiptype.getShipClass() == this.battsclass;
+    }
 }

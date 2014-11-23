@@ -81,18 +81,18 @@ public class StatGtuPrice extends AbstractStatistic implements Statistic {
 				name = ( resource.getCount1() > 1 ? resource.getCount1()+"x " : "" )+Cargo.getResourceName(resource.getId());
 			}
 
-	   		echo.append("<tr><td>"+a+".</td>\n");
+	   		echo.append("<tr><td>").append(a).append(".</td>\n");
 	   		User user = (User)db.get(User.class, gebot.getUserId());
 	   		if( user != null )
 	   		{
-	   			echo.append("<td><a class=\"profile\" href=\""+url+user.getId()+"\">"+Common._title(user.getName())+" ("+user.getId()+")</a></td>");
+	   			echo.append("<td><a class=\"profile\" href=\"").append(url).append(user.getId()).append("\">").append(Common._title(user.getName())).append(" (").append(user.getId()).append(")</a></td>");
 	   		}
 	   		else
 	   		{
-	   			echo.append("<td>"+Common._title(gebot.getUsername())+" ("+gebot.getUserId()+")</td>");
+	   			echo.append("<td>").append(Common._title(gebot.getUsername())).append(" (").append(gebot.getUserId()).append(")</td>");
 		   	}
-	   		echo.append("<td>"+name+"</td>\n");
-			echo.append("<td><span class=\"nobr\">"+Common.ln(gebot.getPrice())+" RE</span></td></tr>\n");
+	   		echo.append("<td>").append(name).append("</td>\n");
+			echo.append("<td><span class=\"nobr\">").append(Common.ln(gebot.getPrice())).append(" RE</span></td></tr>\n");
 
 			a++;
 		}

@@ -114,10 +114,10 @@ public class StatWaren implements Statistic {
 
 			// Daten zur Resource ausgeben
       		echo.append("<tr>\n");
-      		echo.append("<td class=\"noBorderX\" style=\"white-space:nowrap\"><img style=\"vertical-align:middle\" src=\""+res.getImage()+"\" alt=\"\">"+res.getName()+"</td>\n");
-      		echo.append("<td class=\"noBorderX\">"+res.getCargo1()+"</td>\n");
+      		echo.append("<td class=\"noBorderX\" style=\"white-space:nowrap\"><img style=\"vertical-align:middle\" src=\"").append(res.getImage()).append("\" alt=\"\">").append(res.getName()).append("</td>\n");
+      		echo.append("<td class=\"noBorderX\">").append(res.getCargo1()).append("</td>\n");
       		echo.append("<td class=\"noBorderX\">&nbsp;</td>\n");
-      		echo.append("<td class=\"noBorderX\">"+res.getCargo2()+"</td>\n");
+      		echo.append("<td class=\"noBorderX\">").append(res.getCargo2()).append("</td>\n");
       		echo.append("<td class=\"noBorderX\">&nbsp;</td>\n");
       		echo.append("<td class=\"noBorderX\">\n");
 
@@ -150,10 +150,7 @@ public class StatWaren implements Statistic {
 								}
 								shipnamecache.put(objectid, Common._plaintitle(ship.getName()));
 							}
-							tooltip.append(shipimage + "<td class='noBorderX'>" +
-									"<a style='font-size:14px' class='forschinfo' " +
-									"href='" + Common.buildUrl("default", "module", "schiff", "ship", objectid) + "'>" +
-									shipnamecache.get(objectid) + " (" + objectid + ")</a></td>");
+							tooltip.append(shipimage).append("<td class='noBorderX'>").append("<a style='font-size:14px' class='forschinfo' ").append("href='").append(Common.buildUrl("default", "module", "schiff", "ship", objectid)).append("'>").append(shipnamecache.get(objectid)).append(" (").append(objectid).append(")</a></td>");
 							break;
 
 						// Positionstyp Basis
@@ -166,12 +163,7 @@ public class StatWaren implements Statistic {
 									basecache.put(objectid, base);
 								}
 							}
-							tooltip.append(baseimage + "<td class='noBorderX'>" +
-									"<a style='font-size:14px' class='forschinfo' " +
-									"href='" + Common.buildUrl("default", "module", "base", "col", objectid) + "'>" +
-									Common._plaintitle(basecache.get(objectid).getName()) + " - " +
-									basecache.get(objectid).getLocation().displayCoordinates(false) +
-									"</a></td>");
+							tooltip.append(baseimage + "<td class='noBorderX'>" + "<a style='font-size:14px' class='forschinfo' " + "href='").append(Common.buildUrl("default", "module", "base", "col", objectid)).append("'>").append(Common._plaintitle(basecache.get(objectid).getName())).append(" - ").append(basecache.get(objectid).getLocation().displayCoordinates(false)).append("</a></td>");
 							break;
 
 						// Positionstyp Gtu-Zwischenlager
@@ -184,13 +176,12 @@ public class StatWaren implements Statistic {
 									shipnamecache.put(objectid, Common._plaintitle(ship.getName()));
 								}
 							}
-							tooltip.append("<td colspan='2' class='noBorderX' style='font-size:14px'>" +
-									shipnamecache.get(objectid) + "</td>");
+							tooltip.append("<td colspan='2' class='noBorderX' style='font-size:14px'>").append(shipnamecache.get(objectid)).append("</td>");
 							break;
 
 						// Falls der Typ unbekannt ist: Warnmeldung ausgeben
 						default:
-							tooltip.append("<td colspan='2' class='noBorderX' style='font-size:14px'>Unbekanntes Objekt " + alocation + "</td>");
+							tooltip.append("<td colspan='2' class='noBorderX' style='font-size:14px'>Unbekanntes Objekt ").append(alocation).append("</td>");
 					}
 
 					tooltip.append("</tr>");
@@ -199,7 +190,7 @@ public class StatWaren implements Statistic {
 
 
 				// Linkt mit Tooltip ausgeben
-				echo.append("<a class=\"forschinfo tooltip\" href=\"#\">Wo?<span class='ttcontent'>"+tooltip+"</span></a>\n");
+				echo.append("<a class=\"forschinfo tooltip\" href=\"#\">Wo?<span class='ttcontent'>").append(tooltip).append("</span></a>\n");
 
 			} // Ende: Itempositionen
 

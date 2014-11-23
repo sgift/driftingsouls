@@ -20,13 +20,11 @@ package net.driftingsouls.ds2.server.bases;
 
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.config.Offiziere;
-import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.Academy;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
 import org.apache.commons.lang.math.RandomUtils;
 import org.hibernate.Session;
 import org.hibernate.annotations.ForeignKey;

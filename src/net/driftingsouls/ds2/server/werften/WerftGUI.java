@@ -331,7 +331,6 @@ public class WerftGUI {
 
 		// Verbindung Base <-> Werft
 		if( werft instanceof ShipWerft ) {
-			Ship ship = ((ShipWerft)werft).getShip();
 			Base linkedbase = ((ShipWerft)werft).getLinkedBase();
 
             t.setBlock("_WERFT.WERFTGUI", "werftgui.linkedbase.listitem", "werftgui.linkedbase.list");

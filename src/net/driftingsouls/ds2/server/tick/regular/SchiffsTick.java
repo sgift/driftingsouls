@@ -508,7 +508,6 @@ public class SchiffsTick extends TickController {
 			else
 			{
 				shipd.getUnits().fleeUnits(crewToFeed);
-				crewToFeed = 0;
 			}
 		}
 		else

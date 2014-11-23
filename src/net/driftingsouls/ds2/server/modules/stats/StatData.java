@@ -56,14 +56,14 @@ public class StatData implements Statistic {
 		Object[] einnahmen = (Object[])db
 				.createQuery("SELECT sum(ceil(preis*gtuGew/100)),sum(preis) FROM StatGtu")
 				.uniqueResult();
-		echo.append("<td align=\"left\">"+Common.ln((Long)einnahmen[0])+" RE</td></tr>\n");
+		echo.append("<td align=\"left\">").append(Common.ln((Long) einnahmen[0])).append(" RE</td></tr>\n");
 
 		echo.append("<tr><td align=\"left\">&nbsp;&nbsp;&nbsp;Spieler</td>\n");
-		echo.append("<td align=\"left\">"+Common.ln((Long)einnahmen[1]-(Long)einnahmen[0])+" RE</td></tr>\n");
+		echo.append("<td align=\"left\">").append(Common.ln((Long) einnahmen[1] - (Long) einnahmen[0])).append(" RE</td></tr>\n");
 
 		echo.append("<tr><td align=\"left\">Gesamtverm&ouml;gen aller Spieler:</td>\n");
 		BigInteger totalre = (BigInteger)db.createQuery("SELECT sum(konto) FROM User WHERE id > 0").uniqueResult();
-		echo.append("<td align=\"left\">"+Common.ln(totalre)+" RE</td></tr>\n");
+		echo.append("<td align=\"left\">").append(Common.ln(totalre)).append(" RE</td></tr>\n");
 
 		echo.append("<tr><td colspan=\"2\"><hr noshade=\"noshade\" size=\"1\" style=\"color:#cccccc\" /></td></tr>\n");
 
@@ -72,10 +72,10 @@ public class StatData implements Statistic {
 				.setMaxResults(1)
 				.uniqueResult();
 		echo.append("<tr><td align=\"left\">Schiffe in Spielerhand:</td>\n");
-		echo.append("<td align=\"left\">"+Common.ln((Long)shipstats[0])+"</td></tr>\n");
+		echo.append("<td align=\"left\">").append(Common.ln((Long) shipstats[0])).append("</td></tr>\n");
 
 		echo.append("<tr><td align=\"left\">Crew auf diesen Schiffen:</td>\n");
-		echo.append("<td align=\"left\">"+Common.ln((Long)shipstats[1])+"</td></tr>\n");
+		echo.append("<td align=\"left\">").append(Common.ln((Long) shipstats[1])).append("</td></tr>\n");
 
 		echo.append("<tr><td colspan=\"2\"><hr noshade=\"noshade\" size=\"1\" style=\"color:#cccccc\" /></td></tr>\n");
 
@@ -84,11 +84,11 @@ public class StatData implements Statistic {
 				.createQuery("SELECT count(*) FROM User WHERE id>:minid")
 				.setInteger("minid",StatsController.MIN_USER_ID)
 				.uniqueResult();
-		echo.append("<td align=\"left\">"+Common.ln(usercount)+"</td></tr>\n");
+		echo.append("<td align=\"left\">").append(Common.ln(usercount)).append("</td></tr>\n");
 
 		echo.append("<tr><td align=\"left\">PMs in der Datenbank:</td>\n");
 		long pmcount = (Long)db.createQuery("SELECT count(*) FROM PM").uniqueResult();
-		echo.append("<td align=\"left\">"+Common.ln(pmcount)+"</td></tr>\n");
+		echo.append("<td align=\"left\">").append(Common.ln(pmcount)).append("</td></tr>\n");
 
 		echo.append("<tr><td colspan=\"2\"><hr noshade=\"noshade\" size=\"1\" style=\"color:#cccccc\" /></td></tr>\n");
 
@@ -112,7 +112,7 @@ public class StatData implements Statistic {
 						uptime_sec -= uptime_min * 60;
 
 						echo.append("<tr><td align=\"left\">Uptime des Servers:</td>\n");
-						echo.append("<td align=\"left\">" + uptime_days + " Tage " + uptime_hours + " Stunden " + uptime_min + " Minuten</td></tr>\n");
+						echo.append("<td align=\"left\">").append(Long.toString(uptime_days)).append(" Tage ").append(Long.toString(uptime_hours)).append(" Stunden ").append(Long.toString(uptime_min)).append(" Minuten</td></tr>\n");
 					}
 				}
 			}
@@ -131,7 +131,7 @@ public class StatData implements Statistic {
 						String[] load = line.split(" ");
 
 						echo.append("<tr><td align=\"left\">Auslastung:</td>\n");
-						echo.append("<td align=\"left\">" + load[0] + " " + load[1] + " " + load[2] + "</td></tr>\n");
+						echo.append("<td align=\"left\">").append(load[0]).append(" ").append(load[1]).append(" ").append(load[2]).append("</td></tr>\n");
 					}
 				}
 			}

@@ -110,15 +110,15 @@ public class StatEinheiten implements Statistic {
 			{
 				// Daten zur Einheit ausgeben
 	      		echo.append("<tr>\n");
-	      		echo.append("<td style=\"white-space:nowrap\"><img style=\"vertical-align:middle\" src=\""+unittype.getPicture()+"\" alt=\"\"><a href=\""+Common.buildUrl("default", "module", "unitinfo", "unit", unittype.getId())+"\" >"+unittype.getName()+"</a>");
+	      		echo.append("<td style=\"white-space:nowrap\"><img style=\"vertical-align:middle\" src=\"").append(unittype.getPicture()).append("\" alt=\"\"><a href=\"").append(Common.buildUrl("default", "module", "unitinfo", "unit", unittype.getId())).append("\" >").append(unittype.getName()).append("</a>");
 	      		if( unittype.isHidden() && context.hasPermission(WellKnownPermission.UNIT_VERSTECKTE_SICHTBAR))
 	      		{
 	      			echo.append("[hidden]");
 	      		}
 	      		echo.append("</td>\n");
-	      		echo.append("<td>"+(baseunits+shipunits)+"</td>\n");
+	      		echo.append("<td>").append(Long.toString(baseunits + shipunits)).append("</td>\n");
 	      		echo.append("<td>&nbsp;</td>\n");
-	      		echo.append("<td>"+(baseunitsuser+shipunitsuser)+"</td>\n");
+	      		echo.append("<td>").append(Long.toString(baseunitsuser + shipunitsuser)).append("</td>\n");
 	      		echo.append("<td>&nbsp;</td>\n");
 			}
 

@@ -112,16 +112,16 @@ public class StatBiggestFleet extends AbstractStatistic implements Statistic {
 		{
 			Object[] values = (Object[])obj;
 
-			echo.append("<tr><td>"+(count+1)+".</td>\n");
+			echo.append("<tr><td>").append(Integer.valueOf(count + 1).toString()).append(".</td>\n");
 			if( values[1] instanceof User )
 			{
 				User owner = (User)values[1];
-				echo.append("<td><a class=\"profile\" href=\""+url+owner.getId()+"\">"+ Common._title(owner.getName())+" ("+owner.getId()+")</a></td>\n");
+				echo.append("<td><a class=\"profile\" href=\"").append(url).append(Integer.valueOf(owner.getId()).toString()).append("\">").append(Common._title(owner.getName())).append(" (").append(Integer.valueOf(owner.getId()).toString()).append(")</a></td>\n");
 			}
 			else
 			{
 				Ally ally = (Ally)values[1];
-				echo.append("<td><a class=\"profile\" href=\""+url+ally.getId()+"\">"+ Common._title(ally.getName())+" ("+ally.getId()+")</a></td>\n");
+				echo.append("<td><a class=\"profile\" href=\"").append(url).append(Integer.valueOf(ally.getId()).toString()).append("\">").append(Common._title(ally.getName())).append(" (").append(Integer.valueOf(ally.getId()).toString()).append(")</a></td>\n");
 			}
 
 			count++;

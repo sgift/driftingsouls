@@ -4,6 +4,7 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Type;
+import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -153,7 +154,7 @@ public class ConfigFelsbrocken implements Comparable<ConfigFelsbrocken>
 	}
 
 	@Override
-	public int compareTo(ConfigFelsbrocken other)
+	public int compareTo(@NotNull ConfigFelsbrocken other)
 	{
 		return id - other.id;
 	}

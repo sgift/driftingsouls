@@ -3,13 +3,8 @@ package net.driftingsouls.ds2.server.ships;
 import net.driftingsouls.ds2.server.DBSingleTransactionTest;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.User;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.util.List;
-
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
 
 public class ShipFleetTest extends DBSingleTransactionTest
 {

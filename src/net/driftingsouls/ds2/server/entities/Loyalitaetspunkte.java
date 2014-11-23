@@ -1,6 +1,7 @@
 package net.driftingsouls.ds2.server.entities;
 
 import org.hibernate.annotations.ForeignKey;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
 
@@ -141,7 +142,7 @@ public class Loyalitaetspunkte implements Comparable<Loyalitaetspunkte>
 	}
 
 	@Override
-	public int compareTo(Loyalitaetspunkte arg0)
+	public int compareTo(@NotNull Loyalitaetspunkte arg0)
 	{
 		int diff = this.zeitpunkt.compareTo(arg0.zeitpunkt);
 		if( diff != 0 )

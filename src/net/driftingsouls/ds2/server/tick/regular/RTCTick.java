@@ -215,10 +215,6 @@ public class RTCTick extends TickController {
 
 					db.persist(lager);
 				}
-				else
-				{
-					entryname = "Unbekannter Typ <" + entry.getClass().getName() + ">";
-				}
 
 				if (entry.getOwner() != this.gtuuser)
 				{

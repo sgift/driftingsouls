@@ -270,7 +270,7 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 			echo.append("<td colspan='2' style='vertical-align:top'><div style='display:inline-block;width:15px;height:15px; background-color: #").append(hex).append("'></div>#").append(hex).append(":</td>");
 			echo.append("<td>");
 
-			echo.append("<select name='color" + color + "' onchange='Admin.CreateObjectsFromImage.objectTypeChanged(this)'>");
+			echo.append("<select name='color").append(color).append("' onchange='Admin.CreateObjectsFromImage.objectTypeChanged(this)'>");
 			boolean first = true;
 			String curvalue = ContextMap.getContext().getRequest().getParameterString("color" + color);
 			if (curvalue != null && curvalue.trim().isEmpty())
@@ -309,11 +309,11 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 				{
 					bt = parseBaseType(ContextMap.getContext(), curvalue);
 				}
-				echo.append("Breite: <input type='text' name='color" + color + "_width' value='" + bt.getWidth() + "' /><br />");
-				echo.append("Höhe: <input type='text' name='color" + color + "_height' value='" + bt.getHeight() + "' /><br />");
-				echo.append("Max Felder: <input type='text' name='color" + color + "_maxtiles' value='" + bt.getMaxTiles() + "' /><br />");
-				echo.append("Max Energie: <input type='text' name='color" + color + "_maxe' value='" + bt.getEnergy() + "' /><br />");
-				echo.append("Max Cargo: <input type='text' name='color" + color + "_maxcargo' value='" + bt.getCargo() + "' /><br />");
+				echo.append("Breite: <input type='text' name='color").append(color).append("_width' value='").append(bt.getWidth()).append("' /><br />");
+				echo.append("Höhe: <input type='text' name='color").append(color).append("_height' value='").append(bt.getHeight()).append("' /><br />");
+				echo.append("Max Felder: <input type='text' name='color").append(color).append("_maxtiles' value='").append(bt.getMaxTiles()).append("' /><br />");
+				echo.append("Max Energie: <input type='text' name='color").append(color).append("_maxe' value='").append(bt.getEnergy()).append("' /><br />");
+				echo.append("Max Cargo: <input type='text' name='color").append(color).append("_maxcargo' value='").append(bt.getCargo()).append("' /><br />");
 			}
 
 			echo.append("</td></tr>\n");

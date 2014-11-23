@@ -55,7 +55,7 @@ public class StatShipCount implements Statistic {
 				echo.append(',');
 			}
 			first = false;
-			echo.append("["+data[0]+","+data[1]+"]");
+			echo.append("[").append(data[0]).append(",").append(data[1]).append("]");
 		}
 
 		echo.append("]], {" +

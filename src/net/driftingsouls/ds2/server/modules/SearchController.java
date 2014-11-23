@@ -195,34 +195,31 @@ public class SearchController extends Controller
 
 	private List<?> findUsers(org.hibernate.Session db, final String search, int count)
 	{
-		List<?> userList = db.createQuery("from User where " + (hasPermission(WellKnownPermission.USER_VERSTECKTE_SICHTBAR) ? "" : "locate('hide',flags)=0 and ") +
+		return db.createQuery("from User where " + (hasPermission(WellKnownPermission.USER_VERSTECKTE_SICHTBAR) ? "" : "locate('hide',flags)=0 and ") +
 				" (plainname like :search or id like :searchid)")
 				.setString("search", "%" + search + "%")
 				.setString("searchid", search + "%")
 				.setMaxResults(count)
 				.list();
-		return userList;
 	}
 
 	private List<?> findShips(org.hibernate.Session db, final String search, int count)
 	{
-		List<?> shipList = db.createQuery("from Ship as s left join fetch s.modules where s.owner= :user and (s.name like :search or s.id like :searchid)")
+		return db.createQuery("from Ship as s left join fetch s.modules where s.owner= :user and (s.name like :search or s.id like :searchid)")
 				.setEntity("user", getUser())
 				.setString("search", "%" + search + "%")
 				.setString("searchid", search + "%")
 				.setMaxResults(count)
 				.list();
-		return shipList;
 	}
 
 	private List<?> findBases(org.hibernate.Session db, final String search, int count)
 	{
-		List<?> baseList = db.createQuery("from Base where owner= :user and (name like :search or id like :searchid)")
+		return db.createQuery("from Base where owner= :user and (name like :search or id like :searchid)")
 				.setEntity("user", getUser())
 				.setString("search", "%" + search + "%")
 				.setString("searchid", search + "%")
 				.setMaxResults(count)
 				.list();
-		return baseList;
 	}
 }

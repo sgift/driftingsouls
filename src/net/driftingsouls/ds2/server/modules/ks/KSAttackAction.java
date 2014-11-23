@@ -1191,8 +1191,6 @@ public class KSAttackAction extends BasicKSAction {
 
     public Result attack(TemplateEngine t, Battle battle) throws IOException
     {
-        Context context = ContextMap.getContext();
-
         Result result = super.execute(t, battle);
         if( result != Result.OK )
         {

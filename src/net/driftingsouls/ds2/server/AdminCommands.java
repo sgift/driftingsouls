@@ -530,8 +530,7 @@ public class AdminCommands {
 
 			if( command.length == 2 ||
 					!validCommands.contains(command[2]) ) {
-				List<String> autoComplete = validCommands.stream().map(cmd -> autoCompleteFleet(command) + " " + cmd + " ... ").collect(Collectors.toList());
-				return autoComplete;
+				return validCommands.stream().map(cmd -> autoCompleteFleet(command) + " " + cmd + " ... ").collect(Collectors.toList());
 			}
 
 			if( "pos".equals(command[2]) ) {
@@ -779,8 +778,7 @@ public class AdminCommands {
 
 			if( command.length == 2 ||
 					!validCommands.contains(command[2]) ) {
-				List<String> autoComplete = validCommands.stream().map(cmd -> autoCompleteShip(command) + " " + cmd + " ... ").collect(Collectors.toList());
-				return autoComplete;
+				return validCommands.stream().map(cmd -> autoCompleteShip(command) + " " + cmd + " ... ").collect(Collectors.toList());
 			}
 
 			if( "pos".equals(command[2]) ) {

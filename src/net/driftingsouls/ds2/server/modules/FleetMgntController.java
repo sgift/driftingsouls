@@ -1289,7 +1289,6 @@ public class FleetMgntController extends Controller
                         if (shipyard.repairShip(aship, false))
                         {
                             repaired++;
-                            continue;
                         }
                     }
                 }

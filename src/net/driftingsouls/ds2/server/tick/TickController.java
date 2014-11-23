@@ -169,7 +169,7 @@ public abstract class TickController implements ApplicationContextAware
 	 * @throws IOException
 	 */
 	public void addLogTarget( String file, boolean append ) throws IOException {
-		Writer w = null;
+		Writer w;
 		if( file.equals(STDOUT) ) {
 			w = new OutputStreamWriter(System.out);
 		}

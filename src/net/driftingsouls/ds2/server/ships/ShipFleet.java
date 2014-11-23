@@ -329,7 +329,7 @@ public class ShipFleet {
 				String msg = Ship.MESSAGE.getMessage();
 				if (msg.length() > 0)
 				{
-					MESSAGE.get().append(msg + "<br />");
+					MESSAGE.get().append(msg).append("<br />");
 				}
 				if (!tmp)
 				{

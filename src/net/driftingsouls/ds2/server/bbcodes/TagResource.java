@@ -118,7 +118,7 @@ public class TagResource implements BBCodeFunction {
 				}
 			}
 			else {
-				tmpString.append("Fehlerhafte Resource '"+rid+"'");
+				tmpString.append("Fehlerhafte Resource '").append(rid).append("'");
 			}
 
 			return tmpString.toString();

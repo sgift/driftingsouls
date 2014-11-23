@@ -18,9 +18,7 @@
  */
 package net.driftingsouls.ds2.server.entities.statistik;
 
-import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.User;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;

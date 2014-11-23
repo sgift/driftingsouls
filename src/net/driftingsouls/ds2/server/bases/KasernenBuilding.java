@@ -99,17 +99,15 @@ public class KasernenBuilding extends DefaultBuilding {
 				result.append(base.getId());
 				result.append("&amp;field=");
 				result.append(field);
-				result.append("\">[B]<span class='ttcontent'>"+this.getName()+"</span></a>");
+				result.append("\">[B]<span class='ttcontent'>").append(this.getName()).append("</span></a>");
 			}
 			else {
 				StringBuilder popup = new StringBuilder(100);
-				popup.append(this.getName()+":<br />");
+				popup.append(this.getName()).append(":<br />");
 				for( KaserneEntry entry : kaserne.getQueueEntries() )
 				{
 					UnitType unittype = entry.getUnit();
-					popup.append("<br />Aktuell im Bau: "+entry.getCount()+"x "+unittype.getName()+
-							" <img src='./data/interface/time.gif' alt='Dauer: ' />"+
-							entry.getRemaining());
+					popup.append("<br />Aktuell im Bau: ").append(entry.getCount()).append("x ").append(unittype.getName()).append(" <img src='./data/interface/time.gif' alt='Dauer: ' />").append(entry.getRemaining());
 				}
 
 				result.append("<a class=\"error tooltip\" href=\"./ds?module=building");
@@ -119,7 +117,7 @@ public class KasernenBuilding extends DefaultBuilding {
 				result.append(field);
 				result.append("\">[B]<span style=\"font-weight:normal\">");
 				result.append(kaserne.getQueueEntries().size());
-				result.append("</span><span class='ttcontent'>"+popup+"</span></a>");
+				result.append("</span><span class='ttcontent'>").append(popup).append("</span></a>");
 			}
 		}
 

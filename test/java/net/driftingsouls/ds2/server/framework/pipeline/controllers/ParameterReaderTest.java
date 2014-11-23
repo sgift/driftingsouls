@@ -5,13 +5,10 @@ import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.entities.Rasse;
 import net.driftingsouls.ds2.server.framework.TestRequest;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
-import org.junit.Test;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Map;
-
-import static org.junit.Assert.*;
 
 public class ParameterReaderTest extends DBSingleTransactionTest
 {

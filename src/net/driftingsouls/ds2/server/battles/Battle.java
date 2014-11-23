@@ -709,8 +709,6 @@ public class Battle implements Locatable
             aship.setBattle(this);
         }
 
-		int tick = context.get(ContextCommon.class).getTick();
-
 		if( shiplist.size() > 1 )
 		{
 			int addedShips = shiplist.size()-1;
@@ -1240,8 +1238,6 @@ public class Battle implements Locatable
 		this.blockcount = 2;
 
 		this.lastturn = Common.time();
-
-		int tick = context.get(ContextCommon.class).getTick();
 
 		for( int i=0; i < 2; i++ ) {
 			if( !calledByUser && this.getTakeCommands()[i] != 0 ) {

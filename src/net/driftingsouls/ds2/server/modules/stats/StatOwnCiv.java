@@ -60,7 +60,7 @@ public class StatOwnCiv implements Statistic {
 		{
 			Object[] data = (Object[])o;
 			ShipType st = (ShipType)data[0];
-			echo.append(Common.ln((Long)data[1])+" "+st.getNickname()+"<br />\n");
+			echo.append(Common.ln((Long) data[1])).append(" ").append(st.getNickname()).append("<br />\n");
 			crew += (Long)data[2];
 		}
 
@@ -75,9 +75,9 @@ public class StatOwnCiv implements Statistic {
 		}
 
 		echo.append("</td></tr>\n");
-		echo.append("<tr><td>Bev&ouml;lkerung:</td><td>"+Common.ln(crew+population)+"</td></tr>\n");
-		echo.append("<tr><td>Bewohner:</td><td>"+Common.ln(population)+"</td></tr>\n");
-		echo.append("<tr><td>Crew:</td><td>"+Common.ln(crew)+"</td></tr>\n");
+		echo.append("<tr><td>Bev&ouml;lkerung:</td><td>").append(Common.ln(crew + population)).append("</td></tr>\n");
+		echo.append("<tr><td>Bewohner:</td><td>").append(Common.ln(population)).append("</td></tr>\n");
+		echo.append("<tr><td>Crew:</td><td>").append(Common.ln(crew)).append("</td></tr>\n");
 		echo.append("</table><br /><br />\n");
 	}
 }

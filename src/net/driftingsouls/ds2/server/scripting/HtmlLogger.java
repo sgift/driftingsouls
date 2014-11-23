@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.scripting;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -53,7 +54,7 @@ public class HtmlLogger extends Writer {
 	}
 
 	@Override
-	public void write(char[] cbuf, int off, int len) throws IOException {
+	public void write(@NotNull char[] cbuf, int off, int len) throws IOException {
 		Context context = ContextMap.getContext();
 		if( context == null ) {
 			return;

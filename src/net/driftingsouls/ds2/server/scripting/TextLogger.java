@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.scripting;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.io.Writer;
 
@@ -42,7 +44,7 @@ public class TextLogger extends Writer {
 	}
 
 	@Override
-	public void write(char[] cbuf, int off, int len) throws IOException {
+	public void write(@NotNull char[] cbuf, int off, int len) throws IOException {
 		if( first ) {
 			System.out.print("###################Scriptengine [Debug]###################\n");
 			first = false;

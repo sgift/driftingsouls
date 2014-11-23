@@ -117,9 +117,6 @@ public class VersteigerungResource extends Versteigerung {
 
 	@Override
 	public boolean isObjectFixedImageSize() {
-		if( getEntry().showLargeImages() ) {
-			return false;
-		}
-		return true;
-	}
+        return !getEntry().showLargeImages();
+    }
 }

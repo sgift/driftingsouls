@@ -2,8 +2,6 @@ package net.driftingsouls.ds2.server;
 
 import net.driftingsouls.ds2.server.framework.ViewMessage;
 
-import static org.junit.Assert.*;
-
 /**
  * Assert-Hilfsfunktionen fuer {@link net.driftingsouls.ds2.server.framework.ViewMessage}s.
  */

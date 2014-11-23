@@ -50,13 +50,10 @@ public class JumpNodeRouter
 		@Override
 		public String toString()
 		{
-			StringBuilder builder = new StringBuilder("[distance: "+distance+"\npath: ");
+			StringBuilder builder = new StringBuilder("[distance: ").append(distance).append("\npath: ");
 			for (JumpNode pathElem : path)
 			{
-				builder.append(
-						pathElem.getSystem() + ":" + pathElem.getX() + "/" + pathElem.getY() + " -> " +
-								pathElem.getSystemOut() + ":" + pathElem.getXOut() + "/" + pathElem.getYOut() + "\n"
-				);
+				builder.append(pathElem.getSystem()).append(":").append(pathElem.getX()).append("/").append(pathElem.getY()).append(" -> ").append(pathElem.getSystemOut()).append(":").append(pathElem.getXOut()).append("/").append(pathElem.getYOut()).append("\n");
 			}
 
 			builder.append("]");

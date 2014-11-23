@@ -1,14 +1,11 @@
 package net.driftingsouls.ds2.server.ships;
 
 import net.driftingsouls.ds2.server.entities.Weapon;
-import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import static org.junit.Assert.*;
 
 public class SchiffstypModifikationTest
 {

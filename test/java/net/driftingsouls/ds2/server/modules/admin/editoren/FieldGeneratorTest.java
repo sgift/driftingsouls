@@ -2,11 +2,8 @@ package net.driftingsouls.ds2.server.modules.admin.editoren;
 
 import net.driftingsouls.ds2.server.framework.TestRequest;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
-import org.junit.Test;
 
 import java.io.IOException;
-
-import static org.junit.Assert.*;
 
 public class FieldGeneratorTest
 {

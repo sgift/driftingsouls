@@ -73,10 +73,5 @@ public class BeamWeapon extends Weapon
 		public int getSize() {
 			return this.size;
 		}
-		
-		@Override
-		public Object clone() throws CloneNotSupportedException {
-			return super.clone();
-		}
 	}
 }

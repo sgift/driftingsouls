@@ -2,14 +2,10 @@ package net.driftingsouls.ds2.server.framework.pipeline.controllers;
 
 import net.driftingsouls.ds2.server.framework.AnnotationUtils;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.SortedSet;
-
-import static org.junit.Assert.*;
 
 public class ControllerKonformitaetTest
 {

@@ -71,23 +71,23 @@ public class PlayerList {
 
 		if( comPopup == 0 ) {
 			echo.append("<tr>\n");
-			echo.append("<td class=\"noBorderX\" align=\"center\"><a class=\"forschinfo\" href=\""+url+"&ord=id\">ID</a></td>\n");
+			echo.append("<td class=\"noBorderX\" align=\"center\"><a class=\"forschinfo\" href=\"").append(url).append("&ord=id\">ID</a></td>\n");
 			echo.append("<td class=\"noBorderX\" align=\"center\"></td>\n");
-			echo.append("<td class=\"noBorderX\" align=\"center\"><a class=\"forschinfo\" href=\""+url+"&ord=id\">Name</a></td>\n");
-			echo.append("<td class=\"noBorderX\" align=\"center\"><a class=\"forschinfo\" href=\""+url+"&ord=race\">Rasse</a></td>\n");
-			echo.append("<td class=\"noBorderX\" align=\"center\"><a class=\"forschinfo\" href=\""+url+"&ord=signup\">Dabei seit</a></td>\n");
-			echo.append("<td class=\"noBorderX\" align=\"center\"><a class=\"forschinfo\" href=\""+url+"&ord=ally\">Allianz</b></a></td>");
+			echo.append("<td class=\"noBorderX\" align=\"center\"><a class=\"forschinfo\" href=\"").append(url).append("&ord=id\">Name</a></td>\n");
+			echo.append("<td class=\"noBorderX\" align=\"center\"><a class=\"forschinfo\" href=\"").append(url).append("&ord=race\">Rasse</a></td>\n");
+			echo.append("<td class=\"noBorderX\" align=\"center\"><a class=\"forschinfo\" href=\"").append(url).append("&ord=signup\">Dabei seit</a></td>\n");
+			echo.append("<td class=\"noBorderX\" align=\"center\"><a class=\"forschinfo\" href=\"").append(url).append("&ord=ally\">Allianz</b></a></td>");
 		}
 		// Sollen wir nen Popup sein?
 		else {
 			echo.append("<tr>\n");
-			echo.append("<td class=\"noBorderX\" align=\"center\"><a class=\"forschinfo\" href=\""+url+"&ord=id\">ID</a></td>\n");
-			echo.append("<td class=\"noBorderX\" align=\"center\"><a class=\"forschinfo\" href=\""+url+"&ord=id\">Name</a></td>\n");
+			echo.append("<td class=\"noBorderX\" align=\"center\"><a class=\"forschinfo\" href=\"").append(url).append("&ord=id\">ID</a></td>\n");
+			echo.append("<td class=\"noBorderX\" align=\"center\"><a class=\"forschinfo\" href=\"").append(url).append("&ord=id\">Name</a></td>\n");
 		}
 
 		// Ein Admin bekommt mehr zu sehen...
 		if( (comPopup == 0) && (user != null) && context.hasPermission(WellKnownPermission.STATISTIK_ERWEITERTE_SPIELERLISTE) ) {
-			echo.append("<td class=\"noBorderX\" align=\"center\"><a class=\"forschinfo\" href=\""+url+"&ord=inakt\">Inaktiv</a></td>");
+			echo.append("<td class=\"noBorderX\" align=\"center\"><a class=\"forschinfo\" href=\"").append(url).append("&ord=inakt\">Inaktiv</a></td>");
 			echo.append("<td class=\"noBorderX\" align=\"center\">Astis</td>\n");
 			echo.append("<td class=\"noBorderX\" align=\"center\">Schiffe</td>\n");
 		}
@@ -164,7 +164,7 @@ public class PlayerList {
 			echo.append("<tr>\n");
 
 			// ID
-			echo.append("<td class=\"noBorderX\">"+aUser.getId()+"</td>\n");
+			echo.append("<td class=\"noBorderX\">").append(aUser.getId()).append("</td>\n");
 
 			if( comPopup == 0 ) {
 				// Diplomatie
@@ -202,10 +202,10 @@ public class PlayerList {
 
 				// Spielername
 				if( context.getActiveUser() != null ) {
-					echo.append("<td class=\"noBorderX\"><a class=\"profile\" href=\""+Common.buildUrl("default", "module", "userprofile", "user", aUser.getId())+"\">"+Common._title(aUser.getName())+"</a>");
+					echo.append("<td class=\"noBorderX\"><a class=\"profile\" href=\"").append(Common.buildUrl("default", "module", "userprofile", "user", aUser.getId())).append("\">").append(Common._title(aUser.getName())).append("</a>");
 				}
 				else {
-					echo.append("<td class=\"noBorderX\">"+Common._title(aUser.getName()));
+					echo.append("<td class=\"noBorderX\">").append(Common._title(aUser.getName()));
 				}
 				if( aUser.hasFlag(UserFlag.HIDE) ) {
 					echo.append(" <span style=\"color:red;font-style:italic\" title=\"hidden\">[h]</span>");
@@ -219,35 +219,35 @@ public class PlayerList {
 				echo.append("</span></td>\n");
 
 				// Rasse
-				echo.append("<td class=\"noBorderX\">"+race+"</td>\n");
+				echo.append("<td class=\"noBorderX\">").append(race).append("</td>\n");
 
 				// Signup
 				if( aUser.getSignup() != 0 ) {
-					echo.append("<td class=\"noBorderX\" align=\"center\">"+Common.date("j.n.Y H:i",aUser.getSignup())+"</td>\n");
+					echo.append("<td class=\"noBorderX\" align=\"center\">").append(Common.date("j.n.Y H:i", aUser.getSignup())).append("</td>\n");
 				}
 				else {
 					echo.append("<td class=\"noBorderX\" align=\"center\">-</td>\n");
 				}
 
 				// Ally
-				echo.append("<td class=\"noBorderX\">"+ally+"</td>\n");
+				echo.append("<td class=\"noBorderX\">").append(ally).append("</td>\n");
 
 				// Die Spezial-Admin-Infos anzeigen
 				if( (user != null) && context.hasPermission(WellKnownPermission.STATISTIK_ERWEITERTE_SPIELERLISTE) ) {
-					echo.append("<td class=\"noBorderX\">"+aUser.getInactivity()+"</td>\n");
+					echo.append("<td class=\"noBorderX\">").append(aUser.getInactivity()).append("</td>\n");
 					if( !asticount.containsKey(aUser.getId()) ) {
 						asticount.put(aUser.getId(), 0);
 					}
-					echo.append("<td class=\"noBorderX\" style=\"text-align:center\">"+asticount.get(aUser.getId())+"</td>\n");
+					echo.append("<td class=\"noBorderX\" style=\"text-align:center\">").append(asticount.get(aUser.getId())).append("</td>\n");
 
 					if( !shipcount.containsKey(aUser.getId()) ) {
 						shipcount.put(aUser.getId(), 0);
 					}
-					echo.append("<td class=\"noBorderX\" style=\"text-align:center\">"+Common.ln(shipcount.get(aUser.getId()))+"</td>\n");
+					echo.append("<td class=\"noBorderX\" style=\"text-align:center\">").append(Common.ln(shipcount.get(aUser.getId()))).append("</td>\n");
 				}
 			}
 			else {
-				echo.append("<td class=\"noBorderX\"><a style=\"font-size:14px;color:#c7c7c7\" href=\"javascript:playerPM("+aUser.getId()+");\">"+Common._title(aUser.getName())+"</a></td>\n");
+				echo.append("<td class=\"noBorderX\"><a style=\"font-size:14px;color:#c7c7c7\" href=\"javascript:playerPM(").append(aUser.getId()).append(");\">").append(Common._title(aUser.getName())).append("</a></td>\n");
 			}
 
 			echo.append("</tr>\n");

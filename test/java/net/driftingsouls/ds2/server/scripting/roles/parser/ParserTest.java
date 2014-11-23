@@ -19,10 +19,6 @@
 package net.driftingsouls.ds2.server.scripting.roles.parser;
 
 import net.driftingsouls.ds2.server.Location;
-import org.junit.Test;
-
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
 
 /**
  * Testcases fuer den Rollenparser
