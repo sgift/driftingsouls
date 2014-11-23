@@ -202,17 +202,17 @@ public class DynamicJumpNode
             int newx = x+rnd-inrange;
             rnd = RandomUtils.nextInt(2*inrange+1);
             int newy = y+rnd-inrange;
-            if(newx <= 0)
+            if(newx <= 1)
             {
-                newx = 0;
+                newx = 1;
             }
             if(newx > system.getWidth())
             {
                 newx = system.getWidth();
             }
-            if(newy <= 0)
+            if(newy <= 1)
             {
-                newy = 0;
+                newy = 1;
             }
             if(newy > system.getHeight())
             {
@@ -232,17 +232,17 @@ public class DynamicJumpNode
             int newx = x+rnd-outrange;
             rnd = RandomUtils.nextInt(2*outrange+1);
             int newy = y+rnd-outrange;
-            if(newx <= 0)
+            if(newx <= 1)
             {
-                newx = 0;
+                newx = 1;
             }
             if(newx > system.getWidth())
             {
                 newx = system.getWidth();
             }
-            if(newy <= 0)
+            if(newy <= 1)
             {
-                newy = 0;
+                newy = 1;
             }
             if(newy > system.getHeight())
             {
