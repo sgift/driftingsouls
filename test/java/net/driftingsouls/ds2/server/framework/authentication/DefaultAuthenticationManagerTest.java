@@ -8,6 +8,10 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.user.authentication.AccountInVacationModeException;
 
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
 public class DefaultAuthenticationManagerTest extends DBSingleTransactionTest
 {
 	@Test

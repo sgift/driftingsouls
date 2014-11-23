@@ -23,6 +23,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
 import static net.driftingsouls.ds2.server.ViewMessageAssert.*;
 
 public class NpcControllerTest extends DBSingleTransactionTest

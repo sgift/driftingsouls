@@ -2,6 +2,10 @@ package net.driftingsouls.ds2.server.entities;
 
 import java.util.EnumSet;
 
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
 public class UserFlagTest
 {
 	@Test

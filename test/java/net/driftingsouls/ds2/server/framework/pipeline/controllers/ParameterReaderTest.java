@@ -10,6 +10,10 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Map;
 
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
 public class ParameterReaderTest extends DBSingleTransactionTest
 {
 	@Test

@@ -3,6 +3,10 @@ package net.driftingsouls.ds2.server.framework.utils;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
 public class StringToTypeConverterTest
 {
 	@Test

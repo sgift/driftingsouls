@@ -40,6 +40,12 @@ import net.driftingsouls.ds2.server.ships.ShipType;
 import javax.script.ScriptContext;
 import javax.script.ScriptException;
 
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
+
 /**
  * Testcase fuer die DeutTransporter-Rolle
  * @author Christopher Jung

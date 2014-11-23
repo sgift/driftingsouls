@@ -4,6 +4,11 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
+import org.hibernate.Session;
+import org.junit.*;
+
+import javax.persistence.EntityManager;
+
 /**
  * Variante des {@link DBTest}, in dem die Transaktionsverwaltung automatisch erfolgt
  * und pro Testfall eine eigene Transaktion gestartet wird. <b>Achtung:</b> die Testfaelle

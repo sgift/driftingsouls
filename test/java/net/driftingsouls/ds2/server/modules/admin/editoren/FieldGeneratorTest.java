@@ -5,6 +5,10 @@ import net.driftingsouls.ds2.server.framework.pipeline.Request;
 
 import java.io.IOException;
 
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
 public class FieldGeneratorTest
 {
 	private static class DummyEntity
