@@ -111,7 +111,7 @@ public class StatPopulationDensity implements Statistic {
 				bewPerUsedAsti = (long)(bew/(double)used);
 			}
 
-			echo.append("<tr><td style=\"vertical-align:top\">").append(systemAddInfo).append(system.getName()).append(" (").append(system.getID()).append(")</td>\n");
+			echo.append("<tr><td style=\"vertical-align:top\">").append(systemAddInfo).append(system.getName()).append(" (").append(Integer.toString(system.getID())).append(")</td>\n");
 
 			echo.append("<td>").append(Common.ln(used)).append("/").append(Common.ln(total)).append("</td>").append("<td>").append(Common.ln(percentUsed)).append(" %</td>").append("<td>").append(Common.ln(bew)).append("</td>").append("<td>").append(Common.ln(bewPerAsti)).append("</td>").append("<td>").append(Common.ln(bewPerUsedAsti)).append("</td>\n");
 			echo.append("</tr>");

@@ -65,7 +65,7 @@ public class StatOwnOffiziere implements Statistic {
 			Offizier offizier = (Offizier) anOffiziere;
 
 			echo.append("<tr>\n");
-			echo.append("<td class=\"noBorderX\"><img src=\"").append(offizier.getPicture()).append("\" alt=\"Rang ").append(offizier.getRang()).append("\" /> <a class=\"forschinfo\" href=\"").append(Common.buildUrl("default", "module", "choff", "off", offizier.getID())).append("\">").append(Common._title(offizier.getName())).append("</a> (").append(offizier.getID()).append(")</td>\n");
+			echo.append("<td class=\"noBorderX\"><img src=\"").append(offizier.getPicture()).append("\" alt=\"Rang ").append(Integer.toString(offizier.getRang())).append("\" /> <a class=\"forschinfo\" href=\"").append(Common.buildUrl("default", "module", "choff", "off", offizier.getID())).append("\">").append(Common._title(offizier.getName())).append("</a> (").append(Integer.toString(offizier.getID())).append(")</td>\n");
 			echo.append("<td class=\"noBorderX\">&nbsp;</td>\n");
 
 			if (offizier.getStationiertAufSchiff() != null)
@@ -89,11 +89,11 @@ public class StatOwnOffiziere implements Statistic {
 				echo.append("<td class=\"noBorderX\">desertiert</td>\n");
 			}
 
-			echo.append("<td class=\"noBorderX\">").append(offizier.getAbility(Offizier.Ability.ING)).append("</td>\n");
-			echo.append("<td class=\"noBorderX\">").append(offizier.getAbility(Offizier.Ability.NAV)).append("</td>\n");
-			echo.append("<td class=\"noBorderX\">").append(offizier.getAbility(Offizier.Ability.WAF)).append("</td>\n");
-			echo.append("<td class=\"noBorderX\">").append(offizier.getAbility(Offizier.Ability.SEC)).append("</td>\n");
-			echo.append("<td class=\"noBorderX\">").append(offizier.getAbility(Offizier.Ability.COM)).append("</td>\n");
+			echo.append("<td class=\"noBorderX\">").append(Integer.toString(offizier.getAbility(Offizier.Ability.ING))).append("</td>\n");
+			echo.append("<td class=\"noBorderX\">").append(Integer.toString(offizier.getAbility(Offizier.Ability.NAV))).append("</td>\n");
+			echo.append("<td class=\"noBorderX\">").append(Integer.toString(offizier.getAbility(Offizier.Ability.WAF))).append("</td>\n");
+			echo.append("<td class=\"noBorderX\">").append(Integer.toString(offizier.getAbility(Offizier.Ability.SEC))).append("</td>\n");
+			echo.append("<td class=\"noBorderX\">").append(Integer.toString(offizier.getAbility(Offizier.Ability.COM))).append("</td>\n");
 			echo.append("<td class=\"noBorderX\">").append(offizier.getSpecial().getName()).append("</td>\n");
 			echo.append("</tr>\n");
 		}

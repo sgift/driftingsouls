@@ -66,10 +66,10 @@ public class StatBiggestAsteroid extends AbstractStatistic implements Statistic 
 		int count = 0;
 		for( Base base : bases )
 		{
-	   		echo.append("<tr><td>").append(count + 1).append(".</td>\n");
+	   		echo.append("<tr><td>").append(Integer.toString(count + 1)).append(".</td>\n");
 			User owner = base.getOwner();
-			echo.append("<td><a class=\"profile\" href=\"").append(url).append(owner.getId()).append("\">").append(Common._title(owner.getName())).append(" (").append(owner.getId()).append(")</a></td>\n");
-			echo.append("<td>").append(Common._plaintitle(base.getName())).append(" (").append(base.getId()).append(")</td>\n");
+			echo.append("<td><a class=\"profile\" href=\"").append(url).append(Integer.toString(owner.getId())).append("\">").append(Common._title(owner.getName())).append(" (").append(Integer.toString(owner.getId())).append(")</a></td>\n");
+			echo.append("<td>").append(Common._plaintitle(base.getName())).append(" (").append(Integer.toString(base.getId())).append(")</td>\n");
 			echo.append("<td>").append(Common.ln(base.getBewohner())).append("</td></tr>\n");
 
 	   		count++;

@@ -164,7 +164,7 @@ public class PlayerList {
 			echo.append("<tr>\n");
 
 			// ID
-			echo.append("<td class=\"noBorderX\">").append(aUser.getId()).append("</td>\n");
+			echo.append("<td class=\"noBorderX\">").append(Integer.toString(aUser.getId())).append("</td>\n");
 
 			if( comPopup == 0 ) {
 				// Diplomatie
@@ -234,11 +234,11 @@ public class PlayerList {
 
 				// Die Spezial-Admin-Infos anzeigen
 				if( (user != null) && context.hasPermission(WellKnownPermission.STATISTIK_ERWEITERTE_SPIELERLISTE) ) {
-					echo.append("<td class=\"noBorderX\">").append(aUser.getInactivity()).append("</td>\n");
+					echo.append("<td class=\"noBorderX\">").append(Integer.toString(aUser.getInactivity())).append("</td>\n");
 					if( !asticount.containsKey(aUser.getId()) ) {
 						asticount.put(aUser.getId(), 0);
 					}
-					echo.append("<td class=\"noBorderX\" style=\"text-align:center\">").append(asticount.get(aUser.getId())).append("</td>\n");
+					echo.append("<td class=\"noBorderX\" style=\"text-align:center\">").append(Integer.toString(asticount.get(aUser.getId()))).append("</td>\n");
 
 					if( !shipcount.containsKey(aUser.getId()) ) {
 						shipcount.put(aUser.getId(), 0);
@@ -247,7 +247,7 @@ public class PlayerList {
 				}
 			}
 			else {
-				echo.append("<td class=\"noBorderX\"><a style=\"font-size:14px;color:#c7c7c7\" href=\"javascript:playerPM(").append(aUser.getId()).append(");\">").append(Common._title(aUser.getName())).append("</a></td>\n");
+				echo.append("<td class=\"noBorderX\"><a style=\"font-size:14px;color:#c7c7c7\" href=\"javascript:playerPM(").append(Integer.toString(aUser.getId())).append(");\">").append(Common._title(aUser.getName())).append("</a></td>\n");
 			}
 
 			echo.append("</tr>\n");

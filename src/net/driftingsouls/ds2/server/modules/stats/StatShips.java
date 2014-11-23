@@ -54,7 +54,7 @@ public class StatShips implements Statistic {
 		{
 			Object[] data = (Object[])o;
 			ShipType st = (ShipType)data[0];
-      		echo.append("<tr><td align='right'>").append(Common.ln((Long) data[1])).append("</td><td>").append(st.getNickname()).append(" <a class=\"forschinfo\" onclick='ShiptypeBox.show(").append(st.getId()).append(");return false;' href=\"./ds?module=schiffinfo&ship=").append(st.getId()).append("\">(?)</a>").append("</td></tr>\n");
+      		echo.append("<tr><td align='right'>").append(Common.ln((Long) data[1])).append("</td><td>").append(st.getNickname()).append(" <a class=\"forschinfo\" onclick='ShiptypeBox.show(").append(Integer.toString(st.getId())).append(");return false;' href=\"./ds?module=schiffinfo&ship=").append(Integer.toString(st.getId())).append("\">(?)</a>").append("</td></tr>\n");
 		}
 		echo.append("</table><br /><br />");
 	}
