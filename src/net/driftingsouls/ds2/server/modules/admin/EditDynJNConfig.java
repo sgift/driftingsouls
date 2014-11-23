@@ -20,22 +20,11 @@ package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.config.DynamicJumpNodeConfig;
-import net.driftingsouls.ds2.server.config.Medal;
-import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.config.StarSystem;
-import net.driftingsouls.ds2.server.entities.Forschung;
-import net.driftingsouls.ds2.server.entities.Rasse;
-import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.UserFlag;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
-import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.Nonnull;
-import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 /**
  * Aktualisierungstool fuer die Konfiguration der dynamischen JNs.

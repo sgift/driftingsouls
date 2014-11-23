@@ -36,14 +36,9 @@ import net.driftingsouls.ds2.server.scripting.roles.parser.RoleDefinition;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipType;
-import org.junit.Before;
-import org.junit.Test;
 
 import javax.script.ScriptContext;
 import javax.script.ScriptException;
-
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
 
 /**
  * Testcase fuer die DeutTransporter-Rolle

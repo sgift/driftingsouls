@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.entities.ally;
 
 import net.driftingsouls.ds2.server.config.Medals;
 import org.hibernate.annotations.ForeignKey;
+import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -101,7 +102,7 @@ public class AllyRangDescriptor implements Comparable<AllyRangDescriptor>
 	}
 
 	@Override
-	public int compareTo(AllyRangDescriptor o)
+	public int compareTo(@NotNull AllyRangDescriptor o)
 	{
 		if( this.ally.getId() != o.getAlly().getId() )
 		{

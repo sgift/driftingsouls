@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server;
 
 import net.driftingsouls.ds2.server.entities.Nebel;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 
@@ -307,17 +308,17 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 	 * @return vgl compareTo in Interface Comparable.
 	 */
 	@Override
-	public int compareTo(Location o)
+	public int compareTo(@NotNull Location o)
 	{
 		if(system == o.system)
 		{
 			if(y == o.y)
 			{
-				if(y == o.y)
+				if(x == o.x)
 				{
 					return 0;
 				}
-				else if(y < o.y)
+				else if(x < o.x)
 				{
 					return -1;
 				}

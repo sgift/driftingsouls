@@ -1,12 +1,8 @@
 package net.driftingsouls.ds2.server.modules.admin.editoren;
 
-import org.junit.Test;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.junit.Assert.*;
 
 public class HtmlUtilsTest
 {

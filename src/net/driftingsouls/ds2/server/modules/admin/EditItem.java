@@ -30,7 +30,6 @@ import net.driftingsouls.ds2.server.config.items.Quality;
 import net.driftingsouls.ds2.server.config.items.Schiffsbauplan;
 import net.driftingsouls.ds2.server.config.items.Schiffsmodul;
 import net.driftingsouls.ds2.server.config.items.SchiffsmodulSet;
-import net.driftingsouls.ds2.server.config.items.Schiffsmodul_;
 import net.driftingsouls.ds2.server.config.items.Schiffsverbot;
 import net.driftingsouls.ds2.server.config.items.Ware;
 import net.driftingsouls.ds2.server.entities.FactoryEntry;

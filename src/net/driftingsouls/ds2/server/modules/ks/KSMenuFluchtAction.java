@@ -73,86 +73,82 @@ public class KSMenuFluchtAction extends BasicKSMenuAction {
 						"attack",	enemyShip.getId(),
 						"ksaction",	"flucht",
 						"fluchtmode",	nextfluchtmode.get(fluchtmode) );
-	
-		boolean possible = true;
-		
-		if( possible ) {
-			boolean gotone = false;
-			if( ownShipType.hasFlag(ShipTypeFlag.DROHNE) ) {
-				List<BattleShip> ownShips = battle.getOwnShips();
-				for (BattleShip aship : ownShips)
-				{
-					ShipTypeData ashiptype = aship.getTypeData();
-					if (ashiptype.hasFlag(ShipTypeFlag.DROHNEN_CONTROLLER))
-					{
-						gotone = true;
-						break;
-					}
-				}
-			}
-			else {
-				gotone = true;	
-			}
 
-			if( !ownShip.hasFlag(BattleShipFlag.JOIN) && !ownShip.hasFlag(BattleShipFlag.DESTROYED) &&
-				!ownShip.hasFlag(BattleShipFlag.FLUCHT) && !ownShip.getShip().isLanded() && !ownShip.getShip().isDocked() &&
-				(ownShip.getShip().getEngine() > 0) && 
-				( !ownShip.getShip().isBattleAction() || fluchtmode.equals("next") ) && 
-				gotone && ( !ownShip.hasFlag(BattleShipFlag.FLUCHTNEXT) || fluchtmode.equals("current")) ) {
-					
-				if( ownShip.getEngine() > 0 ) {
-					this.menuEntry(t, "Flucht",
-							"ship",		ownShip.getId(),
-							"attack",	enemyShip.getId(),
-							"ksaction",	"flucht_single",
-							"fluchtmode",	fluchtmode );
-				}
-			}
-					
-			int fluchtidlist = 0;
-			Map<ShipClasses,Integer> fluchtclasslist = new HashMap<>();
-			
-			List<BattleShip> ownShips = battle.getOwnShips();
-			for (BattleShip aship : ownShips)
-			{
-				ShipTypeData ashiptype = aship.getTypeData();
+        boolean gotone = false;
+        if( ownShipType.hasFlag(ShipTypeFlag.DROHNE) ) {
+            List<BattleShip> ownShips = battle.getOwnShips();
+            for (BattleShip aship : ownShips)
+            {
+                ShipTypeData ashiptype = aship.getTypeData();
+                if (ashiptype.hasFlag(ShipTypeFlag.DROHNEN_CONTROLLER))
+                {
+                    gotone = true;
+                    break;
+                }
+            }
+        }
+        else {
+            gotone = true;
+        }
 
-				if (!aship.hasFlag(BattleShipFlag.FLUCHT) && !aship.hasFlag(BattleShipFlag.DESTROYED) &&
-						!aship.hasFlag(BattleShipFlag.FLUCHT) && !ownShip.getShip().isLanded() && !ownShip.getShip().isDocked() && (aship.getShip().getEngine() > 0) &&
-						!aship.getShip().isBattleAction() && gotone)
-				{
+        if( !ownShip.hasFlag(BattleShipFlag.JOIN) && !ownShip.hasFlag(BattleShipFlag.DESTROYED) &&
+            !ownShip.hasFlag(BattleShipFlag.FLUCHT) && !ownShip.getShip().isLanded() && !ownShip.getShip().isDocked() &&
+            (ownShip.getShip().getEngine() > 0) &&
+            ( !ownShip.getShip().isBattleAction() || fluchtmode.equals("next") ) &&
+            gotone && ( !ownShip.hasFlag(BattleShipFlag.FLUCHTNEXT) || fluchtmode.equals("current")) ) {
 
-					fluchtidlist++;
-					Common.safeIntInc(fluchtclasslist, ashiptype.getShipClass());
-				}
-			}
-									
-			if( fluchtidlist > 0 ) {
-				this.menuEntryAsk(t, "Alle Fl&uuml;chten",
-						new Object[] {
-							"ship",		ownShip.getId(),
-							"attack",	enemyShip.getId(),
-							"ksaction",	"flucht_all",
-							"fluchtmode",	fluchtmode  },
-						"Wollen sie wirklich mit allen Schiffen fl&uuml;chten?" );
-			}
-			
-			for( Map.Entry<ShipClasses, Integer> entry: fluchtclasslist.entrySet()) {
-				ShipClasses classID = entry.getKey();
-				int idlist = entry.getValue();
-				if( idlist == 0 ) {
-					continue;
-				} 
-				this.menuEntryAsk(t, "Alle "+classID.getPlural()+" fl&uuml;chten lassen",
-						new Object[] {
-							"ship",		ownShip.getId(),
-							"attack",	enemyShip.getId(),
-							"ksaction",	"flucht_class",
-							"fluchtclass",	classID.ordinal(),
-							"fluchtmode",	fluchtmode },
-						"Wollen sie wirklich mit allen Schiffen der Klasse '"+classID.getSingular()+"' fl&uuml;chten?" );
-			}
-		}
+            if( ownShip.getEngine() > 0 ) {
+                this.menuEntry(t, "Flucht",
+                        "ship",		ownShip.getId(),
+                        "attack",	enemyShip.getId(),
+                        "ksaction",	"flucht_single",
+                        "fluchtmode",	fluchtmode );
+            }
+        }
+
+        int fluchtidlist = 0;
+        Map<ShipClasses,Integer> fluchtclasslist = new HashMap<>();
+
+        List<BattleShip> ownShips = battle.getOwnShips();
+        for (BattleShip aship : ownShips)
+        {
+            ShipTypeData ashiptype = aship.getTypeData();
+
+            if (!aship.hasFlag(BattleShipFlag.FLUCHT) && !aship.hasFlag(BattleShipFlag.DESTROYED) &&
+                    !aship.hasFlag(BattleShipFlag.FLUCHT) && !ownShip.getShip().isLanded() && !ownShip.getShip().isDocked() && (aship.getShip().getEngine() > 0) &&
+                    !aship.getShip().isBattleAction() && gotone)
+            {
+
+                fluchtidlist++;
+                Common.safeIntInc(fluchtclasslist, ashiptype.getShipClass());
+            }
+        }
+
+        if( fluchtidlist > 0 ) {
+            this.menuEntryAsk(t, "Alle Fl&uuml;chten",
+                    new Object[] {
+                        "ship",		ownShip.getId(),
+                        "attack",	enemyShip.getId(),
+                        "ksaction",	"flucht_all",
+                        "fluchtmode",	fluchtmode  },
+                    "Wollen sie wirklich mit allen Schiffen fl&uuml;chten?" );
+        }
+
+        for( Map.Entry<ShipClasses, Integer> entry: fluchtclasslist.entrySet()) {
+            ShipClasses classID = entry.getKey();
+            int idlist = entry.getValue();
+            if( idlist == 0 ) {
+                continue;
+            }
+            this.menuEntryAsk(t, "Alle "+classID.getPlural()+" fl&uuml;chten lassen",
+                    new Object[] {
+                        "ship",		ownShip.getId(),
+                        "attack",	enemyShip.getId(),
+                        "ksaction",	"flucht_class",
+                        "fluchtclass",	classID.ordinal(),
+                        "fluchtmode",	fluchtmode },
+                    "Wollen sie wirklich mit allen Schiffen der Klasse '"+classID.getSingular()+"' fl&uuml;chten?" );
+        }
 				
 		this.menuEntry(t, "zur&uuml;ck",
 				"ship",		ownShip.getId(),

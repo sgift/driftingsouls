@@ -85,10 +85,5 @@ public class ModuleContainerShip extends Module {
 		public long getCargo() {
 			return this.getInner().getCargo()+this.cargo;
 		}
-
-		@Override
-		public Object clone() throws CloneNotSupportedException {
-			return super.clone();
-		}
 	}
 }

@@ -446,7 +446,7 @@ public class OptionsController extends Controller
 			return new RedirectViewResult("default").withMessage("Das Logo ist leider zu gro&szlig;. Bitte wähle eine Datei mit maximal 300kB Größe<br />");
 		}
 
-		String message = null;
+		String message;
 		String uploaddir = Configuration.getAbsolutePath() + "data/logos/user/";
 		try
 		{

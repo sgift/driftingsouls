@@ -180,9 +180,6 @@ public class KSMenuGroupAttackAction extends BasicKSMenuAction {
 			ask = "Wenn sie auf das gew&auml;hlte Ziel feuern, versto&szlig;en sie gegen die BETAK-Konvention. Wollen sie dies wirklich tun?";
 		} 
 
-		Map<String,Integer> currentheatlist = ownShip.getWeaponHeat();
-
-		Map<String,Integer> heatlist = ownShipType.getMaxHeat();
 		Map<String,Integer> weaponlist = ownShipType.getWeapons();
 
 		for( Map.Entry<String, Integer> entry: weaponlist.entrySet() ) {
@@ -213,14 +210,7 @@ public class KSMenuGroupAttackAction extends BasicKSMenuAction {
 			else {
 				schaden = weapon.getBaseDamage()+"/Schuss";
 			}
-			
-			if( attmode.equals("alphastrike_max") || attmode.equals("strafe_max") ) {
-				int maxheat = heatlist.get(weaponname);
-				if( currentheatlist.containsKey(weaponname) ) {
-					maxheat -= currentheatlist.get(weaponname);
-				}
-			}
-			
+
 			String action = "groupattack2";
 			if(weapon.hasFlag(Weapon.Flags.AMMO_SELECT) ) {
 				action = "groupattack_select";

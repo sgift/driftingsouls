@@ -42,9 +42,6 @@ public class KSRegenerateShieldsClassAction extends KSRegenerateShieldsAllAction
 	
 	@Override
 	protected boolean validateShipExt(BattleShip ship, ShipTypeData shiptype) {
-		if( shiptype.getShipClass() != this.shieldclass ) {
-			return false;
-		}
-		return true;
-	}
+        return shiptype.getShipClass() == this.shieldclass;
+    }
 }

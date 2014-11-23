@@ -73,7 +73,6 @@ public class BaseTick extends TickController
 					if(baseUser.getUserValue(WellKnownUserValue.GAMEPLAY_USER_BASE_DOWN_PM)) {
                         PM.send(sourceUser, userId, "Basis-Tick", messages);
                     }
-					messages = "";
 				}
 			}
 		}

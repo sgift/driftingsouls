@@ -79,10 +79,5 @@ public class ModuleShipPicture extends Module {
 		public String getPicture() {
 			return this.picture;
 		}
-
-		@Override
-		public Object clone() throws CloneNotSupportedException {
-			return super.clone();
-		}
 	}
 }

@@ -45,9 +45,6 @@ public class KSUndockClassAction extends KSUndockAllAction {
      * @return <code>true</code>, wenn das Schiff gestartet werden soll
      */
     protected boolean validateShipExt( BattleShip ship, ShipTypeData shiptype ) {
-        if( shiptype.getShipClass() != this.undockclass ) {
-            return false;
-        }
-        return true;
+        return shiptype.getShipClass() == this.undockclass;
     }
 }

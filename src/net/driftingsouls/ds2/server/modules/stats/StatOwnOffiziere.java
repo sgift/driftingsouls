@@ -65,7 +65,7 @@ public class StatOwnOffiziere implements Statistic {
 			Offizier offizier = (Offizier) anOffiziere;
 
 			echo.append("<tr>\n");
-			echo.append("<td class=\"noBorderX\"><img src=\"" + offizier.getPicture() + "\" alt=\"Rang " + offizier.getRang() + "\" /> <a class=\"forschinfo\" href=\"" + Common.buildUrl("default", "module", "choff", "off", offizier.getID()) + "\">" + Common._title(offizier.getName()) + "</a> (" + offizier.getID() + ")</td>\n");
+			echo.append("<td class=\"noBorderX\"><img src=\"").append(offizier.getPicture()).append("\" alt=\"Rang ").append(Integer.toString(offizier.getRang())).append("\" /> <a class=\"forschinfo\" href=\"").append(Common.buildUrl("default", "module", "choff", "off", offizier.getID())).append("\">").append(Common._title(offizier.getName())).append("</a> (").append(Integer.toString(offizier.getID())).append(")</td>\n");
 			echo.append("<td class=\"noBorderX\">&nbsp;</td>\n");
 
 			if (offizier.getStationiertAufSchiff() != null)
@@ -77,24 +77,24 @@ public class StatOwnOffiziere implements Statistic {
 					shipname = "[Respawn " + ship.getId() + "]";
 				}
 
-				echo.append("<td class=\"noBorderX\"><a class=\"forschinfo\" href=\"" + Common.buildUrl("default", "module", "schiff", "ship", ship.getId()) + "\">" + shipname + "</a>" + (offizier.isTraining() ? "(A)" : "") + "</td>\n");
+				echo.append("<td class=\"noBorderX\"><a class=\"forschinfo\" href=\"").append(Common.buildUrl("default", "module", "schiff", "ship", ship.getId())).append("\">").append(shipname).append("</a>").append(offizier.isTraining() ? "(A)" : "").append("</td>\n");
 			}
 			else if (offizier.getStationiertAufBasis() != null)
 			{
 				String basename = offizier.getStationiertAufBasis().getName();
-				echo.append("<td class=\"noBorderX\"><a class=\"forschinfo\" href=\"" + Common.buildUrl("default", "module", "base", "col", offizier.getStationiertAufBasis().getId()) + "\">" + basename + "</a> " + (offizier.isTraining() ? "(A)" : "") + "</td>\n");
+				echo.append("<td class=\"noBorderX\"><a class=\"forschinfo\" href=\"").append(Common.buildUrl("default", "module", "base", "col", offizier.getStationiertAufBasis().getId())).append("\">").append(basename).append("</a> ").append(offizier.isTraining() ? "(A)" : "").append("</td>\n");
 			}
 			else
 			{
 				echo.append("<td class=\"noBorderX\">desertiert</td>\n");
 			}
 
-			echo.append("<td class=\"noBorderX\">" + offizier.getAbility(Offizier.Ability.ING) + "</td>\n");
-			echo.append("<td class=\"noBorderX\">" + offizier.getAbility(Offizier.Ability.NAV) + "</td>\n");
-			echo.append("<td class=\"noBorderX\">" + offizier.getAbility(Offizier.Ability.WAF) + "</td>\n");
-			echo.append("<td class=\"noBorderX\">" + offizier.getAbility(Offizier.Ability.SEC) + "</td>\n");
-			echo.append("<td class=\"noBorderX\">" + offizier.getAbility(Offizier.Ability.COM) + "</td>\n");
-			echo.append("<td class=\"noBorderX\">" + offizier.getSpecial().getName() + "</td>\n");
+			echo.append("<td class=\"noBorderX\">").append(Integer.toString(offizier.getAbility(Offizier.Ability.ING))).append("</td>\n");
+			echo.append("<td class=\"noBorderX\">").append(Integer.toString(offizier.getAbility(Offizier.Ability.NAV))).append("</td>\n");
+			echo.append("<td class=\"noBorderX\">").append(Integer.toString(offizier.getAbility(Offizier.Ability.WAF))).append("</td>\n");
+			echo.append("<td class=\"noBorderX\">").append(Integer.toString(offizier.getAbility(Offizier.Ability.SEC))).append("</td>\n");
+			echo.append("<td class=\"noBorderX\">").append(Integer.toString(offizier.getAbility(Offizier.Ability.COM))).append("</td>\n");
+			echo.append("<td class=\"noBorderX\">").append(offizier.getSpecial().getName()).append("</td>\n");
 			echo.append("</tr>\n");
 		}
 

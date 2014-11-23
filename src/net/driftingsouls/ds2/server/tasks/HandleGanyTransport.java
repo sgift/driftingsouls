@@ -18,24 +18,7 @@
  */
 package net.driftingsouls.ds2.server.tasks;
 
-import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.comm.PM;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.FactionShopEntry;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.FactionShopOrder;
-import net.driftingsouls.ds2.server.entities.JumpNode;
-import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.ships.JumpNodeRouter;
-import net.driftingsouls.ds2.server.ships.Ship;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * TASK_GANY_TRANSPORT
@@ -53,18 +36,15 @@ public class HandleGanyTransport implements TaskHandler
 	@Override
 	public void handleEvent(Task task, String event)
 	{
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
+		//Context context = ContextMap.getContext();
+		//org.hibernate.Session db = context.getDB();
 		Taskmanager tm = Taskmanager.getInstance();
 
-		if( true )
-		{
-			// Vorerst automatischen Code deaktivieren
-			// Ganytransporte werden per Hand erledigt
-			tm.removeTask(task.getTaskID());
-			return;
-		}
+	    // Vorerst automatischen Code deaktivieren
+		// Ganytransporte werden per Hand erledigt
+		tm.removeTask(task.getTaskID());
 
+        /*
 		int orderid = Integer.parseInt(task.getData1());
 		FactionShopOrder order = (FactionShopOrder)db.get(FactionShopOrder.class, orderid);
 
@@ -89,9 +69,9 @@ public class HandleGanyTransport implements TaskHandler
 			case "spa_end":
 				tm.removeTask(task.getTaskID());
 				break;
-		}
+		}*/
 	}
-
+/*
 	private void doTickTimeout(Taskmanager tm, Task task, FactionShopOrder order)
 	{
 		Context context = ContextMap.getContext();
@@ -268,5 +248,5 @@ public class HandleGanyTransport implements TaskHandler
 		}
 		return null;
 	}
-
+*/
 }

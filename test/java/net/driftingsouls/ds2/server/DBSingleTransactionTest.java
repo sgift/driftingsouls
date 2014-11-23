@@ -3,13 +3,6 @@ package net.driftingsouls.ds2.server;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import org.hibernate.Session;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-
-import javax.persistence.EntityManager;
 
 /**
  * Variante des {@link DBTest}, in dem die Transaktionsverwaltung automatisch erfolgt

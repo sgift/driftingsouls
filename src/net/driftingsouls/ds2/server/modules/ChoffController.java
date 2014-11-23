@@ -76,7 +76,7 @@ public class ChoffController extends Controller
 	{
 		validiereOffizier(off);
 
-		String message = null;
+		String message;
 
 		if (name.length() != 0)
 		{

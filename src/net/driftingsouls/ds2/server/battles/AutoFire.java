@@ -380,7 +380,7 @@ public class AutoFire
         for(Map.Entry<String, Integer> entry: weaponList.entrySet())
         {
             Weapon weapon = Weapons.get().weapon(entry.getKey());
-            shipWeapons.put(weapon, Integer.valueOf(entry.getValue()));
+            shipWeapons.put(weapon, entry.getValue());
         }
 
         return shipWeapons;

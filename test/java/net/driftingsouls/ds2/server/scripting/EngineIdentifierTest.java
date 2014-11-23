@@ -18,11 +18,6 @@
  */
 package net.driftingsouls.ds2.server.scripting;
 
-import org.junit.Test;
-
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-
 /**
  * Testfaelle fuer {@link EngineIdentifier}
  * @author Christopher Jung

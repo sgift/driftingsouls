@@ -3,7 +3,6 @@ package net.driftingsouls.ds2.server.modules.admin;
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsAngebot;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsAngebot_;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintrag;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;

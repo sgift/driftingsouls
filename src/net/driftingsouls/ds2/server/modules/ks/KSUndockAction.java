@@ -21,8 +21,6 @@ package net.driftingsouls.ds2.server.modules.ks;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import java.io.IOException;
@@ -63,7 +61,6 @@ public class KSUndockAction extends BasicKSAction {
             return Result.ERROR;
         }
 
-        Context context = ContextMap.getContext();
         BattleShip ownShip = battle.getOwnShip();
 
         ownShip.getShip().setBattleAction(true);

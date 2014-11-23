@@ -18,15 +18,12 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ViewMessage;
 import net.driftingsouls.ds2.server.services.FraktionsGuiEintragService;
 import net.driftingsouls.ds2.server.ships.ShipType;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static net.driftingsouls.ds2.server.ViewMessageAssert.*;
-import static org.junit.Assert.*;
 
 public class NpcControllerTest extends DBSingleTransactionTest
 {

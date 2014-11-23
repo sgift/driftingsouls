@@ -96,11 +96,9 @@ public class StatOwnKampf implements Statistic {
 
 					long count = (Long)data[0];
 
-					echo.append(count+" ");
+					echo.append(Long.toString(count)).append(" ");
 					if( shiptype != null ) {
-						echo.append("<a target=\"_blank\" onclick='ShiptypeBox.show(" + shiptype.getTypeId() + ");return false;' " +
-								"href=\"./ds?module=schiffinfo&ship=" + shiptype.getTypeId() + "\">" +
-								shiptype.getNickname() + "</a>");
+						echo.append("<a target=\"_blank\" onclick='ShiptypeBox.show(").append(Integer.toString(shiptype.getTypeId())).append(");return false;' ").append("href=\"./ds?module=schiffinfo&ship=").append(Integer.toString(shiptype.getTypeId())).append("\">").append(shiptype.getNickname()).append("</a>");
 					}
 					else
 					{
@@ -112,7 +110,7 @@ public class StatOwnKampf implements Statistic {
 						echo.append(" von: ").append(auser.getProfileLink()).append("<br />");
 					}
 					else {
-						echo.append(" von: Unbekannter Spieler (" + data[2] + ")<br />");
+						echo.append(" von: Unbekannter Spieler (").append(String.valueOf(data[2])).append(")<br />");
 					}
 				}
 				echo.append("</td>\n");
@@ -203,11 +201,9 @@ public class StatOwnKampf implements Statistic {
 
 					long count = (Long)data[0];
 
-					echo.append(count+" ");
+					echo.append(Long.toString(count)).append(" ");
 					if( shiptype != null ) {
-						echo.append("<a target=\"_blank\" onclick='ShiptypeBox.show("+shiptype.getTypeId()+");return false;' " +
-								"href=\"./ds?module=schiffinfo&ship="+shiptype.getTypeId()+"\">" +
-								shiptype.getNickname()+"</a>");
+						echo.append("<a target=\"_blank\" onclick='ShiptypeBox.show(").append(Integer.toString(shiptype.getTypeId())).append(");return false;' ").append("href=\"./ds?module=schiffinfo&ship=").append(Integer.toString(shiptype.getTypeId())).append("\">").append(shiptype.getNickname()).append("</a>");
 					}
 					else
 					{
@@ -220,7 +216,7 @@ public class StatOwnKampf implements Statistic {
 						echo.append(" durch: ").append(auser.getProfileLink()).append("<br />");
 					}
 					else {
-						echo.append(" durch: Unbekannter Spieler ("+data[2]+")<br />");
+						echo.append(" durch: Unbekannter Spieler (").append(String.valueOf(data[2])).append(")<br />");
 					}
 				}
 				echo.append("</td>\n");

@@ -2,6 +2,7 @@ package net.driftingsouls.ds2.server.framework;
 
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.proxy.HibernateProxy;
+import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -115,7 +116,7 @@ public class Permission implements Comparable<Permission>, PermissionDescriptor
 	}
 
 	@Override
-	public int compareTo(Permission o)
+	public int compareTo(@NotNull Permission o)
 	{
 		int diff = this.category.compareTo(o.category);
 		if( diff != 0 )

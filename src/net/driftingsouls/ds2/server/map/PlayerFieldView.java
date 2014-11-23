@@ -128,7 +128,7 @@ public class PlayerFieldView implements FieldView
 			if( !targetNebula.allowsScan() ) {
 				return false;
 			}
-			if( !PlayerStarmap.ALLOW_NEBULA_SCANS && !location.equals(scanShip.getLocation()) ) {
+			if( !(PlayerStarmap.ALLOW_NEBULA_SCANS || location.equals(scanShip.getLocation())) ) {
 				return false;
 			}
 		}

@@ -104,16 +104,16 @@ abstract class AbstractStatistic implements Statistic {
 	protected <T> void generateStatistic(String name, Map<T,Long> counts, LinkGenerator<T> generator, boolean showCount, long size) throws IOException {
 		Writer echo = getContext().getResponse().getWriter();
 
-		echo.append("<h1>"+name+"</h1>");
+		echo.append("<h1>").append(name).append("</h1>");
 		echo.append("<table class='stats'>\n");
 
 		int count = 0;
 		for( Map.Entry<T,Long> entry : counts.entrySet() )
 		{
-	   		echo.append("<tr><td>"+(count+1)+".</td>\n");
-			echo.append("<td>"+generator.generate(entry.getKey())+"</td>\n");
+	   		echo.append("<tr><td>").append(Integer.toString(count + 1)).append(".</td>\n");
+			echo.append("<td>").append(generator.generate(entry.getKey())).append("</td>\n");
 			if( showCount ) {
-				echo.append("<td>"+Common.ln(entry.getValue())+"</td></tr>\n");
+				echo.append("<td>").append(Common.ln(entry.getValue())).append("</td></tr>\n");
 			}
 
 	   		count++;

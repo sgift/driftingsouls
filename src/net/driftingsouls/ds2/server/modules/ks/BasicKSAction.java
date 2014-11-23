@@ -52,7 +52,7 @@ public abstract class BasicKSAction {
 		/**
 		 * Das Ergebnis "kritischer Fehler".
 		 */
-		HALT;
+		HALT
 	}
 	
 	private boolean requireCommander;
@@ -125,9 +125,9 @@ public abstract class BasicKSAction {
 	} 
 	
 	/**
-	 * Fueht die Aktion aus.
+	 * Fuehrt die Aktion aus.
 	 *
-	 * @param t
+	 * @param t Die verwendete Template-Engine
 	 * @param battle Die Schlacht in deren Kontext die Aktion ausgefuert werden soll
 	 * @return Das Ergebnis
 	 * @throws IOException 

@@ -35,13 +35,7 @@ import javax.script.SimpleBindings;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * Der ScriptParser.
@@ -499,10 +493,7 @@ public class ScriptParser extends AbstractScriptEngine {
 				String[] acommand = StringUtils.split(line, ' ');
 				if (acommand[0].equals("§parameter"))
 				{
-					for (int j = 1; j < acommand.length; j++)
-					{
-						validparameters.add(acommand[j]);
-					}
+                    validparameters.addAll(Arrays.asList(acommand).subList(1, acommand.length));
 				}
 				else if (acommand[0].equals("§limitexec"))
 				{
@@ -522,9 +513,7 @@ public class ScriptParser extends AbstractScriptEngine {
 
 		List<String> addparams = new ArrayList<>();
 		getContext().setAttribute("_ADDPARAMETERLIST", addparams, ScriptContext.ENGINE_SCOPE);
-		for( int i=1; i < addparameterlist.length; i++ ) {
-			addparams.add(addparameterlist[i]);
-		}
+        addparams.addAll(Arrays.asList(addparameterlist).subList(1, addparameterlist.length));
 		
 		try {
 			// Ggf. Parameter behandeln
@@ -799,7 +788,7 @@ public class ScriptParser extends AbstractScriptEngine {
 
 			StackTraceElement[] trace = e.getStackTrace();
 			for( int i=0; i < Math.min(trace.length,5); i++ ) {
-				text.append(trace[i].toString()+"\n");
+				text.append(trace[i].toString()).append("\n");
 			}
 
 			Ship ship = this.getShip();

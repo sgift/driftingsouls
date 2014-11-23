@@ -49,10 +49,4 @@ class ShopResourceEntry extends ShopEntry
 		return Common.buildUrl("details", "module", "iteminfo", "item", resourceEntry
 				.getId().getItemID());
 	}
-
-	@Override
-	public String getAvailabilityName()
-	{
-		return super.getAvailabilityName();
-	}
 }

@@ -23,8 +23,6 @@ import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.Resources;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
@@ -61,8 +59,6 @@ public class KSDischargeBatteriesAllAction extends BasicKSAction {
 		if( result != Result.OK ) {
 			return result;
 		}
-		
-		Context context = ContextMap.getContext();
 
 		int shipcount = 0;
 		StringBuilder ebattslog = new StringBuilder();
@@ -104,7 +100,7 @@ public class KSDischargeBatteriesAllAction extends BasicKSAction {
 			aship.getShip().setCargo(mycargo);
 
 			battle.logme(aship.getName() + ": " + batterien + " Reservebatterien entladen\n");
-			ebattslog.append(Battle.log_shiplink(aship.getShip()) + ": Reservebatterien entladen\n");
+			ebattslog.append(Battle.log_shiplink(aship.getShip())).append(": Reservebatterien entladen\n");
 
 			//aship.getShip().recalculateShipStatus();
 			shipcount++;

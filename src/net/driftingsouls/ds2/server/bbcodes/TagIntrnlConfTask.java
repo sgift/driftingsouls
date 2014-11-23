@@ -40,10 +40,8 @@ public class TagIntrnlConfTask implements BBCodeFunction
 			str.append("<table class=\"noBorderX\" width=\"500\"><tr><td class=\"BorderX\" align=\"center\">");
 			str.append(content);
 			str.append("<br />");
-			str.append("<a class=\"ok\" target=\"main\" href=\"./ds?module=comm&action=send&to=task&title="
-					+ taskid + "&msg=handletm\">ja</a> - ");
-			str.append("<a class=\"error\" target=\"main\" href=\"./ds?module=comm&action=send&to=task&title="
-					+ taskid + "&msg=dismiss\">nein</a>");
+			str.append("<a class=\"ok\" target=\"main\" href=\"./ds?module=comm&action=send&to=task&title=").append(taskid).append("&msg=handletm\">ja</a> - ");
+			str.append("<a class=\"error\" target=\"main\" href=\"./ds?module=comm&action=send&to=task&title=").append(taskid).append("&msg=dismiss\">nein</a>");
 			str.append("</td></tr></table>");
 			str.append("</div>");
 		}

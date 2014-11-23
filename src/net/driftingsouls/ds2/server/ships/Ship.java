@@ -1000,7 +1000,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	{
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		Ship versorger = (Ship)db.createQuery("select s from Ship as s left join s.modules m" +
+		return (Ship)db.createQuery("select s from Ship as s left join s.modules m" +
 								" where (s.shiptype.versorger!=false or m.versorger!=false)" +
 								" and s.owner=:owner and s.system=:sys and s.x=:x and s.y=:y and s.nahrungcargo > 0 and s.einstellungen.isfeeding != false " +
 								"ORDER BY s.nahrungcargo DESC")
@@ -1010,8 +1010,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 								.setInteger("y", this.y)
 								.setMaxResults(1)
 								.uniqueResult();
-
-		return versorger;
 	}
 
 	/**
@@ -1174,7 +1172,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 		{
 			return 0;
 		}
-		org.hibernate.Session db = ContextMap.getContext().getDB();
 		ShipTypeData shiptype = this.getTypeData();
 		int scaledcrew = this.getScaledCrew();
 		int scaledunits = this.getScaledUnits();
@@ -1553,7 +1550,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 	private void ueberpruefeGedocktGelandetAnzahl() {
 		ShipTypeData type = this.getTypeData();
-		org.hibernate.Session db = ContextMap.getContext().getDB();
 
 		List<Ship> dockshipList = getDockedShips();
 		if( dockshipList.size() > type.getADocks() )
@@ -1952,10 +1948,9 @@ public class Ship implements Locatable,Transfering,Feeding {
 			return new ArrayList<>();
 		}
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		List<Ship> dockshipList = Common.cast(db.createQuery("from Ship where id>0 and docked= :docked")
+		return Common.cast(db.createQuery("from Ship where id>0 and docked= :docked")
 			.setString("docked", Integer.toString(this.id))
 			.list());
-		return dockshipList;
 	}
 
 	/**
@@ -1969,10 +1964,9 @@ public class Ship implements Locatable,Transfering,Feeding {
 			return new ArrayList<>();
 		}
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		List<Ship> landedshipsList = Common.cast(db.createQuery("from Ship where id>0 and docked= :docked")
+		return Common.cast(db.createQuery("from Ship where id>0 and docked= :docked")
 				.setString("docked", "l "+this.id)
 				.list());
-		return landedshipsList;
 	}
 
 	/**
@@ -1985,11 +1979,10 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		List<Ship> s = Common.cast(db.createQuery("from Ship where id>0 and docked in (:docked,:landed)")
+		return Common.cast(db.createQuery("from Ship where id>0 and docked in (:docked,:landed)")
 				.setString("docked", Integer.toString(this.id))
 				.setString("landed", "l "+this.id)
 				.list());
-		return s;
 	}
 
 	/**

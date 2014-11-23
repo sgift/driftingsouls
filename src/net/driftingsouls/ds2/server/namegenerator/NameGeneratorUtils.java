@@ -1,7 +1,5 @@
 package net.driftingsouls.ds2.server.namegenerator;
 
-import net.driftingsouls.ds2.server.namegenerator.producer.NameProducer;
-
 /**
  * Hilfsfunktionen fuer Namensgeneratoren.
  */

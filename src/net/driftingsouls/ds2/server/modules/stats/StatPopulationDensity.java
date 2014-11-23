@@ -111,14 +111,9 @@ public class StatPopulationDensity implements Statistic {
 				bewPerUsedAsti = (long)(bew/(double)used);
 			}
 
-			echo.append("<tr><td style=\"vertical-align:top\">"+
-					systemAddInfo+system.getName()+" ("+system.getID()+")</td>\n");
+			echo.append("<tr><td style=\"vertical-align:top\">").append(systemAddInfo).append(system.getName()).append(" (").append(Integer.toString(system.getID())).append(")</td>\n");
 
-			echo.append("<td>"+Common.ln(used)+"/"+Common.ln(total)+"</td>" +
-					"<td>"+Common.ln(percentUsed)+" %</td>" +
-					"<td>"+Common.ln(bew)+"</td>" +
-					"<td>"+Common.ln(bewPerAsti)+"</td>" +
-					"<td>"+Common.ln(bewPerUsedAsti)+"</td>\n");
+			echo.append("<td>").append(Common.ln(used)).append("/").append(Common.ln(total)).append("</td>").append("<td>").append(Common.ln(percentUsed)).append(" %</td>").append("<td>").append(Common.ln(bew)).append("</td>").append("<td>").append(Common.ln(bewPerAsti)).append("</td>").append("<td>").append(Common.ln(bewPerUsedAsti)).append("</td>\n");
 			echo.append("</tr>");
 		}
 
@@ -136,13 +131,7 @@ public class StatPopulationDensity implements Statistic {
 		echo.append("<tr><td colspan=\"6\">" +
 				"<hr noshade=\"noshade\" size=\"1\" style=\"color:#cccccc\" /></td></tr>\n");
 
-		echo.append("<tr><td style=\"vertical-align:top\">Insgesamt</td>" +
-				"<td>"+Common.ln(insused)+"/"+Common.ln(instotal)+"</td>" +
-				"<td>"+Common.ln(percentUsed)+" %</td>" +
-				"<td>"+Common.ln(insbew)+"</td>" +
-				"<td>"+Common.ln(bewPerAsti)+"</td>" +
-				"<td>"+Common.ln(bewPerUsedAsti)+"</td>" +
-				"</tr>\n");
+		echo.append("<tr><td style=\"vertical-align:top\">Insgesamt</td>" + "<td>").append(Common.ln(insused)).append("/").append(Common.ln(instotal)).append("</td>").append("<td>").append(Common.ln(percentUsed)).append(" %</td>").append("<td>").append(Common.ln(insbew)).append("</td>").append("<td>").append(Common.ln(bewPerAsti)).append("</td>").append("<td>").append(Common.ln(bewPerUsedAsti)).append("</td>").append("</tr>\n");
 
 		Long crew = (Long)db
 				.createQuery("SELECT sum(crew) FROM Ship WHERE id>0 AND owner.id>:minid")
@@ -153,9 +142,7 @@ public class StatPopulationDensity implements Statistic {
 
 		long tw = crew + insbew;
 
-		echo.append("<tr><td colspan=\"6\">" +
-				"+ "+Common.ln(crew)+" Crew auf Schiffen = "+Common.ln(tw)+" Bev&ouml;lkerung insgesamt" +
-				"</td></tr>\n");
+		echo.append("<tr><td colspan=\"6\">" + "+ ").append(Common.ln(crew)).append(" Crew auf Schiffen = ").append(Common.ln(tw)).append(" Bev&ouml;lkerung insgesamt").append("</td></tr>\n");
 		echo.append("</tbody></table><br /><br />");
 	}
 }

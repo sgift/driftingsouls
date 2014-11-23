@@ -184,11 +184,11 @@ public class AcademyBuilding extends DefaultBuilding {
 				result.append(base.getId());
 				result.append("&amp;field=");
 				result.append(field);
-				result.append("\">[A]<span class='ttcontent'>"+this.getName()+"</span></a>");
+				result.append("\">[A]<span class='ttcontent'>").append(this.getName()).append("</span></a>");
 			}
 			else {
 				StringBuilder popup = new StringBuilder(200);
-				popup.append(this.getName()+":<br /><br />");
+				popup.append(this.getName()).append(":<br /><br />");
 				List<AcademyQueueEntry> entries = acc.getScheduledQueueEntries();
 				for( AcademyQueueEntry entry : entries )
 				{
@@ -225,7 +225,7 @@ public class AcademyBuilding extends DefaultBuilding {
 				result.append(field);
 				result.append("\">[A]<span style=\"font-weight:normal\">");
 				result.append(acc.getNumberScheduledQueueEntries());
-				result.append("</span><span class='ttcontent'>"+popup+"</span></a>");
+				result.append("</span><span class='ttcontent'>").append(popup).append("</span></a>");
 			}
 		}
 		else {

@@ -7,6 +7,7 @@ import net.driftingsouls.ds2.server.config.items.effects.IEDraftShip;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import org.hibernate.Session;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Die Bauinformationen fuer ein Schiff zusammen mit ihren Quellinformationen.
@@ -70,7 +71,7 @@ public class SchiffBauinformationen implements Comparable<SchiffBauinformationen
 	}
 
 	@Override
-	public int compareTo(SchiffBauinformationen schiffBauinformationen)
+	public int compareTo(@NotNull SchiffBauinformationen schiffBauinformationen)
 	{
 		int diff = this.quelle.compareTo(schiffBauinformationen.quelle);
 		if( diff != 0 )

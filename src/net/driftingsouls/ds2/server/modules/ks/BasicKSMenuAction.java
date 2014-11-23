@@ -73,7 +73,7 @@ public abstract class BasicKSMenuAction extends BasicKSAction {
 			StringBuilder paramBuilder = new StringBuilder(params.length*5);
 			
 			for( int i=0; i < params.length - 1; i+=2 ) {
-				paramBuilder.append("&amp;"+params[i]+"="+params[i+1]);
+				paramBuilder.append("&amp;").append(params[i]).append("=").append(params[i+1]);
 			}
 			paramStr = paramBuilder.toString();
 		}
@@ -87,7 +87,7 @@ public abstract class BasicKSMenuAction extends BasicKSAction {
 			StringBuilder paramBuilder = new StringBuilder(params.length*5);
 			
 			for( int i=0; i < params.length - 1; i+=2 ) {
-				paramBuilder.append("&amp;"+params[i]+"="+params[i+1]);
+				paramBuilder.append("&amp;").append(params[i]).append("=").append(params[i + 1]);
 			}
 			paramStr = paramBuilder.toString();
 		}

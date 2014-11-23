@@ -472,14 +472,12 @@ public class ShipWerft extends WerftObject {
                 Context context = ContextMap.getContext();
                 User user = this.getOwner();
 
-                ShipWerft werft = (ShipWerft)this;
-
                 ShipType newtype = this.getOneWayFlag();
 
                 String currentTime = Common.getIngameTime(context.get(ContextCommon.class).getTick());
                 String history = "Baubeginn am "+currentTime+" durch "+user.getName()+" ("+user.getId()+")";
 
-                Ship ship = werft.getShip();
+                Ship ship = this.getShip();
                 ship.getHistory().addHistory(history);
                 ship.setName("Baustelle");
                 ship.setBaseType(newtype);

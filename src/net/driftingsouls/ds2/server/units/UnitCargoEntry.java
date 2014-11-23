@@ -94,15 +94,6 @@ public abstract class UnitCargoEntry
 	}
 
 	/**
-	 * Setzt den Eintrags-Typ.
-	 * @param type der Typ
-	 */
-	public void setTyp(int type)
-	{
-		//this.type = type;
-	}
-
-	/**
 	 * Setzt den UnitTyp.
 	 * @param unittype der UnitTyp
 	 */

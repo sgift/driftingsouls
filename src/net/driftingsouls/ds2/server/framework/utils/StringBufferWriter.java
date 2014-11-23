@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.framework.utils;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.Writer;
 
 /**
@@ -49,7 +51,7 @@ public final class StringBufferWriter extends Writer {
 	}
 
 	@Override
-	public void write(char[] cbuf, int off, int len)
+	public void write(@NotNull char[] cbuf, int off, int len)
 	{
 		this.buffer.append(cbuf, off, len);
 	}

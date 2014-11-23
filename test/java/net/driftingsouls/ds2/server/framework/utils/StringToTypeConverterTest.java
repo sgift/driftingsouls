@@ -1,11 +1,7 @@
 package net.driftingsouls.ds2.server.framework.utils;
 
-import org.junit.Test;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
-
-import static org.junit.Assert.*;
 
 public class StringToTypeConverterTest
 {

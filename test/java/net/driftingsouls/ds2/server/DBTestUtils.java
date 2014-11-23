@@ -6,18 +6,10 @@ import net.driftingsouls.ds2.server.framework.EmptyPermissionResolver;
 import net.driftingsouls.ds2.server.framework.SimpleResponse;
 import net.driftingsouls.ds2.server.framework.TestRequest;
 import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-import org.hibernate.tool.hbm2ddl.SchemaExport;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import javax.persistence.EntityManager;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.SQLNonTransientConnectionException;
-
-import static org.junit.Assert.*;
 
 /**
  * Hilfsmethoden fuer DB-Tests.

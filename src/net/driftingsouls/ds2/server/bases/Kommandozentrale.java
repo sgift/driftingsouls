@@ -252,7 +252,7 @@ public class Kommandozentrale extends DefaultBuilding {
 
 					BigDecimal get = BigDecimal.valueOf(tmp).multiply(new BigDecimal(res.getCount1()/1000d));
 
-					message.append("<img src=\""+res.getImage()+"\" alt=\"\" />"+Common.ln(tmp)+" f&uuml;r "+Common.ln(get)+" RE verkauft<br />\n");
+					message.append("<img src=\"").append(res.getImage()).append("\" alt=\"\" />").append(Common.ln(tmp)).append(" f&uuml;r ").append(Common.ln(get)).append(" RE verkauft<br />\n");
 					totalRE = totalRE.add(get.toBigInteger());
 
 					changed = true;
@@ -298,7 +298,7 @@ public class Kommandozentrale extends DefaultBuilding {
 			}
 
 			if( load != 0 ) {
-				message.append(Common._plaintitle(base.getName())+" l&auml;dt <img src=\""+Cargo.getResourceImage(Resources.LBATTERIEN)+"\" alt=\"\" />"+load+" "+Cargo.getResourceName(Resources.LBATTERIEN)+" auf<br/ ><br />\n");
+				message.append(Common._plaintitle(base.getName())).append(" l&auml;dt <img src=\"").append(Cargo.getResourceImage(Resources.LBATTERIEN)).append("\" alt=\"\" />").append(load).append(" ").append(Cargo.getResourceName(Resources.LBATTERIEN)).append(" auf<br/ ><br />\n");
 
 				cargo.substractResource( Resources.LBATTERIEN, load );
 				cargo.addResource( Resources.BATTERIEN, load );
@@ -327,7 +327,7 @@ public class Kommandozentrale extends DefaultBuilding {
 			}
 
 			if( unload != 0 ) {
-				message.append(Common._plaintitle(base.getName())+" entl&auml;dt <img src=\""+Cargo.getResourceImage(Resources.BATTERIEN)+"\" alt=\"\" />"+unload+" "+Cargo.getResourceName(Resources.BATTERIEN)+"<br/ ><br />\n");
+				message.append(Common._plaintitle(base.getName())).append(" entl&auml;dt <img src=\"").append(Cargo.getResourceImage(Resources.BATTERIEN)).append("\" alt=\"\" />").append(unload).append(" ").append(Cargo.getResourceName(Resources.BATTERIEN)).append("<br/ ><br />\n");
 
 				cargo.substractResource( Resources.BATTERIEN, unload );
 				cargo.addResource( Resources.LBATTERIEN, unload );
@@ -354,7 +354,7 @@ public class Kommandozentrale extends DefaultBuilding {
             }
 
 			if( create != 0 ) {
-				message.append(Common._plaintitle(base.getName())+" produziert <img src=\""+Cargo.getResourceImage(Resources.LBATTERIEN)+"\" alt=\"\" />"+create+" "+Cargo.getResourceName(Resources.LBATTERIEN)+"<br/ ><br />\n");
+				message.append(Common._plaintitle(base.getName())).append(" produziert <img src=\"").append(Cargo.getResourceImage(Resources.LBATTERIEN)).append("\" alt=\"\" />").append(create).append(" ").append(Cargo.getResourceName(Resources.LBATTERIEN)).append("<br/ ><br />\n");
 
 				cargo.substractResource( Resources.PLATIN, create );
 				cargo.addResource( Resources.LBATTERIEN, create );
@@ -416,7 +416,7 @@ public class Kommandozentrale extends DefaultBuilding {
 					acts.add(new AutoGTUAction(resid,actid,count));
 					base.setAutoGTUActs(acts);
 
-					message.append("Automatischer Verkauf von <img style=\"vertical-align:middle\" src=\""+Cargo.getResourceImage(resid)+"\" alt=\"\" />"+Cargo.getResourceName(resid)+" hinzugef&uuml;gt<br /><br />\n");
+					message.append("Automatischer Verkauf von <img style=\"vertical-align:middle\" src=\"").append(Cargo.getResourceImage(resid)).append("\" alt=\"\" />").append(Cargo.getResourceName(resid)).append(" hinzugef&uuml;gt<br /><br />\n");
 				}
 			}
 		}
