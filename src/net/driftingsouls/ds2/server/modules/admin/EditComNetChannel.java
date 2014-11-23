@@ -2,6 +2,7 @@ package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.entities.ComNetChannel;
+import net.driftingsouls.ds2.server.entities.ComNetChannel_;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;

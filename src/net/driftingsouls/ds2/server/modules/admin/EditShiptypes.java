@@ -27,6 +27,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import net.driftingsouls.ds2.server.ships.*;
+import net.driftingsouls.ds2.server.ships.ShipType_;
 
 import javax.annotation.Nonnull;
 import java.math.BigInteger;
