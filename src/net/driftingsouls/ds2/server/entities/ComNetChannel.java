@@ -188,7 +188,11 @@ public class ComNetChannel {
 	 */
 	public Set<User> getReadPlayer() {
 		Session db = ContextMap.getContext().getDB();
-		return Arrays.stream(Common.explodeToInt(",", readPlayer)).mapToObj(id -> (User) db.get(User.class, id)).collect(Collectors.toSet());
+		Set<User> readplayers =  Arrays.stream(Common.explodeToInt(",", readPlayer)).mapToObj(id -> (User) db.get(User.class, id)).collect(Collectors.toSet());
+        // Falls nicht mehr vorhandene oder falsch eingetragene Spielerids hier auftreten führt es an anderer Stelle zu einer NPE
+        // Also sorgen wir hier dafür, dass diese einfach ignoriert werden
+        readplayers.remove(null);
+        return readplayers;
 	}
 
 	/**
@@ -261,7 +265,11 @@ public class ComNetChannel {
 	 */
 	public Set<User> getWritePlayer() {
 		Session db = ContextMap.getContext().getDB();
-		return Arrays.stream(Common.explodeToInt(",", writePlayer)).mapToObj(id -> (User) db.get(User.class, id)).collect(Collectors.toSet());
+		Set<User> writeplayers = Arrays.stream(Common.explodeToInt(",", writePlayer)).mapToObj(id -> (User) db.get(User.class, id)).collect(Collectors.toSet());
+        // Falls nicht mehr vorhandene oder falsch eingetragene Spielerids hier auftreten führt es an anderer Stelle zu einer NPE
+        // Also sorgen wir hier dafür, dass diese einfach ignoriert werden
+        writeplayers.remove(null);
+        return writeplayers;
 	}
 
 	/**
