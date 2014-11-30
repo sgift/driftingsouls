@@ -491,9 +491,9 @@ public class ScriptParser extends AbstractScriptEngine {
 			else if (line.charAt(0) == '§')
 			{
 				String[] acommand = StringUtils.split(line, ' ');
-				if (acommand[0].equals("§parameter"))
+				if (acommand[0].equals("§parameter") && acommand.length > 1)
 				{
-                    validparameters.addAll(Arrays.asList(acommand).subList(1, acommand.length));
+					validparameters.addAll(Arrays.asList(acommand).subList(1, acommand.length));
 				}
 				else if (acommand[0].equals("§limitexec"))
 				{
@@ -513,7 +513,10 @@ public class ScriptParser extends AbstractScriptEngine {
 
 		List<String> addparams = new ArrayList<>();
 		getContext().setAttribute("_ADDPARAMETERLIST", addparams, ScriptContext.ENGINE_SCOPE);
-        addparams.addAll(Arrays.asList(addparameterlist).subList(1, addparameterlist.length));
+		if( addparameterlist.length > 1 )
+		{
+			addparams.addAll(Arrays.asList(addparameterlist).subList(1, addparameterlist.length));
+		}
 		
 		try {
 			// Ggf. Parameter behandeln
