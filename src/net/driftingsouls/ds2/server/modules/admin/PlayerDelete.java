@@ -88,6 +88,25 @@ public class PlayerDelete implements AdminPlugin
 
 			return;
 		}
+		if( user.isNPC() || user.isAdmin() ) {
+			echo.append("Der NPCs/Admins können nicht gelöscht werden.<br />\n");
+			echo.append("</div>");
+
+			return;
+		}
+		if( user.getAccessLevel() >= context.getActiveUser().getAccessLevel() ) {
+			echo.append("Du hast nicht das notwendige Berechtigungslevel.<br />\n");
+			echo.append("</div>");
+
+			return;
+		}
+		if( (user.isInVacation() || user.getInactivity() <= 7*14) &&
+				!context.hasPermission(WellKnownAdminPermission.PLAYER_DELETE_ACTIVE) ) {
+			echo.append("Du hast nicht die Berechtigung einen aktiven Spieler zu löschen.<br />\n");
+			echo.append("</div>");
+
+			return;
+		}
 
 		if( (user.getAlly() != null) && (user.getAlly().getPresident() == user) )
 		{

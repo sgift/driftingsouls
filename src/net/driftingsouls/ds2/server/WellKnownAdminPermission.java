@@ -60,6 +60,7 @@ public enum WellKnownAdminPermission implements PermissionDescriptor
 	GTU_PRICES("GtuPrices"),
 	GTU_VERKAEUFE("GtuVerkaeufe"),
 	PLAYER_DELETE("PlayerDelete"),
+	PLAYER_DELETE_ACTIVE("PlayerDeleteActive"),
 	PLAYER_LOGIN_SUPER("PlayerLoginSuper"),
 	PLAYER_STATISTICS("PlayerStatistics"),
 	PORTAL_NEWS("PortalNews"),
