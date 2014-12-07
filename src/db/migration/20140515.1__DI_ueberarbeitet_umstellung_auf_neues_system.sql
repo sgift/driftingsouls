@@ -1,7 +1,6 @@
 alter table upgrade_maxvalues add column maximalwert integer not null;
 alter table upgrade_maxvalues add column upgradetype integer not null;
 alter table upgrade_maxvalues add column type_id integer not null;
-alter table upgrade_maxvalues add index upgrade_max_values_fk_basetype (type_id), add constraint upgrade_max_values_fk_basetype foreign key (type_id) references base_types (id);
 
 CREATE TABLE `dummy` (
 `id`  int(11) NOT NULL AUTO_INCREMENT ,

@@ -7,6 +7,7 @@ create table schiffswaffenkonfiguration (id bigint not null auto_increment, anza
 
 alter table items add index schiffsmodul_fk_schiffseffekt (mods_id), add constraint schiffsmodul_fk_schiffseffekt foreign key (mods_id) references schiffstyp_modifikation (id);
 alter table schiffsmodul_slots add index schiffsmodul_slots_fk_schiffsmodul (Schiffsmodul_id), add constraint schiffsmodul_slots_fk_schiffsmodul foreign key (Schiffsmodul_id) references items (id);
+ALTER TABLE schiffswaffenkonfiguration CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
 alter table schiffswaffenkonfiguration add index weapon_changeset_fk_weapon (waffe_id), add constraint weapon_changeset_fk_weapon foreign key (waffe_id) references weapon (id);
 alter table schiffswaffenkonfiguration add index schiffstyp_modifikation_waffen_fk_schiffstyp_modifikation (schiffstyp_modifikation_id), add constraint schiffstyp_modifikation_waffen_fk_schiffstyp_modifikation foreign key (schiffstyp_modifikation_id) references schiffstyp_modifikation (id);
 alter table schiffstyp_modifikation add index schiffstypmodifikation_fk_schiffstyp (oneWayWerft_id), add constraint schiffstypmodifikation_fk_schiffstyp foreign key (oneWayWerft_id) references ship_types (id);

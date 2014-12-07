@@ -360,8 +360,8 @@
 		<mkdir dir="${build.home}/test" />
 		<mkdir dir="${build.home}/test-output" />
 		<mkdir dir="${build.home}/test/classes" />
-		<copy todir="${build.home}/test">
-			<fileset dir="test" excludes="java/**"/>
+		<copy todir="${build.home}/test/cfg">
+			<fileset dir="test/cfg"/>
 		</copy>
 
 		<javac srcdir="${src.tests}"
@@ -390,6 +390,46 @@
 
 			<batchtest todir="${build.home}/test-output" skipNonTests="true">
 				<fileset dir="${build.home}/test/classes">
+					<include name="**/*Test.class"/>
+				</fileset>
+			</batchtest>
+			<formatter type="xml"/>
+			<formatter type="brief" usefile="false" />
+		</junit>
+	</target>
+
+	<target name="test-db-compile" depends="compile">
+		<mkdir dir="${build.home}/test-db" />
+		<mkdir dir="${build.home}/test-output" />
+		<mkdir dir="${build.home}/test-db/classes" />
+
+		<javac srcdir="${basedir}/test/db/java"
+			   destdir="${build.home}/test-db/classes"
+			   debug="${compile.debug}"
+			   deprecation="${compile.deprecation}"
+			   optimize="${compile.optimize}"
+			   source="1.8"
+			   target="1.8"
+			   encoding="UTF-8"
+			   verbose="true">
+			<classpath refid="test.classpath"/>
+			<compilerarg value="-parameters" />
+		</javac>
+
+		<copy todir="${build.home}/test-db/classes">
+			<fileset dir="test/db/java" excludes="**/*.java"/>
+		</copy>
+	</target>
+	<target name="test-db-run">
+		<junit fork="yes" haltonfailure="true" outputtoformatters="false" forkmode="perBatch">
+			<classpath>
+				<pathelement location="${build.home}/test-db/classes"/>
+				<pathelement location="${build.home}/WEB-INF/classes"/>
+			</classpath>
+			<classpath refid="test.classpath" />
+
+			<batchtest todir="${build.home}/test-output" skipNonTests="true">
+				<fileset dir="${build.home}/test-db/classes">
 					<include name="**/*Test.class"/>
 				</fileset>
 			</batchtest>
