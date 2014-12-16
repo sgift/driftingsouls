@@ -72,6 +72,20 @@ public class KSMenuOtherAction extends BasicKSMenuAction {
 						"ksaction",		"batterien" );
 		}
 
+        if( this.isPossible(battle, new KSActivateAR()) == Result.OK) {
+            menuEntry(t, "Alarm Rot aktivierren",
+                        "ship",     ownShip.getId(),
+                        "attack",   enemyShip.getId(),
+                        "ksaction", "activatear" );
+        }
+
+        if( this.isPossible(battle, new KSDeactivateAR()) == Result.OK) {
+            menuEntry(t, "Alarm Rot deaktivierren",
+                    "ship",     ownShip.getId(),
+                    "attack",   enemyShip.getId(),
+                    "ksaction", "deactivatear" );
+        }
+
 		//Kampf uebergeben
 		menuEntry(t, "Kampf &uuml;bergeben",	"ship",		ownShip.getId(),
 											"attack",	enemyShip.getId(),
