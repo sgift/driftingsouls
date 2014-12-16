@@ -73,7 +73,7 @@ public class KSMenuGroupAttackAction extends BasicKSMenuAction {
 		}
 		*/
 		
-		if( ownShip.hasFlag(BattleShipFlag.DESTROYED) ) {
+		if( enemyShip.hasFlag(BattleShipFlag.DESTROYED) ) {
 			return Result.ERROR;
 		}
 		
