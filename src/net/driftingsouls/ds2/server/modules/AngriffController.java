@@ -117,6 +117,8 @@ public class AngriffController extends Controller
 		actions.put("secondrowattack", KSSecondRowAttackAction.class);
 		actions.put("endbattleequal", KSEndBattleEqualAction.class);
 		actions.put("endturn", KSEndTurnAction.class);
+        actions.put("activatear", KSActivateAR.class);
+        actions.put("deactivatear", KSDeactivateAR.class);
 		actions.put("new_commander2", KSNewCommanderAction.class);
 		actions.put("take_command", KSTakeCommandAction.class);
 		actions.put("stop_take_command", KSStopTakeCommandAction.class);

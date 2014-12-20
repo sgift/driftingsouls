@@ -90,7 +90,7 @@ public class KSMenuAttackAction extends BasicKSMenuAction {
 		
 		ShipTypeData ownShipType = ownShip.getTypeData();
 		
-		if( ownShip.hasFlag(BattleShipFlag.FLUCHT) &&	!ownShipType.hasFlag(ShipTypeFlag.ABFANGEN) ) {
+		if( enemyShip.hasFlag(BattleShipFlag.FLUCHT) &&	!ownShipType.hasFlag(ShipTypeFlag.ABFANGEN) ) {
 			return Result.ERROR;
 		}
 		
