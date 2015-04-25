@@ -28,8 +28,6 @@ import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.cargo.Transfer;
 import net.driftingsouls.ds2.server.cargo.Transfering;
-import net.driftingsouls.ds2.server.comm.PM;
-import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.Academy;
@@ -39,7 +37,6 @@ import net.driftingsouls.ds2.server.entities.Forschungszentrum;
 import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -77,7 +74,6 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
 import java.io.Serializable;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -738,11 +734,11 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		this.spawnableress = spawnableRess;
 	}
 
-	private static class SpawnableRess
+	public static class SpawnableRess
 	{
-		private int itemId;
-		private int chance;
-		private int maxValue;
+		public final int itemId;
+		public final int chance;
+		public final int maxValue;
 
 		SpawnableRess(int itemId, int chance, int maxValue)
 		{
@@ -752,7 +748,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		}
 	}
 
-	private static class SpawnableRessMap
+	public static class SpawnableRessMap
 	{
 		private Map<Integer,SpawnableRess> chanceMap;
 		private Map<Integer,SpawnableRess> itemMap;
@@ -810,7 +806,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 * Beruecksichtigt ebenfalls die Systemvorraussetzungen.
 	 * @return Die zum Spawn freigegebenen Ressourcen
 	 */
-	private SpawnableRessMap getSpawnableRessMap()
+	public SpawnableRessMap getSpawnableRessMap()
 	{
 		org.hibernate.Session db = getDB();
 		StarSystem system = (StarSystem)db.get(StarSystem.class, this.system);
@@ -1030,11 +1026,6 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		stat.substractResource( Resources.RE, base.getUnits().getRE() );
 
 		return new BaseStatus(stat, prodstat, constat, e, bewohner, arbeiter, Collections.unmodifiableMap(buildinglocs), bebon);
-	}
-
-	private BaseStatus getStatus()
-	{
-		return Base.getStatus(this);
 	}
 
 	@Override
@@ -1481,134 +1472,11 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	}
 
 	/**
-	 * Laesst die Basis ticken.
-	 *
-	 * @return Die Ticknachrichten, wenn es welche gab.
-	 */
-	public String tick()
-	{
-		String message = "Basis [base="+this.id+"]" + getName() + "[/base]\n----------------------------------\n";
-		boolean usefullMessage = false;
-
-		String proof = proofBuildings();
-		if(!proof.equals(""))
-		{
-			message += proof;
-			usefullMessage = true;
-		}
-
-		BaseStatus state = getStatus();
-
-		immigrate(state);
-
-        int newenergy = rebalanceEnergy(state);
-		if(newenergy < 0)
-		{
-			message += "Zu wenig Energie. Die Produktion f&auml;llt aus.\n";
-			usefullMessage = true;
-		}
-		else
-		{
-			String prodmsg = produce(state, newenergy);
-			if(!prodmsg.equals(""))
-			{
-				message += prodmsg;
-				usefullMessage = true;
-			}
-			else
-			{
-				long money = automaticSale();
-				boolean overfullCargo = clearOverfullCargo(state);
-				if(money > 0)
-				{
-					getOwner().transferMoneyFrom(Faction.GTU, money, "Automatischer Warenverkauf Asteroid " + getName(), false, UserMoneyTransfer.Transfer.AUTO);
-				}
-
-				if(money > 0)
-				{
-					message += "Ihnen wurden " + money + " RE f&uuml;r automatische Verk&auml;ufe gut geschrieben.\n";
-					usefullMessage = true;
-				}
-
-				if(overfullCargo)
-				{
-					message += "Wegen uuml;berfuuml;llten Lagerr&auml;umen wurde ein Teil der Produktion vernichtet.\n";
-					usefullMessage = true;
-				}
-			}
-		}
-
-		if(getBewohner() > state.getLivingSpace())
-		{
-			setBewohner(state.getLivingSpace());
-		}
-
-		if(usefullMessage)
-		{
-			message += "\n";
-		}
-		else
-		{
-			message = "";
-		}
-
-		return message;
-	}
-
-	/**
-	 * Ueberprueft alle Gebaeude und schaltet bei nicht vorhandenen Voraussetzungen ab.
-	 * @return Gibt eine Meldung mit allen abgeschalteten Gebaeuden zurueck
-	 */
-	private String proofBuildings()
-	{
-		User owner = getOwner();
-		String msg = "";
-
-		if( (this.core != null) && isCoreActive() ) {
-			if( core.isShutDown() && !owner.hasResearched(core.getTechRequired()) )
-			{
-				setCoreActive(false);
-				msg += "Der Core wurde wegen unzureichenden Voraussetzungen abgeschaltet.\n";
-			}
-		}
-
-		Integer[] bebauung = getBebauung();
-		Integer[] bebon = getActive();
-
-		for( int o=0; o < getWidth() * getHeight(); o++ )
-		{
-			if( bebauung[o] == 0 )
-			{
-				continue;
-			}
-
-			Building building = Building.getBuilding(bebauung[o]);
-
-			if( bebon[o] == 0 )
-			{
-				continue;
-			}
-
-			if( building.isShutDown() &&
-					(!owner.hasResearched(building.getTechRequired())
-							|| (owner.getRace() != building.getRace() && building.getRace() != 0)))
-			{
-				bebon[o] = 0;
-				msg += "Das Geb&auml;ude "+building.getName()+" wurde wegen unzureichenden Voraussetzungen abgeschaltet.\n";
-			}
-		}
-
-		setActive(bebon);
-
-		return msg;
-	}
-
-	/**
 	 * Enforces the automatic sale rules of the base.
 	 *
 	 * @return The money for resource sales.
 	 */
-	private long automaticSale()
+	public long automaticSale()
 	{
 		long money = 0;
 		List<AutoGTUAction> actions = getAutoGTUActs();
@@ -1654,7 +1522,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 * @param state Der Status der Basis
 	 * @return The money for resource sales.
 	 */
-	private boolean clearOverfullCargo(BaseStatus state)
+	public boolean clearOverfullCargo(BaseStatus state)
 	{
 		long maxCargo = getMaxCargo();
 		long surplus = cargo.getMass() - maxCargo;
@@ -1720,7 +1588,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		return Math.round(price * count);
 	}
 
-	private int rebalanceEnergy(BaseStatus state)
+	public int rebalanceEnergy(BaseStatus state)
 	{
 		int energy = getEnergy();
 		int eps = getMaxEnergy();
@@ -1749,118 +1617,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		return energy;
 	}
 
-	private String produce(BaseStatus state, int newenergy)
-	{
-		String msg = "";
-		Cargo baseCargo = (Cargo)cargo.clone();
-		Cargo nettoproduction = state.getNettoProduction();
-		Cargo nettoconsumption = state.getNettoConsumption();
-		org.hibernate.Session db = getDB();
-		boolean ok = true;
-
-		if(state.getArbeiter() > getBewohner())
-		{
-			return "Sie haben mehr Arbeiter als (maximal)Bev&ouml;lkerung. Die Produktion f&auml;llt aus.";
-		}
-
-		baseCargo.addResource(Resources.RE, getOwner().getKonto().longValue());
-
-		SpawnableRessMap ressMap = getSpawnableRessMap();
-
-		for(ResourceEntry entry : nettoproduction.getResourceList())
-		{
-			// Auf Spawn Resource pruefen und ggf Produktion anpassen
-			Item item = (Item)db.get(Item.class,entry.getId().getItemID());
-			if(item.isSpawnableRess()) {
-				// Genug auf dem Asteroiden vorhanden
-				// und abziehen
-				if(getSpawnableRessAmount(item.getID()) > nettoproduction.getResourceCount(entry.getId())) {
-					setSpawnableRessAmount(item.getID(), getSpawnableRessAmount(item.getID()) - nettoproduction.getResourceCount(entry.getId()));
-				}
-				// Ueberhaupt nichts auf dem Asteroiden vorhanden
-				else if (getSpawnableRessAmount(item.getID()) < 0 && !ressMap.containsRess(item) ) {
-					// Dann ziehen wir die Production eben ab
-					nettoproduction.setResource(entry.getId(), 0);
-					msg += "Ihre Arbeiter konnten keine Vorkommen der Ressource "+item.getName()+" finden.\n";
-				}
-				// Es kann nicht mehr die volle Produktion gefoerdert werden
-				else {
-					// Produktion drosseln und neue Ressource spawnen
-					nettoproduction.setResource(entry.getId(), getSpawnableRessAmount(item.getID()));
-					respawnRess(item.getID());
-				}
-			}
-		}
-		Cargo fullproduction = (Cargo)nettoproduction.clone();
-		fullproduction.substractCargo(nettoconsumption);
-
-		ResourceList resources = baseCargo.compare(fullproduction, true);
-		for(ResourceEntry entry: resources)
-		{
-			long stock = entry.getCount1();
-			long production = entry.getCount2();
-
-			long balance = stock + production;
-
-			//Not enough resources for production
-			if(balance < 0)
-			{
-				msg += "Zu wenig "+entry.getPlainName()+" vorhanden. Die Produktion f&auml;llt aus.\n";
-				ok = false;
-			}
-
-			if(production > 0)
-			{
-				baseCargo.addResource(entry.getId(), production);
-			}
-			else
-			{
-				production = Math.abs(production);
-				baseCargo.substractResource(entry.getId(), production);
-			}
-		}
-
-		if(!feedInhabitants(baseCargo))
-		{
-			msg += "Wegen einer Hungersnot fliehen ihre Einwohner. Die Produktion f&auml;llt aus.\n";
-			ok = false;
-		}
-
-		// Zuerst sollen die Marines verhungern danach die Bevoelkerung.
-		if(!feedMarines(baseCargo))
-		{
-			msg += "Wegen Unterern&auml;hrung desertieren ihre Truppen.\n";
-		}
-
-        // Ja, Marines futtern erstmal bevor Sie abhauen ...
-        if(!payMarines(baseCargo))
-        {
-            msg += "Wegen fehlendem Sold desertieren ihre Truppen.\n";
-        }
-
-		if(ok)
-		{
-            // Alles OK ggf müssen wir Konto anpassen und darauf achten das Produktion der Basis auch Bargeld liefert
-            long baseRE = cargo.getResourceCount(Resources.RE) + nettoproduction.getResourceCount(Resources.RE);
-
-            long newRE = baseCargo.getResourceCount(Resources.RE);
-
-            if(newRE > baseRE)
-            {
-                getOwner().setKonto(BigInteger.valueOf(newRE - baseRE));
-                baseCargo.setResource(Resources.RE, baseRE);
-            }
-            else
-            {
-                getOwner().setKonto(BigInteger.ZERO);
-            }
-            this.setEnergy(newenergy);
-			this.cargo = baseCargo;
-		}
-		return msg;
-	}
-
-	private void immigrate(BaseStatus state)
+	public void immigrate(BaseStatus state)
 	{
 		int inhabitants = getBewohner();
 		int maxInhabitants = state.getLivingSpace();
@@ -1886,7 +1643,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		}
 	}
 
-	private boolean feedMarines(Cargo baseCargo)
+	public boolean feedMarines(Cargo baseCargo)
 	{
 		int hungryPeople = (int)Math.ceil(getUnits().getNahrung());
 		int fleeingPeople = feedPeople(hungryPeople, baseCargo);
@@ -1900,7 +1657,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		return true;
 	}
 
-    private boolean payMarines(Cargo baseCargo)
+    public boolean payMarines(Cargo baseCargo)
     {
         long marinesold = getUnits().getRE();
         long re = baseCargo.getResourceCount(Resources.RE);
@@ -1919,7 +1676,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
     }
 
 
-	private boolean feedInhabitants(Cargo baseCargo)
+	public boolean feedInhabitants(Cargo baseCargo)
 	{
 		int hungryPeople = (int)Math.ceil(getBewohner() / 10);
 		int fleeingPeople = feedPeople(hungryPeople, baseCargo);
@@ -1962,7 +1719,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		return ContextMap.getContext().getDB();
 	}
 
-	private int getSpawnableRessAmount(int itemid)
+	public int getSpawnableRessAmount(int itemid)
 	{
 		if(getAvailableSpawnableRess() == null) {
 			return 0;
@@ -1979,7 +1736,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		return 0;
 	}
 
-	private void setSpawnableRessAmount(int itemid, long value)
+	public void setSpawnableRessAmount(int itemid, long value)
 	{
 		if(getAvailableSpawnableRess() == null)
 		{
@@ -2010,33 +1767,6 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		}
 		newspawnress = StringUtils.substring(newspawnress, 0, newspawnress.length() - 1);
 		this.spawnressavailable = newspawnress;
-	}
-
-	private void respawnRess(int itemid)
-	{
-		org.hibernate.Session db = getDB();
-		User sourceUser = (User)db.get(User.class, -1);
-
-		setSpawnableRessAmount(itemid, 0);
-
-		SpawnableRessMap spawnableress = getSpawnableRessMap();
-		if(spawnableress == null || spawnableress.isEmpty())
-		{
-			return;
-		}
-		SpawnableRess spawnress = spawnableress.newRandomRess();
-		int item = spawnress.itemId;
-		int maxvalue = RandomUtils.nextInt(spawnress.maxValue-1)+1;
-
-		setSpawnableRessAmount(item, maxvalue);
-
-		Item olditem = (Item)db.get(Item.class, itemid);
-		Item newitem = (Item)db.get(Item.class, item);
-		String message = "Kolonie: " + this.getName() + " (" + this.getId() + ")\n";
-		message = message + "Ihre Arbeiter melden: Die Ressource " + olditem.getName() + " wurde aufgebraucht!\n";
-		message = message + "Erfreulich ist: Ihre Geologen haben " + newitem.getName() + " gefunden!";
-
-		PM.send(sourceUser, this.getOwner().getId(), "Ressourcen aufgebraucht!", message);
 	}
 
 	/**

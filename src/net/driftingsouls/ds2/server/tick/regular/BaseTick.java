@@ -24,6 +24,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
+import net.driftingsouls.ds2.server.services.BaseTickerService;
 import net.driftingsouls.ds2.server.tick.TickController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -41,6 +42,14 @@ import java.util.List;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class BaseTick extends TickController 
 {
+	private BaseTickerService baseTickerService;
+
+	@Autowired
+	public BaseTick(BaseTickerService baseTickerService)
+	{
+		this.baseTickerService = baseTickerService;
+	}
+
 	@Override
 	protected void prepare() 
 	{
@@ -68,7 +77,7 @@ public class BaseTick extends TickController
 				String messages = "";
 				for(Base base: bases)
 				{						
-					messages += base.tick();
+					messages += baseTickerService.tick(base);
 				}
 				
 				if(!messages.trim().equals(""))
