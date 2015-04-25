@@ -1748,7 +1748,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		for (String spawnres : spawnress)
 		{
 			String[] thisress = StringUtils.split(spawnres, ",");
-			if (Integer.valueOf(thisress[0]) == itemid)
+			if (Integer.parseInt(thisress[0]) == itemid)
 			{
 				found = true;
 				if (value > 0)
@@ -1756,9 +1756,9 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 					newspawnress = newspawnress + itemid + "," + value + ";";
 				}
 			}
-			else if( thisress.length > 0 )
+			else if( thisress.length > 1 )
 			{
-				newspawnress = newspawnress + itemid + "," + thisress[1] + ";";
+				newspawnress = newspawnress + thisress[0] + "," + thisress[1] + ";";
 			}
 		}
 		if(!found)
