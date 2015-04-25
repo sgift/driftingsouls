@@ -1999,7 +1999,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 					newspawnress = newspawnress + itemid + "," + value + ";";
 				}
 			}
-			else
+			else if( thisress.length > 0 )
 			{
 				newspawnress = newspawnress + itemid + "," + thisress[1] + ";";
 			}
