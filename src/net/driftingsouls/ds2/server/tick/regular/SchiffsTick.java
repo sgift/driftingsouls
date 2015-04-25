@@ -46,6 +46,9 @@ import net.driftingsouls.ds2.server.units.UnitCargo.Crew;
 import org.hibernate.CacheMode;
 import org.hibernate.FetchMode;
 import org.hibernate.criterion.Restrictions;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -62,6 +65,8 @@ import java.util.TreeSet;
  * Berechnung des Ticks fuer Schiffe.
  * @author Drifting-Souls Team
  */
+@Service
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class SchiffsTick extends TickController {
 	protected final class ShipNahrungsCargoComparator implements Comparator<Ship>
 	{

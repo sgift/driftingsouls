@@ -90,9 +90,7 @@ public abstract class AbstractTickExecuter extends TickController
 		long start = System.currentTimeMillis();
 		try
 		{
-			TickController tick = tickname.newInstance();
-
-			this.getContext().autowireBean(tick);
+			TickController tick = this.getContext().getBean(tickname, null);
 
 			if( !useSTDOUT )
 			{

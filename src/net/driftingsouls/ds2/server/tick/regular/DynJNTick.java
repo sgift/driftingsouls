@@ -26,6 +26,9 @@ import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.framework.db.batch.SingleUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
 import org.apache.commons.lang.math.RandomUtils;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -33,6 +36,8 @@ import java.util.List;
  * Berechnet dynamische JumpNodes.
  *
  */
+@Service
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DynJNTick extends TickController {
 
 	@Override

@@ -45,6 +45,9 @@ import net.driftingsouls.ds2.server.tick.TickController;
 import org.apache.commons.lang.math.RandomUtils;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.Transaction;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Set;
@@ -54,6 +57,8 @@ import java.util.Set;
  * @author Christopher Jung
  *
  */
+@Service("regularRestTick")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class RestTick extends TickController {
 
 	@Override

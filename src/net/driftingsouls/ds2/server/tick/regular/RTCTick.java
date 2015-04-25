@@ -39,6 +39,9 @@ import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 import org.hibernate.Transaction;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -47,6 +50,8 @@ import java.util.List;
  * @author Christopher Jung
  *
  */
+@Service
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class RTCTick extends TickController {
 	private int ticks;
 	private String currentTime;

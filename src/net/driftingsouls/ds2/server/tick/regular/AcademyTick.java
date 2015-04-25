@@ -30,6 +30,9 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.framework.db.batch.SingleUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
@@ -44,6 +47,8 @@ import java.util.Map;
  * @author Bernhard Ludemann
  *
  */
+@Service
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class AcademyTick extends TickController {
 	private Map<Integer,Offizier.Ability> dTrain;
 	private static final Map<Integer,String> offis = new HashMap<>();

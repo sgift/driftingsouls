@@ -32,6 +32,9 @@ import net.driftingsouls.ds2.server.werften.WerftKomplex;
 import net.driftingsouls.ds2.server.werften.WerftObject;
 import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
 import org.hibernate.FlushMode;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -40,6 +43,8 @@ import java.util.List;
  *
  * @author Christopher Jung
  */
+@Service
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class WerftTick extends TickController
 {
 

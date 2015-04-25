@@ -29,6 +29,9 @@ import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
 import org.hibernate.Session;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -38,6 +41,8 @@ import java.util.List;
  * 
  * @author Sebastian Gift
  */
+@Service
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class UserTick extends TickController
 {
 	private Session db;

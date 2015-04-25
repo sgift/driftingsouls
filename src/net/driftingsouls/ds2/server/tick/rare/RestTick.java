@@ -42,6 +42,9 @@ import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,6 +58,8 @@ import java.util.Set;
  * @author Christopher Jung
  *
  */
+@Service("rareRestTick")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class RestTick extends TickController {
 	private int tick;
 

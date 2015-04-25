@@ -105,8 +105,6 @@ public class TickAdminCommand
 	public void runRegularTick(Class<? extends TickController> tickPart) {
 		try
 		{
-			ContextMap.getContext().autowireBean(tickPart);
-
 			JobDataMap map = new JobDataMap();
 			map.put("onlyTick", tickPart);
 			

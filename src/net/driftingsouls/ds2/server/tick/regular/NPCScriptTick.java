@@ -29,6 +29,9 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.tick.TickController;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.Transaction;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Nonnull;
 import javax.script.ScriptContext;
@@ -43,6 +46,8 @@ import java.util.List;
  * @author Christopher Jung
  *
  */
+@Service
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class NPCScriptTick extends TickController {
 	class TickLogger extends Writer {
 		private boolean first = true;
