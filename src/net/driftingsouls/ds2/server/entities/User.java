@@ -41,6 +41,7 @@ import net.driftingsouls.ds2.server.framework.utils.StringToTypeConverter;
 import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
 import net.driftingsouls.ds2.server.namegenerator.SchiffsKlassenNamenGenerator;
 import net.driftingsouls.ds2.server.namegenerator.SchiffsNamenGenerator;
+import net.driftingsouls.ds2.server.ships.SchiffsReKosten;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.units.UnitType;
 import org.apache.commons.lang.StringUtils;
@@ -104,7 +105,7 @@ public class User extends BasicUser {
 	 * @author Christopher Jung
 	 *
 	 */
-	public static enum Relation {
+	public enum Relation {
 		/**
 		 * Neutral.
 		 */
@@ -1341,7 +1342,7 @@ public class User extends BasicUser {
 		Long schiffsKosten = (Long)db
 			.createQuery("select sum(coalesce(sm.reCost,st.reCost)) " +
 				"from Ship s join s.shiptype st left join s.modules sm " +
-				"where s.owner=:user and s.docked not like 'l %' and s.id>0 and s.battle is null")
+				"where s.owner=:user and s.docked not like 'l %'")
 			.setParameter("user", this)
 			.iterate().next();
 
@@ -1349,7 +1350,7 @@ public class User extends BasicUser {
 		Long einheitenKosten = (Long)db
 			.createQuery("select sum(ceil(u.amount*u.unittype.recost)) " +
 				"from Ship s join s.units u "+
-				"where s.owner=:user and s.docked not like 'l %' and s.id>0 and s.battle is null")
+				"where s.owner=:user and s.docked not like 'l %'")
 			.setParameter("user", this)
 			.iterate().next();
 
@@ -1362,7 +1363,7 @@ public class User extends BasicUser {
 			einheitenKosten = 0L;
 		}
 
-		return baseRe-schiffsKosten-einheitenKosten;
+		return baseRe - SchiffsReKosten.berecheKosten(schiffsKosten, einheitenKosten).longValue();
 	}
 
 	private long getNahrungBalance()

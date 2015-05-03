@@ -1965,7 +1965,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		return Common.cast(db.createQuery("from Ship where id>0 and docked= :docked")
-				.setString("docked", "l "+this.id)
+				.setString("docked", "l " + this.id)
 				.list());
 	}
 
@@ -2565,7 +2565,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
 		return (Long)db.createQuery("select count(*) from Ship where id>0 AND docked in (:landed,:docked)")
-				.setString("landed", "l "+this.id)
+				.setString("landed", "l " + this.id)
 				.setString("docked", Integer.toString(this.id))
 				.iterate().next();
 	}
@@ -2663,12 +2663,16 @@ public class Ship implements Locatable,Transfering,Feeding {
 			return 0;
 		}
 
-		if(getUnits() != null)
+		return getTypeData().getReCost();
+	}
+
+	public int getUnitBalance() {
+		if(isLanded() || getUnits() == null)
 		{
-			return getTypeData().getReCost() + getUnits().getRE();
+			return 0;
 		}
 
-		return getTypeData().getReCost();
+		return getUnits().getRE();
 	}
 
     /**

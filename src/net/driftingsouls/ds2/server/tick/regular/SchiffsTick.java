@@ -35,6 +35,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.framework.db.batch.UnitOfWork;
+import net.driftingsouls.ds2.server.ships.SchiffsReKosten;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipFlag;
@@ -45,6 +46,7 @@ import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo.Crew;
 import org.hibernate.CacheMode;
 import org.hibernate.FetchMode;
+import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -68,7 +70,7 @@ import java.util.TreeSet;
 @Service
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class SchiffsTick extends TickController {
-	protected final class ShipNahrungsCargoComparator implements Comparator<Ship>
+	protected static final class ShipNahrungsCargoComparator implements Comparator<Ship>
 	{
 		@Override
 		public int compare(Ship o1, Ship o2)
@@ -82,7 +84,7 @@ public class SchiffsTick extends TickController {
 		}
 	}
 
-	protected final class ShipComparator implements Comparator<Ship>
+	protected static final class ShipComparator implements Comparator<Ship>
 	{
 		@Override
 		public int compare(Ship ship1, Ship ship2)
@@ -237,7 +239,7 @@ public class SchiffsTick extends TickController {
 		return ship;
 	}
 
-	private void tickShip( org.hibernate.Session db, Ship shipd, Map<Location, List<Base>> feedingBases)
+	private void tickShip(org.hibernate.Session db, Ship shipd, Map<Location, List<Base>> feedingBases, SchiffsReKosten schiffsReKosten)
 	{
 		this.log(shipd.getName()+" ("+shipd.getId()+"):");
 
@@ -261,7 +263,7 @@ public class SchiffsTick extends TickController {
 		}
 
 		//Pay sold and maintenance
-		zahleSoldUndWartung(db, shipd, shiptd);
+		berechneSoldUndWartung(db, shipd, shiptd, schiffsReKosten);
 
 		//Berechnung der Energie
 		this.log("\tEnergie:");
@@ -576,7 +578,7 @@ public class SchiffsTick extends TickController {
 			}
 			else
 			{
-				int damage = (int)Math.ceil(shiptd.getHull()*damageFactor);
+				int damage = (int)Math.ceil(shiptd.getHull() * damageFactor);
 				int newHull = shipd.getHull() - damage;
 				if(newHull > 0)
 				{
@@ -595,36 +597,28 @@ public class SchiffsTick extends TickController {
 		return true;
 	}
 
-	private void zahleSoldUndWartung(org.hibernate.Session db, Ship shipd, ShipTypeData shiptd)
+	private void berechneSoldUndWartung(Session db, Ship shipd, ShipTypeData shiptd, SchiffsReKosten schiffsReKosten)
 	{
 		int reCost = shipd.getBalance();
+
 		if(reCost == 0)
 		{
 			return;
 		}
 		User owner = shipd.getOwner();
-		BigInteger account = owner.getKonto();
-		BigInteger reCostHelp = BigInteger.valueOf(reCost);
 
 		//Account is balanced
-		if(account.compareTo(reCostHelp) >= 0)
+		if(!owner.hasFlag(UserFlag.NO_DESERTEUR) && schiffsReKosten.isKostenZuHoch(shipd, owner))
 		{
-			this.log("\tKosten: " + reCost);
-			User nobody = (User)db.get(User.class, -1);
-			nobody.transferMoneyFrom(owner.getId(), reCost);
-		}
-		else if(!owner.hasFlag(UserFlag.NO_DESERTEUR))
-		{
-			BigInteger reCostHelper = BigInteger.valueOf(shiptd.getReCost());
 			// Wartungskosten koennen aufgebracht werden.
-			if(account.compareTo(reCostHelper) >= 0)
+			if(!schiffsReKosten.isWartungsKostenZuHoch(shipd, owner))
 			{
 				this.log("\tKonto nicht gedeckt; Besatzung meutert.");
 
 				// Sammel alle Daten zusammmen
 				User pirate = (User)db.get(User.class, Faction.PIRATE);
 				UnitCargo unitcargo = shipd.getUnits();
-				UnitCargo meuterer = unitcargo.getMeuterer(account.intValue() - shiptd.getReCost());
+				UnitCargo meuterer = unitcargo.getMeuterer(schiffsReKosten.berechneVerbleibendeReOhneSold(shipd, owner));
 				Crew dcrew = new UnitCargo.Crew(shipd.getCrew());
 
 				if(meuterer.kapern(unitcargo, new TransientUnitCargo(), new TransientUnitCargo(), dcrew, 1, 1))
@@ -640,18 +634,21 @@ public class SchiffsTick extends TickController {
 					shipd.setUnits(unitcargo);
 					shipd.setCrew(dcrew.getValue());
 					PM.send(pirate, owner.getId(), "Besatzung meutert", "Die Besatzung der " + shipd.getName() + " meutert, nachdem Sie den Sold der Einheiten nicht aufbringen konnten. Die Meuterer wurden vernichtet. (" + shipd.getLocation().displayCoordinates(false) + ")");
+
+					schiffsReKosten.verbucheSchiff(shipd);
 				}
-				owner.setKonto(BigInteger.ZERO);
 			}
 			else
 			{
 				User pirate = (User)db.get(User.class, Faction.PIRATE);
 				shipd.consign(pirate, false);
-				owner.setKonto(BigInteger.ZERO);
 
-				this.log("\tKonto nicht gedeckt; Schiff desertiert zum Piraten.");
+				this.log("\tKonto nicht gedeckt; Schiff desertiert.");
 				PM.send(pirate, owner.getId(), "Schiff desertiert", "Die " + shipd.getName() + " ist desertiert, nachdem Sie den Sold der Crew nicht aufbringen konnten. (" + shipd.getLocation().displayCoordinates(false) + ")");
 			}
+		}
+		else {
+			schiffsReKosten.verbucheSchiff(shipd);
 		}
 	}
 
@@ -733,6 +730,7 @@ public class SchiffsTick extends TickController {
 		List<Ship> ships = buildSortedShipList(auser);
 
 		versorgerlist = getLocationVersorgerList(db, ships, auser);
+		SchiffsReKosten schiffsReKosten = new SchiffsReKosten();
 
 		// Schiffe berechnen
 		for( Ship ship : ships )
@@ -747,7 +745,7 @@ public class SchiffsTick extends TickController {
 			}
 			try
 			{
-				this.tickShip(db, ship, feedingBases);
+				this.tickShip(db, ship, feedingBases, schiffsReKosten);
 			}
 			catch( RuntimeException e )
 			{
@@ -755,6 +753,18 @@ public class SchiffsTick extends TickController {
 				e.printStackTrace();
 				Common.mailThrowable(e, "SchiffsTick Exception", "ship: "+ship.getId());
 			}
+		}
+
+		User nobody = (User)db.get(User.class, -1);
+		BigInteger gesamtkosten = schiffsReKosten.getGesamtkosten();
+		if(auser.getKonto().compareTo(gesamtkosten) >= 0)
+		{
+			this.log("Kosten: " + gesamtkosten);
+			nobody.transferMoneyFrom(auser.getId(), gesamtkosten.longValue());
+		}
+		else {
+			this.log("Kosten uebersteigen Konto ("+auser.getKonto()+")");
+			nobody.transferMoneyFrom(auser.getId(), auser.getKonto().longValue());
 		}
 	}
 
