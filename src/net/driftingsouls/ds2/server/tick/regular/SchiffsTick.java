@@ -605,10 +605,15 @@ public class SchiffsTick extends TickController {
 		{
 			return;
 		}
+
 		User owner = shipd.getOwner();
+		if( owner.hasFlag(UserFlag.NO_DESERTEUR) )
+		{
+			return;
+		}
 
 		//Account is balanced
-		if(!owner.hasFlag(UserFlag.NO_DESERTEUR) && schiffsReKosten.isKostenZuHoch(shipd, owner))
+		if(schiffsReKosten.isKostenZuHoch(shipd, owner))
 		{
 			// Wartungskosten koennen aufgebracht werden.
 			if(!schiffsReKosten.isWartungsKostenZuHoch(shipd, owner))
