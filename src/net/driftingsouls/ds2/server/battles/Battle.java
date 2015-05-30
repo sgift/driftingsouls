@@ -1811,32 +1811,6 @@ public class Battle implements Locatable
 	}
 
 	/**
-	 *
-	 * @param user Der Spieler von dem die Balance berechnet werden soll.
-	 * @return Gibt die Balance der Schlacht zurueck.
-	 */
-	public int getBalance(User user)
-	{
-		int balance = 0;
-
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		ScrollableResults ships = db.createQuery("from Ship where owner=:owner and id>0 and battle=:battle")
-			.setParameter("owner", user)
-			.setParameter("battle", this)
-			.setCacheMode(CacheMode.IGNORE)
-			.scroll(ScrollMode.FORWARD_ONLY);
-
-		while(ships.next())
-		{
-			Ship ship = (Ship)ships.get(0);
-			balance -= ship.getBalance();
-			db.evict(ship);
-		}
-
-		return balance;
-	}
-
-	/**
 	 * Setzt die mit einer Seite assoziierte Allianz.
 	 * @param side Die Seite
 	 * @param ally Die Allianz

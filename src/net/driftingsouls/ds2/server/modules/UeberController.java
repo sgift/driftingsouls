@@ -377,20 +377,6 @@ public class UeberController extends Controller
 
 			battlelist.append(" <img src=\"").append(Cargo.getResourceImage(Resources.NAHRUNG)).append("\" alt=\"Nahrung\" title=\"Nahrung\" />)</span>");
 
-			// RE Anzeige der Schlacht
-			int re = battle.getBalance(user);
-
-			if (re < 0)
-			{
-				battlelist.append("&nbsp;<span style=\"color:red\">(").append(Common.ln(re));
-			}
-			else
-			{
-				battlelist.append("&nbsp;<span style=\"color:green\">(+").append(Common.ln(re));
-			}
-
-			battlelist.append(" RE)</span>");
-
 			battlelist.append("<br />\n");
 		}
 
