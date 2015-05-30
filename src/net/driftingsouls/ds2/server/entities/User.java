@@ -1315,11 +1315,10 @@ public class User extends BasicUser {
 	 */
 	public long[] getFullBalance()
 	{
-		if( !this.hasFlag(UserFlag.NO_FOOD_CONSUMPTION) )
-		{
-			return new long[] {this.getNahrungBalance(), getReBalance()};
-		}
-		return new long[] {0, getReBalance()};
+		return new long[] {
+				!hasFlag(UserFlag.NO_FOOD_CONSUMPTION) ? this.getNahrungBalance() : 0,
+				!hasFlag(UserFlag.NO_DESERTEUR) ? getReBalance() : 0,
+		};
 	}
 
 	/**
