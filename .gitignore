@@ -35,3 +35,4 @@
 /web/data/planetendesign
 /web/data/starmap/_tilecache
 /web/WEB-INF/cfg/config.xml
+*.iml
