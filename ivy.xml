@@ -14,6 +14,7 @@
 			<exclude org="javax.mail" />
 		</dependency>
 
+		<dependency org="com.github.jai-imageio" name="jai-imageio-core" rev="1.3.1" />
 		<dependency org="javax.activation" name="activation" rev="1.1.1" conf="compile->default"/>
 		<dependency org="commons-lang" name="commons-lang" rev="2.6" conf="compile->default"/>
 		<dependency org="commons-io" name="commons-io" rev="2.4" conf="compile->default"/>

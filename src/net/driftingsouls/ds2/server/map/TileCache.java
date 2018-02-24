@@ -1,6 +1,6 @@
 package net.driftingsouls.ds2.server.map;
 
-import com.sun.imageio.plugins.common.PaletteBuilder;
+import com.github.jaiimageio.impl.common.PaletteBuilder;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -12,11 +12,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
