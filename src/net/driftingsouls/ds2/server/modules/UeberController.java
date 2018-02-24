@@ -260,7 +260,7 @@ public class UeberController extends Controller
 
 		List<?> fleets = db.createQuery("select count(*),s.fleet from Ship s " +
 				"where s.id>0 and s.owner= :user and s.fleet.id!=0 " +
-				"group by s.fleet " +
+				"group by s.fleet,s.docked " +
 				"order by s.docked,s.system,s.x,s.y")
 				.setEntity("user", user)
 				.list();
