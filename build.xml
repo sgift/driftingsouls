@@ -152,8 +152,7 @@
 			   debug="${compile.debug}"
 			   deprecation="${compile.deprecation}"
 			   optimize="${compile.optimize}"
-			   source="1.8"
-			   target="1.8"
+			   release="9"
 			   encoding="UTF-8">
 			<classpath refid="compile.classpath"/>
 			<compilerarg value="-AfullyAnnotationConfigured=true" />
@@ -164,8 +163,7 @@
 			   deprecation="${compile.deprecation}"
 			   destdir="${build.home}/WEB-INF/classes"
 			   optimize="${compile.optimize}"
-			   source="1.8"
-			   target="1.8"
+			   release="9"
 			   encoding="UTF-8">
 			<src path="${build.home}/_generated" />
 			<src path="${src.home}" />
@@ -285,8 +283,7 @@
 			debug="${compile.debug}"
 			deprecation="${compile.deprecation}"
 			optimize="${compile.optimize}"
-			source="1.8"
-			target="1.8"
+			release="9"
 			encoding="UTF-8"
 			verbose="true">
 			<classpath>
@@ -369,8 +366,7 @@
 			debug="${compile.debug}"
 			deprecation="${compile.deprecation}"
 			optimize="${compile.optimize}"
-			source="1.8"
-			target="1.8"
+			release="9"
 			encoding="UTF-8"
 			verbose="true">
 			<classpath refid="test.classpath"/>
@@ -408,8 +404,7 @@
 			   debug="${compile.debug}"
 			   deprecation="${compile.deprecation}"
 			   optimize="${compile.optimize}"
-			   source="1.8"
-			   target="1.8"
+			   release="9"
 			   encoding="UTF-8"
 			   verbose="true">
 			<classpath refid="test.classpath"/>
