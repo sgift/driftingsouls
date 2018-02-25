@@ -599,6 +599,10 @@ public class SchiffsTick extends TickController {
 
 	private void berechneSoldUndWartung(Session db, Ship shipd, ShipTypeData shiptd, SchiffsReKosten schiffsReKosten)
 	{
+		if(!new ConfigService().getValue(WellKnownConfigValue.REQUIRE_SHIP_COSTS)) {
+			return;
+		}
+
 		int reCost = shipd.getBalance();
 
 		if(reCost == 0)
@@ -607,7 +611,7 @@ public class SchiffsTick extends TickController {
 		}
 
 		User owner = shipd.getOwner();
-		if( owner.hasFlag(UserFlag.NO_DESERTEUR) )
+		if(owner.hasFlag(UserFlag.NO_DESERTEUR) )
 		{
 			return;
 		}
