@@ -1642,7 +1642,7 @@ public class KSAttackAction extends BasicKSAction {
 		int gesamtSchuesse = this.localweapon.getCount() * this.localweapon.getShotsPerShot();
 		for( int i=1; i <= gesamtSchuesse; i++)
 		{
-			int rnd = RandomUtils.nextInt(101);
+			int rnd = RandomUtils.nextInt(100)+1;
 			if( battle.getCommander(ownShip.getSide()).hasFlag( UserFlag.KS_DEBUG )) {
 				battle.logme( i + ". Schuss: " + rnd + "%\n");
 			}
