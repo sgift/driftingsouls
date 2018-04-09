@@ -73,14 +73,14 @@ public class KSMenuOtherAction extends BasicKSMenuAction {
 		}
 
         if( this.isPossible(battle, new KSActivateAR()) == Result.OK) {
-            menuEntry(t, "Alarm Rot aktivierren",
+            menuEntry(t, "Alarm Rot aktivieren",
                         "ship",     ownShip.getId(),
                         "attack",   enemyShip.getId(),
                         "ksaction", "activatear" );
         }
 
         if( this.isPossible(battle, new KSDeactivateAR()) == Result.OK) {
-            menuEntry(t, "Alarm Rot deaktivierren",
+            menuEntry(t, "Alarm Rot deaktivieren",
                     "ship",     ownShip.getId(),
                     "attack",   enemyShip.getId(),
                     "ksaction", "deactivatear" );
