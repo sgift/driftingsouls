@@ -289,6 +289,55 @@ public class ShipFleet {
 	}
 
 	/**
+	 * Sammelt alle Geschütze auf und dockt sie an Schiffe der Flotte.
+	 * @param user Der Besitzer der Flotte/Geschütze
+	 */
+	public void collectGeschuetze(User user) {
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+
+		List<?> ships = db.createQuery("from Ship where id>0 and fleet=:fleet and battle is null" )
+			.setEntity("fleet", this)
+			.list();
+
+		for (Object ship1 : ships)
+		{
+			Ship ship = (Ship) ship1;
+			ShipTypeData shiptype = ship.getTypeData();
+
+			if (shiptype.getADocks() == 0)
+			{
+				continue;
+			}
+
+			int free = shiptype.getADocks() - (int) ship.getDockedCount();
+			if (free == 0)
+			{
+				continue;
+			}
+			List<Ship> geschuetzlist;
+
+			List<?> geschuetze = db.createQuery("from Ship as s " +
+					"where s.owner=:owner and s.system=:sys and s.x=:x and s.y=:y and s.docked='' and " +
+					"s.shiptype.shipClass=:cls and s.battle is null " +
+					"order by s.fleet.id,s.shiptype.id ")
+					.setEntity("owner", user)
+					.setInteger("sys", ship.getSystem())
+					.setInteger("x", ship.getX())
+					.setInteger("y", ship.getY())
+					.setParameter("cls", ShipClasses.GESCHUETZ)
+					.list();
+
+			if (geschuetze.isEmpty())
+			{
+				break;
+			}
+
+			geschuetzlist = Common.cast(geschuetze, Ship.class).subList(0, free > geschuetze.size() ? geschuetze.size() : free);
+			ship.dock(geschuetzlist.toArray(new Ship[geschuetzlist.size()]));
+		}
+	}
+
+	/**
 	 * Dockt alle Container auf Schiffen der Flotte ab.
 	 *
 	 */

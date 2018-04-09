@@ -739,6 +739,21 @@ public class FleetMgntController extends Controller
 	}
 
 	/**
+	 * Sammelt alle nicht gedockten eigenen Geschütze im Sektor auf (sofern genug Platz vorhanden ist).
+	 */
+	@Action(ActionType.DEFAULT)
+	public RedirectViewResult redock2Action(ShipFleet fleet)
+	{
+		validiereGueltigeFlotteVorhanden(fleet);
+
+		User user = (User) getUser();
+
+		fleet.collectGeschuetze(user);
+
+		return new RedirectViewResult("default").withMessage("Geschütze wurden aufgesammelt");
+	}
+
+	/**
 	 * Startet alle Jaeger der Flotte.
 	 */
 	@Action(ActionType.DEFAULT)
