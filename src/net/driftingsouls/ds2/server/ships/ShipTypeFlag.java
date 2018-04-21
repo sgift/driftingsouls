@@ -18,7 +18,7 @@ public enum ShipTypeFlag
 	/**
 	 * Das angegebene Schiff verfuegt ueber eine Zerstoererpanzerung.
 	 */
-	ZERSTOERERPANZERUNG("zerstoererpanzerung", "Zerstörerpanzerung", "Die Zerstörerpanzerung sorgt dafür, dass pro Kampfrunde maximal 33% Schaden gemessen an an der maximalen Hüllenstärke dem Schiff zugefügt werden kann"),
+	ZERSTOERERPANZERUNG("zerstoererpanzerung", "Zerstörerpanzerung", "Die Zerstörerpanzerung sorgt dafür, dass pro Kampfrunde maximal 25% Schaden gemessen an an der maximalen Hüllenstärke dem Schiff zugefügt werden kann"),
 
 	/**
 	 * Das angegebene Schiff kann Asteroiden kolonisieren.

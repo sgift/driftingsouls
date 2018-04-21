@@ -556,8 +556,8 @@ public class KSAttackAction extends BasicKSAction {
 
 			if( eShipType.hasFlag(ShipTypeFlag.ZERSTOERERPANZERUNG) ) {
 				int dmgThisTurn = eShip.getShip().getHull()-eShip.getHull()+hulldamage;
-				if( dmgThisTurn / (double)eShipType.getHull() > 0.33 ) {
-					int newhulldamage = (int)(eShipType.getHull()*0.33 - (eShip.getShip().getHull()-eShip.getHull()));
+				if( dmgThisTurn / (double)eShipType.getHull() > 0.25 ) {
+					int newhulldamage = (int)(eShipType.getHull()*0.25 - (eShip.getShip().getHull()-eShip.getHull()));
 					battle.logme("+ Zerst&ouml;rerpanzerung absorbiert Schaden ("+Common.ln(hulldamage-newhulldamage)+" dmg)\n");
 					logMsg.append("+ Zerstörerpanzerung absorbiert Schaden  (").append(Common.ln(hulldamage - newhulldamage)).append(" dmg)\n");
 
