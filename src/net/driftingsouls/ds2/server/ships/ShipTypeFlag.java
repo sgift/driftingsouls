@@ -120,7 +120,11 @@ public enum ShipTypeFlag
 	/**
 	 * Das Schiff ist ein Versorger.
 	 */
-	VERSORGER("versorger", "Versorger", "Dieses Schiff ist ein Versorger und versorgt Schiffe im selben Sektor mit Nahrung");
+	VERSORGER("versorger", "Versorger", "Dieses Schiff ist ein Versorger und versorgt Schiffe im selben Sektor mit Nahrung"),
+	/**
+	 * Übergabe von und zu dem Schiff sind nicht moeglich.
+	 */
+	NICHT_UEBERGEBBAR("nicht_uebergebbar", "Nicht Übergebbar", "Sie können dieses Schiff nicht übergeben");
 
 	private final String flag;
 	private final String label;
