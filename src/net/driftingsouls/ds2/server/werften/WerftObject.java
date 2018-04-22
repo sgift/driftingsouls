@@ -48,6 +48,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.DSObject;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -1239,6 +1240,10 @@ public abstract class WerftObject extends DSObject implements Locatable {
 				continue;
 			}
 			if( !Rassen.get().rasse(user.getRace()).isMemberIn(sb.getRace()) ) {
+				continue;
+			}
+
+			if( sb.getType().getShipClass() == ShipClasses.SCHUTZSCHILD && !(this.getType() == WerftTyp.BASIS)) {
 				continue;
 			}
 
