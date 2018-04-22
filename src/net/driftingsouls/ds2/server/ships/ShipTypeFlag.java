@@ -128,7 +128,11 @@ public enum ShipTypeFlag
 	/**
 	 * Existiert nur einmal pro Account.
 	 */
-	EINZIGARTIG("einzigartig", "Einzigartig", "Existiert nur einmal pro Account");
+	EINZIGARTIG("einzigartig", "Einzigartig", "Existiert nur einmal pro Account"),
+	/**
+	 * Existiert nur einmal pro Account.
+	 */
+	SCHUTZSCHILD("schutzschild", "Schutzschild", "Schützt verbündere Schiffe vor Angriffen. Muss im Kampf als erstes zerstört werden.");
 
 	private final String flag;
 	private final String label;

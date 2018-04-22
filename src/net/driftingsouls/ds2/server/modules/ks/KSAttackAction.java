@@ -38,6 +38,7 @@ import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -1347,7 +1348,7 @@ public class KSAttackAction extends BasicKSAction {
 		StringBuilder logMsg = new StringBuilder();
 
         result = Result.OK;
-        for( int outerloop=0; outerloop < nextShipLoop; outerloop++ )
+        outer: for( int outerloop=0; outerloop < nextShipLoop; outerloop++ )
         {
             // Nun das gegnerische Schiff laden und checken
             this.enemyShip = battle.getEnemyShip();
@@ -1431,6 +1432,15 @@ public class KSAttackAction extends BasicKSAction {
                     result = Result.ERROR;
                     break;
                 }
+
+								for( BattleShip battleship : battle.getEnemyShips() ){
+									if( battleship.getShip().getTypeData().hasFlag(ShipTypeFlag.SCHUTZSCHILD) && !this.enemyShip.getTypeData().hasFlag(ShipTypeFlag.SCHUTZSCHILD)){
+										battle.logme( "Sie m&uuml;ssen zuerst den Schutzschild zerstören\n" );
+                    breakFlag = true;
+                    result = Result.ERROR;
+                    break outer;
+									}
+								}
 
                 /*
                  * 	Anti-Torp-Verteidigungswerte ermitteln
