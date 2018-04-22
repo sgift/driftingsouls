@@ -52,6 +52,7 @@ import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
@@ -1404,6 +1405,20 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		{
 			output.append("Diese Werft dieses Bauprojekt nicht durchführen");
 			return false;
+		}
+
+		for( Ship ship :  this.getOwner().getShips() ){
+			if( ship.getTypeData().hasFlag(ShipTypeFlag.EINZIGARTIG)){
+				output.append("Diese Station kann nur einmal existieren");
+				return false;
+			}
+		}
+
+		for( WerftQueueEntry entry :  this.getScheduledQueueEntries() ){
+			if( entry.getBuildShipType().hasFlag(ShipTypeFlag.EINZIGARTIG)){
+				output.append("Diese Station kann nur einmal existieren");
+				return false;
+			}
 		}
 
 		Context context = ContextMap.getContext();
