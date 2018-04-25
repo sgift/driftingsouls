@@ -128,13 +128,13 @@ public class ShipFleet {
 	public void collectFightersByType(User user, int jaegertypeID) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		List<?> ships = db.createQuery("from Ship where id>0 and fleet=:fleet and battle is null" )
+		@SuppressWarnings("unchecked")
+		List<Ship> ships = db.createQuery("from Ship where id>0 and fleet=:fleet and battle is null" )
 			.setEntity("fleet", this)
 			.list();
 
-		for (Object ship1 : ships)
+		for (Ship ship : ships)
 		{
-			Ship ship = (Ship) ship1;
 			ShipTypeData shiptype = ship.getTypeData();
 
 			if (shiptype.getJDocks() == 0)
