@@ -18,7 +18,7 @@ public enum ShipTypeFlag
 	/**
 	 * Das angegebene Schiff verfuegt ueber eine Zerstoererpanzerung.
 	 */
-	ZERSTOERERPANZERUNG("zerstoererpanzerung", "Zerstörerpanzerung", "Die Zerstörerpanzerung sorgt dafür, dass pro Kampfrunde maximal 33% Schaden gemessen an an der maximalen Hüllenstärke dem Schiff zugefügt werden kann"),
+	ZERSTOERERPANZERUNG("zerstoererpanzerung", "Zerstörerpanzerung", "Die Zerstörerpanzerung sorgt dafür, dass pro Kampfrunde maximal 25% Schaden gemessen an an der maximalen Hüllenstärke dem Schiff zugefügt werden kann"),
 
 	/**
 	 * Das angegebene Schiff kann Asteroiden kolonisieren.
@@ -120,7 +120,19 @@ public enum ShipTypeFlag
 	/**
 	 * Das Schiff ist ein Versorger.
 	 */
-	VERSORGER("versorger", "Versorger", "Dieses Schiff ist ein Versorger und versorgt Schiffe im selben Sektor mit Nahrung");
+	VERSORGER("versorger", "Versorger", "Dieses Schiff ist ein Versorger und versorgt Schiffe im selben Sektor mit Nahrung"),
+	/**
+	 * Übergabe von und zu dem Schiff sind nicht moeglich.
+	 */
+	NICHT_UEBERGEBBAR("nicht_uebergebbar", "Nicht Übergebbar", "Sie können dieses Schiff nicht übergeben"),
+	/**
+	 * Existiert nur einmal pro Account.
+	 */
+	EINZIGARTIG("einzigartig", "Einzigartig", "Existiert nur einmal pro Account"),
+	/**
+	 * Existiert nur einmal pro Account.
+	 */
+	SCHUTZSCHILD("schutzschild", "Schutzschild", "Schützt verbündere Schiffe vor Angriffen. Muss im Kampf als erstes zerstört werden.");
 
 	private final String flag;
 	private final String label;

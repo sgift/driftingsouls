@@ -2327,6 +2327,11 @@ public class Ship implements Locatable,Transfering,Feeding {
 			throw new UnsupportedOperationException("consign kann nur bei Schiffen mit positiver ID ausgefuhert werden!");
 		}
 
+		if( this.getTypeData().hasFlag(ShipTypeFlag.NICHT_UEBERGEBBAR) ) {
+			MESSAGE.get().append("Sie können dieses Schiff nicht &uuml;bergeben.");
+			return true;
+		}
+
 		if( newowner == null ) {
 			MESSAGE.get().append("Der angegebene Spieler existiert nicht");
 			return true;

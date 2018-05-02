@@ -164,8 +164,8 @@ public class UeberController extends Controller
 				"user.konto", Common.ln(user.getKonto()),
 				"user.balance", Common.ln(fullbalance[1]),
 				"user.balance.plain", fullbalance[1],
-				"user.specpoints", user.getFreeSpecializationPoints(),
-				"user.maxspecpoints", user.getSpecializationPoints(),
+				//"user.specpoints", user.getFreeSpecializationPoints(),
+				//"user.maxspecpoints", user.getSpecializationPoints(),
 				"global.ticks", ticks,
 				"global.ticktime", ticktime);
 
