@@ -65,12 +65,12 @@ public class KSMenuOtherAction extends BasicKSMenuAction {
 						"ksaction",		"shields" );
 		}
 
-		if( this.isPossible(battle, new KSMenuBatteriesAction()) == Result.OK ) {
+		/*if( this.isPossible(battle, new KSMenuBatteriesAction()) == Result.OK ) {
 			menuEntry(t, "Batterien entladen",
 						"ship",			ownShip.getId(),
 						"attack",		enemyShip.getId(),
 						"ksaction",		"batterien" );
-		}
+		}*/
 
         if( this.isPossible(battle, new KSActivateAR()) == Result.OK) {
             menuEntry(t, "Alarm Rot aktivieren",
