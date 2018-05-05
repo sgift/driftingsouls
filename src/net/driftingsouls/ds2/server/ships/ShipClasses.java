@@ -114,14 +114,18 @@ public enum ShipClasses {
 	/**
 	 * Die Schiffsklasse "Fregatte". ID 21.
 	 */
-	FREGATTE("Fregatte", "Fregatten", true, false);
+	FREGATTE("Fregatte", "Fregatten", true, false),
+	/**
+	 * Die Schiffsklasse "Fregatte". ID 21.
+	 */
+	SCHUTZSCHILD("Schutzschild", "Schutzschilde", false, false);
 
 	private String singular;
 	private String plural;
 	private final boolean kaperbar;
 
 	private final boolean darfSchlachtenAnsehen;
-	
+
 	private ShipClasses(String singular, String plural, boolean kaperbar, boolean darfSchlachtenAnsehen) {
 		this.singular = singular;
 		this.plural = plural;
@@ -153,7 +157,7 @@ public enum ShipClasses {
 	public String getSingular() {
 		return singular;
 	}
-	
+
 	/**
 	 * Gibt die Pluralform des Schiffsklassen-Namens zurueck.
 	 * @return die Pluralform
@@ -165,7 +169,7 @@ public enum ShipClasses {
 	/**
 	 * Gibt alle Schiffsklassen zurueck, die laufende Schlachten einsehen dürfen.
 	 * @return Die Schiffsklassen
-	 * @see #isDarfSchlachtenAnsehen() 
+	 * @see #isDarfSchlachtenAnsehen()
 	 */
 	public static Set<ShipClasses> darfSchlachtenAnsehen() {
 		Set<ShipClasses> result = new HashSet<>();

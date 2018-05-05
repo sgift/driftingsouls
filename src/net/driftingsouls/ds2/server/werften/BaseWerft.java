@@ -178,7 +178,7 @@ public class BaseWerft extends WerftObject {
 
 	@Override
 	public int getWerftSlots() {
-		return 6;
+		return 4;
 	}
 
 	@Override

@@ -7,8 +7,6 @@ import java.math.BigInteger;
 
 public final class SchiffsReKosten
 {
-	// 15000^3/10000
-	private static final BigDecimal DIVISOR = BigDecimal.valueOf(15000).pow(3).movePointLeft(4);
 	private long summeSchiffskosten;
 	private long summeEinheitenkosten;
 
@@ -51,8 +49,11 @@ public final class SchiffsReKosten
 		return berecheKosten(summeSchiffskosten, summeEinheitenkosten);
 	}
 
+	// Schiffskosten = x/3 + x^3 / (73*10^7) + x^11 / (5*10^45)
 	public static BigInteger berecheKosten(long summeSchiffskosten, long summeEinheitenkosten) {
-		BigDecimal powSchiffskosten = BigDecimal.valueOf(summeSchiffskosten).pow(3);
-		return powSchiffskosten.divide(DIVISOR, 0, BigDecimal.ROUND_HALF_UP).add(BigDecimal.valueOf(summeEinheitenkosten)).toBigInteger();
+		BigDecimal Schiffskosten = BigDecimal.valueOf(summeSchiffskosten).divide(BigDecimal.valueOf(3), 0, BigDecimal.ROUND_HALF_UP)
+														 .add(BigDecimal.valueOf(summeSchiffskosten).pow(3).divide(BigDecimal.valueOf(73).movePointRight(7), 0, BigDecimal.ROUND_HALF_UP))
+														 .add(BigDecimal.valueOf(summeSchiffskosten).pow(11).divide(BigDecimal.valueOf(5).movePointRight(45), 0, BigDecimal.ROUND_HALF_UP));
+		return Schiffskosten.add(BigDecimal.valueOf(summeEinheitenkosten)).toBigInteger();
 	}
 }

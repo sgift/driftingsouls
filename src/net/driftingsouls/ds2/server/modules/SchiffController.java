@@ -748,6 +748,7 @@ public class SchiffController extends Controller
 		mo.put("getADocks", "Externe Docks ");
 		mo.put("getJDocks", "J&auml;gerdocks ");
 		mo.put("getAblativeArmor", "Ablative Panzerung ");
+		mo.put("getSize", "Gr&ouml;&szlig;e ");
 
 		moduleOutputList.putAll(mo);
 	}
