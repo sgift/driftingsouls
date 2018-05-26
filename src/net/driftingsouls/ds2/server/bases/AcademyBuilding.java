@@ -157,7 +157,7 @@ public class AcademyBuilding extends DefaultBuilding {
 		for( AcademyQueueEntry entry : entries ) {
 			if( entry.getTraining() == offizier.getID() && entry.getTrainingType() == train )
 			{
-				plus = plus+2;
+				plus = plus+10;
 			}
 		}
 

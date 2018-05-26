@@ -278,7 +278,7 @@ public class AcademyQueueEntry {
 			{
 				return true;
 			}
-			offz.setAbility(ability, offz.getAbility(ability)+2);
+			offz.setAbility(ability, offz.getAbility(ability)+10);
 			if( !academy.isOffizierScheduled(offz.getID()) )
 			{
 				offz.setTraining(false);
