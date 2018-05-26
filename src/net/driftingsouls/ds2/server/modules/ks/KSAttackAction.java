@@ -521,7 +521,10 @@ public class KSAttackAction extends BasicKSAction {
 				if (tmppanzerung <= 0){
 					tmppanzerung = 1;
 				}
-				schaden = Math.round(schaden/tmppanzerung);
+				if (tmppanzerung >= 10){
+					tmppanzerung = 10;
+				}
+				schaden = (int)Math.round(schaden*(10-tmppanzerung)/10);
 
 			}
 		}
