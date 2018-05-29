@@ -126,11 +126,7 @@ public enum ShipTypeFlag
 	 */
 	NICHT_UEBERGEBBAR("nicht_uebergebbar", "Nicht Übergebbar", "Sie können dieses Schiff nicht übergeben"),
 	/**
-	 * Existiert nur einmal pro Account.
-	 */
-	EINZIGARTIG("einzigartig", "Einzigartig", "Existiert nur einmal pro Account"),
-	/**
-	 * Existiert nur einmal pro Account.
+	 * Muss im Kampf als erstes zerstört werden.
 	 */
 	SCHUTZSCHILD("schutzschild", "Schutzschild", "Schützt verbündere Schiffe vor Angriffen. Muss im Kampf als erstes zerstört werden.");
 

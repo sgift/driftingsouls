@@ -29,10 +29,10 @@
 			<input type="submit" value="Auff&uuml;llen" />
 		</div>
 	</form><br />
-{if schiff.cargo.batterien}
+<!--{if schiff.cargo.batterien}
 	<form action="./ds" method="post">
 		<div>
-<!--			Batterien entladen:<br />
+			Batterien entladen:<br />
 			<input name="cargo_ops[unload]" type="text" size="2" value="0" />
 			{!form_create_hidden plugin, ship:$ship.id, plugin:$global.pluginid}
 			<input type="hidden" name="cargo_ops[act]" value="unload" />

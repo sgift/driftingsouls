@@ -521,7 +521,10 @@ public class KSAttackAction extends BasicKSAction {
 				if (tmppanzerung <= 0){
 					tmppanzerung = 1;
 				}
-				schaden = Math.round(schaden/tmppanzerung);
+				if (tmppanzerung >= 10){
+					tmppanzerung = 10;
+				}
+				schaden = (int)Math.round(schaden*(10-tmppanzerung)/10);
 
 			}
 		}
@@ -852,7 +855,7 @@ public class KSAttackAction extends BasicKSAction {
         {
             return 0;
         }
-
+		//FighterDefense des Gegners
 		int defcount = 0;		// Anzahl zu verteidigender Schiffe
 		int fighterdefcount = 0;// Gesamtpunktzahl an Bombenabwehr durch Jaeger
 		int gksdefcount = 0;	// Gesamtpunktzahl an Bombenabwehr durch GKS
@@ -934,6 +937,96 @@ public class KSAttackAction extends BasicKSAction {
                 fighterdefcount = (int) Math.floor(((fighter - (docksuse - docks)) / (double) fighter) * fighterdefcount);
             }
 		}
+
+		//FighterDefense Verringerung durch eigene Jäger
+		int owndefcount = 0;		// Anzahl zu verteidigender Schiffe
+		int ownfighterdefcount = 0;// Gesamtpunktzahl an Bombenabwehr durch Jaeger
+		int owngksdefcount = 0;	// Gesamtpunktzahl an Bombenabwehr durch GKS
+		int ownfighter = 0;		// Gesamtanzahl Jaeger
+		int owndocks = 0;			// Gesamtanzahl Docks
+		int owndocksuse = 0;		// Gesamtanzahl an Schiffen, welche Docks brauchen
+
+		List<BattleShip> ownShips = battle.getOwnShips();
+		for (BattleShip selectedShip : ownShips)
+		{
+			ShipTypeData type = selectedShip.getTypeData();
+
+			int typeCrew = type.getMinCrew();
+			if (typeCrew <= 0)
+			{
+				typeCrew = 1;
+			}
+			double crewfactor = ((double) selectedShip.getCrew()) / ((double) typeCrew);
+
+			//No bonus for more crew than needed
+			if (crewfactor > 1.0)
+			{
+				crewfactor = 1.0;
+			}
+
+			// check if ship has to be defended
+			if (shipHasToBeDefended(selectedShip))
+		    {
+				owndefcount = owndefcount + 1;
+			}
+
+			//check if ship has torpdef
+			if (shipHasTorpDef(type))
+			{
+				// check if ship is a GKS
+				if (shipIsGKS(type))
+				{
+					// increase the gks-torpedo-defense
+					owngksdefcount = owngksdefcount + (int) Math.floor(type.getTorpedoDef() * crewfactor);
+				}
+				else
+				{
+					// check if ship is landed
+					if (shipIsNotLanded(selectedShip))
+					{
+						// increase the fighter-torpedo-defense
+						ownfighterdefcount += (int) Math.floor(type.getTorpedoDef() * crewfactor);
+						// increase number of fighters
+						ownfighter = ownfighter + 1;
+					}
+				}
+			}
+
+			// check if ship needs dock
+			if (shipNeedsDock(type))
+			{
+				// increase number of docks needed
+				owndocksuse = owndocksuse + 1;
+			}
+
+			// check if ship has docks
+			if (shipHasDocks(type))
+			{
+				// add docks
+				owndocks = owndocks + (int) Math.floor(type.getJDocks() * crewfactor);
+			}
+		}
+
+		if( owndefcount == 0 )
+		{
+			owndefcount = 1;
+		}
+
+		// Rechnen wir mal die endgueltige Verteidigung aus
+		if (owndocksuse > owndocks)
+		{
+            if(ownfighter != 0)
+            {
+                ownfighterdefcount = (int) Math.floor(((ownfighter - (owndocksuse - owndocks)) / (double) ownfighter) * ownfighterdefcount);
+            }
+		}
+
+		fighterdefcount = fighterdefcount - ownfighterdefcount;
+		if( fighterdefcount < 0 )
+		{
+			fighterdefcount = 0;
+		}
+
 		int fighterdef = (int)Math.round( (double)(fighterdefcount + gksdefcount ) / (double)defcount );
 		if( fighterdef > 100 )
 		{

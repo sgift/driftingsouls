@@ -8,6 +8,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.VersteigerungSchiff;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import org.hibernate.Session;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,7 @@ public class HandelspostenService
 	 * @return <code>true</code> falls es mit diesem kommunizieren darf
 	 */
 	public boolean isKommunikationMoeglich(Ship handelsposten, Ship handelndesSchiff) {
-		if( handelsposten == null || handelndesSchiff == null )
+		if( handelsposten == null || handelndesSchiff == null || handelndesSchiff.getTypeData().getShipClass() == ShipClasses.SCHUTZSCHILD )
 		{
 			return false;
 		}
@@ -52,21 +53,24 @@ public class HandelspostenService
 	 * @param betrag Der Startbetrag fuer die Versteigerung
 	 */
 	public void versteigereSchiff(Ship zuVersteigerndesSchiff, int betrag) {
-		int ticks = 15;
-		int curtick = ContextMap.getContext().get(ContextCommon.class).getTick();
-		ticks += curtick;
+		if (zuVersteigerndesSchiff.getTypeData().getShipClass() != ShipClasses.SCHUTZSCHILD)
+		{
+			int ticks = 15;
+			int curtick = ContextMap.getContext().get(ContextCommon.class).getTick();
+			ticks += curtick;
 
-		Session db = ContextMap.getContext().getDB();
+			Session db = ContextMap.getContext().getDB();
 
-		User user = zuVersteigerndesSchiff.getOwner();
-		ShipType st = zuVersteigerndesSchiff.getBaseType();
+			User user = zuVersteigerndesSchiff.getOwner();
+			ShipType st = zuVersteigerndesSchiff.getBaseType();
 
-		VersteigerungSchiff v = new VersteigerungSchiff(user, st, betrag);
-		v.setBieter((User) db.get(User.class, Faction.GTU));
-		v.setTick(ticks);
-		db.persist(v);
+			VersteigerungSchiff v = new VersteigerungSchiff(user, st, betrag);
+			v.setBieter((User) db.get(User.class, Faction.GTU));
+			v.setTick(ticks);
+			db.persist(v);
 
-		zuVersteigerndesSchiff.destroy();
+			zuVersteigerndesSchiff.destroy();
+		}
 	}
 
 	/**

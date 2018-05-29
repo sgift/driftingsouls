@@ -1408,14 +1408,14 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		}
 
 		for( Ship ship :  this.getOwner().getShips() ){
-			if( ship.getTypeData().hasFlag(ShipTypeFlag.EINZIGARTIG)){
+			if( ship.getTypeData().getShipClass() == ShipClasses.SCHUTZSCHILD){
 				output.append("Diese Station kann nur einmal existieren");
 				return false;
 			}
 		}
 
 		for( WerftQueueEntry entry :  this.getScheduledQueueEntries() ){
-			if( entry.getBuildShipType().hasFlag(ShipTypeFlag.EINZIGARTIG)){
+			if( entry.getBuildShipType().getShipClass() == ShipClasses.SCHUTZSCHILD){
 				output.append("Diese Station kann nur einmal existieren");
 				return false;
 			}

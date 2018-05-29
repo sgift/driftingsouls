@@ -116,7 +116,7 @@ public enum ShipClasses {
 	 */
 	FREGATTE("Fregatte", "Fregatten", true, false),
 	/**
-	 * Die Schiffsklasse "Fregatte". ID 21.
+	 * Die Schiffsklasse "Schutzschild". ID 22.
 	 */
 	SCHUTZSCHILD("Schutzschild", "Schutzschilde", false, false);
 
