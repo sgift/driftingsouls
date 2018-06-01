@@ -592,7 +592,7 @@ public class FleetMgntController extends Controller
 	/**
 	 * Entlaedt die Batterien auf den Schiffen der Flotte, um die EPS wieder aufzuladen.
 	 */
-	@Action(ActionType.DEFAULT)
+/*	@Action(ActionType.DEFAULT)
 	public RedirectViewResult dischargeBatteriesAction(ShipFleet fleet)
 	{
 		validiereGueltigeFlotteVorhanden(fleet);
@@ -632,12 +632,12 @@ public class FleetMgntController extends Controller
 		}
 
 		return new RedirectViewResult("default").withMessage(message + "Batterien wurden entladen");
-	}
+	}*/
 
 	/**
 	 * Laedt die Batterien auf den Schiffen der Flotte auf.
 	 */
-	@Action(ActionType.DEFAULT)
+	/*@Action(ActionType.DEFAULT)
 	public RedirectViewResult chargeBatteriesAction(ShipFleet fleet)
 	{
 		validiereGueltigeFlotteVorhanden(fleet);
@@ -674,7 +674,7 @@ public class FleetMgntController extends Controller
 		}
 
 		return new RedirectViewResult("default").withMessage(message + "Batterien wurden aufgeladen");
-	}
+	}*/
 
 	/**
 	 * Exportiert die Schiffsliste der Flotte.

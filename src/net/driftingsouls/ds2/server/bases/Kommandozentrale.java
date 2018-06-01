@@ -281,7 +281,7 @@ public class Kommandozentrale extends DefaultBuilding {
 			Batterien aufladen
 		*/
 
-		if( baction.equals("load") ) {
+/*		if( baction.equals("load") ) {
 			long load = context.getRequest().getParameterInt("load");
 
 			if( load < 0 ) {
@@ -307,13 +307,13 @@ public class Kommandozentrale extends DefaultBuilding {
 				base.setCargo(cargo);
 				base.setEnergy(e);
 			}
-		}
+		}*/
 
 		/*
 			Batterien entladen
 		*/
 
-		if( baction.equals("unload") ) {
+		/*if( baction.equals("unload") ) {
 			long unload = context.getRequest().getParameterInt("unload");
 
 			if( unload < 0 ) {
@@ -336,19 +336,19 @@ public class Kommandozentrale extends DefaultBuilding {
 				base.setCargo(cargo);
 				base.setEnergy(e);
 			}
-		}
+		}*/
 
 		/*
 			Batterien herstellen
 		*/
 
-		if( baction.equals("create") ) {
+		/*if( baction.equals("create") ) {
 			long create = context.getRequest().getParameterInt("create");
 
 			if( create > cargo.getResourceCount( Resources.PLATIN ) ) {
 				create = cargo.getResourceCount( Resources.PLATIN );
 			}
-            
+
             if(create < 0) {
                 create = Math.abs(create);
             }
@@ -361,7 +361,7 @@ public class Kommandozentrale extends DefaultBuilding {
 
 				base.setCargo(cargo);
 			}
-		}
+		}*/
 
 		/*
 			Allyitems an die Allianz ueberstellen
