@@ -1576,8 +1576,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		ShipModules shipModules = this.modules;
 
-		List<ModuleEntry> moduletbl = new ArrayList<>();
-		moduletbl.addAll(Arrays.asList(getModules()));
+		List<ModuleEntry> moduletbl = new ArrayList<>(Arrays.asList(getModules()));
 
 		//check modules
 
@@ -1601,13 +1600,16 @@ public class Ship implements Locatable,Transfering,Feeding {
 			{
 				Module moduleobj = module.createModule();
 
-				if ((module.getSlot() > 0) && (slotlist.get(module.getSlot()).length > 2))
-				{
-					moduleobj.setSlotData(slotlist.get(module.getSlot())[2]);
-				}
-				moduleobjlist.add(moduleobj);
+				if(moduleobj != null) {
+					if ((module.getSlot() > 0) && (slotlist.get(module.getSlot()).length > 2)) {
+						moduleobj.setSlotData(slotlist.get(module.getSlot())[2]);
+					}
+					moduleobjlist.add(moduleobj);
 
-				moduleSlotData.add(module.serialize());
+					moduleSlotData.add(module.serialize());
+				} else {
+					log.error(String.format("ship: %s - module type: %s - unable to create module - skipping.", id, module.getModuleType()));
+				}
 			}
 		}
 
