@@ -90,7 +90,7 @@ public class AngriffController extends Controller
 		menuActions.put("attack_select", KSMenuAttackMuniSelectAction.class);
         menuActions.put("groupattack", KSMenuGroupAttackAction.class);
         menuActions.put("groupattack_select", KSMenuGroupAttackMuniSelectAction.class);
-		menuActions.put("batterien", KSMenuBatteriesAction.class);
+		//menuActions.put("batterien", KSMenuBatteriesAction.class);
 		menuActions.put("default", KSMenuDefaultAction.class);
 		menuActions.put("flucht", KSMenuFluchtAction.class);
 		menuActions.put("history", KSMenuHistoryAction.class);
@@ -126,24 +126,24 @@ public class AngriffController extends Controller
 		actions.put("shields_single", KSRegenerateShieldsSingleAction.class);
 		actions.put("shields_all", KSRegenerateShieldsAllAction.class);
 		actions.put("shields_class", KSRegenerateShieldsClassAction.class);
-		actions.put("batterien_single", KSDischargeBatteriesSingleAction.class);
-		actions.put("batterien_all", KSDischargeBatteriesAllAction.class);
-		actions.put("batterien_class", KSDischargeBatteriesClassAction.class);
+		//actions.put("batterien_single", KSDischargeBatteriesSingleAction.class);
+		//actions.put("batterien_all", KSDischargeBatteriesAllAction.class);
+		//actions.put("batterien_class", KSDischargeBatteriesClassAction.class);
 		if( configService.getValue(WellKnownConfigValue.ENABLE_CHEATS) ) {
 			actions.put("cheat_regenerate", KSCheatRegenerateOwnAction.class);
 			actions.put("cheat_regenerateenemy", KSCheatRegenerateEnemyAction.class);
 		}
 	}
-	
+
 	@Override
 	protected boolean validateAndPrepare() {
 		return true;
 	}
-	
+
 	private void showInfo(TemplateEngine t, String tag, BattleShip ship, boolean enemy, String jscriptid, boolean show) {
 		if( ship == null ) {
 			addError("FATAL ERROR: Kein gueltiges Schiff vorhanden");
-			return;	
+			return;
 		}
 
 		ShipTypeData shipType = ship.getTypeData();
@@ -333,17 +333,17 @@ public class AngriffController extends Controller
                     t.parse("shipinfo.ammo.list", "shipinfo.ammo.listitem", true);
                 }
             }
-			if(mycargo.hasResource(Resources.BATTERIEN))
+			/*if(mycargo.hasResource(Resources.BATTERIEN))
 			{
 				t.setVar( "ammo.image", Cargo.getResourceImage(Resources.BATTERIEN),
 						  "ammo.name",  Cargo.getResourceName(Resources.BATTERIEN),
 						  "ammo.count", mycargo.getResourceCount(Resources.BATTERIEN));
 				t.parse("shipinfo.ammo.list", "shipinfo.ammo.listitem", true);
-			}
-			
+			}*/
+
 			// Einheiten
 			UnitCargo unitcargo = ship.getUnits();
-			
+
 			unitcargo.echoUnitList(t, "shipinfo.units.list", "shipinfo.units.listitem");
 		}
 
