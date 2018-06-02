@@ -26,7 +26,6 @@ import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.battles.BattleShipFlag;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
-import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.config.items.Munition;
 import net.driftingsouls.ds2.server.entities.Nebel;
@@ -37,11 +36,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.modules.ks.*;
@@ -396,7 +391,7 @@ public class AngriffController extends Controller
 					
 					if( menuActions.containsKey(action.toString()) ) {
 						try {
-							BasicKSMenuAction actionobj = menuActions.get(action.toString()).newInstance();
+							BasicKSMenuAction actionobj = menuActions.get(action.toString()).getDeclaredConstructor().newInstance();
 							actionobj.setController(this);
 							
 							BasicKSAction.Result result = actionobj.execute(t, battle);
@@ -576,7 +571,7 @@ public class AngriffController extends Controller
 
 		if( (ksaction.length() > 0) && actions.containsKey(ksaction) ) {
 			try {
-				BasicKSAction actionobj = actions.get(ksaction).newInstance();
+				BasicKSAction actionobj = actions.get(ksaction).getDeclaredConstructor().newInstance();
 				actionobj.setController(this);
 				
 				if( actionobj.execute(t, battle) == BasicKSAction.Result.HALT ) {

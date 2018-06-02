@@ -185,14 +185,14 @@ public class XMLUtils {
 			return null;
 		}
 		try {
-			return new Long(val);
+			return Long.valueOf(val);
 		}
 		catch( NumberFormatException e ) {
 			// EMPTY
 		}
 		
 		try {
-			return new Double(val);
+			return Double.valueOf(val);
 		}
 		catch( NumberFormatException e ) {
 			return null;

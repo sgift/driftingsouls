@@ -31,6 +31,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Quartz-Scheduler fuer DS-Ticks. Die Konfiguration erfolgt durch
@@ -69,13 +70,13 @@ public class ScheduledTick extends QuartzJobBean implements StatefulJob
 				.forName(tick)
 				.asSubclass(AbstractTickExecuter.class);
 
-			AbstractTickExecuter tick = cls.newInstance();
+			AbstractTickExecuter tick = cls.getDeclaredConstructor().newInstance();
 			basicContext.autowireBean(tick);
 			tick.addLogTarget(TickController.STDOUT, false);
 			tick.execute();
 			tick.dispose();
 		}
-		catch( IOException | ClassNotFoundException | InstantiationException | IllegalAccessException e )
+		catch( IOException | ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e )
 		{
 			throw new JobExecutionException(e);
 		}

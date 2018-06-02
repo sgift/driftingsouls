@@ -40,6 +40,7 @@ import org.apache.log4j.Logger;
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -364,15 +365,14 @@ public class AdminController extends Controller
 		}
 	}
 
-	private AdminPlugin instantiate(Class<?> aClass) throws InstantiationException, IllegalAccessException
-	{
+	private AdminPlugin instantiate(Class<?> aClass) throws InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
 		if( AdminPlugin.class.isAssignableFrom(aClass) )
 		{
-			AdminPlugin plugin = aClass.asSubclass(AdminPlugin.class).newInstance();
+			AdminPlugin plugin = aClass.asSubclass(AdminPlugin.class).getDeclaredConstructor().newInstance();
 			getContext().autowireBean(plugin);
 			return plugin;
 		}
-		EntityEditor<?> editor = aClass.asSubclass(EntityEditor.class).newInstance();
+		EntityEditor<?> editor = aClass.asSubclass(EntityEditor.class).getDeclaredConstructor().newInstance();
 		EditPlugin8<?> plugin = new EditPlugin8<>(editor);
 		getContext().autowireBean(plugin);
 		return plugin;

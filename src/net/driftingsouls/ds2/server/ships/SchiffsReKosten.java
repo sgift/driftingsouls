@@ -4,6 +4,7 @@ import net.driftingsouls.ds2.server.entities.User;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 
 public final class SchiffsReKosten
 {
@@ -51,9 +52,9 @@ public final class SchiffsReKosten
 
 	// Schiffskosten = x/3 + x^3 / (73*10^7) + x^11 / (5*10^45)
 	public static BigInteger berecheKosten(long summeSchiffskosten, long summeEinheitenkosten) {
-		BigDecimal Schiffskosten = BigDecimal.valueOf(summeSchiffskosten).divide(BigDecimal.valueOf(3), 0, BigDecimal.ROUND_HALF_UP)
-														 .add(BigDecimal.valueOf(summeSchiffskosten).pow(3).divide(BigDecimal.valueOf(73).movePointRight(7), 0, BigDecimal.ROUND_HALF_UP))
-														 .add(BigDecimal.valueOf(summeSchiffskosten).pow(11).divide(BigDecimal.valueOf(5).movePointRight(45), 0, BigDecimal.ROUND_HALF_UP));
+		BigDecimal Schiffskosten = BigDecimal.valueOf(summeSchiffskosten).divide(BigDecimal.valueOf(3), 0, RoundingMode.HALF_UP)
+														 .add(BigDecimal.valueOf(summeSchiffskosten).pow(3).divide(BigDecimal.valueOf(73).movePointRight(7), 0, RoundingMode.HALF_UP))
+														 .add(BigDecimal.valueOf(summeSchiffskosten).pow(11).divide(BigDecimal.valueOf(5).movePointRight(45), 0, RoundingMode.HALF_UP));
 		return Schiffskosten.add(BigDecimal.valueOf(summeEinheitenkosten)).toBigInteger();
 	}
 }

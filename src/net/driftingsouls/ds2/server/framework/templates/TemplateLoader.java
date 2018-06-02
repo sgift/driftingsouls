@@ -68,7 +68,7 @@ public class TemplateLoader
 
 		try {
 			Class<?> tmpl = loader.loadClass(className);
-			Template t = (Template)tmpl.newInstance();
+			Template t = (Template)tmpl.getDeclaredConstructor().newInstance();
 			templateMap.put(filename, new LoadedTemplate(lastModified,t));
 		}
 		catch( Exception e ) {

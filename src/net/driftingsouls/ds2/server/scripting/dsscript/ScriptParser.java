@@ -660,8 +660,8 @@ public class ScriptParser extends AbstractScriptEngine {
 				else if( funcname.startsWith("!J") && JUMP_FUNCTIONS.containsKey(funcname) ) {
 					this.log("*COMMAND: "+funcname+"\n");
 					boolean ok = false;
-					
-					int compResult = new Double(this.getRegister("cmp")).compareTo(0d);
+
+					int compResult = Double.compare(Double.parseDouble(this.getRegister("cmp")), 0d);
 					
 					Integer[] vals = JUMP_FUNCTIONS.get(funcname);
 					for (Integer val : vals)

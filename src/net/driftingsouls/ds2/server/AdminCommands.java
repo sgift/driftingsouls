@@ -61,6 +61,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -131,9 +132,9 @@ public class AdminCommands {
 		List<String> subAutoCompletes;
 		try
 		{
-			subAutoCompletes = cmds.get(command[0]).newInstance().autoComplete(command);
+			subAutoCompletes = cmds.get(command[0]).getDeclaredConstructor().newInstance().autoComplete(command);
 		}
-		catch( InstantiationException | IllegalAccessException e )
+		catch( InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e )
 		{
 			throw new IllegalStateException(e);
 		}
