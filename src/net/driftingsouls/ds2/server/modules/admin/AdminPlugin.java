@@ -31,5 +31,5 @@ public interface AdminPlugin {
 	 * @throws IOException
 	 * @param echo Der Builder in den die Ausgabe geschrieben werden soll
 	 */
-	public void output(StringBuilder echo) throws IOException;
+    void output(StringBuilder echo) throws IOException;
 }

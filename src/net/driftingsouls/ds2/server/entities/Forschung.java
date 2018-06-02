@@ -77,7 +77,7 @@ public class Forschung {
 
 		private String description;
 
-		private Visibility(String description) {
+		Visibility(String description) {
 			this.description = description;
 		}
 

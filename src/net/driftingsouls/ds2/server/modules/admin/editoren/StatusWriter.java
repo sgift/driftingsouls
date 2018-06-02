@@ -10,5 +10,5 @@ public interface StatusWriter
 	 * @param text Der Text
 	 * @return Die Instanz
 	 */
-	public StatusWriter append(String text);
+    StatusWriter append(String text);
 }

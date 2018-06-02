@@ -10,5 +10,5 @@ public interface NameProducer
 	 * Produziert den naechten Namen.
 	 * @return Der Name
 	 */
-	public String generateNext();
+    String generateNext();
 }

@@ -105,7 +105,7 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 
 	public interface StatusWriter
 	{
-		public StatusWriter append(String text);
+		StatusWriter append(String text);
 	}
 
 	public class DefaultStatusWriter implements StatusWriter

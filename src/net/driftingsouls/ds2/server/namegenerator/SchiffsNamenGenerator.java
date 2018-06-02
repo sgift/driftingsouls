@@ -74,7 +74,7 @@ public enum SchiffsNamenGenerator
 	private final String label;
 	private Random rnd = new Random();
 
-	private SchiffsNamenGenerator(final String label)
+	SchiffsNamenGenerator(final String label)
 	{
 		this.label = label;
 	}

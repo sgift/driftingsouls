@@ -33,12 +33,12 @@ public interface RoleExecuter {
 	 * Gibt die Instanz der Rollenimplementierung fuer diese Ausfuehrung der Rolle zurueck.
 	 * @return Die Instanz
 	 */
-	public Role getRole();
+    Role getRole();
 	
 	/**
 	 * Fuehrt die Rolle aus.
 	 * @param context Der Ausfuehrungskontext
 	 * @throws ScriptException Falls die Ausfuehrung mit einem Fehler abbricht
 	 */
-	public void execute(ScriptContext context) throws ScriptException;
+    void execute(ScriptContext context) throws ScriptException;
 }

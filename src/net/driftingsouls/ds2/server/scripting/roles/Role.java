@@ -44,5 +44,5 @@ public interface Role {
 	 * @param context Der Ausfuehrungskontext
 	 * @throws ScriptException Falls waehrend der Ausfuehrung ein Fehler auftritt
 	 */
-	public void execute(ScriptContext context) throws ScriptException;
+    void execute(ScriptContext context) throws ScriptException;
 }

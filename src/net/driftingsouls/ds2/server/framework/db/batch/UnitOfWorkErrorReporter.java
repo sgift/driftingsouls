@@ -20,5 +20,5 @@ public interface UnitOfWorkErrorReporter<T>
 	 * @param failedObjects Die Fehlgeschlagenen Objekte
 	 * @param error Die Fehlermeldung
 	 */
-	public void report(@Nonnull UnitOfWork<T> unitOfWork, @Nonnull List<T> failedObjects, @Nonnull Throwable error);
+    void report(@Nonnull UnitOfWork<T> unitOfWork, @Nonnull List<T> failedObjects, @Nonnull Throwable error);
 }

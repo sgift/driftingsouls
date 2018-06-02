@@ -960,14 +960,14 @@ public class FleetMgntController extends Controller
 	/**
 	 * Teil eines Formatierungsstrings fuer Schiffsnamen.
 	 */
-	private static interface NamePatternElement
+	private interface NamePatternElement
 	{
 		/**
 		 * Gibt den Text fuer das naechste Schiff zurueck.
 		 *
 		 * @return Der Text
 		 */
-		public String next();
+        String next();
 	}
 
 	private static class StringNamePatternElement implements NamePatternElement

@@ -16,7 +16,7 @@ public interface CustomFieldGenerator<E>
 	 * @param entity Die Entity-Instanz zu der das Feld generiert werden soll
 	 * @throws java.io.IOException Bei I/O-Fehlern
 	 */
-	public void generate(StringBuilder echo, E entity) throws IOException;
+    void generate(StringBuilder echo, E entity) throws IOException;
 
 	/**
 	 * Liesst die Angaben zum Feld aus der Request und speichert sie an der
@@ -25,19 +25,19 @@ public interface CustomFieldGenerator<E>
 	 * @param entity Die Entity
 	 * @throws java.io.IOException Bei IO-Fehlern
 	 */
-	public void applyRequestValues(Request request, E entity) throws IOException;
+    void applyRequestValues(Request request, E entity) throws IOException;
 
 	/**
 	 * Liefert die Spaltendefinition fuer diesen Editor fuer eine Darstellung in einem Grid.
 	 * @return Die Spaltendefinition
 	 * @param forEditing Falls Spaltendefinitionen zur Bearbeitung in einer Tabelle generiert werden sollen
 	 */
-	public ColumnDefinition<E> getColumnDefinition(boolean forEditing);
+    ColumnDefinition<E> getColumnDefinition(boolean forEditing);
 
 	/**
 	 * Konvertiert den von diesem Editor bearbeiteten Wert der Entity in einen fuer Benutzer lesbaren Anzeigestring.
 	 * @param entity Die Entity-Instanz
 	 * @return Der Anzeigestring
 	 */
-	public String serializedValueOf(E entity);
+    String serializedValueOf(E entity);
 }

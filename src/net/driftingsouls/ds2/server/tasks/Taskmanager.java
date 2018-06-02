@@ -85,7 +85,7 @@ public class Taskmanager {
 		private int typeID;
 		private Class<? extends TaskHandler> cls;
 
-		private Types( int typeID, Class<? extends TaskHandler> cls ) {
+		Types(int typeID, Class<? extends TaskHandler> cls) {
 			this.typeID = typeID;
 			this.cls = cls;
 		}

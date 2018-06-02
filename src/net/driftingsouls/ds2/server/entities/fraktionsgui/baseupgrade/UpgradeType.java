@@ -205,7 +205,7 @@ public enum UpgradeType
 	 * @param name Der Name des Ausbaus
 	 * @param description Die Beschreibung des Ausbaus
 	 */
-	private UpgradeType(String name, String description)
+    UpgradeType(String name, String description)
 	{
 		this.name = name;
 		this.description = description;

@@ -30,7 +30,7 @@ public enum WellKnownPermission implements PermissionDescriptor
 	private final String category;
 	private final String action;
 
-	private WellKnownPermission(String category, String action)
+	WellKnownPermission(String category, String action)
 	{
 		this.category = category;
 		this.action = action;

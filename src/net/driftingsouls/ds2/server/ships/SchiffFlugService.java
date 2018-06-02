@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Service zum Fliegen von Schiffen.
@@ -40,7 +39,7 @@ public class SchiffFlugService
 	/**
 	 * Die verschiedenen Zustaende, die zum Ende eines Fluges gefuehrt haben koennen.
 	 */
-	public static enum FlugStatus
+	public enum FlugStatus
 	{
 		/**
 		 * Der Flug war Erfolgreich.
@@ -579,9 +578,7 @@ public class SchiffFlugService
 					.setInteger("uppery", waypoint.direction >= 7 ? schiff.getY() + waypoint.distance : schiff.getY())
 					.list());
 
-			List<Location> locations = sectorList.stream().map(Ship::getLocation).collect(Collectors.toList());
-
-			Map<Location, List<Ship>> alertList = Ship.alertCheck(schiff.getOwner(), locations.toArray(new Location[locations.size()]));
+			Map<Location, List<Ship>> alertList = Ship.alertCheck(schiff.getOwner(), sectorList.stream().map(Ship::getLocation).toArray(Location[]::new));
 
 			// Alle potentiell relevanten Sektoren mit EMP-Nebeln (ok..und ein wenig ueberfluessiges Zeug bei schraegen Bewegungen) auslesen
 			Map<Location,Boolean> nebulaemplist = new HashMap<>();

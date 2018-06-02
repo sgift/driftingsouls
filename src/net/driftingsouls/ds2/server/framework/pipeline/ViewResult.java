@@ -11,5 +11,5 @@ public interface ViewResult
 	 * Serialisiert das Ergebnis und schreibt dieses in die Antwort.
 	 * @param response Die Antwort
 	 */
-	public void writeToResponse(Response response) throws IOException;
+    void writeToResponse(Response response) throws IOException;
 }

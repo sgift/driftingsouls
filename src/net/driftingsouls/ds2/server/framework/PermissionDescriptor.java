@@ -9,11 +9,11 @@ public interface PermissionDescriptor
 	 * Die Kategorie in der die Aktion ausgefuehrt werden soll.
 	 * @return Der Name der Kategorie
 	 */
-	public String getCategory();
+    String getCategory();
 
 	/**
 	 * Die Aktion, die ausgefuehrt werden soll
 	 * @return Der Name der Aktion
 	 */
-	public String getAction();
+    String getAction();
 }

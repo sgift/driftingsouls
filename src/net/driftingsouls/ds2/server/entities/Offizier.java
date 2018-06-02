@@ -128,7 +128,7 @@ public class Offizier extends DSObject {
 		VERRUECKTER_DIKTATOR("Verr&uuml;ckter Diktator");
 
 		private String name;
-		private Special(String name) {
+		Special(String name) {
 			this.name = name;
 		}
 

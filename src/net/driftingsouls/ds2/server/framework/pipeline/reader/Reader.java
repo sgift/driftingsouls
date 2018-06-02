@@ -33,5 +33,5 @@ public interface Reader {
 	 * @param pipeline Die Pipeline, welche den Reader aufgerufen hat
 	 * @throws Exception
 	 */
-	public void read( Context context, ReaderPipeline pipeline ) throws Exception;
+    void read(Context context, ReaderPipeline pipeline) throws Exception;
 }

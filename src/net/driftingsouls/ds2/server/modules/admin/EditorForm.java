@@ -34,14 +34,14 @@ class EditorForm implements AutoCloseable
 	 * Standardinterface fuer Feldgeneratoren. Jede Instanz generiert genau
 	 * ein Feld fuer ein konkretes Form.
 	 */
-	public static interface CustomFieldGenerator
+	public interface CustomFieldGenerator
 	{
 		/**
 		 * Generiert den HTML-Code fuer das Eingabefeld.
 		 * @param echo Der Writer in den der HTML-Code geschrieben werden soll
 		 * @throws IOException Bei I/O-Fehlern
 		 */
-		public void generate(StringBuilder echo) throws IOException;
+        void generate(StringBuilder echo) throws IOException;
 	}
 
 	/**

@@ -91,7 +91,7 @@ public enum PersonenNamenGenerator
 
 	private final String label;
 
-	private PersonenNamenGenerator(final String label)
+	PersonenNamenGenerator(final String label)
 	{
 		this.label = label;
 	}

@@ -29,24 +29,24 @@ public interface Template {
 	 * @param te Das TemplateEngine
 	 * @param parent Das Elterntemplate
 	 */
-	public void prepare( TemplateEngine te, String parent );
+    void prepare(TemplateEngine te, String parent);
 	/**
 	 * Gibt die Liste aller Variablen im Template zurueck.
 	 * @param all Falls <code>true</code> werden auch Variablen von Bloecken zurueckgegeben
 	 * @return Die Liste aller Variablen
 	 */
-	public String[] getVarList(boolean all);
+    String[] getVarList(boolean all);
 	/**
 	 * Verarbeitet das Template.
 	 * @param te Das Templateengine
 	 * @return Das verarbeitete Template
 	 */
-	public String main( TemplateEngine te );
+    String main(TemplateEngine te);
 	
 	/**
 	 * Gibt den Templateblock mit dem angegebenen Namen zurueck.
 	 * @param name Der Name des Blocks
 	 * @return Der TemplateBlock
 	 */
-	public TemplateBlock getBlock(String name);
+    TemplateBlock getBlock(String name);
 }

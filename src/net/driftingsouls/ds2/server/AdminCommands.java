@@ -207,9 +207,9 @@ public class AdminCommands {
 		return new AdminCommandResultViewModel(output, true);
 	}
 
-	protected static interface Command {
-		public String execute(Context context, String[] command) throws CommandFailedException;
-		public List<String> autoComplete(String[] command);
+	protected interface Command {
+		String execute(Context context, String[] command) throws CommandFailedException;
+		List<String> autoComplete(String[] command);
 	}
     
     protected static class AutoFireCommand implements Command

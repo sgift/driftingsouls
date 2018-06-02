@@ -14,5 +14,5 @@ public interface ActionMethodInterceptor
 	 * @return Das Ergebnis der Methode
 	 * @throws Throwable
 	 */
-	public Object invoke(MethodInvocation methodInvocation) throws Throwable;
+    Object invoke(MethodInvocation methodInvocation) throws Throwable;
 }

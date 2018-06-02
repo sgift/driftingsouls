@@ -1724,7 +1724,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	/**
 	 * Die verschiedenen Dock-Aktionen.
 	 */
-	public static enum DockMode {
+	public enum DockMode {
 		/**
 		 * Schiff extern docken.
 		 */

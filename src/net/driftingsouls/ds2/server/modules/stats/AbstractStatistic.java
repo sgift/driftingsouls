@@ -75,9 +75,9 @@ abstract class AbstractStatistic implements Statistic {
 		}
 	}
 
-	protected static interface LinkGenerator<T>
+	protected interface LinkGenerator<T>
 	{
-		public String generate(T object);
+		String generate(T object);
 	}
 
 	/**

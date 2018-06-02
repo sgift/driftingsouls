@@ -61,7 +61,7 @@ public enum ModuleType {
 
 	private final int ordinal;
 
-	private ModuleType(int ordinal)
+	ModuleType(int ordinal)
 	{
 		this.ordinal = ordinal;
 	}

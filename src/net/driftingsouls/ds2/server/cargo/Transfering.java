@@ -15,17 +15,17 @@ public interface Transfering extends Locatable {
 	 * Gibt den Cargo des Objekts zurueck.
 	 * @return Der Cargo
 	 */
-	public Cargo getCargo();
+    Cargo getCargo();
 	/**
 	 * Setzt den Cargo des Objekts.
 	 * @param cargo Der Cargo
 	 */
-	public void setCargo(Cargo cargo);
+    void setCargo(Cargo cargo);
 	/**
 	 * Gibt den maximalen Cargo, den das Objekt aufnehmen kann, zurueck.
 	 * @return Der maximale Cargo
 	 */
-	public long getMaxCargo();
+    long getMaxCargo();
 	/**
 	 * Transfers resources to another object.
 	 * 
@@ -34,10 +34,10 @@ public interface Transfering extends Locatable {
 	 * @param count Amout to be transfered.
 	 * @return Informations about the outcome.
 	 */
-	public String transfer(Transfering to, ResourceID resource, long count);
+    String transfer(Transfering to, ResourceID resource, long count);
 	/**
 	 * Gibt den Besitzer des Objekts zurueck.
 	 * @return Der Besitzer
 	 */
-	public User getOwner();
+    User getOwner();
 }
