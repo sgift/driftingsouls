@@ -521,11 +521,11 @@ public class SchiffeController extends Controller
 							color = "red";
 						}
 					}
-					if (res.getId().equals(Resources.BATTERIEN))
+					/*if (res.getId().equals(Resources.BATTERIEN))
 					{
 						color = "";
 						wa--;
-					}
+					}*/
 					else if (!Common.inArray(res.getId(), new ResourceID[]{Resources.NAHRUNG, Resources.URAN, Resources.DEUTERIUM, Resources.ANTIMATERIE, Resources.BATTERIEN}))
 					{
 						color = "";

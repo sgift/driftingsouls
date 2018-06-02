@@ -58,7 +58,7 @@ public class CargoDefault implements SchiffPlugin {
 
 		String output = "";
 
-		if( act.equals("load") ) {
+		/*if( act.equals("load") ) {
 			if( !max.equals("") ) {
 				load = 10000;
 			}
@@ -109,8 +109,8 @@ public class CargoDefault implements SchiffPlugin {
 
 			ship.setEnergy((int)(ship.getEnergy() + unload));
 			ship.setCargo(cargo);
-		}
-		else if( act.equals("usenahrung"))
+		}*/
+		if( act.equals("usenahrung"))
 		{
 			if( !max.equals("") )
 			{
@@ -236,8 +236,8 @@ public class CargoDefault implements SchiffPlugin {
 		t.setVar(	"schiff.cargo.empty",					Common.ln(shiptype.getCargo()-cargo.getMass()),
 					"global.pluginid",						pluginid,
 					"ship.id",								ship.getId(),
-					"schiff.cargo.batterien",				cargo.hasResource( Resources.BATTERIEN ),
-					"schiff.cargo.lbatterien",				cargo.hasResource( Resources.LBATTERIEN ),
+					//"schiff.cargo.batterien",				cargo.hasResource( Resources.BATTERIEN ),
+					//"schiff.cargo.lbatterien",				cargo.hasResource( Resources.LBATTERIEN ),
 					"schiff.cargo.tanker",					shiptype.getDeutFactor(),
 					"schiff.cargo.tanker.autodeut",			ship.getEinstellungen().getAutoDeut(),
 					"schiff.cargo.traeger",					shiptype.getJDocks() > 0 ? 1 : 0,

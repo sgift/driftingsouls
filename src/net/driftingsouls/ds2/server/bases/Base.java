@@ -1602,6 +1602,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 
 		if(energy > eps)
 		{
+        /*
 			long overflow = energy - eps;
 			long emptyBatteries = cargo.getResourceCount(Resources.LBATTERIEN);
 			if(emptyBatteries < overflow)
@@ -1611,6 +1612,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 
 			state.getNettoConsumption().addResource(Resources.LBATTERIEN, overflow);
 			state.getNettoProduction().addResource(Resources.BATTERIEN, overflow);
+            */
 			energy = eps;
 		}
 
