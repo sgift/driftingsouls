@@ -19,17 +19,17 @@
 
 package net.driftingsouls.ds2.server.modules.stats;
 
-import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.StatsController;
+
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Zeigt die Liste der reichsten Spieler an.
@@ -70,7 +70,7 @@ public class StatRichestUser extends AbstractStatistic implements Statistic {
 		else {
 			List<Object[]> allianzen = Common.cast(db
 				.createQuery("select a,sum(u.konto) from User u join u.ally a " +
-						"where u.id>:minid and (u.vaccount=0 or u.wait4vac>0) group by a order by sum(u.konto) desc,u.id desc")
+						"where u.id>:minid and (u.vaccount=0 or u.wait4vac>0) group by a,u order by sum(u.konto) desc,u.id desc")
 				.setParameter("minid", StatsController.MIN_USER_ID)
 				.setMaxResults(size)
 				.list());
