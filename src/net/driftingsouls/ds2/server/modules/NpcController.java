@@ -181,17 +181,16 @@ public class NpcController extends Controller
 			Task task = tasks[0];
 
 			String status;
-			if (task.getData3().equals("1"))
-			{
-				status = "verschiebt gany";
-			}
-			else if (task.getData3().equals("2"))
-			{
-				status = "rückflug";
-			}
-			else
-			{
-				status = "anreise";
+			switch (task.getData3()) {
+				case "1":
+					status = "verschiebt gany";
+					break;
+				case "2":
+					status = "rückflug";
+					break;
+				default:
+					status = "anreise";
+					break;
 			}
 
 			transObj.status = status;

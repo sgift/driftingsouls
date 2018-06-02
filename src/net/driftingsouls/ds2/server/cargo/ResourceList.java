@@ -129,7 +129,7 @@ public class ResourceList implements Iterable<ResourceEntry> {
 	 * @param descending Soll die Liste absteigend sortiert werden (<code>true</code>)?
 	 */
 	public void sortByID( boolean descending ) {
-		Collections.sort(list, new IDComparator(descending));
+		list.sort(new IDComparator(descending));
 	}
 
 	/**
@@ -137,7 +137,7 @@ public class ResourceList implements Iterable<ResourceEntry> {
 	 * @param descending Soll die Liste absteigend sortiert werden (<code>true</code>)?
 	 */
 	public void sortByCargo( boolean descending ) {
-		Collections.sort(list, new CargoComparator(descending));
+		list.sort(new CargoComparator(descending));
 	}
 
 	/**

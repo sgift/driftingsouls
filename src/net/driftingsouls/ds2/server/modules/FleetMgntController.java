@@ -26,12 +26,7 @@ import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.RedirectViewResult;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.*;
@@ -41,12 +36,7 @@ import net.driftingsouls.ds2.server.werften.WerftObject;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * Die Flottenverwaltung.
@@ -866,14 +856,7 @@ public class FleetMgntController extends Controller
 				.setEntity("fleet", fleet)
 				.list();
 
-		for (Iterator<Ship> it = shipyards.iterator(); it.hasNext(); )
-		{
-			Ship ship = it.next();
-			if (ship.getTypeData().getWerft() == 0)
-			{
-				it.remove();
-			}
-		}
+		shipyards.removeIf(ship -> ship.getTypeData().getWerft() == 0);
 
 		if (shipyards.isEmpty())
 		{

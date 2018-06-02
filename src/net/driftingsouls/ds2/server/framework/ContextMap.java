@@ -26,9 +26,9 @@ package net.driftingsouls.ds2.server.framework;
  *
  */
 public class ContextMap {
-	private static ThreadLocal<Context> context = new ThreadLocal<Context>() {
-		// EMPTY
-	};
+	private static ThreadLocal<Context> context = new ThreadLocal<>() {
+        // EMPTY
+    };
 	
 	/**
 	 * Liefert das zum aktuellen Thread gehoerende Kontextobjekt oder null,

@@ -217,19 +217,11 @@ public class CreateObjects implements AdminPlugin {
 			{
 				label = BeanUtils.getProperty(value, labelProperty);
 			}
-			catch (IllegalAccessException e)
+			catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e)
 			{
 				label = null;
 			}
-			catch (InvocationTargetException e)
-			{
-				label = null;
-			}
-			catch (NoSuchMethodException e)
-			{
-				label = null;
-			}
-			return label;
+            return label;
 		}
 	}
 	

@@ -1479,7 +1479,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * @return Die Bauschlange
 	 */
 	public @Nonnull List<WerftQueueEntry> getBuildQueue() {
-		return this.queue.stream().sorted((e1, e2) -> e1.getPosition()-e2.getPosition()).collect(Collectors.toList());
+		return this.queue.stream().sorted(Comparator.comparingInt(WerftQueueEntry::getPosition)).collect(Collectors.toList());
 	}
 
 	/**

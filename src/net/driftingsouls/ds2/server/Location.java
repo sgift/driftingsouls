@@ -307,18 +307,7 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 		{
 			if(y == o.y)
 			{
-				if(x == o.x)
-				{
-					return 0;
-				}
-				else if(x < o.x)
-				{
-					return -1;
-				}
-				else
-				{
-					return 1;
-				}
+				return Integer.compare(x, o.x);
 			}
 			else if(y < o.y)
 			{

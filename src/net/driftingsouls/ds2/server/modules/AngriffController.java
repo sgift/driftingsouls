@@ -307,7 +307,7 @@ public class AngriffController extends Controller
 
 			for( String weaponName : weapons.keySet() ) {
 				t.setVar(	"shipinfo.weapon.name",		Weapons.get().weapon(weaponName).getName(),
-							"shipinfo.weapon.heat",		heat.containsKey(weaponName) ? heat.get(weaponName) : 0,
+							"shipinfo.weapon.heat",     heat.getOrDefault(weaponName, 0),
 							"shipinfo.weapon.maxheat",	maxheat.get(weaponName) );
 
 				t.parse("shipinfo.weapons.list","shipinfo.weapons.listitem",true);

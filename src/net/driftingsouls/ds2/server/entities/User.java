@@ -72,15 +72,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -949,7 +941,7 @@ public class User extends BasicUser {
 	public Set<Medal> getMedals() {
 		int[] medals = Common.explodeToInt(";", this.medals);
 
-		return Arrays.stream(medals).boxed().map((id) -> Medals.get().medal(id)).filter((m) -> m != null).collect(Collectors.toSet());
+		return Arrays.stream(medals).boxed().map((id) -> Medals.get().medal(id)).filter(Objects::nonNull).collect(Collectors.toSet());
 	}
 
 	/**

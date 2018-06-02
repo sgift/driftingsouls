@@ -398,11 +398,7 @@ public class SchiffFlugService
 			Map<Location,List<String>> shipDockIds = new HashMap<>();
 			for( Ship fleetship : fleetdata.ships.values() ) {
 				if( fleetdata.dockedCount.get(fleetship.getId()) > 0 ) {
-					List<String> posIds = shipDockIds.get(fleetship.getLocation());
-					if( posIds == null ) {
-						posIds = new ArrayList<>();
-						shipDockIds.put(fleetship.getLocation(), posIds);
-					}
+					List<String> posIds = shipDockIds.computeIfAbsent(fleetship.getLocation(), k -> new ArrayList<>());
 					posIds.add("l "+fleetship.getId());
 					posIds.add(Integer.toString(fleetship.getId()));
 				}
