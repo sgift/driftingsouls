@@ -92,12 +92,11 @@ public class UserRank
 				return false;
 			if (rankGiver == null)
 			{
-				if (other.rankGiver != null)
-					return false;
+				return other.rankGiver == null;
 			}
-			else if (!rankGiver.equals(other.rankGiver))
-				return false;
-			return true;
+			else {
+				return rankGiver.equals(other.rankGiver);
+			}
 		}
 	}
 

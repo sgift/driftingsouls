@@ -84,14 +84,10 @@ public class ShipUnitCargoEntry extends UnitCargoEntry
 		}
 		if( schiff == null )
 		{
-			if( other.schiff != null ) {
-				return false;
-			}
+			return other.schiff == null;
 		}
-		else if( !this.schiff.equals(other.schiff) )
-		{
-			return false;
+		else {
+			return this.schiff.equals(other.schiff);
 		}
-		return true;
 	}
 }

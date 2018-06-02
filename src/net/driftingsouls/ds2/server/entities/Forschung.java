@@ -265,12 +265,7 @@ public class Forschung {
 			return false;
 		}
 
-		if( !user.hasResearched(getBenoetigteForschungen()) )
-		{
-			return false;
-		}
-
-		return true;
+		return user.hasResearched(getBenoetigteForschungen());
 	}
 
 	/**

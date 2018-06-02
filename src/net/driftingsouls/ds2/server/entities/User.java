@@ -1757,7 +1757,7 @@ public class User extends BasicUser {
 	 * @return <code>true</code>, falls das Flag aktiv ist
 	 */
 	public boolean hasFlag( UserFlag flag ) {
-		if( this.attachedUser != null && this.attachedUser instanceof User )
+		if(this.attachedUser instanceof User)
 		{
 			if( ((User)this.attachedUser).hasFlag(flag) )
 			{

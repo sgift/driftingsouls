@@ -87,13 +87,7 @@ public class ShipFlag
         }
 
         ShipFlag shipFlag = (ShipFlag) o;
-
-        if (flagType != shipFlag.flagType)
-        {
-            return false;
-        }
-
-        return true;
+        return flagType == shipFlag.flagType;
     }
 
     /**

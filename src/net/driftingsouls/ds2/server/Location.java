@@ -186,10 +186,7 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 			return false;
 		}
 
-		if( this.y != loc.y ) {
-			return false;
-		}
-		return true;
+		return this.y == loc.y;
 	}
 
 	@Override
@@ -216,11 +213,7 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 			return false;
 		}
 
-		if( Math.floor(Math.sqrt((this.x-loc.getX())*(this.x-loc.getX())+(this.y-loc.getY())*(this.y-loc.getY()))) > ownRadius+objectRadius ) {
-			return false;
-		}
-
-		return true;
+		return !(Math.floor(Math.sqrt((this.x - loc.getX()) * (this.x - loc.getX()) + (this.y - loc.getY()) * (this.y - loc.getY()))) > ownRadius + objectRadius);
 	}
 
 	/**

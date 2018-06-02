@@ -18,12 +18,11 @@
  */
 package net.driftingsouls.ds2.server.cargo.modules;
 
-import java.util.List;
-
 import net.driftingsouls.ds2.server.ships.AbstractShipTypeDataWrapper;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-
 import org.apache.commons.lang.StringUtils;
+
+import java.util.List;
 
 /**
  * Repraesentiert einen gedockten Frachtcontainer in DS.
@@ -52,10 +51,7 @@ public class ModuleContainerShip extends Module {
 		}
 		String[] dataArray = StringUtils.split(entry.getData(), '_');
 
-		if( Integer.parseInt(dataArray[0]) != this.shipid ) {
-			return false;
-		}
-		return true;
+		return Integer.valueOf(dataArray[0]) == this.shipid;
 	}
 
 	@Override

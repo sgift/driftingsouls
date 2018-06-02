@@ -2609,11 +2609,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 			return true;
 		}
 
-		if(this.getWeapons() < 100) {
-			return true;
-		}
+		return this.getWeapons() < 100;
 
-		return false;
 	}
 
 	/**

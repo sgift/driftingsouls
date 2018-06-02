@@ -93,10 +93,10 @@ public class EditShiptypes implements EntityEditor<ShipType>
 		form.textArea("Beschreibung", ShipType::getDescrip, ShipType::setDescrip);
 		form.field("Deuteriumsammeln", Integer.class, ShipType::getDeutFactor, ShipType::setDeutFactor);
 
-		Map<ShipClasses, String> shipClasses = Arrays.asList(ShipClasses.values()).stream().collect(Collectors.toMap((sc) -> sc, ShipClasses::getSingular));
+		Map<ShipClasses, String> shipClasses = Arrays.stream(ShipClasses.values()).collect(Collectors.toMap((sc) -> sc, ShipClasses::getSingular));
 		form.field("Schiffsklasse", ShipClasses.class, ShipType::getShipClass, ShipType::setShipClass).withOptions(shipClasses).dbColumn(ShipType_.shipClass);
 		form.multiSelection("Flags", ShipTypeFlag.class, ShipType::getFlags, (st, flags) -> st.setFlags(flags.stream().map(ShipTypeFlag::getFlag).collect(Collectors.joining(" "))))
-			.withOptions(Arrays.asList(ShipTypeFlag.values()).stream().collect(Collectors.toMap((f) -> f, ShipTypeFlag::getLabel)));
+			.withOptions(Arrays.stream(ShipTypeFlag.values()).collect(Collectors.toMap((f) -> f, ShipTypeFlag::getLabel)));
 		form.field("Groupwrap", Integer.class, ShipType::getGroupwrap, ShipType::setGroupwrap);
 		form.field("Werft (Slots)", Integer.class, ShipType::getWerft, ShipType::setWerft);
 		form.field("Einmalwerft", ShipType.class, ShipType::getOneWayWerft, ShipType::setOneWayWerft).withNullOption("Deaktiviert");
@@ -199,12 +199,7 @@ public class EditShiptypes implements EntityEditor<ShipType>
 				.setMaxResults(1)
 				.setEntity("type", st)
 				.uniqueResult();
-		if( type != null )
-		{
-			return false;
-		}
-
-		return true;
+		return type == null;
 	}
 
 	private void aktualisiereSchiff(ShipType oldShiptype, Integer shipId)

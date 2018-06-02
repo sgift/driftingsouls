@@ -18,10 +18,10 @@
  */
 package net.driftingsouls.ds2.server.cargo.modules;
 
-import java.util.List;
-
 import net.driftingsouls.ds2.server.ships.AbstractShipTypeDataWrapper;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+
+import java.util.List;
 
 /**
  * Repraesentiert ein Modul, welches das Bild eines Schiffes veraendert.
@@ -46,10 +46,7 @@ public class ModuleShipPicture extends Module {
 			return false;
 		}
 
-		if( !this.picture.equals(entry.getData()) ) {
-			return false;
-		}
-		return true;
+		return this.picture.equals(entry.getData());
 	}
 
 	@Override
