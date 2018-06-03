@@ -63,7 +63,7 @@ public class EditUser implements EntityEditor<User>
 		form.field("Wait4Vac", Integer.class, User::getWait4VacationCount, User::setWait4VacationCount);
 		form.field("Konto", BigInteger.class, User::getKonto, User::setKonto);
 		form.multiSelection("Flags", UserFlag.class, User::getFlags, User::setFlags)
-				.withOptions(Arrays.asList(UserFlag.values()).stream().collect(Collectors.toMap((f) -> f, UserFlag::getFlag)));
+				.withOptions(Arrays.stream(UserFlag.values()).collect(Collectors.toMap((f) -> f, UserFlag::getFlag)));
 		form.field("Rang", Integer.class, User::getRang, User::setRang).withOptions(Medals.get().raenge());
 		form.textArea("History", User::getHistory, User::setHistory);
 		form.field("NPC-Punkte", Integer.class, User::getNpcPunkte, User::setNpcPunkte);

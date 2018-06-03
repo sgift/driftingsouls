@@ -93,16 +93,15 @@ public class MultiSelectionGenerator<E, T> implements CustomFieldGenerator<E>
 		{
 			return;
 		}
-		Class<T> type = this.dataType;
 		String[] vals = request.getParameterValues(this.name);
 
 		if (this.dataType.isAnnotationPresent(Entity.class) )
 		{
-			setter.accept(entity, Arrays.asList(vals).stream().map(this::convertToEntity).collect(Collectors.toSet()));
+			setter.accept(entity, Arrays.stream(vals).map(this::convertToEntity).collect(Collectors.toSet()));
 		}
 		else
 		{
-			setter.accept(entity, Arrays.asList(vals).stream().map((s) -> StringToTypeConverter.convert(type, s)).collect(Collectors.toSet()));
+			setter.accept(entity, Arrays.stream(vals).map((s) -> StringToTypeConverter.convert(this.dataType, s)).collect(Collectors.toSet()));
 		}
 	}
 
@@ -147,7 +146,7 @@ public class MultiSelectionGenerator<E, T> implements CustomFieldGenerator<E>
 		if( entityClass.isEnum() )
 		{
 			Object[] enumConstants = entityClass.getEnumConstants();
-			result.putAll(Arrays.asList(enumConstants).stream().collect(Collectors.toMap((o) -> (Serializable)o, (o) -> o)));
+			result.putAll(Arrays.stream(enumConstants).collect(Collectors.toMap((o) -> (Serializable)o, (o) -> o)));
 		}
 		else
 		{

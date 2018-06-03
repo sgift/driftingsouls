@@ -447,7 +447,7 @@ public class ForschinfoController extends Controller
 			Resources.echoResList(t, reslist, "tech.ship.costs.list");
 
 			//Benoetigt dieses Schiff noch weitere Forschungen???
-			if ( ship.getBenoetigteForschungen().stream().filter((f) -> f.getID() != research.getID()).findAny().isPresent() )
+			if (ship.getBenoetigteForschungen().stream().anyMatch(f -> f.getID() != research.getID()))
 			{
 				firstentry = true;
 

@@ -226,7 +226,7 @@ public class FieldGenerator<E, T> implements CustomFieldGenerator<E>
 		if( entityClass.isEnum() )
 		{
 			Object[] enumConstants = entityClass.getEnumConstants();
-			result.putAll(Arrays.asList(enumConstants).stream().collect(Collectors.toMap((o) -> (Serializable)o, (o) -> o)));
+			result.putAll(Arrays.stream(enumConstants).collect(Collectors.toMap((o) -> (Serializable)o, (o) -> o)));
 		}
 		else
 		{

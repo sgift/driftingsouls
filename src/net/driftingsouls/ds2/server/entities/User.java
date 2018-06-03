@@ -832,7 +832,7 @@ public class User extends BasicUser {
 	 */
 	public boolean hasResearched( @Nonnull Collection<Forschung> forschungen )
 	{
-		return forschungen.stream().noneMatch((f) -> !hasResearched(f));
+		return forschungen.stream().allMatch(this::hasResearched);
 	}
 
 	/**

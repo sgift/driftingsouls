@@ -38,6 +38,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static net.driftingsouls.ds2.server.install.InstallUtils.*;
 
@@ -233,13 +234,13 @@ public class Install
 				"asti_ally/asti_ally.png"));
 		inst.store(imgs, "data/starmap/", null);
 
-		imgs = Arrays.asList(Nebel.Typ.values()).stream().map(Nebel.Typ::getImage).collect(Collectors.toSet());
+		imgs = Arrays.stream(Nebel.Typ.values()).map(Nebel.Typ::getImage).collect(Collectors.toSet());
 		inst.store(imgs);
 
-		imgs = Arrays.asList(0,1,2,3,4,5,6,7,8,9).stream().map((g) -> "ground"+g+".png").collect(Collectors.toSet());
+		imgs = Stream.of(0,1,2,3,4,5,6,7,8,9).map((g) -> "ground"+g+".png").collect(Collectors.toSet());
 		inst.store(imgs, "data/buildings/", null);
 
-		imgs = Arrays.asList(0,1,2,3,4,5,6).stream().map((g) -> "off"+g+".png").collect(Collectors.toSet());
+		imgs = Stream.of(0,1,2,3,4,5,6).map((g) -> "off"+g+".png").collect(Collectors.toSet());
 		inst.store(imgs, "data/interface/offiziere/", null);
 
 		mitContextUndSession((context) -> {
