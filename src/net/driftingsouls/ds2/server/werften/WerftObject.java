@@ -1372,18 +1372,19 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			output.append("Diese Werft dieses Bauprojekt nicht durchführen");
 			return false;
 		}
-
-		for( Ship ship :  this.getOwner().getShips() ){
-			if( ship.getTypeData().getShipClass() == ShipClasses.SCHUTZSCHILD){
-				output.append("Diese Station kann nur einmal existieren");
-				return false;
+		if(build.getBaudaten().getType().getShipClass() == ShipClasses.SCHUTZSCHILD){
+			for( Ship ship : this.getOwner().getShips() ){
+				if( ship.getTypeData().getShipClass() == ShipClasses.SCHUTZSCHILD){
+					output.append("Diese Station kann nur einmal existieren");
+					return false;
+				}
 			}
-		}
 
-		for( WerftQueueEntry entry :  this.getScheduledQueueEntries() ){
-			if( entry.getBuildShipType().getShipClass() == ShipClasses.SCHUTZSCHILD){
-				output.append("Diese Station kann nur einmal existieren");
-				return false;
+			for( WerftQueueEntry entry : this.getBuildQueue() ){
+				if( entry.getBuildShipType().getShipClass() == ShipClasses.SCHUTZSCHILD){
+					output.append("Diese Station kann nur einmal existieren");
+					return false;
+				}
 			}
 		}
 
