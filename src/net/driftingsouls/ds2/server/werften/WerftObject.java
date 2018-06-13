@@ -124,25 +124,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	}
 
 	/**
-	 * Gibt Bauschlangeneintraege des Spielers zurueck.
-	 * @return Die Liste der Bauschlangeneintraege
-	 */
-	public @Nonnull WerftQueueEntry[] getAllQueueEntries() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		List<?> list = db.createQuery("from WerftQueueEntry where werft=:werft order by position")
-			.setInteger("werft", this.getWerftID())
-			.list();
-		WerftQueueEntry[] entries = new WerftQueueEntry[list.size()];
-		int index = 0;
-		for (Object aList : list)
-		{
-			entries[index++] = (WerftQueueEntry) aList;
-		}
-
-		return entries;
-	}
-
-	/**
 	 * Gibt zurueck, ob in der Werft im Moment gebaut wird.
 	 * @return <code>true</code>, falls gebaut wird
 	 */
@@ -1399,7 +1380,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 				}
 			}
 
-			for( WerftQueueEntry entry : this.getAllQueueEntries() ){
+			for( WerftQueueEntry entry : this.getBuildQueue() ){
 				if( entry.getBuildShipType().getShipClass() == ShipClasses.SCHUTZSCHILD){
 					output.append("Diese Station kann nur einmal existieren");
 					return false;
