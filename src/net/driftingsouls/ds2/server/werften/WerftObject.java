@@ -129,7 +129,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 */
 	public @Nonnull WerftQueueEntry[] getAllQueueEntries() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		List<?> list = db.createQuery("from WerftQueueEntry where werft=:werft and order by position")
+		List<?> list = db.createQuery("from WerftQueueEntry where werft=:werft order by position")
 			.setInteger("werft", this.getWerftID())
 			.list();
 		WerftQueueEntry[] entries = new WerftQueueEntry[list.size()];
