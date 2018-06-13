@@ -5,5 +5,5 @@ import java.io.IOException;
 @FunctionalInterface
 public interface TemplateCompilerOutputHandler
 {
-	public void handle(MemJavaFileObject javaFile) throws IOException;
+	void handle(MemJavaFileObject javaFile) throws IOException;
 }

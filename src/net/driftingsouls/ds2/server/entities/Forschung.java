@@ -77,7 +77,7 @@ public class Forschung {
 
 		private String description;
 
-		private Visibility(String description) {
+		Visibility(String description) {
 			this.description = description;
 		}
 
@@ -265,12 +265,7 @@ public class Forschung {
 			return false;
 		}
 
-		if( !user.hasResearched(getBenoetigteForschungen()) )
-		{
-			return false;
-		}
-
-		return true;
+		return user.hasResearched(getBenoetigteForschungen());
 	}
 
 	/**

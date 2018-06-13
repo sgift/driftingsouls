@@ -35,12 +35,7 @@ import org.apache.commons.logging.LogFactory;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Die Akademie.
@@ -485,7 +480,7 @@ public class AcademyBuilding extends DefaultBuilding {
 			t.setBlock("_BUILDING", "academy.training.listitem", "academy.training.list");
 
 			List<AcademyQueueEntry> entries = new ArrayList<>(academy.getQueueEntries());
-			Collections.sort(entries, new AcademyQueueEntryComparator());
+			entries.sort(new AcademyQueueEntryComparator());
 			for( AcademyQueueEntry entry : entries )
 			{
 				if( entry.getTraining() > 0 )

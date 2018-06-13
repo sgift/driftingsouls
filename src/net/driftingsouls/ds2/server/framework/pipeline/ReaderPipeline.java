@@ -42,7 +42,7 @@ public class ReaderPipeline implements Pipeline {
 
 	@Override
 	public void execute(Context context) throws Exception {
-		Reader reader = this.reader.newInstance();
+		Reader reader = this.reader.getDeclaredConstructor().newInstance();
 		
 		reader.read(context, this);
 	}

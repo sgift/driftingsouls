@@ -14,5 +14,5 @@ public interface PostUpdateTaskConsumer<E,T>
 	 * @param currentValue Die Entity mit den neuen Werten nach der Aktualisierung
 	 * @param jobData Der Jobdaten fuer den Verarbeitungsschritt
 	 */
-	public void accept(E oldValue, E currentValue, T jobData);
+    void accept(E oldValue, E currentValue, T jobData);
 }

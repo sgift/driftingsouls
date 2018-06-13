@@ -38,7 +38,7 @@ public interface Request {
 	 * @param parameter Der Name des Parameters
 	 * @return Die Wert
 	 */
-	public @Nonnull String[] getParameterValues(@Nonnull String parameter);
+	@Nonnull String[] getParameterValues(@Nonnull String parameter);
 
 	/**
 	 * Gibt einen Parameter des Aufrufs zurueck.
@@ -46,7 +46,7 @@ public interface Request {
 	 * @param parameter Der Name des Parameters
 	 * @return Der Wert oder <code>null</code>
 	 */
-	public String getParameter(String parameter);
+    String getParameter(String parameter);
 	
 	/**
 	 * Gibt einen Parameter als String zurueck. Sollte der Parameter
@@ -54,7 +54,7 @@ public interface Request {
 	 * @param parameter Der Parameter
 	 * @return Der Wert oder ein leerer String
 	 */
-	public String getParameterString(String parameter);
+    String getParameterString(String parameter);
 	
 	/**
 	 * Gibt einen Parameter als Zahl zurueck. Sollte der Parameter nicht
@@ -63,51 +63,51 @@ public interface Request {
 	 * @param parameter Der Parameter
 	 * @return Der Wert oder <code>0</code>
 	 */
-	public int getParameterInt(String parameter);
+    int getParameterInt(String parameter);
 	
 	/**
 	 * Setzt einen Parameter auf einen bestimmten Wert.
 	 * @param parameter Der Parameter
 	 * @param value Der neue Wert
 	 */
-	public void setParameter(String parameter, String value);
+    void setParameter(String parameter, String value);
 	
 	/**
 	 * Gibt den ContentType des Aufrufs zurueck.
 	 * @return Der ContentType
 	 */
-	public String getContentType();
+    String getContentType();
 	
 	/**
 	 * Gibt den InputStream des Aufrufs zurueck.
 	 * @return Der InputStream
 	 * @throws IOException
 	 */
-	public InputStream getInputStream() throws IOException;
+    InputStream getInputStream() throws IOException;
 	
 	/**
 	 * Gibt den Query-String zurueck.
 	 * @return Der Query-String
 	 */
-	public String getQueryString();
+    String getQueryString();
 	
 	/**
 	 * Gibt den Aufrufpfad zurueck.
 	 * @return Der Aufrufpfad
 	 */
-	public String getPath();
+    String getPath();
 	
 	/**
 	 * Gibt die im Aufruf verwendete Encoding zurueck.
 	 * @return Das Charset
 	 */
-	public String getCharacterEncoding();
+    String getCharacterEncoding();
 	
 	/**
 	 * Gibt die Anzahl an Bytes des Aufrufs zurueck.
 	 * @return Die Laenge
 	 */
-	public int getContentLength();
+    int getContentLength();
 	
 	/**
 	 * Gibt den Header mit dem angegebenen Namen zurueck.
@@ -115,31 +115,31 @@ public interface Request {
 	 * @param header Der Header
 	 * @return Der Wert oder <code>null</code>
 	 */
-	public String getHeader(String header);
+    String getHeader(String header);
 	
 	/**
 	 * Gibt die Adresse des Aufrufers zurueck.
 	 * @return Die Adresse des Aufrufers
 	 */
-	public String getRemoteAddress();
+    String getRemoteAddress();
 	
 	/**
 	 * Gibt die fuer die Anfrage verwendete URL zurueck.
 	 * @return Die URL
 	 */
-	public String getRequestURL();
+    String getRequestURL();
 	
 	/**
 	 * Gibt den User-Agent des Aufrufers zurueck.
 	 * @return Der User-Agent
 	 */
-	public String getUserAgent();
+    String getUserAgent();
 	
 	/**
 	 * Gibt evt hochgeladene Dateien zurueck.
 	 * @return Die Liste der hochgeladenen Dateien
 	 */
-	public List<FileItem> getUploadedFiles();
+    List<FileItem> getUploadedFiles();
 	
 	/**
 	 * Liefert eine pro Session einmalige Instanz einer Klasse.
@@ -150,13 +150,13 @@ public interface Request {
 	 * @param cls Die gewuenschte Klasse
 	 * @return Eine Instanz der Klase
 	 */
-	public <T> T getFromSession(Class<T> cls);
+    <T> T getFromSession(Class<T> cls);
 	
 	/**
 	 * Entfernt die Instanz dieser Klasse aus der Session.
 	 * @param cls Die Klasse
 	 */
-	public void removeFromSession(Class<?> cls);
+    void removeFromSession(Class<?> cls);
 	
 	/**
 	 * Gibt einen Cookie zurueck.
@@ -164,12 +164,12 @@ public interface Request {
 	 * @param name Name des Cookies.
 	 * @return Wert des Cookie oder <code>null</code>, wenn er nicht existiert.
 	 */
-	public String getCookie(String name);
+    String getCookie(String name);
 
 	/**
 	 * Gibt eine Map mit allen Parametern der Request zurueck.
 	 * Key ist der Parametername.
 	 * @return Die Map
 	 */
-	public Map<String,String> getParameterMap();
+    Map<String,String> getParameterMap();
 }

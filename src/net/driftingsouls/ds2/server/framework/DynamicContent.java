@@ -32,7 +32,7 @@ public class DynamicContent implements Serializable
 		DS_ALTBESTAND("DS-Altbestand mit unklarer Lizenz/Quelle");
 
 		private final String label;
-		private Lizenz(String label)
+		Lizenz(String label)
 		{
 			this.label = label;
 		}

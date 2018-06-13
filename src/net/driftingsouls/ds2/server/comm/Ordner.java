@@ -520,11 +520,7 @@ public class Ordner {
 			return false;
 		}
 
-		if( !this.owner.equals(((Ordner)obj).owner) ) {
-			return false;
-		}
-
-		return true;
+		return this.owner.equals(((Ordner) obj).owner);
 	}
 
 	/**

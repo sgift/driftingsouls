@@ -68,7 +68,7 @@ public enum WellKnownAdminPermission implements PermissionDescriptor
 
 	private final String action;
 
-	private WellKnownAdminPermission(String action)
+	WellKnownAdminPermission(String action)
 	{
 		this.action = action;
 	}

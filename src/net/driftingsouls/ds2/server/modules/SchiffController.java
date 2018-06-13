@@ -906,7 +906,7 @@ public class SchiffController extends Controller
 			for (String aTmpslotlist : tmpslotlist)
 			{
 				String[] aslot = StringUtils.split(aTmpslotlist, ':');
-				slotlist.put(new Integer(aslot[0]), aslot);
+				slotlist.put(Integer.valueOf(aslot[0]), aslot);
 			}
 
 			List<Module> moduleObjList = new ArrayList<>();
@@ -917,19 +917,20 @@ public class SchiffController extends Controller
 				if (module.getModuleType() != null)
 				{
 					Module moduleobj = module.createModule();
-					if ((module.getSlot() > 0) && (slotlist.get(module.getSlot()).length > 2))
-					{
-						moduleobj.setSlotData(slotlist.get(module.getSlot())[2]);
-					}
 
-					moduleObjList.add(moduleobj);
-					if (moduleobj instanceof ModuleItemModule)
-					{
-						Cargo acargo = new Cargo();
-						acargo.addResource(((ModuleItemModule) moduleobj).getItemID(), 1);
-						ResourceEntry res = acargo.getResourceList().iterator().next();
-						tooltiplines.add("<span class='nobr'><img style='vertical-align:middle' src='" + res.getImage() + "' alt='' />" + res.getPlainName() + "</span><br />");
-						itemmodules = true;
+					if(moduleobj != null) {
+						if ((module.getSlot() > 0) && (slotlist.get(module.getSlot()).length > 2)) {
+							moduleobj.setSlotData(slotlist.get(module.getSlot())[2]);
+						}
+
+						moduleObjList.add(moduleobj);
+						if (moduleobj instanceof ModuleItemModule) {
+							Cargo acargo = new Cargo();
+							acargo.addResource(((ModuleItemModule) moduleobj).getItemID(), 1);
+							ResourceEntry res = acargo.getResourceList().iterator().next();
+							tooltiplines.add("<span class='nobr'><img style='vertical-align:middle' src='" + res.getImage() + "' alt='' />" + res.getPlainName() + "</span><br />");
+							itemmodules = true;
+						}
 					}
 				}
 			}

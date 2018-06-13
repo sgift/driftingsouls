@@ -24,11 +24,7 @@ import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -37,7 +33,6 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -379,14 +374,7 @@ public class TCController extends Controller
 				"tc.target", upBase.getId());
 
 		List<Offizier> offilist = Offizier.getOffiziereByDest(upBase);
-		for (Iterator<Offizier> iter = offilist.iterator(); iter.hasNext(); )
-		{
-			Offizier offi = iter.next();
-			if (offi.isTraining())
-			{
-				iter.remove();
-			}
-		}
+		offilist.removeIf(Offizier::isTraining);
 
 		int shipcount = 0;
 

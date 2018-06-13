@@ -28,5 +28,5 @@ public interface ContextListener {
 	 * Signalisiert, dass der Kontext freigegeben wird.
 	 *
 	 */
-	public void onContextDestory();
+    void onContextDestory();
 }

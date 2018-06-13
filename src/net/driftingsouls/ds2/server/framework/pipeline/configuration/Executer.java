@@ -34,5 +34,5 @@ interface Executer
 	 * @return Die Pipeline
 	 * @throws Exception
 	 */
-	public Pipeline execute(Context context) throws Exception;
+    Pipeline execute(Context context) throws Exception;
 }

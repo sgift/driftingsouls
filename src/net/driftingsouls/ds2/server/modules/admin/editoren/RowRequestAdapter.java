@@ -38,9 +38,7 @@ class RowRequestAdapter implements Request
 	@Override
 	public String getParameterString(String parameter)
 	{
-		return parameters.containsKey(parameter) ?
-				parameters.get(parameter) :
-				"";
+		return parameters.getOrDefault(parameter, "");
 	}
 
 	@Override

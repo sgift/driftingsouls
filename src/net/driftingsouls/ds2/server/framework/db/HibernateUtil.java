@@ -53,13 +53,12 @@ public class HibernateUtil
 	private static EntityManagerFactoryImpl entityManagerFactory;
 	private static ServiceRegistry serviceRegistry;
 
-	private static final ThreadLocal<EntityManager> CURRENT_ENTITY_MANAGER = new ThreadLocal<EntityManager>() {
-		@Override
-		protected EntityManager initialValue()
-		{
-			return entityManagerFactory.createEntityManager();
-		}
-	};
+	private static final ThreadLocal<EntityManager> CURRENT_ENTITY_MANAGER = new ThreadLocal<>() {
+        @Override
+        protected EntityManager initialValue() {
+            return entityManagerFactory.createEntityManager();
+        }
+    };
 
 	public static EntityManager getCurrentEntityManager()
 	{

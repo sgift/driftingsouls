@@ -28,7 +28,7 @@ public interface RoleDefinition {
 	 * Gibt den Namen der verwendeten Rolle zurueck.
 	 * @return Der Name
 	 */
-	public String getRoleName();
+    String getRoleName();
 	
 	/**
 	 * Gibt das Attribut mit dem angegebenen Namen zurueck.
@@ -36,5 +36,5 @@ public interface RoleDefinition {
 	 * @param name Der Name
 	 * @return Der Wert des Attributs oder <code>null</code>
 	 */
-	public Object getAttribute(String name);
+    Object getAttribute(String name);
 }

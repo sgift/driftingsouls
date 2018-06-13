@@ -48,7 +48,7 @@ public enum BattleShipFlag
 
 	private final int bit;
 
-	private BattleShipFlag(int bit)
+	BattleShipFlag(int bit)
 	{
 		this.bit = bit;
 	}

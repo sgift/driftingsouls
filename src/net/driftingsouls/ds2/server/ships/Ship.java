@@ -1239,7 +1239,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			}
 		}
 
-		return result.toArray(new ModuleEntry[result.size()]);
+		return result.toArray(new ModuleEntry[0]);
 	}
 
 	private int berecheNeuenStatusWertViaDelta(int currentVal, int oldMax, int newMax)
@@ -1380,8 +1380,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			this.modules = shipModules;
 		}
 
-		List<ModuleEntry> moduletbl = new ArrayList<>();
-		moduletbl.addAll(Arrays.asList(getModules()));
+		List<ModuleEntry> moduletbl = new ArrayList<>(Arrays.asList(getModules()));
 
 		//check modules
 
@@ -1488,8 +1487,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		ShipModules shipModules = this.modules;
 
-		List<ModuleEntry> moduletbl = new ArrayList<>();
-		moduletbl.addAll(Arrays.asList(getModules()));
+		List<ModuleEntry> moduletbl = new ArrayList<>(Arrays.asList(getModules()));
 
 		//check modules
 
@@ -1555,14 +1553,14 @@ public class Ship implements Locatable,Transfering,Feeding {
 		if( dockshipList.size() > type.getADocks() )
 		{
 			List<Ship> undock = dockshipList.subList(0, dockshipList.size()-type.getADocks());
-			this.undock(undock.toArray(new Ship[undock.size()]));
+			this.undock(undock.toArray(new Ship[0]));
 		}
 
 		List<Ship> jdockshipList = getLandedShips();
 		if( jdockshipList.size() > type.getJDocks() )
 		{
 			List<Ship> undock = jdockshipList.subList(0, jdockshipList.size()-type.getJDocks());
-			this.start(undock.toArray(new Ship[undock.size()]));
+			this.start(undock.toArray(new Ship[0]));
 		}
 	}
 
@@ -1576,8 +1574,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		ShipModules shipModules = this.modules;
 
-		List<ModuleEntry> moduletbl = new ArrayList<>();
-		moduletbl.addAll(Arrays.asList(getModules()));
+		List<ModuleEntry> moduletbl = new ArrayList<>(Arrays.asList(getModules()));
 
 		//check modules
 
@@ -1601,13 +1598,16 @@ public class Ship implements Locatable,Transfering,Feeding {
 			{
 				Module moduleobj = module.createModule();
 
-				if ((module.getSlot() > 0) && (slotlist.get(module.getSlot()).length > 2))
-				{
-					moduleobj.setSlotData(slotlist.get(module.getSlot())[2]);
-				}
-				moduleobjlist.add(moduleobj);
+				if(moduleobj != null) {
+					if ((module.getSlot() > 0) && (slotlist.get(module.getSlot()).length > 2)) {
+						moduleobj.setSlotData(slotlist.get(module.getSlot())[2]);
+					}
+					moduleobjlist.add(moduleobj);
 
-				moduleSlotData.add(module.serialize());
+					moduleSlotData.add(module.serialize());
+				} else {
+					log.error(String.format("ship: %s - module type: %s - unable to create module - skipping.", id, module.getModuleType()));
+				}
 			}
 		}
 
@@ -1724,7 +1724,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	/**
 	 * Die verschiedenen Dock-Aktionen.
 	 */
-	public static enum DockMode {
+	public enum DockMode {
 		/**
 		 * Schiff extern docken.
 		 */
@@ -2029,7 +2029,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			if(ships.size() < dockships.length)
 			{
 				//TODO: Hackversuch - schweigend ignorieren, spaeter loggen
-				dockships = ships.toArray(new Ship[ships.size()]);
+				dockships = ships.toArray(new Ship[0]);
 				errors = true;
 			}
 		}
@@ -2113,7 +2113,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		if(ships.size() < dockships.length)
 		{
 			//TODO: Hackversuch - schweigend ignorieren, spaeter loggen
-			dockships = ships.toArray(new Ship[ships.size()]);
+			dockships = ships.toArray(new Ship[0]);
 
 			if(dockships.length == 0)
 			{
@@ -2150,7 +2150,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			if(ships.size() < dockships.length)
 			{
 				//TODO: Hackversuch - schweigend ignorieren, spaeter loggen
-				dockships = ships.toArray(new Ship[ships.size()]);
+				dockships = ships.toArray(new Ship[0]);
 
 				if(dockships.length == 0)
 				{
@@ -2609,11 +2609,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 			return true;
 		}
 
-		if(this.getWeapons() < 100) {
-			return true;
-		}
+		return this.getWeapons() < 100;
 
-		return false;
 	}
 
 	/**
@@ -2695,13 +2692,13 @@ public class Ship implements Locatable,Transfering,Feeding {
             return false;
         }
         ShipTypeData type = getTypeData();
-        if(getHull() < type.getHull() || getAblativeArmor() < type.getAblativeArmor() ||
-                getEngine() < 100 || getSensors() < 100 || getWeapons() < 100 || getComm() < 100)
-        {
-            return true;
-        }
-        return false;
-    }
+		return getHull() < type.getHull() ||
+				getAblativeArmor() < type.getAblativeArmor() ||
+				getEngine() < 100 ||
+				getSensors() < 100 ||
+				getWeapons() < 100 ||
+				getComm() < 100;
+	}
 
 	/**
 	 *
@@ -2759,43 +2756,19 @@ public class Ship implements Locatable,Transfering,Feeding {
 	        case ALL:
 	        	 return true;
 	        case NEUTRAL_AND_FRIENDS:
-	        	// check wether we are an enemy of the owner
-	        	 if( relationlist.beziehungVon(this.owner) == User.Relation.ENEMY )
-	        	 {
-	        		 //shit we are an enemy, we're not allowed to see the tradepost
-	        		 return false;
-	        	 }
-	        	 // hey fine, we're allowed to see the tradepost
-	        	 return true;
-	        case FRIENDS:
-	        	// check wether we are a friend of the owner
-	        	 if( (relationlist.beziehungVon(this.owner) == User.Relation.FRIEND) || (ownerid == observerid) )
-	        	 {
-	        		 // hey cool we are, let's take a look at the tradepost
-	        		 return true;
-	        	 }
-				// damn it, we're not friends, no tradepost for us
-				 return false;
-	        case ALLY:
+	        	// check whether we are an enemy of the owner
+				return relationlist.beziehungVon(this.owner) != User.Relation.ENEMY;
+			case FRIENDS:
+	        	// check whether we are a friend of the owner
+				return (relationlist.beziehungVon(this.owner) == User.Relation.FRIEND) || (ownerid == observerid);
+			case ALLY:
 	        	// check if we are members of the same ally and if the owner has an ally
-	        	 if( ((this.getOwner().getAlly() != null) && observer.getAlly() != null && (this.getOwner().getAlly().getId() == observer.getAlly().getId() )) || (ownerid == observerid) )
-	        	 {
-	        		 // same ally, we can see the tradepost, that's fine
-	        		 return true;
-	        	 }
-				// no tradepost for us
-				 return false;
-	        case NONE:
+				return ((this.getOwner().getAlly() != null) && observer.getAlly() != null && (this.getOwner().getAlly().getId() == observer.getAlly().getId())) || (ownerid == observerid);
+			case NONE:
 	        	// check if we are the owner of the tradepost
-	        	 if(ownerid == observerid)
-	        	 {
-	        		 // hey that's funny, it's our tradepost, we are able to see it :D
-	        		 return true;
-	        	 }
-				// another one's tradepost, not shown to us
-				 return false;
-	        default:
-	        	// damn it, broken configuration, don't show the tradepost
+				return ownerid == observerid;
+			default:
+				// damn it, broken configuration, don't show the tradepost
 	        	 return false;
 		}
 	}

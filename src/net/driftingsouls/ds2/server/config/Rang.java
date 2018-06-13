@@ -140,8 +140,6 @@ public class Rang implements Comparable<Rang>
 		if (getClass() != obj.getClass())
 			return false;
 		Rang other = (Rang) obj;
-		if (id != other.id)
-			return false;
-		return true;
+		return id == other.id;
 	}
 }

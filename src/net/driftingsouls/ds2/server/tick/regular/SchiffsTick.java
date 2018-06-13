@@ -780,7 +780,7 @@ public class SchiffsTick extends TickController {
 	private List<Ship> buildSortedShipList(User auser)
 	{
 		List<Ship> ships = new ArrayList<>(auser.getShips());
-		Collections.sort(ships, new ShipComparator());
+		ships.sort(new ShipComparator());
 		return ships;
 	}
 

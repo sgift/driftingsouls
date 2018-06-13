@@ -44,7 +44,7 @@ public class FraktionsGuiEintrag
 
 		private final String id;
 
-		private Seite(String id)
+		Seite(String id)
 		{
 			this.id = id;
 		}

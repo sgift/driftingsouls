@@ -12,6 +12,7 @@ import org.hibernate.Session;
 
 import javax.persistence.Entity;
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.text.ParseException;
@@ -41,9 +42,9 @@ public class ParameterReader
 					continue;
 				}
 				UrlParamKonverterFuer annotation = cls.getAnnotation(UrlParamKonverterFuer.class);
-				konverter.put(annotation.value(), cls.asSubclass(UrlParamKonverter.class).newInstance());
+				konverter.put(annotation.value(), cls.asSubclass(UrlParamKonverter.class).getDeclaredConstructor().newInstance());
 			}
-			catch (InstantiationException | IllegalAccessException e)
+			catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e)
 			{
 				LOG.warn("Konnte Konverterklasse " + cls.getName() + " nicht instantiieren", e);
 			}

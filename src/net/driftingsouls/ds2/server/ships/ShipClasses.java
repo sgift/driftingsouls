@@ -126,7 +126,7 @@ public enum ShipClasses {
 
 	private final boolean darfSchlachtenAnsehen;
 
-	private ShipClasses(String singular, String plural, boolean kaperbar, boolean darfSchlachtenAnsehen) {
+	ShipClasses(String singular, String plural, boolean kaperbar, boolean darfSchlachtenAnsehen) {
 		this.singular = singular;
 		this.plural = plural;
 		this.kaperbar = kaperbar;

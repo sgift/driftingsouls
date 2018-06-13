@@ -83,14 +83,10 @@ public class BaseUnitCargoEntry extends UnitCargoEntry
 		}
 		if( basis == null )
 		{
-			if( other.basis != null ) {
-				return false;
-			}
+			return other.basis == null;
 		}
-		else if( !basis.equals(other.basis) )
-		{
-			return false;
+		else {
+			return basis.equals(other.basis);
 		}
-		return true;
 	}
 }

@@ -147,18 +147,14 @@ public abstract class AbstractTickExecuter extends TickController
 	 *
 	 * @param status Der zu schreibende Status
 	 */
-	protected void publishStatus(String status)
-	{
-		try
-		{
-			addLogTarget(this.loxpath + "ticktime.log", false);
+	protected void publishStatus(String status) {
+		try {
+			addLogTarget(Configuration.getLogPath() + "ticktime.log", false);
 			log("Bitte warten - " + status);
-			removeLogTarget(this.loxpath + "ticktime.log");
+			removeLogTarget(Configuration.getLogPath() + "ticktime.log");
 
 			this.status = status;
-		}
-		catch( IOException e )
-		{
+		} catch (IOException e) {
 			System.err.println("Tickstatus konnte nicht publiziert werden: " + e);
 		}
 	}
@@ -178,19 +174,14 @@ public abstract class AbstractTickExecuter extends TickController
 	 * Vor- und Nachbereitung der Tickausfuehrung.
 	 */
 	@Override
-	protected final void tick()
-	{
-		if( getContext().getRequest().getParameterString("only").length() > 0 )
-		{
+	protected final void tick() {
+		if (getContext().getRequest().getParameterString("only").length() > 0) {
 
-			try
-			{
+			try {
 				execTick(Class.forName(getContext().getRequest().getParameterString("only"))
 						.asSubclass(TickController.class), true);
-			}
-			catch( Exception e )
-			{
-				System.err.println("Ausfuehrung des Ticks "
+			} catch (Exception e) {
+				System.err.println("Ausfuehrung des Ticks " 
 						+ getContext().getRequest().getParameterString("only")
 						+ " fehlgeschlagen: " + e);
 				e.printStackTrace();
@@ -203,11 +194,9 @@ public abstract class AbstractTickExecuter extends TickController
 		int ticknr = getContext().get(ContextCommon.class).getTick() + 1;
 		transaction.commit();
 
-		if( !new File(loxpath + "/" + ticknr).isDirectory() )
-		{
+		if (!new File(loxpath + "/" + ticknr).isDirectory()) {
 			boolean result = new File(loxpath + "/" + ticknr).mkdir();
-			if( !result )
-			{
+			if (!result) {
 				log.error("Kann Verzeichnis '" + loxpath + "/" + ticknr + "' nicht anlegen");
 			}
 		}
@@ -216,20 +205,16 @@ public abstract class AbstractTickExecuter extends TickController
 
 		copyLogs(ticknr);
 
-		try
-		{
-			addLogTarget(this.loxpath + "tix.log", true);
-			if( name.length() != 0 )
-			{
+		try {
+			addLogTarget(Configuration.getLogPath() + "tix.log", true);
+			if (name.length() != 0) {
 				slog(name + ": ");
 			}
-			addLogTarget(this.loxpath + "ticktime.log", false);
+			addLogTarget(Configuration.getLogPath() + "ticktime.log", false);
 			log(Common.date("d.m.Y H:i:s"));
-			removeLogTarget(this.loxpath + "ticktime.log");
-			removeLogTarget(this.loxpath + "tix.log");
-		}
-		catch( Exception e )
-		{
+			removeLogTarget(Configuration.getLogPath() + "ticktime.log");
+			removeLogTarget(Configuration.getLogPath() + "tix.log");
+		} catch (Exception e) {
 			System.err.println("Fehler bei der Ticknachbereitung: " + e);
 		}
 	}

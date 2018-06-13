@@ -226,11 +226,11 @@ public class BasicContext implements Context
 			{
 				try
 				{
-					contextSingletons.put(cls, cls.newInstance());
+					contextSingletons.put(cls, cls.getDeclaredConstructor().newInstance());
 				}
 				catch( Exception e )
 				{
-					log.error(e, e);
+					log.error(String.format("Unable to add class to context singleton: %s", cls), e);
 					return null;
 				}
 			}

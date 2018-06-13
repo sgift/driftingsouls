@@ -43,54 +43,54 @@ public class CrewtauschController extends Controller
 	/**
 	 * Das Ziel fuer einen Crewtransfer.
 	 */
-	private static interface Target
+	private interface Target
 	{
 		/**
 		 * Gibt die verfuegbare Crew zurueck.
 		 *
 		 * @return Die Crew
 		 */
-		public int getCrew();
+        int getCrew();
 
 		/**
 		 * Setzt die Crew auf dem Objekt.
 		 *
 		 * @param crew Die Crew
 		 */
-		public void setCrew(int crew);
+        void setCrew(int crew);
 
 		/**
 		 * Wird am Ende des Transfervorgangs aufgerufen.
 		 */
-		public void finishTransfer();
+        void finishTransfer();
 
 		/**
 		 * Gibt den Namen des Objekts zurueck.
 		 *
 		 * @return Der Name
 		 */
-		public String getName();
+        String getName();
 
 		/**
 		 * Gibt die ID des Objekts zurueck.
 		 *
 		 * @return Die ID
 		 */
-		public int getId();
+        int getId();
 
 		/**
 		 * Gibt den Besitzer des Objekts zurueck.
 		 *
 		 * @return Der Besitzer
 		 */
-		public User getOwner();
+        User getOwner();
 
 		/**
 		 * Gibt die maximale Anzahl an Crew auf dem Objekt zurueck.
 		 *
 		 * @return Die maximale Crewmenge (<code>-1</code> = unbegrenzt)
 		 */
-		public int getMaxCrew();
+        int getMaxCrew();
 	}
 
 	/**

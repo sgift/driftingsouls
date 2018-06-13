@@ -134,7 +134,7 @@ public enum ShipTypeFlag
 	private final String label;
 	private final String description;
 
-	private ShipTypeFlag(String flag, String label, String description)
+	ShipTypeFlag(String flag, String label, String description)
 	{
 		this.flag = flag;
 		this.label = label;

@@ -34,73 +34,73 @@ public interface Response {
 	 * erfolgt ist.
 	 * @throws IllegalStateException Falls bereits die Ausgabe geschrieben wurde
 	 */
-	public void activateOutputCache() throws IllegalStateException;
+    void activateOutputCache() throws IllegalStateException;
 	
 	/**
 	 * Setzt den aktuellen Content-Typ.
 	 * @param contentType der neue Content-Typ
 	 */
-	public void setContentType(String contentType);
+    void setContentType(String contentType);
 	
 	/**
 	 * Setzt den aktuellen Content-Typ.
 	 * @param contentType der neue Content-Typ
 	 * @param charSet Setzt das aktuelle Character Set
 	 */
-	public void setContentType(String contentType, String charSet);
+    void setContentType(String contentType, String charSet);
 	
 	/**
 	 * Setzt die erwartete Content-Laenge.
 	 * @param length die erwartete Content-Laenge
 	 */
-	public void setContentLength(int length);
+    void setContentLength(int length);
 
 	/**
 	 * Gibt einen Writer zum Schreiben der Ausgabe zurueck.
 	 * @return Der Writer
 	 * @throws IOException 
 	 */
-	public Writer getWriter() throws IOException;
+    Writer getWriter() throws IOException;
 	
 	/**
 	 * Liefert den Ausgabestrom.
 	 * @return Der Ausgabestrom der Response
 	 * @throws IOException
 	 */
-	public OutputStream getOutputStream() throws IOException;
+    OutputStream getOutputStream() throws IOException;
 	
 	/**
 	 * Setzt den HTTP-Statuscode der Antwort.
 	 * @param status der Statuscode
 	 */
-	public void setStatus(int status);
+    void setStatus(int status);
 	
 	/**
 	 * Setzt einen Wert im Kopf der Antwort.
 	 * @param name Name des Wertes
 	 * @param value Der Wert selbst
 	 */
-	public void setHeader(String name, String value);
+    void setHeader(String name, String value);
 	
 	/**
 	 * Sendet die Antwort.
 	 * @throws IOException
 	 */
-	public void send() throws IOException;
+    void send() throws IOException;
 
 	/**
 	 * Setzt den internen Status auf manuelles senden.
 	 * In diesem Fall sendet das Objekt selbst keine Daten mehr.
 	 *
 	 */
-	public void setManualSendStatus();
+    void setManualSendStatus();
 	
 	/**
 	 * Antwortet dem Client mit einer Weiterleitung auf die angegebene
 	 * URL.
 	 * @param url Die Ziel-URL
 	 */
-	public void redirectTo(String url);
+    void redirectTo(String url);
 	
 	/**
 	 * Setzt einen Cookie.
@@ -109,5 +109,5 @@ public interface Response {
 	 * @param value Wert des Cookie.
 	 * @param expiry Lebenszeit des Cookie.
 	 */
-	public void setCookie(String name, String value, int expiry);
+    void setCookie(String name, String value, int expiry);
 }

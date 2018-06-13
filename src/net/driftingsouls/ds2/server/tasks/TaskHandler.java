@@ -30,5 +30,5 @@ interface TaskHandler {
 	 * @param task Die Task
 	 * @param event Der Eventtyp
 	 */
-	public void handleEvent(Task task, String event);
+    void handleEvent(Task task, String event);
 }

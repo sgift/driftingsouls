@@ -39,7 +39,7 @@ public abstract class BasicKSAction {
 	 * verfaehrt.
 	 *
 	 */
-	public static enum Result
+	public enum Result
 	{
 		/**
 		 * Das Ergebnis "Ok".

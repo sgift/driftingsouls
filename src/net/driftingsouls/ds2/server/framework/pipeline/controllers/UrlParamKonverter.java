@@ -12,5 +12,5 @@ public interface UrlParamKonverter<T>
 	 * @param parameterName Der Name des zu konvertierenden Parameters
 	 * @return Der konvertiere Parameter
 	 */
-	public T konvertiere(ParameterReader parameterReader, String parameterName);
+    T konvertiere(ParameterReader parameterReader, String parameterName);
 }

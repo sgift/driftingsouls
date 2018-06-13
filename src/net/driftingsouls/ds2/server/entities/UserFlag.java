@@ -86,7 +86,7 @@ public enum UserFlag
 
 	private final String flag;
 
-	private UserFlag(String flag)
+	UserFlag(String flag)
 	{
 		this.flag = flag;
 	}

@@ -109,7 +109,7 @@ public class BBCodeParser {
 						String cls = bbcode.getAttribute("handler");
 						try {
 							Class<? extends BBCodeFunction> bbcodeCls = Class.forName(cls).asSubclass(BBCodeFunction.class);
-							registerHandler(tag, params, bbcodeCls.newInstance());
+							registerHandler(tag, params, bbcodeCls.getDeclaredConstructor().newInstance());
 						}
 						catch( ClassNotFoundException e ) {
 							log.warn("Konnte BBCode "+tag+"("+params+") nicht laden. Handler-Klasse '"+cls+"' nicht vorhanden");

@@ -24,13 +24,10 @@ package net.driftingsouls.ds2.server.framework;
  *
  */
 public class ContextLocalMessage implements ContextListener {
-	private final ThreadLocal<StringBuilder> msg = new ThreadLocal<StringBuilder>() {
-		@Override
-		protected StringBuilder initialValue() {
-			ContextMap.getContext().registerListener(ContextLocalMessage.this);
-			return new StringBuilder();
-		}
-	};
+	private final ThreadLocal<StringBuilder> msg = ThreadLocal.withInitial(() -> {
+		ContextMap.getContext().registerListener(ContextLocalMessage.this);
+		return new StringBuilder();
+	});
 	
 	/**
 	 * Konstruktor.

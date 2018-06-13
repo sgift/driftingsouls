@@ -32,5 +32,5 @@ public interface AuthenticateEventListener {
 	 * @param user Der User
 	 * @throws AuthenticationException Falls die Authentifizierung fehlschlaegt
 	 */
-	public void onAuthenticate(BasicUser user) throws AuthenticationException;
+    void onAuthenticate(BasicUser user) throws AuthenticationException;
 }

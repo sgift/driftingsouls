@@ -35,5 +35,5 @@ public interface Statistic {
 	 * @param size Die Anzahl der anzuzeigenden Eintraege
 	 * @throws IOException
 	 */
-	public void show(StatsController contr, int size) throws IOException;
+    void show(StatsController contr, int size) throws IOException;
 }

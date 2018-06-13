@@ -136,12 +136,12 @@ public class ErrorHandlerFilter implements Filter
 	
 	private interface ErrorReporter
 	{
-		public void reportTickInProgress(TickInProgressException e) throws IOException;
-		public void reportStaleState(StaleStateException e) throws IOException;
-		public void reportSqlLock(GenericJDBCException e) throws IOException;
-		public void reportNotLoggedIn(NotLoggedInException e) throws IOException;
-		public void reportInVacation(AccountInVacationModeException e) throws IOException;
-		public void reportUnexpected(Throwable t) throws IOException;
+		void reportTickInProgress(TickInProgressException e) throws IOException;
+		void reportStaleState(StaleStateException e) throws IOException;
+		void reportSqlLock(GenericJDBCException e) throws IOException;
+		void reportNotLoggedIn(NotLoggedInException e) throws IOException;
+		void reportInVacation(AccountInVacationModeException e) throws IOException;
+		void reportUnexpected(Throwable t) throws IOException;
 	}
 	
 	private class HtmlErrorReporter implements ErrorReporter
