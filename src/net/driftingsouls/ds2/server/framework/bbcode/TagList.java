@@ -46,10 +46,10 @@ class TagList implements BBCodeFunction {
 
 		String[] listfacts;
 		if( this.type == Type.LIST ) {
-			listfacts = list.split("\\[\\*\\]");
+			listfacts = list.split("\\[\\*]");
 		}
 		else {
-			listfacts = list.split("\\[-\\]");
+			listfacts = list.split("\\[-]");
 		}
 		
 		StringBuilder listContent = new StringBuilder();

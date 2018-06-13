@@ -18,9 +18,9 @@
  */
 package net.driftingsouls.ds2.server.framework.bbcode;
 
-import java.util.regex.Pattern;
-
 import net.driftingsouls.ds2.server.framework.Common;
+
+import java.util.regex.Pattern;
 
 class TagURL implements BBCodeFunction {
 	/**
@@ -36,7 +36,7 @@ class TagURL implements BBCodeFunction {
 	 */
 	private static final int WIDTH_END = 25;
 	
-	private static final Pattern protocol = Pattern.compile("[a-z]+:\\/\\/");
+	private static final Pattern protocol = Pattern.compile("[a-z]+://");
 	
 	@Override
 	public String handleMatch(String title, String ... options) {

@@ -126,7 +126,7 @@ public class ImageDownloader
 
 		Set<String> imgs = new HashSet<>();
 
-		Pattern pattern = Pattern.compile("url\\(([a-zA-Z0-9\\./'\"_\\-]+)\\)", Pattern.CASE_INSENSITIVE);
+		Pattern pattern = Pattern.compile("url\\(([a-zA-Z0-9./'\"_\\-]+)\\)", Pattern.CASE_INSENSITIVE);
 		Matcher matcher = pattern.matcher(content);
 		while( matcher.find() )
 		{
@@ -187,7 +187,7 @@ public class ImageDownloader
 
 		Set<String> imgs = new HashSet<>();
 
-		Pattern pattern = Pattern.compile("src=\"([\\{}a-zA-Z0-9\\./_\\-']+)\"", Pattern.CASE_INSENSITIVE);
+		Pattern pattern = Pattern.compile("src=\"([{}a-zA-Z0-9./_\\-']+)\"", Pattern.CASE_INSENSITIVE);
 		Matcher matcher = pattern.matcher(content);
 		while( matcher.find() )
 		{

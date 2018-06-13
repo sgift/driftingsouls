@@ -751,7 +751,7 @@ public class Common {
 		return result;
 	}
 	
-	private static final Pattern stripHTML = Pattern.compile("(<\\/?)(\\w+)([^>]*>)");
+	private static final Pattern stripHTML = Pattern.compile("(</?)(\\w+)([^>]*>)");
 	
 	/**
 	 * Entfernt alle HTML-Tags aus dem String und gibt ihn zurueck.

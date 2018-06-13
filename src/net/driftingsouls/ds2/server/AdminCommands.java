@@ -183,7 +183,7 @@ public class AdminCommands {
 		if( cmds.containsKey(command[0]) ) {
 			try
 			{
-				Command cmdExecuter = cmds.get(command[0]).newInstance();
+				Command cmdExecuter = cmds.get(command[0]).getDeclaredConstructor().newInstance();
 				context.autowireBean(cmdExecuter);
 				output = cmdExecuter.execute(context, command);
 			}
@@ -191,7 +191,7 @@ public class AdminCommands {
 			{
 				return new AdminCommandResultViewModel(e.getMessage(), false);
 			}
-			catch( InstantiationException | IllegalAccessException | RuntimeException e )
+			catch( InstantiationException | IllegalAccessException | RuntimeException | NoSuchMethodException | InvocationTargetException e )
 			{
 				return new AdminCommandResultViewModel("Fehler: "+e.getClass().getName()+": "+e.getMessage(), false);
 			}

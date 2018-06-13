@@ -127,9 +127,9 @@ public class HttpResponse implements Response {
 	}
 	
 	private static final Pattern[] URL_PATTERNS = new Pattern[] {
-		Pattern.compile("href\\=\"([^\"]*)\""),
-		Pattern.compile("src\\=\"([^\"]*)\""),
-		Pattern.compile("action\\=\"([^\"]*)\"")
+		Pattern.compile("href=\"([^\"]*)\""),
+		Pattern.compile("src=\"([^\"]*)\""),
+		Pattern.compile("action=\"([^\"]*)\"")
 	};
 	
 	private String prepareContentForSend() {
