@@ -18,13 +18,13 @@
  */
 package net.driftingsouls.ds2.server.scripting.roles.interpreter;
 
-import java.lang.reflect.Field;
+import net.driftingsouls.ds2.server.scripting.roles.Role;
+import net.driftingsouls.ds2.server.scripting.roles.parser.RoleDefinition;
 
 import javax.script.ScriptContext;
 import javax.script.ScriptException;
-
-import net.driftingsouls.ds2.server.scripting.roles.Role;
-import net.driftingsouls.ds2.server.scripting.roles.parser.RoleDefinition;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 
 class RoleExecuterImpl implements RoleExecuter {
 	private Role role;
@@ -37,7 +37,7 @@ class RoleExecuterImpl implements RoleExecuter {
 	 */
 	public RoleExecuterImpl(Class<? extends Role> roleCls, RoleDefinition roleDef) throws IllegalRoleDefinitionException {
 		try {
-			this.role = roleCls.newInstance();
+			this.role = roleCls.getDeclaredConstructor().newInstance();
 				
 			for( Field field : roleCls.getDeclaredFields() ) {
 				final Attribute attr = field.getAnnotation(Attribute.class);
@@ -50,7 +50,7 @@ class RoleExecuterImpl implements RoleExecuter {
 				field.set(this.role, roleDef.getAttribute(roleDefAttr));
 			}
 		}
-		catch( InstantiationException | IllegalAccessException e ) {
+		catch( InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e ) {
 			throw new IllegalRoleDefinitionException("Kann Rolle nicht erzeugen", e);
 		}
 	}

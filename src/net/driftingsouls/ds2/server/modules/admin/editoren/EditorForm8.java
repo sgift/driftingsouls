@@ -3,12 +3,7 @@ package net.driftingsouls.ds2.server.modules.admin.editoren;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -360,7 +355,7 @@ public class EditorForm8<E> implements FormElementCreator<E>
 
 	protected List<ColumnDefinition<E>> getColumnDefinitions(boolean forEditing)
 	{
-		return this.fields.stream().map(cfg -> cfg.getColumnDefinition(forEditing)).filter(cd -> cd != null).collect(Collectors.toList());
+		return this.fields.stream().map(cfg -> cfg.getColumnDefinition(forEditing)).filter(Objects::nonNull).collect(Collectors.toList());
 	}
 
 	protected List<String> getEntityValues(E entity)

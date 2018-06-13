@@ -35,5 +35,5 @@ public interface BBCodeFunction {
 	 * @param values Die Liste der Parameter des BBCodes
 	 * @return Der formatierte Abschnitt
 	 */
-	public String handleMatch(String content, String ... values);
+    String handleMatch(String content, String... values);
 }

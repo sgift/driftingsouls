@@ -710,7 +710,7 @@ public class Cargo implements Cloneable {
 		}
 
 		if( itemlist.size() > 0 ) {
-			Collections.sort(itemlist, new ResourceIDComparator(false) );
+			itemlist.sort(new ResourceIDComparator(false));
 
 			for( ItemID aitem : itemlist ) {
 				Item item = (Item)db.get(Item.class, aitem.getItemID());
@@ -1313,7 +1313,7 @@ public class Cargo implements Cloneable {
 
 		List<Long[]> items = new ArrayList<>();
 		items.addAll(this.items);
-		Collections.sort(items, comp);
+		items.sort(comp);
 
 		for (Long[] item : items)
 		{

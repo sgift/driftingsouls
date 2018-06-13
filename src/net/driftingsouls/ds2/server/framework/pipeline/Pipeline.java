@@ -31,5 +31,5 @@ public interface Pipeline {
 	 * @param context Der Kontext, in dem die Pipeline ausgefuehrt werden soll
 	 * @throws Exception
 	 */
-	public void execute(Context context) throws Exception;
+    void execute(Context context) throws Exception;
 }

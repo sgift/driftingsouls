@@ -28,19 +28,19 @@ public interface ResourceID {
 	 * Gibt die ID des Items zurueck, falls es sich um ein Item handelt.
 	 * @return Die ID des Items
 	 */
-	public int getItemID();
+    int getItemID();
 
 	/**
 	 * Gibt die Anzahl der verbleibenden Benutzungen des Items zurueck, falls
 	 * es sich um eine Item-Resource handelt.
 	 * @return Die Anzal der verbleibenden Benutzungen des Items
 	 */
-	public int getUses();
+    int getUses();
 
 	/**
 	 * Die ID des Quests des Items, falls
 	 * es sich um eine Item-Resource handelt.
 	 * @return Die ID des Quests des Items
 	 */
-	public int getQuest();
+    int getQuest();
 }

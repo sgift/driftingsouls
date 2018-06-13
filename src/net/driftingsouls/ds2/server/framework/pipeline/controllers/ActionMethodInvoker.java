@@ -134,8 +134,7 @@ public class ActionMethodInvoker
 		}
 	}
 
-	private OutputHandler determineOutputHandler(Action type) throws IllegalAccessException, InstantiationException
-	{
+	private OutputHandler determineOutputHandler(Action type) throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
 		OutputHandler actionTypeHandler = null;
 		if (type.value() == ActionType.DEFAULT)
 		{
@@ -152,7 +151,7 @@ public class ActionMethodInvoker
 
 		if (type.outputHandler() != OutputHandler.class)
 		{
-			actionTypeHandler = type.outputHandler().newInstance();
+			actionTypeHandler = type.outputHandler().getDeclaredConstructor().newInstance();
 		}
 		else
 		{
@@ -164,7 +163,7 @@ public class ActionMethodInvoker
 					Module annotation = aClass.getAnnotation(Module.class);
 					if (annotation.outputHandler() != OutputHandler.class)
 					{
-						actionTypeHandler = annotation.outputHandler().newInstance();
+						actionTypeHandler = annotation.outputHandler().getDeclaredConstructor().newInstance();
 						break;
 					}
 				}

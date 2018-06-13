@@ -89,7 +89,7 @@ public enum SchiffsKlassenNamenGenerator
 
 	private final String label;
 
-	private SchiffsKlassenNamenGenerator(final String label)
+	SchiffsKlassenNamenGenerator(final String label)
 	{
 		this.label = label;
 	}

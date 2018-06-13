@@ -37,7 +37,7 @@ public enum ActionType
 	 */
 	BINARY;
 	
-	private ActionType()
+	ActionType()
 	{
 	}
 	

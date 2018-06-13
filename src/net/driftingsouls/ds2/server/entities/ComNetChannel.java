@@ -317,18 +317,16 @@ public class ComNetChannel {
 			return true;
 		}
 
-		if( this.readPlayer.length() != 0 ) {
+		if(!this.readPlayer.isEmpty()) {
 			Integer[] playerlist = Common.explodeToInteger(",",this.readPlayer);
 			if( Common.inArray(user.getId(), playerlist) ) {
 				return true;
 			}
 		}
 
-		if( this.writePlayer.length() != 0 ) {
+		if(!this.writePlayer.isEmpty()) {
 			Integer[] playerlist = Common.explodeToInteger(",",this.writePlayer);
-			if( Common.inArray(user.getId(), playerlist) ) {
-				return true;
-			}
+			return Common.inArray(user.getId(), playerlist);
 		}
 
 		return false;
@@ -348,11 +346,9 @@ public class ComNetChannel {
 				return true;
 			}
 
-		if( this.writePlayer.length() != 0 ) {
+		if(!this.writePlayer.isEmpty()) {
 			Integer[] playerlist = Common.explodeToInteger(",",this.writePlayer);
-			if( Common.inArray(user.getId(), playerlist) ) {
-				return true;
-			}
+			return Common.inArray(user.getId(), playerlist);
 		}
 
 		return false;

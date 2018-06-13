@@ -67,7 +67,7 @@ public abstract class ItemEffect {
 
 		private String name = null;
 
-		private Type(String name) {
+		Type(String name) {
 			this.name = name;
 		}
 

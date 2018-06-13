@@ -14,7 +14,7 @@ import java.util.List;
 public interface AjaxStatistic
 {
 	@ViewModel
-	public static class DataViewModel
+    class DataViewModel
 	{
 		public static class KeyViewModel
 		{
@@ -37,5 +37,5 @@ public interface AjaxStatistic
 	 * @param size Die Anzahl der anzuzeigenden Eintraege
 	 * @return Die JSON-Antwort
 	 */
-	public DataViewModel generateData(StatsController contr, int size);
+    DataViewModel generateData(StatsController contr, int size);
 }

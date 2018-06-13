@@ -28,12 +28,12 @@ public interface Checkable {
 	 * Gibt eine kurze Beschreibung (ca 20 Zeichen) des Checks zurueck.
 	 * @return Eine kurze Beschreibung
 	 */
-	public String getDescription();
+    String getDescription();
 	
 	/**
 	 * Fuehrt den Check durch. Wenn der Check fehlschlaegt wird eine {@link CheckFailedException}
 	 * geworfen.
 	 * @throws CheckFailedException Falls der Check fehlschlaegt
 	 */
-	public void doCheck() throws CheckFailedException;
+    void doCheck() throws CheckFailedException;
 }

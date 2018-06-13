@@ -458,9 +458,7 @@ public class WerftQueueEntry {
 		}
 
 		if( this.getEnergyPerTick() != 0 ) {
-			if( this.werft.getEnergy() < this.getEnergyPerTick() ) {
-				return false;
-			}
+			return this.werft.getEnergy() >= this.getEnergyPerTick();
 		}
 
 		return true;

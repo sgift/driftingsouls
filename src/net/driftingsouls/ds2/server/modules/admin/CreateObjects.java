@@ -68,7 +68,7 @@ import java.util.Map;
  */
 @AdminMenuEntry(category="Objekte", name="hinzufügen", permission = WellKnownAdminPermission.CREATE_OBJECTS)
 public class CreateObjects implements AdminPlugin {
-	private static interface DialogEntry {
+	private interface DialogEntry {
 		/**
 		 * Wandelt den Eintrag in HTML um.
 		 * @param request Die Request
@@ -217,19 +217,11 @@ public class CreateObjects implements AdminPlugin {
 			{
 				label = BeanUtils.getProperty(value, labelProperty);
 			}
-			catch (IllegalAccessException e)
+			catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e)
 			{
 				label = null;
 			}
-			catch (InvocationTargetException e)
-			{
-				label = null;
-			}
-			catch (NoSuchMethodException e)
-			{
-				label = null;
-			}
-			return label;
+            return label;
 		}
 	}
 	

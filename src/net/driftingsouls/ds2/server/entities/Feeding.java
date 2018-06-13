@@ -10,17 +10,17 @@ public interface Feeding
 	/**
 	 * @return The id of the feeding object.
 	 */
-	public int getId();
+    int getId();
 	
 	/**
 	 * @return The current amount of food on the object.
 	 */
-	public long getNahrungCargo();
+    long getNahrungCargo();
 	
 	/**
 	 * Updates the amount of food on the object.
 	 * 
 	 * @param newFood The new amount of food.
 	 */
-	public void setNahrungCargo(long newFood);
+    void setNahrungCargo(long newFood);
 }

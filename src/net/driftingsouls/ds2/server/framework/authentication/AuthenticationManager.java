@@ -35,13 +35,13 @@ public interface AuthenticationManager {
 	 * @return Der Account des eingeloggten Benutzers
 	 * @throws AuthenticationException Falls der Loginvorgang nicht erfolgreich ist
 	 */
-	public BasicUser login(String username, String password, boolean rememberMe)
+    BasicUser login(String username, String password, boolean rememberMe)
 			throws AuthenticationException;
 
 	/**
 	 * Loggt den mit dem aktuellen Context verknuepften Benutzer aus.
 	 */
-	public void logout();
+    void logout();
 	
 	/**
 	 * Loggt einen Admin in einen Account ein. Es findet dabei keine Ueberpruefung
@@ -51,7 +51,7 @@ public interface AuthenticationManager {
 	 * @return Der Account des eingeloggten Benutzers
 	 * @throws AuthenticationException Falls der Loginvorgang nicht moeglich ist
 	 */
-	public BasicUser adminLogin(BasicUser user, boolean attach) throws AuthenticationException;
+    BasicUser adminLogin(BasicUser user, boolean attach) throws AuthenticationException;
 
 	/**
 	 * Authentifiziert die genutzte Session. Falls die Session ungueltig ist,
@@ -62,12 +62,12 @@ public interface AuthenticationManager {
 	 * 
 	 * @return <code>true</code>, if the user is logged in, <code>false</code> otherwise.
 	 */
-	public boolean authenticateCurrentSession();
+    boolean authenticateCurrentSession();
 	
 	/**
 	 * Checks, if the player is remembered by ds.
 	 * 
 	 * @return <code>true</code> if ds remembers the player, <code>false</code> otherwise.
 	 */
-	public boolean isRemembered();
+    boolean isRemembered();
 }

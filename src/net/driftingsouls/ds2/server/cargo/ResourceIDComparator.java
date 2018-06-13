@@ -65,6 +65,6 @@ public class ResourceIDComparator implements Comparator<ResourceID>, Serializabl
 			return id1.getQuest() > id2.getQuest() ? 1 : -1;
 		}
 		// Benutzungen vergleichen
-		return id1.getUses() > id2.getUses() ? 1 : (id1.getUses() == id2.getUses() ? 0 : -1);
+		return Integer.compare(id1.getUses(), id2.getUses());
 	}
 }

@@ -28,7 +28,7 @@ public enum BattleFlag
 
 	private final int bit;
 
-	private BattleFlag(final int bit)
+	BattleFlag(final int bit)
 	{
 		this.bit = bit;
 	}

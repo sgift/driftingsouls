@@ -103,16 +103,11 @@ public class Permission implements Comparable<Permission>, PermissionDescriptor
 		}
 		if (category == null)
 		{
-			if (other.category != null)
-			{
-				return false;
-			}
+			return other.category == null;
 		}
-		else if (!category.equals(other.category))
-		{
-			return false;
+		else {
+			return category.equals(other.category);
 		}
-		return true;
 	}
 
 	@Override

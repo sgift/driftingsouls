@@ -12,5 +12,5 @@ public interface PermissionResolver
 	 * @param permission Die Beschreibung der benoetigten Berechtigung
 	 * @return <code>true</code> falls der Benutzer die Berechtigung hat.
 	 */
-	public boolean hasPermission(PermissionDescriptor permission);
+    boolean hasPermission(PermissionDescriptor permission);
 }

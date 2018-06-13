@@ -245,11 +245,7 @@ public class SchiffEinstellungen
 		{
 			return true;
 		}
-		if( this.showtradepost != TradepostVisibility.ALL )
-		{
-			return true;
-		}
-		return false;
+		return this.showtradepost != TradepostVisibility.ALL;
 	}
 
 	public void persistIfNecessary(Ship ship)

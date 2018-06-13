@@ -939,9 +939,7 @@ public class KSAttackAction extends BasicKSAction {
 		}
 
 		//FighterDefense Verringerung durch eigene Jäger
-		int owndefcount = 0;		// Anzahl zu verteidigender Schiffe
 		int ownfighterdefcount = 0;// Gesamtpunktzahl an Bombenabwehr durch Jaeger
-		int owngksdefcount = 0;	// Gesamtpunktzahl an Bombenabwehr durch GKS
 		int ownfighter = 0;		// Gesamtanzahl Jaeger
 		int owndocks = 0;			// Gesamtanzahl Docks
 		int owndocksuse = 0;		// Gesamtanzahl an Schiffen, welche Docks brauchen
@@ -964,22 +962,11 @@ public class KSAttackAction extends BasicKSAction {
 				crewfactor = 1.0;
 			}
 
-			// check if ship has to be defended
-			if (shipHasToBeDefended(selectedShip))
-		    {
-				owndefcount = owndefcount + 1;
-			}
-
 			//check if ship has torpdef
 			if (shipHasTorpDef(type))
 			{
 				// check if ship is a GKS
-				if (shipIsGKS(type))
-				{
-					// increase the gks-torpedo-defense
-					owngksdefcount = owngksdefcount + (int) Math.floor(type.getTorpedoDef() * crewfactor);
-				}
-				else
+				if (!shipIsGKS(type))
 				{
 					// check if ship is landed
 					if (shipIsNotLanded(selectedShip))
@@ -1005,11 +992,6 @@ public class KSAttackAction extends BasicKSAction {
 				// add docks
 				owndocks = owndocks + (int) Math.floor(type.getJDocks() * crewfactor);
 			}
-		}
-
-		if( owndefcount == 0 )
-		{
-			owndefcount = 1;
 		}
 
 		// Rechnen wir mal die endgueltige Verteidigung aus

@@ -36,7 +36,7 @@ interface Rule {
 	 * @return true, falls die Regel ausgefuehrt werden kann
 	 * @throws Exception
 	 */
-	public boolean executeable( Context context ) throws Exception;
+    boolean executeable(Context context) throws Exception;
 	
 	/**
 	 * Fuehrt die Regel aus und liefert die sich daraus ergebende Pipeline zurueck.
@@ -45,5 +45,5 @@ interface Rule {
 	 * @return Die aus der Regel abgeleitete Pipeline
 	 * @throws Exception
 	 */
-	public Pipeline execute( Context context ) throws Exception;
+    Pipeline execute(Context context) throws Exception;
 }

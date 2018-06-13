@@ -9,6 +9,7 @@ import org.reflections.util.ConfigurationBuilder;
 
 import java.lang.annotation.Annotation;
 import java.net.URL;
+import java.util.Comparator;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -40,7 +41,7 @@ public class AnnotationUtils
 	public SortedSet<Class<?>> findeKlassenMitAnnotation(Class<? extends Annotation> annotationCls)
 	{
 		Set<Class<?>> typesAnnotatedWith = reflections.getTypesAnnotatedWith(annotationCls);
-		SortedSet<Class<?>> result = new TreeSet<>((c1, c2) -> c1.getName().compareTo(c2.getName()));
+		SortedSet<Class<?>> result = new TreeSet<>(Comparator.comparing(Class::getName));
 		result.addAll(typesAnnotatedWith);
 		return result;
 	}

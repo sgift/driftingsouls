@@ -438,15 +438,12 @@ public class ShipFleet {
 		if( this == obj ) {
 			return true;
 		}
-		if( obj == null || !(obj instanceof ShipFleet) ) {
+		if(!(obj instanceof ShipFleet)) {
 			return false;
 		}
 
 		final ShipFleet other = (ShipFleet)obj;
-		if( id != other.getId() ) {
-			return false;
-		}
-		return true;
+		return id == other.getId();
 	}
 
 	/**

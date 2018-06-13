@@ -36,5 +36,5 @@ public interface LoginEventListener {
 	 * @param user Der Useraccount
 	 * @throws AuthenticationException Falls die Authentifizierung fehlschlagen soll
 	 */
-	public void onLogin(BasicUser user) throws AuthenticationException;
+    void onLogin(BasicUser user) throws AuthenticationException;
 }

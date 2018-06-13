@@ -9,6 +9,7 @@ import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 
 @AdminMenuEntry(category = "Schiffe", name = "Waffe", permission = WellKnownAdminPermission.EDIT_WEAPON)
@@ -41,6 +42,13 @@ public class EditWeapon implements EntityEditor<Weapon>
 		form.field("Subsystemschaden", Integer.class, Weapon::getSubDamage, Weapon::setSubDamage);
 		form.field("Umgebungsschaden", Integer.class, Weapon::getAreaDamage, Weapon::setAreaDamage);
 		form.multiSelection("Flags", Weapon.Flags.class, Weapon::getFlags, Weapon::setFlags);
-		form.field("Munitionstypen", String.class, (w) -> StringUtils.join(w.getMunitionstypen(), ','), (w, s) -> w.setMunitionstypen(new HashSet<>(Arrays.asList(s.split(",")))));
+		form.field("Munitionstypen", String.class, (w) -> StringUtils.join(w.getMunitionstypen(), ','), (w, s) -> {
+			if(s == null || s.trim().isEmpty()) {
+				w.setMunitionstypen(Collections.emptySet());
+				return;
+			}
+
+			w.setMunitionstypen(new HashSet<>(Arrays.asList(s.split(","))));
+		});
 	}
 }

@@ -38,6 +38,7 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -351,7 +352,7 @@ public class Fabrik extends DefaultBuilding
 					if (usedcapacity.subtract(capUsed).compareTo(targetCapacity) < 0)
 					{
 						BigDecimal capLeft = capUsed.subtract(usedcapacity.subtract(targetCapacity));
-						plist[i] = new Factory.Task(id, capLeft.divide(entry.getDauer(), BigDecimal.ROUND_DOWN).intValue());
+						plist[i] = new Factory.Task(id, capLeft.divide(entry.getDauer(), RoundingMode.DOWN).intValue());
 						break;
 					}
 					plist = (Factory.Task[]) ArrayUtils.remove(plist, i);
@@ -592,7 +593,7 @@ public class Fabrik extends DefaultBuilding
 				if (usedcapacity.add(new BigDecimal(count).multiply(entry.getDauer())).doubleValue() > wf.getCount())
 				{
 					BigDecimal availableCap = usedcapacity.multiply(new BigDecimal(-1)).add(new BigDecimal(wf.getCount()));
-					count = availableCap.divide(entry.getDauer(), BigDecimal.ROUND_DOWN).intValue();
+					count = availableCap.divide(entry.getDauer(), RoundingMode.DOWN).intValue();
 				}
 
 				if (count != 0)

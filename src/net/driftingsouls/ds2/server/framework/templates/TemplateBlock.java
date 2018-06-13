@@ -29,12 +29,12 @@ public interface TemplateBlock {
 	 * @param all Falls <code>true</code> werden auch Variablen von Unterbloecken zurueckgegeben
 	 * @return Die Liste aller Variablen
 	 */
-	public String[] getBlockVars(boolean all);
+    String[] getBlockVars(boolean all);
 	
 	/**
 	 * Generiert die Ausgabe des Blocks.
 	 * @param te Das TemplateEngine
 	 * @return Die Ausgabe
 	 */
-	public String output( TemplateEngine te );
+    String output(TemplateEngine te);
 }

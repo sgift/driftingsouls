@@ -49,10 +49,7 @@ public enum UpgradeType
 			if (upgrademaxvalue.isPresent() && hasCore)
 			{
 				int maxvalue = upgrademaxvalue.get().getMaximalwert();
-				if (maxvalue > 0)
-				{
-					return true;
-				}
+				return maxvalue > 0;
 			}
 			return false;
 		}
@@ -102,10 +99,7 @@ public enum UpgradeType
 			{
 				int actualvalue = base.getWidth() * base.getHeight();
 				int maxvalue = upgrademaxvalue.get().getMaximalwert();
-				if (actualvalue + upgrade.getModWert() <= maxvalue)
-				{
-					return true;
-				}
+				return actualvalue + upgrade.getModWert() <= maxvalue;
 			}
 			return false;
 		}
@@ -139,10 +133,7 @@ public enum UpgradeType
 			{
 				long actualvalue = base.getMaxCargo();
 				int maxvalue = upgrademaxvalue.get().getMaximalwert();
-				if (actualvalue + upgrade.getModWert() <= maxvalue)
-				{
-					return true;
-				}
+				return actualvalue + upgrade.getModWert() <= maxvalue;
 			}
 			return false;
 		}
@@ -176,10 +167,7 @@ public enum UpgradeType
             {
                 long actualvalue = base.getMaxEnergy();
                 int maxvalue = upgrademaxvalue.get().getMaximalwert();
-                if (actualvalue + upgrade.getModWert() <= maxvalue)
-                {
-                    return true;
-                }
+				return actualvalue + upgrade.getModWert() <= maxvalue;
             }
             return false;
         }
@@ -205,7 +193,7 @@ public enum UpgradeType
 	 * @param name Der Name des Ausbaus
 	 * @param description Die Beschreibung des Ausbaus
 	 */
-	private UpgradeType(String name, String description)
+    UpgradeType(String name, String description)
 	{
 		this.name = name;
 		this.description = description;

@@ -66,7 +66,7 @@ public class TemplateCompiler {
 		 * @param parameter Die Parameter der Funktion
 		 * @return Der in das Template einzufuegende String
 		 */
-		public String process(List<String> parameter);
+        String process(List<String> parameter);
 	}
 
 	private static class TCFLinkTo implements TemplateCompileFunction {

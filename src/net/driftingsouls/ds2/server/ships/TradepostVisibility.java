@@ -30,7 +30,7 @@ public enum TradepostVisibility
 	
 	private final String label;
 	
-	private TradepostVisibility(String label)
+	TradepostVisibility(String label)
 	{
 		this.label = label;
 	}

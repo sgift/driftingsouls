@@ -57,6 +57,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -287,14 +288,7 @@ public class UeberController extends Controller
 			Ship baseShip = aship.getBaseShip();
 
 			String locationText;
-			if (baseShip == null)
-			{
-				locationText = aship.getLocation().displayCoordinates(false);
-			}
-			else
-			{
-				locationText = baseShip.getLocation().displayCoordinates(false);
-			}
+			locationText = Objects.requireNonNullElse(baseShip, aship).getLocation().displayCoordinates(false);
 
 			t.setVar("fleet.shipid", aship.getId(),
 					"fleet.name", fleet.getName(),
