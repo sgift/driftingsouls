@@ -19,34 +19,23 @@
 package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
-import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.services.ComNetService;
 import net.driftingsouls.ds2.server.entities.GuiHelpText;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.Version;
-import net.driftingsouls.ds2.server.framework.ViewMessage;
-import net.driftingsouls.ds2.server.framework.ViewModel;
+import net.driftingsouls.ds2.server.framework.*;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
-import org.apache.commons.io.IOUtils;
+import net.driftingsouls.ds2.server.services.ComNetService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Das Hauptframe von DS.
@@ -60,14 +49,12 @@ public class MainController extends Controller
 
 	private Version version;
 	private TemplateViewResultFactory templateViewResultFactory;
-	private ConfigService configService;
 
 	@Autowired
-	public MainController(Version version, TemplateViewResultFactory templateViewResultFactory, ConfigService configService)
+	public MainController(Version version, TemplateViewResultFactory templateViewResultFactory)
 	{
 		this.version = version;
 		this.templateViewResultFactory = templateViewResultFactory;
-		this.configService = configService;
 	}
 
 	/**
@@ -166,48 +153,5 @@ public class MainController extends Controller
 		}
 
 		return t;
-	}
-
-	@ViewModel
-	public class VersionInformation {
-		public String build;
-		public String commit;
-		public String buildTime;
-		public String buildUrl;
-	}
-
-	@Action(ActionType.AJAX)
-	public VersionInformation loadVersionInfo()
-	{
-		VersionInformation info = new VersionInformation();
-		info.commit = version.getVersion();
-		info.buildTime = version.getBuildTime();
-		info.build = version.getBuild();
-		info.buildUrl = configService.getValue(WellKnownConfigValue.BAMBOO_URL)+"browse/"+version.getBuild();
-		return info;
-	}
-
-	@Action(ActionType.AJAX)
-	public String loadLastCommits() throws IOException
-	{
-		String stashUrl = configService.getValue(WellKnownConfigValue.STASH_URL);
-		if( !stashUrl.endsWith("/") )
-		{
-			stashUrl += "/";
-		}
-		String urlStr = String.format("%srest/api/1.0/projects/%s/repos/%s/commits",
-				stashUrl,
-				configService.getValue(WellKnownConfigValue.STASH_PROJECT_NAME),
-				configService.getValue(WellKnownConfigValue.STASH_REPO_NAME));
-		if( version.isVersioned() )
-		{
-			urlStr += "?until="+version.getVersion();
-		}
-		URL url = new URL(urlStr);
-
-
-		try( Reader reader = new InputStreamReader(url.openStream(), StandardCharsets.UTF_8) ) {
-			return IOUtils.readLines(reader).stream().collect(Collectors.joining("\n"));
-		}
 	}
 }
