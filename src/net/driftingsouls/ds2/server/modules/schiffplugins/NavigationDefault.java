@@ -154,50 +154,54 @@ public class NavigationDefault implements SchiffPlugin {
 			int sys = data.getSystem();
 
 			StarSystem system = (StarSystem) db.get(StarSystem.class, sys);
-			PlayerStarmap map = new PlayerStarmap(user, system, new int[] {x-1, y-1, 3, 3});
+			if(system == null) {
+				t.setVar("schiff.navigation.showmessage","Unbekanntes Sternensystem. Wende dich an einen Admin.");
+				log.error(String.format("ship: %s -- unknown system: %s", data.getId(), sys));
+			} else {
+				PlayerStarmap map = new PlayerStarmap(user, system, new int[]{x - 1, y - 1, 3, 3});
 
-			int tmp = 0;
+				int tmp = 0;
 
-			Location[] locs = new Location[8];
-			for( int ny = 0, index=0; ny <= 2; ny++ ) {
-				for( int nx = 0; nx <= 2; nx++ ) {
-					if( nx == 1 && ny == 1 ) {
-						continue;
+				Location[] locs = new Location[8];
+				for (int ny = 0, index = 0; ny <= 2; ny++) {
+					for (int nx = 0; nx <= 2; nx++) {
+						if (nx == 1 && ny == 1) {
+							continue;
+						}
+						locs[index++] = new Location(sys, x + nx - 1, y + ny - 1);
 					}
-					locs[index++] = new Location(sys,x+nx-1,y+ny-1);
 				}
-			}
 
-			Set<Location> alertStatus = Ship.getAlertStatus(user, locs);
+				Set<Location> alertStatus = Ship.getAlertStatus(user, locs);
 
-			boolean newrow;
+				boolean newrow;
 
-			t.setBlock("_NAVIGATION","schiff.navigation.nav.listitem","schiff.navigation.nav.list");
-			for( int ny = 0; ny <= 2; ny++ ) {
-				newrow = true;
-				for( int nx = 0; nx <= 2; nx++ ) {
-					tmp++;
+				t.setBlock("_NAVIGATION", "schiff.navigation.nav.listitem", "schiff.navigation.nav.list");
+				for (int ny = 0; ny <= 2; ny++) {
+					newrow = true;
+					for (int nx = 0; nx <= 2; nx++) {
+						tmp++;
 
-					Location sector = new Location(sys, x + nx - 1, y + ny - 1);
-					SectorImage sectorOverlayImage = map.getUserSectorBaseImage(sector);
-					if( sectorOverlayImage != null ) {
-						t.setVar("schiff.navigation.nav.sectorimage", sectorOverlayImage.getImage(),
-								"schiff.navigation.nav.sectorimage.x", sectorOverlayImage.getX(),
-								"schiff.navigation.nav.sectorimage.y", sectorOverlayImage.getY());
+						Location sector = new Location(sys, x + nx - 1, y + ny - 1);
+						SectorImage sectorOverlayImage = map.getUserSectorBaseImage(sector);
+						if (sectorOverlayImage != null) {
+							t.setVar("schiff.navigation.nav.sectorimage", sectorOverlayImage.getImage(),
+									"schiff.navigation.nav.sectorimage.x", sectorOverlayImage.getX(),
+									"schiff.navigation.nav.sectorimage.y", sectorOverlayImage.getY());
+						} else {
+							t.setVar("schiff.navigation.nav.sectorimage", "");
+						}
+						t.setVar("schiff.navigation.nav.direction", tmp,
+								"schiff.navigation.nav.location", sector.displayCoordinates(true),
+								"schiff.navigation.nav.tile", "./ds?module=map&action=tile&sys=" + sys + "&tileX=" + (sector.getX() - 1) / 20 + "&tileY=" + (sector.getY() - 1) / 20,
+								"schiff.navigation.nav.tile.x", ((sector.getX() - 1) % 20) * 25,
+								"schiff.navigation.nav.tile.y", ((sector.getY() - 1) % 20) * 25,
+								"schiff.navigation.nav.newrow", newrow,
+								"schiff.navigation.nav.warn", ((1 != nx || 1 != ny) && alertStatus.contains(sector)));
+
+						t.parse("schiff.navigation.nav.list", "schiff.navigation.nav.listitem", true);
+						newrow = false;
 					}
-					else {
-						t.setVar("schiff.navigation.nav.sectorimage", "");
-					}
-					t.setVar( "schiff.navigation.nav.direction", tmp,
-							"schiff.navigation.nav.location", sector.displayCoordinates(true),
-							"schiff.navigation.nav.tile", "./ds?module=map&action=tile&sys="+sys+"&tileX="+(sector.getX()-1)/20+"&tileY="+(sector.getY()-1)/20,
-							"schiff.navigation.nav.tile.x", ((sector.getX()-1)%20)*25,
-							"schiff.navigation.nav.tile.y", ((sector.getY()-1)%20)*25,
-							"schiff.navigation.nav.newrow", newrow,
-							"schiff.navigation.nav.warn", ((1 != nx || 1 != ny) && alertStatus.contains(sector)) );
-
-					t.parse( "schiff.navigation.nav.list", "schiff.navigation.nav.listitem", true );
-					newrow = false;
 				}
 			}
 		}
