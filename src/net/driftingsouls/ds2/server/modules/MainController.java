@@ -43,16 +43,14 @@ import java.util.List;
  * @author Christopher Jung
  */
 @Module(name = "main")
-public class MainController extends Controller
-{
+public class MainController extends Controller {
 	private static final String SCRIPT_FORUM = "http://forum.drifting-souls.net/phpbb3/";
 
 	private Version version;
 	private TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
-	public MainController(Version version, TemplateViewResultFactory templateViewResultFactory)
-	{
+	public MainController(Version version, TemplateViewResultFactory templateViewResultFactory) {
 		this.version = version;
 		this.templateViewResultFactory = templateViewResultFactory;
 	}
@@ -63,8 +61,7 @@ public class MainController extends Controller
 	 * @return Die JSON-Nachricht ueber den Erfolg des speicherns
 	 */
 	@Action(ActionType.AJAX)
-	public ViewMessage speicherNotizen(String notizen)
-	{
+	public ViewMessage speicherNotizen(String notizen) {
 		User user = (User) getUser();
 		user.setUserValue(WellKnownUserValue.TBLORDER_MAIN_NOTIZEN, notizen.trim());
 
@@ -72,8 +69,7 @@ public class MainController extends Controller
 	}
 
 	@ViewModel
-	public static class Status
-	{
+	public static class Status {
 		public boolean pm;
 		public boolean comNet;
 		public String version;
@@ -82,11 +78,9 @@ public class MainController extends Controller
 	/**
 	 * Ermittelt ein Statusupdate fuer die Oberflaeche z.B.
 	 * mit der Info ob ungelesene PMs vorliegen.
-	 *
 	 */
 	@Action(ActionType.AJAX)
-	public Status statusUpdateAction()
-	{
+	public Status statusUpdateAction() {
 		User user = (User) this.getUser();
 		org.hibernate.Session db = getDB();
 
@@ -108,10 +102,8 @@ public class MainController extends Controller
 	 * @throws IOException
 	 */
 	@Action(ActionType.AJAX)
-	public void getHelpText(GuiHelpText page) throws IOException
-	{
-		if (page != null)
-		{
+	public void getHelpText(GuiHelpText page) throws IOException {
+		if (page != null) {
 			getResponse().getWriter().append(Common._text(page.getText()));
 		}
 	}
@@ -120,8 +112,7 @@ public class MainController extends Controller
 	 * Generiert das Hauptframe.
 	 */
 	@Action(ActionType.DEFAULT)
-	public TemplateEngine defaultAction()
-	{
+	public TemplateEngine defaultAction() {
 		User user = (User) getUser();
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		org.hibernate.Session db = getDB();
@@ -136,13 +127,11 @@ public class MainController extends Controller
 
 		t.setBlock("_MAIN", "bases.listitem", "bases.list");
 
-		List<?> baseList = db.createQuery("from Base where owner= :user order by system,x,y")
+		@SuppressWarnings("unchecked")
+		List<Base> baseList = db.createQuery("from Base where owner= :user order by system,x,y")
 				.setEntity("user", user)
 				.list();
-		for (Object aBaseList : baseList)
-		{
-			Base base = (Base) aBaseList;
-
+		for (Base base : baseList) {
 			t.setVar(
 					"base.id", base.getId(),
 					"base.name", base.getName(),
