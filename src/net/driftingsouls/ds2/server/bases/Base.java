@@ -811,6 +811,10 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		org.hibernate.Session db = getDB();
 		StarSystem system = (StarSystem)db.get(StarSystem.class, this.system);
 
+		if(system == null) {
+			return null;
+		}
+
 		if(getSpawnableRess() == null && system.getSpawnableRess() == null && getKlasse().getSpawnableRess() == null)
 		{
 			return null;
