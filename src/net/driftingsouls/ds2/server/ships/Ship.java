@@ -1599,8 +1599,10 @@ public class Ship implements Locatable,Transfering,Feeding {
 				Module moduleobj = module.createModule();
 
 				if(moduleobj != null) {
-					if ((module.getSlot() > 0) && (slotlist.get(module.getSlot()).length > 2)) {
+					if ((module.getSlot() > 0) && (slotlist.get(module.getSlot()) != null) && (slotlist.get(module.getSlot()).length > 2)) {
 						moduleobj.setSlotData(slotlist.get(module.getSlot())[2]);
+					} else {
+						log.error(String.format("ship: %s - slot: %s - not contained in slot list", id, module.getSlot()));
 					}
 					moduleobjlist.add(moduleobj);
 
