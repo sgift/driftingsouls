@@ -919,8 +919,10 @@ public class SchiffController extends Controller
 					Module moduleobj = module.createModule();
 
 					if(moduleobj != null) {
-						if ((module.getSlot() > 0) && (slotlist.get(module.getSlot()).length > 2)) {
+						if ((module.getSlot() > 0) && (slotlist.get(module.getSlot()) != null) && (slotlist.get(module.getSlot()).length > 2)) {
 							moduleobj.setSlotData(slotlist.get(module.getSlot())[2]);
+						} else {
+							log.error(String.format("ship: %s - slot: %s - not contained in slot list", ship.getId(), module.getSlot()));
 						}
 
 						moduleObjList.add(moduleobj);
