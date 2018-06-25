@@ -18,14 +18,9 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
-import net.driftingsouls.ds2.server.WellKnownConfigValue;
-import net.driftingsouls.ds2.server.config.DynamicJumpNodeConfig;
 import net.driftingsouls.ds2.server.entities.DynamicJumpNode;
-import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
-import net.driftingsouls.ds2.server.framework.db.batch.SingleUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
-import org.apache.commons.lang.math.RandomUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -40,105 +35,51 @@ import java.util.List;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DynJNTick extends TickController {
 
-	@Override
-	protected void prepare()
-	{
-		// EMPTY
-	}
-
-    private void decreaseRemainingTime()
-    {
-        org.hibernate.Session db = getDB();
-        List<DynamicJumpNode> dynjnlist = db.createQuery("from DynamicJumpNode").list();
-
-        new EvictableUnitOfWork<DynamicJumpNode>("DynJNTick - decreaseRemainingTime")
-        {
-            @Override
-            public void doWork(DynamicJumpNode dynjn) throws Exception
-            {
-                if(dynjn.getRestdauer() <= 1)
-                {
-                    dynjn.destroy();
-                }
-                else
-                {
-                    dynjn.setRestdauer(dynjn.getRestdauer()-1);
-                }
-            }
-        }.executeFor(dynjnlist);
+    @Override
+    protected void prepare() {
+        // EMPTY
     }
 
-    private void moveDynJN()
-    {
+    private void decreaseRemainingTime() {
         org.hibernate.Session db = getDB();
-        List<DynamicJumpNode> dynjnlist = db.createQuery("from DynamicJumpNode").list();
+        @SuppressWarnings("unchecked")
+        List<DynamicJumpNode> dynamicJumpNodes = db.createQuery("from DynamicJumpNode").list();
 
-        new EvictableUnitOfWork<DynamicJumpNode>("DynJNTick - moveDynJN")
-        {
+        new EvictableUnitOfWork<DynamicJumpNode>("DynJNTick - decreaseRemainingTime") {
             @Override
-            public void doWork(DynamicJumpNode dynjn) throws Exception
-            {
-                if(dynjn.getNextMove() <= 1)
-                {
+            public void doWork(DynamicJumpNode dynamicJumpNode) {
+                if (dynamicJumpNode.getRemainingLiveTime() == 0) {
+                    dynamicJumpNode.destroy();
+                } else {
+                    dynamicJumpNode.setRemainingLiveTime(dynamicJumpNode.getRemainingLiveTime() - 1);
+                }
+            }
+        }.executeFor(dynamicJumpNodes);
+    }
+
+    private void moveDynJN() {
+        org.hibernate.Session db = getDB();
+        @SuppressWarnings("unchecked")
+        List<DynamicJumpNode> dynamicJumpNodes = db.createQuery("from DynamicJumpNode").list();
+
+        new EvictableUnitOfWork<DynamicJumpNode>("DynJNTick - moveDynJN") {
+            @Override
+            public void doWork(DynamicJumpNode dynjn) {
+                if (dynjn.getRemainingTicksUntilMove() <= 1) {
                     dynjn.move();
-                }
-                else
-                {
-                    dynjn.setNextMove(dynjn.getNextMove()-1);
+                } else {
+                    dynjn.setRemainingTicksUntilMove(dynjn.getRemainingTicksUntilMove() - 1);
                 }
             }
-        }.executeFor(dynjnlist);
+        }.executeFor(dynamicJumpNodes);
     }
 
-    private void spawnDynJN()
-    {
-        new SingleUnitOfWork("DynJNTick - spawnDynJN")
-        {
-            @Override
-            public void doWork() throws Exception
-            {
-                org.hibernate.Session db = getDB();
-
-                long dynjnactive = (long) db.createQuery("SELECT count(*) FROM DynamicJumpNode").uniqueResult();
-                int dynjnwanted = Integer.valueOf(new ConfigService().get(WellKnownConfigValue.MAX_DYN_JN).getValue());
-                long dynjnneeded = dynjnwanted - dynjnactive;
-
-                log("Active Dynamische JN: " + dynjnactive);
-                log("Max Dyn JN: " + dynjnwanted);
-                log("Erstelle " + dynjnneeded + " Dyn JN");
-
-                 if (dynjnneeded <= 0)
-                 {
-                    return;
-                 }
-
-                  List<DynamicJumpNodeConfig> dynjnconfigs = db.createQuery("from DynamicJumpNodeConfig").list();
-
-                  if (dynjnconfigs.isEmpty())
-                  {
-                      log("Keine Dynamischen SprungpunktConfigs gefunden.");
-                      return;
-                  }
-
-                  for (int i = 0; i < dynjnneeded; i++)
-                  {
-                      int rnd = RandomUtils.nextInt(dynjnconfigs.size());
-                      dynjnconfigs.get(rnd).spawnJumpNode();
-                  }
-            }
-        }.execute();
-    }
-
-	@Override
-	protected void tick()
-	{
-		this.log("Reduziere Zeit.");
+    @Override
+    protected void tick() {
+        this.log("Reduziere Zeit.");
         this.decreaseRemainingTime();
 
         this.log("Setze um.");
         this.moveDynJN();
-
-        this.log("Spawne neue dynamische JumpNodes.");
-        this.spawnDynJN();
-	}
+    }
 }

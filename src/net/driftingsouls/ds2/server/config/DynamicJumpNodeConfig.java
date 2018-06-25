@@ -21,12 +21,12 @@ package net.driftingsouls.ds2.server.config;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.entities.DynamicJumpNode;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import org.apache.commons.lang.math.RandomUtils;
-import org.hibernate.annotations.ForeignKey;
 
-import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Repraesentiert eine mögliche Konfiguration eines dynamischen JumpNodes.
@@ -38,20 +38,14 @@ public class DynamicJumpNodeConfig
     @Id
     @GeneratedValue
     private int id;
-    @ManyToMany
-    @ForeignKey(name="dynamic_jn_config_fk_startsystems", inverseName="dynamic_jn_config_startsystems_fk_systems")
-    @JoinTable(name="dynamic_jn_config_startsystems")
-    private Set<StarSystem> startsystems = new HashSet<>();
-    @ManyToMany
-    @ForeignKey(name="dynamic_jn_config_fk_zielsystems", inverseName="dynamic_jn_config_zielsystems_fk_systems")
-    @JoinTable(name="dynamic_jn_config_zielsystems")
-    private Set<StarSystem> zielsystems = new HashSet<>();
-    private int inrange;
-    private int outrange;
-    private int mindauer;
-    private int maxdauer;
-    private int minnextmovement;
-    private int maxnextmovement;
+    private Location initialStart = null;
+    private Location initialTarget = null;
+    private int maxDistanceToInitialStart;
+    private int maxDistanceToInitialTarget;
+    private int minLifetime;
+    private int maxLifetime;
+    private int minNextMovementDelay;
+    private int maxNextMovementDelay;
 
     /**
      * Konstruktor.
@@ -62,23 +56,33 @@ public class DynamicJumpNodeConfig
 
     /**
      * Konstruktor.
-     * @param startsystems Liste der möglihen Startsysteme
-     * @param zielsystems Liste der möglichen Zielsysteme
-     * @param inrange Maximale Reichweite des Eingangs
-     * @param outrange Maximale Reichweite des Ausgangs
-     * @param mindauer Mindestdauer, die der JumpNode geöffnet ist
-     * @param maxdauer Maximaldauer, die der JumpNode geöffnet ist
+     * @param initialStart Liste der möglihen Startsysteme
+     * @param initialTarget Liste der möglichen Zielsysteme
+     * @param maxDistanceToInitialStart Maximale Reichweite des Eingangs
+     * @param maxDistanceToInitialTarget Maximale Reichweite des Ausgangs
+     * @param minLifetime Mindestdauer, die der JumpNode geöffnet ist
+     * @param maxLifetime Maximaldauer, die der JumpNode geöffnet ist
      */
-    public DynamicJumpNodeConfig(Set<StarSystem> startsystems, Set<StarSystem> zielsystems, int inrange, int outrange, int mindauer, int maxdauer, int minnextmovement, int maxnextmovement)
+    public DynamicJumpNodeConfig(Location initialStart, Location initialTarget, int maxDistanceToInitialStart, int maxDistanceToInitialTarget, int minLifetime, int maxLifetime, int minNextMovementDelay, int maxNextMovementDelay)
     {
-        this.startsystems = startsystems;
-        this.zielsystems = zielsystems;
-        this.inrange = inrange;
-        this.outrange = outrange;
-        this.mindauer = mindauer;
-        this.maxdauer = maxdauer;
-        this.minnextmovement = minnextmovement;
-        this.maxnextmovement = maxnextmovement;
+        this.initialStart = initialStart;
+        this.initialTarget = initialTarget;
+        this.maxDistanceToInitialStart = maxDistanceToInitialStart;
+        this.maxDistanceToInitialTarget = maxDistanceToInitialTarget;
+
+        if(minLifetime > maxLifetime) {
+            throw new IllegalArgumentException("minLifetime > maxLifetime");
+        }
+
+        this.minLifetime = minLifetime;
+        this.maxLifetime = maxLifetime;
+
+        if(minNextMovementDelay > maxNextMovementDelay) {
+            throw new IllegalArgumentException("minNextMovementDelay > maxNextMovementDelay");
+        }
+
+        this.minNextMovementDelay = minNextMovementDelay;
+        this.maxNextMovementDelay = maxNextMovementDelay;
     }
 
     /**
@@ -94,171 +98,174 @@ public class DynamicJumpNodeConfig
      * Gibt die Liste der Startsysteme zurück.
      * @return die Liste der Startsysteme
      */
-    public Set<StarSystem> getStartSystems()
+    public Location getInitialStart()
     {
-        return startsystems;
+        return initialStart;
     }
 
-    /**
-     * Setzt die Liste der Startsysteme
-     * @param startsystems die neue Liste der Startsysteme
-     */
-    public void setStartSystems(Set<StarSystem> startsystems)
+    public void setInitialStart(Location initialStart)
     {
-        this.startsystems = startsystems;
+        this.initialStart = initialStart;
     }
 
-    /**
-     * Gibt die Liste der Zielsysteme zurück.
-     * @return die Liste der Zielsysteme
-     */
-    public Set<StarSystem> getZielSystems()
+    public Location getInitialTarget()
     {
-        return zielsystems;
+        return initialTarget;
     }
 
-    /**
-     * Setzt die Liste der Zielsysteme.
-     * @param zielsystems die neue Liste der Zielsysteme
-     */
-    public void setZielSystems(Set<StarSystem> zielsystems)
+    public void setInitialTarget(Location initialTarget)
     {
-        this.zielsystems = zielsystems;
+        this.initialTarget = initialTarget;
     }
 
-    /**
-     * Gibt zurück, wie weit der Eingang des JumpNodes maximal pro Tick wandert
-     * @return die Maximale Reichweite des Eingangs
-     */
-    public int getInRange()
+    public int getMaxDistanceToInitialStart()
     {
-        return inrange >= 0 ? inrange : 0;
+        return maxDistanceToInitialStart;
     }
 
     /**
      * Setzt, wie weit der Eingang des JumpNodes maximal pro Tick wandert.
-     * @param inrange die neue Maximale Reichweite des Eingangs
+     * @param maxDistanceToInitialStart die neue Maximale Reichweite des Eingangs
      */
-    public void setInRange(int inrange)
+    public void setMaxDistanceToInitialStart(int maxDistanceToInitialStart)
     {
-        this.inrange = inrange;
+        this.maxDistanceToInitialStart = maxDistanceToInitialStart;
     }
 
     /**
      * Gibt die maximale Reichweite des Ausgangsportals zurueck.
      * @return Die maximale Reichweite des Ausgangsportals
      */
-    public int getOutRange()
+    public int getMaxDistanceToInitialTarget()
     {
-        return outrange >= 0 ? outrange : 0;
+        return maxDistanceToInitialTarget;
     }
 
     /**
      * Setzt die maximale Reichweite des Ausgangsportals.
-     * @param outrange Die neue maximale Reichweite des Ausgangsportals
+     * @param maxDistanceToInitialTarget Die neue maximale Reichweite des Ausgangsportals
      */
-    public void setOutRange(int outrange)
+    public void getMaxDistanceToInitialTarget(int maxDistanceToInitialTarget)
     {
-        this.outrange = outrange;
+        this.maxDistanceToInitialTarget = maxDistanceToInitialTarget;
     }
 
     /**
      * Gibt die minimale Dauer des JN zurueck.
      * @return Die minimale Dauer des JN
      */
-    public int getMinDauer()
+    public int getMinLifetime()
     {
-        return mindauer >= 1 ? mindauer : 1;
+        return minLifetime;
     }
 
     /**
      * Setzt die minimale Dauer des JN.
-     * @param mindauer Die neue minimale Dauer des JN
+     * @param minLifetime Die neue minimale Dauer des JN
      */
-    public void setMinDauer(int mindauer)
+    public void setMinLifetime(int minLifetime)
     {
-        this.mindauer = mindauer;
+        if(minLifetime > maxLifetime) {
+            throw new IllegalArgumentException("minLifetime > maxLifetime");
+        }
+
+        this.minLifetime = minLifetime;
     }
 
     /**
      * Gibt die maximale Dauer des JN zurueck.
      * @return Die maximale Dauer des JN
      */
-    public int getMaxDauer()
+    public int getMaxLifetime()
     {
-        return maxdauer >= getMinDauer() ? maxdauer : getMinDauer();
+        return maxLifetime;
     }
 
     /**
      * Setzt die maximale Dauer des JN.
-     * @param maxdauer Die neue maximale Dauer des JN
+     * @param maxLifetime Die neue maximale Dauer des JN
      */
-    public void setMaxDauer(int maxdauer)
+    public void setMaxLifetime(int maxLifetime)
     {
-        this.maxdauer = maxdauer;
+        if(minLifetime > maxLifetime) {
+            throw new IllegalArgumentException("minLifetime > maxLifetime");
+        }
+
+        this.maxLifetime = maxLifetime;
     }
 
     /**
      * Gibt die minimale Zeit bis zur naechsten Bewegung zurueck.
      * @return Die minimale Zeit bis zur naechsten Bewegung
      */
-    public int getMinNextMovement()
+    public int getMinNextMovementDelay()
     {
-        return minnextmovement >= 1 ? minnextmovement : 1;
+        return minNextMovementDelay;
     }
 
     /**
      * Setzt die minimale Zeit bis zur naechsten Bewegung.
-     * @param minnextmovement Die neue minimale Zeit bis zur naechsten Bewegung
+     * @param minNextMovementDelay Die neue minimale Zeit bis zur naechsten Bewegung
      */
-    public void setMinNextMovement(int minnextmovement) { this.minnextmovement = minnextmovement; }
+    public void setMinNextMovementDelay(int minNextMovementDelay) { this.minNextMovementDelay = minNextMovementDelay; }
 
     /**
      * Gibt die maximale Zeit bis zur naechsten Bewegung zurueck.
      * @return Die maximale Zeit bis zur naechsten Bewegung
      */
-    public int getMaxNextMovement()
+    public int getMaxNextMovementDelay()
     {
-        return maxnextmovement >= getMinNextMovement() ? maxnextmovement : getMinNextMovement();
+        return maxNextMovementDelay;
     }
 
     /**
      * Setzt die maximale Zeit bis zur naechsten Bewegung.
      * @param maxnextmovement Die neue maximale Zeit bis zur naechsten Bewegung
      */
-    public void setMaxNextMovement(int maxnextmovement) { this.maxnextmovement = maxnextmovement; }
+    public void setMaxNextMovement(int maxnextmovement) { this.maxNextMovementDelay = maxnextmovement; }
+
+    public String getName() {
+        org.hibernate.Session db = ContextMap.getContext().getDB();
+        StarSystem startSystem = (StarSystem)db.get(StarSystem.class, initialStart.getSystem());
+        StarSystem targetSystem = (StarSystem)db.get(StarSystem.class, initialTarget.getSystem());
+        return startSystem.getName()+"->"+targetSystem.getName();
+    }
 
     /**
      * Spawnt einen dynamischen Sprungpunkt von dieser Konfiguration.
      */
     public void spawnJumpNode()
     {
-        if(startsystems == null || startsystems.isEmpty())
+        if(initialStart == null)
         {
             return;
         }
-        if(zielsystems == null || zielsystems.isEmpty())
+        if(initialTarget == null)
         {
             return;
         }
+
+        int timeUntilDeath = -1;
+        if(getMinLifetime() > 0 && getMaxLifetime() > 0) {
+            timeUntilDeath = ThreadLocalRandom.current().nextInt(getMinLifetime(), getMaxLifetime());
+        } else if(getMinLifetime() > 0) {
+            timeUntilDeath = ThreadLocalRandom.current().nextInt(getMinLifetime(), Integer.MAX_VALUE);
+        } else if(getMaxLifetime() > 0) {
+            timeUntilDeath = ThreadLocalRandom.current().nextInt(1, getMaxLifetime());
+        }
+
         org.hibernate.Session db = ContextMap.getContext().getDB();
-        int startrnd = RandomUtils.nextInt(startsystems.size());
-        StarSystem startsystem = (StarSystem)startsystems.toArray()[startrnd];
-        int zielrnd = RandomUtils.nextInt(zielsystems.size());
-        StarSystem zielsystem = (StarSystem)zielsystems.toArray()[zielrnd];
 
-        int startx = RandomUtils.nextInt(startsystem.getWidth())+1;
-        int starty = RandomUtils.nextInt(startsystem.getHeight())+1;
-        Location startloc = new Location(startsystem.getID(), startx, starty);
+        int movementDelay = 0;
+        if(getMinNextMovementDelay() > 0 && getMaxNextMovementDelay() > 0) {
+            movementDelay = ThreadLocalRandom.current().nextInt(getMinNextMovementDelay(), getMaxNextMovementDelay());
+        } else if(getMinNextMovementDelay() > 0) {
+            movementDelay = ThreadLocalRandom.current().nextInt(getMinNextMovementDelay(), Integer.MAX_VALUE);
+        } else if(getMaxNextMovementDelay() > 0) {
+            movementDelay = ThreadLocalRandom.current().nextInt(getMaxNextMovementDelay());
+        }
 
-        int zielx = RandomUtils.nextInt(zielsystem.getWidth())+1;
-        int ziely = RandomUtils.nextInt(zielsystem.getHeight())+1;
-        Location zielloc = new Location(zielsystem.getID(), zielx, ziely);
-
-        int dauer = RandomUtils.nextInt(getMaxDauer()-getMinDauer()+1)+getMinDauer();
-        int move = RandomUtils.nextInt(getMaxNextMovement()-getMinNextMovement()+1)+getMinNextMovement();
-
-        DynamicJumpNode jump = new DynamicJumpNode(startloc, zielloc, startsystem.getName()+"->"+zielsystem.getName(), dauer, getInRange(), getOutRange(), move);
+        DynamicJumpNode jump = new DynamicJumpNode(this, timeUntilDeath, movementDelay);
         db.persist(jump.getJumpNode());
         db.persist(jump);
     }

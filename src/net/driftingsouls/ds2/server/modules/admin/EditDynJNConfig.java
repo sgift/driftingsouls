@@ -18,9 +18,9 @@
  */
 package net.driftingsouls.ds2.server.modules.admin;
 
+import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.config.DynamicJumpNodeConfig;
-import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
@@ -44,15 +44,15 @@ public class EditDynJNConfig implements EntityEditor<DynamicJumpNodeConfig>
 	{
         form.allowAdd();
         form.allowDelete();
-		form.multiSelection("Startsysteme", StarSystem.class, DynamicJumpNodeConfig::getStartSystems, DynamicJumpNodeConfig::setStartSystems);
-        form.multiSelection("Zielsysteme", StarSystem.class, DynamicJumpNodeConfig::getZielSystems, DynamicJumpNodeConfig::setZielSystems);
-        form.field("Reichweite des Einganges", Integer.class, DynamicJumpNodeConfig::getInRange, DynamicJumpNodeConfig::setInRange);
-        form.field("Reichweite des Ausganges", Integer.class, DynamicJumpNodeConfig::getOutRange, DynamicJumpNodeConfig::setOutRange);
-        form.field("Minimale Laufzeit", Integer.class, DynamicJumpNodeConfig::getMinDauer, DynamicJumpNodeConfig::setMinDauer);
-        form.field("Maximale Laufzeit", Integer.class, DynamicJumpNodeConfig::getMaxDauer, DynamicJumpNodeConfig::setMaxDauer);
-        form.field("Minimale Dauer an einem Punkt", Integer.class, DynamicJumpNodeConfig::getMinNextMovement, DynamicJumpNodeConfig::setMinNextMovement);
-        form.field("Maximale Dauer an einem Punkt", Integer.class, DynamicJumpNodeConfig::getMaxNextMovement, DynamicJumpNodeConfig::setMaxNextMovement);
+		form.field("Start (Format: system:x/y", String.class, (c -> c.getInitialStart().asString()), (s, v) -> s.setInitialStart(!"".equals(v) ? Location.fromString(v) : new Location(0, 0, 0)));
+		form.field("Ziel (Format: system:x/y", String.class, (c -> c.getInitialTarget().asString()), (s, v) -> s.setInitialTarget(!"".equals(v) ? Location.fromString(v) : new Location(0, 0, 0)));
+        form.field("Maximale Distanz zum Start", Integer.class, DynamicJumpNodeConfig::getMaxDistanceToInitialStart, DynamicJumpNodeConfig::setMaxDistanceToInitialStart);
+        form.field("Maximale Distanz zum Ziel", Integer.class, DynamicJumpNodeConfig::getMaxDistanceToInitialTarget, DynamicJumpNodeConfig::getMaxDistanceToInitialTarget);
+        form.field("Minimale Laufzeit", Integer.class, DynamicJumpNodeConfig::getMinLifetime, DynamicJumpNodeConfig::setMinLifetime);
+        form.field("Maximale Laufzeit", Integer.class, DynamicJumpNodeConfig::getMaxLifetime, DynamicJumpNodeConfig::setMaxLifetime);
+        form.field("Minimale Dauer an einem Punkt", Integer.class, DynamicJumpNodeConfig::getMinNextMovementDelay, DynamicJumpNodeConfig::setMinNextMovementDelay);
+        form.field("Maximale Dauer an einem Punkt", Integer.class, DynamicJumpNodeConfig::getMaxNextMovementDelay, DynamicJumpNodeConfig::setMaxNextMovement);
+
+        form.postAddTask("Richte neuen dynamischen JN ein", DynamicJumpNodeConfig::spawnJumpNode);
 	}
-
-
 }
