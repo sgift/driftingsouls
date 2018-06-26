@@ -54,5 +54,10 @@ public class EditDynJNConfig implements EntityEditor<DynamicJumpNodeConfig>
         form.field("Maximale Dauer an einem Punkt", Integer.class, DynamicJumpNodeConfig::getMaxNextMovementDelay, DynamicJumpNodeConfig::setMaxNextMovement);
 
         form.postAddTask("Richte neuen dynamischen JN ein", DynamicJumpNodeConfig::spawnJumpNode);
+        form.preDeleteTask("Entferne dynamischen JN", DynamicJumpNodeConfig::removeJumpNode);
+        form.postUpdateTask("Aktualisiere dynamischen Jumpnode", (oldDynamicJumpNodeConfig, dynamicJumpNodeConfig) -> {
+			dynamicJumpNodeConfig.removeJumpNode();
+			dynamicJumpNodeConfig.spawnJumpNode();
+		});
 	}
 }

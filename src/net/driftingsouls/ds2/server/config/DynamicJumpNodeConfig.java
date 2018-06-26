@@ -23,6 +23,7 @@ import net.driftingsouls.ds2.server.entities.DynamicJumpNode;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -245,5 +246,22 @@ public class DynamicJumpNodeConfig
         DynamicJumpNode jump = new DynamicJumpNode(this, timeUntilDeath, movementDelay);
         db.persist(jump.getJumpNode());
         db.persist(jump);
+    }
+
+    public void removeJumpNode() {
+        org.hibernate.Session db = ContextMap.getContext().getDB();
+        @SuppressWarnings("unchecked")
+        List<DynamicJumpNode> dynamicJumpNodes = db.createQuery("from DynamicJumpNode j where config = :config")
+                .setParameter("config", this)
+                .list();
+
+        if(dynamicJumpNodes.isEmpty()) {
+            return;
+        }
+
+        DynamicJumpNode dynamicJumpNode = dynamicJumpNodes.get(0);
+
+        db.delete(dynamicJumpNode.getJumpNode());
+        db.delete(dynamicJumpNode);
     }
 }
