@@ -62,37 +62,6 @@ public class DynamicJumpNodeConfig
     }
 
     /**
-     * Konstruktor.
-     * @param initialStart Liste der möglihen Startsysteme
-     * @param initialTarget Liste der möglichen Zielsysteme
-     * @param maxDistanceToInitialStart Maximale Reichweite des Eingangs
-     * @param maxDistanceToInitialTarget Maximale Reichweite des Ausgangs
-     * @param minLifetime Mindestdauer, die der JumpNode geöffnet ist
-     * @param maxLifetime Maximaldauer, die der JumpNode geöffnet ist
-     */
-    public DynamicJumpNodeConfig(Location initialStart, Location initialTarget, int maxDistanceToInitialStart, int maxDistanceToInitialTarget, int minLifetime, int maxLifetime, int minNextMovementDelay, int maxNextMovementDelay)
-    {
-        this.initialStart = initialStart;
-        this.initialTarget = initialTarget;
-        this.maxDistanceToInitialStart = maxDistanceToInitialStart;
-        this.maxDistanceToInitialTarget = maxDistanceToInitialTarget;
-
-        if(minLifetime > maxLifetime) {
-            throw new IllegalArgumentException("minLifetime > maxLifetime");
-        }
-
-        this.minLifetime = minLifetime;
-        this.maxLifetime = maxLifetime;
-
-        if(minNextMovementDelay > maxNextMovementDelay) {
-            throw new IllegalArgumentException("minNextMovementDelay > maxNextMovementDelay");
-        }
-
-        this.minNextMovementDelay = minNextMovementDelay;
-        this.maxNextMovementDelay = maxNextMovementDelay;
-    }
-
-    /**
      * Gibt die ID zurueck.
      * @return die ID
      */
@@ -172,10 +141,6 @@ public class DynamicJumpNodeConfig
      */
     public void setMinLifetime(int minLifetime)
     {
-        if(minLifetime > maxLifetime) {
-            throw new IllegalArgumentException("minLifetime > maxLifetime");
-        }
-
         this.minLifetime = minLifetime;
     }
 
@@ -194,10 +159,6 @@ public class DynamicJumpNodeConfig
      */
     public void setMaxLifetime(int maxLifetime)
     {
-        if(minLifetime > maxLifetime) {
-            throw new IllegalArgumentException("minLifetime > maxLifetime");
-        }
-
         this.maxLifetime = maxLifetime;
     }
 
@@ -243,13 +204,22 @@ public class DynamicJumpNodeConfig
      */
     public void spawnJumpNode()
     {
-        if(initialStart == null)
+        Location defaultLocation = new Location(0, 0, 0);
+        if(initialStart == null || initialStart.equals(defaultLocation))
         {
-            return;
+            throw new IllegalArgumentException("Start position not set");
         }
-        if(initialTarget == null)
+        if(initialTarget == null || initialTarget.equals(defaultLocation))
         {
-            return;
+            throw new IllegalArgumentException("Target position not set");
+        }
+
+        if(minLifetime > maxLifetime) {
+            throw new IllegalArgumentException("minLifetime > maxLifetime");
+        }
+
+        if(minNextMovementDelay > maxNextMovementDelay) {
+            throw new IllegalArgumentException("minNextMovementDelay > maxNextMovementDelay");
         }
 
         int timeUntilDeath = -1;
