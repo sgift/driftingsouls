@@ -22,10 +22,7 @@ import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.entities.DynamicJumpNode;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -38,7 +35,17 @@ public class DynamicJumpNodeConfig
     @Id
     @GeneratedValue
     private int id;
+    @AttributeOverrides( {
+            @AttributeOverride(name="x", column = @Column(name="initialStartX") ),
+            @AttributeOverride(name="y", column = @Column(name="initialStartY") ),
+            @AttributeOverride(name="system", column = @Column(name="initialStartSystem"))
+    })
     private Location initialStart = null;
+    @AttributeOverrides( {
+            @AttributeOverride(name="x", column = @Column(name="initialTargetX") ),
+            @AttributeOverride(name="y", column = @Column(name="initialTargetY") ),
+            @AttributeOverride(name="system", column = @Column(name="initialTargetSystem"))
+    })
     private Location initialTarget = null;
     private int maxDistanceToInitialStart;
     private int maxDistanceToInitialTarget;

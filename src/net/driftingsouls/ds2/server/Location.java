@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import org.jetbrains.annotations.NotNull;
 
+import javax.persistence.Embeddable;
 import java.io.Serializable;
 
 /**
@@ -28,6 +29,7 @@ import java.io.Serializable;
  * @author Christopher Jung
  *
  */
+@Embeddable
 public final class Location implements Serializable, Locatable, Comparable<Location> {
 	private static final long serialVersionUID = -5144442902462679539L;
 
