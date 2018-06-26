@@ -44,8 +44,8 @@ public class EditDynJNConfig implements EntityEditor<DynamicJumpNodeConfig>
 	{
         form.allowAdd();
         form.allowDelete();
-		form.field("Start (Format: system:x/y", String.class, (c -> c.getInitialStart().asString()), (s, v) -> s.setInitialStart(!"".equals(v) ? Location.fromString(v) : new Location(0, 0, 0)));
-		form.field("Ziel (Format: system:x/y", String.class, (c -> c.getInitialTarget().asString()), (s, v) -> s.setInitialTarget(!"".equals(v) ? Location.fromString(v) : new Location(0, 0, 0)));
+		form.field("Start (Format: system:x/y", String.class, (c -> c.getInitialStart() != null ? c.getInitialStart().asString() : ""), (s, v) -> s.setInitialStart(!"".equals(v) ? Location.fromString(v) : new Location(0, 0, 0)));
+		form.field("Ziel (Format: system:x/y", String.class, (c -> c.getInitialTarget() != null ? c.getInitialTarget().asString() : ""), (s, v) -> s.setInitialTarget(!"".equals(v) ? Location.fromString(v) : new Location(0, 0, 0)));
         form.field("Maximale Distanz zum Start", Integer.class, DynamicJumpNodeConfig::getMaxDistanceToInitialStart, DynamicJumpNodeConfig::setMaxDistanceToInitialStart);
         form.field("Maximale Distanz zum Ziel", Integer.class, DynamicJumpNodeConfig::getMaxDistanceToInitialTarget, DynamicJumpNodeConfig::getMaxDistanceToInitialTarget);
         form.field("Minimale Laufzeit", Integer.class, DynamicJumpNodeConfig::getMinLifetime, DynamicJumpNodeConfig::setMinLifetime);
