@@ -42,6 +42,7 @@ public class DynamicJumpNode {
     private JumpNode jumpnode;
     private int remainingLiveTime;
     private int remainingTicksUntilMove;
+    @OneToOne
     @ForeignKey(name = "dynamic_jn_fk_dynamicjnconfig")
     private DynamicJumpNodeConfig config;
     private int initialTicksUntilMove;
