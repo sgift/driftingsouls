@@ -49,17 +49,75 @@
 		<br />
 	{/endif}
 	
+	<script type="text/javascript">
+		function toggle(source) {
+		  checkboxes = document.getElementsByName('box');
+		  for(var i=0, n=checkboxes.length;i<n;i++) {
+		    checkboxes[i].checked = source.checked;
+		  }
+		  for(var i=0, n=checkboxes.length;i<n;i++){
+			  setValue(checkboxes[i]);
+		  }
+		}
+	</script>
+	<script type="text/javascript">
+		function toggle2(source) {
+		  checkboxes = document.getElementsByName('box2');
+		  for(var i=0, n=checkboxes.length;i<n;i++) {
+		    checkboxes[i].checked = source.checked;
+		  }
+		  for(var i=0, n=checkboxes.length;i<n;i++){
+			  setValue2(checkboxes[i]);
+		  }
+		}
+	</script>
+	
+	<script type="text/javascript">
+		function setValue(source){
+			texts= document.getElementsByName(source.id+'to');
+			if(source.checked){
+				texts[0].value = source.value;
+			}
+			else{
+				texts[0].value="0";
+			}
+		}
+	</script>
+	<script type="text/javascript">
+		function setValue2(source){
+			texts= document.getElementsByName(source.id+'from');
+			if(source.checked){
+				texts[0].value = source.value;
+			}
+			else{
+				texts[0].value="0";
+			}
+		}
+	</script>
+	
+	
 	<form action="./ds" method="post">
 	<table class="noBorderX" border="0" style="border:0px; width:80%">
+	<td></td><td></td><td><span style="color: #C7C7C7">Alle ausw&aumlhlen</span></td>
+	<td><input type="checkbox" onClick="toggle(this)" /></td>
+	<td></td>
+	<td></td>
+	{if target.show}
+	<td><input type="checkbox" onClick="toggle2(this)" /></td><td><span style="color: #C7C7C7">Alle ausw&aumlhlen</span></td>
+	{/endif}
 	<!-- BEGIN res.listitem -->
 		<tr>
 			<td class="noBorderX"><img src="{res.image}" alt="" /></td>
 			<td class="noBorderX">{res.name}&nbsp;</td>
 			<td class="noBorderX" align="right" style="white-space:nowrap">{res.cargo.source}</td>
-			<td class="noBorderX"><input name="{res.id}to" type="text" size="3" value="0" /></td>
+			<td class="noBorderX"><input type="checkbox" onClick="setValue(this)" name="box" id="{res.id}" value="{res.cargo.source.count}"  /></td>
+			<td class="noBorderX"><input name="{res.id}to" type="text" id="to" size="3" value="0" /></td>
 			{if target.show}
 				<td class="noBorderX">
 					<input name="{res.id}from" type="text" size="3" value="0" />
+				</td>
+				<td class="noBorderX">
+					<input type="checkbox" onClick="setValue2(this)" name="box2" id="{res.id}" value="{res.cargo.target.count}"  />
 				</td>
 				<td class="noBorderX" style="white-space:nowrap">
 					{res.cargo.target}
