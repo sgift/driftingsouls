@@ -1012,7 +1012,9 @@ public class TransportController extends Controller
 					"res.image", res.getImage(),
 					"res.id", res.getId(),
 					"res.cargo.source", (from.size() > 1 ? "max " : "") + res.getCargo1(),
-					"res.cargo.target", showtarget ? (to.size() > 1 ? "max " : "") + res.getCargo2() : 0);
+					"res.cargo.target", showtarget ? (to.size() > 1 ? "max " : "") + res.getCargo2() : 0,
+					"res.cargo.source.count", (from.size() > 1 ? "max " : "") + res.getCount1(),
+					"res.cargo.target.count", showtarget ? (to.size() > 1 ? "max " : "") + res.getCount2() : 0);
 
 			t.parse("res.list", "res.listitem", true);
 		}
