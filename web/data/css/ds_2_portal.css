@@ -97,7 +97,7 @@ input{
  font-size: 1em;
  
 }
-select option {
+select {
  background: transparent;
  -webkit-appearance: none;
  width: 268px;
@@ -108,6 +108,11 @@ select option {
 /* height: 36px; */
  color: #CCC;
 }
+
+select option {
+	color: #000;
+}
+
 .checkbox input {
 	background: transparent;
 	border : 1px solid #25346d;
