@@ -76,7 +76,7 @@
 		function setValue(source){
 			texts= document.getElementsByName(source.id+'to');
 			if(source.checked){
-				texts[0].value = source.value;
+				texts[0].value = source.value.replace(/\D/g,'');
 			}
 			else{
 				texts[0].value="0";
@@ -87,7 +87,7 @@
 		function setValue2(source){
 			texts= document.getElementsByName(source.id+'from');
 			if(source.checked){
-				texts[0].value = source.value;
+				texts[0].value = source.value.replace(/\D/g,'');
 			}
 			else{
 				texts[0].value="0";
