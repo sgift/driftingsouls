@@ -97,7 +97,7 @@ input{
  font-size: 1em;
  
 }
-select {
+select option {
  background: transparent;
  -webkit-appearance: none;
  width: 268px;

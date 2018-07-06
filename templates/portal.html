@@ -282,12 +282,13 @@
 			
 			<div id="register-neusiedler-daten">
 				<h2>Registrierung</h2>
-				<p>Bitte f&uuml;llen sie alle Felder aus<br />
-				Das Passwort wird ihnen anschlie&szlig;end via E-Mail zugesandt</p>
+				<p>Bitte f&uuml;lle alle Felder aus<br />
+				Das Passwort wird dir anschlie&szlig;end via E-Mail zugesandt</p>
 				<p><span class="red">Das setzt die Angabe einer g&uuml;ltigen E-mail Adresse voraus.</span></p>
 				
 				<p>
-					<span class="left">Spezies</span> <select name="race" size="1" style="width:200px" onchange="actionRaceSelectChange(this.options[this.options.selectedIndex].value)">
+					<span class="left">Spezies</span>
+					<select name="race" size="1" style="width:200px" onchange="actionRaceSelectChange(this.options[this.options.selectedIndex].value)">
 					<!-- BEGIN register.rassen.listitem -->
 						<option value="{rasse.id}" {if rasse.selected}selected="selected"{/endif}>{rasse.name}</option>
 					<!-- END register.rassen.listitem -->
