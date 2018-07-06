@@ -44,7 +44,7 @@ import java.util.List;
  */
 @Module(name = "main")
 public class MainController extends Controller {
-	private static final String SCRIPT_FORUM = "http://forum.drifting-souls.net/phpbb3/";
+	private static final String SCRIPT_FORUM = "http://ds.rnd-it.de/";
 
 	private Version version;
 	private TemplateViewResultFactory templateViewResultFactory;

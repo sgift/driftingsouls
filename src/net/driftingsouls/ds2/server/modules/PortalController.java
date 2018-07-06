@@ -441,13 +441,9 @@ public class PortalController extends Controller
 						" Falls Probleme auftreten sollten, gibt es:\n" +
 						"- eine Wiki ([url=http://wiki.drifting-souls.net/]Wiki zu Drifing-Souls[/url])\n" +
 						"- Informationen via Menue/Technische Datenbank\n" +
-						"- das Forum via Menue/Technische Datenbank oder [url=http://forum.drifting-souls.net/phpbb3/]Forum-Link[/url]\n" +
+						"- das Forum via Menue/Technische Datenbank oder [url=http://ds.rnd-it.de]Forum-Link[/url]\n" +
 						"- einen IRC-Chat (Server: irc.euirc.net / Chan #ds2 oder\n" +
-						"- #ds-help) - Eine Anleitung findest Du im Forum: [url=http://forum.drifting-souls.net/phpbb3/viewtopic.php?f=50&amp;t=1595]Chat-Anleitung[/url]\n" +
-						"- und die Moeglichkeit via PM an die ID -16 Fragen zu stellen.\n" +
-						"\n" +
-						"Unter\n" +
-						"[url=http://wiki.drifting-souls.net/confluence/display/inf/Ingame-Tutorial]Wiki:Ingame-Tuturial[/url] findest du den Text aus der Einfuehrung.\n" +
+						"- #ds-help) - und die Moeglichkeit via PM an die ID -16 Fragen zu stellen.\n" +
 						"\n" +
 						"\n" +
 						"Viel Spass noch bei DS wuenschen dir die Admins[/font]");

@@ -164,7 +164,7 @@ public class WellKnownConfigValue<T> implements ConfigValueDescriptor<T>
 	/**
 	 * Die URL zu den Smilie-Grafiken.
 	 */
-	public static final ConfigValueDescriptor<String> SMILIE_PATH = new WellKnownConfigValue<>(String.class, "smilie_path", "http://forum.drifting-souls.net/phpbb3/images/smilies", "Die URL zu den Smilie-Grafiken.");
+	public static final ConfigValueDescriptor<String> SMILIE_PATH = new WellKnownConfigValue<>(String.class, "smilie_path", "http://ds.rnd-it.de/images/smilies", "Die URL zu den Smilie-Grafiken.");
 	/**
 	 * Das Gebaeudelayout der beim Registrieren automatisch zugewiesenen Basis.
 	 */
