@@ -164,7 +164,7 @@
         <dependency>
             <groupId>net.driftingsouls</groupId>
             <artifactId>driftingsouls-templates</artifactId>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
