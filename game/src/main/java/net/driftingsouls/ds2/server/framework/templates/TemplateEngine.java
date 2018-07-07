@@ -76,7 +76,7 @@ public class TemplateEngine implements ViewResult
 
 	/**
 	 * Registriert eine Template-Datei im TemplateEngine unter einem bestimmten Namen.
-	 * Die Template-Datei muss in kompilierter Form unter <code>net.driftingsouls.ds2.server.templates</code>
+	 * Die Template-Datei muss in kompilierter Form unter <code>net.driftingsouls.ds2.server.framework.templates</code>
 	 * vorliegen.
 	 * 
 	 * @param handle Der Name unter dem das Template zu registrieren ist
@@ -412,18 +412,7 @@ public class TemplateEngine implements ViewResult
 		return (double) 0;
 	}
 
-	/**
-	 * Gibt den Inhalt einer Variablen in der Kontext-Antwort aus.
-	 * @param varname Der Name der auszugebenden Variablen
-	 * @throws IOException 
- 	 */
-	public void p( String varname ) throws IOException {
-		log.debug("out: "+varname);
 
-		Object value = varvals.get(varname);
-		Context context = ContextMap.getContext();
-		context.getResponse().getWriter().append(value.toString());
-	}
 	
 	/**
 	 * Registriert einen TemplateBlock.
@@ -493,9 +482,20 @@ public class TemplateEngine implements ViewResult
 		}
 		this.parse("OUT", this.masterTemplateId);
 
-		log.debug("out: OUT");
-
 		Object value = varvals.get("OUT");
 		response.getWriter().append(value.toString());
+	}
+
+	/**
+	 * Gibt den Inhalt einer Variablen in der Kontext-Antwort aus.
+	 * @param varname Der Name der auszugebenden Variablen
+	 * @throws IOException
+	 */
+	public void p( String varname ) throws IOException {
+		log.debug("out: "+varname);
+
+		Object value = varvals.get(varname);
+		Context context = ContextMap.getContext();
+		context.getResponse().getWriter().append(value.toString());
 	}
 }

@@ -21,10 +21,17 @@
 
     <modules>
         <module>game</module>
+        <module>templates</module>
     </modules>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>net.driftingsouls</groupId>
+                <artifactId>driftingsouls-templates</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.github.jai-imageio</groupId>
                 <artifactId>jai-imageio-core</artifactId>
@@ -214,6 +221,16 @@
                 <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.7.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>1.6.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>1.7</version>
                 </plugin>
             </plugins>
         </pluginManagement>

@@ -144,6 +144,7 @@
             <artifactId>flyway-gradle-plugin</artifactId>
         </dependency>
 
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -158,6 +159,12 @@
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>net.driftingsouls</groupId>
+            <artifactId>driftingsouls-templates</artifactId>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
@@ -174,40 +181,45 @@
                     </compilerArgs>
                 </configuration>
             </plugin>
-            <!--
+
+            <!-- Compile templates to Java files for use in build -->
             <plugin>
-                <groupId>com.samaxes.maven</groupId>
-                <artifactId>minify-maven-plugin</artifactId>
-                <version>1.7.6</version>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>default-minify</id>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
                         <configuration>
-                            <cssSourceDir>${project.basedir}/src/main/webapp/data/css/common</cssSourceDir>
-                            <cssTargetDir>${build.finalName}/data/css/common</cssTargetDir>
-                            <cssFinalFile>format.css</cssFinalFile>
+                            <sources>
+                                <source>${project.build.directory}/generated-sources/templates</source>
+                            </sources>
                         </configuration>
-                        <goals>
-                            <goal>minify</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>
-            -->
-<!--
             <plugin>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>3.2.2</version>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>build-war</id>
                         <goals>
-                            <goal>exploded</goal>
+                            <goal>java</goal>
                         </goals>
+                        <phase>generate-sources</phase>
                     </execution>
                 </executions>
+                <configuration>
+                    <mainClass>net.driftingsouls.ds2.server.framework.templates.TemplateCompiler</mainClass>
+                    <arguments>
+                        <argument>${project.basedir}/src/main/templates</argument>
+                        <argument>${project.build.directory}/generated-sources/templates</argument>
+                    </arguments>
+                </configuration>
             </plugin>
-            -->
         </plugins>
     </build>
 </project>

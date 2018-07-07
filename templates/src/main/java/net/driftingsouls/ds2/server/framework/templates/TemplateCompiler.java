@@ -18,22 +18,13 @@
  */
 package net.driftingsouls.ds2.server.framework.templates;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import javax.tools.JavaCompiler;
-import javax.tools.JavaFileObject;
-import javax.tools.ToolProvider;
 import java.io.*;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * <h1>Der Template-Compiler.</h1>
@@ -43,7 +34,7 @@ import java.util.stream.Collectors;
  *
  */
 public class TemplateCompiler {
-	private static final Log log = LogFactory.getLog(TemplateCompiler.class);
+	private final List<String> templatePackages;
 
 	private interface TemplateCompileFunction {
 		/**
@@ -237,7 +228,7 @@ public class TemplateCompiler {
 
 			String ret = "<input type=\"checkbox\" name=\""+name+"\" id=\""+name+"\" {if "+var+"}checked=\"checked\"{/endif} value=\"1\" /><label for=\""+name+"\">"+text+"</label>";
 
-			return StringUtils.replace(ret, "\"", "\\\"");
+			return ret.replace("\"", "\\\"");
 		}
 	}
 
@@ -250,32 +241,21 @@ public class TemplateCompiler {
 		COMPILE_FUNCTIONS.put("checkbox", new TCFCheckbox());
 	}
 
-	private String file;
-	private String outputPath;
-	private TemplateCompilerOutputHandler outputHandler;
-	private String subPackage;
+	private String sourceFilename;
+	private String baseOutputPath;
+	private String javaFilename;
 
 	/**
 	 * Konstruktor.
-	 * @param file Die zu kompilierende Datei
-	 * @param outputPath Das Ausgabeverzeichnis, in dem die kompilierte Datei abgelegt werden soll
+	 * @param sourceFilename Die zu kompilierende Datei
+	 * @param baseOutputPath Das Ausgabeverzeichnis, in dem die nach Java uebersetze Datei abgelegt werden soll
 	 */
-	public TemplateCompiler(String file, String outputPath, TemplateCompilerOutputHandler outputHandler) {
-		this(file, outputPath, outputHandler, null);
-	}
+	private TemplateCompiler(String sourceFilename, String baseOutputPath, String javaFilename) {
+		this.sourceFilename = sourceFilename;
+		this.baseOutputPath = baseOutputPath;
+		this.javaFilename = javaFilename;
 
-	/**
-	 * Konstruktor.
-	 * @param file Die zu kompilierende Datei
-	 * @param outputPath Das Ausgabeverzeichnis, in dem die nach Java uebersetze Datei abgelegt werden soll
-	 * @param outputHandler Der Handler, der die produzierten Javaklassen weiterverarbeitet
-	 * @param subPackage Das zu verwendende Overlay-Paket. <code>null</code>, falls das Template in kein Overlay-Paket gehoert
-	 */
-	public TemplateCompiler(String file, String outputPath,TemplateCompilerOutputHandler outputHandler, String subPackage) {
-		this.file = file;
-		this.outputPath = outputPath;
-		this.subPackage = subPackage;
-		this.outputHandler = outputHandler;
+		templatePackages = List.of("net", "driftingsouls", "ds2", "server", "framework", "templates");
 	}
 
 	private String parse_if( String bedingung ) {
@@ -496,17 +476,14 @@ public class TemplateCompiler {
 	 * @throws IOException
 	 */
 	public void compile() throws IOException {
-		log.info("compiling "+file);
-
-		String baseFileName = new File(file).getName();
+		String baseFileName = new File(sourceFilename).getName();
 		baseFileName = baseFileName.substring(0, baseFileName.lastIndexOf(".html"));
 
 		String str = readTemplate();
 
 		StringBuilder strBuilder;
-		str = StringUtils.replace(str, "\\", "\\\\");
-		str = StringUtils.replace(str, "\"", "\\\"");
-		//str = StringUtils.replace(str, "\\'","\\\\'");
+		str = str.replace("\\", "\\\\");
+		str = str.replace("\"", "\\\"");
 
 		// Funktionen ersetzen
 		str = parse_functions(str);
@@ -537,20 +514,18 @@ public class TemplateCompiler {
 		// Compilierte Datei schreiben
 		// Zuerst der Header
 
-		String bfname = StringUtils.replace(baseFileName, ".", "");
+		String bfname = baseFileName.replace(".", "");
 		StringBuilder newfile = new StringBuilder(1000);
-		if( subPackage == null ) {
-			newfile.append("package net.driftingsouls.ds2.server.templates;\n");
-		}
-		else {
-			newfile.append("package net.driftingsouls.ds2.server.templates.").append(subPackage).append(";\n");
-		}
+
+		newfile.append("package ");
+		newfile.append(String.join(".", templatePackages));
+		newfile.append(";\n");
 		newfile.append("import net.driftingsouls.ds2.server.framework.templates.Template;\n");
 		newfile.append("import net.driftingsouls.ds2.server.framework.templates.TemplateBlock;\n");
 		newfile.append("import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;\n\n");
 
 		newfile.append("/* Dieses Script wurde automatisch generiert\n");
-		newfile.append("   Alle Aenderungen gehen daher bei der naechten Generierung\n");
+		newfile.append("   Alle Aenderungen gehen daher bei der naeschten Generierung\n");
 		newfile.append("   verloren. Wenn sie Aenderungen machen wollen, tun sie dies\n");
 		newfile.append("   bitte im entsprechenden Ursprungstemplate */\n\n");
 
@@ -575,7 +550,7 @@ public class TemplateCompiler {
 		for( int i=0; i < result.size(); i++ ) {
 			CompiledBlock block = result.get(i);
 
-			newfile.append("\tstatic class ").append(StringUtils.replace(block.name, ".", "")).append(" implements TemplateBlock {\n");
+			newfile.append("\tstatic class ").append(block.name.replace(".", "")).append(" implements TemplateBlock {\n");
 			newfile.append("\t\tpublic String[] getBlockVars(boolean all) {\n");
 			newfile.append("\t\t\tif( !all ) {\n");
 
@@ -601,7 +576,7 @@ public class TemplateCompiler {
 			newfile.append("\t\tpublic String output(TemplateEngine templateEngine) {\n");
 			newfile.append("\t\tStringBuilder str = new StringBuilder(").append(block.block.length()).append(");\n");
 
-			String[] blockstr =  StringUtils.replace(block.block, "\r\n", "\n").split("\n");
+			String[] blockstr =  block.block.replace("\r\n", "\n").split("\n");
 			for( int j=0; j < blockstr.length; j++ ) {
 				if( j < blockstr.length - 1 ) {
 					newfile.append("\t\tstr.append(\"").append(blockstr[j]).append("\\n\");\n");
@@ -622,7 +597,7 @@ public class TemplateCompiler {
 		for (CompiledBlock block : result)
 		{
 			newfile.append("\t\tif( block.equals(\"").append(block.name).append("\") ) {\n");
-			newfile.append("\t\t\treturn new ").append(StringUtils.replace(block.name, ".", "")).append("();\n");
+			newfile.append("\t\t\treturn new ").append(block.name.replace(".", "")).append("();\n");
 			newfile.append("\t\t}\n");
 		}
 		newfile.append("\t\treturn null;\n");
@@ -665,7 +640,7 @@ public class TemplateCompiler {
 
 		newfile.append("\tpublic String main( TemplateEngine templateEngine ) {\n");
 		newfile.append("\t\tStringBuilder str = new StringBuilder(").append(str.length()).append(");\n");
-		str = StringUtils.replace(str, "\r\n", "\n");
+		str = str.replace("\r\n", "\n");
 		String[] strLines = str.split("\n");
 		for( int i=0; i < strLines.length; i++ ) {
 			if( i < strLines.length - 1 ) {
@@ -680,78 +655,19 @@ public class TemplateCompiler {
 		newfile.append("\t}\n");
 		newfile.append("}");
 
-		if( outputPath != null )
-		{
-			try (BufferedWriter writer = new BufferedWriter(new FileWriter(new File(outputPath + "/" + bfname + ".java"))))
-			{
-				writer.write(newfile.toString());
-			}
+
+		Path outputFolder = Paths.get(baseOutputPath, templatePackages.toArray(new String[0]));
+		outputFolder = Files.createDirectories(outputFolder);
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFolder.resolve(javaFilename + ".java").toFile()))) {
+			writer.write(newfile.toString());
 		}
-
-		compileTemplateClass(bfname, newfile);
-	}
-
-	private void compileTemplateClass(String className, StringBuilder javaSourceCode) throws IOException
-	{
-		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		List<String> optionList = getCompilerOptions();
-
-		try(MemJavaFileManager fileManager = new MemJavaFileManager( compiler ))
-		{
-			JavaFileObject javaFile = new StringJavaFileObject(className, javaSourceCode.toString());
-			Collection<JavaFileObject> units = Collections.singleton(javaFile);
-			JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, null, optionList, null, units);
-			task.call();
-
-			for (MemJavaFileObject memJavaFileObject : fileManager.getFiles())
-			{
-				outputHandler.handle(memJavaFileObject);
-			}
-
-		}
-	}
-
-	private List<String> getCompilerOptions()
-	{
-		List<String> optionList = new ArrayList<>();
-		if( getClass().getClassLoader() instanceof URLClassLoader)
-		{
-			URL[] urls = ((URLClassLoader) getClass().getClassLoader()).getURLs();
-			List<String> paths = new ArrayList<>();
-			for( URL url : urls ) {
-				try
-				{
-					File f;
-					try
-					{
-						f = new File(url.toURI());
-					}
-					catch (URISyntaxException e)
-					{
-						f = new File(url.getPath());
-					}
-					paths.add(f.getAbsolutePath());
-				}
-				catch( IllegalArgumentException e )
-				{
-					// IGNORE
-				}
-			}
-			String pathSeparator = System.getProperty("path.separator");
-			optionList.addAll(Arrays.asList("-classpath", paths.stream().collect(Collectors.joining(pathSeparator))));
-		}
-		else
-		{
-			optionList.addAll(Arrays.asList("-classpath", System.getProperty("java.class.path")));
-		}
-		return optionList;
 	}
 
 	private String readTemplate() throws IOException
 	{
 		StringBuilder strBuilder = new StringBuilder();
 
-		try (BufferedReader reader = new BufferedReader(new FileReader(new File(file))))
+		try (BufferedReader reader = new BufferedReader(new FileReader(new File(sourceFilename))))
 		{
 			String curLine;
 			while ((curLine = reader.readLine()) != null)
@@ -767,88 +683,36 @@ public class TemplateCompiler {
 		return strBuilder.toString();
 	}
 
-	private static void compileDirectory( File dir, String outputPath, TemplateCompilerOutputHandler outputHandler, String subPackage ) throws IOException {
+	private static void compileDirectory(File dir, String basePath) throws IOException {
 		File[] files = dir.listFiles();
 		assert files != null;
-		for (File file1 : files)
+		for (File file : files)
 		{
-			if (file1.getName().contains(".html"))
+			if (file.getName().endsWith(".html"))
 			{
-				String file = file1.getAbsolutePath();
-				String baseFileName = file.substring(file.lastIndexOf("/") + 1, file.lastIndexOf(".html"));
-				String bfname = StringUtils.replace(baseFileName, ".", "");
-				File compiledFile = new File(outputPath + "/" + bfname + ".java");
-				if (!compiledFile.exists() || (compiledFile.lastModified() < file1.lastModified()))
-				{
-					TemplateCompiler compiler = new TemplateCompiler(file, outputPath, outputHandler, subPackage);
-					compiler.compile();
-				}
-			}
-			else if (file1.isDirectory() && !file1.isHidden())
-			{
-				String subOutputPath = outputPath + "/" + file1.getName();
-				if (!new File(subOutputPath).exists())
-				{
-					if (!new File(subOutputPath).mkdir())
-					{
-						throw new IOException("Konnte Verzeichnis " + subOutputPath + " nicht erstellen");
-					}
-				}
-				compileDirectory(file1, subOutputPath, outputHandler, subPackage != null ? subPackage + "." + file1.getName() : file1.getName());
+				String baseFileName = file.getName().substring(0, file.getName().length() - 5);
+				String javaFileName = baseFileName.replace(".", "");
+				TemplateCompiler compiler = new TemplateCompiler(file.toString(), basePath, javaFileName);
+				compiler.compile();
 			}
 		}
 	}
 
-	private static class MemJavaFileWriter implements TemplateCompilerOutputHandler
-	{
-		private final String clsoutputpath;
-
-		private MemJavaFileWriter(String clsoutputpath)
-		{
-			this.clsoutputpath = clsoutputpath;
-		}
-
-		@Override
-		public void handle(MemJavaFileObject memJavaFileObject) throws IOException
-		{
-			File clsFile = new File(clsoutputpath + "/" + memJavaFileObject.getFilename());
-			log.info("writing " + clsFile.getAbsolutePath());
-			if( !clsFile.getParentFile().isDirectory() )
-			{
-				clsFile.getParentFile().mkdirs();
-			}
-			try(OutputStream out = new FileOutputStream(clsFile) )
-			{
-				IOUtils.write(memJavaFileObject.getClassBytes(), out);
-			}
-		}
-	}
-
-	/**
-	 * Main.
-	 * @param args Die Kommandozeilenparameter
-	 * @throws Exception
-	 */
 	public static void main(String[] args) throws Exception {
-		if( args.length < 4 ) {
-			System.out.println("java net.driftingsouls.ds2.server.framework.templates.TemplateCompiler [Configdir] [TemplateFile] [outputpath] [clsoutputpath]");
+		if( args.length != 2 ) {
+			System.out.println("java net.driftingsouls.ds2.server.framework.templates.TemplateCompiler [TemplateFolder] [baseOutputPath]");
 			return;
 		}
 
-		String file = args[1];
-		String outputPath = args[2];
-		String clsoutputpath = args[3];
+		String file = args[0];
+		String outputPath = args[1];
 
-		// Wenn es sich um ein Verzeichnis handelt, dann alle HTML-Dateien kompilieren,
-		// sofern sie neuer sind als die kompilierten Fassungen
-		if( new File(file).isDirectory() ) {
-			compileDirectory(new File(file), outputPath, new MemJavaFileWriter(clsoutputpath), null);
+		Path inputFolder = Paths.get(file);
+		if(!Files.isDirectory(inputFolder)) {
+			System.out.println("TemplateFolder is not a directory");
+			return;
 		}
-		// Wenn direkt eine Datei angegeben wurde, dann diese auf jeden Fall kompilieren
-		else {
-			TemplateCompiler compiler = new TemplateCompiler(file, outputPath, new MemJavaFileWriter(clsoutputpath));
-			compiler.compile();
-		}
+
+		compileDirectory(inputFolder.toFile(), outputPath);
 	}
-
 }
