@@ -2451,9 +2451,18 @@ public class Ship implements Locatable,Transfering,Feeding {
 		MESSAGE.get().append(ShipFleet.MESSAGE.getMessage());
 	}
 
+	/**
+	 * Gibt die Location des Schiffs wieder, falls es sich nicht auf einem Baseship befindet.
+	 * Befindet sich das Schiff auf einem Baseship wird dessen Location zurueckgegeben.
+	 * @return die Location
+	 */
 	@Override
 	public Location getLocation() {
-		return new Location(this.system, this.x, this.y);
+		Ship baseShip = getBaseShip();		
+		if(baseShip == null){
+			return new Location(this.system, this.x, this.y);
+		}
+		return baseShip.getLocation();
 	}
 
 	/**

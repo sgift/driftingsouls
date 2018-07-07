@@ -285,11 +285,9 @@ public class UeberController extends Controller
 				t.setVar("fleet.jaegerfleet", 0);
 			}
 
-			Ship baseShip = aship.getBaseShip();
 
-			String locationText;
-			locationText = Objects.requireNonNullElse(baseShip, aship).getLocation().displayCoordinates(false);
-
+			String locationText = aship.getLocation().displayCoordinates(false);
+			
 			t.setVar("fleet.shipid", aship.getId(),
 					"fleet.name", fleet.getName(),
 					"fleet.location", locationText,
