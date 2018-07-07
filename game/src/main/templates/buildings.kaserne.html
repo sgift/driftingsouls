@@ -1,0 +1,80 @@
+<div class="smallfont">
+{if kaserne.message}
+	{kaserne.message}<br />
+{/endif}
+<br />
+<br />
+{if kaserne.show.training}
+	<div class="gfxbox" style="width:440px">
+		<h3>Bildet aus:</h3>
+	 	<table class="datatable" style="min-width:80%">
+			<thead>
+				<tr>
+					<th>Anzahl</th>
+					<th>Name</th>
+					<th>Verbleibend</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				<!-- BEGIN kaserne.training.listitem -->
+				<tr>
+					<td>{trainunit.menge}</td>
+					<td>{trainunit.name}</td>
+					<td style="vertical-align: middle"><img src="data/interface/time.gif" alt="" />{trainunit.remaining}</td>
+					<td>
+						<a href="javascript:DS.ask('Soll die Ausbildung wirklich abgebrochen werden?','./ds?module=building&amp;col={base.id}&amp;field={base.field}&amp;cancel=1&amp;queueid={trainunit.queue.id}')">
+						<img style="vertical-align:middle;border:0px" src="data/interface/werft/delete.gif" alt="Abbrechen" title="Abbrechen" /></a>
+					</td>
+				</tr>
+				<!-- END kaserne.training.listitem -->
+			</tbody>
+		</table>
+	 </div>
+	 <br />
+{/endif}
+<div class="gfxbox" style="width:590px">
+<h3>Neue Einheiten ausbilden:</h3>
+<table class="datatable">
+	<colgroup>
+		<col />
+		<col width="60%" />
+		<col width="30%" />
+	</colgroup>
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Baukosten</th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody>
+		<!-- BEGIN kaserne.unitlist.listitem -->
+			<tr>
+				<td style="white-space:nowrap">
+					<img style="vertical-align:middle" src="{unit.picture}" alt="" />
+					<a class="forschinfo" href="./ds?module=unitinfo&amp;action=default&amp;unit={unit.id}">{unit.name}</a>
+				</td>
+				<td style="vertical-align:middle;">
+					<span class="nobr"><img style="vertical-align:middle" src="data/interface/time.gif" alt="Dauer" />{unit.dauer}</span> {unit.buildcosts}
+				</td>
+				<td style="vertical-align:middle;">
+					<form action="./ds" method="post">
+					<div>
+					<input name="count" type="text" size="2" value="0" />
+					<input name="unitid" type="hidden" value="{unit.id}" />
+					<input name="col" type="hidden" value="{base.id}" />
+					<input name="field" type="hidden" value="{base.field}" />
+					<input name="module" type="hidden" value="building" />
+					<input type="submit" value="Ausbilden" />
+					</div>
+					</form>
+				</td>
+			</tr>
+		<!-- END kaserne.unitlist.listitem -->
+	</tbody>
+</table><br />
+</div>
+<br />
+<br />
+</div>

@@ -1,0 +1,75 @@
+<div class="gfxbox" style="width:460px">
+	{if unitinfo.message}
+		{unitinfo.message}<br />
+	{/endif}
+
+	{if unitinfo.list}
+		<table class="datatable" cellspacing="3" width="100%">
+		<colgroup>
+			<col width="30" />
+			<col/>
+			<col/>
+		</colgroup>
+		<thead>
+			<tr>
+				<th colspan="2">Name</th>
+				<th>Gr&ouml;&szlig;e</th>
+			</tr>
+		</thead>
+		<tbody>
+			<!-- BEGIN unitinfo.unitlist.listitem -->
+			<tr>
+				<td><img style="vertical-align:middle" src="{unit.picture}" alt="" /></td>
+				<td>{!link_to $unit.name, default, module:unitinfo, unit:$unit.id}</td>
+				<td>{unit.groesse}</td>
+			</tr>
+			<!-- END unitinfo.unitlist.listitem -->
+		</tbody>
+		</table>
+	{/endif}
+
+	{if unitinfo.details}
+		<table cellspacing="3" width="100%">
+		<tr>
+			<td style="width:80px">Name</td>
+			<td>
+				<img style="vertical-align:middle" src="{unit.picture}" alt="" />{unit.name}
+			</td>
+		</tr>
+		<tr>
+			<td style="width:80px">Gr&ouml;&szlig;e</td>
+			<td>{unit.size}</td>
+		</tr>
+		<tr>
+			<td style="width:80px">Nahrungskosten</td>
+			<td>{unit.nahrungcost}</td>
+		</tr>
+		<tr>
+			<td style="width:80px">Sold</td>
+			<td>{unit.recost}</td>
+		</tr>
+		<tr>
+			<td style="width:80px">Kaper-Wert</td>
+			<td>{unit.kapervalue}</td>
+		</tr>
+		<tr>
+			<td style="width:80px">Baukosten</td>
+			<td>{unit.baukosten}</td>
+		</tr>
+		<tr>
+			<td style="width:80px">Ben&ouml;tigte Forschung</td>
+			<td>{unit.forschung}</td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				{unit.description}
+			</td>
+		</tr>
+		</table>
+	{/endif}
+</div>
