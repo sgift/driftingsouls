@@ -65,32 +65,58 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 
 	@Override
 	public BasicUser login(String username, String password, boolean rememberMe) throws AuthenticationException {
+		log.info("Trying login for user: " + username);
+
 		Context context = ContextMap.getContext();
+
+		log.info("Context loaded");
+
 		org.hibernate.Session db = context.getDB();
+
+		log.info("Session loaded");
+
 		Request request = context.getRequest();
+
+		log.info("Checking login disabled");
 
 		checkLoginDisabled();
 
+		log.info("Login disabled checked");
+
 		String enc_pw = Common.md5(password);
+
+		log.info("Loading user from DB");
 
 		BasicUser user = (BasicUser)db.createQuery("from BasicUser where un=:username")
 			.setString("username", username)
 			.uniqueResult();
 
+		log.info("User loaded");
+
 		if( user == null ) {
 			Common.writeLog("login.log", Common.date("j.m.Y H:i:s")+": <"+request.getRemoteAddress()+"> ("+username+") <"+username+"> Password <"+password+"> ***UNGUELTIGER ACCOUNT*** von Browser <"+request.getUserAgent()+">\n");
 
+			log.info("User does not exist: " + username);
+
 			throw new WrongPasswordException();
 		}
+
+		log.info("Checking password");
 
 		if( !user.getPassword().equals(enc_pw) ) {
 			user.setLoginFailedCount(user.getLoginFailedCount()+1);
 			Common.writeLog("login.log", Common.date("j.m.Y H:i:s")+": <"+request.getRemoteAddress()+"> ("+user.getId()+") <"+username+"> Password <"+password+"> ***LOGIN GESCHEITERT*** von Browser <"+request.getUserAgent()+">\n");
 
+			log.info("Wrong password");
+
 			throw new WrongPasswordException();
 		}
 
+		log.info("Password checked, checking vacation");
+
 		checkAccountNotInVacationMode(user);
+
+		log.info("vaction checked, finishing login");
 
 		return finishLogin(user, rememberMe);
 	}
@@ -109,11 +135,17 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		Context context = ContextMap.getContext();
 		Request request = context.getRequest();
 
+		log.info("Checking for disabled user");
+
 		checkDisabled(user);
+
+		log.info("User not disabled");
 
 		for( LoginEventListener listener : loginListenerList ) {
 			listener.onLogin(user);
 		}
+
+		log.info("Login listener informed, finishing login");
 
 		log.info("Login "+user.getId());
 		Common.writeLog("login.log",Common.date( "j.m.Y H:i:s")+": <"+request.getRemoteAddress()+"> ("+user.getId()+") <"+user.getUN()+"> Login von Browser <"+request.getUserAgent()+">\n");
@@ -121,6 +153,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		JavaSession jsession = context.get(JavaSession.class);
 		jsession.setUser(user);
 		jsession.setIP("<"+context.getRequest().getRemoteAddress()+">");
+
 
 
 		if(rememberMe)
