@@ -28,15 +28,10 @@ import net.driftingsouls.ds2.server.entities.UserRank;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.RedirectViewResult;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -263,7 +258,7 @@ public class UserProfileController extends Controller
 		t.setBlock("_USERPROFILE", "history.listitem", "history.list");
 		if (ausgewaehlterBenutzer.getHistory().length() != 0)
 		{
-			String[] history = StringUtils.split(StringUtils.replace(ausgewaehlterBenutzer.getHistory(), "\r\n", "\n"), "\n");
+			String[] history = StringUtils.split(ausgewaehlterBenutzer.getHistory().replace("\r\n", "\n"), "\n");
 
 			for (String aHistory : history)
 			{

@@ -21,13 +21,13 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.map.TileCache;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipType;
-import org.apache.commons.lang.math.RandomUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -53,11 +53,11 @@ public class StarSystemContentGenerator
 			sys.setStarmapVisible(true);
 			sys.setOrderLocations("25/25");
 
-			String prefix = prefixe[RandomUtils.nextInt(prefixe.length)];
-			String name = namen[RandomUtils.nextInt(namen.length)];
-			String suffix = suffixe[RandomUtils.nextInt(suffixe.length)];
+			String prefix = prefixe[ThreadLocalRandom.current().nextInt(prefixe.length)];
+			String name = namen[ThreadLocalRandom.current().nextInt(namen.length)];
+			String suffix = suffixe[ThreadLocalRandom.current().nextInt(suffixe.length)];
 
-			sys.setName((RandomUtils.nextInt(10)>1 ? prefix+" " : "")+name+(RandomUtils.nextInt(10) > 7 ? " "+suffix : ""));
+			sys.setName((ThreadLocalRandom.current().nextInt(10)>1 ? prefix+" " : "")+name+(ThreadLocalRandom.current().nextInt(10) > 7 ? " "+suffix : ""));
 
 			db.persist(sys);
 			sys.setDropZone(new Location(sys.getID(), 25, 25));
@@ -95,8 +95,8 @@ public class StarSystemContentGenerator
 		// Noch ein paar zufaellige Verbindungen ergaenzen
 		for( int i=0; i < list.size()/2; i++ )
 		{
-			StarSystem sys1 = list.get(RandomUtils.nextInt(list.size()));
-			StarSystem sys2 = list.get(RandomUtils.nextInt(list.size()));
+			StarSystem sys1 = list.get(ThreadLocalRandom.current().nextInt(list.size()));
+			StarSystem sys2 = list.get(ThreadLocalRandom.current().nextInt(list.size()));
 			generiereSprungpunkt(sys1, sys2);
 		}
 	}
@@ -105,11 +105,11 @@ public class StarSystemContentGenerator
 	{
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		int x1 = RandomUtils.nextInt(sys1.getWidth() + 1);
-		int y1 = RandomUtils.nextInt(sys1.getHeight() + 1);
+		int x1 = ThreadLocalRandom.current().nextInt(sys1.getWidth() + 1);
+		int y1 = ThreadLocalRandom.current().nextInt(sys1.getHeight() + 1);
 
-		int x2 = RandomUtils.nextInt(sys2.getWidth() + 1);
-		int y2 = RandomUtils.nextInt(sys2.getHeight() + 1);
+		int x2 = ThreadLocalRandom.current().nextInt(sys2.getWidth() + 1);
+		int y2 = ThreadLocalRandom.current().nextInt(sys2.getHeight() + 1);
 
 		JumpNode node1 = new JumpNode();
 		node1.setSystem(sys1.getID());
@@ -159,14 +159,14 @@ public class StarSystemContentGenerator
 
 		for (int i = 0; i < Math.pow(size,0.7); i++)
 		{
-			int x = RandomUtils.nextInt(sys.getWidth() + 1);
-			int y = RandomUtils.nextInt(sys.getHeight() + 1);
+			int x = ThreadLocalRandom.current().nextInt(sys.getWidth() + 1);
+			int y = ThreadLocalRandom.current().nextInt(sys.getHeight() + 1);
 			if (nebelMap[x][y])
 			{
 				continue;
 			}
 			nebelMap[x][y] = true;
-			Nebel.Typ nebelTyp = Nebel.Typ.values()[RandomUtils.nextInt(Nebel.Typ.values().length)];
+			Nebel.Typ nebelTyp = Nebel.Typ.values()[ThreadLocalRandom.current().nextInt(Nebel.Typ.values().length)];
 
 			Nebel nebel = new Nebel(new MutableLocation(sys.getID(), x, y), nebelTyp);
 			db.persist(nebel);
@@ -178,9 +178,9 @@ public class StarSystemContentGenerator
 		int size = sys.getWidth() * sys.getHeight();
 		for (int i = 0; i < anzahlBerechnung.apply(size); i++)
 		{
-			int x = RandomUtils.nextInt(sys.getWidth() - 1)+1;
-			int y = RandomUtils.nextInt(sys.getHeight() - 1)+1;
-			BaseType type = baseTypes.get(RandomUtils.nextInt(baseTypes.size()));
+			int x = ThreadLocalRandom.current().nextInt(1, sys.getWidth());
+			int y = ThreadLocalRandom.current().nextInt(1,sys.getHeight());
+			BaseType type = baseTypes.get(ThreadLocalRandom.current().nextInt(baseTypes.size()));
 
 			erzeugeBasisBei(sys, x, y, type);
 		}

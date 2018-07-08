@@ -39,7 +39,6 @@ import net.driftingsouls.ds2.server.ships.SchiffHinzufuegenService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.tick.TickController;
-import org.apache.commons.lang.math.RandomUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -47,6 +46,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Berechnet NPC-Bestellungen.
@@ -219,7 +219,7 @@ public class NPCOrderTick extends TickController {
 		}
 
 		OrderableOffizier offizier = (OrderableOffizier)db.get(OrderableOffizier.class, ((OrderOffizier)order).getType());
-		int special = RandomUtils.nextInt(6)+1;
+		int special = ThreadLocalRandom.current().nextInt(1, 7);
 
 		Offizier offi = new Offizier(user, this.getOffiName(user));
 		offi.setRang(offizier.getRang());

@@ -2,7 +2,6 @@ package net.driftingsouls.ds2.server.framework.db;
 
 import net.driftingsouls.ds2.server.framework.AnnotationUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
@@ -123,7 +122,7 @@ public class HibernateUtil
 		String[] updateSQL = configuration.generateSchemaUpdateScript(new MySQL5InnoDBDialect(), new DatabaseMetadata(con, new MySQL5InnoDBDialect()));
 		try (FileOutputStream writer = new FileOutputStream(new File(targetFile)))
 		{
-			IOUtils.write(StringUtils.join(updateSQL, ";\n"), writer, "UTF-8");
+			IOUtils.write(String.join(";\n", updateSQL), writer, "UTF-8");
 		}
 		if( updateSQL.length == 0 )
 		{
@@ -141,9 +140,9 @@ public class HibernateUtil
 		String[] createSQL = configuration.generateSchemaCreationScript(new MySQL5InnoDBDialect());
 		try (FileOutputStream writer = new FileOutputStream(new File(targetFile)))
 		{
-			IOUtils.write(StringUtils.join(dropSQL, ";\n"), writer, "UTF-8");
+			IOUtils.write(String.join(";\n", dropSQL), writer, "UTF-8");
 			IOUtils.write("\n\n\n\n", writer, "UTF-8");
-			IOUtils.write(StringUtils.join(createSQL, ";\n"), writer, "UTF-8");
+			IOUtils.write(String.join(";\n", createSQL), writer, "UTF-8");
 		}
 	}
 

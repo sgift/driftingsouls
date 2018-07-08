@@ -19,11 +19,7 @@
 package net.driftingsouls.ds2.server.werften;
 
 import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
-import net.driftingsouls.ds2.server.cargo.ResourceEntry;
-import net.driftingsouls.ds2.server.cargo.ResourceID;
-import net.driftingsouls.ds2.server.cargo.ResourceList;
+import net.driftingsouls.ds2.server.cargo.*;
 import net.driftingsouls.ds2.server.cargo.modules.Module;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
 import net.driftingsouls.ds2.server.config.ModuleSlots;
@@ -40,7 +36,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -1026,14 +1022,14 @@ public class WerftGUI {
 			boolean result = werft.buildShip(build, itemid, false, true );
 
 			if( !result ) {
-				t.setVar("build.instant.error", StringUtils.replace(werft.getMessage(), "\n", "<br/>\n"));
+				t.setVar("build.instant.error", werft.getMessage().replace("\n", "<br/>\n"));
 			}
 
 			// Kosten pro Tick
 			result = werft.buildShip(build, itemid, true, true );
 
 			if( !result ) {
-				t.setVar("build.pertick.error", StringUtils.replace(werft.getMessage(), "\n", "<br/>\n"));
+				t.setVar("build.pertick.error", werft.getMessage().replace("\n", "<br/>\n"));
 			}
 		}
 		// Bau ausfuehren
@@ -1041,7 +1037,7 @@ public class WerftGUI {
 			boolean result = werft.buildShip(build, itemid, perTick, false );
 
 			if( !result ) {
-				t.setVar("build.error", StringUtils.replace(werft.getMessage(), "\n", "<br/>\n"));
+				t.setVar("build.error", werft.getMessage().replace("\n", "<br/>\n"));
 			}
 		}
 

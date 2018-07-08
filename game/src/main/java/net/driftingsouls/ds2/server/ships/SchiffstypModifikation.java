@@ -18,27 +18,12 @@
  */
 package net.driftingsouls.ds2.server.ships;
 
-import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.ForeignKey;
 
 import javax.annotation.Nonnull;
-import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Version;
+import javax.persistence.*;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -802,7 +787,7 @@ public class SchiffstypModifikation
 		for( Schiffswaffenkonfiguration conf: this.waffen) {
 			effekte.add("weapons=" + (conf.getWaffe() != null ? conf.getWaffe().getId() : "null") + "/" + conf.getAnzahl() + "/" + conf.getHitze());
 		}
-		return StringUtils.join(effekte, ";");
+		return String.join(";", effekte);
 	}
 
 	/**

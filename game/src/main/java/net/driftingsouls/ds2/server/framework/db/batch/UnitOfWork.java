@@ -20,7 +20,7 @@ package net.driftingsouls.ds2.server.framework.db.batch;
 
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.AssertionFailure;
@@ -178,7 +178,7 @@ public abstract class UnitOfWork<T>
 						String entity = msg.substring(msg.indexOf('[')+1, msg.length()-1);
 						String id = entity.substring(entity.indexOf('#')+1);
 						entity = entity.substring(0, entity.indexOf('#'));
-						if( NumberUtils.isNumber(id) ) {
+						if( NumberUtils.isCreatable(id) ) {
 							Object entityObj = db.get(entity, NumberUtils.toInt(id));
 							if( entityObj != null ) {
 								db.evict(entityObj);

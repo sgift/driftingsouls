@@ -1,6 +1,6 @@
 package net.driftingsouls.ds2.server.ships;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
 import java.util.EnumSet;

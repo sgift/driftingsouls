@@ -20,8 +20,7 @@ package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 /**
  * Basisklasse fuer KS-Menues.
@@ -50,7 +49,7 @@ public abstract class BasicKSMenuAction extends BasicKSAction {
 	public static void menuEntryAsk(TemplateEngine t, String title, String params, String ask ) {
 		t.setVar(	"menu.entry.params",	params,
 					"menu.entry.title",		title,
-					"ask.text",				StringEscapeUtils.escapeJavaScript(ask) );
+					"ask.text",				StringEscapeUtils.escapeEcmaScript(ask) );
 		t.parse("menu","menu.entry.ask",true);
 
 	}

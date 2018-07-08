@@ -1,6 +1,6 @@
 package net.driftingsouls.ds2.server.cargo.modules;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 
 /**

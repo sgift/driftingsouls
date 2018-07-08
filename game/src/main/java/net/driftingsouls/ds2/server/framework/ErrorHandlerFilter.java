@@ -3,18 +3,13 @@ package net.driftingsouls.ds2.server.framework;
 import com.google.gson.Gson;
 import net.driftingsouls.ds2.server.framework.authentication.TickInProgressException;
 import net.driftingsouls.ds2.server.user.authentication.AccountInVacationModeException;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.StaleStateException;
 import org.hibernate.exception.GenericJDBCException;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.Writer;
@@ -86,15 +81,15 @@ public class ErrorHandlerFilter implements Filter
 						return;
 					}
 				}
-				ex = ExceptionUtils.getCause(ex);
+				ex = ex.getCause();
 			}
 			while(ex != null);
 
 			String infos = erzeugeRequestInformationen((HttpServletRequest) request);
 
 			Throwable mailThrowable = e;
-			while( ExceptionUtils.getCause(mailThrowable) != null ) {
-				mailThrowable = ExceptionUtils.getCause(mailThrowable);
+			while( mailThrowable.getCause() != null ) {
+				mailThrowable = mailThrowable.getCause();
 			}
 
 			Common.mailThrowable(mailThrowable, "Unexpected exception", infos);

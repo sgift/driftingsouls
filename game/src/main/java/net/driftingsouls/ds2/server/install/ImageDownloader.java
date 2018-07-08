@@ -3,14 +3,9 @@ package net.driftingsouls.ds2.server.install;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.hibernate.Session;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.sql.Connection;
@@ -265,7 +260,7 @@ public class ImageDownloader
 	{
 		Set<String> imgs = new HashSet<>();
 
-		try (PreparedStatement stmt = con.prepareStatement("select " + StringUtils.join(columns, ',') + " from " + table))
+		try (PreparedStatement stmt = con.prepareStatement("select " + String.join(",", columns) + " from " + table))
 		{
 			try (ResultSet result = stmt.executeQuery())
 			{

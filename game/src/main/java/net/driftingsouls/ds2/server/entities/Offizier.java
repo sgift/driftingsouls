@@ -26,21 +26,14 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.DSObject;
 import net.driftingsouls.ds2.server.ships.Ship;
-import org.apache.commons.lang.math.RandomUtils;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Repraesentiert einen Offizier in DS.
@@ -476,10 +469,10 @@ public class Offizier extends DSObject {
 				if( this.spec == 3 ) {
 					fak *= 0.6;
 				}
-				if( this.ing > fak*(RandomUtils.nextInt(101)/100d) ) {
+				if( this.ing > fak*(ThreadLocalRandom.current().nextInt(101)/100d) ) {
 					count++;
 
-					if( RandomUtils.nextInt(31) > 10 ) {
+					if( ThreadLocalRandom.current().nextInt(31) > 10 ) {
 						this.ingu++;
 						fak = 2;
 						if( this.spec == 2) {
@@ -502,10 +495,10 @@ public class Offizier extends DSObject {
 				if( this.spec == 5 ) {
 					fak *= 0.6;
 				}
-				if( this.nav > fak*(RandomUtils.nextInt(101)/100d) ) {
+				if( this.nav > fak*(ThreadLocalRandom.current().nextInt(101)/100d) ) {
 					count++;
 
-					if( RandomUtils.nextInt(31) > 10 ) {
+					if( ThreadLocalRandom.current().nextInt(31) > 10 ) {
 						this.navu++;
 						fak = 2;
 						if( this.spec == 2) {

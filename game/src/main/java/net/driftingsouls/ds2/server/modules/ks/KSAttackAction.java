@@ -38,7 +38,6 @@ import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
-import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -46,6 +45,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Berechnet das Waffenfeuer im KS.
@@ -648,7 +648,7 @@ public class KSAttackAction extends BasicKSAction {
 							continue;
 						}
 
-						int rnd = RandomUtils.nextInt(subsysteme.size());
+						int rnd = ThreadLocalRandom.current().nextInt(subsysteme.size());
 						int subsys = subsysteme.get(rnd);
 
 						int value = 0;
@@ -1142,7 +1142,7 @@ public class KSAttackAction extends BasicKSAction {
 		int totalSize = 0;
 
 		for( int i=1; i <= this.localweapon.getCount()*this.localweapon.getShotsPerShot(); i++) {
-			int rnd = RandomUtils.nextInt(101);
+			int rnd = ThreadLocalRandom.current().nextInt(101);
 
 			if( rnd <= subWS ) {
 				tmpSubDmgs[totalSize++] = (int)Math.round((rnd/(double)subWS)*subDamage);
@@ -1695,7 +1695,7 @@ public class KSAttackAction extends BasicKSAction {
 		int gesamtSchuesse = this.localweapon.getCount() * this.localweapon.getShotsPerShot();
 		for( int i=1; i <= gesamtSchuesse; i++)
 		{
-			int rnd = RandomUtils.nextInt(100)+1;
+			int rnd = ThreadLocalRandom.current().nextInt(1,101);
 			if( battle.getCommander(ownShip.getSide()).hasFlag( UserFlag.KS_DEBUG )) {
 				battle.logme( i + ". Schuss: " + rnd + "%\n");
 			}
@@ -1704,7 +1704,7 @@ public class KSAttackAction extends BasicKSAction {
 				hit++;
 				if( attoffizier != null)
 				{
-					int rnd2 = RandomUtils.nextInt(100)+1;
+					int rnd2 = ThreadLocalRandom.current().nextInt(1,101);
 					if( rnd2 <= 38)
 					{
 						attoffizier.gainExperience(Offizier.Ability.WAF, 1);

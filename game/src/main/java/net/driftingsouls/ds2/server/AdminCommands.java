@@ -29,23 +29,19 @@ import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.ViewModel;
+import net.driftingsouls.ds2.server.framework.*;
 import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
+import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
-import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitType;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.LogManager;
@@ -62,11 +58,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -244,7 +237,7 @@ public class AdminCommands {
         @Override
         public List<String> autoComplete(String[] command)
         {
-            return Arrays.asList("[battleId] [side=0|1]");
+            return Collections.singletonList("[battleId] [side=0|1]");
         }
     }
 
@@ -313,7 +306,7 @@ public class AdminCommands {
 		@Override
 		public List<String> autoComplete(String[] command)
 		{
-			return Arrays.asList("<regular|rare> run [TickClassName]");
+			return Collections.singletonList("<regular|rare> run [TickClassName]");
 		}
 	}
 
@@ -324,14 +317,14 @@ public class AdminCommands {
 			org.hibernate.Session db = context.getDB();
 
 			ShipFleet fleet = null;
-			if( NumberUtils.isNumber(command[1]) ) {
+			if( NumberUtils.isCreatable(command[1]) ) {
 				int fid = Integer.parseInt(command[1]);
 				fleet = (ShipFleet)db.get(ShipFleet.class, fid);
 			}
 			else if( command[1].length() > 1 && command[1].charAt(0) == 's' )
 			{
 				String id = command[1].substring(1);
-				if( NumberUtils.isNumber(id) )
+				if( NumberUtils.isCreatable(id) )
 				{
 					Ship ship = (Ship)db.get(Ship.class, Integer.valueOf(id));
 					if( ship != null )
@@ -348,7 +341,7 @@ public class AdminCommands {
 			switch (command[2])
 			{
 				case "heat":
-					if (!NumberUtils.isNumber(command[3]))
+					if (!NumberUtils.isCreatable(command[3]))
 					{
 						throw new CommandFailedException("Ueberhitzung ungueltig");
 					}
@@ -358,7 +351,7 @@ public class AdminCommands {
 					}
 					break;
 				case "engine":
-					if (!NumberUtils.isNumber(command[3]))
+					if (!NumberUtils.isCreatable(command[3]))
 					{
 						throw new CommandFailedException("Antrieb ungueltig");
 					}
@@ -368,7 +361,7 @@ public class AdminCommands {
 					}
 					break;
 				case "weapons":
-					if (!NumberUtils.isNumber(command[3]))
+					if (!NumberUtils.isCreatable(command[3]))
 					{
 						throw new CommandFailedException("Waffen ungueltig");
 					}
@@ -384,7 +377,7 @@ public class AdminCommands {
 					}
 					break;
 				case "e":
-					if (!NumberUtils.isNumber(command[3]))
+					if (!NumberUtils.isCreatable(command[3]))
 					{
 						throw new CommandFailedException("Energie ungueltig");
 					}
@@ -410,7 +403,7 @@ public class AdminCommands {
 					}
 					break;
 				case "hull":
-					if (!NumberUtils.isNumber(command[3]))
+					if (!NumberUtils.isCreatable(command[3]))
 					{
 						throw new CommandFailedException("Huelle ungueltig");
 					}
@@ -420,7 +413,7 @@ public class AdminCommands {
 					}
 					break;
 				case "shields":
-					if (!NumberUtils.isNumber(command[3]))
+					if (!NumberUtils.isCreatable(command[3]))
 					{
 						throw new CommandFailedException("Schilde ungueltig");
 					}
@@ -430,7 +423,7 @@ public class AdminCommands {
 					}
 					break;
 				case "crew":
-					if (!NumberUtils.isNumber(command[3]))
+					if (!NumberUtils.isCreatable(command[3]))
 					{
 						throw new CommandFailedException("Crew ungueltig");
 					}
@@ -445,13 +438,13 @@ public class AdminCommands {
 					output += "Schiffe: " + fleet.getShips().size() + "\n";
 					break;
 				case "additemmodule":
-					if (!NumberUtils.isNumber(command[3]))
+					if (!NumberUtils.isCreatable(command[3]))
 					{
 						throw new CommandFailedException("Slot ungueltig");
 					}
 					int slot = Integer.parseInt(command[3]);
 
-					if (!NumberUtils.isNumber(command[4]))
+					if (!NumberUtils.isCreatable(command[4]))
 					{
 						throw new CommandFailedException("Item-ID ungueltig");
 					}
@@ -520,7 +513,7 @@ public class AdminCommands {
 		public List<String> autoComplete(String[] command)
 		{
 			if( command.length == 1 ) {
-				return Arrays.asList("<fleetId|s<ShipId>> ...");
+				return Collections.singletonList("<fleetId|s<ShipId>> ...");
 			}
 
 			List<String> validCommands = Arrays.asList(
@@ -535,21 +528,21 @@ public class AdminCommands {
 			}
 
 			if( "pos".equals(command[2]) ) {
-				return Arrays.asList(autoCompleteFleet(command)+" "+command[2]+" <location>");
+				return Collections.singletonList(autoCompleteFleet(command) + " " + command[2] + " <location>");
 			}
 			if( "info".equals(command[2]) ) {
-				return Arrays.asList(autoCompleteFleet(command)+" "+command[2]);
+				return Collections.singletonList(autoCompleteFleet(command) + " " + command[2]);
 			}
 			if( "additemmodule".equals(command[2]) ) {
-				return Arrays.asList(autoCompleteFleet(command)+" "+command[2]+" <slot> "+autoCompleteModuleItem(command));
+				return Collections.singletonList(autoCompleteFleet(command) + " " + command[2] + " <slot> " + autoCompleteModuleItem(command));
 			}
 
-			return Arrays.asList(autoCompleteFleet(command)+" "+command[2]+" <value>");
+			return Collections.singletonList(autoCompleteFleet(command) + " " + command[2] + " <value>");
 		}
 
 		private String autoCompleteModuleItem(String[] command)
 		{
-			if( command.length < 5 || !NumberUtils.isNumber(command[4]) )
+			if( command.length < 5 || !NumberUtils.isCreatable(command[4]) )
 			{
 				return "<itemId (Integer)>";
 			}
@@ -565,7 +558,7 @@ public class AdminCommands {
 		private String autoCompleteFleet(String[] command)
 		{
 			String fleetLabel = "<fleetId|s<shipId>>";
-			if( command.length > 1 && NumberUtils.isNumber(command[1]) )
+			if( command.length > 1 && NumberUtils.isCreatable(command[1]) )
 			{
 				org.hibernate.Session db = ContextMap.getContext().getDB();
 				ShipFleet fleet = (ShipFleet)db.get(ShipFleet.class, Integer.valueOf(command[1]));
@@ -577,7 +570,7 @@ public class AdminCommands {
 			else if( command.length > 1 && command[1].length() > 2 && command[1].charAt(0) == 's')
 			{
 				String id = command[1].substring(1);
-				if( NumberUtils.isNumber(id) )
+				if( NumberUtils.isCreatable(id) )
 				{
 					org.hibernate.Session db = ContextMap.getContext().getDB();
 					Ship ship = (Ship)db.get(Ship.class, Integer.valueOf(id));
@@ -597,7 +590,7 @@ public class AdminCommands {
 			String output = "";
 			org.hibernate.Session db = context.getDB();
 
-			if( !NumberUtils.isNumber(command[1]) ) {
+			if( !NumberUtils.isCreatable(command[1]) ) {
 				throw new CommandFailedException("Ungueltige Schiffs-ID");
 			}
 
@@ -611,21 +604,21 @@ public class AdminCommands {
 			switch (command[2])
 			{
 				case "heat":
-					if (!NumberUtils.isNumber(command[3]))
+					if (!NumberUtils.isCreatable(command[3]))
 					{
 						throw new CommandFailedException("Ueberhitzung ungueltig");
 					}
 					ship.setHeat(Integer.parseInt(command[3]));
 					break;
 				case "engine":
-					if (!NumberUtils.isNumber(command[3]))
+					if (!NumberUtils.isCreatable(command[3]))
 					{
 						throw new CommandFailedException("Antrieb ungueltig");
 					}
 					ship.setEngine(Integer.parseInt(command[3]));
 					break;
 				case "weapons":
-					if (!NumberUtils.isNumber(command[3]))
+					if (!NumberUtils.isCreatable(command[3]))
 					{
 						throw new CommandFailedException("Waffen ungueltig");
 					}
@@ -635,7 +628,7 @@ public class AdminCommands {
 					ship.setJumpTarget(command[3]);
 					break;
 				case "e":
-					if (!NumberUtils.isNumber(command[3]))
+					if (!NumberUtils.isCreatable(command[3]))
 					{
 						throw new CommandFailedException("Energie ungueltig");
 					}
@@ -656,21 +649,21 @@ public class AdminCommands {
 					}
 					break;
 				case "hull":
-					if (!NumberUtils.isNumber(command[3]))
+					if (!NumberUtils.isCreatable(command[3]))
 					{
 						throw new CommandFailedException("Huelle ungueltig");
 					}
 					ship.setHull(Integer.parseInt(command[3]));
 					break;
 				case "shields":
-					if (!NumberUtils.isNumber(command[3]))
+					if (!NumberUtils.isCreatable(command[3]))
 					{
 						throw new CommandFailedException("Schilde ungueltig");
 					}
 					ship.setShields(Integer.parseInt(command[3]));
 					break;
 				case "crew":
-					if (!NumberUtils.isNumber(command[3]))
+					if (!NumberUtils.isCreatable(command[3]))
 					{
 						throw new CommandFailedException("Crew ungueltig");
 					}
@@ -698,13 +691,13 @@ public class AdminCommands {
 				}
 				case "additemmodule":
 				{
-					if (!NumberUtils.isNumber(command[3]))
+					if (!NumberUtils.isCreatable(command[3]))
 					{
 						throw new CommandFailedException("Slot ungueltig");
 					}
 					int slot = Integer.parseInt(command[3]);
 
-					if (!NumberUtils.isNumber(command[4]))
+					if (!NumberUtils.isCreatable(command[4]))
 					{
 						throw new CommandFailedException("Item-ID ungueltig");
 					}
@@ -783,21 +776,21 @@ public class AdminCommands {
 			}
 
 			if( "pos".equals(command[2]) ) {
-				return Arrays.asList(autoCompleteShip(command)+" "+command[2]+" <location>");
+				return Collections.singletonList(autoCompleteShip(command) + " " + command[2] + " <location>");
 			}
 			if( "info".equals(command[2]) ) {
-				return Arrays.asList(autoCompleteShip(command)+" "+command[2]);
+				return Collections.singletonList(autoCompleteShip(command) + " " + command[2]);
 			}
 			if( "additemmodule".equals(command[2]) ) {
-				return Arrays.asList(autoCompleteShip(command)+" "+command[2]+" <slot> "+autoCompleteModuleItem(command));
+				return Collections.singletonList(autoCompleteShip(command) + " " + command[2] + " <slot> " + autoCompleteModuleItem(command));
 			}
 
-			return Arrays.asList(autoCompleteShip(command)+" "+command[2]+" <value>");
+			return Collections.singletonList(autoCompleteShip(command) + " " + command[2] + " <value>");
 		}
 
 		private String autoCompleteModuleItem(String[] command)
 		{
-			if( command.length < 5 || !NumberUtils.isNumber(command[4]) )
+			if( command.length < 5 || !NumberUtils.isCreatable(command[4]) )
 			{
 				return "<itemId (Integer)>";
 			}
@@ -813,7 +806,7 @@ public class AdminCommands {
 		private String autoCompleteShip(String[] command)
 		{
 			String shipLabel = "<shipId>";
-			if( command.length > 1 && NumberUtils.isNumber(command[1]) )
+			if( command.length > 1 && NumberUtils.isCreatable(command[1]) )
 			{
 				org.hibernate.Session db = ContextMap.getContext().getDB();
 				Ship ship = (Ship)db.get(Ship.class, Integer.valueOf(command[1]));
@@ -840,14 +833,14 @@ public class AdminCommands {
 				throw new CommandFailedException("Die angegebene Resource ist ungueltig");
 			}
 
-			if( !NumberUtils.isNumber(command[3]) ) {
+			if( !NumberUtils.isCreatable(command[3]) ) {
 				throw new CommandFailedException("Menge ungueltig");
 			}
 			long count = Long.parseLong(command[3]);
 
 			org.hibernate.Session db = context.getDB();
 
-			if( !NumberUtils.isNumber(oid.substring(1)) ) {
+			if( !NumberUtils.isCreatable(oid.substring(1)) ) {
 				throw new CommandFailedException("ID ungueltig");
 			}
 
@@ -914,7 +907,7 @@ public class AdminCommands {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 
 			String id = command[1].substring(1);
-			if( !NumberUtils.isNumber(id) )
+			if( !NumberUtils.isCreatable(id) )
 			{
 				return "<(b|s)ObjektID>";
 			}
@@ -962,12 +955,12 @@ public class AdminCommands {
 				throw new CommandFailedException("Der angegebene Einheitentyp ist ungueltig");
 			}
 
-			if( !NumberUtils.isNumber(command[3]) ) {
+			if( !NumberUtils.isCreatable(command[3]) ) {
 				throw new CommandFailedException("Menge ungueltig");
 			}
 			long count = Long.parseLong(command[3]);
 
-			if( !NumberUtils.isNumber(oid.substring(1)) ) {
+			if( !NumberUtils.isCreatable(oid.substring(1)) ) {
 				throw new CommandFailedException("ID ungueltig");
 			}
 
@@ -1034,7 +1027,7 @@ public class AdminCommands {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 
 			String id = command[1].substring(1);
-			if( !NumberUtils.isNumber(id) )
+			if( !NumberUtils.isCreatable(id) )
 			{
 				return "<(b|s)ObjektID>";
 			}
@@ -1062,7 +1055,7 @@ public class AdminCommands {
 		@Override
 		public List<String> autoComplete(String[] command)
 		{
-			return Arrays.asList(getTargetAutoComplete(command)+" "+getItemAutoComplete(command)+" <Menge>");
+			return Collections.singletonList(getTargetAutoComplete(command) + " " + getItemAutoComplete(command) + " <Menge>");
 		}
 	}
 
@@ -1157,7 +1150,7 @@ public class AdminCommands {
 		@Override
 		public List<String> autoComplete(String[] command)
 		{
-			return Arrays.asList("[sector <location>|owner <userId>|fleet <fleetId>|type <shiptypeId>]+");
+			return Collections.singletonList("[sector <location>|owner <userId>|fleet <fleetId>|type <shiptypeId>]+");
 		}
 	}
 
@@ -1413,7 +1406,7 @@ public class AdminCommands {
 		@Override
 		public List<String> autoComplete(String[] command)
 		{
-			return Arrays.asList("<taskId> <MessageToSend>");
+			return Collections.singletonList("<taskId> <MessageToSend>");
 		}
 	}
 
@@ -1469,7 +1462,7 @@ public class AdminCommands {
 		@Override
 		public List<String> autoComplete(String[] command)
 		{
-			return Arrays.asList("[shipId]");
+			return Collections.singletonList("[shipId]");
 		}
 	}
 
@@ -1490,7 +1483,7 @@ public class AdminCommands {
 		@Override
 		public List<String> autoComplete(String[] command)
 		{
-			return Arrays.asList("");
+			return Collections.singletonList("");
 		}
 	}
 }

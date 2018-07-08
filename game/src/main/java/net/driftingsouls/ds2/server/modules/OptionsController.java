@@ -43,7 +43,6 @@ import net.driftingsouls.ds2.server.namegenerator.SchiffsNamenGenerator;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,7 +98,7 @@ public class OptionsController extends Controller
 			if (user.getAlly() != null)
 			{
 				newname = user.getAlly().getAllyTag();
-				newname = StringUtils.replace(newname, "[name]", name);
+				newname = newname.replace("[name]", name);
 			}
 
 			changemsg += "<span style=\"color:green\">Der Ingame-Namen <span style=\"color:white\">" + Common._title(user.getNickname()) + "</span> wurde in <span style=\"color:white\">" + Common._title(name) + "</span> ge&auml;ndert</span><br />\n";
@@ -129,8 +128,8 @@ public class OptionsController extends Controller
 					"Gruss Guzman\n" +
 					"Admin\n" +
 					"{date} Serverzeit";
-			message = StringUtils.replace(message, "{username}", user.getUN());
-			message = StringUtils.replace(message, "{date}", Common.date("H:i j.m.Y"));
+			message = message.replace("{username}", user.getUN());
+			message = message.replace("{date}", Common.date("H:i j.m.Y"));
 
 			Common.mail(user.getEmail(), subject, message);
 

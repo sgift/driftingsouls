@@ -1,6 +1,6 @@
 package net.driftingsouls.ds2.server.namegenerator.producer;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;

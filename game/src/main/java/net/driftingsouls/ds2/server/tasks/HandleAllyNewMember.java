@@ -25,7 +25,6 @@ import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -57,7 +56,7 @@ public class HandleAllyNewMember implements TaskHandler {
 
 				User player = (User) context.getDB().get(User.class, playerID);
 				String newname = ally.getAllyTag();
-				newname = StringUtils.replace(newname, "[name]", player.getNickname());
+				newname = newname.replace("[name]", player.getNickname());
 				ally.addUser(player);
 				player.setName(newname);
 

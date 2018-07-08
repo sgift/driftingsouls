@@ -22,15 +22,14 @@ import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.text.StringEscapeUtils;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -752,7 +751,7 @@ public class Cargo implements Cloneable {
 						style = "style='"+style+"'";
 					}
 
-					tooltiptext = "<img align=\"left\" src=\""+item.getPicture()+"\" alt=\"\" /><span "+StringEscapeUtils.escapeJavaScript(style)+">"+item.getName()+"</span>";
+					tooltiptext = "<img align=\"left\" src=\""+item.getPicture()+"\" alt=\"\" /><span "+StringEscapeUtils.escapeEcmaScript(style)+">"+item.getName()+"</span>";
 
 					if( aitem.getQuest() != 0 ) {
 						name = "<span style=\"text-decoration:underline\">"+name+"</span>";

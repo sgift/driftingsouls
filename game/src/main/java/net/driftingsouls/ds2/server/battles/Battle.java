@@ -18,11 +18,7 @@
  */
 package net.driftingsouls.ds2.server.battles;
 
-import net.driftingsouls.ds2.server.ContextCommon;
-import net.driftingsouls.ds2.server.Locatable;
-import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.WellKnownConfigValue;
-import net.driftingsouls.ds2.server.WellKnownPermission;
+import net.driftingsouls.ds2.server.*;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.User;
@@ -31,46 +27,22 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipClasses;
-import net.driftingsouls.ds2.server.ships.ShipLost;
-import net.driftingsouls.ds2.server.ships.ShipType;
-import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.RandomUtils;
+import net.driftingsouls.ds2.server.ships.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.CacheMode;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
-import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.*;
 import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-import org.hibernate.annotations.OptimisticLockType;
-import org.hibernate.annotations.OptimisticLocking;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.Version;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Repraesentiert eine Schlacht in DS.
@@ -971,7 +943,7 @@ public class Battle implements Locatable
 		if( raw ) {
 			return this.logoutputbuffer.toString();
 		}
-		return StringUtils.replace(this.logoutputbuffer.toString(), "\n", "<br />");
+		return this.logoutputbuffer.toString().replace("\n", "<br />");
 	}
 
 	/**
@@ -1691,8 +1663,8 @@ public class Battle implements Locatable
 					(loc.getX() < 1) || (loc.getY() < 1) ||
 					(loc.getX() > sys.getWidth()) ||
 					(loc.getY() > sys.getHeight()) ) {
-				loc = loc.setX(this.x + RandomUtils.nextInt(3) - 1);
-				loc = loc.setY(this.y + RandomUtils.nextInt(3) - 1);
+				loc = loc.setX(this.x + ThreadLocalRandom.current().nextInt(3) - 1);
+				loc = loc.setY(this.y + ThreadLocalRandom.current().nextInt(3) - 1);
 
 				maxRetries--;
 				if( maxRetries == 0 ) {

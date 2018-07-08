@@ -40,8 +40,6 @@ import net.driftingsouls.ds2.server.map.TileCache;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.RandomUtils;
 import org.hibernate.Session;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -60,6 +58,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Ermoeglicht das Absetzen von Admin-Kommandos.
@@ -89,7 +88,7 @@ public class CreateObjects implements AdminPlugin {
 		@Override
 		public String toHtml(Request request) {
 			String out = "<tr><td class=\"noBorderX\">"+this.title+"</td>\n";
-			out += "<td class=\"noBorderX\">"+StringUtils.replace(this.desc, "\n", "<br />")+"</td></tr>\n";
+			out += "<td class=\"noBorderX\">"+this.desc.replace("\n", "<br />")+"</td></tr>\n";
 		
 			return out;
 		}
@@ -485,7 +484,7 @@ public class CreateObjects implements AdminPlugin {
 						}
 					}
 					
-					offizier.setSpecial(Offizier.Special.values()[RandomUtils.nextInt(6)+1]);
+					offizier.setSpecial(Offizier.Special.values()[ThreadLocalRandom.current().nextInt(1,7)]);
 					
 					int rangf = rangcount/5;
 					int rang = rangf/125;
@@ -638,8 +637,8 @@ public class CreateObjects implements AdminPlugin {
 		final int maxY = context.getRequest().getParameterInt("maxY");
 		
 		for( int i=1; i <= anzahl; i++ ) {
-			int x = RandomUtils.nextInt(maxX-minX+1)+minX;
-			int y = RandomUtils.nextInt(maxY-minY+1)+minY;
+			int x = ThreadLocalRandom.current().nextInt(minX,maxX+1);
+			int y = ThreadLocalRandom.current().nextInt(minY,maxY+1);
 
 			createNebula(db, new Location(system, x, y), type);
 		}
@@ -666,8 +665,8 @@ public class CreateObjects implements AdminPlugin {
 		}
 		
 		for( int i=1; i <= anzahl; i++ ) {
-			int x = RandomUtils.nextInt(maxX-minX+1)+minX;
-			int y = RandomUtils.nextInt(maxY-minY+1)+minY;
+			int x = ThreadLocalRandom.current().nextInt(minX,maxX+1);
+			int y = ThreadLocalRandom.current().nextInt(minY,maxY+1);
 
 			Base base = new Base(new Location(system, x, y), nullUser, type);
 			base.setAvailableSpawnableRess(availablespawnableress);

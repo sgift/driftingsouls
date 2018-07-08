@@ -18,16 +18,11 @@
  */
 package net.driftingsouls.ds2.server.tasks;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Version;
-
-import org.apache.commons.lang.math.RandomUtils;
-
 import net.driftingsouls.ds2.server.framework.Common;
 import org.hibernate.annotations.Index;
+
+import javax.persistence.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Eine Task im Taskmanager.
@@ -67,7 +62,7 @@ public class Task {
 	 * @param type Der Typ der Task
 	 */
 	public Task(Taskmanager.Types type) {
-		this.taskID =  Common.md5(""+RandomUtils.nextInt(Integer.MAX_VALUE))+Common.time();
+		this.taskID =  Common.md5(""+ThreadLocalRandom.current().nextInt())+Common.time();
 		this.type = type.getTypeID();
 		this.time = Common.time();
 	}

@@ -29,33 +29,18 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
-import net.driftingsouls.ds2.server.entities.Nebel;
-import net.driftingsouls.ds2.server.entities.NewsEntry;
-import net.driftingsouls.ds2.server.entities.Offizier;
-import net.driftingsouls.ds2.server.entities.Rasse;
-import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.*;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.authentication.AccountDisabledException;
-import net.driftingsouls.ds2.server.framework.authentication.AuthenticationException;
-import net.driftingsouls.ds2.server.framework.authentication.AuthenticationManager;
-import net.driftingsouls.ds2.server.framework.authentication.LoginDisabledException;
-import net.driftingsouls.ds2.server.framework.authentication.TickInProgressException;
-import net.driftingsouls.ds2.server.framework.authentication.WrongPasswordException;
+import net.driftingsouls.ds2.server.framework.authentication.*;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.EmptyHeaderOutputHandler;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.KeinLoginNotwendig;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.KeineTicksperre;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.units.TransientUnitCargo;
 import net.driftingsouls.ds2.server.user.authentication.AccountInVacationModeException;
-import org.apache.commons.lang.math.RandomUtils;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -64,6 +49,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Das Portal.
@@ -112,7 +98,7 @@ public class PortalController extends Controller
 			{
 				if (!"".equals(user.getEmail()))
 				{
-					String password = Common.md5("" + RandomUtils.nextInt(Integer.MAX_VALUE));
+					String password = Common.md5("" + ThreadLocalRandom.current().nextInt());
 					String enc_pw = Common.md5(password);
 
 					user.setPassword(enc_pw);
@@ -384,7 +370,7 @@ public class PortalController extends Controller
 			keys.setValue(Common.implode("\n", newKeyList));
 		}
 
-		String password = Common.md5("" + RandomUtils.nextInt(Integer.MAX_VALUE));
+		String password = Common.md5("" + ThreadLocalRandom.current().nextInt());
 		String enc_pw = Common.md5(password);
 
 		int maxid = (Integer) db.createQuery("SELECT max(id) FROM User").iterate().next();

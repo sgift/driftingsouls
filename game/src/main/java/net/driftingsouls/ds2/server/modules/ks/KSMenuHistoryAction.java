@@ -18,19 +18,13 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import net.driftingsouls.ds2.server.battles.Battle;
-import net.driftingsouls.ds2.server.battles.SchlachtLog;
-import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
-import net.driftingsouls.ds2.server.battles.SchlachtLogEintrag;
-import net.driftingsouls.ds2.server.battles.SchlachtLogKommandantWechselt;
-import net.driftingsouls.ds2.server.battles.SchlachtLogRundeBeendet;
+import net.driftingsouls.ds2.server.battles.*;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.xml.sax.SAXException;
@@ -188,7 +182,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction {
 				t.parse("global.showlog.turnlist.list", "global.showlog.turnlist.item", true);
 			}
 		
-			t.setVar("global.showlog.log", StringUtils.replace(bbcodeparser.parse(this.history_text.toString()), "\n", "<br />"));
+			t.setVar("global.showlog.log", bbcodeparser.parse(this.history_text.toString()).replace("\n", "<br />"));
 		}
 		catch( SAXException | IOException e ) {
 			t.setVar("global.showlog.log", "Fehler beim Anzeigen der Kampfhistorie: "+e);

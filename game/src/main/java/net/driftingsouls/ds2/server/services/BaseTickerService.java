@@ -13,10 +13,10 @@ import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import org.apache.commons.lang.math.RandomUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 public class BaseTickerService
@@ -35,7 +35,7 @@ public class BaseTickerService
 		}
 		Base.SpawnableRess spawnress = spawnableress.newRandomRess();
 		int item = spawnress.itemId;
-		int maxvalue = RandomUtils.nextInt(spawnress.maxValue - 1)+1;
+		int maxvalue = ThreadLocalRandom.current().nextInt(1,spawnress.maxValue);
 
 		base.setSpawnableRessAmount(item, maxvalue);
 

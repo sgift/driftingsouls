@@ -21,7 +21,7 @@ package net.driftingsouls.ds2.server.bbcodes;
 import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeFunction;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 /**
  * BBCode fuer Orden.

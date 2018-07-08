@@ -28,7 +28,6 @@ import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
-import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.Nonnull;
 import java.math.BigInteger;
@@ -83,7 +82,7 @@ public class EditUser implements EntityEditor<User>
 		String newname = name;
 		if( user.getAlly() != null ) {
 			newname = user.getAlly().getAllyTag();
-			newname = StringUtils.replace(newname, "[name]", name);
+			newname = newname.replace("[name]", name);
 		}
 		user.setName(newname);
 	}

@@ -18,26 +18,20 @@
  */
 package net.driftingsouls.ds2.server.bases;
 
-import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.config.Offiziere;
 import net.driftingsouls.ds2.server.entities.Academy;
+import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import org.apache.commons.lang.math.RandomUtils;
 import org.hibernate.Session;
 import org.hibernate.annotations.ForeignKey;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Ein Eintrag in der Produktionsschlange einer Akademie.
@@ -256,7 +250,7 @@ public class AcademyQueueEntry {
 				offz.setAbility(ability, offi.getAbility(ability));
 			}
 
-			int spec = RandomUtils.nextInt(offi.getSpecials().length);
+			int spec = ThreadLocalRandom.current().nextInt(offi.getSpecials().length);
 			spec = offi.getSpecials()[spec];
 
 			offz.setSpecial(Offizier.Special.values()[spec-1]);

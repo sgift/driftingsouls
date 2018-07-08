@@ -32,21 +32,12 @@ import net.driftingsouls.ds2.server.entities.npcorders.OrderableOffizier;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipClasses;
-import net.driftingsouls.ds2.server.ships.ShipFleet;
-import net.driftingsouls.ds2.server.ships.ShipType;
-import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
+import net.driftingsouls.ds2.server.ships.*;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
-import org.apache.commons.lang.math.RandomUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Ermoeglicht das Erstellen von Schiffen.
@@ -334,7 +325,7 @@ public class AddShips implements AdminPlugin {
 						offizier.setAbility(Offizier.Ability.SEC, offi.getSec());
 						offizier.setAbility(Offizier.Ability.COM, offi.getCom());
 						offizier.stationierenAuf(ship);
-						offizier.setSpecial(Offizier.Special.values()[RandomUtils.nextInt(Offizier.Special.values().length)]);
+						offizier.setSpecial(Offizier.Special.values()[ThreadLocalRandom.current().nextInt(Offizier.Special.values().length)]);
 						db.persist(offizier);
 
 						echo.append("Offizier '").append(offiname).append("' hinzugef&uuml;gt<br />\n");

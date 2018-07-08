@@ -33,7 +33,7 @@ import net.driftingsouls.ds2.server.ships.*;
 import net.driftingsouls.ds2.server.werften.SchiffBauinformationen;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 import net.driftingsouls.ds2.server.werften.WerftObject;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;

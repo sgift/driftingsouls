@@ -20,8 +20,8 @@ package net.driftingsouls.ds2.server.framework;
 
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -30,25 +30,12 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.nio.channels.FileChannel;
 import java.security.MessageDigest;
 import java.text.NumberFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -745,8 +732,8 @@ public class Common {
 		
 		result = BBCodeParser.getInstance().parse(result,ignore);
 
-		result = StringUtils.replace(result, "\r\n", "<br />");
-		result = StringUtils.replace(result, "\n", "<br />");
+		result = result.replace("\r\n", "<br />");
+		result = result.replace("\n", "<br />");
 
 		return result;
 	}
@@ -772,8 +759,8 @@ public class Common {
 	public static String _plaintext( String text ) {
 		String result = escapeHTML(text);
 
-		result = StringUtils.replace(result,"\r\n", "<br />");
-		result = StringUtils.replace(result,"\n", "<br />");
+		result = result.replace("\r\n", "<br />");
+		result = result.replace("\n", "<br />");
 
 		return result;
 	}
@@ -1032,7 +1019,7 @@ public class Common {
 			msg.append(addInfo);
 			msg.append("\n\n------------------------------\n");
 		}
-		msg.append(ExceptionUtils.getFullStackTrace(t));
+		msg.append(Arrays.toString(ExceptionUtils.getRootCauseStackTrace(t)));
 		
 		sendMailToAdmins(title, msg.toString());
 	}

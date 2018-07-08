@@ -9,11 +9,7 @@ import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.config.Rang;
 import net.driftingsouls.ds2.server.config.StarSystem;
-import net.driftingsouls.ds2.server.entities.ComNetChannel;
-import net.driftingsouls.ds2.server.entities.IntTutorial;
-import net.driftingsouls.ds2.server.entities.NewsEntry;
-import net.driftingsouls.ds2.server.entities.Rasse;
-import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.*;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintrag;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeInfo;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeMaxValues;
@@ -24,15 +20,16 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipType;
-import org.apache.commons.lang.math.RandomUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
-import static net.driftingsouls.ds2.server.install.InstallUtils.*;
+import static net.driftingsouls.ds2.server.install.InstallUtils.mitContextUndSession;
+import static net.driftingsouls.ds2.server.install.InstallUtils.mitTransaktion;
 
 public class ContentGenerator
 {
@@ -167,7 +164,7 @@ public class ContentGenerator
 
 			mitTransaktion("Kolonisiere Asteroiden mit bestehenden Benutzern",
 					() -> Common.cast(db.createCriteria(User.class).add(Restrictions.ne("id", 0)).list()),
-					(User user) -> kolonisiereAsteroidenFuer(user, RandomUtils.nextInt(8) + 1));
+					(User user) -> kolonisiereAsteroidenFuer(user, ThreadLocalRandom.current().nextInt(1, 9)));
 
 			mitTransaktion("Erzeuge Newseintrag", () -> {
 				NewsEntry news = new NewsEntry(

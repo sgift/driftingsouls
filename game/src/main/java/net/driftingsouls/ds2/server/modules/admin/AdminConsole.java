@@ -25,7 +25,6 @@ import net.driftingsouls.ds2.server.AdminCommands;
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
 
@@ -58,12 +57,12 @@ public class AdminConsole implements AdminPlugin {
 			return;
 		}
 		
-		if( cmd.length() > 0 ) {
+		if( !cmd.isEmpty() ) {
 			echo.append("<div class='gfxbox' style='width:440px'>");
 			echo.append("<table class=\"noBorderX\">\n");
 			echo.append("<tr>\n");
 			echo.append("<td class=\"noBorderX\">\n");
-			echo.append(StringUtils.replace( new AdminCommands().executeCommand(cmd).message, "\n", "<br />" ));
+			echo.append(new AdminCommands().executeCommand(cmd).message.replace("\n", "<br />" ));
 			echo.append("</td>\n");
 			echo.append("</tr>\n");
 			echo.append("</table>\n");

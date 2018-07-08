@@ -42,7 +42,6 @@ import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import net.driftingsouls.ds2.server.tick.TickController;
-import org.apache.commons.lang.math.RandomUtils;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.Transaction;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -51,6 +50,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Berechnet sonstige Tick-Aktionen, welche keinen eigenen TickController haben.
@@ -349,11 +349,11 @@ public class RestTick extends TickController {
 
 				Set<ConfigFelsbrocken> loadout = cfs.getFelsbrocken();
 
-				long maxchance = loadout.stream().mapToInt(ConfigFelsbrocken::getChance).sum();
+				int maxchance = loadout.stream().mapToInt(ConfigFelsbrocken::getChance).sum();
 
 				while( shipcount < cfs.getCount() && maxchance > 0)
 				{
-					int rnd = RandomUtils.nextInt((int)maxchance-1)+1;
+					int rnd = ThreadLocalRandom.current().nextInt(1, maxchance);
 					int currnd = 0;
 					for( ConfigFelsbrocken aloadout : loadout )
 					{
@@ -367,8 +367,8 @@ public class RestTick extends TickController {
 						StarSystem thissystem = cfs.getSystem();
 
 						// Koords ermitteln
-						int x = RandomUtils.nextInt(thissystem.getWidth())+1;
-						int y = RandomUtils.nextInt(thissystem.getHeight())+1;
+						int x = ThreadLocalRandom.current().nextInt(1, thissystem.getWidth()+1);
+						int y = ThreadLocalRandom.current().nextInt(1, thissystem.getHeight()+1);
 
 						shouldId = (Integer)db.createSQLQuery("select newIntelliShipId( ? )")
 							.setInteger(0, ++shouldId)

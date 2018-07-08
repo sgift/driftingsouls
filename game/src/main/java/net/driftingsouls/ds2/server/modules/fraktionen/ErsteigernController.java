@@ -22,29 +22,12 @@ import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.ItemID;
-import net.driftingsouls.ds2.server.cargo.ResourceEntry;
-import net.driftingsouls.ds2.server.cargo.ResourceList;
-import net.driftingsouls.ds2.server.cargo.Resources;
+import net.driftingsouls.ds2.server.cargo.*;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.StarSystem;
-import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
-import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
-import net.driftingsouls.ds2.server.entities.JumpNode;
-import net.driftingsouls.ds2.server.entities.Loyalitaetspunkte;
-import net.driftingsouls.ds2.server.entities.ResourceLimit;
-import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
-import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsAngebot;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.FactionShopEntry;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.FactionShopOrder;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionAktionsMeldung;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintrag;
-import net.driftingsouls.ds2.server.services.FraktionsGuiEintragService;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.Versteigerung;
+import net.driftingsouls.ds2.server.entities.*;
+import net.driftingsouls.ds2.server.entities.fraktionsgui.*;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeInfo;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeJob;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeType;
@@ -53,22 +36,18 @@ import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.ContextInstance;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.RedirectViewResult;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.services.FraktionsGuiEintragService;
 import net.driftingsouls.ds2.server.ships.JumpNodeRouter;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
@@ -303,7 +282,7 @@ public class ErsteigernController extends Controller
 			}
 
 			t.setVar("show.bid.entry", 1,
-					"entry.type.name", StringEscapeUtils.escapeJavaScript(StringUtils.replaceChars(entryname, '"', '\'')),
+					"entry.type.name", StringEscapeUtils.escapeEcmaScript(entryname.replace('"', '\'')),
 					"entry.type.image", entryimage,
 					"entry.link", entrylink,
 					"entry.width", entrywidth,
@@ -872,8 +851,7 @@ public class ErsteigernController extends Controller
 			User bieter = entry.getBieter();
 
 			String objectname = entry.getObjectName();
-			String entryname = StringUtils.replaceChars(objectname, '"', '\'');
-			//String entryname = StringEscapeUtils.escapeJavaScript(replaceobjectname);
+			String entryname = objectname.replace('"', '\'');
 
 			int entrywidth = entry.isObjectFixedImageSize() ? 50 : 0;
 
@@ -1610,7 +1588,7 @@ public class ErsteigernController extends Controller
 			{
 				case "ship":
 					type = FactionShopEntry.Type.SHIP;
-					if (!NumberUtils.isNumber(entryTypeId))
+					if (!NumberUtils.isCreatable(entryTypeId))
 					{
 						return new RedirectViewResult("shop").withMessage("<span style=\"color:red\">Format ungueltig</span>");
 					}

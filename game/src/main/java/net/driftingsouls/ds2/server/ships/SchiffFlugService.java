@@ -11,8 +11,6 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.services.SchlachtErstellenService;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Service zum Fliegen von Schiffen.
@@ -146,7 +145,7 @@ public class SchiffFlugService
 				}
 			}
 			if( verbose ) {
-				out.append(StringUtils.replace(offizier.MESSAGE.getMessage(), "\n", "<br />"));
+				out.append(offizier.MESSAGE.getMessage().replace("\n", "<br />"));
 			}
 		}
 
@@ -205,8 +204,8 @@ public class SchiffFlugService
 				}
 				out.append("<span style=\"color:#ff0000\">Triebwerke &uuml;berhitzt</span><br />\n");
 
-				if( (RandomUtils.nextInt(101)) < 3*(news-100) ) {
-					int dmg = (int)( (2*(RandomUtils.nextInt(101)/100d)) + 1 ) * (news-100);
+				if( (ThreadLocalRandom.current().nextInt(101)) < 3*(news-100) ) {
+					int dmg = (int)( (2*(ThreadLocalRandom.current().nextInt(101)/100d)) + 1 ) * (news-100);
 					out.append("<span style=\"color:#ff0000\">Triebwerke nehmen ").append(dmg).append(" Schaden</span><br />\n");
 					ship.setEngine(ship.getEngine()-dmg);
 					if( ship.getEngine() < 0 ) {
@@ -646,10 +645,10 @@ public class SchiffFlugService
 
 				// ACHTUNG: Ob das ganze hier noch sinnvoll funktioniert, wenn distance > 1 ist, ist mehr als fraglich...
 				if( nebulaemplist.containsKey(nextLocation) &&
-						(RandomUtils.nextDouble() < schiff.getTypeData().getLostInEmpChance()) ) {
+						(ThreadLocalRandom.current().nextDouble() < schiff.getTypeData().getLostInEmpChance()) ) {
 					Nebel.Typ nebel = Nebel.getNebula(schiff.getLocation());
 					if( nebel == Nebel.Typ.STRONG_EMP ) {
-						waypoint.direction = RandomUtils.nextInt(9)+1;
+						waypoint.direction = ThreadLocalRandom.current().nextInt(1,10);
 					}
 				}
 

@@ -4,7 +4,7 @@ import net.driftingsouls.ds2.server.namegenerator.producer.NameProducer;
 import net.driftingsouls.ds2.server.namegenerator.producer.NameProducerManager;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Random;
 
