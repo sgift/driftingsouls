@@ -14,6 +14,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>net.driftingsouls</groupId>
+            <artifactId>driftingsouls-templates</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.github.jai-imageio</groupId>
             <artifactId>jai-imageio-core</artifactId>
         </dependency>
@@ -60,10 +65,10 @@
 
         <dependency>
             <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
+            <artifactId>javax.mail-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>net.java.dev.rome</groupId>
+            <groupId>com.rometools</groupId>
             <artifactId>rome</artifactId>
         </dependency>
         <dependency>
@@ -143,11 +148,6 @@
             <artifactId>slf4j-log4j12</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.googlecode.flyway</groupId>
-            <artifactId>flyway-gradle-plugin</artifactId>
-        </dependency>
-
 
         <dependency>
             <groupId>junit</groupId>
@@ -163,11 +163,6 @@
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
             <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>net.driftingsouls</groupId>
-            <artifactId>driftingsouls-templates</artifactId>
         </dependency>
     </dependencies>
 

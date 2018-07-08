@@ -19,7 +19,6 @@
 package net.driftingsouls.ds2.server.framework;
 
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
-import net.driftingsouls.ds2.server.framework.db.DatabaseMigrator;
 import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -46,17 +45,11 @@ public class DriftingSouls {
 	 *
 	 * @param configdir Das DS-Konfigurationsverzeichnis
 	 * @param boot Sollen die boot.xml abgearbeitet werden?
-	 * @throws Exception
 	 */
 	public DriftingSouls(String configdir, boolean boot) throws Exception {
 		LOG.info("----------- DS2 Startup "+new Date()+" -----------");
 		LOG.info("Reading "+configdir+"config.xml");
 		Configuration.init(configdir);
-
-		if( !Configuration.isProduction() )
-		{
-			new DatabaseMigrator().upgradeDatabase(Configuration.getDbUrl(), Configuration.getDbUser(), Configuration.getDbPassword(), false);
-		}
 
 		LOG.info("Initializing Hibernate");
 		HibernateUtil.initConfiguration(Configuration.getConfigPath()+"hibernate.xml", Configuration.getDbUrl(), Configuration.getDbUser(), Configuration.getDbPassword());

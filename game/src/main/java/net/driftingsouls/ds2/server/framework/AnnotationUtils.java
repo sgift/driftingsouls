@@ -9,10 +9,7 @@ import org.reflections.util.ConfigurationBuilder;
 
 import java.lang.annotation.Annotation;
 import java.net.URL;
-import java.util.Comparator;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * Hilfsmethoden zum Umgang mit Annotations.
@@ -26,7 +23,7 @@ public class AnnotationUtils
 
 	private AnnotationUtils()
 	{
-		Set<URL> urls = ClasspathHelper.forPackage("net.driftingsouls.ds2.server");
+		Collection<URL> urls = ClasspathHelper.forPackage("net.driftingsouls.ds2.server");
 		LOG.info("Scanning urls " + urls);
 		reflections = new Reflections(new ConfigurationBuilder().setUrls(urls).setScanners(new TypeAnnotationsScanner()));
 	}
