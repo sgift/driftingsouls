@@ -1,0 +1,122 @@
+{if unittausch.message}
+	<span class="smallfont">
+		{unittausch.message}
+	</span>
+	<br />
+{/endif}
+
+<div class="gfxbox" style="width:470px;text-align:center">
+	{if source.sources.list}
+		<!-- BEGIN source.sources.listitem -->
+			{if source.sources.list},{/endif} {sourceobj.name} ({sourceobj.id})
+		<!-- END source.sources.listitem -->
+		<br />
+		zu
+	{else}
+		{sourceobj.name} ({sourceobj.id}) {sourceobj.addinfo} zu 
+	{/endif}
+	{if target.targets.list}
+		<br />
+		<!-- BEGIN target.targets.listitem -->
+			{if target.targets.list},{/endif} {targetobj.name} ({targetobj.id})
+		<!-- END target.targets.listitem -->
+	{else}
+		{targetobj.name} ({targetobj.id}) {targetobj.addinfo}
+	{/endif}
+	<br /><br />
+	
+	{if transfermode.list}
+		<script type="text/javascript">
+		<!--
+			function transfermode_change( mode ) {
+				var elements = mode.split(':');
+				document.getElementById('transfermode_from').value = elements[0];
+				document.getElementById('transfermode_to').value = elements[1];
+				document.getElementById('transfermode_form').submit();
+			}
+		// -->
+		</script>
+		<form action="./ds" method="post" id='transfermode_form'>
+			Modus: <select size="1" style="width:150px" onchange="javascript:transfermode_change(this.options[this.options.selectedIndex].value);">
+			<!--  BEGIN transfermode.listitem -->
+				<option value="{transfermode.from}:{transfermode.to}" {if transfermode.selected}selected="selected"{/endif}>{transfermode.from.name} &#x2194; {transfermode.to.name}</option>
+			<!--  END transfermode.listitem -->
+			</select>
+			<input type="hidden" name="from" id="transfermode_from" value="{source.id}" />
+			<input type="hidden" name="to" id="transfermode_to" value="{target.id}" />
+			{!form_create_hidden default, way:$global.rawway}
+		</form>
+		<br />
+	{/endif}
+	
+	<form action="./ds" method="post">
+	<table class="noBorderX" border="0" style="border:0px; width:80%">
+	<!-- BEGIN res.listitem -->
+		<tr>
+			<td class="noBorderX"><img src="{res.image}" alt="" /></td>
+			<td class="noBorderX">{res.name}&nbsp;</td>
+			<td class="noBorderX" align="right" style="white-space:nowrap">{res.cargo.source}</td>
+			<td class="noBorderX"><input name="{res.id}to" type="text" size="3" value="0" /></td>
+			{if target.show}
+				<td class="noBorderX">
+					<input name="{res.id}from" type="text" size="3" value="0" />
+				</td>
+				<td class="noBorderX" style="white-space:nowrap">
+					{res.cargo.target}
+				</td>
+			{else}
+				<td class="noBorderX">
+					<input name="{res.id}from" type="text" size="3" value="0" />
+				</td>
+				<td class="noBorderX"></td>
+			{/endif}
+		</tr>
+	<!-- END res.listitem -->
+	<tr>
+		<td class="noBorderX" colspan="6">
+			<hr noshade="noshade" size="1" style="color:#cccccc" />
+		</td>
+	</tr>
+	<tr>
+		<td class="noBorderX"><img src="data/interface/leer.gif" alt="" /></td>
+		<td class="noBorderX">Leer</td>
+		<td class="noBorderX" align="right">{source.cargo}</td>
+		<td class="noBorderX" align="center">-</td>
+		{if target.show}
+			<td class="noBorderX" align="center">-</td>
+			<td class="noBorderX">{target.cargo}</td>
+		{else}
+			<td class="noBorderX"></td>
+			<td class="noBorderX"></td>
+		{/endif}
+	</tr>
+	<tr>
+		<td class="noBorderX" colspan="6" align="center"><br />
+			{!form_create_hidden transfer, from:$source.id, to:$target.id, way:$global.rawway}
+			<input type="submit" value="transfer" style="width:150px" />
+		</td>
+	</tr>
+	</table>
+	</form>
+</div>
+<br />
+{if source.isbase}
+	<span class="smallfont">
+		{!link_to zur&uuml;ck, default, module:base, css_class:back, col:$sourceobj.id}
+	</span>
+{else}
+	<span class="smallfont">
+		{!link_to zur&uuml;ck, default, css_class:back, module:schiff, ship:$sourceobj.id}
+	</span>
+{/endif}
+{if target.show}
+	{if target.isbase}
+		<span class="smallfont">
+			| <a class="back" href="./ds?module=base&col={targetobj.id}">zu {targetobj.name}</a>
+		</span>
+	{else}
+		<span class="smallfont">
+			| <a class="back" href="./ds?module=schiff&ship={targetobj.id}">zu {targetobj.name}</a>
+		</span>
+	{/endif}
+{/endif}
