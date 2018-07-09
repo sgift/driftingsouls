@@ -98,7 +98,7 @@ public class PortalController extends Controller
 			{
 				if (!"".equals(user.getEmail()))
 				{
-					String password = Common.md5("" + ThreadLocalRandom.current().nextInt());
+					String password = Common.md5(Integer.toString(ThreadLocalRandom.current().nextInt(Integer.MAX_VALUE)));
 					String enc_pw = Common.md5(password);
 
 					user.setPassword(enc_pw);
@@ -370,7 +370,7 @@ public class PortalController extends Controller
 			keys.setValue(Common.implode("\n", newKeyList));
 		}
 
-		String password = Common.md5("" + ThreadLocalRandom.current().nextInt());
+		String password = Common.md5(Integer.toString(ThreadLocalRandom.current().nextInt(Integer.MAX_VALUE)));
 		String enc_pw = Common.md5(password);
 
 		int maxid = (Integer) db.createQuery("SELECT max(id) FROM User").iterate().next();

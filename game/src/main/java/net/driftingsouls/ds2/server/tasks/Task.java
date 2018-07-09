@@ -62,7 +62,7 @@ public class Task {
 	 * @param type Der Typ der Task
 	 */
 	public Task(Taskmanager.Types type) {
-		this.taskID =  Common.md5(""+ThreadLocalRandom.current().nextInt())+Common.time();
+		this.taskID =  Common.md5(Integer.toString(ThreadLocalRandom.current().nextInt(Integer.MAX_VALUE)))+Common.time();
 		this.type = type.getTypeID();
 		this.time = Common.time();
 	}
