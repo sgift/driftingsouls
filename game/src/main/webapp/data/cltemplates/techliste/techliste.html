@@ -17,11 +17,11 @@
 	<div class="gfxbox forschungsboxen" ui-if="viewModel.erforschbar.length > 0">
 		<span style="color:yellow">Erforschbar</span><br />
 		<div class="forschungsbox" ng-repeat="forschung in viewModel.erforschbar">
-			<a class="forschinfo" href="./forschinfo?res={{forschung.id}}">
+			<a class="forschinfo" href="./ds?module=forschinfo&res={{forschung.id}}">
 				<img style="border:0" ng-src="{{forschung.image}}" alt="" />
 			</a>
 			<br />
-			<a style="font-weight:bold" href="./forschinfo?res={{forschung.id}}" ng-bind-html-unsafe="forschung.name"></a>
+			<a style="font-weight:bold" href="./ds?module=forschinfo&res={{forschung.id}}" ng-bind-html-unsafe="forschung.name"></a>
 			<br />
 			<div>
 			<span class="kosteneintrag" ui-if="forschung.verbleibendeDauer!=null">

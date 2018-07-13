@@ -75,14 +75,14 @@ public class ShipIdGenerator implements IdentifierGenerator, Configurable {
 		try {
 			PreparedStatement st = session.connection().prepareStatement(sql);
 			st.setInt(1, startId);
-			try (st) {
-				try (ResultSet rs = st.executeQuery()) {
-					if (rs.next()) {
-						return rs.getInt(1);
-					}
-					throw new HibernateException("Stored Procedure newIntelliShipId failed");
+			
+			try (ResultSet rs = st.executeQuery()) {
+				if (rs.next()) {
+					return rs.getInt(1);
 				}
+				throw new HibernateException("Stored Procedure newIntelliShipId failed");
 			}
+			
 		}
 		catch (SQLException sqle) {
 			SqlExceptionHelper helper = session
