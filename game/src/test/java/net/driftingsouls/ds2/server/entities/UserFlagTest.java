@@ -81,14 +81,4 @@ public class UserFlagTest
 		// assert
 		assertEquals(0, userFlags.size());
 	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void gegebenEinStringMitUngueltigenFlagIds_parseFlags_sollteEinenFehlerWerfen()
-	{
-		// setup
-		String str = UserFlag.HIDE.getFlag()+" "+UserFlag.NOOB.getFlag()+" 1233424asfasf";
-
-		// run
-		UserFlag.parseFlags(str);
-	}
 }

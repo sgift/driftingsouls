@@ -23,16 +23,6 @@ public class ShipTypeFlagTest
 		assertEquals(ShipTypeFlag.COLONIZER, shipTypeFlag);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void gegebenEineUnbekannteId_byFlag_sollteEineExceptionWerfen()
-	{
-		// setup
-		String id = "123213"+getClass().getCanonicalName();
-
-		// run
-		ShipTypeFlag.byFlag(id);
-	}
-
 	@Test
 	public void gegebenEinStringVonFlagIds_parseFlags_sollteDieZugehoerigenEnumsAlsSetZurueckgeben()
 	{
