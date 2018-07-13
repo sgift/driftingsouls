@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
 import java.util.EnumSet;
+import java.util.Optional;
 
 public enum UserFlag
 {
@@ -103,17 +104,17 @@ public enum UserFlag
 	 * @throws IllegalArgumentException Falls die ID unbekannt ist
 	 * @see #getFlag()
 	 */
-	public static UserFlag byFlag(@Nonnull String flag) throws IllegalArgumentException
+	public static Optional<UserFlag> byFlag(@Nonnull String flag) throws IllegalArgumentException
 	{
 		for (UserFlag userFlag : values())
 		{
 			if( userFlag.getFlag().equals(flag) )
 			{
-				return userFlag;
+				return Optional.of(userFlag);
 			}
 		}
 
-		throw new IllegalArgumentException("Unbekanntes Flag '"+flag+"'");
+		return Optional.empty();
 	}
 
 	/**
@@ -134,7 +135,8 @@ public enum UserFlag
 			{
 				continue;
 			}
-			flagSet.add(UserFlag.byFlag(aflag));
+
+			UserFlag.byFlag(aflag).ifPresent(flagSet::add);
 		}
 		return flagSet;
 	}

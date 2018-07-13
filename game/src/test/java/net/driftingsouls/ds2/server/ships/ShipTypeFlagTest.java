@@ -1,10 +1,11 @@
 package net.driftingsouls.ds2.server.ships;
 
-import java.util.EnumSet;
-
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import java.util.EnumSet;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ShipTypeFlagTest
 {
@@ -15,7 +16,8 @@ public class ShipTypeFlagTest
 		String id = ShipTypeFlag.COLONIZER.getFlag();
 
 		// run
-		ShipTypeFlag shipTypeFlag = ShipTypeFlag.byFlag(id);
+		@SuppressWarnings("ConstantConditions")
+		ShipTypeFlag shipTypeFlag = ShipTypeFlag.byFlag(id).get();
 
 		// assert
 		assertEquals(ShipTypeFlag.COLONIZER, shipTypeFlag);
@@ -88,15 +90,5 @@ public class ShipTypeFlagTest
 
 		// assert
 		assertEquals(0, shipTypeFlags.size());
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void gegebenEinStringMitUngueltigenFlagIds_parseFlags_sollteEinenFehlerWerfen()
-	{
-		// setup
-		String str = ShipTypeFlag.COLONIZER.getFlag()+" "+ShipTypeFlag.JAEGER.getFlag()+" 1233424asfasf";
-
-		// run
-		ShipTypeFlag.parseFlags(str);
 	}
 }
