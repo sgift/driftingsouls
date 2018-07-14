@@ -442,7 +442,7 @@ public class BattleShip {
         int possibleDamage = Integer.MAX_VALUE;
         if(getTypeData().hasFlag(ShipTypeFlag.ZERSTOERERPANZERUNG))
         {
-            possibleDamage = (int)(getHull() * 0.33 - (getShip().getHull() - getHull()));
+            possibleDamage = (int)(Math.ceil(getHull() * 0.25) - (getShip().getHull() - getHull()));
         }
 
         return possibleDamage;
