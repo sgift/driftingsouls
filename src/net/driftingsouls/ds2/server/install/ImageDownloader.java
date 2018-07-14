@@ -55,7 +55,7 @@ public class ImageDownloader
 	 */
 	public void store(Set<String> imgs, String prefix, String suffix)
 	{
-		final String dsUrl = "http://ds.drifting-souls.net/ds2j/";
+		final String dsUrl = "https://ds2.drifting-souls.net/";
 
 		for (String img : imgs)
 		{
