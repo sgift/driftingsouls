@@ -59,8 +59,7 @@
 			  setValue(checkboxes[i]);
 		  }
 		}
-	</script>
-	<script type="text/javascript">
+
 		function toggle2(source) {
 		  checkboxes = document.getElementsByName('box2');
 		  for(var i=0, n=checkboxes.length;i<n;i++) {
@@ -70,9 +69,7 @@
 			  setValue2(checkboxes[i]);
 		  }
 		}
-	</script>
-	
-	<script type="text/javascript">
+
 		function setValue(source){
 			texts= document.getElementsByName(source.id+'to');
 			if(source.checked){
@@ -82,8 +79,7 @@
 				texts[0].value="0";
 			}
 		}
-	</script>
-	<script type="text/javascript">
+
 		function setValue2(source){
 			texts= document.getElementsByName(source.id+'from');
 			if(source.checked){
