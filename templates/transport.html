@@ -37,19 +37,50 @@
 		// -->
 		</script>
 		<form action="./ds" method="post" id='transfermode_form'>
-			Modus: <select size="1" style="width:150px" onchange="javascript:transfermode_change(this.options[this.options.selectedIndex].value);">
+		<center>
+		<table>
+		<tr>
+			<td>Modus:</td><td> <select size="1" style="width:150px" onchange="javascript:transfermode_change(this.options[this.options.selectedIndex].value);">
 			<!--  BEGIN transfermode.listitem -->
 				<option value="{transfermode.from}:{transfermode.to}" {if transfermode.selected}selected="selected"{/endif}>{transfermode.from.name} &#x2194; {transfermode.to.name}</option>
 			<!--  END transfermode.listitem -->
-			</select>
+			</select></td></tr>
+			{if target.show}
+			<tr>
+				<td></td><td align="left"><input type="radio" name="transport_mode" onClick="transport()"" checked/> <span style="color: #C7C7C7">Transportieren</span></td>
+			</tr>
+			<tr>
+				<td></td><td align="left"><input type="radio" name="transport_mode" onClick="fillup()"/> <span style="color: #C7C7C7">Auff&uumlllen</span></td>
+			</tr>
+			{/endif}
 			<input type="hidden" name="from" id="transfermode_from" value="{source.id}" />
 			<input type="hidden" name="to" id="transfermode_to" value="{target.id}" />
 			{!form_create_hidden default, way:$global.rawway}
+		</table>
+		</center>
 		</form>
 		<br />
+	{else}
+		{if target.show}
+			<center>
+			<table>
+			<tr>
+				<td>Modus:</td><td align="left"><input type="radio" name="transport_mode" onClick="transport()"" checked/> <span style="color: #C7C7C7">Transportieren</span></td>
+			</tr>
+			<tr>
+				<td></td><td align="left"><input type="radio" name="transport_mode" onClick="fillup()"/> <span style="color: #C7C7C7">Auff&uumlllen</span></td>
+			</tr>
+			</table>
+			</center>
+		{/endif}
 	{/endif}
-	
-	<script type="text/javascript">
+	<script type="text/javascript">	
+		function fillup(){
+			document.getElementsByName("replenish")[0].value="1";
+		}
+		function transport(){
+			document.getElementsByName("replenish")[0].value="0";
+		}
 		function toggle(source) {
 		  checkboxes = document.getElementsByName('box');
 		  for(var i=0, n=checkboxes.length;i<n;i++) {
@@ -59,7 +90,6 @@
 			  setValue(checkboxes[i]);
 		  }
 		}
-
 		function toggle2(source) {
 		  checkboxes = document.getElementsByName('box2');
 		  for(var i=0, n=checkboxes.length;i<n;i++) {
@@ -69,7 +99,6 @@
 			  setValue2(checkboxes[i]);
 		  }
 		}
-
 		function setValue(source){
 			texts= document.getElementsByName(source.id+'to');
 			if(source.checked){
@@ -79,7 +108,6 @@
 				texts[0].value="0";
 			}
 		}
-
 		function setValue2(source){
 			texts= document.getElementsByName(source.id+'from');
 			if(source.checked){
@@ -93,14 +121,15 @@
 	
 	
 	<form action="./ds" method="post">
-	<table class="noBorderX" border="0" style="border:0px; width:80%">
-	<td></td><td></td><td><span style="color: #C7C7C7">Alle ausw&aumlhlen</span></td>
+	<table class="noBorderX" border="0" style="border:0px; width:80%">	
+	<tr><td></td><td></td><td><span style="color: #C7C7C7">Alle ausw&aumlhlen</span></td>
 	<td><input type="checkbox" onClick="toggle(this)" /></td>
 	<td></td>
 	<td></td>
 	{if target.show}
 	<td><input type="checkbox" onClick="toggle2(this)" /></td><td><span style="color: #C7C7C7">Alle ausw&aumlhlen</span></td>
 	{/endif}
+	</tr>
 	<!-- BEGIN res.listitem -->
 		<tr>
 			<td class="noBorderX"><img src="{res.image}" alt="" /></td>
@@ -147,6 +176,7 @@
 	<tr>
 		<td class="noBorderX" colspan="6" align="center"><br />
 			{!form_create_hidden transfer, from:$source.id, to:$target.id, way:$global.rawway}
+			<input type="hidden" name="replenish" id="replenish" value="0" />
 			<input type="submit" value="transfer" style="width:150px" />
 		</td>
 	</tr>

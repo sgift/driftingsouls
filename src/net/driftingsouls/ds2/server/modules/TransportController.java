@@ -639,10 +639,22 @@ public class TransportController extends Controller
 		}
 	}
 
-	private long transferSingleResource(StringBuilder message, TransportTarget fromItem, TransportTarget toItem, ResourceEntry res, long count, Cargo newfromc, Cargo newtoc, MutableLong cargofrom, MutableLong cargoto, StringBuilder msg, char mode, String rawFrom, String rawTo, String rawWay)
+	private long transferSingleResource(StringBuilder message, TransportTarget fromItem, TransportTarget toItem, ResourceEntry res, long count, Cargo newfromc, Cargo newtoc, MutableLong cargofrom, MutableLong cargoto, StringBuilder msg, char mode, String rawFrom, String rawTo, String rawWay, boolean replenish)
 	{
 		boolean out = false;
-
+	
+		//Abfrage, ob Cargo aufgefuellt werden soll
+		if(replenish){
+			 	long tocount = newtoc.getResourceCount(res.getId());
+		  		count -=tocount;
+		  		if( count < 0){
+		 			Cargo swap = newtoc;
+		  			newtoc = newfromc;
+		  			newfromc = newtoc;
+		  			count *= -1;
+		  		}
+		}
+				 		
 		if (count > newfromc.getResourceCount(res.getId()))
 		{
 			count = newfromc.getResourceCount(res.getId());
@@ -669,7 +681,7 @@ public class TransportController extends Controller
 			out = true;
 			message.append(" - Nur noch Platz für [resource=").append(res.getId()).append("]").append(count).append("[/resource] vorhanden");
 		}
-
+		
 		newtoc.addResource(res.getId(), count);
 		newfromc.substractResource(res.getId(), count);
 
@@ -720,9 +732,11 @@ public class TransportController extends Controller
 			@UrlParam(name = "to") String toString,
 			@UrlParam(name = "#to") Map<String, Integer> toMap,
 			@UrlParam(name = "#from") Map<String, Integer> fromMap,
-			@UrlParam(name = "way") String rawWay)
+			@UrlParam(name = "way") String rawWay,
+			@UrlParam(name = "replenish") int replenish)
 	{
 		String[] way = StringUtils.split(rawWay, "to");
+		
 
 		List<TransportTarget> from = parseListeDerTransportQuellen(way[0], fromString);
 		List<TransportTarget> to = parseListeDerTransportZiele(way[1], toString);
@@ -768,10 +782,20 @@ public class TransportController extends Controller
 			{
 				if( to.size() > 1 )
 				{
-					message.append("Transportiere je [resource=").append(res.getId()).append("]").append(transt).append("[/resource]\n");
+					if( replenish == 1) {
+						message.append("Fülle auf je [resource=").append(res.getId()).append("]").append(transt).append("[/resource] auf\n");	
+					}						
+					else {
+						message.append("Transportiere je [resource=").append(res.getId()).append("]").append(transt).append("[/resource]\n");
+					}
 				}
 				else {
-					message.append("Transportiere [resource=").append(res.getId()).append("]").append(transt).append("[/resource] zu ").append(Common._plaintitle(to.get(0).getObjectName())).append("\n");
+					if( replenish == 1 ) {
+						message.append("Fülle auf [resource=").append(res.getId()).append("]").append(transt).append("[/resource] zu ").append(Common._plaintitle(to.get(0).getObjectName())).append(" auf\n");
+					}
+					else {
+						message.append("Transportiere [resource=").append(res.getId()).append("]").append(transt).append("[/resource] zu ").append(Common._plaintitle(to.get(0).getObjectName())).append("\n");
+					}
 				}
 
 				for (int k = 0; k < from.size(); k++)
@@ -788,7 +812,7 @@ public class TransportController extends Controller
 
 						MutableLong mCargoFrom = new MutableLong(cargofromlist.get(k));
 						MutableLong mCargoTo = new MutableLong(cargotolist.get(j));
-						if (transferSingleResource(message, fromTarget, toTarget, res, transt, newfromclist.get(k), newtoclist.get(j), mCargoFrom, mCargoTo, msg.get(toTarget.getOwner()), 't', fromString, toString, rawWay) != 0)
+						if (transferSingleResource(message, fromTarget, toTarget, res, transt, newfromclist.get(k), newtoclist.get(j), mCargoFrom, mCargoTo, msg.get(toTarget.getOwner()), 't', fromString, toString, rawWay, replenish == 1) != 0)
 						{
 							transfer = true;
 
@@ -812,10 +836,20 @@ public class TransportController extends Controller
 			{
 				if( from.size() > 1 )
 				{
-					message.append("Transportiere je [resource=").append(res.getId()).append("]").append(transt).append("[/resource]\n");
+					if( replenish == 1) {
+						message.append("Fülle auf je [resource=").append(res.getId()).append("]").append(transt).append("[/resource] auf\n");	
+					}	
+					else {
+						message.append("Transportiere je [resource=").append(res.getId()).append("]").append(transt).append("[/resource]\n");
+					}
 				}
 				else {
-					message.append("Transportiere [resource=").append(res.getId()).append("]").append(transt).append("[/resource] von ").append(Common._plaintitle(to.get(0).getObjectName())).append("\n");
+					if( replenish == 1) {
+						message.append("Fülle auf [resource=").append(res.getId()).append("]").append(transt).append("[/resource] von ").append(Common._plaintitle(to.get(0).getObjectName())).append(" auf\n");
+					}
+					else {
+						message.append("Transportiere [resource=").append(res.getId()).append("]").append(transt).append("[/resource] von ").append(Common._plaintitle(to.get(0).getObjectName())).append("\n");
+					}
 				}
 
 				for (int k = 0; k < from.size(); k++)
@@ -839,7 +873,7 @@ public class TransportController extends Controller
 						}
 						MutableLong mCargoFrom = new MutableLong(cargofromlist.get(k));
 						MutableLong mCargoTo = new MutableLong(cargotolist.get(j));
-						if (transferSingleResource(message, fromTarget, toTarget, res, transf, newtoclist.get(j), newfromclist.get(k), mCargoTo, mCargoFrom, msg.get(toTarget.getOwner()), 'f', fromString, toString, rawWay) != 0)
+						if (transferSingleResource(message, fromTarget, toTarget, res, transf, newtoclist.get(j), newfromclist.get(k), mCargoTo, mCargoFrom, msg.get(toTarget.getOwner()), 'f', fromString, toString, rawWay, replenish == 1) != 0)
 						{
 							transfer = true;
 						}
@@ -1005,7 +1039,8 @@ public class TransportController extends Controller
 		{
 			reslist = fromcargo.compare(tocargo, true);
 		}
-
+		
+		//Ress-Menge an Source und Target zur Variablenliste hinzugefuegt fuer Schnelllade-Funktion
 		for (ResourceEntry res : reslist)
 		{
 			t.setVar("res.name", res.getName(),
