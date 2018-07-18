@@ -3,6 +3,28 @@
 	{trade.message}
 	<br />
 {/endif}
+
+<script type="text/javascript">
+		function toggle(source) {
+		  checkboxes = document.getElementsByName('box');
+		  for(var i=0, n=checkboxes.length;i<n;i++) {
+		    checkboxes[i].checked = source.checked;
+		  }
+		  for(var i=0, n=checkboxes.length;i<n;i++){
+			  setValue(checkboxes[i]);
+		  }
+		}
+
+		function setValue(source){
+			texts= document.getElementsByName(source.id+'to');
+			if(source.checked){
+				texts[0].value = source.value;
+			}
+			else{
+				texts[0].value="0";
+			}
+		}
+</script>
 {if res.list}
 	<div class="gfxbox" style="width:470px;text-align:center">
 		<form action="./ds" method="post">
@@ -12,6 +34,10 @@
 				<td colspan="4" class="noBorderX">
 					<span style="font-weight:bold">Waren verkaufen:</span>
 				</td>
+			</tr>
+			<tr> 
+				<td></td><td><span style="color: #C7C7C7">Alle ausw&aumlhlen</span></td>
+				<td><input type="checkbox" onClick="toggle(this)" /></td>
 			</tr>
 			{/endif}
 			{if is.full}
@@ -23,6 +49,7 @@
 				<tr>
 					<td class="noBorderX"><img src="{res.img}"alt="" />{res.name}</td>
 					<td class="noBorderX">{res.cargo}</td>
+					<td class="noBorderX"><input type="checkbox" onClick="setValue(this)" name="box" id="{res.id}" value="{res.cargo}"  /></td>
 					<td class="noBorderX"><input name="{res.id}to" type="text" size="3" value="0" /></td>
 					<td class="noBorderX">{res.re}</td>
 				</tr>
