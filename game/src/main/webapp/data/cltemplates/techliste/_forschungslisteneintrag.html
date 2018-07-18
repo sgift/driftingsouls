@@ -1,0 +1,21 @@
+<tr>
+	<td><a class="forschinfo" style="font-weight:bold" href="./ds?module=forschinfo&res={{forschung.id}}"><span ng-bind-html-unsafe="forschung.name"></span></a></td>
+	<td>
+		<span class="kosteneintrag">
+			<img src="data/interface/time.gif" alt="Dauer" />{{forschung.dauer}}
+		</span>
+		<span class="kosteneintrag" ui-if="forschung.spezialisierungspunkte>0">
+			<img src="data/interface/forschung/specpoints.gif" alt="Spezialisierungskosten" />{{forschung.spezialisierungspunkte}}&nbsp;
+		</span>
+		<span class="kosteneintrag" ng-repeat="res in forschung.kosten">
+			<img ng-src="{{res.image}}" alt="{{res.plainname}}" /><span ds-bind-html-unsafe="res.cargo1"></span>
+		</span>
+	</td>
+	<td>
+		<ul class="benoetigteForschungen">
+			<li ng-repeat="benoetigteForschung in forschung.benoetigteForschungen">
+				<a href="./ds?module=forschinfo&res={{benoetigteForschung.id}}" ng-bind-html-unsafe="benoetigteForschung.name"></a>
+			</li>
+		</ul>
+	</td>
+</tr>

@@ -1,0 +1,143 @@
+#admin {
+	padding-left:270px;
+	position:relative;
+}
+
+/**
+	MENU
+**/
+
+#admin .treemenu
+{
+	position:absolute;
+	left:-30px;
+	top:0;
+	width:250px;
+}
+
+#admin .treemenu {
+	margin-top:15px;
+}
+
+#admin .treemenu p {
+	margin:0;
+	padding:0;
+	display:inline;
+	color:inherit;
+	cursor: pointer;
+}
+
+#admin .treemenu ul,
+#admin .treemenu li {
+	list-style: none;
+	margin:0;
+	padding:0;
+}
+
+#admin .treemenu li {
+	line-height:140%;
+	text-indent:0;
+	padding-left: 15px;
+}
+
+#admin .treemenu li img {
+	padding-right:3px;
+}
+
+#admin .treemenu .collapsed:before {
+	content: "+ ";
+	display: inline-block;
+	width:15px;
+}
+
+#admin .treemenu .expanded:before {
+	content: "- ";
+	display: inline-block;
+	width:15px;
+}
+
+#admin .treemenu .active:before {
+	content: "> ";
+}
+
+#admin .treemenu .active {
+	color: #F0A000;
+}
+
+/**
+	FORM
+**/
+
+#admin .adminSelection form {
+    display:inline;
+}
+
+#admin .adminSelection select {
+    width:80%;
+}
+
+#admin .adminEditor table {
+    min-width:90%;
+    border-spacing: 5px;
+}
+
+#admin .adminEditor .ui-jqgrid table {
+	border-spacing: 0;
+	min-width:100%;
+}
+
+#admin .adminEditor .subTableWrapper {
+	width: 500px;
+}
+
+#admin .adminEditor input[type=text],
+#admin .adminEditor select {
+    width:100%
+}
+
+#admin .adminEditor .dynamicContentEdit td {
+    vertical-align: top;
+}
+#admin .adminEditor .dynamicContentEdit table {
+    width:100%;
+    margin-bottom:15px;
+    background-color:#222222;
+    background: -webkit-linear-gradient(top left, #333333, rgba(0,0,0,0));
+    background: linear-gradient(bottom right, #333333, rgba(0,0,0,0));
+    font-size:12px;
+    border-spacing:4px;
+}
+#admin .adminEditor .dynamicContentEdit a {
+    color:red;
+    margin-left:5px;
+}
+#admin .adminEditor .dynamicContentEdit img {
+    max-width:200px;
+}
+#admin .adminEditor .dynamicContentEdit input,
+#admin .adminEditor .dynamicContentEdit select,
+#admin .adminEditor .dynamicContentEdit textarea{
+    width:100%;
+}
+
+/**
+	GRID
+**/
+#admin #entityListWrapper {
+	width:95%;
+	min-height:600px;
+	margin-top:20px;
+}
+
+#admin .gridpicture {
+	max-height:30px;
+}
+
+#admin .gridcargo img {
+	max-height:30px;
+}
+
+#admin .gridtextarea {
+	max-height:30px;
+	text-overflow: ellipsis;
+}

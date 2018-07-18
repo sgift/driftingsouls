@@ -1,0 +1,557 @@
+
+
+
+/* ab hier body portal */
+body {
+	background-image : url(../interface/portal/bg2.jpg);
+	color : #C0C0C0;
+	background-color : #2f3447;
+	font-family : Verdana, Arial, Helvetica, sans-serif;
+ line-height: 25px;
+ max-width: 1240px;
+}
+*{
+	font-size: 16px;
+	margin: 1px;
+padding: 2px;
+	}
+
+h1{
+		font-size : 2em;
+		text-shadow: 2px -2px 5px #9999ff;
+  line-height: 36px;
+  color:#d3d3d3;
+  margin-bottom:  25px;
+}
+
+h2{
+		font-size:1.9em;
+  line-height: 1.3em;
+ 		margin-bottom: 25px;
+ 		color: #d3d3d3;
+  text-shadow: 2px -2px 3px #9999ff;
+}
+
+h3{
+  font-size:1.5em;
+  text-shadow: 1px -1px 3px #9999ff;
+}
+
+a{
+  color:#7eeaf3;
+  font-size:14px;
+  text-decoration: none;
+  border:none;
+}
+
+a:link{
+    color: #c0c0c0;
+  font-size:14px;
+  text-decoration: none;
+  border:none;
+}
+
+a:visited{
+  color:#c0c0c0;
+  text-decoration: none;
+  border:none;
+  }
+
+
+a:hover{
+    color: #7eeaf5;
+  text-decoration: none;
+  border:none;
+  
+  }
+
+a:active{
+  color:red;
+  text-decoration: none;
+  border:none;
+  }
+  
+  
+a:focus{
+  color:blue; 
+  text-decoration: none;
+  border:none;
+  }
+
+
+p {
+	font-size : 0.9em;
+	padding-left : 10px;
+}
+li {
+	list-style-type : none;
+	font-size: 1em;
+}
+input{
+	background: transparent;
+	height: 30px;
+	padding: 5px;
+	border : 1px solid #25346d;
+ border-radius: 5px;
+ color: whitesmoke;
+ font-size: 1em;
+ 
+}
+select {
+ background: transparent;
+ -webkit-appearance: none;
+ width: 268px;
+ padding: 5px;
+ font-size: 18px;
+ border : 1px solid #25346d;
+ border-radius: 5px;
+/* height: 36px; */
+ color: #CCC;
+}
+
+select option {
+	color: #000;
+}
+
+.checkbox input {
+	background: transparent;
+	border : 1px solid #25346d;
+ border-radius: 5px;
+ height: 20px;
+ width: 20px;
+ color: blue;
+	}
+
+span.red{
+	color: red;
+	}
+span.white{
+	color: white;
+	}
+span.green{
+	color: green;	
+	}	
+span.submit{
+	font-size: 1em;
+}
+span.left{
+	width: 120px;
+	float: left;
+	}
+
+
+div#header{
+  background-image:url(../interface/portal/text_back.png);
+  background-repeat:repeat;
+  z-index:1;
+  height: 292px;  
+  border-radius: 40px;
+  margin: 15px 25px 0;
+  border: 1px solid #25346d;
+  padding: 1em ;
+}
+
+
+#header .logo{
+  position: absolute;
+ 
+  top: 50px;
+  left: 75px;
+  height: 200px;
+		width: 250px;
+  z-index:2;
+}
+
+
+div.ueberschrift {
+	position: absolute;
+	top: 119px;
+	left: 392px;
+}
+
+
+div p.schiff {
+z-index : 3;
+position : absolute;
+top : 130px;
+left : 632px;
+}
+
+/* Beginn Navigation */
+
+#navigation{
+	position: absolute;
+	top: 40px;
+	left: 330px;
+	z-index: 5;
+	}
+	#navigation ul {
+		list-style-type: none;		
+		}
+		
+#navigation ul li {
+	width: 110px;
+text-align: center;
+position: relative;
+float: left;
+margin-right: 5px;
+	}
+	
+#navigation a {
+	text-decoration: none;
+display: block;
+width: 110px;
+height: 28px;
+line-height: 28px;
+background-color: transparent;
+background-image: url(../interface/portal/text_back.png);
+background-repeat: repeat;
+border: 1px solid rgb(204, 204, 204);
+border-radius: 10px 10px 10px 10px;
+	}
+	
+#navigation ul ul {
+	display: none;
+position: absolute;
+top: 37px;
+left: -2px;
+z-index: 6;
+	}
+	
+#navigation ul ul a {
+	margin: 0px;
+padding: 0px;
+	}
+	
+#navigation ul li:hover {
+background-color: black;	
+border-radius: 15px;
+	}
+
+#navigation ul li:hover a:hover {
+	background-image:url(../interface/portal/text_back.png);
+    background-repeat:repeat;
+	}
+
+#navigation ul li:hover ul {
+	display: block;
+	}
+
+
+
+
+/* ENDE NAVIGATION */
+
+/* Content Bereich festlegen mit rechts 45% und links 55% */
+#content #document { 
+	float: left;
+	width: 43%;
+	padding: 1em; 
+	background-image : url(../interface/portal/text_back.png);
+	border-radius : 20px;
+	border : 1px solid #25346d;
+	margin: 1.5em 0.1em 1em 3em;
+}
+
+#content #re-inhalt{
+	
+	float: right;
+	width: 40%;
+	top: 50px;
+	border : 1px solid #25346d;
+	border-radius : 20px;
+	margin: 3em 3em 1em 0.5em;
+	}
+	
+/* Ende Content mit Bereichsfestlegung */
+
+/* login Bereich  */
+
+#login {
+	clear: both;
+	padding-left: 3em;
+	margin-top: 4em;
+}
+
+	
+.pw-input{
+	}
+/* Ende Einlogbuttons */
+
+/* Beginn checkbox */
+li.checkbox input#login_rememberme {
+	border: 1px solid #CCC;
+	border-radius: 10px;
+	padding: 5px;
+	}
+
+
+/* hier beginnt der submit-button */
+p.submit {
+}
+
+
+/* Ende Submitbutton */
+
+/* vergessenes Passwort */
+#lostpass {
+	clear : both;
+	padding: 10px;
+	margin-left: 2em;
+}
+
+#lostpass p a {
+	color : #ff0000;
+	font-size : 1em;
+	font-style : italic;
+}
+/* Ende vergessenes Passwort */
+
+/* registerlink */
+a#registerlink {
+	clear: both;
+	color : #00ff00;
+	text-decoration : none;
+	font-weight : bold;
+	font-size : 20px;
+	display : block;
+	background-color : transparent;
+	background-image : url(../interface/portal/text_back.png);
+	background-repeat : repeat;
+	height : 35px;
+	width : 185px;
+	border: 1px solid #CCC;
+	border-radius: 10px;
+	text-align : center;
+	padding-top : 8px;
+	margin-left: 2.8em;
+}
+/* Ende Anmeldeseite */
+
+/* Beginn regis-neusiedler-daten */
+#register-neusiedler-daten{
+	padding: 1.5em;
+	margin: 0;
+	}
+
+#register-info-rassen, 
+#register-info-system{
+	border: 1px solid #CCC;
+	border-radius: 10px;
+	padding: 15px 15px 5px 25px;
+	margin-top: 3em;
+}
+
+
+#register-neusiedler-startsystem{
+}
+
+
+#register-fraktionsbeschreibung{
+	float: right;
+	width: 40%;
+	border : 1px solid #25346d;
+	border-radius : 30px;
+	padding: 2em 1em 1em 1em;
+	margin: 2em 1em 1em 0;
+}
+
+#register-systembeschreibung{
+	padding: 1em;
+}
+#register-fraktionsbeschreibung h2,
+#register-systembeschreibung h2{
+	margin-top: 1.5em;
+	}
+	
+#register-systembeschreibung ul {
+	margin-left: 15px;
+	}
+div.rechte-spalte p img.systemkarte {
+	width: 95%
+}
+
+
+#seite-agb,
+#impressum,
+#news{
+	margin-top: 2em;
+	}
+
+#seite-agb{
+	padding: 2em;
+}
+
+ol#agb {
+	padding : 1em 0.2em 0.1em 0.5em;
+}
+ol#agb > li {
+	list-style : decimal;
+	margin-bottom: 0.2em;
+}
+#impressum{
+	padding: 1em;
+}	
+
+
+/* News */
+#news {
+	margin: 1em 1em 1em 0.5em;
+}
+#news h2 {
+	padding-top: 2em;
+}
+li.newsitem {
+	background-image : url(../interface/portal/text_back.png);
+	background-repeat : repeat;
+	text-align : left;
+	padding: 0.5em; 
+	margin-bottom : 1em;
+	border-radius : 20px;
+	border : 1px solid #25346d;
+}
+li.newsitem > h3.title {
+	padding-bottom : 0;
+	margin-bottom : 0;
+}
+li.newsitem > span.authoring {
+	font-style : italic;
+	font-size : 0.5em;
+	padding-top : 0;
+	margin-top : 0;
+}
+li.newsitem > p.newstext {
+	padding-top : 0;
+	margin-top : 0.5em;
+}
+
+/* News Archiv */
+
+#archiv {
+	clear : both;
+	padding-left : 50px;
+	font-size: 18px;
+}
+#archiv a {
+	font-size: 18px;
+	}
+	
+/* Footerbereich */
+#footer {
+	clear: both;
+ position: relative;
+}
+#footer #footernavigation{
+	position : relative;
+	padding: 1em 1em 2.5em 1em; 
+	background-image : url(../interface/portal/text_back.png);
+	border-radius : 20px;
+	border : 1px solid #25346d;
+	margin: 0 3% 0 3%;
+}
+#footernavigation li{
+	float: left;
+	margin-left: 2em;
+	margin-bottom: 2em;
+}
+
+
+
+/* facebox */
+
+#facebox .b {
+  background:url(../data/images/b.png);
+}
+
+#facebox .tl {
+  background:url(../data/images/tl.png);
+}
+
+#facebox .tr {
+  background:url(../data/images/tr.png);
+}
+
+#facebox .bl {
+  background:url(../data/images/bl.png);
+}
+
+#facebox .br {
+  background:url(../data/images/br.png);
+}
+
+#facebox {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  text-align: left;
+}
+
+#facebox .popup {
+  position: relative;
+}
+
+#facebox table {
+  border-collapse: collapse;
+}
+
+#facebox td {
+  border-bottom: 0;
+  padding: 0;
+}
+
+#facebox .body {
+  padding: 10px;
+  background: #fff;
+  width: 370px;
+}
+
+#facebox .loading {
+  text-align: center;
+}
+
+#facebox .image {
+  text-align: center;
+}
+
+#facebox img {
+  border: 0;
+  margin: 0;
+}
+
+#facebox .footer {
+  border-top: 1px solid #DDDDDD;
+  padding-top: 5px;
+  margin-top: 10px;
+  text-align: right;
+}
+
+#facebox .tl, #facebox .tr, #facebox .bl, #facebox .br {
+  height: 10px;
+  width: 10px;
+  overflow: hidden;
+  padding: 0;
+}
+
+#facebox_overlay {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  height:100%;
+  width:100%;
+}
+
+.facebox_hide {
+  z-index:-100;
+}
+
+.facebox_overlayBG {
+  background-color: #000;
+  z-index: 99;
+}
+
+* html #facebox_overlay { /* ie6 hack */
+  position: absolute;
+  height: expression(document.body.scrollHeight > document.body.offsetHeight ? document.body.scrollHeight : document.body.offsetHeight + 'px');
+}
+
