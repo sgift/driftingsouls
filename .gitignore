@@ -36,3 +36,10 @@
 /web/data/starmap/_tilecache
 /web/WEB-INF/cfg/config.xml
 *.iml
+game/target/
+
+templates/target/
+
+game/derby\.log
+
+game/ds\.log
