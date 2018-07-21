@@ -383,9 +383,9 @@ public class EditPlugin8<T> implements AdminPlugin
 		{
 			@SuppressWarnings("unchecked") final Job<T, Object> updateTask1 = (Job<T, Object>) updateTask;
 			Collection<Object> jobData = updateTask1.supplier.apply(updatedEntity);
-            new EvictableUnitOfWork(updateTask.name) {
+            new EvictableUnitOfWork<>(updateTask.name) {
                 @Override
-                public void doWork(Object object) throws Exception {
+                public void doWork(Object object) {
                     updateTask1.job.accept(entity, updatedEntity, object);
                 }
             }.setFlushSize(10).executeFor(jobData);

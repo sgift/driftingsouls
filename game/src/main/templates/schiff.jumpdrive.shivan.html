@@ -22,7 +22,7 @@
 				<input name="jumpdrive_ops[y]" type="text" size="3" value="0" />
 				{if user.npc}
 					<input id="jumpdrive_shivan_instant" name="jumpdrive_ops[instant]" type="checkbox" value="1" />
-					<label for="jumpdrive_shivan_instant">sofort springen (verbraucht 50% der Energie)</label>
+					<label for="jumpdrive_shivan_instant">sofort springen</label>
 				{/endif}
 				<input type="hidden" name="jumpdrive_ops[subaction]" value="set" />
 				{!form_create_hidden plugin, plugin:$global.pluginid, ship:$ship.id }

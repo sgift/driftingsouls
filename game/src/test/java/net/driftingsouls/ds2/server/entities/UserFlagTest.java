@@ -1,10 +1,11 @@
 package net.driftingsouls.ds2.server.entities;
 
-import java.util.EnumSet;
-
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import java.util.EnumSet;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class UserFlagTest
 {
@@ -15,20 +16,11 @@ public class UserFlagTest
 		String id = UserFlag.HIDE.getFlag();
 
 		// run
-		UserFlag userFlag = UserFlag.byFlag(id);
+		@SuppressWarnings("ConstantConditions")
+		UserFlag userFlag = UserFlag.byFlag(id).get();
 
 		// assert
 		assertEquals(UserFlag.HIDE, userFlag);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void gegebenEineUnbekannteId_byFlag_sollteEineExceptionWerfen()
-	{
-		// setup
-		String id = "123213"+getClass().getCanonicalName();
-
-		// run
-		UserFlag.byFlag(id);
 	}
 
 	@Test
@@ -88,15 +80,5 @@ public class UserFlagTest
 
 		// assert
 		assertEquals(0, userFlags.size());
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void gegebenEinStringMitUngueltigenFlagIds_parseFlags_sollteEinenFehlerWerfen()
-	{
-		// setup
-		String str = UserFlag.HIDE.getFlag()+" "+UserFlag.NOOB.getFlag()+" 1233424asfasf";
-
-		// run
-		UserFlag.parseFlags(str);
 	}
 }

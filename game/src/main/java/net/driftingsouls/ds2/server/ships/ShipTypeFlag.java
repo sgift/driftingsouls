@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
 import java.util.EnumSet;
+import java.util.Optional;
 
 /**
  * Flags fuer Schiffstypen.
@@ -175,17 +176,17 @@ public enum ShipTypeFlag
 	 * @throws IllegalArgumentException Falls die ID unbekannt ist
 	 * @see #getFlag()
 	 */
-	public static ShipTypeFlag byFlag(@Nonnull String flag) throws IllegalArgumentException
+	public static Optional<ShipTypeFlag> byFlag(@Nonnull String flag) throws IllegalArgumentException
 	{
 		for (ShipTypeFlag shipTypeFlag : values())
 		{
 			if( shipTypeFlag.getFlag().equals(flag) )
 			{
-				return shipTypeFlag;
+				return Optional.of(shipTypeFlag);
 			}
 		}
 
-		throw new IllegalArgumentException("Unbekanntes Flag '"+flag+"'");
+		return Optional.empty();
 	}
 
 	/**
@@ -211,7 +212,7 @@ public enum ShipTypeFlag
 			{
 				continue;
 			}
-			flagSet.add(ShipTypeFlag.byFlag(aflag));
+			ShipTypeFlag.byFlag(aflag).ifPresent(flagSet::add);
 		}
 		return flagSet;
 	}
