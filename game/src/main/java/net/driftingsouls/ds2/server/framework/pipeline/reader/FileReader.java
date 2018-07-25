@@ -29,7 +29,11 @@ import javax.activation.MimetypesFileTypeMap;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -89,11 +93,35 @@ public class FileReader implements Reader {
 		String path = Configuration.getAbsolutePath()+filename;
 		File file = new File(path);
 		if( !file.exists() ) {
-			context.getResponse().setStatus(HttpServletResponse.SC_NOT_FOUND);
-			context.getResponse().getWriter().append("404 - Die von ihnen gesuchte Datei existiert nicht");
-			log.warn("Warning: file not found: '"+file+"'");
 			
-			return;
+			if(Configuration.isProduction()) {
+			
+				context.getResponse().setStatus(HttpServletResponse.SC_NOT_FOUND);
+				context.getResponse().getWriter().append("404 - Die von ihnen gesuchte Datei existiert nicht");
+				log.warn("Warning: file not found: '"+file+"'");
+				
+				return;
+			}
+			
+			//Neu: fehlt eine Ressource wird versucht diese von DS zu laden.
+			//Sicher nicht optimal, aber bis es ein neues Install-Script gibt bequemer als die Alternative.
+			try {
+				log.warn("Downloading '"+filename+"'");
+				File folder = new File(file.getParent());
+				folder.mkdirs();
+				URL remoteRessource = new URL("https://ds2.drifting-souls.net/"+filename);
+				ReadableByteChannel rbc = Channels.newChannel(remoteRessource.openStream());
+				FileOutputStream fos = new FileOutputStream(path);
+				fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+				fos.close();
+				file = new File(path);
+			}catch(Exception e){
+				context.getResponse().setStatus(HttpServletResponse.SC_NOT_FOUND);
+				context.getResponse().getWriter().append("404 - Die von ihnen gesuchte Datei existiert nicht");
+				log.warn("Warning: file not found: '"+file+"'");
+				
+				return;
+			}
 		}
 		
 		int index = path.lastIndexOf('.');
