@@ -79,7 +79,7 @@ public class PortalController extends Controller
 	 *
 	 * @param username der Benutzername des Accounts
 	 */
-	@Action(ActionType.DEFAULT)
+	@Action(ActionType.DEFAULT_WITHOUTHEADER)
 	public TemplateEngine passwordLostAction(String username)
 	{
 		org.hibernate.Session db = getDB();
@@ -143,7 +143,7 @@ public class PortalController extends Controller
 	/**
 	 * Zeigt die Banner Seite an an.
 	 */
-	@Action(ActionType.DEFAULT)
+	@Action(ActionType.DEFAULT_WITHOUTHEADER)
 	public TemplateEngine bannerAction()
 	{
 		TemplateEngine t = templateViewResultFactory.createFor(this);
@@ -154,7 +154,7 @@ public class PortalController extends Controller
 	/**
 	 * Zeigt die AGB an.
 	 */
-	@Action(ActionType.DEFAULT)
+	@Action(ActionType.DEFAULT_WITHOUTHEADER)
 	public TemplateEngine infosAgbAction()
 	{
 		TemplateEngine t = templateViewResultFactory.createFor(this);
@@ -165,7 +165,7 @@ public class PortalController extends Controller
 	/**
 	 * Zeigt das Impressum an.
 	 */
-	@Action(ActionType.DEFAULT)
+	@Action(ActionType.DEFAULT_WITHOUTHEADER)
 	public TemplateEngine impressumAction()
 	{
 		TemplateEngine t = templateViewResultFactory.createFor(this);
@@ -542,7 +542,7 @@ public class PortalController extends Controller
 	 * @param key Der Registrierungssschluessel
 	 * @param system Das Startsystem
 	 */
-	@Action(ActionType.DEFAULT)
+	@Action(ActionType.DEFAULT_WITHOUTHEADER)
 	public TemplateEngine registerAction(String username, int race, String email, String key, StarSystem system)
 	{
 		TemplateEngine t = templateViewResultFactory.createFor(this);
@@ -615,7 +615,7 @@ public class PortalController extends Controller
 	 * @param username Der Benutzername
 	 * @param password Das Passwort
 	 */
-	@Action(ActionType.DEFAULT)
+	@Action(ActionType.DEFAULT_WITHOUTHEADER)
 	public TemplateEngine loginAction(String username, String password, String rememberMe)
 	{
 		TemplateEngine t = templateViewResultFactory.createFor(this);
@@ -687,7 +687,7 @@ public class PortalController extends Controller
 	 * @param pw Das Passwort
 	 * @param reason Der Grund fuer eine vorzeitige Deaktivierung
 	 */
-	@Action(ActionType.DEFAULT)
+	@Action(ActionType.DEFAULT_WITHOUTHEADER)
 	public TemplateEngine loginVacmodeDeakAction(String username, String pw, String reason)
 	{
 		TemplateEngine t = templateViewResultFactory.createFor(this);
@@ -716,7 +716,7 @@ public class PortalController extends Controller
 	/**
 	 * Allows players, which are remembered by ds to login directly.
 	 */
-	@Action(ActionType.DEFAULT)
+	@Action(ActionType.DEFAULT_WITHOUTHEADER)
 	public void reloginAction()
 	{
 		getResponse().redirectTo("ds?module=main&action=default");
@@ -727,7 +727,7 @@ public class PortalController extends Controller
 	 *
 	 * @param archiv <code>true</code>, falls alte News angezeigt werden sollen
 	 */
-	@Action(ActionType.DEFAULT)
+	@Action(ActionType.DEFAULT_WITHOUTHEADER)
 	public TemplateEngine defaultAction(boolean archiv)
 	{
 		TemplateEngine t = templateViewResultFactory.createFor(this);
