@@ -29,6 +29,10 @@ public enum ActionType
 	 */
 	DEFAULT,
 	/**
+	 * Eine normale HTTP-Request mit HTML-Anwort aber ohne Default-Header.
+	 */
+	DEFAULT_WITHOUTHEADER,
+	/**
 	 * Eine Ajax-Request.
 	 */
 	AJAX,

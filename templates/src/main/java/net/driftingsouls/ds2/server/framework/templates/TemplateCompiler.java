@@ -368,6 +368,45 @@ public class TemplateCompiler {
 
 		return blockBuilder.toString();
 	}
+	
+	/**
+	 * Bindet eine andere Template-Datei ein.
+	 * Verwendung: {include:datei} bindet datei.html ein, die sich 
+	 * in demselben Ordner wie die aktuelle Template-Datei befinden muss.
+	 * Aktuell keine verschachtelten Includes moeglich.
+	 * @param block
+	 * @return
+	 */
+	private String parse_includes(String block){
+		String path = new File(sourceFilename).getParentFile().getAbsolutePath();
+		
+		StringBuilder blockBuilder = new StringBuilder(block.length());
+		Matcher match = Pattern.compile("\\{include:\\w+\\}").matcher(block);
+		
+		int index = 0;
+		
+		while( match.find() ) {
+			blockBuilder.append(block.substring(index, match.start()));
+			String filename = match.group(0).substring(9,match.group(0).length()-1)+".html";
+			try {
+				
+				String filepath = Paths.get(path, filename).toString();
+				
+				blockBuilder.append(readTemplate(filepath));
+
+				
+			}catch(Exception e) {
+				blockBuilder.append("<!-- Failed to load template file "+filename+" -->");
+			}
+			index = match.end();
+		}
+		
+		blockBuilder.append(block.substring(index));
+
+		return blockBuilder.toString();
+		
+		
+	}
 
 	private String parse_vars( String block ) {
 		return Pattern.compile("\\{([^\\}^\\s^\\?]+)\\}").matcher(block).replaceAll("\\\"); str.append(templateEngine.getVar(\"$1\")); str.append(\\\"");
@@ -479,12 +518,15 @@ public class TemplateCompiler {
 		String baseFileName = new File(sourceFilename).getName();
 		baseFileName = baseFileName.substring(0, baseFileName.lastIndexOf(".html"));
 
-		String str = readTemplate();
+		String str = readTemplate(sourceFilename);
 
 		StringBuilder strBuilder;
 		str = str.replace("\\", "\\\\");
 		str = str.replace("\"", "\\\"");
-
+		
+		//Includes einfuegen
+		str = parse_includes(str);
+		
 		// Funktionen ersetzen
 		str = parse_functions(str);
 
@@ -663,11 +705,11 @@ public class TemplateCompiler {
 		}
 	}
 
-	private String readTemplate() throws IOException
+	private String readTemplate(String file) throws IOException
 	{
 		StringBuilder strBuilder = new StringBuilder();
-
-		try (BufferedReader reader = new BufferedReader(new FileReader(new File(sourceFilename))))
+		
+		try (BufferedReader reader = new BufferedReader(new FileReader(new File(file))))
 		{
 			String curLine;
 			while ((curLine = reader.readLine()) != null)

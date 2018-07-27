@@ -136,7 +136,7 @@ public class ActionMethodInvoker
 
 	private OutputHandler determineOutputHandler(Action type) throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
 		OutputHandler actionTypeHandler = null;
-		if (type.value() == ActionType.DEFAULT)
+		if (type.value() == ActionType.DEFAULT || type.value() == ActionType.DEFAULT_WITHOUTHEADER)
 		{
 			actionTypeHandler = new HtmlOutputHandler();
 		}
