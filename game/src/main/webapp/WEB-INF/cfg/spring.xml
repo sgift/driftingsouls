@@ -11,7 +11,7 @@
 
 	<!-- Server -->
 
-	<bean id="regularTickJob" class="org.springframework.scheduling.quartz.JobDetailBean">
+	<bean id="regularTickJob" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<property name="jobClass" value="net.driftingsouls.ds2.server.tick.ScheduledTick" />
 		<property name="jobDataAsMap">
 			<map>
@@ -19,7 +19,7 @@
 			</map>
 		</property>
 	</bean>
-	<bean id="rareTickJob" class="org.springframework.scheduling.quartz.JobDetailBean">
+	<bean id="rareTickJob" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<property name="jobClass" value="net.driftingsouls.ds2.server.tick.ScheduledTick" />
 		<property name="jobDataAsMap">
 			<map>
@@ -27,12 +27,11 @@
 			</map>
 		</property>
 	</bean>
-	<bean id="regularTickCronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+	<bean id="regularTickCronTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
 		<property name="jobDetail" ref="regularTickJob" />
 		<property name="cronExpression" value="0 0 0,4,12,16,18,20,22 * * ?" />
-		<!--<property name="cronExpression" value="0 0 0,4 * * ?" />-->
 	</bean>
-	<bean id="rareTickCronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+	<bean id="rareTickCronTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
 		<property name="jobDetail" ref="rareTickJob" />
 		<property name="cronExpression" value="0 0 3 * * ?" />
 	</bean>
