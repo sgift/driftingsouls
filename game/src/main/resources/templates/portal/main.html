@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+
+    <title>DS2 - Drifting Souls 2</title>
+
+    <link type="text/css" rel="stylesheet" href="/css/ds_2_portal.css"/>
+</head>
+<body>
+<div id="header" th:replace="portal/fragments :: header">
+    <!-- hier sind die Drifting Souls Bilder der ersten Portalseite-->
+    <div class="logo">
+        <img src="/images/interface/portal/gcp-logo.png" alt="DS2 LOGO"/>
+    </div>
+    <div class="ueberschrift">
+        <h1><img src="/images/interface/portal/driftingsouls.png" alt="Drifting Souls"/></h1>
+    </div>
+    <div id="navigation">
+        <ul class="navi">
+            <li><a title="Home" href="">Home</a></li>
+            <li><a title="Portal" href="">Portal</a>
+                <ul class="subnav1">
+                    <li><a title="Github Repository" href="" target="_blank">Github</a></li>
+                </ul>
+            </li>
+            <li><a>Community</a>
+                <ul class="subnav1">
+                    <li><a title="IRC" href="" target="_blank">IRC</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div>
+    <p class="schiff"><img src="/images/interface/portal/FINAL4-1.png" alt="Ein Traeger"/></p>
+</div>
+
+<div id="content">
+    <div class="linke-spalte">
+        <div id="document">
+            <p>Hier geht's zum <a href="#" th:href="@{/game}">Spiel</a></p>
+        </div>
+    </div>
+    <div class="rechte-spalte">
+        <div id="re-inhalt">
+            <ul id="news">
+                <h2>News</h2>
+                <li class="newsitem">
+                    <h3 class="title">Ich bin eine Nachricht</h3>
+                    <span class="authoring">Madison, 02.11.2018</span>
+                    <p class="newstext">Hier k&ouml;nnte auch deine Adminnachricht stehen.</p>
+                </li>
+            </ul>
+
+            <div id="archiv">
+                <p>
+                    <a title="Zum News-Archiv" href="#">Zum
+                        News-Archiv</a>
+                </p>
+            </div>
+
+        </div>  <!-- Ende class. re-inhalt (gegenstueck "documents") -->
+    </div>    <!-- Ende class. Rechte Spalte -->
+</div> <!-- Ende ID Container -->
+
+<!-- Ende Contentbereich - Beginn Footernavigation -->
+<div id="footer" th:replace="portal/fragments :: footer">
+    <ul id="footernavigation">
+        <li><a title="Zum Impressum" href="#">Impressum</a></li>
+    </ul>
+</div>
+</body>

@@ -10,7 +10,7 @@
 		<property name="hibernate.jdbc.batch_versioned_data">true</property>
 
 		<!-- configure transaction manager -->
-		<property name="transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</property>
+		<property name="transaction.coordinator_class">jta</property>
 		<property name="current_session_context_class">managed</property>
 
 		<!-- C3P0 connection pool -->
@@ -25,7 +25,7 @@
 		<property name="hibernate.c3p0.preferred_test_query">SELECT value FROM config LIMIT 1</property>
 
         <!-- SQL dialect -->
-        <property name="dialect">org.hibernate.dialect.MySQL5InnoDBDialect</property>
+        <property name="dialect">org.hibernate.dialect.MySQL57Dialect</property>
 
         <!-- Second-level cache  -->
        <property name="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory</property>

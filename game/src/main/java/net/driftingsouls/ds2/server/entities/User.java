@@ -43,14 +43,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.annotations.*;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.persistence.CascadeType;
 import javax.persistence.*;
-import javax.persistence.Entity;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -65,10 +64,9 @@ import java.util.stream.Collectors;
 @DiscriminatorValue("default")
 @Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @BatchSize(size=50)
-@org.hibernate.annotations.Table(
-	appliesTo = "users",
-	indexes = {@Index(name="vaccount", columnNames = {"vaccount", "wait4vac"})}
-)
+@Table(indexes = {
+		@Index(name = "vaccount", columnList = "vaccount, wait4vac")
+})
 public class User extends BasicUser {
 	private static final Log log = LogFactory.getLog(User.class);
 
@@ -184,14 +182,12 @@ public class User extends BasicUser {
 	private String medals;
 	private int rang;
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="ally", nullable=true)
-	@ForeignKey(name="users_fk_ally")
+	@JoinColumn(name="ally", foreignKey = @ForeignKey(name="users_fk_ally"))
 	private Ally ally;
 	private BigInteger konto;
 	private int npcpunkte;
 	@OneToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="allyposten", nullable=true, unique = true)
-	@ForeignKey(name="users_fk_ally_posten")
+	@JoinColumn(name="allyposten", unique = true, foreignKey = @ForeignKey(name="users_fk_ally_posten"))
 	private AllyPosten allyposten;
 	private int gtudropzone;
 	private String npcorderloc;
@@ -218,8 +214,7 @@ public class User extends BasicUser {
     private Set<Loyalitaetspunkte> loyalitaetspunkte;
 
 	@ManyToMany
-	@JoinTable
-	@ForeignKey(name="users_fk_forschungen", inverseName = "users_forschungen_fk_users")
+	@JoinTable(foreignKey = @ForeignKey(name="users_fk_forschungen"), inverseForeignKey = @ForeignKey(name = "users_forschungen_fk_users"))
 	private Set<Forschung> forschungen;
 
 	@OneToMany(cascade = {CascadeType.DETACH,CascadeType.REFRESH})
@@ -593,7 +588,7 @@ public class User extends BasicUser {
 			.uniqueResult();
 		if( userid != 0 ) {
 			if( (relation != Relation.FRIEND) && (getAlly() != null) ) {
-				User targetuser = (User)context.getDB().get(User.class, userid);
+				User targetuser = context.getDB().get(User.class, userid);
 				if( targetuser.getAlly() == getAlly() ) {
 					log.warn("Versuch die allyinterne Beziehung von User "+this.getId()+" zu "+userid+" auf "+relation+" zu aendern", new Throwable());
 					return;
@@ -601,11 +596,11 @@ public class User extends BasicUser {
 			}
 			UserRelation defrelation = (UserRelation)db
 				.createQuery("from UserRelation WHERE user=:user AND target.id=0")
-				.setInteger("user", this.getId())
+				.setParameter("user", this.getId())
 				.uniqueResult();
 
 			if( defrelation == null ) {
-				User nullUser = (User)db.get(User.class, 0);
+				User nullUser = db.get(User.class, 0);
 
 				defrelation = new UserRelation(this, nullUser, Relation.NEUTRAL.ordinal());
 			}
@@ -627,7 +622,7 @@ public class User extends BasicUser {
 					currelation.setStatus(relation.ordinal());
 				}
 				else {
-					User user = (User)db.get(User.class, userid);
+					User user = db.get(User.class, userid);
 					currelation = new UserRelation(this, user, relation.ordinal());
 					db.persist(currelation);
 				}
@@ -657,8 +652,8 @@ public class User extends BasicUser {
 				}
 			}
 			db.createQuery("delete from UserRelation where user=:user and status=:status AND target.id!=0")
-				.setInteger("user", this.getId())
-				.setInteger("status", relation.ordinal())
+				.setParameter("user", this.getId())
+				.setParameter("status", relation.ordinal())
 				.executeUpdate();
 		}
 	}
@@ -692,7 +687,7 @@ public class User extends BasicUser {
 		BigInteger biCount = BigInteger.valueOf(count);
 		if(!biCount.equals(BigInteger.ZERO))
 		{
-			User fromUser = (User)context.getDB().get(User.class, fromID);
+			User fromUser = context.getDB().get(User.class, fromID);
 			if( (fromID != 0))
 			{
 				fromUser.setKonto(fromUser.getKonto().subtract(biCount));
@@ -719,7 +714,7 @@ public class User extends BasicUser {
 		org.hibernate.Session db = context.getDB();
 
 		if( !count.equals(BigInteger.ZERO) ) {
-			User fromUser = (User)context.getDB().get(User.class, fromID);
+			User fromUser = context.getDB().get(User.class, fromID);
 			if( (fromID != 0) && !faketransfer ) {
 				fromUser.setKonto(fromUser.getKonto().subtract(count));
 			}
@@ -1371,10 +1366,7 @@ public class User extends BasicUser {
 		for(Base base: this.bases)
 		{
 			int basesystem = base.getSystem();
-			if (!systemlist.contains(basesystem))
-			{
-				systemlist.add(basesystem);
-			}
+			systemlist.add(basesystem);
 		}
 		return systemlist;
 	}
@@ -1406,7 +1398,7 @@ public class User extends BasicUser {
 		//Add researchs, which are currently developed in research centers
 		List<Forschungszentrum> researchcenters = Common.cast(db
 				.createQuery("from Forschungszentrum where forschung is not null and base.owner=:owner")
-				.setEntity("owner", this)
+				.setParameter("owner", this)
 				.list());
 		for(Forschungszentrum researchcenter: researchcenters)
 		{
@@ -1455,8 +1447,8 @@ public class User extends BasicUser {
 		Object baseunitsuserobject = db.createQuery("select sum(e.amount) " +
 				"from BaseUnitCargoEntry as e " +
 				"where e.unittype=:unittype and e.basis.owner=:user")
-				.setInteger("unittype", unitType.getId())
-				.setEntity("user", this)
+				.setParameter("unittype", unitType.getId())
+				.setParameter("user", this)
 				.iterate()
 				.next();
 		if( baseunitsuserobject != null)
@@ -1471,8 +1463,8 @@ public class User extends BasicUser {
 		Object shipunitsuserobject = db.createQuery("select sum(e.amount) " +
 				"from ShipUnitCargoEntry as e " +
 				"where e.unittype=:unittype and e.schiff.owner=:user")
-				.setInteger("unittype", unitType.getId())
-				.setEntity("user", this)
+				.setParameter("unittype", unitType.getId())
+				.setParameter("user", this)
 				.iterate()
 				.next();
 
@@ -1666,8 +1658,8 @@ public class User extends BasicUser {
 	public <T> T getUserValue( WellKnownUserValue<T> valueDesc ) {
 		UserValue value = (UserValue)context.getDB()
 				.createQuery("from UserValue where user=:user and name=:name order by id")
-				.setEntity("user", this)
-				.setString("name", valueDesc.getName())
+				.setParameter("user", this)
+				.setParameter("name", valueDesc.getName())
 				.setMaxResults(1)
 				.uniqueResult();
 
@@ -1688,9 +1680,8 @@ public class User extends BasicUser {
 				.setString("name", valueDesc.getName())
 				.list());
 
-		if( values.isEmpty() )
-		{
-			return Arrays.asList(StringToTypeConverter.convert(valueDesc.getType(), valueDesc.getDefaultValue()));
+		if( values.isEmpty() ) {
+			return Collections.singletonList(StringToTypeConverter.convert(valueDesc.getType(), valueDesc.getDefaultValue()));
 		}
 
 		return values.stream().map(UserValue::getValue).map(v -> StringToTypeConverter.convert(valueDesc.getType(), v)).collect(Collectors.toList());
@@ -1706,8 +1697,8 @@ public class User extends BasicUser {
 	 */
 	public <T> void setUserValue( WellKnownUserValue<T> valueDesc, T newvalue ) {
 		UserValue valuen = (UserValue)context.getDB().createQuery("from UserValue where user=:user and name=:name order by id")
-				.setEntity("user", this)
-				.setString("name", valueDesc.getName())
+				.setParameter("user", this)
+				.setParameter("name", valueDesc.getName())
 				.uniqueResult();
 
 		// Existiert noch kein Eintag?

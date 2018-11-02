@@ -29,11 +29,10 @@ import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.ResourceEntryViewModel;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.*;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
-import javax.persistence.Entity;
-import javax.persistence.Table;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,7 +46,9 @@ import java.util.Map;
  * @author Christopher Jung
  */
 @Entity
-@Table(name = "buildings")
+@Table(name = "buildings", indexes = {
+		@Index(name = "building_category", columnList = "category")
+})
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "module", length=255)
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
@@ -82,8 +83,7 @@ public abstract class Building
 	@Column(nullable = false)
 	private String picture;
 	@ElementCollection
-	@CollectionTable(name = "building_alternativebilder")
-	@ForeignKey(name="building_alternativebilder_fk_building")
+	@CollectionTable(name = "building_alternativebilder", foreignKey = @ForeignKey(name="building_alternativebilder_fk_building"))
 	private Map<Integer, String> alternativeBilder;
 	@Type(type = "cargo")
 	@Column(name = "buildcosts", nullable = false)
@@ -99,15 +99,13 @@ public abstract class Building
 	@Column(name = "eprodu", nullable = false)
 	private int eProduktion;
 	@ManyToOne
-	@JoinColumn
-	@ForeignKey(name="building_fk_forschung")
+	@JoinColumn(foreignKey = @ForeignKey(name="building_fk_forschung"))
 	private Forschung techReq;
 	private int eps;
 	@Column(name = "perplanet", nullable = false)
 	private int perPlanet;
 	@Column(name = "perowner", nullable = false)
 	private int perOwner;
-	@Index(name="building_category")
 	private int category;
 	private boolean ucomplex;
 	private boolean deakable;

@@ -1,0 +1,130 @@
+/*
+	JQuery UI
+*/
+
+.ui-widget {
+	font-family: arial, helvetica;
+	color: #C7C7C7;
+	font-size: 12px;
+	border:2px solid #26312a;
+	box-shadow: 5px 5px 10px #031103;
+}
+
+.ui-widget-header {
+	background-image:none;
+}
+
+.ui-widget-content {
+	background: #0f1513;
+	color: #C7C7C7;
+}
+
+
+.ui-state-default, .ui-widget-content .ui-state-default  {
+	background: none;
+}
+
+.ui-state-hover,
+.ui-widget-content .ui-state-hover,
+.ui-widget-header .ui-state-hover,
+.ui-state-focus,
+.ui-widget-content .ui-state-focus,
+.ui-widget-header .ui-state-focus {
+    background: #243717;
+    color: #FFFFFF;
+    font-weight: bold;
+	border: 1px solid #666666;
+}
+
+.ui-state-highlight, .ui-widget-content .ui-state-highlight, .ui-widget-header .ui-state-highlight {
+	background: #bf7100;
+	color: #FFFFFF;
+}
+
+.ui-corner-all {
+	border-radius:0px;
+}
+
+.ui-dialog {
+	border:4px solid #26312a;
+	padding:0px;
+}
+
+.ui-dialog .ui-dialog-titlebar {
+	padding:5px 10px;
+	font-size:14px;
+}
+
+.ui-dialog-titlebar {
+	border:0px;
+	background-color:transparent;
+	font-size:16px;
+	font-weight:bold;
+	text-decoration:none;
+	color:#FEB626;
+	margin:1px 0px 2px 0px;
+}
+
+.ui-dialog .ui-dialog-content {
+	padding: 5px 10px;
+	background-image: none;
+	
+	-webkit-border-image: none;
+	-moz-border-image: none;
+	-o-border-image: none;
+	-ms-border-image: none;
+	border-image:none;
+}
+
+.ui-dialog-title {
+	margin:0;
+}
+
+
+.ui-dialog .ui-dialog-titlebar-close {
+	width:16px;
+	height:16px;
+	border:0px;
+}
+
+.ui-dialog .ui-dialog-titlebar-close span.ui-icon {
+	background: url('./data/interface/delete.gif') 0px 0px;
+	width:14px;
+	height:14px;
+	left:0;
+	top:0;
+}
+
+.ui-resizable-handle.ui-icon {
+	background-image:none;
+}
+
+.ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button {
+	font-size:13px;
+}
+
+/*
+	jqgrid
+*/
+
+.ui-th-column.ui-state-default {
+	color: #FEB626;
+	font-weight: bold;
+}
+.ui-jqgrid .ui-jqgrid-hdiv {
+	background:none;
+}
+.ui-jqgrid .loading {
+	background: #0F1513;
+}
+
+.ui-jqgrid input[type=text] {
+	border: 1px #A7A7A7 solid;
+	margin: 0px;
+	color: #C7C7C7;
+	font-size:13px;
+	background-color: #202020;
+	padding:1px;
+}
+
+*:focus { outline:none }

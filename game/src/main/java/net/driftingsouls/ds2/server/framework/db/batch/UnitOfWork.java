@@ -29,10 +29,7 @@ import org.hibernate.StaleObjectStateException;
 import org.hibernate.Transaction;
 import org.hibernate.exception.GenericJDBCException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * <p>Klasse zur Durchfuehrung isolierter Arbeitsaufgaben (= 1 Transaktion) im Tick.
@@ -114,9 +111,9 @@ public abstract class UnitOfWork<T>
 	 */
 	public void executeFor(Collection<T> work)
 	{
-		FlushMode oldMode = db.getFlushMode();
+		FlushMode oldMode = db.getHibernateFlushMode();
 		try {
-			db.setFlushMode(FlushMode.MANUAL);
+			db.setHibernateFlushMode(FlushMode.MANUAL);
 			Transaction transaction = db.beginTransaction();
 
 			List<T> unflushedObjects = new ArrayList<>();
@@ -149,7 +146,7 @@ public abstract class UnitOfWork<T>
 			onFlushed();
 		}
 		finally {		
-			db.setFlushMode(oldMode);
+			db.setHibernateFlushMode(oldMode);
 		}
 	}
 
@@ -243,7 +240,7 @@ public abstract class UnitOfWork<T>
 			}
 
 			LOG.warn(name + " - Object: " + workObject, e);
-			errorReporter.report(this, Arrays.asList(workObject), e);
+			errorReporter.report(this, Collections.singletonList(workObject), e);
 			
 			return false;
 		}

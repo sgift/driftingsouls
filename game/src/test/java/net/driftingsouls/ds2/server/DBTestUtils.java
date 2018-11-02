@@ -9,6 +9,7 @@ import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
+import org.hibernate.tool.schema.TargetType;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -16,6 +17,7 @@ import javax.persistence.EntityManager;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.SQLNonTransientConnectionException;
+import java.util.EnumSet;
 
 import static org.junit.Assert.*;
 
@@ -58,7 +60,7 @@ final class DBTestUtils
 		try
 		{
 			LOG.info("Erzeuge DB-Schema");
-			schema.execute(false, true, false, true);
+			schema.execute(EnumSet.of(TargetType.DATABASE), SchemaExport.Action.CREATE, null, null);
 		}
 		catch (Exception ex)
 		{
@@ -128,7 +130,7 @@ final class DBTestUtils
 	{
 		LOG.info("Initialisiere Hibernate");
 		HibernateUtil.initConfiguration("src/test/cfg/hibernate.xml", "jdbc:derby:memory:tests", "", "");
-		schema = new SchemaExport(HibernateUtil.getConfiguration());
+		schema = new SchemaExport();
 	}
 
 	/**

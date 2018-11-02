@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+
+    <title>DS2 - Drifting Souls 2</title>
+
+    <link type="text/css" rel="stylesheet" href="/css/ds_2_portal.css"/>
+</head>
+<body>
+<div id="header" th:replace="portal/fragments :: header">
+    <!-- hier sind die Drifting Souls Bilder der ersten Portalseite-->
+    <div class="logo">
+        <img src="/images/interface/portal/gcp-logo.png" alt="DS2 LOGO"/>
+    </div>
+    <div class="ueberschrift">
+        <h1><img src="/images/interface/portal/driftingsouls.png" alt="Drifting Souls"/></h1>
+    </div>
+    <div id="navigation">
+        <ul class="navi">
+            <li><a title="Home" href="">Home</a></li>
+            <li><a title="Portal" href="">Portal</a>
+                <ul class="subnav1">
+                    <li><a title="Github Repository" href="" target="_blank">Github</a></li>
+                </ul>
+            </li>
+            <li><a>Community</a>
+                <ul class="subnav1">
+                    <li><a title="IRC" href="" target="_blank">IRC</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div>
+    <p class="schiff"><img src="/images/interface/portal/FINAL4-1.png" alt="Ein Traeger"/></p>
+</div>
+
+<div id="content">
+    <div class="linke-spalte">
+        <div id="document">
+            <p>Hier geht's zum <a href="#" th:href="@{/game}">Spiel</a></p>
+        </div>
+    </div>
+    <div class="rechte-spalte">
+        <div id="re-inhalt">
+            {if show.impressum}
+
+            <div id="impressum">
+                <h2>Impressum</h2>
+                <p>
+                    Webmaster/Administrator: Ralf Hajek - Alias: Guzman<br/>
+                    Sch&ouml;nauer Stra&szlig;e 4<br/>
+                    65232 Taunusstein<br/>
+                    E-Mail: R.Hajek@t-online.de<br/>
+                    Co-Administrator: Christopher Jung - Alias: bKtHeG<br/>
+                    Fleissige Helfer: Madison<br/>
+                    Ehemalige Programmierer: Ra, BoLt, Kakashi, Firewing, Gargair, Rhonabwy<br/>
+                </p>
+                <p>
+                    Bei der Webseitengestaltung haben geholfen:<br/>
+                    Yuma,<br/>
+                    Antiker,<br/>
+                    Mav aus der Perry Rhodan Community<br/>
+                    vielen Dank für die Bilder
+                </p>
+                <p>
+                    Haftungshinweis: Trotz sorgfältiger inhaltlicher Kontrolle übernehme
+                    ich keine Haftung für die Inhalte externer Links. <br/>Für den Inhalt der
+                    verlinkten Seiten sind ausschließlich deren Betreiber verantwortlich.
+                </p>
+            </div>
+            {/endif}
+
+            {if show.news}
+
+            <ul id="news">
+                <h2>News</h2>
+                <!-- BEGIN news.listitem -->
+                <li class="newsitem">
+                    <h3 class="title">{news.title}</h3>
+                    <span class="authoring">{news.author}, {news.date}</span>
+                    <p class="newstext">{news.text}</p>
+                </li>
+                <!-- END news.listitem -->
+            </ul>
+
+            <div id="archiv">
+                <p>
+                    <a title="Zum News-Archiv" href="./ds?module=portal&amp;action=default&amp;archiv=1">Zum
+                        News-Archiv</a>
+                </p>
+            </div>
+            {/endif}
+
+        </div>  <!-- Ende class. re-inhalt (gegenstueck "documents") -->
+    </div>    <!-- Ende class. Rechte Spalte -->
+</div> <!-- Ende ID Container -->
+
+<!-- Ende Contentbereich - Beginn Footernavigation -->
+<div id="footer" th:replace="portal/fragments :: footer">
+    <ul id="footernavigation">
+        <li><a title="Zum Impressum" href="#">Impressum</a></li>
+    </ul>
+</div>
+</body>

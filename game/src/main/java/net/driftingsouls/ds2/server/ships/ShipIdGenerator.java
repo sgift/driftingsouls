@@ -20,11 +20,10 @@ package net.driftingsouls.ds2.server.ships;
 
 import org.hibernate.HibernateException;
 import org.hibernate.MappingException;
-import org.hibernate.dialect.Dialect;
-import org.hibernate.engine.jdbc.spi.SqlExceptionHelper;
-import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.id.Configurable;
 import org.hibernate.id.IdentifierGenerator;
+import org.hibernate.service.ServiceRegistry;
 import org.hibernate.type.Type;
 
 import java.io.Serializable;
@@ -45,89 +44,61 @@ public class ShipIdGenerator implements IdentifierGenerator, Configurable {
 	private int maxId;
 
 	@Override
-	public synchronized Serializable generate(SessionImplementor session, Object object) throws HibernateException {
+	public Serializable generate(SharedSessionContractImplementor sharedSessionContractImplementor, Object object) throws HibernateException {
 		Ship ship = (Ship)object;
 
-		if( ship.getId() > 0 ) {
-			return getIntelliId( session, ship.getId() );
-		}
-		synchronized (this) {
-			int maxId = getMaxId(session);
-			if( maxId < this.maxId )
-			{
-				maxId = this.maxId;
+		try {
+			if (ship.getId() > 0) {
+				return getIntelliId(sharedSessionContractImplementor, ship.getId());
 			}
+			synchronized (this) {
+				int maxId = getMaxId(sharedSessionContractImplementor);
+				if (maxId < this.maxId) {
+					maxId = this.maxId;
+				}
 
-			this.maxId = maxId+1;
+				this.maxId = maxId + 1;
 
-			return this.maxId;
+				return this.maxId;
+			}
+		} catch(SQLException e) {
+			throw new HibernateException(e);
 		}
 	}
 
 	@Override
-	public void configure(Type type, Properties params, Dialect dialect) throws MappingException {
-		this.targetColumn = params.getProperty("target_column");
-		this.targetTable = params.getProperty("target_table");
+	public void configure(Type type, Properties properties, ServiceRegistry serviceRegistry) throws MappingException {
+		this.targetColumn = properties.getProperty("target_column");
+		this.targetTable = properties.getProperty("target_table");
 	}
 
-	private int getIntelliId( SessionImplementor session, int startId ) {
+	private int getIntelliId( SharedSessionContractImplementor session, int startId ) throws SQLException {
 		final String sql = "SELECT newIntelliShipId( ? )";
-		try {
-			PreparedStatement st = session.connection().prepareStatement(sql);
-			st.setInt(1, startId);
+		PreparedStatement st = session.connection().prepareStatement(sql);
+		st.setInt(1, startId);
 
-			try(st) {
-				try (ResultSet rs = st.executeQuery()) {
-					if (rs.next()) {
-						return rs.getInt(1);
-					}
-					throw new HibernateException("Stored Procedure newIntelliShipId failed");
+		try(st) {
+			try (ResultSet rs = st.executeQuery()) {
+				if (rs.next()) {
+					return rs.getInt(1);
 				}
+				throw new HibernateException("Stored Procedure newIntelliShipId failed");
 			}
-		}
-		catch (SQLException sqle) {
-			SqlExceptionHelper helper = session
-				.getTransactionCoordinator()
-				.getTransactionContext()
-				.getTransactionEnvironment()
-				.getJdbcServices()
-				.getSqlExceptionHelper();
-			throw helper.convert(
-				sqle,
-				"Stored Procedure newIntelliShipId failed",
-				sql
-			);
 		}
 	}
 
-	private int getMaxId( SessionImplementor session ) {
+	private int getMaxId(SharedSessionContractImplementor session) throws SQLException {
 		final String sql = "SELECT max( "+this.targetColumn+" ) FROM "+this.targetTable;
-		try {
-			try (PreparedStatement st = session.connection().prepareStatement(sql))
+		try (PreparedStatement st = session.connection().prepareStatement(sql))
+		{
+			try (ResultSet rs = st.executeQuery())
 			{
-				try (ResultSet rs = st.executeQuery())
+				if (rs.next())
 				{
-					if (rs.next())
-					{
-						return rs.getInt(1);
-					}
-					throw new HibernateException("Konnte max(id) nicht berechnen");
+					return rs.getInt(1);
 				}
+				throw new HibernateException("Konnte max(id) nicht berechnen");
 			}
-
-		}
-		catch (SQLException sqle) {
-			SqlExceptionHelper helper = session
-										.getTransactionCoordinator()
-										.getTransactionContext()
-										.getTransactionEnvironment()
-										.getJdbcServices()
-										.getSqlExceptionHelper();
-			throw helper.convert(
-								sqle,
-								"Konnte max(id) nicht berechnen",
-								sql
-			);
 		}
 	}
 }

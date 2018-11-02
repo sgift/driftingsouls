@@ -100,7 +100,6 @@ public class AdminCommands {
 			cmds.put("exectask", ExecTaskCommand.class);
 			cmds.put("tick", TickCommand.class);
         	cmds.put("autofire", AutoFireCommand.class);
-			cmds.put("clearcache", ClearCache.class);
 		}
 	}
 
@@ -1466,24 +1465,4 @@ public class AdminCommands {
 		}
 	}
 
-	protected static class ClearCache implements Command {
-		@Override
-		public String execute(Context context, String[] command) {
-			String output = "Cache cleared";
-
-			SessionFactory sf = HibernateUtil.getSessionFactory();
-			Cache c = sf.getCache();
-			c.evictEntityRegions();
-			c.evictCollectionRegions();
-			c.evictQueryRegions();
-
-			return output;
-		}
-
-		@Override
-		public List<String> autoComplete(String[] command)
-		{
-			return Collections.singletonList("");
-		}
-	}
 }

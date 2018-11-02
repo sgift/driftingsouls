@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+
+    <title>DS2 - Registrierung</title>
+
+    <link type="text/css" rel="stylesheet" href="/css/ds_2_portal.css"/>
+
+    <script type="text/javascript" src="/javascript/jquery.js"></script>
+    <script type="text/javascript" src="/javascript/facebox.js"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(function ($) {
+            $('a[rel*=facebox]').facebox()
+        })
+    </script>
+</head>
+<body>
+<div id="header" th:replace="portal/fragments :: header">
+</div>
+
+<div id="content">
+    <div class="linke-spalte">
+
+        <div id="document">
+
+            <p th:if="${message}">
+                <span class="red" th:text="${message}">Registrierung nicht m&ouml;glich</span><br/>
+            </p>
+
+            <form action="#" th:action="@{/portal/register/selectsystem}" method="post">
+                <script type="text/javascript">
+                    <!--
+                    var lastRaceSelect = -1;
+
+                    function actionRaceSelectChange(action) {
+                        if (document.getElementById("register_rassendesc_" + action) != null) {
+                            document.getElementById("register_rassendesc_" + action).style.display = 'inline';
+                        }
+                        if (document.getElementById("register_rassendesc_" + lastRaceSelect) != null) {
+                            document.getElementById("register_rassendesc_" + lastRaceSelect).style.display = 'none';
+                        }
+                        lastRaceSelect = action;
+                    }
+
+                    -->
+                </script>
+
+                <div id="register-neusiedler-daten">
+                    <h2>Registrierung</h2>
+                    <p>Bitte f&uuml;lle alle Felder aus<br/>
+                        Das Passwort wird dir anschlie&szlig;end via E-Mail zugesandt</p>
+                    <p><span class="red">Das setzt die Angabe einer g&uuml;ltigen E-mail Adresse voraus.</span></p>
+
+                    <p>
+                        <label class="left">Spezies
+                            <select name="race" size="1" style="width:200px"
+                                    onchange="actionRaceSelectChange(this.options[this.options.selectedIndex].value)"
+                                    th:each="race: ${races}">
+                                <option value="${race.id}" selected="selected" th:name="${race.name}">Terraner</option>
+                            </select>
+                        </label>
+                    </p>
+                    <p>
+                        <label class="left">Loginname
+                            <input name="username" type="text" style="width:200px" maxlength="40"/>
+                        </label>
+                        <br/>
+                        <br/>
+                        Hinweis: Der Loginname ist <span class="red">nicht</span> der Ingamename
+                        <br/>
+                        <br/>
+                        <label class="left">E-Mail
+                            <input name="email" type="email" style="width:200px" maxlength="60"/>
+                        </label>
+                        <br/>
+                    </p>
+                    <p th:if="${registerNeedKey}">
+                        <label>Reg.Schl&uuml;ssel
+                            <input name="key" type="text" style="width:200px"/>
+                        </label>
+                    </p>
+                    <p>
+                        <span class="submit"><input type="submit" value="Account registrieren" style="width:200px"/></span>
+                    </p>
+
+                    <div th:each="race: ${races}">
+                        <div id="register_rassendesc_${race.id}">
+                            <div id="register-info-rassen">
+                                <h2>${race.name}</h2>
+                                <p>${race.description}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div> <!-- Ende ID document -->
+    </div> <!-- Ende Linke Spalte -->
+
+    <div class="rechte-spalte">
+        <div id="re-inhalt">
+            <h2>Die Fraktionen</h2>
+            <p>In den Lost Lands gibt es drei Hauptfraktionen, die jeweils eine wesentliche Macht darstellen. Da
+                ihre
+                Ziele
+                oft entgegen gesetzt sind kann ein Spieler sich nur einer davon anschließen, durch die jeweilige
+                Rasse
+                ist diese
+                Auswahl weiter eingeschr&auml;nkt.</p>
+            <p>Neben diesen Hauptfraktionen gibt es andere, oft kleinere, zu entdecken mit denen man auf
+                verschiedene
+                Arten interagieren kann.</p>
+            <ul>
+                <li>
+                    <ol>
+                        <li><img src="/interface/portal/gtve.gif" alt=""/>Galactic Terran-Vasudan Empire (GTVE)
+                        </li>
+                        <li>Ein Zusammenschlu&szlig; von Siedlern, der sich für die gemeinsame, friedliche
+                            Besiedlung
+                            der Systeme einsetzt.
+                        </li>
+                    </ol>
+                </li>
+                <li>
+                    <ol>
+                        <li><img src="/interface/portal/ntf.gif" alt=""/>Neo-Terranische Front (NTF)</li>
+                        <li>Eine rein terranische Fraktion, die Vasudaner bek&auml;mpft.</li>
+                    </ol>
+                </li>
+                <li>
+                    <ol>
+                        <li><img src="/interface/portal/vi.gif" alt=""/>Vasudanisches Imperium (VI)</li>
+                        <li>Eine rein vasudanische Fraktion, die Terraner bek&auml;mpft.</li>
+                    </ol>
+                </li>
+            </ul>
+        </div>  <!-- Ende class. re-inhalt (gegenstueck "documents") -->
+    </div>    <!-- Ende class. Rechte Spalte -->
+</div> <!-- Ende ID Container -->
+<div id="footer" th:replace="portal/fragments :: footer">
+    <ul id="footernavigation">
+        <li><a title="Zum Impressum" href="#">Impressum</a></li>
+    </ul>
+</div>
+</body>
+</html>

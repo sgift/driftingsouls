@@ -43,6 +43,8 @@ import org.hibernate.classic.Lifecycle;
 import javax.persistence.CascadeType;
 import javax.persistence.*;
 import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
+import javax.persistence.Index;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.*;
@@ -55,13 +57,13 @@ import java.util.stream.Collectors;
  * @author Christopher Jung
  */
 @Entity
-@Table(name="bases")
+@Table(name="bases", indexes = {
+		@Index(name = "owner", columnList = "owner, id"),
+		@Index(name = "coords", columnList = "x, y, system"),
+		@Index(name = "idx_feeding", columnList = "isfeeding")
+})
 @Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 @BatchSize(size=50)
-@org.hibernate.annotations.Table(
-	appliesTo = "bases",
-	indexes = {@Index(name="owner", columnNames = {"owner", "id"}), @Index(name="coords", columnNames = {"x", "y", "system"})}
-)
 public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feeding
 {
 	@Id @GeneratedValue
@@ -69,8 +71,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	@Column(nullable = false)
 	private String name;
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
-	@JoinColumn(name="owner", nullable=false)
-	@ForeignKey(name="bases_fk_users")
+	@JoinColumn(name="owner", nullable=false, foreignKey = @ForeignKey(name = "bases_fk_users"))
 	private User owner;
 	private int x;
 	private int y;
@@ -87,12 +88,10 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	@Column(name="maxcargo", nullable = false)
 	private long maxCargo;
 	@ManyToOne
-	@JoinColumn
-	@ForeignKey(name="bases_fk_core")
+	@JoinColumn(foreignKey = @ForeignKey(name="bases_fk_core"))
 	private Core core;
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
-	@JoinColumn(name="klasse", nullable=false)
-	@ForeignKey(name="bases_fk_basetypes")
+	@JoinColumn(name="klasse", nullable=false, foreignKey = @ForeignKey(name="bases_fk_basetypes"))
 	private BaseType klasse;
 	private int width;
 	private int height;
@@ -118,20 +117,16 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	@Lob
 	private String spawnressavailable;
 	private boolean isloading;
-	@Index(name="idx_feeding")
 	private boolean isfeeding;
 
 	@OneToOne(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH, CascadeType.REMOVE})
-	@JoinColumn
-	@ForeignKey(name="bases_fk_academy")
+	@JoinColumn(foreignKey = @ForeignKey(name="bases_fk_academy"))
 	private Academy academy;
 	@OneToOne(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH, CascadeType.REMOVE})
-	@JoinColumn
-	@ForeignKey(name="bases_fk_fz")
+	@JoinColumn(foreignKey = @ForeignKey(name="bases_fk_fz"))
 	private Forschungszentrum forschungszentrum;
 	@OneToOne(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH, CascadeType.REMOVE})
-	@JoinColumn
-	@ForeignKey(name="bases_fk_werften")
+	@JoinColumn(foreignKey = @ForeignKey(name="bases_fk_werften"))
 	private BaseWerft werft;
 	@OneToMany(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH, CascadeType.REMOVE})
 	@JoinColumn(name="col")

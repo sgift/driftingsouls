@@ -39,6 +39,8 @@ import org.hibernate.annotations.Cache;
 
 import javax.persistence.Entity;
 import javax.persistence.*;
+import javax.persistence.ForeignKey;
+import javax.persistence.Index;
 import javax.persistence.Table;
 import java.io.IOException;
 import java.util.*;
@@ -50,10 +52,11 @@ import java.util.concurrent.ThreadLocalRandom;
  *
  */
 @Entity
-@Table(name="battles")
+@Table(name="battles", indexes = {
+		@Index(name = "battle_coords", columnList = "system, x, y")
+})
 @Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 @BatchSize(size=50)
-@org.hibernate.annotations.Table(appliesTo = "battles", indexes = {@Index(name="battle_coords", columnNames = {"x", "y", "system"})})
 @OptimisticLocking(type = OptimisticLockType.DIRTY)
 public class Battle implements Locatable
 {
@@ -67,12 +70,10 @@ public class Battle implements Locatable
 	private int ally1;
 	private int ally2;
 	@ManyToOne(fetch=FetchType.EAGER)
-	@JoinColumn(name="commander1", nullable=false)
-	@ForeignKey(name="battles_fk_users1")
+	@JoinColumn(name="commander1", nullable=false, foreignKey = @ForeignKey(name="battles_fk_users1"))
 	private User commander1;
 	@ManyToOne(fetch=FetchType.EAGER)
-	@JoinColumn(name="commander2", nullable=false)
-	@ForeignKey(name="battles_fk_users2")
+	@JoinColumn(name="commander2", nullable=false, foreignKey = @ForeignKey(name="battles_fk_users2"))
 	private User commander2;
 	private boolean ready1;
 	private boolean ready2;
@@ -84,9 +85,8 @@ public class Battle implements Locatable
 	private long lastaction;
 	private long lastturn;
 	private int flags;
-	@OneToOne(cascade = {})
-	@JoinColumn
-	@ForeignKey(name="battles_fk_schlachtlog")
+	@OneToOne()
+	@JoinColumn(foreignKey = @ForeignKey(name="battles_fk_schlachtlog"))
 	private SchlachtLog schlachtLog;
 
 	@Version
@@ -521,7 +521,7 @@ public class Battle implements Locatable
 			return false;
 		}
 
-		User userobj = (User)context.getDB().get(User.class, id);
+		User userobj = context.getDB().get(User.class, id);
 		if( userobj.isNoob() )
 		{
 			context.addError("Sie stehen unter GCP-Schutz und k&ouml;nnen daher keine Schiffe in diese Schlacht schicken!<br />Hinweis: der GCP-Schutz kann unter Optionen vorzeitig beendet werden");
@@ -559,8 +559,8 @@ public class Battle implements Locatable
 		List<User> users = Common.cast(db.createQuery("select distinct bs.ship.owner " +
                 "from BattleShip bs " +
                 "where bs.battle= :battleId and bs.side= :sideId")
-                .setInteger("battleId", this.id)
-                .setInteger("sideId", this.enemySide)
+                .setParameter("battleId", this.id)
+                .setParameter("sideId", this.enemySide)
                 .list());
 
         for(User euser: users)
@@ -595,19 +595,19 @@ public class Battle implements Locatable
 		// Handelt es sich um eine Flotte?
 		if( shipd.getFleet() != null ) {
 			sid = Common.cast(db.createQuery("from Ship as s where s.id>0 and s.fleet=:fleet and s.battle is null and s.x=:x and s.y=:y and s.system=:sys")
-                    .setEntity("fleet", shipd.getFleet())
-                    .setInteger("x", shipd.getX())
-                    .setInteger("y", shipd.getY())
-                    .setInteger("sys", shipd.getSystem())
+                    .setParameter("fleet", shipd.getFleet())
+                    .setParameter("x", shipd.getX())
+                    .setParameter("y", shipd.getY())
+                    .setParameter("sys", shipd.getSystem())
                     .list());
 		}
 		else
         {
 			sid = Common.cast(db.createQuery("from Ship as s where s.id>0 and s.id=:id and s.battle is null and s.x=:x and s.y=:y and s.system=:sys")
-                    .setInteger("id", shipd.getId())
-                    .setInteger("x", shipd.getX())
-                    .setInteger("y", shipd.getY())
-                    .setInteger("sys", shipd.getSystem())
+                    .setParameter("id", shipd.getId())
+                    .setParameter("x", shipd.getX())
+                    .setParameter("y", shipd.getY())
+                    .setParameter("sys", shipd.getSystem())
                     .list());
 		}
 
@@ -626,8 +626,8 @@ public class Battle implements Locatable
 
             // ggf. gedockte Schiffe auch beruecksichtigen
             List<Ship> docked = Common.cast(db.createQuery("from Ship where id>0 and battle is null and docked in (:docked,:landed)")
-                    .setString("docked", Integer.toString(aship.getId()))
-                    .setString("landed", "l " + aship.getId())
+                    .setParameter("docked", Integer.toString(aship.getId()))
+                    .setParameter("landed", "l " + aship.getId())
                     .list());
 
             for(Ship dockedShip : docked)
@@ -724,8 +724,8 @@ public class Battle implements Locatable
 
 		// Hat der Spieler ein Schiff in der Schlacht
 		BattleShip aship = (BattleShip)db.createQuery("from BattleShip where id>0 and ship.owner=:user and battle=:battle")
-				.setEntity("user", user)
-				.setEntity("battle", this)
+				.setParameter("user", user)
+				.setParameter("battle", this)
 				.setMaxResults(1)
 				.uniqueResult();
 
@@ -822,7 +822,7 @@ public class Battle implements Locatable
 		List<BattleShip> ships = Common.cast(db.createQuery("from BattleShip bs inner join fetch bs.ship as s " +
                 "where s.id>0 and bs.battle=:battle " +
                 "order by s.shiptype.id, s.id")
-                .setEntity("battle", this)
+                .setParameter("battle", this)
                 .list());
 
         for (BattleShip ship : ships) {
@@ -1213,7 +1213,7 @@ public class Battle implements Locatable
 
 		for( int i=0; i < 2; i++ ) {
 			if( !calledByUser && this.getTakeCommands()[i] != 0 ) {
-				User com = (User)context.getDB().get(User.class, this.getTakeCommands()[i]);
+				User com = context.getDB().get(User.class, this.getTakeCommands()[i]);
 
 				PM.send(com, this.getCommanders()[i].getId(), "Schlacht &uuml;bernommen", "Ich habe die Leitung der Schlacht bei "+this.getLocation().displayCoordinates(false)+" &uuml;bernommen.");
 
@@ -1268,17 +1268,17 @@ public class Battle implements Locatable
 		deleted = true;
 
 		db.createQuery("delete from BattleShip where battle=:battle")
-			.setEntity("battle", this)
+			.setParameter("battle", this)
 			.executeUpdate();
 		db.createQuery("update Ship set battle=null,battleAction=0 where id>0 and battle=:battle")
-			.setEntity("battle", this)
+			.setParameter("battle", this)
 			.executeUpdate();
 
 		int[] points = new int[] {side1points, side2points};
 
 		for( int i=0; i < points.length; i++ ) {
 			if( this.getAllys()[i] != 0 ) {
-				Ally ally = (Ally)db.get(Ally.class, this.getAllys()[i]);
+				Ally ally = db.get(Ally.class, this.getAllys()[i]);
 				if( points[i] > 0 ) {
 					ally.setWonBattles((short)(ally.getWonBattles()+points[i]));
 				}

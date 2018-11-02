@@ -54,10 +54,6 @@ public class DriftingSouls {
 		LOG.info("Initializing Hibernate");
 		HibernateUtil.initConfiguration(Configuration.getConfigPath()+"hibernate.xml", Configuration.getDbUrl(), Configuration.getDbUser(), Configuration.getDbPassword());
 		HibernateUtil.createFactories();
-		if( !Configuration.isProduction() )
-		{
-			HibernateUtil.writeSchemaToDisk(Configuration.getConfigPath() + "schema.sql");
-		}
 
 		Common.setLocale(Locale.GERMAN);
 

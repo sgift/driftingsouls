@@ -25,6 +25,7 @@ import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -67,7 +68,7 @@ public abstract class TickController implements ApplicationContextAware
 	}
 
 	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException
+	public void setApplicationContext(@NotNull ApplicationContext applicationContext) throws BeansException
 	{
 		Context context = ContextMap.getContext();
 		this.context = new TickContext(db, context.getRequest(), context.getResponse(), applicationContext);

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <meta charset="utf-8">
+
+    <title>DS2 - Drifting Souls 2</title>
+
+    <link type="text/css" rel="stylesheet" href="/css/ds_2_portal.css"/>
+</head>
+<body>
+    <div id="header" th:fragment="header">
+        <div class="logo">
+            <img src="/images/interface/portal/gcp-logo.png" alt="DS2 LOGO"/>
+        </div>
+        <div class="ueberschrift">
+            <h1><img src="/images/interface/portal/driftingsouls.png" alt="Drifting Souls"/></h1>
+        </div>
+        <div id="navigation">
+            <ul class="navi">
+                <li><a title="Home" href="/">Home</a></li>
+                <li><a title="Portal" href="#">Portal</a>
+                    <ul class="subnav1">
+                        <li><a title="Github Repository" href="https://github.com/sgift/driftingsouls" target="_blank">Github</a>
+                        </li>
+                    </ul>
+                </li>
+                <li><a>Community</a>
+                    <ul class="subnav1">
+                        <li><a title="IRC" href="http://de.drifting-souls.wikia.com/wiki/IRC" target="_blank">IRC</a></li>
+                        <li><a title="Forum" href="http://ds.rnd-it.de/index.php" target="_blank">Forum</a></li>
+                        <li><a title="Wiki" href="http://de.drifting-souls.wikia.com" target="_blank">Wiki</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div id="footer" th:fragment="footer">
+        <ul id="footernavigation">
+            <li><a  title="AGB" th:href="@{/portal/agb}" href="#">AGB</a></li>
+            <li> | </li>
+            <li><a  title="Impressum" th:href="@{/portal/impressum}" href="#">Impressum</a></li>
+        </ul>
+    </div>
+</body>

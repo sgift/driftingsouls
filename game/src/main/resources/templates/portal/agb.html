@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+
+    <title>DS2 - AGB</title>
+
+    <link type="text/css" rel="stylesheet" href="/css/ds_2_portal.css"/>
+</head>
+<body>
+<div id="header" th:replace="portal/fragments :: header">
+</div>
+
+<div id="content">
+    <div class="linke-spalte">
+        <p>Hier geht's zum <a href="#" th:href="@{/game}">Spiel</a></p>
+    </div>
+    <div class="rechte-spalte">
+        <div id="re-inhalt">
+            <div id="seite-agb">
+
+                <h2>Allgemeine Gesch&auml;ftsbedingungen</h2>
+                <ol id="agb">
+                    <li>Durch die Benutzung von DS2 erkennt der Spieler diese AGB automatisch an</li>
+                    <li>Die Registrierung/Betreibung mehrerer Accounts durch die selbe Person ist untersagt.</li>
+                    <li>Ausnahmegenehmigungen k&ouml;nnen durch die Administration erteilt werden.</li>
+                    <li>Eine kurzzeitige &uuml;bernahme eines fremden Accounts zum Zwecke der Vertretung ist gestattet,
+                        sofern nur die Grundfunktionen aufrecht gehalten werden. Hierzu ist es erlaubt Waren vom eigenen
+                        Account zum vertretenen Account zu transferieren. Warentransfers in die andere Richtung sind
+                        dabei
+                        untersagt.
+                    </li>
+                    <li>Es besteht kein Recht auf einen Account</li>
+                    <li>Es wird keinerlei Haftung f&uuml;r Sch&auml;den &uuml;bernommen, welche durch die Benutzung von
+                        Drifting Souls 2 und damit zusammenh&auml;ngender Produkte entstehen.
+                    </li>
+                    <li>Es besteht keinerlei Anspruch auf die Teilnahme an Drifting Souls.</li>
+                    <li>Die Administration beh&auml;lt sich das Recht vor, jederzeit und ohne Ank&uuml;ndigung Accounts
+                        und
+                        ohne Nennung von Gr&uuml;nden zu sperren oder zu l&ouml;schen.
+                    </li>
+                    <li>Durch die Teilnahme an Drifting Souls werden diese Nutzungsbedingungen automatisch akzeptiert
+                    </li>
+                    <li>Drifting Souls ist kostenlos und werbefrei.</li>
+                    <li>Das Ausnutzen von Bugs zum Vorteil seines Accounts oder eines anderen bzw. zum Schaden eines
+                        anderen
+                        ist untersagt.
+                    </li>
+                    <li>Durch den Nutzer gefundene Bugs sind der Administration unverz&uuml;glich zu melden.</li>
+                    <li>Das Benutzen von Programmen, bei denen es sich nicht eindeutig um Internetbrowser handelt, um
+                        auf
+                        Drifting Souls 2 zuzugreifen ist nur gestattet, wenn die Administration informiert wurde und
+                        eine
+                        Genehmigung erteilt wurde. Auf Nachfrage sind die Quellentexte des Programms zu Kontrollzwecken
+                        herauszugeben sowie eine Zug&auml;nglichmachung f&uuml;r alle DS2-Spieler durchzuf&uuml;hren.
+                    </li>
+                    <li>Die Administration beh&auml;lt sich das Recht vor diese AGB jederzeit zu &auml;ndern.</li>
+                </ol>
+                <p></p>
+                <ul id="dsgvo">
+                    Zur Bereitstellung des Spiels werden folgende Daten gespeichert und verarbeitet:
+                    <li>Die vom Spieler angegebene E-Mailadresse. Die Adresse wird benutzt um neue Passw&ouml;rter
+                        zuzuschicken. Wird nur bei L&ouml;schung des Spielers entfernt.
+                    </li>
+                    <li>Die IP-Adresse mit der auf den Server zugegriffen wird. Die IP wird für administrative Zwecke
+                        (Multihunting, Hackingversuche) genutzt. Die IPs werden nach 30 Tagen gel&ouml;scht.
+                    </li>
+                    <li>Bei Auswahl der Option "eingeloggt bleiben" ein Identifier mit dem ein Spieler automatisch
+                        wieder angemeldet werden kann.
+                    </li>
+                </ul>
+            </div>
+        </div> <!-- Ende ID Container -->
+    </div>
+</div>
+<div id="footer" th:replace="portal/fragments :: footer">
+    <ul id="footernavigation">
+        <li><a title="Zum Impressum" href="#">Impressum</a></li>
+    </ul>
+</div>
+</body>
+</html>

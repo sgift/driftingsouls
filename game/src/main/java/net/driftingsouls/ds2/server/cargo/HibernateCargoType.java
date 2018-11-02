@@ -19,7 +19,7 @@
 package net.driftingsouls.ds2.server.cargo;
 
 import org.hibernate.HibernateException;
-import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.type.StringType;
 import org.hibernate.usertype.UserType;
 
@@ -72,13 +72,8 @@ public class HibernateCargoType implements UserType {
 	}
 
 	@Override
-	public boolean isMutable() {
-		return true;
-	}
-
-	@Override
-	public Object nullSafeGet(ResultSet rs, String[] names, SessionImplementor impl, Object owner) throws HibernateException, SQLException {
-		String value = StringType.INSTANCE.nullSafeGet(rs, names[0], impl);
+	public Object nullSafeGet(ResultSet resultSet, String[] names, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
+		String value = StringType.INSTANCE.nullSafeGet(resultSet, names[0], sharedSessionContractImplementor);
 
 		if( (value == null) || value.isEmpty() ) {
 			return new Cargo();
@@ -87,11 +82,16 @@ public class HibernateCargoType implements UserType {
 	}
 
 	@Override
-	public void nullSafeSet(PreparedStatement st, Object value, int index, SessionImplementor impl) throws HibernateException, SQLException {
+	public void nullSafeSet(PreparedStatement preparedStatement, Object value, int index, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
 		if( value == null ) {
 			value = new Cargo();
 		}
-		StringType.INSTANCE.nullSafeSet(st, ((Cargo)value).save(), index, impl);
+		StringType.INSTANCE.nullSafeSet(preparedStatement, ((Cargo)value).save(), index, sharedSessionContractImplementor);
+	}
+
+	@Override
+	public boolean isMutable() {
+		return true;
 	}
 
 	@Override

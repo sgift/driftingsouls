@@ -50,6 +50,8 @@ import org.hibernate.annotations.Cache;
 import javax.persistence.CascadeType;
 import javax.persistence.*;
 import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
+import javax.persistence.Index;
 import javax.persistence.Table;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -60,16 +62,14 @@ import java.util.stream.Collectors;
  *
  */
 @Entity
-@Table(name="ships")
+@Table(name="ships", indexes = {
+		@Index(name="ship_coords", columnList = "system, x, y"),
+		@Index(name="ship_owner", columnList = "owner, id"),
+		@Index(name="ship_status", columnList = "status"),
+		@Index(name="ship_docked", columnList = "docked")
+})
 @BatchSize(size=50)
 @Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
-@org.hibernate.annotations.Table(
-		appliesTo = "ships",
-		indexes = {
-				@Index(name="ship_coords", columnNames = {"system", "x", "y"}),
-				@Index(name="ship_owner", columnNames = {"owner", "id"})
-		}
-)
 public class Ship implements Locatable,Transfering,Feeding {
 	private static final Log log = LogFactory.getLog(Ship.class);
 
@@ -83,26 +83,23 @@ public class Ship implements Locatable,Transfering,Feeding {
 	private int id;
 
 	@OneToOne(cascade={CascadeType.REFRESH,CascadeType.DETACH,CascadeType.REMOVE})
-	@JoinColumn(name="modules", nullable=true)
+	@JoinColumn(name="modules", foreignKey = @ForeignKey(name="ships_fk_ships_modules"))
 	@BatchSize(size=50)
 	@NotFound(action = NotFoundAction.IGNORE)
-	@ForeignKey(name="ships_fk_ships_modules")
 	private ShipModules modules;
 
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="owner", nullable=false)
+	@JoinColumn(name="owner", nullable=false, foreignKey = @ForeignKey(name="ships_fk_users"))
 	@BatchSize(size=50)
-	@ForeignKey(name="ships_fk_users")
 	private User owner;
 
 	@Column(nullable = false)
 	private String name;
 
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="type", nullable=false)
+	@JoinColumn(name="type", nullable=false, foreignKey = @ForeignKey(name="ships_type_fk"))
 	@BatchSize(size=50)
 	@Cache(usage=CacheConcurrencyStrategy.READ_ONLY)
-	@ForeignKey(name="ships_type_fk")
 	private ShipType shiptype;
 
 	@Type(type="largeCargo")
@@ -116,7 +113,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 	private int system;
 
 	@Column(nullable = false)
-	@Index(name = "ship_status")
 	private String status;
 
 	private int crew;
@@ -136,7 +132,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 	private int sensors;
 
 	@Column(nullable = false)
-	@Index(name = "ship_docked")
 	private String docked;
 
 	@Enumerated(EnumType.ORDINAL)
@@ -144,20 +139,18 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 	@OneToOne(fetch=FetchType.LAZY)
 	@BatchSize(size=100)
-	@JoinColumn
-	@ForeignKey(name="ships_fk_schiff_einstellungen")
+	@JoinColumn(foreignKey = @ForeignKey(name="ships_fk_schiff_einstellungen"))
 	private SchiffEinstellungen einstellungen;
 
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="fleet", nullable=true)
+	@JoinColumn(name="fleet", foreignKey = @ForeignKey(name="ships_fk_ship_fleets"))
 	@BatchSize(size=50)
-	@ForeignKey(name="ships_fk_ship_fleets")
 	private ShipFleet fleet;
 
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="battle", nullable=true)
+	@JoinColumn(name="battle", foreignKey = @ForeignKey(name="ships_fk_battles"))
 	@BatchSize(size=50)
-	@ForeignKey(name="ships_fk_battles")
+
 	private Battle battle;
 
 	private boolean battleAction;
@@ -849,7 +842,7 @@ public class Ship implements Locatable,Transfering,Feeding {
         // Oder ein Link zu einem Asteroiden resettet werden muss.
 		if( type.getWerft() != 0 ) {
 			ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=:ship")
-				.setEntity("ship", this)
+				.setParameter("ship", this)
 				.uniqueResult();
 
 			if(werft != null) {
@@ -883,10 +876,10 @@ public class Ship implements Locatable,Transfering,Feeding {
 								" where (s.shiptype.versorger!=false or m.versorger!=false)" +
 								" and s.owner=:owner and s.system=:sys and s.x=:x and s.y=:y and s.nahrungcargo > 0 and s.einstellungen.isfeeding != false " +
 								"ORDER BY s.nahrungcargo DESC")
-								.setEntity("owner", this.owner)
-								.setInteger("sys", this.system)
-								.setInteger("x", this.x)
-								.setInteger("y", this.y)
+								.setParameter("owner", this.owner)
+								.setParameter("sys", this.system)
+								.setParameter("x", this.x)
+								.setParameter("y", this.y)
 								.setMaxResults(1)
 								.uniqueResult();
 	}
@@ -925,10 +918,10 @@ public class Ship implements Locatable,Transfering,Feeding {
 		org.hibernate.Session db = context.getDB();
 
 		Object unitsnahrung = db.createQuery("select sum(e.amount*e.unittype.nahrungcost) from ShipUnitCargoEntry as e where e.schiff.system=:system and e.schiff.x=:x and e.schiff.y=:y and e.schiff.owner = :user")
-									.setInteger("system", this.system)
-									.setInteger("x", this.x)
-									.setInteger("y", this.y)
-									.setEntity("user", this.owner)
+									.setParameter("system", this.system)
+									.setParameter("x", this.x)
+									.setParameter("y", this.y)
+									.setParameter("user", this.owner)
 									.iterate()
 									.next();
 
@@ -940,10 +933,10 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 		Object crewnahrung = db.createQuery("select sum(crew) from Ship where system=:system and x=:x and y=:y and owner=:user")
-							.setInteger("system", this.system)
-							.setInteger("x", this.x)
-							.setInteger("y", this.y)
-							.setEntity("user", this.owner)
+							.setParameter("system", this.system)
+							.setParameter("x", this.x)
+							.setParameter("y", this.y)
+							.setParameter("user", this.owner)
 							.iterate()
 							.next();
 
@@ -963,10 +956,10 @@ public class Ship implements Locatable,Transfering,Feeding {
 		Object versorger = db.createQuery("select sum(s.nahrungcargo) from Ship as s left join s.modules m " +
 								" where (s.shiptype.versorger!=false or m.versorger!=false)" +
 								" and s.owner=:user and s.system=:system and s.x=:x and s.y=:y and s.einstellungen.isfeeding != false")
-						.setInteger("system", this.system)
-						.setInteger("x", this.x)
-						.setInteger("y", this.y)
-						.setEntity("user", this.owner)
+						.setParameter("system", this.system)
+						.setParameter("x", this.x)
+						.setParameter("y", this.y)
+						.setParameter("user", this.owner)
 						.iterate()
 						.next();
 
@@ -977,10 +970,10 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 		List<Base> bases = Common.cast(db.createQuery("from Base where owner=:user and system=:system and x=:x and y=:y and isfeeding=true")
-						.setEntity("user", this.owner)
-						.setInteger("system", this.system)
-						.setInteger("x", this.x)
-						.setInteger("y", this.y)
+						.setParameter("user", this.owner)
+						.setParameter("system", this.system)
+						.setParameter("x", this.x)
+						.setParameter("y", this.y)
 						.list());
 
 		int basenahrung = 0;
@@ -1001,10 +994,10 @@ public class Ship implements Locatable,Transfering,Feeding {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
 		List<?> bases = db.createQuery("from Base where owner=:owner and system=:sys and x=:x and y=:y")
-							.setEntity("owner", this.owner)
-							.setInteger("sys", this.system)
-							.setInteger("x", this.x)
-							.setInteger("y", this.y)
+							.setParameter("owner", this.owner)
+							.setParameter("sys", this.system)
+							.setParameter("x", this.x)
+							.setParameter("y", this.y)
 							.list();
 
 		return bases.size() > 0;
@@ -1217,12 +1210,12 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		if( shiptype.getWerft() == 0 ) {
 			db.createQuery("delete from ShipWerft where ship=:ship")
-					.setEntity("ship", this)
+					.setParameter("ship", this)
 					.executeUpdate();
 		}
 		else {
 			ShipWerft w = (ShipWerft)db.createQuery("from ShipWerft where ship=:ship")
-					.setEntity("ship", this)
+					.setParameter("ship", this)
 					.uniqueResult();
 			if( w == null ) {
 				w = new ShipWerft(this);
@@ -1671,7 +1664,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		if(ships.size() < dockships.length)
 		{
 			//TODO: Hackversuch - schweigend ignorieren, spaeter loggen
-			dockships = ships.toArray(new Ship[ships.size()]);
+			dockships = ships.toArray(new Ship[0]);
 			errors = true;
 		}
 
@@ -1758,7 +1751,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	{
 		if( dockships == null || dockships.length == 0 ) {
 			List<Ship> dockshipList = getDockedShips();
-			dockships = dockshipList.toArray(new Ship[dockshipList.size()]);
+			dockships = dockshipList.toArray(new Ship[0]);
 		}
 
 		boolean gotmodule = false;
@@ -1831,7 +1824,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		return Common.cast(db.createQuery("from Ship where id>0 and docked= :docked")
-			.setString("docked", Integer.toString(this.id))
+			.setParameter("docked", Integer.toString(this.id))
 			.list());
 	}
 
@@ -1847,7 +1840,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		return Common.cast(db.createQuery("from Ship where id>0 and docked= :docked")
-				.setString("docked", "l " + this.id)
+				.setParameter("docked", "l " + this.id)
 				.list());
 	}
 
@@ -1862,8 +1855,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		return Common.cast(db.createQuery("from Ship where id>0 and docked in (:docked,:landed)")
-				.setString("docked", Integer.toString(this.id))
-				.setString("landed", "l "+this.id)
+				.setParameter("docked", Integer.toString(this.id))
+				.setParameter("landed", "l "+this.id)
 				.list());
 	}
 
@@ -2012,7 +2005,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		if(ships.size() < dockships.length)
 		{
 			//TODO: Hackversuch - schweigend ignorieren, spaeter loggen
-			dockships = ships.toArray(new Ship[ships.size()]);
+			dockships = ships.toArray(new Ship[0]);
 
 			if(dockships.length == 0)
 			{
@@ -2088,13 +2081,13 @@ public class Ship implements Locatable,Transfering,Feeding {
 		// Checken wir mal ob die Flotte danach noch bestehen darf....
 		if( this.fleet != null ) {
 			long fleetcount = (Long)db.createQuery("select count(*) from Ship where fleet=:fleet")
-			.setInteger("fleet", fleet.getId())
+			.setParameter("fleet", fleet.getId())
 			.iterate().next();
 			if( fleetcount <= 2 ) {
 				final ShipFleet fleet = this.fleet;
 
 				final Iterator<?> shipIter = db.createQuery("from Ship where fleet=:fleet")
-					.setEntity("fleet", this.fleet)
+					.setParameter("fleet", this.fleet)
 					.iterate();
 				while( shipIter.hasNext() ) {
 					Ship aship = (Ship)shipIter.next();
@@ -2107,7 +2100,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		// Ist das Schiff selbst gedockt? -> Abdocken
 		if(this.docked != null && !this.docked.equals("") && (this.docked.charAt(0) != 'l') ) {
-			Ship docked = (Ship)db.get(Ship.class, Integer.parseInt(this.docked));
+			Ship docked = db.get(Ship.class, Integer.parseInt(this.docked));
 			if(docked != null)
 			{
 				docked.undock(this);
@@ -2139,15 +2132,15 @@ public class Ship implements Locatable,Transfering,Feeding {
 		this.flags.clear();
 
 		db.createQuery("delete from Offizier where stationiertAufSchiff=:dest")
-			.setEntity("dest", this)
+			.setParameter("dest", this)
 			.executeUpdate();
 
 		db.createQuery("delete from Jump where ship=:id")
-			.setEntity("id", this)
+			.setParameter("id", this)
 			.executeUpdate();
 
 		ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=:ship")
-			.setInteger("ship", this.id)
+			.setParameter("ship", this.id)
 			.uniqueResult();
 
 		if( werft != null ) {
@@ -2251,7 +2244,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 			if( getTypeData().getWerft() != 0 ) {
 				ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=:shipid")
-					.setEntity("shipid", this)
+					.setParameter("shipid", this)
 					.uniqueResult();
 
 				if(werft != null)
@@ -2336,7 +2329,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 */
 	public static ShipTypeData getShipType( int shiptype ) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		return (ShipType)db.get(ShipType.class, shiptype);
+		return db.get(ShipType.class, shiptype);
 	}
 
 	/**
@@ -2351,7 +2344,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		return (Ship)db.get(Ship.class, baseShipId);
+		return db.get(Ship.class, baseShipId);
 	}
 
 	private int getBaseShipId() {
@@ -2416,7 +2409,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
 		return (Long)db.createQuery("select count(*) from Ship where id>0 AND docked=:docked")
-			.setString("docked", Integer.toString(this.id))
+			.setParameter("docked", Integer.toString(this.id))
 			.iterate().next();
 	}
 
@@ -2431,7 +2424,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
 		return (Long)db.createQuery("select count(*) from Ship where id>0 AND docked=:landed")
-			.setString("landed", "l "+this.id)
+			.setParameter("landed", "l "+this.id)
 			.iterate().next();
 	}
 
@@ -2446,8 +2439,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
 		return (Long)db.createQuery("select count(*) from Ship where id>0 AND docked in (:landed,:docked)")
-				.setString("landed", "l " + this.id)
-				.setString("docked", Integer.toString(this.id))
+				.setParameter("landed", "l " + this.id)
+				.setParameter("docked", Integer.toString(this.id))
 				.iterate().next();
 	}
 
