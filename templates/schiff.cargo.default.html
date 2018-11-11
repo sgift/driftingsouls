@@ -68,7 +68,7 @@
 {if schiff.cargo.traeger}
 	<form action="./ds" method="post">
 		<div>
-			Automatisch starten:<br />
+			Automatisch Jäger starten:<br />
 			<input id="cargo_ops_startfighter" name="cargo_ops[startfighter]" type="checkbox" value="1" {if schiff.cargo.traeger.startfighter}checked="checked"{/endif} />
 			<label for="cargo_ops_startfighter">aktivieren</label>&nbsp;
 			{!form_create_hidden plugin, ship:$ship.id, plugin:$global.pluginid}

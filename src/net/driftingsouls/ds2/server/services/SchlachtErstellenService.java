@@ -378,7 +378,7 @@ public class SchlachtErstellenService
 		org.hibernate.Session db = context.getDB();
 		for (BattleShip ship : ships) {
 			Ship baseShip = ship.getShip().getBaseShip();
-			if (baseShip != null && ship.getShip().isLanded() && baseShip.getEinstellungen().startFighters()) {
+			if (baseShip != null && ship.getShip().isLanded() && baseShip.getEinstellungen().startFighters() && ship.getShip().getTypeData().getShipClass() == ShipClasses.JAEGER ) {
 				ship.getShip().setDocked("");
 				startlist.add(ship.getId());
 			}
