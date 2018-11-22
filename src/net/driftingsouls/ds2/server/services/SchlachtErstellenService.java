@@ -463,7 +463,7 @@ public class SchlachtErstellenService
 
 		for(BattleShip ship: secondRowShips)
 		{
-			if((ship.getSide() == 0 && firstRowExists) || (ship.getSide() == 1 && firstRowEnemyExists))
+			if( (ship.getSide() == 0 && firstRowExists && ship.getShip().getEinstellungen().gotoSecondrow() ) || (ship.getSide() == 1 && firstRowEnemyExists && ship.getShip().getEinstellungen().gotoSecondrow() ) )
 			{
 				ship.addFlag(BattleShipFlag.SECONDROW);
 				if(ship.getTypeData().getJDocks() == 0)

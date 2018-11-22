@@ -48,6 +48,8 @@ public class CargoDefault implements SchiffPlugin {
 			int autodeut,
 			boolean setstartfighter,
 			int startfighter,
+			boolean setgotosecondrow,
+			int gotosecondrow,
 			long usenahrung,
 			boolean setfeeding,
 			boolean isfeeding,
@@ -166,7 +168,7 @@ public class CargoDefault implements SchiffPlugin {
 
 			if( usenahrung > 0)
 			{
-				long feeding = usenahrung / 10000 + 1;
+				long feeding = usenahrung / 100000 + 1;
 				for(int i=0; i < feeding; i++)
 				{
 					output += "*mampf*<br />";
@@ -196,6 +198,14 @@ public class CargoDefault implements SchiffPlugin {
 			einstellungen.persistIfNecessary(ship);
 
 			output += "Automatisches Starten von Jägern "+(startfighter != 0 ? "":"de")+"aktiviert<br />\n";
+		}
+		else if(setgotosecondrow)
+		{
+			SchiffEinstellungen einstellungen = ship.getEinstellungen();
+			einstellungen.setGotoSecondrow(gotosecondrow != 0);
+			einstellungen.persistIfNecessary(ship);
+
+			output += "Automatisches Verlegen in die 2. Reihe "+(gotosecondrow != 0 ? "":"de")+"aktiviert<br />\n";
 		}
 		else if( setfeeding )
 		{
@@ -242,6 +252,8 @@ public class CargoDefault implements SchiffPlugin {
 					"schiff.cargo.tanker.autodeut",			ship.getEinstellungen().getAutoDeut(),
 					"schiff.cargo.traeger",					shiptype.getJDocks() > 0 ? 1 : 0,
 					"schiff.cargo.traeger.startfighter",	ship.getEinstellungen().startFighters(),
+					"schiff.cargo.secondrow",				shiptype.hasFlag(ShipTypeFlag.SECONDROW),
+					"schiff.cargo.secondrow.gotosecondrow", ship.getEinstellungen().gotoSecondrow(),
 					"schiff.cargo.versorger",				shiptype.hasFlag(ShipTypeFlag.VERSORGER),
 					"schiff.cargo.versorger.isfeeding",		ship.getEinstellungen().isFeeding(),
 					"schiff.cargo.versorger.isallyfeeding",	ship.getEinstellungen().isAllyFeeding(),

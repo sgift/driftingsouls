@@ -1918,6 +1918,7 @@ CREATE TABLE `schiff_einstellungen` (
 	`isfeeding` tinyint(1) NOT NULL,
 	`showtradepost` int(11) NOT NULL,
 	`startFighters` tinyint(1) NOT NULL,
+	`gotoSecondrow` tinyint(1) NOT NULL,
 	`version` int(11) NOT NULL,
 	PRIMARY KEY (`id`),
 	KEY `bookmark` (`bookmark`),

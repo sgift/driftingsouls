@@ -39,6 +39,7 @@ public class SchiffEinstellungen
 	private boolean bookmark;
 	private byte autodeut;
 	private boolean startFighters;
+	private boolean gotoSecondrow;
 	@Index(name="schiffeinstellungen_feeding")
 	private boolean isfeeding;
 	@Index(name="schiffeinstellungen_allyfeeding")
@@ -51,6 +52,7 @@ public class SchiffEinstellungen
 	{
 		this.destcom = "";
 		this.autodeut = 1;
+		this.gotoSecondrow = true;
 		this.showtradepost = TradepostVisibility.ALL;
 	}
 
@@ -204,6 +206,22 @@ public class SchiffEinstellungen
 	}
 
 	/**
+	 * Gibt zurueck, ob Schiffe beim Kampfbeginn in die 2. Reihe wechseln.
+	 * @return <code>true</code>, falls sie gestartet werden sollen
+	 */
+	public boolean gotoSecondrow() {
+		return gotoSecondrow;
+	}
+
+	/**
+	 * Setzt, ob Schiffe beim Kampfbeginn in die 2. Reihe wechseln.
+	 * @param gotoSecondrow <code>true</code>, falls sie gestartet werden sollen
+	 */
+	public void setGotoSecondrow(boolean gotoSecondrow) {
+		this.gotoSecondrow = gotoSecondrow;
+	}
+
+	/**
 	 * returns who can see the tradepost entry in factions.
 	 * @return The variable who can see the post
 	 */
@@ -237,7 +255,7 @@ public class SchiffEinstellungen
 		{
 			return true;
 		}
-		if( this.bookmark || this.autodeut != 1 || this.startFighters )
+		if( this.bookmark || this.autodeut != 1 || this.startFighters || this.gotoSecondrow)
 		{
 			return true;
 		}
