@@ -353,7 +353,7 @@ public class RestTick extends TickController {
 
 				while( shipcount < cfs.getCount() && maxchance > 0)
 				{
-					int rnd = RandomUtils.nextInt((int)maxchance-1)+1;
+					int rnd = RandomUtils.nextInt((int)maxchance)+1;
 					int currnd = 0;
 					for( ConfigFelsbrocken aloadout : loadout )
 					{
