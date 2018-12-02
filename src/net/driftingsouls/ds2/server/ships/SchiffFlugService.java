@@ -138,8 +138,8 @@ public class SchiffFlugService
 			success = offizier.useAbility( Offizier.Ability.ING, 200 );
 			if( success > 0 ) {
 				news -= 1;
-				if( news < ship.getHeat() ) {
-					news = ship.getHeat();
+				if( news < ship.getHeat()+2 ) {
+					news = ship.getHeat()+2;
 				}
 				if( verbose ) {
 					out.append(offizier.getName()).append(" verringert &Uuml;berhitzung<br />\n");
