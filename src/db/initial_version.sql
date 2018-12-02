@@ -1909,6 +1909,7 @@ DROP TABLE IF EXISTS `schiff_einstellungen`;
 CREATE TABLE `schiff_einstellungen` (
 	`id` int(11) NOT NULL AUTO_INCREMENT,
 	`autodeut` tinyint(4) NOT NULL,
+	`automine` tinyint(4) NOT NULL,
 	`bookmark` tinyint(1) NOT NULL,
 	`destcom` longtext NOT NULL,
 	`destsystem` int(11) NOT NULL,

@@ -581,7 +581,7 @@ public class SensorsDefault implements SchiffPlugin {
 				{
 					t.setVar("sships.action.trade", 1);
 				}
-				else if (!disableIFF && (aship.getOwner().getId() == -1) && (ashiptype.getShipClass() == ShipClasses.SCHROTT || ashiptype.getShipClass() == ShipClasses.FELSBROCKEN))
+				else if (!disableIFF && (aship.getOwner().getId() == -1) && (ashiptype.getShipClass() == ShipClasses.SCHROTT || aship.getStatus().contains("pluenderbar")))
 				{
 					t.setVar("sships.action.transferpluender", 1);
 				}
@@ -592,7 +592,7 @@ public class SensorsDefault implements SchiffPlugin {
 
 				//Bemannen, Kapern, Einheiten tranferieren
 				if (!disableIFF && (aship.getOwner().getId() != user.getId()) && ashiptype.getShipClass().isKaperbar() &&
-						((aship.getOwner().getId() != -1) || (ashiptype.getShipClass() == ShipClasses.SCHROTT || ashiptype.getShipClass() == ShipClasses.FELSBROCKEN)))
+						((aship.getOwner().getId() != -1) || (ashiptype.getShipClass() == ShipClasses.SCHROTT )))
 				{
 					if ((user.getAlly() == null) || (aship.getOwner().getAlly() != user.getAlly()))
 					{

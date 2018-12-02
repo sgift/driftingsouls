@@ -38,6 +38,7 @@ public class SchiffEinstellungen
 	@Index(name="schiffeinstellungen_bookmark")
 	private boolean bookmark;
 	private byte autodeut;
+	private byte automine;
 	private boolean startFighters;
 	private boolean gotoSecondrow;
 	@Index(name="schiffeinstellungen_feeding")
@@ -52,6 +53,7 @@ public class SchiffEinstellungen
 	{
 		this.destcom = "";
 		this.autodeut = 1;
+		this.automine = 1;
 		this.gotoSecondrow = true;
 		this.showtradepost = TradepostVisibility.ALL;
 	}
@@ -70,6 +72,22 @@ public class SchiffEinstellungen
 	 */
 	public void setAutoDeut(boolean autodeut) {
 		this.autodeut = autodeut ? (byte)1 : 0;
+	}
+
+	/**
+	 * Gibt zurueck, ob das Schiff automatisch Felsbrocken abbauen soll oder nicht.
+	 * @return <code>true</code>, falls das Schiff automatisch Felsbrocken abbauen soll
+	 */
+	public boolean getAutoMine() {
+		return automine != 0;
+	}
+
+	/**
+	 * Setzt das automatische Felsbrockenabbauen.
+	 * @param automine <code>true</code>, falls das Schiff automatisch Felsbrocken abbauen soll
+	 */
+	public void setAutoMine(boolean automine) {
+		this.automine = automine ? (byte)1 : 0;
 	}
 
 	/**
@@ -255,7 +273,7 @@ public class SchiffEinstellungen
 		{
 			return true;
 		}
-		if( this.bookmark || this.autodeut != 1 || this.startFighters || this.gotoSecondrow)
+		if( this.bookmark || this.autodeut != 1 || this.automine != 1 || this.startFighters || this.gotoSecondrow)
 		{
 			return true;
 		}

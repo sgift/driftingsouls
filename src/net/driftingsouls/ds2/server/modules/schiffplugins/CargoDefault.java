@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.ships.SchiffEinstellungen;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
 import org.springframework.stereotype.Component;
 
 /**
@@ -46,6 +47,8 @@ public class CargoDefault implements SchiffPlugin {
 			long load,
 			boolean setautodeut,
 			int autodeut,
+			boolean setautomine,
+			int automine,
 			boolean setstartfighter,
 			int startfighter,
 			boolean setgotosecondrow,
@@ -191,6 +194,13 @@ public class CargoDefault implements SchiffPlugin {
 
 			output += "Automatisches Deuteriumsammeln "+(autodeut != 0 ? "":"de")+"aktiviert<br />\n";
 		}
+		else if( setautomine ) {
+			SchiffEinstellungen einstellungen = ship.getEinstellungen();
+			einstellungen.setAutoMine(automine != 0);
+			einstellungen.persistIfNecessary(ship);
+
+			output += "Automatisches Felsbrockenabbauen "+(automine != 0 ? "":"de")+"aktiviert<br />\n";
+		}
 		else if(setstartfighter)
 		{
 			SchiffEinstellungen einstellungen = ship.getEinstellungen();
@@ -250,6 +260,8 @@ public class CargoDefault implements SchiffPlugin {
 					//"schiff.cargo.lbatterien",				cargo.hasResource( Resources.LBATTERIEN ),
 					"schiff.cargo.tanker",					shiptype.getDeutFactor(),
 					"schiff.cargo.tanker.autodeut",			ship.getEinstellungen().getAutoDeut(),
+					"schiff.cargo.miner",					      ship.getTypeData().getShipClass() == ShipClasses.MINER,
+					"schiff.cargo.miner.automine",			ship.getEinstellungen().getAutoMine(),
 					"schiff.cargo.traeger",					shiptype.getJDocks() > 0 ? 1 : 0,
 					"schiff.cargo.traeger.startfighter",	ship.getEinstellungen().startFighters(),
 					"schiff.cargo.secondrow",				shiptype.hasFlag(ShipTypeFlag.SECONDROW),

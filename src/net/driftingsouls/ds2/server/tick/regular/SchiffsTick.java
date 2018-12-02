@@ -39,6 +39,7 @@ import net.driftingsouls.ds2.server.ships.SchiffsReKosten;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipFlag;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.units.TransientUnitCargo;
@@ -277,7 +278,6 @@ public class SchiffsTick extends TickController {
 			}
 		}
 
-		e = produziereEnergie(shipd, shiptd, shipc, e);
 
 		int[] sub = new int[] {shipd.getEngine(),shipd.getWeapons(),shipd.getComm(),shipd.getSensors()};
 
@@ -288,6 +288,9 @@ public class SchiffsTick extends TickController {
 
 		// Evt. Deuterium sammeln
 		e = sammelDeuterium(shipd, shiptd, shipc, e);
+		e = abbauenFelsbrocken(shipd, shiptd, shipc, e, db);
+		e = produziereEnergie(shipd, shiptd, shipc, e);
+
 
 		shipd.setEngine(sub[0]);
 		shipd.setWeapons(sub[1]);
@@ -342,6 +345,49 @@ public class SchiffsTick extends TickController {
 			else
 			{
 				this.slog("kpn\n");
+			}
+		}
+		return e;
+	}
+
+	private int abbauenFelsbrocken(Ship shipd, ShipTypeData shiptd, Cargo shipc, int e, org.hibernate.Session db)
+	{
+		if(shipd.getBattle() == null && shipd.getEinstellungen().getAutoMine() )
+		{
+			this.slog("\tS. Mine\n");
+
+			List<Ship> felsbrockenlist =  Common.cast(db.createQuery("select s from Ship as s " +
+					"where s.owner=:owner and s.x=:x and s.y=:y and " +
+					"s.system=:system and s.battle is null)")
+					.setInteger("owner", -1)
+					.setInteger("x", shipd.getX())
+					.setInteger("y", shipd.getY())
+					.setInteger("system", shipd.getSystem())
+					.list());
+
+			int tmpe = e;
+			for (Ship aShip : felsbrockenlist) {
+				if(!aShip.hasFlag(Ship.FLAG_RECENTLY_MINED) && aShip.getTypeData().getShipClass() == ShipClasses.FELSBROCKEN)
+        {
+            aShip.addFlag(Ship.FLAG_RECENTLY_MINED, 1);
+						int tmphull = aShip.getHull();
+						if (tmphull > tmpe){
+							tmphull -= tmpe;
+							tmpe = 0;
+					  }
+						else {
+							tmpe -= tmphull-1;
+							tmphull = 1;
+							String status = aShip.recalculateShipStatus();
+							if (status.length() > 0)
+							status += " pluenderbar";
+							else
+								status += "pluenderbar";
+							aShip.setStatus(status);
+						}
+						aShip.setHull(tmphull);
+						e = tmpe;
+        }
 			}
 		}
 		return e;

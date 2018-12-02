@@ -65,6 +65,18 @@
 		</div>
 	</form>
 {/endif}
+{if schiff.cargo.miner}
+	<form action="./ds" method="post">
+		<div>
+			Automatisch Felsbrocken abbauen:<br />
+			<input id="cargo_ops_automine" name="cargo_ops[automine]" type="checkbox" value="1" {if schiff.cargo.miner.automine}checked="checked"{/endif} />
+			<label for="cargo_ops_automine">aktivieren</label>&nbsp;
+			{!form_create_hidden plugin, ship:$ship.id, plugin:$global.pluginid}
+			<input type="hidden" name="cargo_ops[setautomine]" value="1" />
+			<input type="submit" value="ok" />
+		</div>
+	</form>
+{/endif}
 {if schiff.cargo.traeger}
 	<form action="./ds" method="post">
 		<div>
