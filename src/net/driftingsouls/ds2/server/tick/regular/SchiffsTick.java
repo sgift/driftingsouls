@@ -352,13 +352,13 @@ public class SchiffsTick extends TickController {
 
 	private int abbauenFelsbrocken(Ship shipd, ShipTypeData shiptd, Cargo shipc, int e, org.hibernate.Session db)
 	{
-		if(shipd.getBattle() == null && shipd.getEinstellungen().getAutoMine() )
+		if(shipd.getBattle() == null && shipd.getEinstellungen().getAutoMine() && e > 0)
 		{
 			this.slog("\tS. Mine\n");
 
-			List<Ship> felsbrockenlist =  Common.cast(db.createQuery("select s from Ship as s " +
-					"where s.owner=:owner and s.x=:x and s.y=:y and " +
-					"s.system=:system and s.battle is null)")
+			List<Ship> felsbrockenlist =  Common.cast(db.createQuery("from Ship " +
+					"where owner=:owner and x=:x and y=:y and " +
+					"system=:system and battle is null)")
 					.setInteger("owner", -1)
 					.setInteger("x", shipd.getX())
 					.setInteger("y", shipd.getY())
@@ -367,7 +367,7 @@ public class SchiffsTick extends TickController {
 
 			int tmpe = e;
 			for (Ship aShip : felsbrockenlist) {
-				if(!aShip.hasFlag(Ship.FLAG_RECENTLY_MINED) && aShip.getTypeData().getShipClass() == ShipClasses.FELSBROCKEN)
+				if(!aShip.hasFlag(Ship.FLAG_RECENTLY_MINED) && aShip.getTypeData().getShipClass() == ShipClasses.FELSBROCKEN && e > 0)
         {
             aShip.addFlag(Ship.FLAG_RECENTLY_MINED, 1);
 						int tmphull = aShip.getHull();

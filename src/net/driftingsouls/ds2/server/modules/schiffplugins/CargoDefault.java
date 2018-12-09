@@ -207,7 +207,7 @@ public class CargoDefault implements SchiffPlugin {
 			einstellungen.setStartFighters(startfighter != 0);
 			einstellungen.persistIfNecessary(ship);
 
-			output += "Automatisches Starten von Jägern "+(startfighter != 0 ? "":"de")+"aktiviert<br />\n";
+			output += "Automatisches Starten von J&auml;gern "+(startfighter != 0 ? "":"de")+"aktiviert<br />\n";
 		}
 		else if(setgotosecondrow)
 		{

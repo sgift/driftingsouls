@@ -585,7 +585,7 @@ public class SensorsDefault implements SchiffPlugin {
 				{
 					t.setVar("sships.action.transferpluender", 1);
 				}
-				else if (!disableIFF || (aship.getOwner().getId() == user.getId()))
+				else if ((!disableIFF || (aship.getOwner().getId() == user.getId())) && !(ashiptype.getShipClass() == ShipClasses.FELSBROCKEN))
 				{
 					t.setVar("sships.action.transfer", 1);
 				}
@@ -617,7 +617,7 @@ public class SensorsDefault implements SchiffPlugin {
 
 				//Offiziere: Captain transferieren
 				boolean hasoffizier = aship.getStatus().contains("offizier");
-				if (!disableIFF && (caller.offizier != null) && (!hasoffizier || ashiptype.hasFlag(ShipTypeFlag.OFFITRANSPORT)))
+				if (!disableIFF && (caller.offizier != null) && (!hasoffizier || ashiptype.hasFlag(ShipTypeFlag.OFFITRANSPORT)) && !(ashiptype.getShipClass() == ShipClasses.FELSBROCKEN))
 				{
 					if (ashiptype.getSize() > ShipType.SMALL_SHIP_MAXSIZE)
 					{
