@@ -379,8 +379,11 @@ public class SchiffsTick extends TickController {
 							tmpe -= tmphull-1;
 							tmphull = 1;
 							String status = aShip.recalculateShipStatus();
-							if (status.length() > 0)
-							status += " pluenderbar";
+							if (status.length() > 0){
+								if( !status.contains("pluenderbar")){
+									status += " pluenderbar";
+								}
+							}
 							else
 								status += "pluenderbar";
 							aShip.setStatus(status);
