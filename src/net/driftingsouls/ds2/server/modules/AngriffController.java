@@ -847,17 +847,18 @@ public class AngriffController extends Controller
                             "ship.mangelnahrung",       !battle.isGuest() && (aship.getShip().getStatus().contains("mangel_nahrung")),
 							"ship.mangelreaktor",       !battle.isGuest() && aship.getShip().getStatus().contains("mangel_reaktor"));
 	
+
+				if( !firstEntry && showgroups && ((pos >= battle.getOwnShipTypeCount(grouptype)) || (pos == groupoffset+SHIPGROUPSIZE)) ) {
+					t.setVar("ship.showback",1);
+				}
+
 				if( firstEntry ) {
 					firstEntry = false;
+					t.setVar("ship.firstEntry",1);
 				}
 				else {
 					t.setVar("ship.addline",1);
 				}
-	
-				if( showgroups && ((pos >= battle.getOwnShipTypeCount(grouptype)) || (pos == groupoffset+SHIPGROUPSIZE)) ) {
-					t.setVar("ship.showback",1);
-				}
-	
 				t.parse("ownShips.list","ownShips.listitem",true);
 		
 				t.stop_record();
@@ -1074,17 +1075,18 @@ public class AngriffController extends Controller
 							"ship.action.secondrow",	aship.hasFlag(BattleShipFlag.SECONDROW),
 							"ship.action.destroyed",	aship.hasFlag(BattleShipFlag.DESTROYED) );
 	
+
+				if( !firstEntry && showgroups && ((pos >= battle.getEnemyShipTypeCount(grouptype)) || (pos == groupoffset+SHIPGROUPSIZE)) ) {
+					t.setVar("ship.showback",1);
+				}
+
 				if( firstEntry ) {
 					firstEntry = false;
+					t.setVar("ship.firstEntry",1);
 				}
 				else {
 					t.setVar("ship.addline",1);
 				}
-	
-				if( showgroups && ((pos >= battle.getEnemyShipTypeCount(grouptype)) || (pos == groupoffset+SHIPGROUPSIZE)) ) {
-					t.setVar("ship.showback",1);
-				}
-				
 				t.parse("enemyShips.list", "enemyShips.listitem", true);
 
 				t.stop_record();

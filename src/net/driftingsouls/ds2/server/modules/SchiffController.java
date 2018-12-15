@@ -826,7 +826,7 @@ public class SchiffController extends Controller
 		{
 			t.setVar("ship.s.color", "red");
 		}
-		else if (ship.getHeat() > 40)
+		else if (ship.getHeat() > 70)
 		{
 			t.setVar("ship.s.color", "yellow");
 		}

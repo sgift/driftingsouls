@@ -102,13 +102,13 @@ public class JDocksDefault implements SchiffPlugin {
 					"ship.id",				data.getId(),
 					"ship.docklist",		idlist,
 					"ship.jdocks",			datatype.getJDocks(),
-					"docks.width",			100/(datatype.getJDocks()>4 ? 4 : datatype.getJDocks() ),
+					"docks.width",			100/(datatype.getJDocks()>5 ? 5 : datatype.getJDocks() ),
 					"ship.docklist.nofleet",	nofleet );
 
 		t.setBlock("_PLUGIN_"+pluginid,"jdocks.listitem","jdocks.list");
 		for( int j = 0; j < datatype.getJDocks(); j++ ) {
 			t.start_record();
-			if( (j > 0) && (j % 4 == 0) )
+			if( (j > 0) && (j % 5 == 0) )
 			{
 				t.setVar("docks.endrow",1);
 			}
