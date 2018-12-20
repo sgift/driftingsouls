@@ -352,7 +352,7 @@ public class SchiffsTick extends TickController {
 
 	private int abbauenFelsbrocken(Ship shipd, ShipTypeData shiptd, Cargo shipc, int e, org.hibernate.Session db)
 	{
-		if(shipd.getBattle() == null && shipd.getEinstellungen().getAutoMine() && e > 0)
+		if(shipd.getBattle() == null && shipd.getEinstellungen().getAutoMine() && e > 0 && shipd.getTypeData().getShipClass() == ShipClasses.MINER)
 		{
 			this.slog("\tS. Mine\n");
 
