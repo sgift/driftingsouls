@@ -273,7 +273,7 @@ public class SchiffEinstellungen
 		{
 			return true;
 		}
-		if( this.bookmark || this.autodeut != 1 || this.automine != 1 || this.startFighters || this.gotoSecondrow)
+		if( this.bookmark || this.autodeut != 1 || this.automine != 1 || this.startFighters || !this.gotoSecondrow)
 		{
 			return true;
 		}
