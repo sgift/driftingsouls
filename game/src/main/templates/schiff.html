@@ -38,76 +38,81 @@
 		<td class="schiffData" style="width:360px" valign="top">
 			<a class="noborder" target="_blank" onclick="ShiptypeBox.show({ship.type});return false;"
 				href="./ds?module=schiffinfo&amp;sess={global.sess}&amp;ship={ship.type}">
-				<img src="{shiptype.picture}" alt="{shiptype.name}" style="float:right; margin-right:5px; margin-left:15px;margin-bottom:5px" />
-			</a>
-			Zustand:
-			<span style="color:{ship.hull.color}">
-				{ship.hull}/{shiptype.hull}
-			</span>
-			{if shiptype.ablativearmor}
-				<br />
-				Ablative Panzerung:
-				<span style="color:{ship.ablativearmor.color}">
-					{ship.ablativearmor}/{shiptype.ablativearmor}
-				</span>
-			{/endif}
+				<img src="{shiptype.picture}" alt="{shiptype.name}" style="margin-right:5px; margin-left:5px; margin-top:5px; margin-bottom:5px" />
+			</a> <br>
+			<table class="show">
+			<tr class="show">
+				<td>Zustand:</td>
+			</tr>
 			{if shiptype.shields}
-				<br />
-				Schilde:
-				<span style="color:{ship.shields.color}">
-					{ship.shields}/{shiptype.shields}
-				</span>
+				<tr>
+				<td>+ Schildst&auml;rke:</td>
+				<td style="color:{ship.shields.color}">{ship.shields}/{shiptype.shields}</td>
+				</tr>
 			{/endif}
-			<br />Subsysteme:<br />
+			{if shiptype.ablativearmor}
+				<tr>
+				<td>+ Ablative Panzerung:</td>
+				<td style="color:{ship.ablativearmor.color}">{ship.ablativearmor}/{shiptype.ablativearmor}</td>
+				</tr>
+			{/endif}
+			<tr>
+				<td>+ H&uuml;llenst&auml;rke:</td>
+				<td style="color:{ship.hull.color}">{ship.hull}/{shiptype.hull}</td>
+			</tr>
+			<tr><td>Subsysteme:</td></tr>
 			{if shiptype.cost}
-				+ Antrieb:
-				<span style="color:{ship.engine.color}">
-					{ship.engine}
-				</span><br />
+			<tr>
+				<td>+ Antrieb:</td>
+				<td style="color:{ship.engine.color}">{ship.engine}</td>
+			</tr>
 			{/endif}
 			{if shiptype.weapons}
-				+ Waffen:
-				<span style="color:{ship.weapons.color}">
-					{ship.weapons}
-				</span><br />
+			<tr>
+				<td>+ Waffen:</td>
+				<td style="color:{ship.weapons.color}">{ship.weapons}</td>
+			</tr>
 			{/endif}
-			+ Kommunikation:
-			<span style="color:{ship.comm.color}">
-				{ship.comm}
-			</span><br />
-			+ Sensoren:
-			<span style="color:{ship.sensors.color}">
-				{ship.sensors}
-			</span><br />
+			<tr>
+			<td>+ Kommunikation:</td>
+			<td style="color:{ship.comm.color}">{ship.comm}</td>
+			</tr>
+			<tr>
+			<td>+ Sensoren:</td>
+			<td style="color:{ship.sensors.color}">{ship.sensors}</td>
+			</tr>
 			{if shiptype.crew}
-				Crew:
-				<span style="color:{ship.crew.color}">
-					{ship.crew}/{shiptype.crew}
-				</span><br />
+			<tr>
+				<td>Crew:</td>
+				<td style="color:{ship.crew.color}">{ship.crew}/{shiptype.crew}</td>
+			</tr>
 			{/endif}
-			Energie:
-			<span style="color:{ship.e.color}">
-				{ship.e}/{shiptype.eps}
-			</span><br />
+			<tr>
+			<td>Energie:</td>
+			<td style="color:{ship.e.color}">{ship.e}/{shiptype.eps}</td>
+			</tr>
 			{if shiptype.cost}
-				Triebwerks&uuml;berhitzung:
-				<span style="color:{ship.s.color}">
-					{ship.s}/100
-				</span><br />
+			<tr>
+				<td>Triebwerks&uuml;berhitzung:</td>
+				<td style="color:{ship.s.color}">{ship.s}/100</td>
+			</tr>
 			{/endif}
 			{if offiziere.list}
+			<tr><td>
 				Offizier:
 				<!-- BEGIN offiziere.listitem -->
 					{if offiziere.list}, {/endif}
 					<span class="nobr"><img src="{offizier.picture}" alt="Rang {offizier.rang}" /> {!link_to $offizier.name, default, module:choff, off:$offizier.id}</span>
 				<!-- END offiziere.listitem -->
-				<br />
+			</td></tr>
 			{/endif}
 			{if ship.fleet}
+			<tr><td>
 				Flotte: <a class="forschinfo" href="javascript:PopupWnd('&amp;fleet={fleet.id}&amp;act=show')">{fleet.name}</a>
 				{!link_to (X), join, css_class:error, ship:$ship.id}
-				<br />
+			</td></tr>
 			{/endif}
+			</table>
 			<a class="noborder" href="./ds?module=schiff&amp;action=destroy&amp;sess={global.sess}&amp;ship={ship.id}">
 				<img src="data/interface/schiffe/schiff_selfdest.gif" alt="Selbstzerst&amp;ouml;rung" />
 			</a>

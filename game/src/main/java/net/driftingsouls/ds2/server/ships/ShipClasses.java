@@ -118,7 +118,11 @@ public enum ShipClasses {
 	/**
 	 * Die Schiffsklasse "Schutzschild". ID 22.
 	 */
-	SCHUTZSCHILD("Schutzschild", "Schutzschilde", false, false);
+	SCHUTZSCHILD("Schutzschild", "Schutzschilde", false, false),
+	/**
+	 * Die Schiffsklasse "Miner". ID 23.
+	 */
+	MINER("Miner", "Miner", false, false);
 
 	private String singular;
 	private String plural;

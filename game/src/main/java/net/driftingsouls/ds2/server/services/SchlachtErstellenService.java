@@ -378,7 +378,7 @@ public class SchlachtErstellenService
 		org.hibernate.Session db = context.getDB();
 		for (BattleShip ship : ships) {
 			Ship baseShip = ship.getShip().getBaseShip();
-			if (baseShip != null && ship.getShip().isLanded() && baseShip.getEinstellungen().startFighters()) {
+			if (baseShip != null && ship.getShip().isLanded() && baseShip.getEinstellungen().startFighters() && ship.getShip().getTypeData().getShipClass() == ShipClasses.JAEGER ) {
 				ship.getShip().setDocked("");
 				startlist.add(ship.getId());
 			}
@@ -463,7 +463,7 @@ public class SchlachtErstellenService
 
 		for(BattleShip ship: secondRowShips)
 		{
-			if((ship.getSide() == 0 && firstRowExists) || (ship.getSide() == 1 && firstRowEnemyExists))
+			if( (ship.getSide() == 0 && firstRowExists && ship.getShip().getEinstellungen().gotoSecondrow() ) || (ship.getSide() == 1 && firstRowEnemyExists && ship.getShip().getEinstellungen().gotoSecondrow() ) )
 			{
 				ship.addFlag(BattleShipFlag.SECONDROW);
 				if(ship.getTypeData().getJDocks() == 0)
