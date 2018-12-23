@@ -854,7 +854,9 @@ public class AngriffController extends Controller
 
 				if( firstEntry ) {
 					firstEntry = false;
-					t.setVar("ship.firstEntry",1);
+					if( showgroups ){
+						t.setVar("ship.firstEntry",1);
+					}
 				}
 				else {
 					t.setVar("ship.addline",1);
@@ -1082,7 +1084,9 @@ public class AngriffController extends Controller
 
 				if( firstEntry ) {
 					firstEntry = false;
-					t.setVar("ship.firstEntry",1);
+					if( showgroups ){
+						t.setVar("ship.firstEntry",1);
+					}
 				}
 				else {
 					t.setVar("ship.addline",1);
