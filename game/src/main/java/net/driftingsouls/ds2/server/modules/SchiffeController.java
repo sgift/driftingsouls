@@ -195,6 +195,9 @@ public class SchiffeController extends Controller
 			case "tank":
 				query += "s.shiptype.shipClass=3 order by " + ow;
 				break;
+			case "mine":
+				query += "s.shiptype.shipClass=23 order by " + ow;
+				break;
 			case "versorger":
 				query += "(locate('versorger',s.shiptype.flags)!=0 or (s.modules is not null and locate('versorger',m.flags)!=0)) order by " + ow;
 				break;
