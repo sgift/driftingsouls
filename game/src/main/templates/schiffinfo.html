@@ -133,13 +133,16 @@
 		{if shiptype.werftslots}
 			{shiptype.werftslots} Werftslots<br />
 		{/endif}
-	
-		<br />H&uuml;llenst&auml;rke: {shiptype.hull}<br  />
-		Ablative Panzerung: {shiptype.ablativearmor}<br />
-		{if shiptype.panzerung}Panzerung: {shiptype.panzerung}<br />{/endif}
+
+		<br />
 		{if shiptype.shields}
-	   		Schildst&auml;rke: {shiptype.shields}<br />
+				Schildst&auml;rke: {shiptype.shields}<br />
 		{/endif}
+		{if shiptype.ablativearmor}
+			Ablative Panzerung: {shiptype.ablativearmor}<br />
+		{/endif}
+		H&uuml;llenst&auml;rke: {shiptype.hull}<br  />
+		{if shiptype.panzerung}Panzerung: {shiptype.panzerung}<br />{/endif}
 		{if shiptype.units}
 			Platz f&uuml;r Einheiten: {shiptype.unitspace}<br />
 		{/endif}
