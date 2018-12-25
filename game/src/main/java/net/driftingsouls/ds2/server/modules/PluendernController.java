@@ -113,6 +113,11 @@ public class PluendernController extends Controller
 			throw new ValidierungException("Sie k&ouml;nnen " + shipTypeTo.getShipClass().getPlural() + " weder kapern noch pl&uuml;ndern", errorurl);
 		}
 
+		if (!zielSchiff.getStatus().contains("pluenderbar"))
+		{
+			throw new ValidierungException("Sie k&ouml;nnen " + shipTypeTo.getShipClass().getPlural() + " nicht pl&uuml;ndern, solange der H&uuml;llenwert nicht weit genug gesenkt wurde", errorurl);
+		}
+
 		// IFF-Check
 		boolean disableIFF = zielSchiff.getStatus().contains("disable_iff");
 		if (disableIFF)
