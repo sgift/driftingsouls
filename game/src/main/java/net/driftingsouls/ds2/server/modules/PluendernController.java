@@ -108,7 +108,7 @@ public class PluendernController extends Controller
 			throw new ValidierungException("Sie k&ouml;nnen " + shipTypeTo.getShipClass().getPlural() + " weder kapern noch pl&uuml;ndern", errorurl);
 		}
 
-		if (!zielSchiff.getStatus().contains("pluenderbar"))
+		if (!zielSchiff.getStatus().contains("pluenderbar") && shipTypeTo.getShipClass() == ShipClasses.FELSBROCKEN)
 		{
 			throw new ValidierungException("Sie k&ouml;nnen " + shipTypeTo.getShipClass().getPlural() + " nicht pl&uuml;ndern, solange der H&uuml;llenwert nicht weit genug gesenkt wurde", errorurl);
 		}
