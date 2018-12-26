@@ -751,8 +751,13 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 
 		public SpawnableRess newRandomRess()
 		{
-			int chance = ThreadLocalRandom.current().nextInt(1, chanceMap.size());
-			return this.chanceMap.get(chance);
+			int chance = 1;
+			if(chanceMap.size() > 1) {
+				chance = ThreadLocalRandom.current().nextInt(1, chanceMap.size());
+				return this.chanceMap.get(chance);
+			}
+
+			return chanceMap.get(chance);
 		}
 
 		public boolean isEmpty()
