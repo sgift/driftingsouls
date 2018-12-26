@@ -26,12 +26,7 @@ import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.RedirectViewResult;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -222,7 +217,8 @@ public class PluendernController extends Controller
 					message += " - Nur [resource="+res.getId()+"]"+res.getCount1()+"[/resource] vorhanden";
 				}
 
-				if (curcargoto - transt < 0)
+				long massToTransfer = Cargo.getResourceMass(res.getId(), transt);
+				if (curcargoto - massToTransfer < 0)
 				{
 					transt = (long) (curcargoto / (double) Cargo.getResourceMass(res.getId(), 1));
 
@@ -268,7 +264,8 @@ public class PluendernController extends Controller
 					message += " - Nur [resource="+res.getId()+"]"+res.getCount2()+"[/resource] vorhanden";
 				}
 
-				if (curcargofrom - transf < 0)
+				long massToTransfer = Cargo.getResourceMass(res.getId(), transf);
+				if (curcargofrom - massToTransfer < 0)
 				{
 					transf = (long) (curcargofrom / (double) Cargo.getResourceMass(res.getId(), 1));
 
