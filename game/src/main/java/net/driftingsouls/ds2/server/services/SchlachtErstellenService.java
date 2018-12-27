@@ -161,7 +161,7 @@ public class SchlachtErstellenService
 				}
 			}
 
-			if (aShip.getEinstellungen().gotoSecondrow()) {
+			if (shiptype.hasFlag(ShipTypeFlag.SECONDROW) && aShip.getEinstellungen().gotoSecondrow()) {
 				secondRowShips.add(battleShip);
 			}
 			else
