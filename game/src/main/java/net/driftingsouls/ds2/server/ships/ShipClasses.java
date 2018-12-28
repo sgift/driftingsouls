@@ -122,7 +122,7 @@ public enum ShipClasses {
 	/**
 	 * Die Schiffsklasse "Miner". ID 23.
 	 */
-	MINER("Miner", "Miner", false, false);
+	MINER("Miner", "Miner", true, false);
 
 	private String singular;
 	private String plural;
