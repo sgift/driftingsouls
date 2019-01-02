@@ -42,6 +42,7 @@ import net.driftingsouls.ds2.server.namegenerator.SchiffsKlassenNamenGenerator;
 import net.driftingsouls.ds2.server.namegenerator.SchiffsNamenGenerator;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import net.driftingsouls.ds2.server.notification.Notifier;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -211,7 +212,8 @@ public class OptionsController extends Controller
 	public RedirectViewResult changeXtraAction(int shipgroupmulti, int inttutorial, int scriptdebug, boolean scriptdebugstatus, boolean battle_pm, boolean research_pm, boolean ship_build_pm, boolean base_down_pm, boolean officer_build_pm, boolean unit_build_pm, User.Relation defrelation,
 											   PersonenNamenGenerator personenNamenGenerator,
 											   SchiffsKlassenNamenGenerator schiffsKlassenNamenGenerator,
-											   SchiffsNamenGenerator schiffsNamenGenerator)
+											   SchiffsNamenGenerator schiffsNamenGenerator,
+											   String ApiKey)
 	{
 		User user = (User) getUser();
 
@@ -275,6 +277,9 @@ public class OptionsController extends Controller
         user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_BASE_DOWN_PM, base_down_pm);
         user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_OFFICER_BUILD_PM, officer_build_pm);
         user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_UNIT_BUILD_PM, unit_build_pm);
+        user.setApiKey(ApiKey);
+        new Notifier(ApiKey).sendMessage("Drifting Souls Push-Benachrichtigungen", user.getPlainname()+", du hast die Push-Benachrichtigungen erfolgreich aktiviert.");
+
 
 		return new RedirectViewResult("xtra").withMessage(changemsg);
 	}
@@ -394,8 +399,9 @@ public class OptionsController extends Controller
                 "user.shipbuildpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_SHIP_BUILD_PM),
                 "user.basedownpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_BASE_DOWN_PM),
                 "user.officerbuildpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_OFFICER_BUILD_PM),
-                "user.unitbuildpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_UNIT_BUILD_PM));
-
+                "user.unitbuildpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_UNIT_BUILD_PM),
+				"user.apikey", user.getApiKey());
+		
 		t.setBlock("_OPTIONS", "personenNamenGenerator.listitem", "personenNamenGenerator.list");
 		for (PersonenNamenGenerator png : PersonenNamenGenerator.values())
 		{
