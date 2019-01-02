@@ -207,13 +207,14 @@ public class OptionsController extends Controller
 	 * @param personenNamenGenerator Der zu verwendende {@link net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator}
 	 * @param schiffsKlassenNamenGenerator Der zu verwendende {@link net.driftingsouls.ds2.server.namegenerator.SchiffsKlassenNamenGenerator}
 	 * @param schiffsNamenGenerator Der zu verwendende {@link net.driftingsouls.ds2.server.namegenerator.SchiffsNamenGenerator}
+	 * @param apikey Der ApiKey fuer die Push-Benachrichtigungen
 	 */
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult changeXtraAction(int shipgroupmulti, int inttutorial, int scriptdebug, boolean scriptdebugstatus, boolean battle_pm, boolean research_pm, boolean ship_build_pm, boolean base_down_pm, boolean officer_build_pm, boolean unit_build_pm, User.Relation defrelation,
 											   PersonenNamenGenerator personenNamenGenerator,
 											   SchiffsKlassenNamenGenerator schiffsKlassenNamenGenerator,
 											   SchiffsNamenGenerator schiffsNamenGenerator,
-											   String ApiKey)
+											   String apikey)
 	{
 		User user = (User) getUser();
 
@@ -267,6 +268,11 @@ public class OptionsController extends Controller
 				}
 			}
 		}
+		if (apikey != user.getUserValue(WellKnownUserValue.APIKEY))
+		{
+			user.setUserValue(WellKnownUserValue.APIKEY, apikey);
+			changemsg += "ApiKey ge&auml;ndert...<br />\\n";
+		}
 
 		user.setPersonenNamenGenerator(personenNamenGenerator);
 		user.setSchiffsKlassenNamenGenerator(schiffsKlassenNamenGenerator);
@@ -277,9 +283,10 @@ public class OptionsController extends Controller
         user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_BASE_DOWN_PM, base_down_pm);
         user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_OFFICER_BUILD_PM, officer_build_pm);
         user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_UNIT_BUILD_PM, unit_build_pm);
-        user.setApiKey(ApiKey);
-        new Notifier(ApiKey).sendMessage("Drifting Souls Push-Benachrichtigungen", user.getPlainname()+", du hast die Push-Benachrichtigungen erfolgreich aktiviert.");
-
+        user.setApiKey(apikey);
+        if(apikey.length() == 25) { //Die ApiKeys sind alle 25 Zeichen lang
+        	new Notifier(apikey).sendMessage("Drifting Souls Push-Benachrichtigungen", user.getPlainname()+", du hast die Push-Benachrichtigungen erfolgreich aktiviert.");
+        }
 
 		return new RedirectViewResult("xtra").withMessage(changemsg);
 	}
@@ -400,7 +407,7 @@ public class OptionsController extends Controller
                 "user.basedownpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_BASE_DOWN_PM),
                 "user.officerbuildpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_OFFICER_BUILD_PM),
                 "user.unitbuildpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_UNIT_BUILD_PM),
-				"user.apikey", user.getApiKey());
+				"user.apikey", user.getUserValue(WellKnownUserValue.APIKEY));
 		
 		t.setBlock("_OPTIONS", "personenNamenGenerator.listitem", "personenNamenGenerator.list");
 		for (PersonenNamenGenerator png : PersonenNamenGenerator.values())
