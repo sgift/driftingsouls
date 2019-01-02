@@ -84,10 +84,6 @@
 			<td>Tutorial anzeigen:</td>
 			<td><input name="inttutorial" type="checkbox" value="1" {if user.inttutorial}checked="checked"{/endif} /></td>
 		</tr>
-		<tr>
-			<td> API-Key für Push-Benachrichigungen auf dem Handy</td>
-			<td class="noBorderX"><input name="apikey" type="text" value="{user.ApiKey}" size="30" /></td>
-		</tr>
 		{if user.showScriptdebug}
 			<tr>
 				<td>Scripts debuggen:</td>
@@ -166,7 +162,7 @@
         </tr>
         <tr>
 			<td>NotifyMyDevice API-Key:</td>
-			<td><input name="apikey" type="text" size="8" value="{user.apikey}" /></td>
+			<td><input name="apikey" type="text" size="30" value="{user.apikey}" /></td>
 		</tr>
 		<tr>
 			<td colspan="2" align="center"><br />
