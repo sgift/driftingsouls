@@ -1808,7 +1808,8 @@ public class User extends BasicUser {
 	 */
 	public String getApiKey()
 	{
-		return ApiKey;
+		this.ApiKey = this.getUserValue(WellKnownUserValue.APIKEY);
+		return this.ApiKey;
 	}
 
 	/**
@@ -1818,5 +1819,7 @@ public class User extends BasicUser {
 	public void setApiKey(String ApiKey)
 	{
 		this.ApiKey = ApiKey;
+		this.setUserValue(WellKnownUserValue.APIKEY, ApiKey);
+		
 	}
 }
