@@ -21,6 +21,7 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
+import net.driftingsouls.ds2.server.notification.Notifier;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.FlushMode;
@@ -161,7 +162,7 @@ public class SchlachtErstellenService
 				}
 			}
 
-			if (shiptype.hasFlag(ShipTypeFlag.SECONDROW)) {
+			if (aShip.getEinstellungen().gotoSecondrow()) {
 				secondRowShips.add(battleShip);
 			}
 			else
@@ -338,20 +339,51 @@ public class SchlachtErstellenService
 		}
 		User niemand = (User)db.get(User.class, -1);
 		String msg = "Es wurde eine Schlacht bei "+ownShip.getLocation().displayCoordinates(false)+" eröffnet.\n" +
-				"Es kämpfen "+eparty+" und "+eparty2+" gegeneinander.";
+				"Es kämpfen "+eparty+"("+Integer.toString(battle.getOwnShips().size())+" Schiffe) und "+eparty2+"("+Integer.toString(battle.getEnemyShips().size())+" Schiffe) gegeneinander."+
+				"Deine 2. Reihe ist ";
+		String msg1 = "";
+		String msg2 = "";
+		if (battle.isSecondRowStable(0,null))
+		{
+			msg1 +="stabil.";
+		}
+		else
+		{
+			msg1 += "instabil. Vorsicht!";
+		}
+		if (battle.isSecondRowStable(1,null))
+		{
+			msg2 +="stabil.";
+		}
+		else
+		{
+			msg2 += "instabil. Vorsicht!";
+		}
 		for(User auser : ownUsers)
 		{
 			if(auser.getUserValue(WellKnownUserValue.GAMEPLAY_USER_BATTLE_PM))
 			{
-				PM.send(niemand, auser.getId(), "Schlacht eröffnet", msg);
+				PM.send(niemand, auser.getId(), "Schlacht eröffnet", msg+msg1);
+			/*	if(auser.getApiKey()!="")
+				{
+					new Notifier (auser.getApiKey()).sendMessage("Schlacht bei "+ownShip.getLocation().displayCoordinates(false)+" eröffnet", msg);		
+				}
+			*/
 			}
+			
 		}
 		for(User auser : enemyUsers)
 		{
 			if(auser.getUserValue(WellKnownUserValue.GAMEPLAY_USER_BATTLE_PM))
 			{
-				PM.send(niemand, auser.getId(), "Schlacht eröffnet", msg);
+				PM.send(niemand, auser.getId(), "Schlacht eröffnet", msg+msg2);
+			/*	if(auser.getApiKey()!="")
+				{
+					new Notifier (auser.getApiKey()).sendMessage("Schlacht bei "+ownShip.getLocation().displayCoordinates(false)+" eröffnet", msg);		
+				}
+			*/
 			}
+			
 		}
 		db.setFlushMode(FlushMode.AUTO);
 
@@ -378,7 +410,7 @@ public class SchlachtErstellenService
 		org.hibernate.Session db = context.getDB();
 		for (BattleShip ship : ships) {
 			Ship baseShip = ship.getShip().getBaseShip();
-			if (baseShip != null && ship.getShip().isLanded() && baseShip.getEinstellungen().startFighters()) {
+			if (baseShip != null && ship.getShip().isLanded() && baseShip.getEinstellungen().startFighters() && ship.getShip().getTypeData().getShipClass() == ShipClasses.JAEGER ) {
 				ship.getShip().setDocked("");
 				startlist.add(ship.getId());
 			}
@@ -463,7 +495,7 @@ public class SchlachtErstellenService
 
 		for(BattleShip ship: secondRowShips)
 		{
-			if((ship.getSide() == 0 && firstRowExists) || (ship.getSide() == 1 && firstRowEnemyExists))
+			if( (ship.getSide() == 0 && firstRowExists && ship.getShip().getEinstellungen().gotoSecondrow() ) || (ship.getSide() == 1 && firstRowEnemyExists && ship.getShip().getEinstellungen().gotoSecondrow() ) )
 			{
 				ship.addFlag(BattleShipFlag.SECONDROW);
 				if(ship.getTypeData().getJDocks() == 0)
