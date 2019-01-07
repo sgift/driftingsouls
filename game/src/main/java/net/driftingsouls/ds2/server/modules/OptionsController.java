@@ -270,8 +270,17 @@ public class OptionsController extends Controller
 		}
 		if (apikey != user.getUserValue(WellKnownUserValue.APIKEY))
 		{
-			user.setUserValue(WellKnownUserValue.APIKEY, apikey);
-			changemsg += "ApiKey ge&auml;ndert...<br />\\n";
+			if (apikey.length()==25)//Die ApiKeys sind alle 25 Zeichen lang
+			{
+				user.setUserValue(WellKnownUserValue.APIKEY, apikey);
+				//changemsg += "API Key ge&auml;ndert...<br />\\n";
+		        new Notifier(apikey).sendMessage("Drifting Souls Push-Benachrichtigungen", user.getPlainname()+", du hast die Push-Benachrichtigungen erfolgreich aktiviert.");
+		        
+			}
+			else
+			{
+				changemsg += "Ung&uuml;ltiger API Key eingegeben ... <br />\\n";
+			}
 		}
 
 		user.setPersonenNamenGenerator(personenNamenGenerator);
@@ -283,10 +292,7 @@ public class OptionsController extends Controller
         user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_BASE_DOWN_PM, base_down_pm);
         user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_OFFICER_BUILD_PM, officer_build_pm);
         user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_UNIT_BUILD_PM, unit_build_pm);
-        user.setApiKey(apikey);
-        if(apikey.length() == 25) { //Die ApiKeys sind alle 25 Zeichen lang
-        	new Notifier(apikey).sendMessage("Drifting Souls Push-Benachrichtigungen", user.getPlainname()+", du hast die Push-Benachrichtigungen erfolgreich aktiviert.");
-        }
+        
 
 		return new RedirectViewResult("xtra").withMessage(changemsg);
 	}
