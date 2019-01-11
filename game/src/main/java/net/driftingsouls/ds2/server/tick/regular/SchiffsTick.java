@@ -39,6 +39,7 @@ import net.driftingsouls.ds2.server.ships.SchiffsReKosten;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipFlag;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.units.TransientUnitCargo;
@@ -277,7 +278,6 @@ public class SchiffsTick extends TickController {
 			}
 		}
 
-		e = produziereEnergie(shipd, shiptd, shipc, e);
 
 		int[] sub = new int[] {shipd.getEngine(),shipd.getWeapons(),shipd.getComm(),shipd.getSensors()};
 
@@ -288,6 +288,9 @@ public class SchiffsTick extends TickController {
 
 		// Evt. Deuterium sammeln
 		e = sammelDeuterium(shipd, shiptd, shipc, e);
+		e = abbauenFelsbrocken(shipd, shiptd, shipc, e, db);
+		e = produziereEnergie(shipd, shiptd, shipc, e);
+
 
 		shipd.setEngine(sub[0]);
 		shipd.setWeapons(sub[1]);
@@ -342,6 +345,52 @@ public class SchiffsTick extends TickController {
 			else
 			{
 				this.slog("kpn\n");
+			}
+		}
+		return e;
+	}
+
+	private int abbauenFelsbrocken(Ship shipd, ShipTypeData shiptd, Cargo shipc, int e, org.hibernate.Session db)
+	{
+		if(shipd.getBattle() == null && shipd.getEinstellungen().getAutoMine() && e > 0 && shipd.getTypeData().getShipClass() == ShipClasses.MINER)
+		{
+			this.slog("\tS. Mine\n");
+
+			List<Ship> felsbrockenlist =  Common.cast(db.createQuery("from Ship " +
+					"where owner=:owner and x=:x and y=:y and " +
+					"system=:system and battle is null)")
+					.setInteger("owner", -1)
+					.setInteger("x", shipd.getX())
+					.setInteger("y", shipd.getY())
+					.setInteger("system", shipd.getSystem())
+					.list());
+
+			int tmpe = e;
+			for (Ship aShip : felsbrockenlist) {
+				if(!aShip.hasFlag(Ship.FLAG_RECENTLY_MINED) && aShip.getTypeData().getShipClass() == ShipClasses.FELSBROCKEN && e > 0)
+        {
+            aShip.addFlag(Ship.FLAG_RECENTLY_MINED, 1);
+						int tmphull = aShip.getHull();
+						if (tmphull > tmpe){
+							tmphull -= tmpe;
+							tmpe = 0;
+					  }
+						else {
+							tmpe -= tmphull-1;
+							tmphull = 1;
+							String status = aShip.recalculateShipStatus();
+							if (status.length() > 0){
+								if( !status.contains("pluenderbar")){
+									status += " pluenderbar";
+								}
+							}
+							else
+								status += "pluenderbar";
+							aShip.setStatus(status);
+						}
+						aShip.setHull(tmphull);
+						e = tmpe;
+        }
 			}
 		}
 		return e;
@@ -766,6 +815,10 @@ public class SchiffsTick extends TickController {
 
 		User nobody = (User)db.get(User.class, -1);
 		BigInteger gesamtkosten = schiffsReKosten.getGesamtkosten();
+		if(auser.getKonto().compareTo(gesamtkosten)<8*gesamtkosten)
+		{
+			PM.send(auser, auser.getId(), "Kontostand kritisch", auser.getPlainname() + ", dein Kontostand ist sehr niedrig. In weniger als einem Tag werden deine RE-Reserven nicht mehr ausreichen um die Ausgaben zu decken. Crews, die keinen Sold erhalten werden meutern und mit ihren Schiffen desertieren. Ein Besuch beim n&auml;chsten GTU-Handelsposten ist ratsam. Sollten deine Schiffe &uuml;bergelaufen sein oder du es nicht mehr zum Handelsposten schaffen, setze einen Hilferuf im Com-Net Channel 'Notfrequenz' ab. Vielleicht hilft dir ein Spieler.");
+		}
 		if(auser.getKonto().compareTo(gesamtkosten) >= 0)
 		{
 			this.log("Kosten: " + gesamtkosten);
