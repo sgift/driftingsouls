@@ -327,11 +327,11 @@ public class SchlachtErstellenService
 		}
 		User niemand = (User)db.get(User.class, -1);
 		String msg = "Es wurde eine Schlacht bei "+ownShip.getLocation().displayCoordinates(false)+" eröffnet.\n" +
-				"Es kämpfen "+eparty+"("+Integer.toString(battle.getOwnShips().size())+" Schiffe) und "+eparty2+"("+Integer.toString(battle.getEnemyShips().size())+" Schiffe) gegeneinander."+
+				"Es kämpfen "+eparty+"("+ battle.getOwnShips().size() +" Schiffe) und "+eparty2+"("+ battle.getEnemyShips().size() +" Schiffe) gegeneinander."+
 				"Deine 2. Reihe ist ";
 		String msg1 = "";
 		String msg2 = "";
-		if (battle.isSecondRowStable(0,null))
+		if (battle.isSecondRowStable(0))
 		{
 			msg1 +="stabil.";
 		}
@@ -339,7 +339,7 @@ public class SchlachtErstellenService
 		{
 			msg1 += "instabil. Vorsicht!";
 		}
-		if (battle.isSecondRowStable(1,null))
+		if (battle.isSecondRowStable(1))
 		{
 			msg2 +="stabil.";
 		}
