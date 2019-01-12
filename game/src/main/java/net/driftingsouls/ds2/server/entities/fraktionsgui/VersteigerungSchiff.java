@@ -21,10 +21,20 @@ package net.driftingsouls.ds2.server.entities.fraktionsgui;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
+import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.ships.ShipType;
+import net.driftingsouls.ds2.server.notification.Notifier;
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Eine Versteigerung fuer ein Schiff eines Schiffstyps.
@@ -54,6 +64,17 @@ public class VersteigerungSchiff extends Versteigerung {
 		super(owner, price);
 		
 		this.type = Integer.toString(type.getTypeId());
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+		List<User> users = Common.cast(db.createQuery("from User").list());
+		for(User auser : users)
+		{
+			PM.send(niemand, auser.getId(), "Neue Versteigerung eingestellt.", "Versteigert wird eine "+type+". Aktueller Preis: "+price);
+			/*if(auser.getApiKey()!="") {
+				new Notifier (auser.getApiKey()).sendMessage("Neue Versteigerung eingestellt", "Versteigert wird eine "+type+". Aktueller Preis: "+price);		
+			}
+			*/
+		}
 	}
 	
 	/**

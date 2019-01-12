@@ -27,6 +27,7 @@ import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
+import net.driftingsouls.ds2.server.notification.Notifier;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.Cache;
@@ -345,6 +346,9 @@ public class PM {
 		this.flags = 0;
 		this.inhalt = inhalt;
 		this.kommentar = "";
+		if(empfaenger.getApiKey()!="") {
+			new Notifier (empfaenger.getApiKey()).sendMessage("Neue Nachricht von "+sender.getPlainname(), title +"\n"+inhalt);		
+		}
 	}
 
 	/**
