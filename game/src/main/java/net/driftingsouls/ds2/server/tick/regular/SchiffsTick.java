@@ -26,21 +26,12 @@ import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
-import net.driftingsouls.ds2.server.entities.Feeding;
-import net.driftingsouls.ds2.server.entities.Nebel;
-import net.driftingsouls.ds2.server.entities.Offizier;
-import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.UserFlag;
+import net.driftingsouls.ds2.server.entities.*;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.framework.db.batch.UnitOfWork;
-import net.driftingsouls.ds2.server.ships.SchiffsReKosten;
-import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipClasses;
-import net.driftingsouls.ds2.server.ships.ShipFlag;
-import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
-import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import net.driftingsouls.ds2.server.ships.*;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.units.TransientUnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo;
@@ -54,15 +45,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * Berechnung des Ticks fuer Schiffe.
@@ -815,7 +798,7 @@ public class SchiffsTick extends TickController {
 
 		User nobody = (User)db.get(User.class, -1);
 		BigInteger gesamtkosten = schiffsReKosten.getGesamtkosten();
-		if(auser.getKonto().compareTo(gesamtkosten)<8*gesamtkosten)
+		if(auser.getKonto().compareTo(gesamtkosten.multiply(BigInteger.valueOf(8))) < 0)
 		{
 			PM.send(auser, auser.getId(), "Kontostand kritisch", auser.getPlainname() + ", dein Kontostand ist sehr niedrig. In weniger als einem Tag werden deine RE-Reserven nicht mehr ausreichen um die Ausgaben zu decken. Crews, die keinen Sold erhalten werden meutern und mit ihren Schiffen desertieren. Ein Besuch beim n&auml;chsten GTU-Handelsposten ist ratsam. Sollten deine Schiffe &uuml;bergelaufen sein oder du es nicht mehr zum Handelsposten schaffen, setze einen Hilferuf im Com-Net Channel 'Notfrequenz' ab. Vielleicht hilft dir ein Spieler.");
 		}
