@@ -30,6 +30,7 @@ public class WellKnownUserValue<T>
 	public static final WellKnownUserValue<Integer> GTU_AUCTION_USER_COST = new WellKnownUserValue<>(Integer.class, "GTU_AUCTION_USER_COST", "10");
 	public static final WellKnownUserValue<Integer> TBLORDER_PMS_FORWARD = new WellKnownUserValue<>(Integer.class, "TBLORDER/pms/forward", "0");
 	public static final WellKnownUserValue<String> TBLORDER_SCHIFFE_MODE = new WellKnownUserValue<>(String.class, "TBLORDER/schiffe/mode", "carg");
+	public static final WellKnownUserValue<String> APIKEY = new WellKnownUserValue<>(String.class, "APIKEY","");
 
 	private Class<T> type;
 	private final String name;

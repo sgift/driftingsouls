@@ -183,6 +183,7 @@ public class User extends BasicUser {
 	private String history;
 	private String medals;
 	private int rang;
+	private String ApiKey;
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="ally", nullable=true)
 	@ForeignKey(name="users_fk_ally")
@@ -303,6 +304,7 @@ public class User extends BasicUser {
 		this.loyalitaetspunkte = new HashSet<>();
 		this.bases = new HashSet<>();
 		this.ships = new HashSet<>();
+		this.ApiKey = "";
 
 		int defaultDropZone = new ConfigService().getValue(WellKnownConfigValue.GTU_DEFAULT_DROPZONE);
 		setGtuDropZone(defaultDropZone);
@@ -1799,5 +1801,25 @@ public class User extends BasicUser {
 	public void setFlags(Set<UserFlag> flags)
 	{
 		this.flags = flags.stream().map(UserFlag::getFlag).collect(Collectors.joining(" "));
+	}
+	/**
+	 * Gibt die ApiKey des Benutzers zurueck.
+	 * @return Die ApiKey
+	 */
+	public String getApiKey()
+	{
+		this.ApiKey = this.getUserValue(WellKnownUserValue.APIKEY);
+		return this.ApiKey;
+	}
+
+	/**
+	 * Setzt die ApiKey des Benutzers.
+	 * @param ApiKey Die ApiKey
+	 */
+	public void setApiKey(String ApiKey)
+	{
+		this.ApiKey = ApiKey;
+		this.setUserValue(WellKnownUserValue.APIKEY, ApiKey);
+		
 	}
 }

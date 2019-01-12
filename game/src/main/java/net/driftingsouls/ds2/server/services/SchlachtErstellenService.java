@@ -2,13 +2,7 @@ package net.driftingsouls.ds2.server.services;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
-import net.driftingsouls.ds2.server.battles.Battle;
-import net.driftingsouls.ds2.server.battles.BattleFlag;
-import net.driftingsouls.ds2.server.battles.BattleShip;
-import net.driftingsouls.ds2.server.battles.BattleShipFlag;
-import net.driftingsouls.ds2.server.battles.SchlachtLog;
-import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
-import net.driftingsouls.ds2.server.battles.SchlachtLogKommandantWechselt;
+import net.driftingsouls.ds2.server.battles.*;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
@@ -29,12 +23,7 @@ import org.hibernate.Session;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class SchlachtErstellenService
@@ -161,7 +150,7 @@ public class SchlachtErstellenService
 				}
 			}
 
-			if (shiptype.hasFlag(ShipTypeFlag.SECONDROW) && aShip.getEinstellungen().gotoSecondrow()) {
+            if (shiptype.hasFlag(ShipTypeFlag.SECONDROW) && aShip.getEinstellungen().gotoSecondrow()) {
 				secondRowShips.add(battleShip);
 			}
 			else
@@ -338,20 +327,51 @@ public class SchlachtErstellenService
 		}
 		User niemand = (User)db.get(User.class, -1);
 		String msg = "Es wurde eine Schlacht bei "+ownShip.getLocation().displayCoordinates(false)+" eröffnet.\n" +
-				"Es kämpfen "+eparty+" und "+eparty2+" gegeneinander.";
+				"Es kämpfen "+eparty+"("+ battle.getOwnShips().size() +" Schiffe) und "+eparty2+"("+ battle.getEnemyShips().size() +" Schiffe) gegeneinander."+
+				"Deine 2. Reihe ist ";
+		String msg1 = "";
+		String msg2 = "";
+		if (battle.isSecondRowStable(0))
+		{
+			msg1 +="stabil.";
+		}
+		else
+		{
+			msg1 += "instabil. Vorsicht!";
+		}
+		if (battle.isSecondRowStable(1))
+		{
+			msg2 +="stabil.";
+		}
+		else
+		{
+			msg2 += "instabil. Vorsicht!";
+		}
 		for(User auser : ownUsers)
 		{
 			if(auser.getUserValue(WellKnownUserValue.GAMEPLAY_USER_BATTLE_PM))
 			{
-				PM.send(niemand, auser.getId(), "Schlacht eröffnet", msg);
+				PM.send(niemand, auser.getId(), "Schlacht eröffnet", msg+msg1);
+			/*	if(auser.getApiKey()!="")
+				{
+					new Notifier (auser.getApiKey()).sendMessage("Schlacht bei "+ownShip.getLocation().displayCoordinates(false)+" eröffnet", msg);
+				}
+			*/
 			}
+
 		}
 		for(User auser : enemyUsers)
 		{
 			if(auser.getUserValue(WellKnownUserValue.GAMEPLAY_USER_BATTLE_PM))
 			{
-				PM.send(niemand, auser.getId(), "Schlacht eröffnet", msg);
+				PM.send(niemand, auser.getId(), "Schlacht eröffnet", msg+msg2);
+			/*	if(auser.getApiKey()!="")
+				{
+					new Notifier (auser.getApiKey()).sendMessage("Schlacht bei "+ownShip.getLocation().displayCoordinates(false)+" eröffnet", msg);
+				}
+			*/
 			}
+
 		}
 		db.setFlushMode(FlushMode.AUTO);
 

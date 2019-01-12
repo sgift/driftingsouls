@@ -160,6 +160,10 @@
             <td>Mitteilung bei ausgefallenen Basen:</td>
             <td><input name="base_down_pm" type="checkbox" value="1" {if user.basedownpm}checked="checked"{/endif} /></td>
         </tr>
+        <tr>
+			<td>NotifyMyDevice API-Key:</td>
+			<td><input name="apikey" type="text" size="30" value="{user.apikey}" /></td>
+		</tr>
 		<tr>
 			<td colspan="2" align="center"><br />
 				{!form_create_hidden changeXtra}

@@ -815,6 +815,10 @@ public class SchiffsTick extends TickController {
 
 		User nobody = (User)db.get(User.class, -1);
 		BigInteger gesamtkosten = schiffsReKosten.getGesamtkosten();
+		if(auser.getKonto().compareTo(gesamtkosten)<8*gesamtkosten)
+		{
+			PM.send(auser, auser.getId(), "Kontostand kritisch", auser.getPlainname() + ", dein Kontostand ist sehr niedrig. In weniger als einem Tag werden deine RE-Reserven nicht mehr ausreichen um die Ausgaben zu decken. Crews, die keinen Sold erhalten werden meutern und mit ihren Schiffen desertieren. Ein Besuch beim n&auml;chsten GTU-Handelsposten ist ratsam. Sollten deine Schiffe &uuml;bergelaufen sein oder du es nicht mehr zum Handelsposten schaffen, setze einen Hilferuf im Com-Net Channel 'Notfrequenz' ab. Vielleicht hilft dir ein Spieler.");
+		}
 		if(auser.getKonto().compareTo(gesamtkosten) >= 0)
 		{
 			this.log("Kosten: " + gesamtkosten);
