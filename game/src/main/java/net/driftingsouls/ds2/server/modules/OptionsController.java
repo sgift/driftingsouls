@@ -214,7 +214,9 @@ public class OptionsController extends Controller
 											   PersonenNamenGenerator personenNamenGenerator,
 											   SchiffsKlassenNamenGenerator schiffsKlassenNamenGenerator,
 											   SchiffsNamenGenerator schiffsNamenGenerator,
-											   String apikey)
+											   String apikey,
+											   boolean auktion_pm,
+											   boolean handel_pm)
 	{
 		User user = (User) getUser();
 
@@ -292,6 +294,8 @@ public class OptionsController extends Controller
         user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_BASE_DOWN_PM, base_down_pm);
         user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_OFFICER_BUILD_PM, officer_build_pm);
         user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_UNIT_BUILD_PM, unit_build_pm);
+        user.serUserValue(WellKnownUserValue.GAMEPLAY_USER_AUKTION_PM,auktion_pm);
+        user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_HANDEL_PM,handel_pm);
         
 
 		return new RedirectViewResult("xtra").withMessage(changemsg);
@@ -413,7 +417,9 @@ public class OptionsController extends Controller
                 "user.basedownpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_BASE_DOWN_PM),
                 "user.officerbuildpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_OFFICER_BUILD_PM),
                 "user.unitbuildpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_UNIT_BUILD_PM),
-				"user.apikey", user.getUserValue(WellKnownUserValue.APIKEY));
+				"user.apikey", user.getUserValue(WellKnownUserValue.APIKEY),
+				"user.handelpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_HANDEL_PM),
+				"user.auktionpm", user.getUserValue(WellKnownUserValue.GAMPLAY_USER_AUKTION_PM));
 		
 		t.setBlock("_OPTIONS", "personenNamenGenerator.listitem", "personenNamenGenerator.list");
 		for (PersonenNamenGenerator png : PersonenNamenGenerator.values())
