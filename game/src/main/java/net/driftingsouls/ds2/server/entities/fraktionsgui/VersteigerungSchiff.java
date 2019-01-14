@@ -68,7 +68,7 @@ public class VersteigerungSchiff extends Versteigerung {
 		org.hibernate.Session db = context.getDB();
 		//das macht vermutlich probleme, weil keine richtigen user erzeugt werden
 		//List<User> users = Common.cast(db.createQuery("from User").list());
-		
+		User niemand = (User)db.get(User.class, -1);
 		List<Integer> userIDs = Common.cast(db.createQuery("select id from User").list());
 		
 		for(Integer userID : userIDs)
