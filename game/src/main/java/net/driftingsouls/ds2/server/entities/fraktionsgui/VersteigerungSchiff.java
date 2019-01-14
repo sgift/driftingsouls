@@ -59,15 +59,18 @@ public class VersteigerungSchiff extends Versteigerung {
 		this.type = Integer.toString(type.getTypeId());
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
-		List<User> users = Common.cast(db.createQuery("from User").list());
+
+		//das macht vermutlich probleme, weil keine richtigen user erzeugt werden
+		//List<User> users = Common.cast(db.createQuery("from User").list());
 		User niemand = (User)db.get(User.class, -1);
-		for(User auser : users)
+		List<Integer> userIDs = Common.cast(db.createQuery("select id from User").list());
+		
+		for(Integer userID : userIDs)
+
 		{
-			PM.send(niemand, auser.getId(), "Neue Versteigerung eingestellt.", "Versteigert wird eine "+type+". Aktueller Preis: "+price);
-			/*if(auser.getApiKey()!="") {
-				new Notifier (auser.getApiKey()).sendMessage("Neue Versteigerung eingestellt", "Versteigert wird eine "+type+". Aktueller Preis: "+price);		
-			}
-			*/
+			User user = (User)db.get(User.class, userID);
+			PM.send(niemand, user.getId(), "Neue Versteigerung eingestellt.", "Versteigert wird eine "+type.getNickname()+". Aktueller Preis: "+price+" RE");
+
 		}
 	}
 	

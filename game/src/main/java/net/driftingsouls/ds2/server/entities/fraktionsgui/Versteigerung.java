@@ -18,8 +18,13 @@
  */
 package net.driftingsouls.ds2.server.entities.fraktionsgui;
 
+import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.entities.User;
 import org.hibernate.annotations.ForeignKey;
+
+
 
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
@@ -77,6 +82,7 @@ public abstract class Versteigerung {
 		this.owner = owner;
 		this.bieter = owner;
 		this.preis = price;
+		
 	}
 
 	/**
