@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.ships.SchiffEinstellungen;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
 import org.springframework.stereotype.Component;
 
 /**
@@ -46,8 +47,12 @@ public class CargoDefault implements SchiffPlugin {
 			long load,
 			boolean setautodeut,
 			int autodeut,
+			boolean setautomine,
+			int automine,
 			boolean setstartfighter,
 			int startfighter,
+			boolean setgotosecondrow,
+			int gotosecondrow,
 			long usenahrung,
 			boolean setfeeding,
 			boolean isfeeding,
@@ -166,7 +171,7 @@ public class CargoDefault implements SchiffPlugin {
 
 			if( usenahrung > 0)
 			{
-				long feeding = usenahrung / 10000 + 1;
+				long feeding = usenahrung / 100000 + 1;
 				for(int i=0; i < feeding; i++)
 				{
 					output += "*mampf*<br />";
@@ -189,13 +194,28 @@ public class CargoDefault implements SchiffPlugin {
 
 			output += "Automatisches Deuteriumsammeln "+(autodeut != 0 ? "":"de")+"aktiviert<br />\n";
 		}
+		else if( setautomine ) {
+			SchiffEinstellungen einstellungen = ship.getEinstellungen();
+			einstellungen.setAutoMine(automine != 0);
+			einstellungen.persistIfNecessary(ship);
+
+			output += "Automatisches Felsbrockenabbauen "+(automine != 0 ? "":"de")+"aktiviert<br />\n";
+		}
 		else if(setstartfighter)
 		{
 			SchiffEinstellungen einstellungen = ship.getEinstellungen();
 			einstellungen.setStartFighters(startfighter != 0);
 			einstellungen.persistIfNecessary(ship);
 
-			output += "Automatisches Starten von Jägern "+(startfighter != 0 ? "":"de")+"aktiviert<br />\n";
+			output += "Automatisches Starten von J&auml;gern "+(startfighter != 0 ? "":"de")+"aktiviert<br />\n";
+		}
+		else if(setgotosecondrow)
+		{
+			SchiffEinstellungen einstellungen = ship.getEinstellungen();
+			einstellungen.setGotoSecondrow(gotosecondrow != 0);
+			einstellungen.persistIfNecessary(ship);
+
+			output += "Automatisches Verlegen in die 2. Reihe "+(gotosecondrow != 0 ? "":"de")+"aktiviert<br />\n";
 		}
 		else if( setfeeding )
 		{
@@ -240,8 +260,12 @@ public class CargoDefault implements SchiffPlugin {
 					//"schiff.cargo.lbatterien",				cargo.hasResource( Resources.LBATTERIEN ),
 					"schiff.cargo.tanker",					shiptype.getDeutFactor(),
 					"schiff.cargo.tanker.autodeut",			ship.getEinstellungen().getAutoDeut(),
+					"schiff.cargo.miner",					      ship.getTypeData().getShipClass() == ShipClasses.MINER,
+					"schiff.cargo.miner.automine",			ship.getEinstellungen().getAutoMine(),
 					"schiff.cargo.traeger",					shiptype.getJDocks() > 0 ? 1 : 0,
 					"schiff.cargo.traeger.startfighter",	ship.getEinstellungen().startFighters(),
+					"schiff.cargo.secondrow",				shiptype.hasFlag(ShipTypeFlag.SECONDROW),
+					"schiff.cargo.secondrow.gotosecondrow", ship.getEinstellungen().gotoSecondrow(),
 					"schiff.cargo.versorger",				shiptype.hasFlag(ShipTypeFlag.VERSORGER),
 					"schiff.cargo.versorger.isfeeding",		ship.getEinstellungen().isFeeding(),
 					"schiff.cargo.versorger.isallyfeeding",	ship.getEinstellungen().isAllyFeeding(),

@@ -206,6 +206,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 
     /** Das Schiff wurde vor kurzem repariert und kann aktuell nicht erneut repariert werden. */
     public static final int FLAG_RECENTLY_REPAIRED = 1;
+		/** Der Felsbrocken wurde vor kurzem abgebaut und kann aktuell nicht weiter abgebaut werden. */
+		public static final int FLAG_RECENTLY_MINED = 1;
 
 	/**
 	 * Konstruktor.

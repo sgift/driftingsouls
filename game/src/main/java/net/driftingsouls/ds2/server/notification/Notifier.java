@@ -1,17 +1,16 @@
 package net.driftingsouls.ds2.server.notification;
 
+import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.URL;
 
-import javax.net.ssl.HttpsURLConnection;
-
 public class Notifier {
 
-	final String apiKey;  
+	private final String apiKey;
 	 
-	public Notifier(final String apiKey_) {
-		apiKey = apiKey_; 
+	public Notifier(final String apiKey) {
+		this.apiKey = apiKey;
 	}  
 	 
 	public int sendMessage(final String title, final String text){  

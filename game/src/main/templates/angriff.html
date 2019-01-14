@@ -208,25 +208,30 @@
 							<img src="{shipinfo.type.image}" alt="" style="float:right; margin-right:5px; margin-left:15px;margin-bottom:10px" />
 							<span class="ttcontent">{shipinfo.type.name}</span>
 						</a>
-						Zustand:
-						{if shipinfo.ablativeArmor.bad}<span style="color:#ff0000">{/endif}
-						{if shipinfo.ablativeArmor.normal}<span style="color:#ffff00">{/endif}
-						{if shipinfo.ablativeArmor.good}<span style="color:#00ff00">{/endif}
-						{shipinfo.ablativeArmor}/{shipinfo.type.ablativeArmor}</span>{if shipinfo.showtmp}&nbsp;({shipinfo.tmp.ablativeArmor}){/endif}<br />
+						Zustand:<br/>
+						{if shipinfo.type.shields}
+							+ Schilde:
+							{if shipinfo.shields.bad}<span style="color:#ff0000">{/endif}
+							{if shipinfo.shields.normal}<span style="color:#ffff00">{/endif}
+							{if shipinfo.shields.good}<span style="color:#00ff00">{/endif}
+							{shipinfo.shields}/{shipinfo.type.shields}</span>{if shipinfo.showtmp}&nbsp;({shipinfo.tmp.shields}){/endif}<br />
+						{/endif}
+
+						{if shipinfo.type.ablativeArmor}
+							+ Ablative:
+							{if shipinfo.ablativeArmor.bad}<span style="color:#ff0000">{/endif}
+							{if shipinfo.ablativeArmor.normal}<span style="color:#ffff00">{/endif}
+							{if shipinfo.ablativeArmor.good}<span style="color:#00ff00">{/endif}
+							{shipinfo.ablativeArmor}/{shipinfo.type.ablativeArmor}</span>{if shipinfo.showtmp}&nbsp;({shipinfo.tmp.ablativeArmor}){/endif}<br />
+						{/endif}
+
+						+ H&uuml;lle:
 						{if shipinfo.hull.bad}<span style="color:#ff0000">{/endif}
 						{if shipinfo.hull.normal}<span style="color:#ffff00">{/endif}
 						{if shipinfo.hull.good}<span style="color:#00ff00">{/endif}
 						{shipinfo.hull}/{shipinfo.type.hull}</span>{if shipinfo.showtmp}&nbsp;({shipinfo.tmp.hull}){/endif}<br />
 
 						Panzerung: {shipinfo.panzerung}{if shipinfo.showtmp}&nbsp;({shipinfo.tmp.panzerung}){/endif}<br />
-
-						{if shipinfo.type.shields}
-							Schilde:
-							{if shipinfo.shields.bad}<span style="color:#ff0000">{/endif}
-							{if shipinfo.shields.normal}<span style="color:#ffff00">{/endif}
-							{if shipinfo.shields.good}<span style="color:#00ff00">{/endif}
-							{shipinfo.shields}/{shipinfo.type.shields}</span>{if shipinfo.showtmp}&nbsp;({shipinfo.tmp.shields}){/endif}<br />
-						{/endif}
 
 						Subsysteme:<br />
 						{if shipinfo.type.cost}
@@ -357,6 +362,7 @@
 	<td class="schiffData" style="vertical-align:top;width:30%">
 		<div style="height:500px; overflow:auto; font-size:16px">
 			<!-- BEGIN ownShips.listitem -->
+				{if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
 				{if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
 				<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(aktiv){/endif}
 				{if ship.docked.name}auf {if ship.docked.name}{ship.docked.name}{/endif}({ship.docked.id}){/endif}
@@ -385,6 +391,7 @@
 	<td class="schiffData" style="vertical-align:top;width:30%">
 		<div style="height:500px; overflow:auto; font-size:16px">
 			<!-- BEGIN enemyShips.listitem -->
+				{if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
 				{if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
 				<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={ship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(Ziel){/endif}
 				{if ship.docked.name}auf {ship.docked.name}{/endif}

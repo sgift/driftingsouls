@@ -1909,6 +1909,7 @@ DROP TABLE IF EXISTS `schiff_einstellungen`;
 CREATE TABLE `schiff_einstellungen` (
 	`id` int(11) NOT NULL AUTO_INCREMENT,
 	`autodeut` tinyint(4) NOT NULL,
+	`automine` tinyint(4) NOT NULL,
 	`bookmark` tinyint(1) NOT NULL,
 	`destcom` longtext NOT NULL,
 	`destsystem` int(11) NOT NULL,
@@ -1918,6 +1919,7 @@ CREATE TABLE `schiff_einstellungen` (
 	`isfeeding` tinyint(1) NOT NULL,
 	`showtradepost` int(11) NOT NULL,
 	`startFighters` tinyint(1) NOT NULL,
+	`gotoSecondrow` tinyint(1) NOT NULL,
 	`version` int(11) NOT NULL,
 	PRIMARY KEY (`id`),
 	KEY `bookmark` (`bookmark`),

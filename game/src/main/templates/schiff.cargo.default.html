@@ -65,14 +65,38 @@
 		</div>
 	</form>
 {/endif}
+{if schiff.cargo.miner}
+	<form action="./ds" method="post">
+		<div>
+			Automatisch Felsbrocken abbauen:<br />
+			<input id="cargo_ops_automine" name="cargo_ops[automine]" type="checkbox" value="1" {if schiff.cargo.miner.automine}checked="checked"{/endif} />
+			<label for="cargo_ops_automine">aktivieren</label>&nbsp;
+			{!form_create_hidden plugin, ship:$ship.id, plugin:$global.pluginid}
+			<input type="hidden" name="cargo_ops[setautomine]" value="1" />
+			<input type="submit" value="ok" />
+		</div>
+	</form>
+{/endif}
 {if schiff.cargo.traeger}
 	<form action="./ds" method="post">
 		<div>
-			Automatisch starten:<br />
+			Automatisch J&auml;ger starten:<br />
 			<input id="cargo_ops_startfighter" name="cargo_ops[startfighter]" type="checkbox" value="1" {if schiff.cargo.traeger.startfighter}checked="checked"{/endif} />
 			<label for="cargo_ops_startfighter">aktivieren</label>&nbsp;
 			{!form_create_hidden plugin, ship:$ship.id, plugin:$global.pluginid}
 			<input type="hidden" name="cargo_ops[setstartfighter]" value="1" />
+			<input type="submit" value="ok" />
+		</div>
+	</form>
+{/endif}
+{if schiff.cargo.secondrow}
+	<form action="./ds" method="post">
+		<div>
+			Automatisch in 2. Reihe verlegen:<br />
+			<input id="cargo_ops_gotosecondrow" name="cargo_ops[gotosecondrow]" type="checkbox" value="1" {if schiff.cargo.secondrow.gotosecondrow}checked="checked"{/endif} />
+			<label for="cargo_ops_gotosecondrow">aktivieren</label>&nbsp;
+			{!form_create_hidden plugin, ship:$ship.id, plugin:$global.pluginid}
+			<input type="hidden" name="cargo_ops[setgotosecondrow]" value="1" />
 			<input type="submit" value="ok" />
 		</div>
 	</form>

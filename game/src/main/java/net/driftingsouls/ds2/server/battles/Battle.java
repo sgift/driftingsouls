@@ -305,7 +305,7 @@ public class Battle implements Locatable
             }
 		}
 
-        return Double.valueOf(secondrowcaps).intValue() == 0 || Double.valueOf(owncaps).intValue() > Double.valueOf(secondrowcaps).intValue() * 2;
+        return Double.valueOf(secondrowcaps).intValue() == 0 || Double.valueOf(owncaps).intValue() >= Double.valueOf(secondrowcaps).intValue() * 2;
 
     }
 
@@ -895,7 +895,7 @@ public class Battle implements Locatable
 
 		return true;
 	}
-    
+
     public void setFiringShip(Ship ownShip)
     {
         if(ownShip != null)
@@ -910,7 +910,7 @@ public class Battle implements Locatable
             }
         }
     }
-    
+
     public void setAttackedShip(Ship enemyShip)
     {
         if(enemyShip != null)

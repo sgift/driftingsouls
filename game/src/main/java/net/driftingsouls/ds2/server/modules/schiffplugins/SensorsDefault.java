@@ -502,7 +502,7 @@ public class SensorsDefault implements SchiffPlugin {
 				}
 
 				//Angreifen
-				if (!disableIFF && (aship.getOwner().getId() != user.getId()) && (aship.getBattle() == null) && shiptype.isMilitary())
+				if (!disableIFF && (aship.getOwner().getId() != user.getId()) && (aship.getBattle() == null) && shiptype.isMilitary() && !(ashiptype.getShipClass() == ShipClasses.FELSBROCKEN))
 				{
 					if (((user.getAlly() != null) && (aship.getOwner().getAlly() != user.getAlly())) || (user.getAlly() == null))
 					{
@@ -572,18 +572,18 @@ public class SensorsDefault implements SchiffPlugin {
 				{
 					t.setVar("sships.action.trade", 1);
 				}
-				else if (!disableIFF && (aship.getOwner().getId() == -1) && (ashiptype.getShipClass() == ShipClasses.SCHROTT || ashiptype.getShipClass() == ShipClasses.FELSBROCKEN))
+				else if (!disableIFF && (aship.getOwner().getId() == -1) && (ashiptype.getShipClass() == ShipClasses.SCHROTT || aship.getStatus().contains("pluenderbar")))
 				{
 					t.setVar("sships.action.transferpluender", 1);
 				}
-				else if (!disableIFF || (aship.getOwner().getId() == user.getId()))
+				else if ((!disableIFF || (aship.getOwner().getId() == user.getId())) && !(ashiptype.getShipClass() == ShipClasses.FELSBROCKEN))
 				{
 					t.setVar("sships.action.transfer", 1);
 				}
 
 				//Bemannen, Kapern, Einheiten tranferieren
 				if (!disableIFF && (aship.getOwner().getId() != user.getId()) && ashiptype.getShipClass().isKaperbar() &&
-						((aship.getOwner().getId() != -1) || (ashiptype.getShipClass() == ShipClasses.SCHROTT || ashiptype.getShipClass() == ShipClasses.FELSBROCKEN)))
+						((aship.getOwner().getId() != -1) || (ashiptype.getShipClass() == ShipClasses.SCHROTT )))
 				{
 					if ((user.getAlly() == null) || (aship.getOwner().getAlly() != user.getAlly()))
 					{
@@ -608,7 +608,7 @@ public class SensorsDefault implements SchiffPlugin {
 
 				//Offiziere: Captain transferieren
 				boolean hasoffizier = aship.getStatus().contains("offizier");
-				if (!disableIFF && (caller.offizier != null) && (!hasoffizier || ashiptype.hasFlag(ShipTypeFlag.OFFITRANSPORT)))
+				if (!disableIFF && (caller.offizier != null) && (!hasoffizier || ashiptype.hasFlag(ShipTypeFlag.OFFITRANSPORT)) && !(ashiptype.getShipClass() == ShipClasses.FELSBROCKEN))
 				{
 					if (ashiptype.getSize() > ShipType.SMALL_SHIP_MAXSIZE)
 					{

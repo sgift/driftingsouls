@@ -92,11 +92,6 @@
             </dependency>
 
             <dependency>
-                <groupId>javax.mail</groupId>
-                <artifactId>javax.mail-api</artifactId>
-                <version>1.6.1</version>
-            </dependency>
-            <dependency>
                 <groupId>com.rometools</groupId>
                 <artifactId>rome</artifactId>
                 <version>1.11.0</version>
@@ -201,6 +196,11 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
                 <version>1.7.25</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.mail</groupId>
+                <artifactId>javax.mail</artifactId>
+                <version>1.6.2</version>
             </dependency>
 
             <dependency>
