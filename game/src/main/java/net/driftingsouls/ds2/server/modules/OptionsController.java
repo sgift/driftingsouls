@@ -294,7 +294,7 @@ public class OptionsController extends Controller
         user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_BASE_DOWN_PM, base_down_pm);
         user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_OFFICER_BUILD_PM, officer_build_pm);
         user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_UNIT_BUILD_PM, unit_build_pm);
-        user.serUserValue(WellKnownUserValue.GAMEPLAY_USER_AUKTION_PM,auktion_pm);
+        user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_AUKTION_PM,auktion_pm);
         user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_HANDEL_PM,handel_pm);
         
 
@@ -419,7 +419,7 @@ public class OptionsController extends Controller
                 "user.unitbuildpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_UNIT_BUILD_PM),
 				"user.apikey", user.getUserValue(WellKnownUserValue.APIKEY),
 				"user.handelpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_HANDEL_PM),
-				"user.auktionpm", user.getUserValue(WellKnownUserValue.GAMPLAY_USER_AUKTION_PM));
+				"user.auktionpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_AUKTION_PM));
 		
 		t.setBlock("_OPTIONS", "personenNamenGenerator.listitem", "personenNamenGenerator.list");
 		for (PersonenNamenGenerator png : PersonenNamenGenerator.values())

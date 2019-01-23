@@ -24,9 +24,11 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
+import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.Handel;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
@@ -37,6 +39,8 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.RedirectViewR
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.Context;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -140,7 +144,22 @@ public class HandelController extends Controller
 			entry.setBietet(have.save());
 		}
 
+		User niemand = (User)db.get(User.class, -2);
+		List<Integer> userIDs = Common.cast(db.createQuery("select id from User").list());
+		
+		for(Integer userID : userIDs)
+		{
+			User user = (User)db.get(User.class, userID);
+			//Abfragen, ob er eine PM moechte
+			if(user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_HANDEL_PM)) 
+			{
+				PM.send(niemand, user.getId(), user.getPlainname()+" hat ein neues Handelsinserat eingestellt.",comm );
+			}
+
+		}
+		
 		db.persist(entry);
+		
 
 		return new RedirectViewResult("default");
 	}
