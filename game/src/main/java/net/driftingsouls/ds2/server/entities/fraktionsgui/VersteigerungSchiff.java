@@ -18,16 +18,25 @@
  */
 package net.driftingsouls.ds2.server.entities.fraktionsgui;
 
-import net.driftingsouls.ds2.server.comm.PM;
-import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.ships.ShipType;
-
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+
+import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.ships.ShipType;
+import net.driftingsouls.ds2.server.notification.Notifier;
+import net.driftingsouls.ds2.server.comm.PM;
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Eine Versteigerung fuer ein Schiff eines Schiffstyps.
@@ -59,18 +68,18 @@ public class VersteigerungSchiff extends Versteigerung {
 		this.type = Integer.toString(type.getTypeId());
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
-
 		//das macht vermutlich probleme, weil keine richtigen user erzeugt werden
 		//List<User> users = Common.cast(db.createQuery("from User").list());
-		User niemand = (User)db.get(User.class, -1);
+		User niemand = (User)db.get(User.class, -2);
 		List<Integer> userIDs = Common.cast(db.createQuery("select id from User").list());
 		
 		for(Integer userID : userIDs)
-
 		{
 			User user = (User)db.get(User.class, userID);
-			PM.send(niemand, user.getId(), "Neue Versteigerung eingestellt.", "Versteigert wird eine "+type.getNickname()+". Aktueller Preis: "+price+" RE");
-
+			//Abfrage, ob der user eine PM moechte
+			if(user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_AUKTION_PM)) {
+				PM.send(niemand, user.getId(), "Neue Versteigerung eingestellt.", "Versteigert wird eine "+type.getNickname()+". Aktueller Preis: "+price+" RE");
+			}
 		}
 	}
 	
