@@ -272,7 +272,7 @@ public class OptionsController extends Controller
 		}
 		if (apikey != user.getUserValue(WellKnownUserValue.APIKEY))
 		{
-			if (apikey.length()==25)//Die ApiKeys sind alle 25 Zeichen lang
+			if (apikey.length()==25||apikey.length()==0)//Die ApiKeys sind alle 25 Zeichen lang
 			{
 				user.setUserValue(WellKnownUserValue.APIKEY, apikey);
 				//changemsg += "API Key ge&auml;ndert...<br />\\n";
@@ -281,7 +281,7 @@ public class OptionsController extends Controller
 			}
 			else
 			{
-				changemsg += "Ung&uuml;ltiger API Key eingegeben ... <br />\\n";
+				changemsg += "Ung&uuml;ltiger API Key eingegeben ... zum Entfernen das Feld leeren<br />\\n";
 			}
 		}
 
