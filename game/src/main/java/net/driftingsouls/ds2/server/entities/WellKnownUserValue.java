@@ -31,7 +31,10 @@ public class WellKnownUserValue<T>
 	public static final WellKnownUserValue<Integer> TBLORDER_PMS_FORWARD = new WellKnownUserValue<>(Integer.class, "TBLORDER/pms/forward", "0");
 	public static final WellKnownUserValue<String> TBLORDER_SCHIFFE_MODE = new WellKnownUserValue<>(String.class, "TBLORDER/schiffe/mode", "carg");
 	public static final WellKnownUserValue<String> APIKEY = new WellKnownUserValue<>(String.class, "APIKEY","");
-
+	public static final WellKnownUserValue<Boolean> GAMEPLAY_USER_AUKTION_PM = new WellKnownUserValue<>(Boolean.class, "GAMEPLAY/user/auktion_pm", "true");
+	public static final WellKnownUserValue<Boolean> GAMEPLAY_USER_HANDEL_PM = new WellKnownUserValue<>(Boolean.class, "GAMEPLAY/user/handel_pm", "true");
+	
+	
 	private Class<T> type;
 	private final String name;
 	private final String defaultValue;
