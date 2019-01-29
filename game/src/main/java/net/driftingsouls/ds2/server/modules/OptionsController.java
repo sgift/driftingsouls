@@ -270,7 +270,7 @@ public class OptionsController extends Controller
 				}
 			}
 		}
-		if (apikey.equals(user.getApiKey()))
+		if (!apikey.equals(user.getApiKey()))
 		{
 			if (apikey.length()==25||apikey.length()==0)//Die ApiKeys sind alle 25 Zeichen lang
 			{
