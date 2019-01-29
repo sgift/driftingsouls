@@ -270,14 +270,12 @@ public class OptionsController extends Controller
 				}
 			}
 		}
-		if (apikey != user.getUserValue(WellKnownUserValue.APIKEY))
+		if (apikey.equals(user.getApiKey()))
 		{
 			if (apikey.length()==25||apikey.length()==0)//Die ApiKeys sind alle 25 Zeichen lang
 			{
 				user.setUserValue(WellKnownUserValue.APIKEY, apikey);
-				//changemsg += "API Key ge&auml;ndert...<br />\\n";
-		        new Notifier(apikey).sendMessage("Drifting Souls Push-Benachrichtigungen", user.getPlainname()+", du hast die Push-Benachrichtigungen erfolgreich aktiviert.");
-		        
+					new Notifier(apikey).sendMessage("Drifting Souls Push-Benachrichtigungen", user.getPlainname()+", du hast die Push-Benachrichtigungen erfolgreich aktiviert.");
 			}
 			else
 			{

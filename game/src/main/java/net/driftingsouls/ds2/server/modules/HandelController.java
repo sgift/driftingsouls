@@ -153,7 +153,7 @@ public class HandelController extends Controller
 			//Abfragen, ob er eine PM moechte
 			if(user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_HANDEL_PM)) 
 			{
-				PM.send(niemand, user.getId(), user.getPlainname()+" hat ein neues Handelsinserat eingestellt.",comm );
+				PM.send(niemand, user.getId(), "Neues Handelsinserat eingestellt","Von :" + entry.getWho().getPlainname()+"\n"+comm );
 			}
 
 		}
