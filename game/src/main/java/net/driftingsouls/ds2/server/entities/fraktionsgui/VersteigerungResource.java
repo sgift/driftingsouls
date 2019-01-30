@@ -21,12 +21,17 @@ package net.driftingsouls.ds2.server.entities.fraktionsgui;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
+import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.comm.PM;
 
 /**
  * Versteigerung einer Resource in einer bestimmten Menge.
