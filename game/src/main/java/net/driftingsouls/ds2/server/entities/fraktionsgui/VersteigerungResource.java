@@ -87,7 +87,7 @@ public class VersteigerungResource extends Versteigerung {
 			User user = (User)db.get(User.class, userID);
 			//Abfrage, ob der user eine PM moechte
 			if(user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_AUKTION_PM)) {
-				PM.send(niemand, user.getId(), "Neue Versteigerung eingestellt.", "Versteigert werden "+res.getResourceList()[0].getCount1()+" " +res.getResourceList()[0].getPlainName() +". Aktueller Preis: "+price+" RE");
+				PM.send(niemand, user.getId(), "Neue Versteigerung eingestellt.", "Versteigert werden "+res.getResourceList().iterator().next().getCount1()+" " +res.getResourceList().iterator().next().getPlainName() +". Aktueller Preis: "+price+" RE");
 			}
 		}
 	}
