@@ -32,6 +32,13 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.comm.PM;
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Versteigerung einer Resource in einer bestimmten Menge.
@@ -71,8 +78,7 @@ public class VersteigerungResource extends Versteigerung {
 		this.type = res.save();
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
-		//das macht vermutlich probleme, weil keine richtigen user erzeugt werden
-		//List<User> users = Common.cast(db.createQuery("from User").list());
+
 		User niemand = (User)db.get(User.class, -2);
 		List<Integer> userIDs = Common.cast(db.createQuery("select id from User").list());
 		
@@ -81,7 +87,7 @@ public class VersteigerungResource extends Versteigerung {
 			User user = (User)db.get(User.class, userID);
 			//Abfrage, ob der user eine PM moechte
 			if(user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_AUKTION_PM)) {
-				PM.send(niemand, user.getId(), "Neue Versteigerung eingestellt.", "Versteigert werden "+res.getResourceList().next().getCount1()+" " +res.getResourceList().next().getPlainName() +". Aktueller Preis: "+price+" RE");
+				PM.send(niemand, user.getId(), "Neue Versteigerung eingestellt.", "Versteigert werden "+res.getResourceList()[0].getCount1()+" " +res.getResourceList()[0].getPlainName() +". Aktueller Preis: "+price+" RE");
 			}
 		}
 	}
