@@ -21,12 +21,24 @@ package net.driftingsouls.ds2.server.entities.fraktionsgui;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
+import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.comm.PM;
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Versteigerung einer Resource in einer bestimmten Menge.
@@ -64,6 +76,20 @@ public class VersteigerungResource extends Versteigerung {
 		}
 		
 		this.type = res.save();
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+
+		User niemand = (User)db.get(User.class, -2);
+		List<Integer> userIDs = Common.cast(db.createQuery("select id from User").list());
+		
+		for(Integer userID : userIDs)
+		{
+			User user = (User)db.get(User.class, userID);
+			//Abfrage, ob der user eine PM moechte
+			if(user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_AUKTION_PM)) {
+				PM.send(niemand, user.getId(), "Neue Versteigerung eingestellt.", "Versteigert werden "+res.getResourceList().iterator().next().getCount1()+" " +res.getResourceList().iterator().next().getPlainName() +". Aktueller Preis: "+price+" RE");
+			}
+		}
 	}
 	
 	/**
