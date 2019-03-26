@@ -5,7 +5,7 @@ package net.driftingsouls.ds2.server.entities;
  */
 public class WellKnownUserValue<T>
 {
-	public static final WellKnownUserValue<Boolean> GAMEPLAY_USER_BATTLE_PM = new WellKnownUserValue<>(Boolean.class, "GAMEPLAY/user/battle_pm", "false");
+	public static final WellKnownUserValue<Boolean> GAMEPLAY_USER_BATTLE_PM = new WellKnownUserValue<>(Boolean.class, "GAMEPLAY/user/battle_pm", "true");
 	public static final WellKnownUserValue<String> TBLORDER_BASEN_ORDER = new WellKnownUserValue<>(String.class, "TBLORDER/basen/order", "name");
 	public static final WellKnownUserValue<Integer> TBLORDER_BASEN_ORDER_MODE = new WellKnownUserValue<>(Integer.class, "TBLORDER/basen/order_mode", "0");
 	public static final WellKnownUserValue<Integer> TBLORDER_BASEN_SHOWCARGO = new WellKnownUserValue<>(Integer.class, "TBLORDER/basen/showcargo", "1");
@@ -13,7 +13,7 @@ public class WellKnownUserValue<T>
 	public static final WellKnownUserValue<String> PMS_SIGNATURE = new WellKnownUserValue<>(String.class, "PMS/signature", "");
 	public static final WellKnownUserValue<Integer> TBLORDER_FACTIONS_KONTO_MAXTYPE = new WellKnownUserValue<>(Integer.class, "TBLORDER/factions/konto_maxtype", "2");
 	public static final WellKnownUserValue<String> TBLORDER_MAIN_NOTIZEN = new WellKnownUserValue<>(String.class, "TBLORDER/main/notizen", "");
-	public static final WellKnownUserValue<Integer> TBLORDER_SCHIFF_WRAPFACTOR = new WellKnownUserValue<>(Integer.class, "TBLORDER/schiff/wrapfactor", "1");
+	public static final WellKnownUserValue<Integer> TBLORDER_SCHIFF_WRAPFACTOR = new WellKnownUserValue<>(Integer.class, "TBLORDER/schiff/wrapfactor", "3");
 	public static final WellKnownUserValue<Integer> TBLORDER_UEBERSICHT_INTTUTORIAL = new WellKnownUserValue<>(Integer.class, "TBLORDER/uebersicht/inttutorial", "5");
 	public static final WellKnownUserValue<Integer> TBLORDER_SCHIFF_TOOLTIPS = new WellKnownUserValue<>(Integer.class, "TBLORDER/schiff/tooltips", "1");
 	public static final WellKnownUserValue<Boolean> GAMEPLAY_USER_RESEARCH_PM = new WellKnownUserValue<>(Boolean.class, "GAMEPLAY/user/research_pm", "true");
