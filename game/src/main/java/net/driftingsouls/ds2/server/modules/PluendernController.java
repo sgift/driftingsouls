@@ -406,9 +406,9 @@ public class PluendernController extends Controller
 					"res.name", res.getName(),
 					"res.image", res.getImage(),
 					"res.cargo1", res.getCargo1(),
-					"res.cargo2", res.getCargo2()
-					"res.cargo1.count", (from.size() > 1 ? "max " : "") + res.getCount1(),
-					"res.cargo2.count", (to.size() > 1 ? "max " : "") + res.getCount2() );
+					"res.cargo2", res.getCargo2(),
+					"res.cargo1.count", res.getCount1(),
+					"res.cargo2.count", res.getCount2());
 
 			t.parse("res.list", "res.listitem", true);
 		}
