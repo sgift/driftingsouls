@@ -7,6 +7,7 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
+import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 
@@ -38,10 +39,13 @@ public class SchlachtErstellenServiceTest extends DBSingleTransactionTest
 	public void loadFleets() {
 		user1 = persist(new User("user1", "***", 0, "", new Cargo(), "testUser1@localhost"));
 		user1.setFlag(UserFlag.NOOB, false);
+		user1.setUserValue(WellKnownUserValue.GAMEPLAY_USER_BATTLE_PM, false);
 		user2 = persist(new User("user2", "***", 0, "", new Cargo(), "testUser2@localhost"));
 		user2.setFlag(UserFlag.NOOB, false);
+		user2.setUserValue(WellKnownUserValue.GAMEPLAY_USER_BATTLE_PM, false);
 		user3 = persist(new User("user3", "***", 0, "", new Cargo(), "testUser3@localhost"));
 		user3.setFlag(UserFlag.NOOB, false);
+		user3.setUserValue(WellKnownUserValue.GAMEPLAY_USER_BATTLE_PM, false);
 
 		shipType = persist(new ShipType());
 		ships1.add(persist(new Ship(user1, shipType, 1, 1, 1)));
