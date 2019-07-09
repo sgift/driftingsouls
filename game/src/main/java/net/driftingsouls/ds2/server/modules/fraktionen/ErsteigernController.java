@@ -1607,7 +1607,7 @@ public class ErsteigernController extends Controller
 					break;
 				case "transport":
 					type = FactionShopEntry.Type.TRANSPORT;
-					if (!NumberUtils.isNumber(entryTypeId) && !"*".equals(entryTypeId))
+					if (!NumberUtils.isCreatable(entryTypeId) && !"*".equals(entryTypeId))
 					{
 						return new RedirectViewResult("shop").withMessage("<span style=\"color:red\">Format ungueltig</span>");
 					}

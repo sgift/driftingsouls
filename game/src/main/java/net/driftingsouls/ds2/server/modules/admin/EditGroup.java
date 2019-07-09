@@ -30,7 +30,6 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import org.hibernate.Query;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,14 +42,13 @@ import java.util.Map;
 @AdminMenuEntry(category = "Schiffe", name = "Schiffsgruppe editieren", permission = WellKnownAdminPermission.EDIT_GROUP)
 public class EditGroup implements AdminPlugin
 {
-	private static int MAX_SENSORS = 100;
-	private static int MAX_COMM = 100;
-	private static int MAX_ENGINE = 100;
-	private static int MAX_WEAPONS = 100;
+	private static final int MAX_SENSORS = 100;
+	private static final int MAX_COMM = 100;
+	private static final int MAX_ENGINE = 100;
+	private static final int MAX_WEAPONS = 100;
 	
 	@Override
-	public void output(StringBuilder echo) throws IOException
-	{
+	public void output(StringBuilder echo) {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 		List<Item> itemlist = Common.cast(db.createQuery("from Item").list());

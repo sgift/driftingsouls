@@ -32,6 +32,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.*;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.text.NumberFormat;
 import java.util.*;
@@ -838,7 +839,7 @@ public class Common {
 		try {
 			MessageDigest digest = MessageDigest.getInstance("MD5");
 			digest.reset();
-			digest.update(text.getBytes("UTF-8"));
+			digest.update(text.getBytes(StandardCharsets.UTF_8));
 			byte[] md5 = digest.digest();
 			StringBuilder hexString = new StringBuilder();
 			for (byte aMd5 : md5)

@@ -393,7 +393,7 @@ public class EditPlugin8<T> implements AdminPlugin
 			echo.append(updateTask.name);
 			if( jobData.size() > 1 )
 			{
-				echo.append(": ").append(Integer.toString(jobData.size())).append(" Objekte aktualisiert");
+				echo.append(": ").append(jobData.size()).append(" Objekte aktualisiert");
 			}
 			echo.append("<br />");
 		}

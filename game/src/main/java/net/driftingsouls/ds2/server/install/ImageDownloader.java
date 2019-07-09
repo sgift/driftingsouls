@@ -242,7 +242,7 @@ public class ImageDownloader
 		List<T> list = Common.cast(db.createCriteria(entityClass).list());
 		for (Function<T, String> getter : getters)
 		{
-			imgs.addAll(list.stream().map(getter::apply).collect(Collectors.toList()));
+			imgs.addAll(list.stream().map(getter).collect(Collectors.toList()));
 		}
 
 		return imgs;

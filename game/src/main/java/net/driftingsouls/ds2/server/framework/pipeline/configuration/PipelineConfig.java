@@ -19,14 +19,12 @@
 package net.driftingsouls.ds2.server.framework.pipeline.configuration;
 
 import net.driftingsouls.ds2.server.framework.AnnotationUtils;
-import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.Pipeline;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
@@ -34,7 +32,6 @@ import org.w3c.dom.NodeList;
 
 import javax.annotation.PostConstruct;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
@@ -57,8 +54,7 @@ public class PipelineConfig {
 	private Map<String,ModuleSetting> modules = new ConcurrentHashMap<>();
 	private ModuleSetting defaultModule = null;
 	private List<Rule> rules = new CopyOnWriteArrayList<>();
-	private Configuration configuration;
-	
+
 	ModuleSetting getModuleSettingByName(String name) throws Exception {
 		ModuleSetting moduleSetting = (ModuleSetting)defaultModule.clone();
 		if( name != null && modules.containsKey(name) ) {
@@ -67,17 +63,8 @@ public class PipelineConfig {
 		
 		return moduleSetting;
 	}
-	
-	/**
-	 * Injiziert die DS-Konfiguration.
-	 * @param config Die DS-Konfiguration
-	 */
-	@Autowired
-	public void setConfiguration(Configuration config) {
-		this.configuration = config;
-	}
-	
-	private void scanForModules() throws IOException {
+
+	private void scanForModules() {
 		SortedSet<Class<?>> entityClasses = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(Module.class);
 		for( Class<?> cls : entityClasses )
 		{
@@ -98,8 +85,7 @@ public class PipelineConfig {
 	}
 	
 	/**
-	 * Liesst die Konfiguration aus der Pipeline-Konfigurationsdatei ein.
-	 * @throws Exception
+	 * Liest die Konfiguration aus der Pipeline-Konfigurationsdatei ein.
 	 */
 	@PostConstruct
 	public void readConfiguration() throws Exception {
@@ -140,7 +126,6 @@ public class PipelineConfig {
 	 * Sollte keine passende Pipeline existieren, so wird <code>null</code> zurueckgegeben.
 	 * @param context Der aktuelle Kontext
 	 * @return Die Pipeline oder <code>null</code>
-	 * @throws Exception
 	 */
 	public Pipeline getPipelineForContext(Context context) throws Exception {
 		Pipeline pipeline;

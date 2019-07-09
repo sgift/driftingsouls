@@ -160,7 +160,7 @@ public class BaseController extends Controller
 			for( int i=0; i <= base.getWidth()*base.getHeight()-1 ; i++ ) {
 
 				if( (base.getBebauung()[i] == buildingonoff) && (active[i] != bebstatus) ) {
-					if( ((bebstatus != 0) && (base.getBewohner() >= base.getArbeiter() + building.getArbeiter())) || (bebstatus == 0) ) {
+					if(bebstatus == 0 || (base.getBewohner() >= base.getArbeiter() + building.getArbeiter())) {
 						active[i] = bebstatus;
 
 						count++;

@@ -157,7 +157,7 @@ public class CollectionGenerator<E, T, V extends Collection<T>> implements Custo
 		setter.accept(entity, valueCollection);
 	}
 
-	private Optional<T> findEntityByIdString(Session db, Class identifierClass, V valueCollection, String idStr)
+	private Optional<T> findEntityByIdString(Session db, Class<?> identifierClass, V valueCollection, String idStr)
 	{
 		if( idStr == null || idStr.isEmpty() )
 		{
