@@ -153,26 +153,24 @@ public class DeutSammelnController extends Controller
 		Nebel nebel = ermittleNebelFuerSchiffsliste(shipList);
 		filtereSchiffsliste(shipList, nebel);
 
-		String message = "";
+		StringBuilder message = new StringBuilder();
 
 		for (Ship aship : shipList)
 		{
-			message += Common._plaintitle(aship.getName()) + " (" + aship.getId() + "): ";
+			message.append(Common._plaintitle(aship.getName())).append(" (").append(aship.getId()).append("): ");
 
 			long saugdeut = aship.sammelDeuterium(nebel, e);
 			if (saugdeut <= 0)
 			{
-				message += "Es konnte kein weiteres Deuterium gesammelt werden<br />";
+				message.append("Es konnte kein weiteres Deuterium gesammelt werden<br />");
 			}
 			else
 			{
-				message += "<img src=\"" + Cargo.getResourceImage(Resources.DEUTERIUM) + "\" alt=\"\" />" + saugdeut +
-						" für <img src=\"./data/interface/energie.gif\" alt=\"Energie\" />" + e +
-						" gesammelt<br />";
+				message.append("<img src=\"").append(Cargo.getResourceImage(Resources.DEUTERIUM)).append("\" alt=\"\" />").append(saugdeut).append(" für <img src=\"./data/interface/energie.gif\" alt=\"Energie\" />").append(e).append(" gesammelt<br />");
 			}
 		}
 
-		return new RedirectViewResult("default").withMessage(message);
+		return new RedirectViewResult("default").withMessage(message.toString());
 	}
 
 	/**

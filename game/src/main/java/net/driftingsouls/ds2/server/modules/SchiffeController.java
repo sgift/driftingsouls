@@ -397,14 +397,14 @@ public class SchiffeController extends Controller
 					final int totalSlots = werft.getWerftSlots();
 					int usedSlots = 0;
 					int buildingCount = 0;
-					String imBau = "";
+					StringBuilder imBau = new StringBuilder();
 					for (WerftQueueEntry entry : entries)
 					{
 						if (entry.isScheduled())
 						{
 							usedSlots += entry.getSlots();
 							buildingCount++;
-							imBau = imBau + "<br />Aktuell im Bau: " + entry.getBuildShipType().getNickname() + " <img src='./data/interface/time.gif' alt='Dauer: ' />" + entry.getRemainingTime();
+							imBau.append("<br />Aktuell im Bau: ").append(entry.getBuildShipType().getNickname()).append(" <img src='./data/interface/time.gif' alt='Dauer: ' />").append(entry.getRemainingTime());
 						}
 					}
 

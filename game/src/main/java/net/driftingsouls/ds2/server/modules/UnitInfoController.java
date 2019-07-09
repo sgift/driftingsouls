@@ -104,12 +104,12 @@ public class UnitInfoController extends Controller
 
 			return t;
 		}
-		String buildcosts = "";
-		buildcosts = buildcosts + "<img style=\"vertical-align:middle\" src=\"data/interface/time.gif\" alt=\"\" />" + unittype.getDauer();
+		StringBuilder buildcosts = new StringBuilder();
+		buildcosts.append("<img style=\"vertical-align:middle\" src=\"data/interface/time.gif\" alt=\"\" />").append(unittype.getDauer());
 
 		for (ResourceEntry res : unittype.getBuildCosts().getResourceList())
 		{
-			buildcosts = buildcosts + " <img style=\"vertical-align:middle\" src=\"" + res.getImage() + "\" alt=\"\" />" + res.getCargo1();
+			buildcosts.append(" <img style=\"vertical-align:middle\" src=\"").append(res.getImage()).append("\" alt=\"\" />").append(res.getCargo1());
 		}
 
 		Forschung forschung = unittype.getRes();
@@ -138,7 +138,7 @@ public class UnitInfoController extends Controller
 				"unit.recost", Common.ln(unittype.getReCost()),
 				"unit.kapervalue", Common.ln(unittype.getKaperValue()),
 				"unit.description", Common._text(unittype.getDescription()),
-				"unit.baukosten", buildcosts,
+				"unit.baukosten", buildcosts.toString(),
 				"unit.forschung", forschungstring);
 
 		return t;

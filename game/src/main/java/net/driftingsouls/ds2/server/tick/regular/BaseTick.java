@@ -74,19 +74,19 @@ public class BaseTick extends TickController
 				
 				log(userId+":");
 
-				String messages = "";
+				StringBuilder messages = new StringBuilder();
 				for(Base base: bases)
 				{						
-					messages += baseTickerService.tick(base);
+					messages.append(baseTickerService.tick(base));
 				}
 				
-				if(!messages.trim().equals(""))
+				if(!messages.toString().trim().equals(""))
 				{
 					User sourceUser = (User)getDB().get(User.class, -1);
                     User baseUser = (User)getDB().get(User.class, userId);
 
 					if(baseUser.getUserValue(WellKnownUserValue.GAMEPLAY_USER_BASE_DOWN_PM)) {
-                        PM.send(sourceUser, userId, "Basis-Tick", messages);
+                        PM.send(sourceUser, userId, "Basis-Tick", messages.toString());
                     }
 				}
 			}

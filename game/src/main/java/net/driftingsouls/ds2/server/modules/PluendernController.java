@@ -198,7 +198,7 @@ public class PluendernController extends Controller
 		long totaltransferfcount = 0;
 		boolean transfer = false;
 
-		String message = "";
+		StringBuilder message = new StringBuilder();
 		ResourceList reslist = cargofrom.compare(cargoto, true);
 		for (ResourceEntry res : reslist)
 		{
@@ -208,13 +208,13 @@ public class PluendernController extends Controller
 			// Transfer vom Ausgangsschiff zum Zielschiff
 			if (transt != null && transt > 0)
 			{
-				message += "Transportiere [resource="+res.getId()+"]"+transt+"[/resource] zu "+shipTo.getName();
+				message.append("Transportiere [resource=").append(res.getId()).append("]").append(transt).append("[/resource] zu ").append(shipTo.getName());
 
 				if (transt > res.getCount1())
 				{
 					transt = res.getCount1();
 
-					message += " - Nur [resource="+res.getId()+"]"+res.getCount1()+"[/resource] vorhanden";
+					message.append(" - Nur [resource=").append(res.getId()).append("]").append(res.getCount1()).append("[/resource] vorhanden");
 				}
 
 				long massToTransfer = Cargo.getResourceMass(res.getId(), transt);
@@ -222,7 +222,7 @@ public class PluendernController extends Controller
 				{
 					transt = (long) (curcargoto / (double) Cargo.getResourceMass(res.getId(), 1));
 
-					message += " - Nur noch Platz für [resource="+res.getId()+"]"+transt+"[/resource] vorhanden";
+					message.append(" - Nur noch Platz für [resource=").append(res.getId()).append("]").append(transt).append("[/resource] vorhanden");
 				}
 
 				// Falls es sich um ein unbekanntes Item handelt, dann dem Besitzer des Zielschiffes bekannt machen
@@ -242,7 +242,7 @@ public class PluendernController extends Controller
 				curcargoto = shipTypeTo.getCargo() - newCargoTo.getMass();
 				curcargofrom = shipTypeFrom.getCargo() - newCargoFrom.getMass();
 
-				message += " - jetzt [resource="+res.getId()+"]"+newCargoTo.getResourceCount(res.getId())+"[/resource] auf "+shipTo.getName()+" vorhanden";
+				message.append(" - jetzt [resource=").append(res.getId()).append("]").append(newCargoTo.getResourceCount(res.getId())).append("[/resource] auf ").append(shipTo.getName()).append(" vorhanden");
 
 				if (transt > 0)
 				{
@@ -250,18 +250,18 @@ public class PluendernController extends Controller
 					msg.append("[resource=").append(res.getId()).append(")").append(Common.ln(transt)).append("[/resource] zurückgegeben.\n");
 				}
 
-				message += "\n";
+				message.append("\n");
 			}
 			// Transfer vom Zielschiff zum Ausgangsschiff
 			else if (transf != null && transf > 0)
 			{
-				message += "Transportiere [resource="+res.getId()+"]"+transf+"[/resource] zu "+shipFrom.getName();
+				message.append("Transportiere [resource=").append(res.getId()).append("]").append(transf).append("[/resource] zu ").append(shipFrom.getName());
 
 				if (transf > res.getCount2())
 				{
 					transf = res.getCount2();
 
-					message += " - Nur [resource="+res.getId()+"]"+res.getCount2()+"[/resource] vorhanden";
+					message.append(" - Nur [resource=").append(res.getId()).append("]").append(res.getCount2()).append("[/resource] vorhanden");
 				}
 
 				long massToTransfer = Cargo.getResourceMass(res.getId(), transf);
@@ -269,7 +269,7 @@ public class PluendernController extends Controller
 				{
 					transf = (long) (curcargofrom / (double) Cargo.getResourceMass(res.getId(), 1));
 
-					message += " - Nur noch Platz für [resource="+res.getId()+"]"+transf+"[/resource] vorhanden";
+					message.append(" - Nur noch Platz für [resource=").append(res.getId()).append("]").append(transf).append("[/resource] vorhanden");
 				}
 
 				// Falls es sich um ein unbekanntes Item handelt, dann dieses dem Spieler bekannt machen
@@ -291,7 +291,7 @@ public class PluendernController extends Controller
 				curcargoto = shipTypeTo.getCargo() - newCargoTo.getMass();
 				curcargofrom = shipTypeFrom.getCargo() - newCargoFrom.getMass();
 
-				message += " - jetzt [resource="+res.getId()+"]"+newCargoFrom.getResourceCount(res.getId())+"[/resource] auf "+shipFrom.getName()+" vorhanden";
+				message.append(" - jetzt [resource=").append(res.getId()).append("]").append(newCargoFrom.getResourceCount(res.getId())).append("[/resource] auf ").append(shipFrom.getName()).append(" vorhanden");
 
 				if (transf > 0)
 				{
@@ -299,7 +299,7 @@ public class PluendernController extends Controller
 					msg.append("[resource=").append(res.getId()).append(")").append(Common.ln(transf)).append("[/resource] gestohlen.\n");
 				}
 
-				message += "\n";
+				message.append("\n");
 			}
 		}
 
@@ -310,11 +310,11 @@ public class PluendernController extends Controller
 			versendeNachrichtNachTransfer(msg, shipFrom, shipTo);
 
 			if( aktualisiereSchiffNachWarentransfer(shipTypeTo, newCargoTo, newCargoFrom, totaltransferfcount, shipFrom, shipTo) ) {
-				message += "[color=red]Das geplünderte Schiff beginnt zu zerfallen[/color]";
+				message.append("[color=red]Das geplünderte Schiff beginnt zu zerfallen[/color]");
 			}
 		}
 
-		return new RedirectViewResult("default").withMessage(message);
+		return new RedirectViewResult("default").withMessage(message.toString());
 	}
 
 	private void versendeNachrichtNachTransfer(StringBuilder msg, Ship shipFrom, Ship shipTo)

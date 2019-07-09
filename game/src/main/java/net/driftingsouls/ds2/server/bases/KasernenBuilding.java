@@ -199,7 +199,7 @@ public class KasernenBuilding extends DefaultBuilding {
 			Cargo cargo = new Cargo(base.getCargo());
 			Cargo buildcosts = unittype.getBuildCosts();
 			BigInteger konto = owner.getKonto();
-			String msg = "";
+			StringBuilder msg = new StringBuilder();
 
 			boolean ok = true;
 
@@ -222,7 +222,7 @@ public class KasernenBuilding extends DefaultBuilding {
 						{
 							// Mensch sind wir echt sooo pleite?
 							ok = false;
-							msg += "Sie haben nicht genug "+res.getPlainName()+"<br />";
+							msg.append("Sie haben nicht genug ").append(res.getPlainName()).append("<br />");
 						}
 
 					}
@@ -230,7 +230,7 @@ public class KasernenBuilding extends DefaultBuilding {
 					{
 						// Es handelt sich nicht um Geld und wir haben nicht genug.
 						ok = false;
-						msg += "Sie haben nicht genug "+res.getName()+"<br />";
+						msg.append("Sie haben nicht genug ").append(res.getName()).append("<br />");
 					}
 				}
 				else
@@ -241,16 +241,16 @@ public class KasernenBuilding extends DefaultBuilding {
 			}
 
 			if( ok ) {
-				msg += newcount+" "+unittype.getName()+" werden ausgebildet.";
+				msg.append(newcount).append(" ").append(unittype.getName()).append(" werden ausgebildet.");
 
 				base.setCargo(cargo);
 				owner.setKonto(konto);
 
 				kaserne.addEntry(unittype, newcount);
 			}
-			if( !msg.isEmpty() )
+			if(msg.length() > 0)
 			{
-				t.setVar( "kaserne.message",msg);
+				t.setVar( "kaserne.message", msg.toString());
 			}
 		}
 
@@ -295,19 +295,19 @@ public class KasernenBuilding extends DefaultBuilding {
 		{
 			if(owner.hasResearched(unittype.getRes()))
 			{
-				String buildingcosts = "";
+				StringBuilder buildingcosts = new StringBuilder();
 				Cargo buildcosts = unittype.getBuildCosts();
 
 				for(ResourceEntry res : buildcosts.getResourceList())
 				{
-					buildingcosts = buildingcosts+" <span class='nobr'><img style=\"vertical-align:middle\" src=\""+res.getImage()+"\" alt=\""+res.getPlainName()+"\" title=\""+res.getPlainName()+"\" />"+res.getCargo1()+"</span>";
+					buildingcosts.append(" <span class='nobr'><img style=\"vertical-align:middle\" src=\"").append(res.getImage()).append("\" alt=\"").append(res.getPlainName()).append("\" title=\"").append(res.getPlainName()).append("\" />").append(res.getCargo1()).append("</span>");
 				}
 
 				t.setVar( 	"unit.id", 			unittype.getId(),
 						"unit.name", 		unittype.getName(),
 						"unit.picture", 	unittype.getPicture(),
 						"unit.dauer", 		unittype.getDauer(),
-						"unit.buildcosts", 	buildingcosts.trim());
+						"unit.buildcosts", 	buildingcosts.toString().trim());
 
 				t.parse("kaserne.unitlist.list", "kaserne.unitlist.listitem", true);
 			}

@@ -1716,7 +1716,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 			return;
 		}
 		String[] spawnress = StringUtils.split(getAvailableSpawnableRess(), ";");
-		String newspawnress = "";
+		StringBuilder newspawnress = new StringBuilder();
 		boolean found = false;
 		for (String spawnres : spawnress)
 		{
@@ -1726,20 +1726,20 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 				found = true;
 				if (value > 0)
 				{
-					newspawnress = newspawnress + itemid + "," + value + ";";
+					newspawnress.append(itemid).append(",").append(value).append(";");
 				}
 			}
 			else if( thisress.length > 1 )
 			{
-				newspawnress = newspawnress + thisress[0] + "," + thisress[1] + ";";
+				newspawnress.append(thisress[0]).append(",").append(thisress[1]).append(";");
 			}
 		}
 		if(!found)
 		{
-			newspawnress = newspawnress + itemid + "," + value + ";";
+			newspawnress.append(itemid).append(",").append(value).append(";");
 		}
-		newspawnress = StringUtils.substring(newspawnress, 0, newspawnress.length() - 1);
-		this.spawnressavailable = newspawnress;
+		newspawnress = new StringBuilder(StringUtils.substring(newspawnress.toString(), 0, newspawnress.length() - 1));
+		this.spawnressavailable = newspawnress.toString();
 	}
 
 	/**

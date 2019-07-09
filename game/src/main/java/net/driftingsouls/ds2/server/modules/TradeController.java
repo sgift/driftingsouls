@@ -245,7 +245,7 @@ public class TradeController extends Controller
 		BigInteger totalRE = BigInteger.ZERO;
 		boolean changed = false;
 
-		String message = "";
+		StringBuilder message = new StringBuilder();
 
 		Cargo kurseCargo = new Cargo(kurse.getKurse());
 		kurseCargo.setOption(Cargo.Option.SHOWMASS, false);
@@ -289,7 +289,7 @@ public class TradeController extends Controller
 					long nichtVerkauft = tmp - limit;
 					tmp = limit;
 
-					message += "[resource="+res.getId()+"]"+nichtVerkauft+"[/resource] nicht verkauft - Es besteht kein Interesse mehr an dieser Ware\n";
+					message.append("[resource=").append(res.getId()).append("]").append(nichtVerkauft).append("[/resource] nicht verkauft - Es besteht kein Interesse mehr an dieser Ware\n");
 				}
 
 				//Nicht mehr ankaufen als Platz da ist
@@ -298,7 +298,7 @@ public class TradeController extends Controller
 					long nichtVerkauft = tmp - freeSpace / resourceMass;
 					tmp = freeSpace / resourceMass;
 
-					message += "[resource="+res.getId()+"]"+nichtVerkauft+"[/resource] nicht verkauft - Alle Lager sind voll\n";
+					message.append("[resource=").append(res.getId()).append("]").append(nichtVerkauft).append("[/resource] nicht verkauft - Alle Lager sind voll\n");
 				}
 
 				BigDecimal get = BigDecimal.valueOf(tmp).multiply(new BigDecimal(res.getCount1() / 1000d));
@@ -315,7 +315,7 @@ public class TradeController extends Controller
 								.multiply(BigInteger.valueOf(1000))
 								.divide(BigInteger.valueOf(res.getCount1())).longValue();
 
-						message += "[resource="+res.getId()+"]"+(tmp-maximum)+"[/resource] nicht verkauft - Ihr Handelspartner ist pleite\n";
+						message.append("[resource=").append(res.getId()).append("]").append(tmp - maximum).append("[/resource] nicht verkauft - Ihr Handelspartner ist pleite\n");
 
 						tmp = maximum;
 					}
@@ -328,7 +328,7 @@ public class TradeController extends Controller
 
 				get = BigDecimal.valueOf(tmp).multiply(new BigDecimal(res.getCount1() / 1000d));
 
-				message += "[resource="+res.getId()+"]"+tmp+"[/resource] für "+Common.ln(get)+" RE verkauft\n";
+				message.append("[resource=").append(res.getId()).append("]").append(tmp).append("[/resource] für ").append(Common.ln(get)).append(" RE verkauft\n");
 
 				totalRE = totalRE.add(get.toBigInteger());
 				changed = true;
@@ -356,7 +356,7 @@ public class TradeController extends Controller
 					UserMoneyTransfer.Transfer.SEMIAUTO);
 		}
 
-		return new RedirectViewResult("default").withMessage(message);
+		return new RedirectViewResult("default").withMessage(message.toString());
 	}
 
 	private boolean isFull(Ship handelsposten)
