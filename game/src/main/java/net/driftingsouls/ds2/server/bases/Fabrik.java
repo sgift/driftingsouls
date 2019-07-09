@@ -172,7 +172,7 @@ public class Fabrik extends DefaultBuilding
 			FactoryEntry entry = (FactoryEntry) db.get(FactoryEntry.class, id);
 			if (entry == null)
 			{
-				plist = (Factory.Task[]) ArrayUtils.remove(plist, i);
+				plist = ArrayUtils.remove(plist, i);
 				i--;
 				continue;
 			}
@@ -348,7 +348,7 @@ public class Fabrik extends DefaultBuilding
 						plist[i] = new Factory.Task(id, capLeft.divide(entry.getDauer(), RoundingMode.DOWN).intValue());
 						break;
 					}
-					plist = (Factory.Task[]) ArrayUtils.remove(plist, i);
+					plist = ArrayUtils.remove(plist, i);
 					i--;
 
 					usedcapacity = usedcapacity.subtract(capUsed);
@@ -382,7 +382,7 @@ public class Fabrik extends DefaultBuilding
 
 		if (vars.usedcapacity.get(building).doubleValue() > 0)
 		{
-			Factory wf = loadFactoryEntity(base, building);
+			Factory wf = Objects.requireNonNull(loadFactoryEntity(base, building));
 			Factory.Task[] prodlist = wf.getProduces();
 
 			StringBuilder popup = new StringBuilder(200);
@@ -431,7 +431,6 @@ public class Fabrik extends DefaultBuilding
 		return vars.usedcapacity.get(base.getBebauung()[field]).doubleValue() > 0;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public String modifyStats(Base base, Cargo stats, int building)
 	{
@@ -449,7 +448,6 @@ public class Fabrik extends DefaultBuilding
 		return msg;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public String modifyProductionStats(Base base, Cargo stats, int building)
 	{
@@ -467,7 +465,6 @@ public class Fabrik extends DefaultBuilding
 		return msg;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public String modifyConsumptionStats(Base base, Cargo stats, int building)
 	{
@@ -530,11 +527,7 @@ public class Fabrik extends DefaultBuilding
 		{
 			Munitionsbauplan itemobject = item.getItem();
 			final FactoryEntry entry = itemobject.getFabrikeintrag();
-
-			if (!itemslist.contains(entry))
-			{
-				itemslist.add(entry);
-			}
+			itemslist.add(entry);
 		}
 
 		// Moegliche Allybauplaene ermitteln
@@ -547,11 +540,7 @@ public class Fabrik extends DefaultBuilding
 			{
 				Munitionsbauplan itemobject = item.getItem();
 				final FactoryEntry entry = itemobject.getFabrikeintrag();
-
-				if (!itemslist.contains(entry))
-				{
-					itemslist.add(entry);
-				}
+				itemslist.add(entry);
 			}
 		}
 
@@ -634,7 +623,7 @@ public class Fabrik extends DefaultBuilding
 						producelist.add(new Factory.Task(entry.getId(), count));
 					}
 
-					wf.setProduces(producelist.toArray(new Factory.Task[producelist.size()]));
+					wf.setProduces(producelist.toArray(new Factory.Task[0]));
 
 					echo.append(Math.abs(count)).append(" ").append(entry.getName()).append(" wurden ").append((count >= 0 ? "hinzugef&uuml;gt" : "abgezogen")).append("<br /><br />");
 				}

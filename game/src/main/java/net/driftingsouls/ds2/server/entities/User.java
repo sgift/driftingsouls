@@ -745,7 +745,7 @@ public class User extends BasicUser {
 	 * @param faketransfer Handelt es sich um einen "gefakten" Geldtransfer (<code>true</code>)?
 	 * @see #transferMoneyFrom(int, long, String, boolean, UserMoneyTransfer.Transfer)
 	 */
-	public void transferMoneyFrom( int fromID, long count, String text, boolean faketransfer) {
+	private void transferMoneyFrom(int fromID, long count, String text, boolean faketransfer) {
 		transferMoneyFrom( fromID, count, text, faketransfer, UserMoneyTransfer.Transfer.NORMAL );
 	}
 
@@ -1373,10 +1373,7 @@ public class User extends BasicUser {
 		for(Base base: this.bases)
 		{
 			int basesystem = base.getSystem();
-			if (!systemlist.contains(basesystem))
-			{
-				systemlist.add(basesystem);
-			}
+			systemlist.add(basesystem);
 		}
 		return systemlist;
 	}

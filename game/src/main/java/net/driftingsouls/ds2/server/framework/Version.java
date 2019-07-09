@@ -80,7 +80,7 @@ public class Version
 			return;
 		}
 		String key = line.substring(0, index);
-		String value = line.substring(index+1,line.length());
+		String value = line.substring(index+1);
 
 		if( "git-version".equals(key) && value.matches("[a-zA-Z0-9]+") ) {
 			version = value;

@@ -400,12 +400,13 @@ public class Common {
 				}
 				break;
 			case 'B':
-				// TODO
+				case 'W':
+				case 'r':
+				case 'L':
+				case 'c':
+					// TODO
 				break;
-			case 'c':
-				// TODO
-				break;
-			case 'd': {
+				case 'd': {
 					int dayOfMonth = cal.get(Calendar.DAY_OF_MONTH);
 					if( dayOfMonth < 10 ) {
 						buffer.append('0');
@@ -414,7 +415,8 @@ public class Common {
 				}
 				break;
 			case 'D':
-				buffer.append(months[cal.get(Calendar.MONTH)].substring(0,3));
+				case 'M':
+					buffer.append(months[cal.get(Calendar.MONTH)], 0, 3);
 				break;
 			case 'F':
 				buffer.append(months[cal.get(Calendar.MONTH)]);
@@ -472,10 +474,7 @@ public class Common {
 			case 'l':
 				buffer.append(days[cal.get(Calendar.DAY_OF_MONTH)]);
 				break;
-			case 'L':
-				// TODO
-				break;
-			case 'm': {
+				case 'm': {
 					int month = cal.get(Calendar.MONTH)+1;
 					if( month < 10 ) {
 						buffer.append('0');
@@ -483,19 +482,13 @@ public class Common {
 					buffer.append(month);
 				}
 				break;
-			case 'M':
-				buffer.append(months[cal.get(Calendar.MONTH)].substring(0,3));
-				break;
-			case 'n':
+				case 'n':
 				buffer.append(cal.get(Calendar.MONTH)+1);
 				break;
 			case 'O':
 				buffer.append(cal.getTimeZone().getRawOffset());
 				break;
-			case 'r':
-				// TODO
-				break;
-			case 's':
+				case 's':
 				int sec = cal.get(Calendar.SECOND);
 				if( sec < 10 ) {
 					buffer.append('0');
@@ -531,10 +524,7 @@ public class Common {
 			case 'w':
 				buffer.append(cal.get(Calendar.DAY_OF_WEEK));
 				break;
-			case 'W':
-				// TODO
-				break;
-			case 'Y': {
+				case 'Y': {
 					int year = cal.get(Calendar.YEAR);
 					if( year < 1000 )
 					{

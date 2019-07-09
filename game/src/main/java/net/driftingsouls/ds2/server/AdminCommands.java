@@ -1342,9 +1342,10 @@ public class AdminCommands {
 								continue;
 							}
 
-							if (new File(path + (sizedimg ? imgcount : "") + fleet + ".png").isFile())
+							final File file = new File(path + (sizedimg ? imgcount : "") + fleet + ".png");
+							if (file.isFile())
 							{
-								new File(path + (sizedimg ? imgcount : "") + fleet + ".png").delete();
+								file.delete();
 							}
 
 							checkImage(path + (sizedimg ? imgcount : ""), fleet);

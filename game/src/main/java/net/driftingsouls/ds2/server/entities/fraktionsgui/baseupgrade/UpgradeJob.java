@@ -68,7 +68,7 @@ public class UpgradeJob
 	private boolean payed;
 
 	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "colonizerid", nullable = true)
+	@JoinColumn(name = "colonizerid")
 	@ForeignKey(name="upgrade_job_fk_ships")
 	private Ship colonizer;
 	private int endTick;
@@ -76,6 +76,7 @@ public class UpgradeJob
 	/**
 	 * Konstruktor.
 	 */
+	@SuppressWarnings("unused")
 	public UpgradeJob()
 	{
 		// EMPTY
@@ -194,7 +195,7 @@ public class UpgradeJob
      */
     public void removeupgrade(UpgradeInfo upgrade)
     {
-        if(upgradelist.contains(upgrade)) { upgradelist.remove(upgrade); }
+		upgradelist.remove(upgrade);
     }
 
 	/**

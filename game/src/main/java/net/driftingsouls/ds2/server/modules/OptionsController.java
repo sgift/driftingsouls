@@ -172,21 +172,20 @@ public class OptionsController extends Controller
 		}
 		else
 		{
-			StringBuilder msg = new StringBuilder(100);
-			msg.append("PLZ DELETE ME!!!\nMY ID IS: [userprofile=");
-			msg.append(user.getId());
-			msg.append("]");
-			msg.append(user.getId());
-			msg.append("[/userprofile]\n");
-			msg.append("MY UN IS: ");
-			msg.append(user.getUN());
-			msg.append("\n");
-			msg.append("MY CURRENT NAME IS: ");
-			msg.append(user.getName());
-			msg.append("\n");
-			msg.append("MY REASONS:\n");
-			msg.append(reason);
-			PM.sendToAdmins(user, "Account l&ouml;schen", msg.toString(), 0);
+			String msg = "PLZ DELETE ME!!!\nMY ID IS: [userprofile=" +
+					user.getId() +
+					"]" +
+					user.getId() +
+					"[/userprofile]\n" +
+					"MY UN IS: " +
+					user.getUN() +
+					"\n" +
+					"MY CURRENT NAME IS: " +
+					user.getName() +
+					"\n" +
+					"MY REASONS:\n" +
+					reason;
+			PM.sendToAdmins(user, "Account l&ouml;schen", msg, 0);
 
 			t.setVar("options.delaccountresp", 1,
 					"delaccountresp.admins", configService.getValue(WellKnownConfigValue.ADMIN_PMS_ACCOUNT));
