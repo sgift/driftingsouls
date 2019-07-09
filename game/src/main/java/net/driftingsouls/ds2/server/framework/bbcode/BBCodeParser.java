@@ -341,9 +341,7 @@ public class BBCodeParser {
 			
 			if( ign.contains("all") ) {
 				ign.remove("all");
-				for( String key : replaceFunctions.keySet() ) {
-					ign.add(key);
-				}
+				ign.addAll(replaceFunctions.keySet());
 			}
 		}
 		

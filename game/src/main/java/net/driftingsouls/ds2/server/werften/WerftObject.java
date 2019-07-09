@@ -157,8 +157,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * @return Die Zeit in Ticks bis zur Fertigstellung
 	 */
 	public int getTicksTillFinished(@Nonnull WerftQueueEntry searched) {
-		List<WerftQueueEntry> entries = new ArrayList<>();
-		entries.addAll(getBuildQueue());
+		List<WerftQueueEntry> entries = new ArrayList<>(getBuildQueue());
 
 		int slots = this.getWerftSlots();
 		int time = 0;

@@ -761,7 +761,7 @@ public class AdminCommands {
 		public List<String> autoComplete(String[] command)
 		{
 			if( command.length == 1 ) {
-				return Arrays.asList("<shipId> ...");
+				return Collections.singletonList("<shipId> ...");
 			}
 
 			List<String> validCommands = Arrays.asList(
@@ -935,7 +935,7 @@ public class AdminCommands {
 		@Override
 		public List<String> autoComplete(String[] command)
 		{
-			return Arrays.asList(getTargetAutoComplete(command)+" "+getItemAutoComplete(command)+" <Menge>");
+			return Collections.singletonList(getTargetAutoComplete(command) + " " + getItemAutoComplete(command) + " <Menge>");
 		}
 	}
 
@@ -1092,7 +1092,7 @@ public class AdminCommands {
 		@Override
 		public List<String> autoComplete(String[] command)
 		{
-			return Arrays.asList("end <battleID>");
+			return Collections.singletonList("end <battleID>");
 		}
 	}
 

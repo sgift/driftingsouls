@@ -1692,7 +1692,7 @@ public class User extends BasicUser {
 
 		if( values.isEmpty() )
 		{
-			return Arrays.asList(StringToTypeConverter.convert(valueDesc.getType(), valueDesc.getDefaultValue()));
+			return Collections.singletonList(StringToTypeConverter.convert(valueDesc.getType(), valueDesc.getDefaultValue()));
 		}
 
 		return values.stream().map(UserValue::getValue).map(v -> StringToTypeConverter.convert(valueDesc.getType(), v)).collect(Collectors.toList());

@@ -661,10 +661,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 */
 	public List<AutoGTUAction> getAutoGTUActs()
 	{
-		List<AutoGTUAction> acts = new ArrayList<>();
-		acts.addAll(this.autoGtuActsObj);
-
-		return acts;
+		return new ArrayList<>(this.autoGtuActsObj);
 	}
 
 	/**

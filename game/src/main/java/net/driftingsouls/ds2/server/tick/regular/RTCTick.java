@@ -93,9 +93,9 @@ public class RTCTick extends TickController {
 			{
 				if (entry.getBieter() == this.gtuuser)
 				{
-					this.log("Die Versteigerung um " + entry.getObjectName() + " (id: " + entry.getId() + (entry.getOwner() != this.gtuuser ? " - User: " + entry.getOwner().getId() : "") + ") wurde um 5 Runden verlaengert. Der Preis wurde um " + (long) (entry.getPreis() * 1 / 10d) + " RE reduziert");
+					this.log("Die Versteigerung um " + entry.getObjectName() + " (id: " + entry.getId() + (entry.getOwner() != this.gtuuser ? " - User: " + entry.getOwner().getId() : "") + ") wurde um 5 Runden verlaengert. Der Preis wurde um " + (long) (entry.getPreis() / 10d) + " RE reduziert");
 					entry.setTick(this.ticks + 5);
-					entry.setPreis((long) (entry.getPreis() * 1 / 10d));
+					entry.setPreis((long) (entry.getPreis() / 10d));
 
 					continue;
 				}

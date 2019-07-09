@@ -24,11 +24,7 @@ import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.SingularAttribute;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -440,7 +436,7 @@ public class EditPlugin8<T> implements AdminPlugin
 		Context context = ContextMap.getContext();
 		String currentIdStr = context.getRequest().getParameter("entityId");
 		String idStr = id != null ? id.toString() : null;
-		boolean selektiert = idStr != null ? idStr.equals(currentIdStr) : null == currentIdStr;
+		boolean selektiert = Objects.equals(idStr, currentIdStr);
 
 		echo.append("<option value=\"").append(idStr).append("\" ").append(selektiert ? "selected=\"selected\"" : "").append(">").append(label).append("</option>");
 	}

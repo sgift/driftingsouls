@@ -544,7 +544,7 @@ public abstract class UnitCargo implements Cloneable {
 		Map<UnitType, Long[]> unitlist = new TreeMap<>(new UnitTypeComparator());
 		for(UnitCargoEntry unit : units)
 		{
-			unitlist.put(unit.getUnitType(), new Long[] {unit.getAmount(), 0l});
+			unitlist.put(unit.getUnitType(), new Long[] {unit.getAmount(), 0L});
 		}
 
 		for(UnitCargoEntry unit : unitcargo.getUnitArray())
@@ -555,7 +555,7 @@ public abstract class UnitCargo implements Cloneable {
 			}
 			else
 			{
-				unitlist.put(unit.getUnitType(), new Long[] {0l, unit.getAmount()});
+				unitlist.put(unit.getUnitType(), new Long[] {0L, unit.getAmount()});
 			}
 		}
 
