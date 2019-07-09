@@ -26,7 +26,7 @@ import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 import org.w3c.dom.Node;
 
 class MatchRule extends AbstractRule {
-	private Pattern match = null;
+	private Pattern match;
 	
 	MatchRule( PipelineConfig pipelineConfig, Node matchNode ) throws Exception {
 		super(pipelineConfig,matchNode);

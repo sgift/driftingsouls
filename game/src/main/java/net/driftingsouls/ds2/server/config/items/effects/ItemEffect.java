@@ -65,7 +65,7 @@ public abstract class ItemEffect {
 		 */
 		MODULE_SET_META("Modul-Set");
 
-		private String name = null;
+		private String name;
 
 		Type(String name) {
 			this.name = name;
@@ -80,7 +80,7 @@ public abstract class ItemEffect {
 		}
 	}
 
-	private Type type = null;
+	private Type type;
 	private boolean allyEffect = false;
 
 	protected ItemEffect(Type type) {

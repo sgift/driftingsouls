@@ -41,7 +41,7 @@ public abstract class AbstractTickExecuter extends TickController
 {
 	private static final Log log = LogFactory.getLog(AbstractTickExecuter.class);
 
-	private String loxpath = null;
+	private String loxpath;
 
 	private String name = "";
 	private String status = null;

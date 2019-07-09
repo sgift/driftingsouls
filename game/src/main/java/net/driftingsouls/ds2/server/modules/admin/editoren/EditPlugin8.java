@@ -528,7 +528,7 @@ public class EditPlugin8<T> implements AdminPlugin
 		CriteriaQuery<Long> countQuery = builder.createQuery(Long.class);
 		Root<T> countRoot = countQuery.from(baseClass);
 		countQuery.select(builder.count(countRoot));
-		countQuery = addRestrictionsToTableQuery(form, builder, countQuery, countRoot);
+		addRestrictionsToTableQuery(form, builder, countQuery, countRoot);
 		Number rowCount = getEM().createQuery(countQuery).getSingleResult();
 
 		JqGridTableDataViewModel model = new JqGridTableDataViewModel();
@@ -555,7 +555,7 @@ public class EditPlugin8<T> implements AdminPlugin
 			}
 		}
 
-		entityQuery = addRestrictionsToTableQuery(form, builder, entityQuery, entityRoot);
+		addRestrictionsToTableQuery(form, builder, entityQuery, entityRoot);
 
 		List<T> entities = getEM().createQuery(entityQuery)
 				.setFirstResult((page-1)*rows)

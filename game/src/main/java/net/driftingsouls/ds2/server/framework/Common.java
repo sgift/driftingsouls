@@ -384,7 +384,7 @@ public class Common {
 			char chr = pattern.charAt(i);
 			switch( chr ) {
 			case 'a':
-				if( cal.get(Calendar.HOUR) < 12 ) {
+				if( cal.get(Calendar.HOUR_OF_DAY) < 12 ) {
 					buffer.append("am");
 				}
 				else {
@@ -392,7 +392,7 @@ public class Common {
 				}
 				break;
 			case 'A':
-				if( cal.get(Calendar.HOUR) < 12 ) {
+				if( cal.get(Calendar.HOUR_OF_DAY) < 12 ) {
 					buffer.append("AM");
 				}
 				else {

@@ -382,13 +382,6 @@ public class AcademyBuilding extends DefaultBuilding {
 			if(offizier != null )
 			{
 				if( offizier.getStationiertAufBasis() != null && offizier.getStationiertAufBasis().getId() == base.getId() ) {
-					Map<Integer,Offizier.Ability> dTrain = new HashMap<>();
-					dTrain.put(1, Offizier.Ability.ING);
-					dTrain.put(2, Offizier.Ability.WAF);
-					dTrain.put(3, Offizier.Ability.NAV);
-					dTrain.put(4, Offizier.Ability.SEC);
-					dTrain.put(5, Offizier.Ability.COM);
-
 					int sk = getUpgradeCosts(academy, 0, offizier, train);
 					int nk = getUpgradeCosts(academy, 1, offizier, train);
 					int dauer = getUpgradeCosts(academy, 2, offizier, train);

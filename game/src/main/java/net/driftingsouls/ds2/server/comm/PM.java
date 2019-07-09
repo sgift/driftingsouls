@@ -346,7 +346,7 @@ public class PM {
 		this.flags = 0;
 		this.inhalt = inhalt;
 		this.kommentar = "";
-		if(empfaenger.getApiKey()!="") {
+		if(!empfaenger.getApiKey().isEmpty()) {
 			new Notifier (empfaenger.getApiKey()).sendMessage("DS2: "+title, "Nachricht von "+sender.getPlainname()+": \n"+ inhalt);		
 		}
 	}

@@ -140,6 +140,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	@OneToMany(fetch=FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "stationiertAufBasis")
 	private Set<Offizier> offiziere = new HashSet<>();
 
+	@SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
 	@OneToMany(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH, CascadeType.REMOVE},
 			targetEntity=net.driftingsouls.ds2.server.bases.BaseUnitCargoEntry.class,
 			mappedBy="basis")

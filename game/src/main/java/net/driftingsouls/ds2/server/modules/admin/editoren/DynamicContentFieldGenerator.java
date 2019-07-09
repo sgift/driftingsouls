@@ -60,11 +60,8 @@ public class DynamicContentFieldGenerator<V> implements CustomFieldGenerator<V>
 			if (name.equals(file.getFieldName()) && file.getSize() > 0)
 			{
 				String id = DynamicContentManager.add(file);
-				if (id != null)
-				{
-					processDynamicContentMetadata(request, name, id);
-					return id;
-				}
+				processDynamicContentMetadata(request, name, id);
+				return id;
 			}
 		}
 		if (currentValue != null)

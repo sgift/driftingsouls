@@ -30,11 +30,11 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
  */
 public class ItemCargoEntry<T extends Item> {
 	private T item = null;
-	private Cargo cargo = null;
-	private int itemid = 0;
-	private long count = 0;
-	private int uses = 0;
-	private int data = 0;
+	private Cargo cargo;
+	private int itemid;
+	private long count;
+	private int uses;
+	private int data;
 
 	protected ItemCargoEntry( Cargo cargo, T item, long count, int uses, int data ) {
 		this.cargo = cargo;

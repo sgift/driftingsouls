@@ -85,7 +85,7 @@ public class SchiffFlugService
 			}
 			distance = 0;
 
-			return new MovementResult(distance, moved, FlugStatus.SHIP_FAILURE);
+			return new MovementResult(distance, false, FlugStatus.SHIP_FAILURE);
 		}
 
 		int newe = ship.getEnergy() - shiptype.getCost();
@@ -118,7 +118,7 @@ public class SchiffFlugService
 			out.append("<span style=\"color:#ff0000\">Keine Energie. Stoppe bei ").append(ship.getLocation().displayCoordinates(true)).append("</span><br />\n");
 			distance = 0;
 
-			return new MovementResult(distance, moved, FlugStatus.SHIP_FAILURE);
+			return new MovementResult(distance, false, FlugStatus.SHIP_FAILURE);
 		}
 
 		if( offizier != null ) {
@@ -160,7 +160,7 @@ public class SchiffFlugService
 				out.append("<span style=\"color:#ff0000\">Autopilot bricht ab bei ").append(ship.getLocation().displayCoordinates(true)).append("</span><br />\n");
 				out.append("</span></td></tr>\n");
 				distance = 0;
-				return new MovementResult(distance, moved, FlugStatus.SHIP_FAILURE);
+				return new MovementResult(distance, false, FlugStatus.SHIP_FAILURE);
 			}
 		}
 

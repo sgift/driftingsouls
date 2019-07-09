@@ -174,6 +174,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 	private int ablativeArmor;
 
+	@SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
 	@OneToMany(
 			fetch=FetchType.LAZY,
 			targetEntity=net.driftingsouls.ds2.server.ships.ShipUnitCargoEntry.class,
@@ -1897,7 +1898,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		if(dockships.length == 0)
 		{
-			return errors;
+			return true;
 		}
 
 		long dockedShips = getDockedCount();

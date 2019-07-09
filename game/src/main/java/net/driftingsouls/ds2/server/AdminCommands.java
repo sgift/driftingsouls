@@ -886,7 +886,9 @@ public class AdminCommands {
 			try {
 				ResourceID resid = Resources.fromString(command[2]);
 				org.hibernate.Session db = ContextMap.getContext().getDB();
-				item = (Item)db.get(Item.class, resid.getItemID());
+				item = (Item) Optional.ofNullable(resid)
+						.map(resourceID -> db.get(Item.class, resourceID.getItemID()))
+						.orElse(null);
 			}
 			catch( RuntimeException e ) {
 				// EMPTY

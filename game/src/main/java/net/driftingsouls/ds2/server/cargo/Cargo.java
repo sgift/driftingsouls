@@ -843,7 +843,7 @@ public class Cargo implements Cloneable {
 
 				ResourceEntry entry = new ResourceEntry(aitem, name, plainname, image, fcargo1, fcargo2, cargo1, cargo2, diff);
 				if( large ) {
-					entry.setLargeImages(large);
+					entry.setLargeImages(true);
 				}
 
 				reslist.addEntry(entry);
