@@ -1497,25 +1497,22 @@ public class AdminCommands {
 
 		@Override
 		public String execute(Context context, String[] command) throws CommandFailedException {
-			if(command.length != 2) {
-				return "Usage: cleartilecache [systemId]";
+			if(command.length != 1) {
+				return "Usage: cleartilecache";
 			}
 
-			int systemId = Integer.valueOf(command[1]);
-			StarSystem system = (StarSystem)ContextMap.getContext().getDB().get(StarSystem.class, systemId);
-			if(system == null) {
-				return String.format("System %s doesn't exist", systemId);
+			List<StarSystem> systems = Common.cast(ContextMap.getContext().getDB().createQuery("from StarSystem order by id asc").list());
+			for (StarSystem system: systems) {
+				TileCache tileCache = TileCache.forSystem(system);
+				tileCache.resetCache();
 			}
-
-			TileCache tileCache = TileCache.forSystem(system);
-			tileCache.resetCache();
 
 			return "Tile Cache cleared";
 		}
 
 		@Override
 		public List<String> autoComplete(String[] command) {
-			return Collections.singletonList("[systemId]");
+			return Collections.singletonList("");
 		}
 	}
 }
