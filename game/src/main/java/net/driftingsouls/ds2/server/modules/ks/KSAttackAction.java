@@ -329,7 +329,7 @@ public class KSAttackAction extends BasicKSAction {
     private String weaponName;
 	private String attmode;
 
-	KSAttackAction()
+	public KSAttackAction()
     {
         this(null, Weapons.get().weapon(ContextMap.getContext().getRequest().getParameterString("weapon")), ContextMap.getContext().getRequest().getParameterString("attmode"));
 	}
