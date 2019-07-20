@@ -1674,7 +1674,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		if(ships.size() < dockships.length)
 		{
 			//TODO: Hackversuch - schweigend ignorieren, spaeter loggen
-			dockships = ships.toArray(new Ship[ships.size()]);
+			dockships = ships.toArray(new Ship[0]);
 			errors = true;
 		}
 
@@ -1761,7 +1761,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	{
 		if( dockships == null || dockships.length == 0 ) {
 			List<Ship> dockshipList = getDockedShips();
-			dockships = dockshipList.toArray(new Ship[dockshipList.size()]);
+			dockships = dockshipList.toArray(new Ship[0]);
 		}
 
 		boolean gotmodule = false;
@@ -2015,7 +2015,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		if(ships.size() < dockships.length)
 		{
 			//TODO: Hackversuch - schweigend ignorieren, spaeter loggen
-			dockships = ships.toArray(new Ship[ships.size()]);
+			dockships = ships.toArray(new Ship[0]);
 
 			if(dockships.length == 0)
 			{

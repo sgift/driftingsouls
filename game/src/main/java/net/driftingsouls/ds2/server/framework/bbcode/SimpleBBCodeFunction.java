@@ -60,8 +60,8 @@ class SimpleBBCodeFunction implements BBCodeFunction {
 			parts.add(replace);
 		}
 
-		this.parts = parts.toArray(new String[parts.size()]);
-		this.indexParts = indexParts.toArray(new Integer[indexParts.size()]);
+		this.parts = parts.toArray(new String[0]);
+		this.indexParts = indexParts.toArray(new Integer[0]);
 		max = Math.max(this.parts.length, this.indexParts.length);
 	}
 

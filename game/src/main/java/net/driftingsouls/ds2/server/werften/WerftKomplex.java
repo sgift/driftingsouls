@@ -135,7 +135,7 @@ public class WerftKomplex extends WerftObject {
 				}
 			}
 
-			this.werften = werften.toArray(new WerftObject[werften.size()]);
+			this.werften = werften.toArray(new WerftObject[0]);
 			if( werften.isEmpty())
 			{
 				this.werften = null;

@@ -243,6 +243,6 @@ public class WellKnownConfigValue<T> implements ConfigValueDescriptor<T>
 	 */
 	public static WellKnownConfigValue[] values()
 	{
-		return VALUES.toArray(new WellKnownConfigValue[VALUES.size()]);
+		return VALUES.toArray(new WellKnownConfigValue[0]);
 	}
 }

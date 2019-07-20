@@ -606,7 +606,7 @@ public class EditPlugin8<T> implements AdminPlugin
 				LOG.warn("Konnte Suchkriterium nicht erzeugen", e);
 			}
 		}
-		entityQuery.where(predicates.toArray(new Predicate[predicates.size()]));
+		entityQuery.where(predicates.toArray(new Predicate[0]));
 		return entityQuery;
 	}
 

@@ -66,7 +66,7 @@ public class IEModuleSetMeta extends ItemEffect {
 			}
 			combos.add(currentCombo);
 		}
-		return combos.toArray(new SchiffstypModifikation[combos.size()]);
+		return combos.toArray(new SchiffstypModifikation[0]);
 	}
 	
 	/**

@@ -148,7 +148,7 @@ public abstract class Controller implements PermissionResolver
 	protected final void printFooter(OutputHandler handler) throws IOException
 	{
 		handler.setAttribute("pagetitle", this.pageTitle);
-		handler.setAttribute("pagemenu", this.pageMenuEntries.toArray(new PageMenuEntry[this.pageMenuEntries.size()]));
+		handler.setAttribute("pagemenu", this.pageMenuEntries.toArray(new PageMenuEntry[0]));
 		handler.printFooter();
 	}
 
