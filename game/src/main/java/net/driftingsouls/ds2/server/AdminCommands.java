@@ -1497,11 +1497,11 @@ public class AdminCommands {
 
 		@Override
 		public String execute(Context context, String[] command) throws CommandFailedException {
-			if(command.length != 1) {
-				return "Usage: clearcache [systemId]";
+			if(command.length != 2) {
+				return "Usage: cleartilecache [systemId]";
 			}
 
-			int systemId = Integer.valueOf(command[0]);
+			int systemId = Integer.valueOf(command[1]);
 			StarSystem system = (StarSystem)ContextMap.getContext().getDB().get(StarSystem.class, systemId);
 			if(system == null) {
 				return String.format("System %s doesn't exist", systemId);
