@@ -847,13 +847,13 @@ public class AngriffController extends Controller
 							"ship.action.secondrow",	aship.hasFlag(BattleShipFlag.SECONDROW),
 							"ship.action.fluchtnext", !battle.isGuest() && aship.hasFlag(BattleShipFlag.FLUCHTNEXT),
 							"ship.action.shot", !battle.isGuest() && aship.hasFlag(BattleShipFlag.SHOT),
-              "ship.mangelnahrung",       !battle.isGuest() && (aship.getShip().getStatus().contains("mangel_nahrung")),
-              "ship.mangelreaktor",       !battle.isGuest() && aship.getShip().getStatus().contains("mangel_reaktor"),
-              "user.race", aUser.getRace(),
-              "ship.jdocks", aShipType.getJDocks(),
-              "ship.adocks", aShipType.getADocks(),
-              "ship.docks", aShipType.getADocks()+aShipType.getJDocks(),);
-	
+			                "ship.mangelnahrung",       !battle.isGuest() && (aship.getShip().getStatus().contains("mangel_nahrung")),
+			                "ship.mangelreaktor",       !battle.isGuest() && aship.getShip().getStatus().contains("mangel_reaktor"),
+			                "user.race", 			aUser.getRace(),
+			                "ship.jdocks", 			aShipType.getJDocks(),
+			                "ship.adocks", 			aShipType.getADocks(),
+			                "ship.docks", 			aShipType.getADocks()+aShipType.getJDocks());
+				
 
 				if( !firstEntry && showgroups && ((pos >= battle.getOwnShipTypeCount(grouptype)) || (pos == groupoffset+SHIPGROUPSIZE)) ) {
 					t.setVar("ship.showback",1);
@@ -982,11 +982,11 @@ public class AngriffController extends Controller
 								"shiptypelist.secondrowcount",	data.srcount,
 								"shiptypelist.secondrowstatus",	count-data.srcount,
 								"shiptypelist.mangelnahrungcount",	data.mangelnahrungcount,
-                "shiptypelist.mangelreaktorcount",	data.mangelreaktorcount,
-                "shiptypelist.landedcount", data.landedcount,
-                "shiptypelist.dockedcount", data.dockedcount,
-                "user.race", aUser.getRace() );
-										
+				                "shiptypelist.mangelreaktorcount",	data.mangelreaktorcount,
+				                "shiptypelist.landedcount", data.landedcount,
+				                "shiptypelist.dockedcount", data.dockedcount,
+				                "user.race", 				aUser.getRace() );
+														
 					if( firstEntry ) {
 						firstEntry = false;
 					}
