@@ -161,28 +161,21 @@
 			var currentOwner = '{infobox.active}';
 			element = document.getElementById('stats'+currentOwner+'ShipLink').style;
 			element.textDecoration = "underline";
-
 			function getShowUrlPart() {
 				return currentOwner.toLowerCase();
 			}
-
 			function showInfoBox( owner ) {
 				element = document.getElementById('stats'+currentOwner+'Ship').style;
 				element.visibility = "hidden";
 				element.position = "absolute";
-
 				element = document.getElementById('stats'+currentOwner+'ShipLink').style;
 				element.textDecoration = "none";
-
 				currentOwner = owner;
-
 				element = document.getElementById('stats'+owner+'Ship').style;
 				element.visibility = "visible";
 				element.position = "relative";
-
 				element = document.getElementById('stats'+owner+'ShipLink').style;
 				element.textDecoration = "underline";
-
 				elementlist = document.getElementsByTagName('a');
 				for( i=0; i < elementlist.length; i++ ) {
 					if( elementlist[i].href.indexOf('module=angriff') > -1 ) {
@@ -363,9 +356,6 @@
 		<img src="{shiptypelist.image}" alt="" />
 	</a><br />
 <!-- END ships.typelist.item -->
-
-
-<!-- Row Header -->
 <tr>
 	<th class="joinFlucht" style="vertical-align:top;width:12%"><div style="height:100px; overflow:auto; font-size:16px">Join/Flucht
 	</th>
@@ -380,9 +370,7 @@
 	<th class="joinFlucht" style="vertical-align:top;width:12%"><div style="height:100px; overflow:auto; font-size:16px">Join/Flucht
 	</th>
 </tr>
-<!-- Schiffsreihen -->
 <tr>
-	<!-- join/Flucht -->
 	<td class="schiffData" style="vertical-align:top;width:12%">
 		<div style="height:500px; overflow:auto; font-size:16px">
 			<!-- BEGIN ownShips.listitem -->
@@ -423,7 +411,6 @@
 			<!-- END ownShips.listitem -->
 		</div>
 	</td>
-	<!-- zweite Reihe -->
 	<td class="schiffData" style="vertical-align:top;width:12%">
 		<div style="height:500px; overflow:auto; font-size:16px">
 			<!-- BEGIN ownShips.listitem -->
@@ -462,7 +449,6 @@
 			<!-- END ownShips.listitem -->
 		</div>
 	</td>
-	<!--  erste Reihe -->
 	<td class="schiffData" style="vertical-align:top;width:12%">
 		<div style="height:500px; overflow:auto; font-size:16px">
 			<!-- BEGIN ownShips.listitem -->
@@ -500,8 +486,6 @@
 			<!-- END ownShips.listitem -->
 		</div>
 	</td>
-
-<!--  erste Reihe Feind -->
 	<td class="schiffData" style="vertical-align:top;width:12%">
 		<div style="height:500px; overflow:auto; font-size:16px">
 			<!-- BEGIN enemyShips.listitem -->
@@ -524,7 +508,6 @@
 			<!-- END enemyShips.listitem -->
 		</div>
 	</td>
-	<!--  zweite Reihe Feind -->
 	<td class="schiffData" style="vertical-align:top;width:12%">
 		<div style="height:500px; overflow:auto; font-size:16px">
 			<!-- BEGIN enemyShips.listitem -->
@@ -548,7 +531,6 @@
 			<!-- END enemyShips.listitem -->
 		</div>
 	</td>
-	<!--  join Flucht Feind -->
 	<td class="schiffData" style="vertical-align:top;width:12%">
 		<div style="height:500px; overflow:auto; font-size:16px">
 			<!-- BEGIN enemyShips.listitem -->
