@@ -934,7 +934,7 @@ public class AngriffController extends Controller
                     if (aship.getShip().isLanded()){
                         data.landedcount++;
                     }
-                    if (aship.getShip.isDocked()){
+                    if (aship.getShip().isDocked()){
                         data.dockedcount++;
                     }
                 }
@@ -963,7 +963,6 @@ public class AngriffController extends Controller
 					
 					ShipTypeData shiptype = Ship.getShipType(stid);
           GroupEntry data = groupdata.get(key);
-          User aUser = Ship.getOwner();
 					
 					t.setVar(	"shiptypelist.count",		count,
 								"shiptypelist.name",		shiptype.getNickname(),
