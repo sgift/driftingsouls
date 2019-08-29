@@ -968,7 +968,7 @@ public class AngriffController extends Controller
                     if (aship.getShip().isDocked()){
                         data.dockedcount++;
                     }
-                    if (aship.getShip()..getTypeData().getADocks()>0){
+                    if (aship.getShip().getTypeData().getADocks()>0){
                         data.adockcount+=aship.getShip().getTypeData().getADocks();
                         data.hasdockedcount+=aship.getShip().getDockedCount();
                     }
