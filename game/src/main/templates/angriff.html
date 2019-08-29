@@ -53,7 +53,20 @@
 		{if ownship.action.join}<img src="data/interface/ks/join.gif" alt="" title="tritt der Schacht bei" />{/endif}
 		{if ownship.action.secondrow}<img src="data/interface/ks/secondrow.png" alt="" title="Zweite Reihe" />{/endif}
 		{if ownship.mangelnahrung}<img src="data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />{/endif}
-		{if ownship.mangelreaktor}<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}
+    {if ownship.mangelreaktor}<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}
+    {if ownship.landed}<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" title="gelandet"/>{/endif}
+    {if ownship.docked}<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" title="dedockt"/>{/endif}
+    {if ownship.docked.name}auf {if ship.docked.name}{ship.docked.name}{/endif}({ship.docked.id}){/endif}
+    {if ownship.docks}
+          {if ownship.adocks}
+            <br />
+						<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ownship.adocks.docked}/{ownship.adocks}]</a>
+					{/endif}
+          {if ownship.jdocks}
+            <br />
+						<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold" >[{ownship.jdocks.docked}/{ownship.jdocks}]</a>
+					{/endif}
+				{/endif}
 		<br />
 		<a class="noborder tooltip" target="_blank"
 			onclick="ShiptypeBox.show({ownship.type});return false;"
@@ -201,14 +214,14 @@
 						<a class="noborder tooltip" target="_blank"
 							onclick="ShiptypeBox.show({shipinfo.type});return false;"
 							href="./ds?module=schiffinfo&amp;ship={shipinfo.type}">
-							<img src="{shipinfo.type.image}" alt="" style="float:right; margin-right:5px; margin-left:15px;margin-bottom:10px" />
+							<img src="{shipinfo.type.image}" alt="" style="float:right; margin-right:5px; margin-left:15px;margin-bottom:10px; width:28%" />
 							<span class="ttcontent">{shipinfo.type.name}</span>
 						</a>
 						Zustand:<br/>
 						{if shipinfo.type.shields}
 							+ Schilde:
 							{if shipinfo.shields.bad}<span style="color:#ff0000">{/endif}
-							{if shipinfo.shields.normal}<span style="color:#ffff00">{/endif}
+							{if shipinfo.shields.normal}<span style="color:#ffff00">{/endif} 
 							{if shipinfo.shields.good}<span style="color:#00ff00">{/endif}
 							{shipinfo.shields}/{shipinfo.type.shields}</span>{if shipinfo.showtmp}&nbsp;({shipinfo.tmp.shields}){/endif}<br />
 						{/endif}
@@ -318,7 +331,7 @@
 			</div>
 		</div>
 	</td>
-	<td class="schiffData" style="width:36%">
+	<td class="schiffData" style="width:36%" colspan="3">
 		<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{enemyship.name} ({enemyship.id})</a> (Ziel)
 		{if enemyship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
 		{if enemyship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
@@ -357,17 +370,17 @@
 	</a><br />
 <!-- END ships.typelist.item -->
 <tr>
-	<th class="joinFlucht" style="vertical-align:top;width:12%"><div style="height:100px; overflow:auto; font-size:16px">Join/Flucht
+	<th class="Border" style="vertical-align:top;width:12%"><div style="height:30px; overflow:auto; font-size:16px">Join/Flucht
 	</th>
-	<th class="secondRow" style="vertical-align:top;width:12%"><div style="height:100px; overflow:auto; font-size:16px">Zweite Reihe
+	<th class="Border" style="vertical-align:top;width:12%"><div style="height:30px; overflow:auto; font-size:16px">Zweite Reihe
 	</th>
-	<th class="frontRow" style="vertical-align:top;width:12%"><div style="height:100px; overflow:auto; font-size:16px">Erste Reihe
+	<th class="Border" style="vertical-align:top;width:12%"><div style="height:30px; overflow:auto; font-size:16px">Erste Reihe
 	</th>
-	<th class="frontRow" style="vertical-align:top;width:12%"><div style="height:100px; overflow:auto; font-size:16px">Erste Reihe
+	<th class="Border" style="vertical-align:top;width:12%"><div style="height:30px; overflow:auto; font-size:16px">Erste Reihe
 	</th>
-	<th class="secondRow" style="vertical-align:top;width:12%"><div style="height:100px; overflow:auto; font-size:16px">Zweite Reihe
+	<th class="Border" style="vertical-align:top;width:12%"><div style="height:30px; overflow:auto; font-size:16px">Zweite Reihe
 	</th>
-	<th class="joinFlucht" style="vertical-align:top;width:12%"><div style="height:100px; overflow:auto; font-size:16px">Join/Flucht
+	<th class="Border" style="vertical-align:top;width:12%"><div style="height:30px; overflow:auto; font-size:16px">Join/Flucht
 	</th>
 </tr>
 <tr>
@@ -392,10 +405,10 @@
 				{if ship.docks}
 					<br />
 					{if ship.adocks}
-						<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}">[{ship.adocks.docked}/{ship.adocks}]</a>
+						<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.adocks.docked}/{ship.adocks}]</a>
 					{/endif}
 					{if ship.jdocks}
-						<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}">[{ship.jdocks.docked}/{ship.jdocks}]</a>
+						<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.jdocks.docked}/{ship.jdocks}]</a>
 					{/endif}
 				{/endif}
 				<br />
@@ -430,10 +443,10 @@
 				{if ship.docks}
 					<br />
 					{if ship.adocks}
-						<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}">[{ship.adocks.docked}/{ship.adocks}]</a>
+						<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.adocks.docked}/{ship.adocks}]</a>
 					{/endif}
 					{if ship.jdocks}
-						<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}">[{ship.jdocks.docked}/{ship.jdocks}]</a>
+						<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.jdocks.docked}/{ship.jdocks}]</a>
 					{/endif}
 				{/endif}
 				<br />
@@ -467,10 +480,10 @@
 				{if ship.docks}
 					<br />
 					{if ship.adocks}
-						<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}">[{ship.adocks.docked}/{ship.adocks}]</a>
+						<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.adocks.docked}/{ship.adocks}]</a>
 					{/endif}
 					{if ship.jdocks}
-						<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}">[{ship.jdocks.docked}/{ship.jdocks}]</a>
+						<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.jdocks.docked}/{ship.jdocks}]</a>
 					{/endif}
 				{/endif}
 				<br />
@@ -560,20 +573,20 @@
 </tr>
 <tr>
 	{if user.commander}
-		<td class="BorderS" style="width:36%">&nbsp;</td>
+		<td class="BorderS" style="width:36%" colspan="3">&nbsp;</td>
 		{if battle.turn.own}
-			<td style="text-align:center;width:36%" class="BorderS"><a class="forschinfo" href="javascript:DS.ask('Wollen sie ihren Zug wirklich beenden?',DS.getUrl()+'?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ksaction=endturn&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}')">Zug beenden</a></td>
+			<td style="text-align:center;width:28%" class="BorderS" colspan="3"><a class="forschinfo" href="javascript:DS.ask('Wollen sie ihren Zug wirklich beenden?',DS.getUrl()+'?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ksaction=endturn&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}')">Zug beenden</a></td>
 		{else}
-			<td style="text-align:center;width:36%" class="BorderS">Warte auf Gegner</td>
+			<td style="text-align:center;width:28%" class="BorderS" colspan="3">Warte auf Gegner</td>
 		{/endif}
 	{else}
-		<td class="BorderS" style="text-align:center;width:36%">{battle.owncom.name}{if battle.owncom.ready}&nbsp;<img src="data/interface/ks/ready.gif" alt="" />{/endif}</td>
+		<td class="BorderS" style="text-align:center;width:36%" colspan="3">{battle.owncom.name}{if battle.owncom.ready}&nbsp;<img src="data/interface/ks/ready.gif" alt="" />{/endif}</td>
 		{if battle.turn.own}
-			<td style="text-align:center;width:36%" class="BorderS">Warte auf Kommandanten</td>
+			<td style="text-align:center;width:28%" class="BorderS" colspan="3">Warte auf Kommandanten</td>
 		{else}
-			<td style="text-align:center;width:36%" class="BorderS">Warte auf Gegner</td>
+			<td style="text-align:center;width:28%" class="BorderS" colspan="3">Warte auf Gegner</td>
 		{/endif}
 	{/endif}
-	<td class="BorderS" style="text-align:center;width:36%">{battle.enemycom.name}{if battle.enemycom.ready}&nbsp;<img src="data/interface/ks/ready.gif" alt="" />{/endif}</td>
+	<td class="BorderS" style="text-align:center;width:36%" colspan="3">{battle.enemycom.name}{if battle.enemycom.ready}&nbsp;<img src="data/interface/ks/ready.gif" alt="" />{/endif}</td>
 </tr>
 </table>
