@@ -1,1293 +1,592 @@
-/*
- *	Drifting Souls 2
- *	Copyright (c) 2006 Christopher Jung
- *
- *	This library is free software; you can redistribute it and/or
- *	modify it under the terms of the GNU Lesser General Public
- *	License as published by the Free Software Foundation; either
- *	version 2.1 of the License, or (at your option) any later version.
- *
- *	This library is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *	Lesser General Public License for more details.
- *
- *	You should have received a copy of the GNU Lesser General Public
- *	License along with this library; if not, write to the Free Software
- *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- */
-package net.driftingsouls.ds2.server.modules;
-
-import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.WellKnownConfigValue;
-import net.driftingsouls.ds2.server.battles.Battle;
-import net.driftingsouls.ds2.server.battles.BattleFlag;
-import net.driftingsouls.ds2.server.battles.BattleShip;
-import net.driftingsouls.ds2.server.battles.BattleShipFlag;
-import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
-import net.driftingsouls.ds2.server.config.Weapons;
-import net.driftingsouls.ds2.server.config.items.Munition;
-import net.driftingsouls.ds2.server.entities.Nebel;
-import net.driftingsouls.ds2.server.entities.Offizier;
-import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.UserFlag;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
-import net.driftingsouls.ds2.server.framework.pipeline.Module;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
-import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
-import net.driftingsouls.ds2.server.modules.ks.*;
-import net.driftingsouls.ds2.server.services.SchlachtErstellenService;
-import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.units.UnitCargo;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Das UI fuer Schlachten.
- * @author Christopher Jung
- *
- */
-@Module(name="angriff")
-public class AngriffController extends Controller
-{
-	private static final Log log = LogFactory.getLog(AngriffController.class);
-	
-	private static final int SHIPGROUPSIZE = 10000;
-	
-	private final Map<String,Class<? extends BasicKSAction>> actions = new HashMap<>();
-	private final Map<String,Class<? extends BasicKSMenuAction>> menuActions = new HashMap<>();
-
-	private TemplateViewResultFactory templateViewResultFactory;
-	private SchlachtErstellenService schlachtErstellenService;
-
-	@Autowired
-	public AngriffController(ConfigService configService,
-			TemplateViewResultFactory templateViewResultFactory,
-			SchlachtErstellenService schlachtErstellenService) {
-		this.templateViewResultFactory = templateViewResultFactory;
-		this.schlachtErstellenService = schlachtErstellenService;
-
-		setPageTitle("Schlacht");
-
-		menuActions.put("attack", KSMenuAttackAction.class);
-		menuActions.put("attack_select", KSMenuAttackMuniSelectAction.class);
-        menuActions.put("groupattack", KSMenuGroupAttackAction.class);
-        menuActions.put("groupattack_select", KSMenuGroupAttackMuniSelectAction.class);
-		//menuActions.put("batterien", KSMenuBatteriesAction.class);
-		menuActions.put("default", KSMenuDefaultAction.class);
-		menuActions.put("flucht", KSMenuFluchtAction.class);
-		menuActions.put("history", KSMenuHistoryAction.class);
-		menuActions.put("new_commander", KSMenuBattleConsignAction.class);
-		menuActions.put("other", KSMenuOtherAction.class);
-		menuActions.put("shields", KSMenuShieldsAction.class);
-        menuActions.put("undock", KSMenuUndockAction.class);
-		if( configService.getValue(WellKnownConfigValue.ENABLE_CHEATS) ) {
-			menuActions.put("cheats", KSMenuCheatsAction.class);
-		}
-
-		actions.put("flucht_single", KSFluchtSingleAction.class);
-		actions.put("flucht_all", KSFluchtAllAction.class);
-		actions.put("flucht_class", KSFluchtClassAction.class);
-        actions.put("undock_single", KSUndockAction.class);
-        actions.put("undock_class", KSUndockClassAction.class);
-        actions.put("undock_all", KSUndockAllAction.class);
-        actions.put("groupattack2", KSGroupAttackAction.class);
-		actions.put("attack2", KSAttackAction.class);
-		actions.put("kapern", KSKapernAction.class);
-		actions.put("secondrow", KSSecondRowAction.class);
-		actions.put("leavesecondrow", KSLeaveSecondRowAction.class);
-		actions.put("secondrowengage", KSSecondRowEngageAction.class);
-		actions.put("secondrowattack", KSSecondRowAttackAction.class);
-		actions.put("endbattleequal", KSEndBattleEqualAction.class);
-		actions.put("endturn", KSEndTurnAction.class);
-        actions.put("activatear", KSActivateAR.class);
-        actions.put("deactivatear", KSDeactivateAR.class);
-		actions.put("new_commander2", KSNewCommanderAction.class);
-		actions.put("take_command", KSTakeCommandAction.class);
-		actions.put("stop_take_command", KSStopTakeCommandAction.class);
-		actions.put("endbattle", KSEndBattleCivilAction.class);
-		actions.put("shields_single", KSRegenerateShieldsSingleAction.class);
-		actions.put("shields_all", KSRegenerateShieldsAllAction.class);
-		actions.put("shields_class", KSRegenerateShieldsClassAction.class);
-		//actions.put("batterien_single", KSDischargeBatteriesSingleAction.class);
-		//actions.put("batterien_all", KSDischargeBatteriesAllAction.class);
-		//actions.put("batterien_class", KSDischargeBatteriesClassAction.class);
-		if( configService.getValue(WellKnownConfigValue.ENABLE_CHEATS) ) {
-			actions.put("cheat_regenerate", KSCheatRegenerateOwnAction.class);
-			actions.put("cheat_regenerateenemy", KSCheatRegenerateEnemyAction.class);
-		}
-	}
-
-	@Override
-	protected boolean validateAndPrepare() {
-		return true;
-	}
-
-	private void showInfo(TemplateEngine t, String tag, BattleShip ship, boolean enemy, String jscriptid, boolean show) {
-		if( ship == null ) {
-			addError("FATAL ERROR: Kein gueltiges Schiff vorhanden");
-			return;
-		}
-
-		ShipTypeData shipType = ship.getTypeData();
-
-		t.start_record();
-		t.setVar(	"shipinfo.jscriptid",		jscriptid,
-					"shipinfo.show",			show,
-					"shipinfo.enemy",			enemy,
-					"shipinfo.type",			ship.getShip().getType(),
-					"shipinfo.type.name",		shipType.getNickname(),
-					"shipinfo.type.image",		shipType.getPicture(),
-					"shipinfo.type.hull",		Common.ln(shipType.getHull()),
-					"shipinfo.type.ablativeArmor", Common.ln(shipType.getAblativeArmor()),
-					"shipinfo.type.shields",	Common.ln(shipType.getShields()),
-					"shipinfo.type.cost",		shipType.getCost(),
-					"shipinfo.type.maxenergy",	shipType.getEps(),
-					"shipinfo.type.maxcrew",	shipType.getCrew(),
-					"shipinfo.type.weapons",	shipType.isMilitary(),
-					"shipinfo.hull",			Common.ln(ship.getShip().getHull()),
-					"shipinfo.ablativeArmor", 	Common.ln(ship.getShip().getAblativeArmor()),
-					"shipinfo.panzerung",		(int)Math.round(shipType.getPanzerung()*ship.getShip().getHull()/(double)shipType.getHull()),
-					"shipinfo.shields",			Common.ln(ship.getShip().getShields()),
-					"shipinfo.nocrew",			(ship.getShip().getCrew() == 0) && (shipType.getCrew()>0),
-					"shipinfo.heat",			ship.getShip().getHeat(),
-					"shipinfo.energy",			ship.getShip().getEnergy(),
-					"shipinfo.crew",			ship.getShip().getCrew(),
-					"shipinfo.engine",			ship.getShip().getEngine(),
-					"shipinfo.weapons",			ship.getShip().getWeapons(),
-					"shipinfo.comm",			ship.getShip().getComm(),
-					"shipinfo.sensors",			ship.getShip().getSensors(),
-					"shipinfo.showtmp",			ship.hasFlag(BattleShipFlag.HIT) || ship.hasFlag(BattleShipFlag.DESTROYED),
-					"shipinfo.tmp.hull",		ship.hasFlag(BattleShipFlag.DESTROYED) ? 0 : Common.ln(ship.getHull()),
-					"shipinfo.tmp.shields",		ship.hasFlag(BattleShipFlag.DESTROYED) ? 0 : Common.ln(ship.getShields()),
-					"shipinfo.tmp.engine",		ship.getEngine(),
-					"shipinfo.tmp.weapons",		ship.getWeapons(),
-					"shipinfo.tmp.comm",		ship.getComm(),
-					"shipinfo.tmp.sensors",		ship.getSensors(),
-					"shipinfo.tmp.panzerung",	(int)Math.round(shipType.getPanzerung()*ship.getHull()/(double)shipType.getHull()), 
-					"shipinfo.tmp.ablativeArmor", ship.hasFlag(BattleShipFlag.DESTROYED) ? 0 : Common.ln(ship.getAblativeArmor()));
-
-		// Ablative Panzerung
-		if(ship.getShip().getAblativeArmor() < shipType.getAblativeArmor()/2)
-		{
-			t.setVar("shipinfo.ablativeArmor.bad", 1);
-		}
-		else if(ship.getShip().getAblativeArmor() < shipType.getAblativeArmor()) 
-		{
-			t.setVar("shipinfo.ablativeArmor.normal",1);
-		}
-		else 
-		{
-			t.setVar("shipinfo.ablativeArmor.good",1);
-		}
-
-		// Huelle
-		if( ship.getShip().getHull() < shipType.getHull()/2 ) {
-			t.setVar("shipinfo.hull.bad",1);
-		}
-		else if( ship.getShip().getHull() < shipType.getHull() ) {
-			t.setVar("shipinfo.hull.normal",1);
-		}
-		else {
-			t.setVar("shipinfo.hull.good",1);
-		}
-
-		// Schilde
-		if( shipType.getShields() > 0 ) {
-			if( ship.getShip().getShields() < shipType.getShields()/2 ) {
-				t.setVar("shipinfo.shields.bad",1);
+<table class="show" style="table-layout:fixed" cellpadding="2" cellspacing="2" width="100%">
+<colgroup span="3" style="width:36%"></colgroup>
+<colgroup span="3" style="width:28%"></colgroup>
+<colgroup span="3" style="width:36%"></colgroup>
+<tr>
+	<td class="Border" style="width:36%" colspan="3">
+		{if ownside.secondrow.blocked}
+			<img style="vertical-align:middle" src="data/interface/ks/secondrow_blocked.png" alt="" title="Sie haben im Moment keine M&ouml;glichkeit in die zweite Reihe zu fliegen" />
+		{else}
+			{if ownside.secondrow.stable}
+				<img style="vertical-align:middle" src="data/interface/ks/secondrow.png" alt="" title="Ihre zweite Reihe ist im Moment stabil" />
+			{else}
+				<img style="vertical-align:middle" src="data/interface/ks/secondrow_unstable.png" alt="" title="Ihre zweite Reihe ist im Moment instabil, und kann daher vom Gegner &uuml;berrannt werden" />
+			{/endif}
+		{/endif}
+		<span style="color:green">
+			Eigene/Verb&uuml;ndete Schiffe&nbsp;
+		</span>
+		<span style="color:white">
+			{if ownship.location.system}
+				<a class="forschinfo" href='./ds?module=client#/map/{ownship.location.system}/{ownship.location.x}/{ownship.location.y}'>{ownship.coordinates}</a>
+			{else}
+				{ownship.coordinates}
+			{/endif}
+		</span>
+	</td>
+	<td class="Border" style="width:28%" colspan="3">
+		Befehle
+	</td>
+	<td class="Border" style="width:36%" colspan="3">
+		{if enemyside.secondrow.blocked}
+			<img style="vertical-align:middle" src="data/interface/ks/secondrow_blocked.png" alt="" title="Der Gegner hat im Moment keine M&ouml;glichkeit in die zweite Reihe zu fliegen" />
+		{else}
+			{if enemyside.secondrow.stable}
+				<img style="vertical-align:middle" src="data/interface/ks/secondrow.png" alt="" title="Die zweite Reihe ihres Gegners ist im Moment stabil" />
+			{else}
+				<img style="vertical-align:middle" src="data/interface/ks/secondrow_unstable.png" alt="" title="Die zweite Reihe ihres Gegners ist im Moment instabil, und kann daher von ihnen &uuml;berrannt werden" />
+			{/endif}
+		{/endif}
+		<span style="color:red">
+			Feindliche Schiffe
+		</span>
+	</td>
+</tr>
+<tr>
+	<td class="schiffData" style="width:36%" colspan="3">
+		<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ownship.name} ({ownship.id})</a> (aktiv)
+		{if ownship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
+		{if ownship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
+		{if ownship.action.flucht}<img src="data/interface/ks/flucht.gif" alt="" title="flucht"/>{/endif}
+		{if ownship.action.fluchtnext}<img src="data/interface/ks/fluchtnext.png" alt="" title="flieht n&auml;chste Runde"/>{/endif}
+		{if ownship.action.shot}<img src="data/interface/ks/shot.gif" alt="" title="Waffen eingesetzt" />{/endif}
+		{if ownship.action.join}<img src="data/interface/ks/join.gif" alt="" title="tritt der Schacht bei" />{/endif}
+		{if ownship.action.secondrow}<img src="data/interface/ks/secondrow.png" alt="" title="Zweite Reihe" />{/endif}
+		{if ownship.mangelnahrung}<img src="data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />{/endif}
+    {if ownship.mangelreaktor}<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}
+    {if ownship.landed}<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" title="gelandet"/>{/endif}
+    {if ownship.docked}<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" title="dedockt"/>{/endif}
+    {if ownship.docked.name}auf {if ship.docked.name}{ship.docked.name}{/endif}({ship.docked.id}){/endif}
+    {if ownship.docks}
+          {if ownship.adocks}
+            <br />
+						<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ownship.adocks.docked}/{ownship.adocks}]</a>
+					{/endif}
+          {if ownship.jdocks}
+            <br />
+						<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold" >[{ownship.jdocks.docked}/{ownship.jdocks}]</a>
+					{/endif}
+				{/endif}
+		<br />
+		<a class="noborder tooltip" target="_blank"
+			onclick="ShiptypeBox.show({ownship.type});return false;"
+			href="./ds?module=schiffinfo&amp;ship={ownship.type}">
+			<img src="{ownship.type.image}" alt="" />
+			<span class="ttcontent">{ownship.type.name}{ownship.energy}</span>
+		</a><br />
+		<a class="profile" href="./ds?module=userprofile&amp;user={ownship.owner.id}">{ownship.owner.name}</a><br />
+	</td>
+	<td rowspan="3" style="vertical-align:top;width:36%" class="schiffData" colspan="3">
+		{if battle.logoutput}
+			<table border="0" cellspacing="1" cellpadding="1" width="100%" class="nav">
+			<tr>
+				<td class="angrifflog">
+					{battle.logoutput}
+					<br /><br />
+					<div style="text-align:center">[ <a href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ksaction={global.ksaction}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">ok</a> ]</div>
+				</td>
+			</tr>
+			</table>
+		{/endif}
+		{if battle.takecommand.ask}
+			<table border="0" cellspacing="1" cellpadding="1" width="100%" class="nav">
+			<tr>
+				<td class="angrifflog" align="center">
+					!ACHTUNG!<br /><br />
+					{battle.takecommand.name} m&ouml;chte die Leitung der Schlacht &uuml;bernehmen.
+					<br /><br />
+					<div style="text-align:center">[
+						<a href="./ds?module=angriff&amp;battle={battle.id}&amp;ksaction=new_commander2&amp;newcom={battle.takecommand.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">ok</a> -
+						<a href="./ds?module=angriff&amp;battle={battle.id}&amp;ksaction=stop_take_command&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">ablehnen</a>
+					]</div>
+				</td>
+			</tr>
+			</table>
+		{/endif}
+		{if global.showmenu}
+			<table border="0" cellspacing="1" cellpadding="1" width="100%">
+				<!-- BEGIN menu.entry -->
+				<tr>
+					<td style="background-color:#CC3333" align="center"
+						onmouseover="this.style.cursor='pointer';this.style.backgroundColor='#33CC33'"
+						onclick="window.location.href=DS.getUrl()+'?module=angriff&amp;battle={battle.id}&amp;scan='+getShowUrlPart()+'{menu.entry.params}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}'"
+						onmouseout="this.style.backgroundColor='#CC3333'">
+						<span class="smallfont" style="font-weight:bold">{menu.entry.title}</span>
+					</td>
+				</tr>
+				<!-- END menu.entry -->
+				<!-- BEGIN menu.entry.ask -->
+				<tr>
+					<td style="background-color:#CC3333" align="center"
+						onmouseover="this.style.cursor='pointer';this.style.backgroundColor='#33CC33'"
+						onclick="DS.ask('{ask.text}',DS.getUrl()+'?module=angriff&amp;battle={battle.id}&amp;scan='+getShowUrlPart()+'{menu.entry.params}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}')"
+						onmouseout="this.style.backgroundColor='#CC3333'">
+						<span class="smallfont" style="font-weight:bold">{menu.entry.title}</span>
+					</td>
+				</tr>
+				<!-- END menu.entry.ask -->
+			</table>
+		{/endif}
+		{if global.showlog}
+			<table border="0" cellspacing="1" cellpadding="1" width="100%" class="nav">
+			<tr>
+				<td class="angrifflog">
+					{global.showlog.text}
+					<br />
+					<div style="text-align:center;width:100%">
+						<div style="text-align:right;position:absolute;direction:rtl">
+							{if global.showlog.side1.show}
+								<a href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}{global.showlog.actionstr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}{global.logpagestr}&amp;modlogpagefilter=s1h"><img style="border:0px" src="data/interface/ks/icon_side1.png" alt="" title="Seite 2 verstecken" /></a>
+							{else}
+								<a href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}{global.showlog.actionstr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}{global.logpagestr}&amp;modlogpagefilter=s1s"><img style="border:0px" src="data/interface/ks/icon_side1_x.png" alt="" title="Seite 2 anzeigen" /></a>
+							{/endif}
+							{if global.showlog.side0.show}
+								<a href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}{global.showlog.actionstr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}{global.logpagestr}&amp;modlogpagefilter=s0h"><img style="border:0px" src="data/interface/ks/icon_side0.png" alt="" title="Seite 1 verstecken" /></a>
+							{else}
+								<a href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}{global.showlog.actionstr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}{global.logpagestr}&amp;modlogpagefilter=s0s"><img style="border:0px" src="data/interface/ks/icon_side0_x.png" alt="" title="Seite 1 anzeigen" /></a>
+							{/endif}
+						</div>
+						--- Was bisher geschah ---<br />
+						<!-- BEGIN global.showlog.turnlist.item -->
+							<span class="nobr">[ <a href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}{global.showlog.actionstr}&amp;logpage={global.showlog.turnlist.pageid}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}&amp;logpagefilter={global.showlog.filter}">Runde {global.showlog.turnlist.page}</a> ]</span>
+						<!-- END global.showlog.turnlist.item -->
+					</div>
+					<div id="ks-log" style="height:220px; overflow:auto">
+						{global.showlog.log}
+					</div>
+					{if global.showlog.okbutton}
+						<div style="text-align:center">[ <a href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">ok</a> ]</div>
+					{/endif}
+					{if global.showlog.takecommand}
+						<div style="text-align:center">[ <a href="./ds?module=angriff&amp;battle={battle.id}&amp;ksaction=take_command&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">Schlacht &uuml;bernehmen</a> ]</div>
+					{/endif}
+				</td>
+			</tr>
+			</table>
+		{/endif}
+		<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+		<div style="text-align:center">
+			<a name="statsOwnShipLink" id="statsOwnShipLink" class="forschinfo" href="javascript:showInfoBox('Own')">Freund</a> |
+			<a name="statsEnemyShipLink" id="statsEnemyShipLink" class="forschinfo" href="javascript:showInfoBox('Enemy')">Feind</a><br />
+		</div>
+		<script type="text/javascript">
+		<!--
+			var currentOwner = '{infobox.active}';
+			element = document.getElementById('stats'+currentOwner+'ShipLink').style;
+			element.textDecoration = "underline";
+			function getShowUrlPart() {
+				return currentOwner.toLowerCase();
 			}
-			else if( ship.getShip().getShields() < shipType.getShields() ) {
-				t.setVar("shipinfo.shields.normal",1);
-			}
-			else {
-				t.setVar("shipinfo.shields.good",1);
-			}
-		}
-
-		// Antrieb
-		if( shipType.getCost() > 0 ) {
-			if( ship.getShip().getEngine() < 50 ) {
-				t.setVar("shipinfo.engine.bad",1);
-			}
-			else if( ship.getShip().getEngine() < 100 ) {
-				t.setVar("shipinfo.engine.normal",1);
-			}
-			else {
-				t.setVar("shipinfo.engine.good",1);
-			}
-		}
-
-		// Waffen
-		if( shipType.isMilitary() ) {
-			if( ship.getShip().getWeapons() < 50 ) {
-				t.setVar("shipinfo.weapons.bad",1);
-			}
-			else if( ship.getShip().getWeapons() < 100 ) {
-				t.setVar("shipinfo.weapons.normal",1);
-			}
-			else {
-				t.setVar("shipinfo.weapons.good",1);
-			}
-		}
-
-		// Kommunikation
-		if( ship.getShip().getComm() < 50 ) {
-			t.setVar("shipinfo.comm.bad",1);
-		}
-		else if( ship.getShip().getComm() < 100 ) {
-			t.setVar("shipinfo.comm.normal",1);
-		}
-		else {
-			t.setVar("shipinfo.comm.good",1);
-		}
-
-		// Sensoren
-		if( ship.getShip().getSensors() < 50 ) {
-			t.setVar("shipinfo.sensors.bad",1);
-		}
-		else if( ship.getShip().getSensors() < 100 ) {
-			t.setVar("shipinfo.sensors.normal",1);
-		}
-		else {
-			t.setVar("shipinfo.sensors.good",1);
-		}
-
-		if( !enemy ) {
-			// Eigene Crew
-			if( (ship.getShip().getCrew() > 0) && (shipType.getCrew()>0) ) {
-				if( ship.getShip().getCrew() < shipType.getCrew()/2 ) {
-					t.setVar("shipinfo.crew.bad",1);
-				}
-				else if( ship.getShip().getCrew() < shipType.getCrew() ) {
-					t.setVar("shipinfo.crew.normal",1);
-				}
-				else {
-					t.setVar("shipinfo.crew.good",1);
-				}
-			}
-
-			// Energie
-			if( ship.getShip().getEnergy() < shipType.getEps() / 4 ) {
-				t.setVar("shipinfo.energy.bad",1);
-			}
-			else if( ship.getShip().getEnergy() < shipType.getEps() ) {
-				t.setVar("shipinfo.energy.normal",1);
-			}
-			else {
-				t.setVar("shipinfo.energy.good",1);
-			}
-		}
-
-		// Offiziere
-		Offizier offizier = ship.getShip().getOffizier();
-		if( offizier != null ) {
-			t.setVar(	"offizier.rang",	offizier.getRang(),
-						"offizier.id",		offizier.getID(),
-						"offizier.name",	Common._plaintitle(offizier.getName()) );
-		}
-
-		if( !enemy ) {
-			// Waffen
-			Map<String,Integer> weapons = shipType.getWeapons();
-			Map<String,Integer> heat = ship.getWeaponHeat();
-			Map<String,Integer> maxheat = shipType.getMaxHeat();
-
-			for( String weaponName : weapons.keySet() ) {
-				t.setVar(	"shipinfo.weapon.name",		Weapons.get().weapon(weaponName).getName(),
-							"shipinfo.weapon.heat",     heat.getOrDefault(weaponName, 0),
-							"shipinfo.weapon.maxheat",	maxheat.get(weaponName) );
-
-				t.parse("shipinfo.weapons.list","shipinfo.weapons.listitem",true);
-			}
-
-			// Munition
-			Cargo mycargo = ship.getCargo();
-			
-			t.setVar("shipinfo.ammo.list","");
-			List<ItemCargoEntry<Munition>> itemlist = mycargo.getItemsOfType(Munition.class);
-            for (ItemCargoEntry<Munition> item : itemlist) {
-                if (item.getCount() > 0) {
-					Munition itemobject = item.getItem();
-
-                    t.setVar("ammo.image", itemobject.getPicture(),
-                            "ammo.name", itemobject.getName(),
-                            "ammo.count", item.getCount());
-                    t.parse("shipinfo.ammo.list", "shipinfo.ammo.listitem", true);
-                }
-            }
-			/*if(mycargo.hasResource(Resources.BATTERIEN))
-			{
-				t.setVar( "ammo.image", Cargo.getResourceImage(Resources.BATTERIEN),
-						  "ammo.name",  Cargo.getResourceName(Resources.BATTERIEN),
-						  "ammo.count", mycargo.getResourceCount(Resources.BATTERIEN));
-				t.parse("shipinfo.ammo.list", "shipinfo.ammo.listitem", true);
-			}*/
-
-			// Einheiten
-			UnitCargo unitcargo = ship.getUnits();
-
-			unitcargo.echoUnitList(t, "shipinfo.units.list", "shipinfo.units.listitem");
-		}
-
-		t.parse(tag, "ship.info");
-		t.stop_record();
-		t.clear_record();
-	}
-	
-	private boolean showMenu(TemplateEngine t, Battle battle, StringBuilder action ) throws IOException {
-		User user = (User)this.getUser();
-		
-		BattleShip ownShip = battle.getOwnShip();
-		BattleShip enemyShip = battle.getEnemyShip();
-		
-		// TODO: evt sollte das hier in ne eigene Action ausgelagert werden?
-		if( battle.getOwnLog(true).length() == 0 ) {
-			if( battle.isCommander(user,battle.getOwnSide()) ) {
-				if( battle.getTakeCommand(battle.getOwnSide()) != 0 ) {
-					User auser = (User)getContext().getDB().get(User.class, battle.getTakeCommand(battle.getOwnSide()));
-		
-					t.setVar(	"battle.takecommand.ask",	1,
-								"battle.takecommand.id",	battle.getTakeCommand(battle.getOwnSide()),
-								"battle.takecommand.name",	"<span style=\"color:#000050\">"+auser.getProfileLink(Common._titleNoFormat(auser.getName()))+"</span>");
-				}
-				else if( battle.isReady(battle.getOwnSide()) ) {
-					KSMenuHistoryAction historyobj = new KSMenuHistoryAction();
-
-					historyobj.setController(this);
-					
-					historyobj.setText("<div style=\"text-align:center\"><span class=\"smallfont\" style=\"color:black\">Zug beendet</span></div><br /> "+
-								 "Bitte warten sie bis ihr Gegner ebenfalls seinen Zug beendet hat. Die Runde wird dann automatisch beendet.");
-					historyobj.showOK(false);
-					
-					historyobj.execute(t, battle);
-				}
-				else {
-					t.setBlock("_ANGRIFF","menu.entry","menu");
-					t.setBlock("_ANGRIFF","menu.entry.ask","none");
-					t.setVar("global.showmenu", 1);
-		
-					// Ist das gegnerische Schiff zerstoert? Falls ja, dass Angriffsmenue deaktivieren
-					if( ( action.toString().equals("attack") || action.toString().equals("groupattack") ) &&
-						(enemyShip.hasFlag(BattleShipFlag.DESTROYED) || ownShip.hasFlag(BattleShipFlag.FLUCHT) || ownShip.getShip().isLanded()) ) {
-						action.setLength(0);
-					}
-					
-					if( action.length() == 0 ) {
-						action.append("default");
-					}
-					
-					if( menuActions.containsKey(action.toString()) ) {
-						try {
-							BasicKSMenuAction actionobj = menuActions.get(action.toString()).getDeclaredConstructor().newInstance();
-							actionobj.setController(this);
-							
-							BasicKSAction.Result result = actionobj.execute(t, battle);
-							if( result == BasicKSAction.Result.HALT ) {
-								return false;
-							}
-							else if( result == BasicKSAction.Result.ERROR ) {
-								action.setLength(0);
-							}
+			function showInfoBox( owner ) {
+				element = document.getElementById('stats'+currentOwner+'Ship').style;
+				element.visibility = "hidden";
+				element.position = "absolute";
+				element = document.getElementById('stats'+currentOwner+'ShipLink').style;
+				element.textDecoration = "none";
+				currentOwner = owner;
+				element = document.getElementById('stats'+owner+'Ship').style;
+				element.visibility = "visible";
+				element.position = "relative";
+				element = document.getElementById('stats'+owner+'ShipLink').style;
+				element.textDecoration = "underline";
+				elementlist = document.getElementsByTagName('a');
+				for( i=0; i < elementlist.length; i++ ) {
+					if( elementlist[i].href.indexOf('module=angriff') > -1 ) {
+						if( currentOwner == 'Own' ) {
+							elementlist[i].href = elementlist[i].href.replace(/scan=enemy/,'scan=own');
 						}
-						catch( Exception e ) {
-							addError("Kann Menue nicht aufrufen: "+e);
-							log.error("Darstellung des KS-Menues "+action+" fehlgeschlagen", e);
-							
-							Common.mailThrowable(e, "KS-Menu-Error Schlacht "+battle.getId(), "Action: "+action+"\nownShip: "+ownShip.getId()+"\nenemyShip: "+enemyShip.getId());
+						else {
+							elementlist[i].href = elementlist[i].href.replace(/scan=own/,'scan=enemy');
 						}
 					}
 				}
 			}
-			else {
-				KSMenuHistoryAction historyobj = new KSMenuHistoryAction();
+		-->
+		</script>
+		<div>
+			<div style="text-align:left;position:relative; top:0px; left:0px;">
+				<!-- BEGIN ship.info -->
+					{if shipinfo.show}
+						<div id="stats{shipinfo.jscriptid}Ship" style="position:relative; top:0px; left:0px; visibility:visible;">
+					{else}
+						<div id="stats{shipinfo.jscriptid}Ship" style="position:absolute; top:0px; left:0px; visibility:hidden;">
+					{/endif}
+						<a class="noborder tooltip" target="_blank"
+							onclick="ShiptypeBox.show({shipinfo.type});return false;"
+							href="./ds?module=schiffinfo&amp;ship={shipinfo.type}">
+							<img src="{shipinfo.type.image}" alt="" style="float:right; margin-right:5px; margin-left:15px;margin-bottom:10px; width:28%" />
+							<span class="ttcontent">{shipinfo.type.name}</span>
+						</a>
+						Zustand:<br/>
+						{if shipinfo.type.shields}
+							+ Schilde:
+							{if shipinfo.shields.bad}<span style="color:#ff0000">{/endif}
+							{if shipinfo.shields.normal}<span style="color:#ffff00">{/endif} 
+							{if shipinfo.shields.good}<span style="color:#00ff00">{/endif}
+							{shipinfo.shields}/{shipinfo.type.shields}</span>{if shipinfo.showtmp}&nbsp;({shipinfo.tmp.shields}){/endif}<br />
+						{/endif}
 
-				historyobj.setController(this);
-				
-				if( (battle.getAlly(battle.getOwnSide()) != 0) && (battle.getTakeCommand(battle.getOwnSide()) == 0) && 
-					(user.getAlly() != null) && (battle.getAlly(battle.getOwnSide()) == user.getAlly().getId()) ) {
-					User auser = battle.getCommander(battle.getOwnSide());
-					if( auser.getInactivity() >= 0 ) {
-						historyobj.showTakeCommand(true);
-					}
-				}
+						{if shipinfo.type.ablativeArmor}
+							+ Ablative:
+							{if shipinfo.ablativeArmor.bad}<span style="color:#ff0000">{/endif}
+							{if shipinfo.ablativeArmor.normal}<span style="color:#ffff00">{/endif}
+							{if shipinfo.ablativeArmor.good}<span style="color:#00ff00">{/endif}
+							{shipinfo.ablativeArmor}/{shipinfo.type.ablativeArmor}</span>{if shipinfo.showtmp}&nbsp;({shipinfo.tmp.ablativeArmor}){/endif}<br />
+						{/endif}
 
-                if(user.hasFlag(UserFlag.KS_TAKE_BATTLES) && (battle.getTakeCommand(battle.getOwnSide()) == 0))
-                {
-                    historyobj.showTakeCommand(true);
-                }
-					
-				historyobj.setText("<div style=\"text-align:center\">Nur der Oberkommandierende einer Seite kann Befehle erteilen.</div>\n");
-				historyobj.showOK(false);
-					
-				if( historyobj.execute(t, battle) == BasicKSAction.Result.HALT ) {
-					return false;
-				}
-			}
-		}
-		
-		if( battle.getOwnLog(true).length() > 0 ) {
-			BBCodeParser bbcodeparser = BBCodeParser.getNewInstance();
-			try {
-				bbcodeparser.registerHandler( "tooltip", 2, "<a class=\"aloglink tooltip\" href=\"#\">$1<span class='ttcontent'>$2</span></a>" );
-			}
-			catch( Exception e ) {
-				log.warn("Registrierung des BBCode-Handlers tooltip gescheitert", e);
-			}
-			
-			t.setVar("battle.logoutput", bbcodeparser.parse(battle.getOwnLog(false)));
-		}
-		
-		return true;
-	}
+						+ H&uuml;lle:
+						{if shipinfo.hull.bad}<span style="color:#ff0000">{/endif}
+						{if shipinfo.hull.normal}<span style="color:#ffff00">{/endif}
+						{if shipinfo.hull.good}<span style="color:#00ff00">{/endif}
+						{shipinfo.hull}/{shipinfo.type.hull}</span>{if shipinfo.showtmp}&nbsp;({shipinfo.tmp.hull}){/endif}<br />
 
-	private static class GroupEntry {
-		GroupEntry() {
-			//EMPTY
-		}
-		
-		int destcount;
-		int hitcount;
-		int fluchtcount;
-		int joincount;
-		int shotcount;
-		int srcount;
-		int fluchtnextcount;
-		int mangelnahrungcount;
-    int mangelreaktorcount;
-    int landedcount;
-    int dockedcount;
-    int haslandedcount;
-    int hasdockedcount;
-    int adockcount;
-    int jdockcount;
-	}
+						Panzerung: {shipinfo.panzerung}{if shipinfo.showtmp}&nbsp;({shipinfo.tmp.panzerung}){/endif}<br />
 
-	/**
-	 * Zeigt die GUI an.
-	 * @throws IOException 
-	 *
-	 * @param addShipID Die ID eines Schiffes, dass der Schlacht beitreten soll (falls die Schlacht schon laeuft)
-	 * @param enemyShipID Die ID des anzugreifenden Schiffs (Pflicht bei der Erstellung einer neuen Schlacht)
-	 * @param forcejoin Die ID der Seite auf der der Schlachtbeitritt erfolgen soll (1 oder 2, 0 = automatische Seitenwahl; nur bei bereits laufender Schlacht)
-	 * @param ksaction Die auszufuehrende Aktion in der Schlacht
-	 * @param ownShipID Die ID des eigenen Schiffs (Pflicht bei der Erstellung einer neuen Schlacht)
-	 * @param scan <code>own</code> oder Leerstring, falls die Scandaten eines eigenen Schiffes angezeigt werden sollen, sonst wird das gegnerische Schiff dargestellt
-	 * @param ownshipgroup Die eigene ausgewaehlte Schiffsgruppe
-	 * @param battleID Die ID der Schlacht (falls diese bereits laeuft)
-	 * @param enemyshipgroup Die gegnerische ausgewaehlte Schiffsgruppe
-	 * @param weapon Die ID der gerade ausgewaehlten Waffe
-	 */
-	@Action(ActionType.DEFAULT)
-	public TemplateEngine defaultAction(@UrlParam(name="ship") int ownShipID,
-			@UrlParam(name="addship") int addShipID,
-			@UrlParam(name="attack") int enemyShipID,
-			String ksaction,
-			@UrlParam(name="battle") int battleID,
-			int forcejoin,
-			String scan,
-			String ownshipgroup,
-			String enemyshipgroup,
-			String weapon) throws IOException {
-		User user = (User)getUser();
-		TemplateEngine t = templateViewResultFactory.createFor(this);
-		org.hibernate.Session db = getDB();
+						Subsysteme:<br />
+						{if shipinfo.type.cost}
+							+ Antrieb:
+							{if shipinfo.engine.bad}<span style="color:#ff0000">{/endif}
+							{if shipinfo.engine.normal}<span style="color:#ffff00">{/endif}
+							{if shipinfo.engine.good}<span style="color:#00ff00">{/endif}
+							{shipinfo.engine}</span>{if shipinfo.showtmp}&nbsp;({shipinfo.tmp.engine}){/endif}<br />
+						{/endif}
 
-		if( ownShipID < 0 ) {
-			ownShipID = 0;	
-		}
+						{if shipinfo.type.weapons}
+							+ Waffen:
+							{if shipinfo.weapons.bad}<span style="color:#ff0000">{/endif}
+							{if shipinfo.weapons.normal}<span style="color:#ffff00">{/endif}
+							{if shipinfo.weapons.good}<span style="color:#00ff00">{/endif}
+							{shipinfo.weapons}</span>{if shipinfo.showtmp}&nbsp;({shipinfo.tmp.weapons}){/endif}<br />
+						{/endif}
 
-		if( addShipID < 0 ) {
-			addShipID = 0;	
-		}
+						+ Kommunikation:
+						{if shipinfo.comm.bad}<span style="color:#ff0000">{/endif}
+						{if shipinfo.comm.normal}<span style="color:#ffff00">{/endif}
+						{if shipinfo.comm.good}<span style="color:#00ff00">{/endif}
+						{shipinfo.comm}</span>{if shipinfo.showtmp}&nbsp;({shipinfo.tmp.comm}){/endif}<br />
 
-		if( enemyShipID < 0 ) {
-			enemyShipID = 0;	
-		}
-		
-		if( scan == null || scan.length() == 0 ) {
-			scan = "own";
-		}
-		
-		/*--------------------------------------------------------------
-		
-			Schlacht laden bzw. erstellen
-		
-		----------------------------------------------------------------*/
-		
-		boolean battleCreated = false;
-		
-		Battle battle;
-		if( battleID == 0 ) {
-			try {
-				battle = schlachtErstellenService.erstelle(user, ownShipID, enemyShipID);
-			}
-			catch( IllegalArgumentException e ) {
-				throw new ValidierungException(e.getMessage());
-			}
-			battleCreated = true;
-		}
-		else {
-			battle = (Battle)db.get(Battle.class, battleID);
-		}
-		
-		if( forcejoin != 0 ) {
-			Ship jship = (Ship)db.get(Ship.class, addShipID);
-			if( (jship == null) || (jship.getId() < 0) || (jship.getOwner() != user) ) {
-				forcejoin = 0;
-			}
-		}
-		
-		if( (battle == null) || !battle.load(user, (Ship)db.get(Ship.class, ownShipID), (Ship)db.get(Ship.class, enemyShipID), forcejoin) ) {
-			return null;
-		}
-		
-		battle.setOwnShipGroup(ownshipgroup);
-		battle.setEnemyShipGroup(enemyshipgroup);
-		
-		//
-		// Schiff zur Schlacht hinzufgen
-		//
-		if( (!battleCreated) && addShipID != 0 && !battle.isGuest() ) {
-			if( !battle.addShip( user.getId(), addShipID ) ) {
-				// Wenn das Schiff offenbar von jemandem ausserhalb der Kriegfhrenden Allys stammt - Laden abbrechen bei fehlschlag
-				if( forcejoin != 0 ) {
-					return null;
-				}
-			}
-		}
+						+ Sensoren:
+						{if shipinfo.sensors.bad}<span style="color:#ff0000">{/endif}
+						{if shipinfo.sensors.normal}<span style="color:#ffff00">{/endif}
+						{if shipinfo.sensors.good}<span style="color:#00ff00">{/endif}
+						{shipinfo.sensors}</span>{if shipinfo.showtmp}&nbsp;({shipinfo.tmp.sensors}){/endif}<br />
 
-		/*--------------------------------------------------------------
-			
-			Actions
-		
-		----------------------------------------------------------------*/
+						{if shipinfo.enemy}
+							{if shipinfo.nocrew}
+								Crew: <span style="color:#ff0000">0</span><br />
+							{/endif}
+						{else}
+							{if shipinfo.crew}
+								Crew:
+								{if shipinfo.crew.bad}<span style="color:#ff0000">{/endif}
+								{if shipinfo.crew.normal}<span style="color:#ffff00">{/endif}
+								{if shipinfo.crew.good}<span style="color:#00ff00">{/endif}
+								{shipinfo.crew}/{shipinfo.type.maxcrew}</span><br />
+							{else}
+								{if shipinfo.nocrew}
+									Crew: <span style="color:#ff0000">0</span><br />
+								{/endif}
+							{/endif}
+							{if shipinfo.marines}
+								Marines:<span style="color:#00ff00">
+								{shipinfo.marines}/{shipinfo.type.maxmarines}</span><br />
+							{/endif}
 
-		if( (ksaction.length() > 0) && actions.containsKey(ksaction) ) {
-			try {
-				BasicKSAction actionobj = actions.get(ksaction).getDeclaredConstructor().newInstance();
-				actionobj.setController(this);
-				
-				if( actionobj.execute(t, battle) == BasicKSAction.Result.HALT ) {
-					return null;
-				}
-				
-				ksaction = "";
-				t.setVar("global.ksaction","");
-			}
-			catch( Exception e ) {
-				addError("Kann Aktion nicht ausfuehren: "+e);
-				log.error("Ausfuehrung der KS-Aktion "+ksaction+" fehlgeschlagen", e);
-				int curOwnShipID = -1;
-				int curEnemyShipID = -1;
-				try {
-					curOwnShipID = battle.getOwnShip().getId();
-				}
-				catch( IndexOutOfBoundsException e2 ) {
-					// EMPTY
-				}
-				
-				try {
-					curEnemyShipID = battle.getEnemyShip().getId();
-				}
-				catch( IndexOutOfBoundsException e2 ) {
-					// EMPTY
-				}
-				
-				Common.mailThrowable(e, "KS-Action-Error Schlacht "+battle.getId(), "Action: "+ksaction+"\nownShip: "+curOwnShipID+"\nenemyShip: "+curEnemyShipID);
-			}
-		}
-		
-		BattleShip enemyShip = battle.getEnemyShip();
-		ShipTypeData enemyShipType = enemyShip.getTypeData();
-		BattleShip ownShip = battle.getOwnShip();
-		ShipTypeData ownShipType = ownShip.getTypeData();
-		
-		User oUser = ownShip.getOwner();
-    User eUser = enemyShip.getOwner();
-    if(ownShip.getShip().isDocked() || ownShip.getShip().isLanded())
-				{
-          int shipid = ownShip.getShip().getBaseShip().getId();
-          List<BattleShip> ownShipsTemp = battle.getOwnShips();
+							Energie:
+							{if shipinfo.energy.bad}<span style="color:#ff0000">{/endif}
+							{if shipinfo.energy.normal}<span style="color:#ffff00">{/endif}
+							{if shipinfo.energy.good}<span style="color:#00ff00">{/endif}
+							{shipinfo.energy}/{shipinfo.type.maxenergy}</span><br />
 
-                    for (BattleShip ownShip1 : ownShipsTemp) {
-                        if (ownShip1.getId() == shipid) {
-                            t.setVar("ownship.docked.name", ownShip1.getName(),
-                                    "ownship.docked.id", shipid,
-                                    "ownship.docked",1);
+							&Uuml;berhitzung:<br />
+							+ Triebwerke: {shipinfo.heat}<br />
+							<!-- BEGIN shipinfo.weapons.listitem -->
+								+ {shipinfo.weapon.name}: {shipinfo.weapon.heat}/{shipinfo.weapon.maxheat}<br />
+							<!-- END shipinfo.weapons.listitem -->
+						{/endif}
 
-                            break;
-                        }
-                    }
-				}
-		
-		t.setVar(	"global.ksaction",			ksaction,
-					"global.scan",				scan,
-					"global.ownshipgroup",		battle.getOwnShipGroup(),
-					"global.enemyshipgroup",	battle.getEnemyShipGroup(),
-					"global.weapon",			weapon,
-					"battle.id",				battle.getId(),
-					"ownside.secondrow.stable",	battle.isSecondRowStable(battle.getOwnSide()),
-					"enemyside.secondrow.stable",	battle.isSecondRowStable(battle.getEnemySide()),
-					"ownship.id",				ownShip.getId(),
-					"ownship.name",				ownShip.getName(),
-					"ownship.type",				ownShip.getShip().getType(),
-					"ownship.coordinates",		ownShip.getShip().getLocation().displayCoordinates(false),
-					"ownship.type.name",		ownShipType.getNickname(),
-					"ownship.type.image",		ownShipType.getPicture(),
-					"ownship.owner.name",		Common._title(oUser.getName()),
-					"ownship.owner.id",			ownShip.getOwner().getId(),
-					"ownship.action.hit",		ownShip.hasFlag(BattleShipFlag.HIT),
-					"ownship.action.flucht",	ownShip.hasFlag(BattleShipFlag.FLUCHT),
-					"ownship.action.destroyed",	ownShip.hasFlag(BattleShipFlag.DESTROYED),
-					"ownship.action.shot",		!battle.isGuest() && ownShip.hasFlag(BattleShipFlag.SHOT),
-					"ownship.action.join",		ownShip.hasFlag(BattleShipFlag.JOIN),
-					"ownship.action.secondrow",	ownShip.hasFlag(BattleShipFlag.SECONDROW),
-					"ownship.action.fluchtnext", !battle.isGuest() && ownShip.hasFlag(BattleShipFlag.FLUCHTNEXT),
-					"ownship.mangelnahrung", !battle.isGuest() ? ownShip.getShip().getStatus().contains("mangel_nahrung") : 0,
-          "ownship.mangelreaktor",	(!battle.isGuest() ? ownShip.getShip().getStatus().contains("mangel_reaktor") : 0),
-          "ownship.landed",       ownShip.getShip().isLanded(),
-          "ownship.docked",       ownShip.getShip().isDocked(),
-          "ownship.docks",        ownShipType.getADocks()+ownShipType.getJDocks(),
-          "ownship.jdocks",       ownShipType.getJDocks(),
-          "ownship.adocks",       ownShipType.getADocks(),      
-          "ownship.adocks.docked",        ownShip.getShip().getDockedCount(),
-          "ownship.jdocks.docked",        ownShip.getShip().getLandedCount(),   
-					"enemyship.id",				enemyShip.getId(),
-					"enemyship.name",			enemyShip.getName(),
-					"enemyship.type",			enemyShip.getShip().getType(),
-					"enemyship.type.name",		enemyShipType.getNickname(),
-					"enemyship.type.image",		enemyShipType.getPicture(),
-					"enemyship.owner.name",		Common._title(eUser.getName()),
-					"enemyship.owner.id",		enemyShip.getOwner().getId(),
-					"enemyship.action.hit",		enemyShip.hasFlag(BattleShipFlag.HIT),
-					"enemyship.action.flucht",	enemyShip.hasFlag(BattleShipFlag.FLUCHT),
-					"enemyship.action.destroyed",	enemyShip.hasFlag(BattleShipFlag.DESTROYED),
-					"enemyship.action.join",		enemyShip.hasFlag(BattleShipFlag.JOIN),
-          "enemyship.action.secondrow",	enemyShip.hasFlag(BattleShipFlag.SECONDROW),
-          "user.race", oUser.getRace()  );
+						{if offizier.id}
+							Offizier: <img src="data/interface/offiziere/off{offizier.rang}.png" alt="Rang {offizer.rang}" /> <a class="forschinfo" href="./ds?module=choff&amp;off={offizier.id}">{offizier.name}</a><br />
+						{/endif}
 
-		Nebel.Typ nebula = Nebel.getNebula(ownShip.getShip().getLocation());
-		if( nebula == null || nebula.allowsScan() )
-		{
-			Location loc = ownShip.getShip().getLocation();
-			t.setVar("ownship.location.x", loc.getX(),
-					"ownship.location.y", loc.getY(),
-					"ownship.location.system", loc.getSystem());
-		}
-		
-		if( (battle.getOwnSide() == 0) && battle.hasFlag(BattleFlag.BLOCK_SECONDROW_0) ) {
-			t.setVar("ownside.secondrow.blocked", 1);
-		}
-		else if( (battle.getOwnSide() == 1) && battle.hasFlag(BattleFlag.BLOCK_SECONDROW_1) ) {
-			t.setVar("ownside.secondrow.blocked", 1);
-		}
-		
-		if( (battle.getEnemySide() == 0) && battle.hasFlag(BattleFlag.BLOCK_SECONDROW_0) ) {
-			t.setVar("enemyside.secondrow.blocked", 1);
-		}
-		else if( (battle.getEnemySide() == 1) && battle.hasFlag(BattleFlag.BLOCK_SECONDROW_1) ) {
-			t.setVar("enemyside.secondrow.blocked", 1);
-		}
-		
-		/*
-			Das eigene ausgewaehlte Schiff
-		*/
-		String energy = "";
-		if( !battle.isGuest() ) {
-			//Energieanzeige im ersten eigenene Schiff
-			if( ownShip.getShip().getEnergy() < ownShipType.getEps()/4 ) {
-				energy = "<br />E: <span style=\'color:#ff0000\'>";
-			} 
-			else if( ownShip.getShip().getEnergy() < ownShipType.getEps() ) {
-		  		energy = "<br />E: <span style=\'color:#ffff00\'>";
-			} 
-			else {
-				energy = "<br />E: <span style=\'color:#00ff00\'>";
-			}
-		
-			energy += ownShip.getShip().getEnergy()+"/"+ownShipType.getEps()+"</span>";
-		}
-		t.setVar("ownship.energy",energy);
-		
-		/*---------------------------------------------------------
-		
-			Menue
-		
-		-----------------------------------------------------------*/
+						{if shipinfo.enemy}
+						{else}
+							Munition:
+							<!-- BEGIN shipinfo.ammo.listitem -->
+								<span class="tooltip">
+									<img src="{ammo.image}" alt="{ammo.name}" />
+									<span class="ttcontent">{ammo.name}</span>
+									{ammo.count}
+								</span>
+							<!-- END shipinfo.ammo.listitem -->
+							<br />Einheiten:<br />
+							<!-- BEGIN shipinfo.units.listitem -->
+								+ <img style="vertical-align:middle" src="{res.picture}" alt="" />{!link_to $res.name, default, module:unitinfo, unit:$res.id} {res.count}<br />
+							<!-- END shipinfo.units.listitem -->
+						{/endif}
+					</div>
+				<!-- END ship.info -->
+				{ownship.info}
+				{enemyship.info}
+			</div>
+		</div>
+	</td>
+	<td class="schiffData" style="width:36%" colspan="3">
+		<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{enemyship.name} ({enemyship.id})</a> (Ziel)
+		{if enemyship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
+		{if enemyship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
+		{if enemyship.action.flucht}<img src="data/interface/ks/flucht.gif" alt="" title="flucht" />{/endif}
+		{if enemyship.action.join}<img src="data/interface/ks/join.gif" alt="" title="tritt der Schlacht bei" />{/endif}
+		{if enemyship.action.secondrow}<img src="data/interface/ks/secondrow.png" alt="" title="Zweite Reihe" />{/endif}
+		<br />
+		<a class="noborder tooltip" target="_blank"
+			onclick="ShiptypeBox.show({enemyship.type});return false;"
+			href="./ds?module=schiffinfo&amp;ship={enemyship.type}">
+			<img src="{enemyship.type.image}" alt="" />
+			<span class="ttcontent">{enemyship.type.name}</span>
+		</a><br />
+		<a class="profile" href="./ds?module=userprofile&amp;user={enemyship.owner.id}">{enemyship.owner.name}</a><br />
+	</td>
+</tr>
+<!-- BEGIN ships.typelist.item -->
+	{if shiptypelist.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
+	<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;{shiptypelist.side}shipgroup={shiptypelist.groupid}&amp;{shiptypelist.otherside}shipgroup={shiptypelist.otherside.id}&amp;weapon={global.weapon}">{shiptypelist.count} {shiptypelist.name}</a>
+	{if shiptypelist.destcount}&nbsp;<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{shiptypelist.destcount}{/endif}
+	{if shiptypelist.hitcount}&nbsp;<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{shiptypelist.hitcount}{/endif}
+	{if shiptypelist.fluchtcount}&nbsp;<img src="data/interface/ks/flucht.gif" alt="" title="flucht" />&nbsp;{shiptypelist.fluchtcount}{/endif}
+	{if shiptypelist.fluchtnextcount}<img src="data/interface/ks/fluchtnext.png" alt="" title="flieht n&auml;chste Runde" />&nbsp;{shiptypelist.fluchtnextcount}{/endif}
+	{if shiptypelist.shotcount}&nbsp;<img src="data/interface/ks/shot.gif" alt="" title="Waffen abgefeuert" />&nbsp;{shiptypelist.shotcount}{/endif}
+	{if shiptypelist.joincount}&nbsp;<img src="data/interface/ks/join.gif" alt="" title="tritt der Schlacht bei" />&nbsp;{shiptypelist.joincount}{/endif}
+	{if shiptypelist.secondrowcount}<img src="data/interface/ks/secondrow.png" alt="" title="Zweite Reihe" />&nbsp;{shiptypelist.secondrowcount}{/endif}
+	{if shiptypelist.mangelnahrungcount}&nbsp;<img src="data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />&nbsp;{shiptypelist.mangelnahrungcount}{/endif}
+	{if shiptypelist.mangelreaktorcount}&nbsp;<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{shiptypelist.mangelreaktorcount}{/endif}
+	{if shiptypelist.landedcount}&nbsp;<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" title="gelandet" />{shiptypelist.landedcount}{/endif}
+	{if shiptypelist.dockedcount}&nbsp;<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" title="gedockt" />{shiptypelist.dockedcount}{/endif}
+	<br />
+	<a class="noborder" target="_blank"
+		onclick="ShiptypeBox.show({shiptypelist.id});return false;"
+		href="./ds?module=schiffinfo&amp;ship={shiptypelist.id}">
+		<img src="{shiptypelist.image}" alt="" />
+	</a><br />
+<!-- END ships.typelist.item -->
+<tr>
+	<th class="Border" style="vertical-align:top;width:12%"><div style="height:30px; overflow:auto; font-size:16px">Join/Flucht
+	</th>
+	<th class="Border" style="vertical-align:top;width:12%"><div style="height:30px; overflow:auto; font-size:16px">Zweite Reihe
+	</th>
+	<th class="Border" style="vertical-align:top;width:12%"><div style="height:30px; overflow:auto; font-size:16px">Erste Reihe
+	</th>
+	<th class="Border" style="vertical-align:top;width:12%"><div style="height:30px; overflow:auto; font-size:16px">Erste Reihe
+	</th>
+	<th class="Border" style="vertical-align:top;width:12%"><div style="height:30px; overflow:auto; font-size:16px">Zweite Reihe
+	</th>
+	<th class="Border" style="vertical-align:top;width:12%"><div style="height:30px; overflow:auto; font-size:16px">Join/Flucht
+	</th>
+</tr>
+<tr>
+	<td class="schiffData" style="vertical-align:top;width:12%">
+		<div style="height:500px; overflow:auto; font-size:16px">
+			<!-- BEGIN ownShips.joinflucht.listitem -->
+			{if ship.action.joinflucht}
+				{if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+				{if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
+				<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(aktiv){/endif}
+				{if ship.docked.name}auf {if ship.docked.name}{ship.docked.name}{/endif}({ship.docked.id}){/endif}
+				{if ship.docked}<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" />{/endif}
+				{if ship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
+				{if ship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
+				<img src="data/interface/ks/flucht.gif" alt="" title="flucht" />
+				{if ship.action.fluchtnext}<img src="data/interface/ks/fluchtnext.png" alt="" title="flieht n&auml;chste Runde" />{/endif}
+				{if ship.action.shot}<img src="data/interface/ks/shot.gif" alt="" title="Waffen abgefeuert" />{/endif}
+				{if ship.action.join}<img src="data/interface/ks/join.gif" alt="" title="tritt der Schlacht bei" />{/endif}
+				{if ship.action.secondrow}<img src="data/interface/ks/secondrow.png" alt="" title="Zweite Reihe" />{/endif}
+				{if ship.mangelnahrung}<img src="data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />{/endif}
+				{if ship.mangelreaktor}<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}
+				{if ship.docks}
+					<br />
+					{if ship.adocks}
+						<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.adocks.docked}/{ship.adocks}]</a>
+					{/endif}
+					{if ship.jdocks}
+						<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.jdocks.docked}/{ship.jdocks}]</a>
+					{/endif}
+				{/endif}
+				<br />
+				<a class="noborder tooltip" target="_blank"
+					onclick="ShiptypeBox.show({ship.type});return false;"
+					href="./ds?module=schiffinfo&amp;ship={ship.type}">
+					<img src="{ship.type.image}" alt="" />
+					<span class="ttcontent">{ship.type.name}{ship.energy}</span>
+				</a><br />
+				<a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
+				{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+			{/endif}
+			<!-- END ownShips.joinflucht.listitem -->
+		</div>
+	</td>
+	<td class="schiffData" style="vertical-align:top;width:12%">
+		<div style="height:500px; overflow:auto; font-size:16px">
+			<!-- BEGIN ownShips.secondrow.listitem -->
+			{if ship.action.secondrow}
+				{if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+				{if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
+				<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(aktiv){/endif}
+				{if ship.docked.name}auf {if ship.docked.name}{ship.docked.name}{/endif}({ship.docked.id}){/endif}
+				{if ship.docked}<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" />{/endif}
+				{if ship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
+				{if ship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
+				{if ship.action.fluchtnext}<img src="data/interface/ks/fluchtnext.png" alt="" title="flieht n&auml;chste Runde" />{/endif}
+				{if ship.action.shot}<img src="data/interface/ks/shot.gif" alt="" title="Waffen abgefeuert" />{/endif}
+				{if ship.action.secondrow}<img src="data/interface/ks/secondrow.png" alt="" title="Zweite Reihe" />{/endif}
+				{if ship.mangelnahrung}<img src="data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />{/endif}
+				{if ship.mangelreaktor}<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}
+				{if ship.docks}
+					<br />
+					{if ship.adocks}
+						<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.adocks.docked}/{ship.adocks}]</a>
+					{/endif}
+					{if ship.jdocks}
+						<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.jdocks.docked}/{ship.jdocks}]</a>
+					{/endif}
+				{/endif}
+				<br />
+				<a class="noborder tooltip" target="_blank"
+					onclick="ShiptypeBox.show({ship.type});return false;"
+					href="./ds?module=schiffinfo&amp;ship={ship.type}">
+					<img src="{ship.type.image}" alt="" />
+					<span class="ttcontent">{ship.type.name}{ship.energy}</span>
+				</a><br />
+				<a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
+				{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+			{/endif}
+			<!-- END ownShips.secondrow.listitem -->
+		</div>
+	</td>
+	<td class="schiffData" style="vertical-align:top;width:12%">
+		<div style="height:500px; overflow:auto; font-size:16px">
+			<!-- BEGIN ownShips.frontrow.listitem -->
+			{if ship.action.frontrow}
+				{if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+				{if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
+				<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(aktiv){/endif}
+				{if ship.docked.name}auf {if ship.docked.name}{ship.docked.name}{/endif}({ship.docked.id}){/endif}
+				{if ship.docked}<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" />{/endif}
+				{if ship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
+				{if ship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
+				{if ship.action.fluchtnext}<img src="data/interface/ks/fluchtnext.png" alt="" title="flieht n&auml;chste Runde" />{/endif}
+				{if ship.action.shot}<img src="data/interface/ks/shot.gif" alt="" title="Waffen abgefeuert" />{/endif}
+				{if ship.mangelnahrung}<img src="data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />{/endif}
+				{if ship.mangelreaktor}<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}
+				{if ship.docks}
+					<br />
+					{if ship.adocks}
+						<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.adocks.docked}/{ship.adocks}]</a>
+					{/endif}
+					{if ship.jdocks}
+						<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.jdocks.docked}/{ship.jdocks}]</a>
+					{/endif}
+				{/endif}
+				<br />
+				<a class="noborder tooltip" target="_blank"
+					onclick="ShiptypeBox.show({ship.type});return false;"
+					href="./ds?module=schiffinfo&amp;ship={ship.type}">
+					<img src="{ship.type.image}" alt="" />
+					<span class="ttcontent">{ship.type.name}{ship.energy}</span>
+				</a><br />
+				<a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
+				{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+			{/endif}
+			<!-- END ownShips.frontrow.listitem -->
+		</div>
+	</td>
+	<td class="schiffData" style="vertical-align:top;width:12%">
+		<div style="height:500px; overflow:auto; font-size:16px">
+			<!-- BEGIN enemyShips.frontrow.listitem -->
+			{if ship.action.frontrow}	
+				{if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+				{if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
+				<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={ship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(Ziel){/endif}
+				{if ship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
+				{if ship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
+				<br />
+				<a class="noborder tooltip" target="_blank"
+					onclick="ShiptypeBox.show({ship.type});return false;"
+					href="./ds?module=schiffinfo&amp;ship={ship.type}">
+					<img src="{ship.type.image}" alt="" />
+					<span class="ttcontent">{ship.type.name}</span>
+				</a><br />
+				<a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
+				{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+			{/endif}
+			<!-- END enemyShips.frontrow.listitem -->
+		</div>
+	</td>
+	<td class="schiffData" style="vertical-align:top;width:12%">
+		<div style="height:500px; overflow:auto; font-size:16px">
+			<!-- BEGIN enemyShips.secondrow.listitem -->
+			{if ship.action.secondrow}	
+				{if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+				{if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
+				<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={ship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(Ziel){/endif}
+				{if ship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
+				{if ship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
+				{if ship.action.secondrow}<img src="data/interface/ks/secondrow.png" alt="" title="Zweite Reihe" />{/endif}
+				<br />
+				<a class="noborder tooltip" target="_blank"
+					onclick="ShiptypeBox.show({ship.type});return false;"
+					href="./ds?module=schiffinfo&amp;ship={ship.type}">
+					<img src="{ship.type.image}" alt="" />
+					<span class="ttcontent">{ship.type.name}</span>
+				</a><br />
+				<a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
+				{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+			{/endif}
+			<!-- END enemyShips.secondrow.listitem -->
+		</div>
+	</td>
+	<td class="schiffData" style="vertical-align:top;width:12%">
+		<div style="height:500px; overflow:auto; font-size:16px">
+			<!-- BEGIN enemyShips.joinflucht.listitem -->
+			{if ship.action.joinflucht}
+				{if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+				{if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
+				<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={ship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(Ziel){/endif}
+				{if ship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
+				{if ship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
+				{if ship.action.flucht}<img src="data/interface/ks/flucht.gif" alt="" title="flucht" />{/endif}
+				{if ship.action.join}<img src="data/interface/ks/join.gif" alt="" title="tritt der Schlacht bei" />{/endif}
+				{if ship.action.secondrow}<img src="data/interface/ks/secondrow.png" alt="" title="Zweite Reihe" />{/endif}
+				<br />
+				<a class="noborder tooltip" target="_blank"
+					onclick="ShiptypeBox.show({ship.type});return false;"
+					href="./ds?module=schiffinfo&amp;ship={ship.type}">
+					<img src="{ship.type.image}" alt="" />
+					<span class="ttcontent">{ship.type.name}</span>
+				</a><br />
+				<a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
+				{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+			{/endif}
+			<!-- END enemyShips.joinflucht.listitem -->
+		</div>
+	</td>
 
-		StringBuilder actionBuilder = new StringBuilder(ksaction);
-		if( !this.showMenu( t, battle, actionBuilder ) ) {
-			return null;
-		}
-		
-		ksaction = actionBuilder.toString();
-		t.setVar("global.ksaction", ksaction);
-		
-		t.setBlock("_ANGRIFF","ship.info","none");
-		t.setBlock("ship.info","shipinfo.ammo.listitem","shipinfo.ammo.list");
-		t.setBlock("ship.info","shipinfo.weapons.listitem","shipinfo.weapons.list");
-		t.setBlock("ship.info","shipinfo.units.listitem","shipinfo.units.list");
-		showInfo(t, "ownship.info", ownShip, battle.isGuest(), "Own", scan.equals("own") );
-		showInfo(t, "enemyship.info", enemyShip, true, "Enemy", scan.equals("enemy") );
-		
-		if( scan.equals("own") ) {
-			t.setVar("infobox.active", "Own");
-		}
-		else {
-			t.setVar("infobox.active", "Enemy");
-		}
-		
-		/*---------------------------------------------------------
-		
-			Schiffsliste
-		
-		-----------------------------------------------------------*/
-		
-		t.setBlock("_ANGRIFF","ships.typelist.item","ships.typelist.none");
-		t.setBlock("_ANGRIFF","ownShips.listitem","ownShips.list");
-		t.setBlock("_ANGRIFF","enemyShips.listitem","enemyShips.list");
-		
-		int ownGroupCount = 0;
-		int enemyGroupCount = 0;
-		
-		for( Integer stCount : battle.getShipTypeCount(battle.getOwnSide()).values() ) {
-			ownGroupCount += stCount / SHIPGROUPSIZE;
-		}
-		
-		for( Integer stCount : battle.getShipTypeCount(battle.getEnemySide()).values() ) {
-			enemyGroupCount += stCount / SHIPGROUPSIZE;
-		}
-		
-		int grouptype = 0;
-		int groupoffset = 0;
-		int grouptypecount = 0;
-		
-		boolean showgroups = (ownGroupCount >= 1) || (battle.getOwnShips().size() >= 1);
-		if( showgroups && (battle.getOwnShipGroup().length() > 0) ) {
-			String[] tmp = StringUtils.split(battle.getOwnShipGroup(), ':');
-			grouptype = Integer.parseInt(tmp[0]);
-			groupoffset = Integer.parseInt(tmp[1]);
-			
-			groupoffset *= SHIPGROUPSIZE;
-			if( groupoffset > battle.getOwnShipTypeCount(grouptype) ) {
-				groupoffset = 0;
-			}
-			grouptypecount = 0;
-		}
-		
-		/*
-			Eigene Schiffe auflisten
-		*/
-		if( (grouptype > 0) || !showgroups ) {
-			int pos = groupoffset;
-			energy = "";
-			boolean firstEntry = true;
-		
-			List<BattleShip> ownShips = battle.getOwnShips();
-			for( int i=0; i < ownShips.size(); i++ ) {
-				BattleShip aship = ownShips.get(i);
-				
-				t.start_record();
-		
-				if( !showgroups && (aship == ownShip) ) {
-					continue;
-				}
-				if( showgroups && (aship.getShip().getType() != grouptype) ) {
-					continue;
-				}
-				if(battle.isGuest() && aship.getShip().isLanded() ) {
-					continue;
-				}
-				
-				if( showgroups ) {
-					grouptypecount++;
-					if( grouptypecount <= groupoffset ) {
-						continue;
-					}
-					if( grouptypecount > groupoffset+SHIPGROUPSIZE ) {
-						continue;
-					}
-				}
-		
-				ShipTypeData aShipType = aship.getTypeData();
-				pos++;
-	
-				// Energiestatus anzeigen, wenn der User kein Gast ist
-				if( !battle.isGuest() ) {
-					if( aship.getShip().getEnergy() < aShipType.getEps()/4 ) {
-						energy = "<br />E: <span style=\'color:#ff0000\'>";
-					}
-					else if( aship.getShip().getEnergy() < aShipType.getEps() ) {
-						energy =  "<br />E: <span style=\'color:#ffff00\'>";
-					}
-					else {
-						energy =  "<br />E: <span style=\'color:#00ff00\'>";
-					}
-	
-					energy += aship.getShip().getEnergy()+"/"+aShipType.getEps()+"</span>";
-				}
-				
-				// Ist das Schiff gedockt?
-				if(aship.getShip().isDocked() || aship.getShip().isLanded())
-				{
-					int shipid = aship.getShip().getBaseShip().getId();
-
-                    for (BattleShip ownShip1 : ownShips) {
-                        if (ownShip1.getId() == shipid) {
-                            t.setVar("ship.docked.name", ownShip1.getName(),
-                                    "ship.docked.id", shipid,
-                                    "ship.docked",1);
-
-                            break;
-                        }
-                    }
-				}
-	
-				User aUser = aship.getOwner();
-				
-				t.setVar(	"ship.id",				aship.getId(),
-							"ship.name",			aship.getName(),
-							"ship.type",			aship.getShip().getType(),
-							"ship.type.name",		aShipType.getNickname(),
-							"ship.type.image",		aShipType.getPicture(),
-							"ship.owner.name",		Common._title(aUser.getName()),
-							"ship.owner.id",		aship.getOwner().getId(),
-							"ship.energy",			energy,
-							"ship.active",			(aship == ownShip),
-							"ship.action.hit",		aship.hasFlag(BattleShipFlag.HIT),
-							"ship.action.flucht",	aship.hasFlag(BattleShipFlag.FLUCHT),
-							"ship.action.destroyed",	aship.hasFlag(BattleShipFlag.DESTROYED),
-							"ship.action.join",			aship.hasFlag(BattleShipFlag.JOIN),
-							"ship.action.secondrow",	aship.hasFlag(BattleShipFlag.SECONDROW),
-							"ship.action.fluchtnext", !battle.isGuest() && aship.hasFlag(BattleShipFlag.FLUCHTNEXT),
-							"ship.action.shot", 	!battle.isGuest() && aship.hasFlag(BattleShipFlag.SHOT),
-              "ship.mangelnahrung",       !battle.isGuest() && (aship.getShip().getStatus().contains("mangel_nahrung")),
-              "ship.mangelreaktor",       !battle.isGuest() && (aship.getShip().getStatus().contains("mangel_reaktor")),
-              "user.race", 			aUser.getRace(),
-              "ship.jdocks", 			aShipType.getJDocks(),
-              "ship.adocks", 			aShipType.getADocks(),
-              "ship.docks", 			aShipType.getADocks()+aShipType.getJDocks(),
-              "ship.adocks.docked",       aship.getShip().getDockedCount(),
-              "ship.jdocks.docked",       aship.getShip().getLandedCount(),
-              "ship.action.joinflucht",   aship.hasFlag(BattleShipFlag.FLUCHT) || aship.hasFlag(BattleShipFlag.JOIN),
-              "ship.action.frontrow",     !aship.hasFlag(BattleShipFlag.FLUCHT) && !aship.hasFlag(BattleShipFlag.JOIN) && !aship.hasFlag(BattleShipFlag.SECONDROW));
-				
-
-				if( !firstEntry && showgroups && ((pos >= battle.getOwnShipTypeCount(grouptype)) || (pos == groupoffset+SHIPGROUPSIZE)) ) {
-					t.setVar("ship.showback",1);
-				}
-
-				if( firstEntry ) {
-					firstEntry = false;
-					if( showgroups ){
-						t.setVar("ship.firstEntry",1);
-					}
-				}
-				else {
-					t.setVar("ship.addline",1);
-				}
-				t.parse("ownShips.list","ownShips.listitem",true);
-		
-				t.stop_record();
-				t.clear_record();
-			}
-		}
-		/*
-			Eigene Schiffsgruppen anzeigen
-		*/
-		else {
-			boolean firstEntry = true;
-		
-			Map<String,GroupEntry> groupdata = new HashMap<>();
-			Map<Integer,Integer> shiptypegroupcount = new HashMap<>();
-			
-			List<BattleShip> ownShips = battle.getOwnShips();
-            for (BattleShip aship : ownShips)
-            {
-                Common.safeIntInc(shiptypegroupcount, aship.getShip().getType());
-
-                groupoffset = (shiptypegroupcount.get(aship.getShip().getType()) - 1) / SHIPGROUPSIZE;
-
-                final String key = aship.getShip().getType() + ":" + groupoffset;
-
-                GroupEntry data;
-                if (!groupdata.containsKey(key))
-                {
-                    data = new GroupEntry();
-                    groupdata.put(key, data);
-                }
-                else
-                {
-                    data = groupdata.get(key);
-                }
-
-                if (aship.hasFlag(BattleShipFlag.DESTROYED)) {
-                    data.destcount++;
-                }
-                if (aship.hasFlag(BattleShipFlag.HIT)) {
-                    data.hitcount++;
-                }
-                if (aship.hasFlag(BattleShipFlag.FLUCHT)) {
-                    data.fluchtcount++;
-                }
-                if (aship.hasFlag(BattleShipFlag.JOIN)) {
-                    data.joincount++;
-                }
-                if (aship.hasFlag(BattleShipFlag.SECONDROW)) {
-                    data.srcount++;
-                }
-                if (!battle.isGuest()) {
-                    if (aship.hasFlag(BattleShipFlag.SHOT)) {
-                        data.shotcount++;
-                    }
-                    if (aship.hasFlag(BattleShipFlag.FLUCHTNEXT)) {
-                        data.fluchtnextcount++;
-                    }
-                    if (aship.getShip().getStatus().contains("mangel_nahrung")) {
-                        data.mangelnahrungcount++;
-                    }
-                    if (aship.getShip().getStatus().contains("mangel_reaktor")) {
-                        data.mangelreaktorcount++;
-                    }
-                    if (aship.getShip().isLanded()){
-                        data.landedcount++;
-                    }
-                    if (aship.getShip().isDocked()){
-                        data.dockedcount++;
-                    }
-                    if (aship.getShip().getDockedCount()>0){
-                        data.adockcount+=aship.getShip().getTypeData().getADocks();
-                        data.hasdockedcount+=aship.getShip().getDockedCount();
-                    }
-                    if (aship.getShip().getLandedCount()>0){
-                        data.jdockcount+=aship.getShip().getTypeData().getJDocks();
-                        data.haslandedcount+=aship.getShip().getLandedCount();
-                    }
-                }
-            }
-			
-			Map<Integer,Integer> shipTypes = battle.getShipTypeCount(battle.getOwnSide());
-			for( Map.Entry<Integer, Integer> entry : shipTypes.entrySet() ) {
-				int stid = entry.getKey();
-				
-				if( entry.getValue() <= 0 ) { 
-					continue;
-				}
-				if( !shiptypegroupcount.containsKey(stid) ) {
-					continue;
-				}
-				for( int i=0; i <= shiptypegroupcount.get(stid)/SHIPGROUPSIZE; i++ ) {
-					int count = shiptypegroupcount.get(stid)-i*SHIPGROUPSIZE;
-					if( count > SHIPGROUPSIZE ) {
-						count = SHIPGROUPSIZE;
-					}
-					if( count <= 0 ) {
-						continue;	
-					}				
-					
-					final String key = stid+":"+i;
-					
-					ShipTypeData shiptype = Ship.getShipType(stid);
-          GroupEntry data = groupdata.get(key);
-          User aUser = ownShips.get(1).getOwner();
-					
-					t.setVar(	"shiptypelist.count",		count,
-								"shiptypelist.name",		shiptype.getNickname(),
-								"shiptypelist.groupid",		key,
-								"shiptypelist.id",			stid,
-								"shiptypelist.image",		shiptype.getPicture(),
-								"shiptypelist.side",		"own",
-								"shiptypelist.otherside",	"enemy",
-								"shiptypelist.otherside.id",	battle.getEnemyShipGroup(),
-								"shiptypelist.destcount",	data.destcount,
-								"shiptypelist.hitcount",	data.hitcount,
-								"shiptypelist.fluchtcount",	data.fluchtcount,
-								"shiptypelist.joincount",	data.joincount,
-								"shiptypelist.shotcount",	data.shotcount,
-								"shiptypelist.fluchtnextcount",	data.fluchtnextcount,
-								"shiptypelist.secondrowcount",	data.srcount,
-								"shiptypelist.secondrowstatus",	count-data.srcount,
-								"shiptypelist.mangelnahrungcount",	data.mangelnahrungcount,
-                "shiptypelist.mangelreaktorcount",	data.mangelreaktorcount,
-                "shiptypelist.landedcount", data.landedcount,
-                "shiptypelist.dockedcount", data.dockedcount,
-                "shiptypelist.haslandedcount",  data.haslandedcount,
-                "shiptypelist.hasdockedcount",  data.hasdockedcount,
-                "shiptypelist.adockcount",  data.adockcount,
-                "shiptypelist.jdockcount",  data.jdockcount,
-                "user.race", 				aUser.getRace() );
-														
-					if( firstEntry ) {
-						firstEntry = false;
-					}
-					else {
-						t.setVar("shiptypelist.addline",1);
-					}
-		
-					t.parse("ownShips.list","ships.typelist.item",true);
-				}
-			}
-		}
-		
-		t.setVar(	"shiptypelist.addline",				0,
-					"shiptypelist.mangelreaktorcount",	0,
-					"shiptypelist.mangelnahrungcount",	0,
-					"shiptypelist.hitcount",			0,
-					"shiptypelist.shotcount",			0,
-					"shiptypelist.secondrowcount",		0,
-					"shiptypelist.fluchtnextcount",		0,
-					"ship.mangelnahrung",				0,
-          "ship.mangelreaktor",				0,
-          "shiptypelist.landedcount", 0,
-          "shiptypelist.dockedcount", 0,
-          "shiptypelist.haslandedcount",  0,
-          "shiptypelist.hasdockedcount",  0,
-          "shiptypelist.adockcount",  0,
-          "shiptypelist.jdockcount",  0 );
-
-		groupoffset = 0;
-		grouptypecount = 0;
-		grouptype = 0;
-		
-		showgroups = (enemyGroupCount >= 2) || (battle.getEnemyShips().size() >= 10);
-		if( showgroups && (battle.getEnemyShipGroup().length() > 0) ) {
-			String[] tmp = StringUtils.split(battle.getEnemyShipGroup(), ':');
-			grouptype = Integer.parseInt(tmp[0]);
-			groupoffset = Integer.parseInt(tmp[1]);
-			
-			groupoffset *= SHIPGROUPSIZE;
-			if( groupoffset > battle.getEnemyShipTypeCount(grouptype) ) {
-				groupoffset = 0;
-			}
-			grouptypecount = 0;
-		}
-		
-		/*
-		 * Gegnerische Schiffe aufliste
-		 */
-		if( (grouptype > 0) || !showgroups ) {
-			int pos = groupoffset;
-			boolean firstEntry = true;
-		
-			List<BattleShip> enemyShips = battle.getEnemyShips();
-			for( int i=0; i < enemyShips.size(); i++ ) {
-				BattleShip aship = enemyShips.get(i);
-				
-				t.start_record();
-		
-				if( !showgroups && (aship == enemyShip) ) {
-					continue;
-				}
-				if( showgroups && (aship.getShip().getType() != grouptype) ) {
-					continue;
-				}
-				
-				// Gelandete Schiffe nicht anzeigen
-				if( aship.getShip().isLanded() ) {
-					continue;
-				}
-				
-				if( showgroups ) {
-					grouptypecount++;
-					if( grouptypecount <= groupoffset ) {
-						continue;
-					}
-					if( grouptypecount > groupoffset+SHIPGROUPSIZE ) {
-						continue;
-					}
-				}
-		
-				ShipTypeData aShipType = aship.getTypeData();
-				
-				pos++;
-	
-				// Ist das Schiff gedockt?
-				if( aship.getShip().isDocked() ) {
-					int shipid = aship.getShip().getBaseShip().getId();
-
-                    for (BattleShip enemyShip1 : enemyShips) {
-                        if (enemyShip1.getId() == shipid) {
-                            t.setVar("ship.docked.name", enemyShip1.getName());
-
-                            break;
-                        }
-                    }
-				}
-				
-				User aUser = aship.getOwner();
-	
-				t.setVar(	"ship.id",				aship.getId(),
-							"ship.name",			aship.getName(),
-							"ship.type",			aship.getShip().getType(),
-							"ship.type.name",		aShipType.getNickname(),
-							"ship.type.image",		aShipType.getPicture(),
-							"ship.owner.name",		Common._title(aUser.getName()),
-							"ship.owner.id",		aship.getOwner().getId(),
-							"ship.active",			(aship == enemyShip),
-							"ship.action.hit",		aship.hasFlag(BattleShipFlag.HIT),
-							"ship.action.flucht",	aship.hasFlag(BattleShipFlag.FLUCHT),
-							"ship.action.join",		aship.hasFlag(BattleShipFlag.JOIN),
-							"ship.action.secondrow",	aship.hasFlag(BattleShipFlag.SECONDROW),
-              "ship.action.destroyed",	aship.hasFlag(BattleShipFlag.DESTROYED),
-              "user.race", aUser.getRace(),
-              "ship.action.joinflucht",   aship.hasFlag(BattleShipFlag.FLUCHT) || aship.hasFlag(BattleShipFlag.JOIN),
-              "ship.action.frontrow",     !aship.hasFlag(BattleShipFlag.FLUCHT) && !aship.hasFlag(BattleShipFlag.JOIN) && !aship.hasFlag(BattleShipFlag.SECONDROW));
-	
-
-				if( !firstEntry && showgroups && ((pos >= battle.getEnemyShipTypeCount(grouptype)) || (pos == groupoffset+SHIPGROUPSIZE)) ) {
-					t.setVar("ship.showback",1);
-				}
-
-				if( firstEntry ) {
-					firstEntry = false;
-					if( showgroups ){
-						t.setVar("ship.firstEntry",1);
-					}
-				}
-				else {
-					t.setVar("ship.addline",1);
-				}
-				t.parse("enemyShips.list", "enemyShips.listitem", true);
-
-				t.stop_record();
-				t.clear_record();
-			}
-		}
-		/*
-		 * Gegnerische Schiffsgruppen anzeigen
-		 */
-		else {
-			boolean firstEntry = true;
-		
-			Map<String,GroupEntry> groupdata = new HashMap<>();
-		
-			Map<Integer,Integer> shiptypegroupcount = new HashMap<>();
-		
-			List<BattleShip> enemyShips = battle.getEnemyShips();
-            for (BattleShip aship : enemyShips) {
-                if (aship.getShip().isLanded()) {
-                    continue;
-                }
-
-                Common.safeIntInc(shiptypegroupcount, aship.getShip().getType());
-
-                groupoffset = (shiptypegroupcount.get(aship.getShip().getType()) - 1) / SHIPGROUPSIZE;
-
-                final String key = aship.getShip().getType() + ":" + groupoffset;
-                GroupEntry data;
-                if (!groupdata.containsKey(key))
-                {
-                    data = new GroupEntry();
-                    groupdata.put(key, data);
-                }
-                else
-                {
-                    data = groupdata.get(key);
-                }
-
-                if (aship.hasFlag(BattleShipFlag.DESTROYED)) {
-                    data.destcount++;
-                }
-                if (aship.hasFlag(BattleShipFlag.HIT)) {
-                    data.hitcount++;
-                }
-                if (aship.hasFlag(BattleShipFlag.FLUCHT)) {
-                    data.fluchtcount++;
-                }
-                if (aship.hasFlag(BattleShipFlag.JOIN)) {
-                    data.joincount++;
-                }
-                if (aship.hasFlag(BattleShipFlag.SECONDROW)) {
-                    data.srcount++;
-                }
-            }
-		
-			Map<Integer,Integer> shipTypes = battle.getShipTypeCount(battle.getEnemySide());
-			for( Map.Entry<Integer, Integer> entry: shipTypes.entrySet() ) {
-				int stid = entry.getKey();
-				if( entry.getValue() <= 0 ) { 
-					continue;
-				}
-				if( !shiptypegroupcount.containsKey(stid) ) {
-					continue;
-				}
-				for( int i=0; i <= shiptypegroupcount.get(stid)/SHIPGROUPSIZE; i++ ) {
-					int count = shiptypegroupcount.get(stid)-i*SHIPGROUPSIZE;
-					if( count > SHIPGROUPSIZE ) {
-						count = SHIPGROUPSIZE;
-					}
-			
-					if( count <= 0 ) {
-						continue;	
-					}
-			
-					final String key = stid+":"+i;
-					ShipTypeData shiptype = Ship.getShipType(stid);
-					
-					GroupEntry data = groupdata.get(key);
-					
-					t.setVar(	"shiptypelist.count",		count,
-								"shiptypelist.name",		shiptype.getNickname(),
-								"shiptypelist.id",			stid,
-								"shiptypelist.groupid",		stid+":"+i,
-								"shiptypelist.image",		Ship.getShipType(stid).getPicture(),
-								"shiptypelist.side",		"enemy",
-								"shiptypelist.otherside",	"own",
-								"shiptypelist.otherside.id",	battle.getOwnShipGroup(),
-								"shiptypelist.destcount",		data.destcount,
-								"shiptypelist.hitcount",		data.hitcount,
-								"shiptypelist.joincount",		data.joincount,
-								"shiptypelist.secondrowcount",	data.srcount,
-								"shiptypelist.secondrowstatus",	count-data.srcount,
-								"shiptypelist.fluchtcount",		data.fluchtcount );
-					
-					if( firstEntry ) {
-						firstEntry = false;
-					}
-					else {
-						t.setVar("shiptypelist.addline",1);
-					}
-		
-					t.parse("enemyShips.list","ships.typelist.item",true);
-				}
-			}
-		}
-		
-		/*
-			Infos (APs, Runde, Gegnerischer Kommandant)
-		*/
-		
-		if( !battle.isCommander(user,battle.getOwnSide()) ) {
-			User auser = battle.getCommander(battle.getOwnSide());
-			t.setVar(	"user.commander",		0,
-						"battle.owncom.name",	auser.getProfileLink(),
-						"battle.owncom.ready",	battle.isReady(battle.getOwnSide()) );
-		} 
-		else {
-			t.setVar(	"user.commander",		1 );
-		}
-		if( !battle.isReady(battle.getOwnSide()) ) {
-			t.setVar("battle.turn.own",1);
-		}
-		
-		int enemySide = battle.getOwnSide() == 1 ? 0 : 1;
-		User auser = battle.getCommander(enemySide);
-		t.setVar(	"battle.enemycom.name",		auser.getProfileLink(),
-					"battle.enemycom.ready",	battle.isReady(battle.getEnemySide()) );
-
-		return t;
-	}
-}
+</tr>
+<tr>
+	{if user.commander}
+		<td class="BorderS" style="width:36%" colspan="3">&nbsp;</td>
+		{if battle.turn.own}
+			<td style="text-align:center;width:28%" class="BorderS" colspan="3"><a class="forschinfo" href="javascript:DS.ask('Wollen sie ihren Zug wirklich beenden?',DS.getUrl()+'?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ksaction=endturn&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}')">Zug beenden</a></td>
+		{else}
+			<td style="text-align:center;width:28%" class="BorderS" colspan="3">Warte auf Gegner</td>
+		{/endif}
+	{else}
+		<td class="BorderS" style="text-align:center;width:36%" colspan="3">{battle.owncom.name}{if battle.owncom.ready}&nbsp;<img src="data/interface/ks/ready.gif" alt="" />{/endif}</td>
+		{if battle.turn.own}
+			<td style="text-align:center;width:28%" class="BorderS" colspan="3">Warte auf Kommandanten</td>
+		{else}
+			<td style="text-align:center;width:28%" class="BorderS" colspan="3">Warte auf Gegner</td>
+		{/endif}
+	{/endif}
+	<td class="BorderS" style="text-align:center;width:36%" colspan="3">{battle.enemycom.name}{if battle.enemycom.ready}&nbsp;<img src="data/interface/ks/ready.gif" alt="" />{/endif}</td>
+</tr>
+</table>
