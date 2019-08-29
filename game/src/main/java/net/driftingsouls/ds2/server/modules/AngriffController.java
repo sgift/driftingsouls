@@ -617,11 +617,12 @@ public class AngriffController extends Controller
 		
 		User oUser = ownShip.getOwner();
     User eUser = enemyShip.getOwner();
-    if(ownship.getShip().isDocked() || ownship.getShip().isLanded())
+    if(ownShip.getShip().isDocked() || ownShip.getShip().isLanded())
 				{
-					int shipid = ownship.getShip().getBaseShip().getId();
+          int shipid = ownShip.getShip().getBaseShip().getId();
+          List<BattleShip> ownShipsTemp = battle.getOwnShips();
 
-                    for (BattleShip ownShip1 : ownShips) {
+                    for (BattleShip ownShip1 : ownShipsTemp) {
                         if (ownShip1.getId() == shipid) {
                             t.setVar("ownship.docked.name", ownShip1.getName(),
                                     "ownship.docked.id", shipid,
@@ -967,13 +968,13 @@ public class AngriffController extends Controller
                     if (aship.getShip().isDocked()){
                         data.dockedcount++;
                     }
-                    if (aShipType.getADocks()){
-                        data.adockcount+=aShipType.getADocks();
+                    if (aship.getShip().getType().getADocks()){
+                        data.adockcount+=aship.getShip().getType().getADocks();
                         data.hasdockedcount+=aship.getShip().getDockedCount();
                     }
-                    if (aShipType.getJDocks()){
-                        data.jdockcount+=aShipType.getJDocks();
-                        data.haslandedcount+=aship.getShip().getLandededCount();
+                    if (aship.getShip().getType().getJDocks()){
+                        data.jdockcount+=aship.getShip().getType().getJDocks();
+                        data.haslandedcount+=aship.getShip().getLandedCount();
                     }
                 }
             }
