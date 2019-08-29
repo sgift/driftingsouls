@@ -161,28 +161,21 @@
 			var currentOwner = '{infobox.active}';
 			element = document.getElementById('stats'+currentOwner+'ShipLink').style;
 			element.textDecoration = "underline";
-
 			function getShowUrlPart() {
 				return currentOwner.toLowerCase();
 			}
-
 			function showInfoBox( owner ) {
 				element = document.getElementById('stats'+currentOwner+'Ship').style;
 				element.visibility = "hidden";
 				element.position = "absolute";
-
 				element = document.getElementById('stats'+currentOwner+'ShipLink').style;
 				element.textDecoration = "none";
-
 				currentOwner = owner;
-
 				element = document.getElementById('stats'+owner+'Ship').style;
 				element.visibility = "visible";
 				element.position = "relative";
-
 				element = document.getElementById('stats'+owner+'ShipLink').style;
 				element.textDecoration = "underline";
-
 				elementlist = document.getElementsByTagName('a');
 				for( i=0; i < elementlist.length; i++ ) {
 					if( elementlist[i].href.indexOf('module=angriff') > -1 ) {
@@ -363,9 +356,6 @@
 		<img src="{shiptypelist.image}" alt="" />
 	</a><br />
 <!-- END ships.typelist.item -->
-
-
-<!-- Row Header -->
 <tr>
 	<th class="Border" style="vertical-align:top;width:12%"><div style="height:30px; overflow:auto; font-size:16px">Join/Flucht
 	</th>
@@ -380,13 +370,11 @@
 	<th class="Border" style="vertical-align:top;width:12%"><div style="height:30px; overflow:auto; font-size:16px">Join/Flucht
 	</th>
 </tr>
-<!-- Schiffsreihen -->
 <tr>
-	<!-- join/Flucht -->
 	<td class="schiffData" style="vertical-align:top;width:12%">
 		<div style="height:500px; overflow:auto; font-size:16px">
-			<!-- BEGIN ownShips.listitem -->
-			{if ship.action.flucht || ship.action.join}
+			<!-- BEGIN ownShips.joinflucht.listitem -->
+			{if ship.action.joinflucht}
 				{if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
 				{if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
 				<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(aktiv){/endif}
@@ -420,13 +408,12 @@
 				<a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
 				{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
 			{/endif}
-			<!-- END ownShips.listitem -->
+			<!-- END ownShips.joinflucht.listitem -->
 		</div>
 	</td>
-	<!-- zweite Reihe -->
 	<td class="schiffData" style="vertical-align:top;width:12%">
 		<div style="height:500px; overflow:auto; font-size:16px">
-			<!-- BEGIN ownShips.listitem -->
+			<!-- BEGIN ownShips.secondrow.listitem -->
 			{if ship.action.secondrow}
 				{if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
 				{if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
@@ -459,14 +446,13 @@
 				<a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
 				{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
 			{/endif}
-			<!-- END ownShips.listitem -->
+			<!-- END ownShips.secondrow.listitem -->
 		</div>
 	</td>
-	<!--  erste Reihe -->
 	<td class="schiffData" style="vertical-align:top;width:12%">
 		<div style="height:500px; overflow:auto; font-size:16px">
-			<!-- BEGIN ownShips.listitem -->
-			{if !ship.action.secondrow && !ship.action.flucht && !ship.action.join}
+			<!-- BEGIN ownShips.frontrow.listitem -->
+			{if ship.action.frontrow}
 				{if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
 				{if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
 				<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(aktiv){/endif}
@@ -497,15 +483,13 @@
 				<a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
 				{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
 			{/endif}
-			<!-- END ownShips.listitem -->
+			<!-- END ownShips.frontrow.listitem -->
 		</div>
 	</td>
-
-<!--  erste Reihe Feind -->
 	<td class="schiffData" style="vertical-align:top;width:12%">
 		<div style="height:500px; overflow:auto; font-size:16px">
-			<!-- BEGIN enemyShips.listitem -->
-			{if !ship.action.secondrow && !ship.action.flucht && !ship.action.join}	
+			<!-- BEGIN enemyShips.frontrow.listitem -->
+			{if ship.action.frontrow}	
 				{if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
 				{if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
 				<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={ship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(Ziel){/endif}
@@ -521,13 +505,12 @@
 				<a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
 				{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
 			{/endif}
-			<!-- END enemyShips.listitem -->
+			<!-- END enemyShips.frontrow.listitem -->
 		</div>
 	</td>
-	<!--  zweite Reihe Feind -->
 	<td class="schiffData" style="vertical-align:top;width:12%">
 		<div style="height:500px; overflow:auto; font-size:16px">
-			<!-- BEGIN enemyShips.listitem -->
+			<!-- BEGIN enemyShips.secondrow.listitem -->
 			{if ship.action.secondrow}	
 				{if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
 				{if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
@@ -545,14 +528,13 @@
 				<a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
 				{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
 			{/endif}
-			<!-- END enemyShips.listitem -->
+			<!-- END enemyShips.secondrow.listitem -->
 		</div>
 	</td>
-	<!--  join Flucht Feind -->
 	<td class="schiffData" style="vertical-align:top;width:12%">
 		<div style="height:500px; overflow:auto; font-size:16px">
-			<!-- BEGIN enemyShips.listitem -->
-			{if ship.action.join || ship.action.flucht}
+			<!-- BEGIN enemyShips.joinflucht.listitem -->
+			{if ship.action.joinflucht}
 				{if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
 				{if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
 				<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={ship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(Ziel){/endif}
@@ -571,7 +553,7 @@
 				<a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
 				{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
 			{/endif}
-			<!-- END enemyShips.listitem -->
+			<!-- END enemyShips.joinflucht.listitem -->
 		</div>
 	</td>
 
