@@ -974,8 +974,7 @@ public class AngriffController extends Controller
                     if (aShipType.getJDocks()){
                         data.jdockcount+=aShipType.getJDocks();
                         data.haslandedcount+=aship.getShip().getLandededCount();
-                  }
-                  }
+                    }
                 }
             }
 			
