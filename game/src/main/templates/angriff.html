@@ -53,7 +53,20 @@
 		{if ownship.action.join}<img src="data/interface/ks/join.gif" alt="" title="tritt der Schacht bei" />{/endif}
 		{if ownship.action.secondrow}<img src="data/interface/ks/secondrow.png" alt="" title="Zweite Reihe" />{/endif}
 		{if ownship.mangelnahrung}<img src="data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />{/endif}
-		{if ownship.mangelreaktor}<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}
+    {if ownship.mangelreaktor}<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}
+    {if ownship.landed}<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" title="gelandet"/>{/endif}
+    {if ownship.docked}<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" title="dedockt"/>{/endif}
+    {if ownship.docked.name}auf {if ship.docked.name}{ship.docked.name}{/endif}({ship.docked.id}){/endif}
+    {if ownship.docks}
+          {if ownship.adocks}
+            <br />
+						<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ownship.adocks.docked}/{ownship.adocks}]</a>
+					{/endif}
+          {if ownship.jdocks}
+            <br />
+						<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold" >[{ownship.jdocks.docked}/{ownship.jdocks}]</a>
+					{/endif}
+				{/endif}
 		<br />
 		<a class="noborder tooltip" target="_blank"
 			onclick="ShiptypeBox.show({ownship.type});return false;"
@@ -392,10 +405,10 @@
 				{if ship.docks}
 					<br />
 					{if ship.adocks}
-						<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}">[{ship.adocks.docked}/{ship.adocks}]</a>
+						<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.adocks.docked}/{ship.adocks}]</a>
 					{/endif}
 					{if ship.jdocks}
-						<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}">[{ship.jdocks.docked}/{ship.jdocks}]</a>
+						<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.jdocks.docked}/{ship.jdocks}]</a>
 					{/endif}
 				{/endif}
 				<br />
@@ -430,10 +443,10 @@
 				{if ship.docks}
 					<br />
 					{if ship.adocks}
-						<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}">[{ship.adocks.docked}/{ship.adocks}]</a>
+						<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.adocks.docked}/{ship.adocks}]</a>
 					{/endif}
 					{if ship.jdocks}
-						<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}">[{ship.jdocks.docked}/{ship.jdocks}]</a>
+						<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.jdocks.docked}/{ship.jdocks}]</a>
 					{/endif}
 				{/endif}
 				<br />
@@ -467,10 +480,10 @@
 				{if ship.docks}
 					<br />
 					{if ship.adocks}
-						<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}">[{ship.adocks.docked}/{ship.adocks}]</a>
+						<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.adocks.docked}/{ship.adocks}]</a>
 					{/endif}
 					{if ship.jdocks}
-						<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}">[{ship.jdocks.docked}/{ship.jdocks}]</a>
+						<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.jdocks.docked}/{ship.jdocks}]</a>
 					{/endif}
 				{/endif}
 				<br />
