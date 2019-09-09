@@ -63,7 +63,7 @@ public class ImageDownloader
 				img += suffix;
 			}
 
-			File localFile = new File("web/"+img);
+			File localFile = new File("game/src/main/webapp/"+img);
 			if( localFile.isFile() )
 			{
 				continue;
