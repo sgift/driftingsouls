@@ -290,7 +290,7 @@ public class AutoFire
                 continue;
             }
 
-            KSAttackAction currentFiringAction = new KSAttackAction(user, weapon, "single", 1);
+            KSAttackAction currentFiringAction = new KSAttackAction(user, weapon, "single");
             if(!currentFiringAction.init(battle, weapon.getId(), ammo))
             {
                 log.info("\t\tWeapon cannot attack Ship. Ignoring.");

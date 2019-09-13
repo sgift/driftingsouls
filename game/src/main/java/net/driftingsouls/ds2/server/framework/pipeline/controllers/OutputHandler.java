@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public abstract class OutputHandler
 {
-	private Context context = null;
+	private Context context;
 	private Map<String,Object> attributes = new HashMap<>();
 
 	/**

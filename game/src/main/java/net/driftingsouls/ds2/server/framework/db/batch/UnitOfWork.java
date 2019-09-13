@@ -29,10 +29,7 @@ import org.hibernate.StaleObjectStateException;
 import org.hibernate.Transaction;
 import org.hibernate.exception.GenericJDBCException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * <p>Klasse zur Durchfuehrung isolierter Arbeitsaufgaben (= 1 Transaktion) im Tick.
@@ -243,7 +240,7 @@ public abstract class UnitOfWork<T>
 			}
 
 			LOG.warn(name + " - Object: " + workObject, e);
-			errorReporter.report(this, Arrays.asList(workObject), e);
+			errorReporter.report(this, Collections.singletonList(workObject), e);
 			
 			return false;
 		}

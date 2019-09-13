@@ -9,7 +9,7 @@ import java.util.List;
 public class JqGridRowDataViewModel
 {
 	public String id;
-	public List<String> cell = new ArrayList<>();
+	public List<String> cell;
 
 	public JqGridRowDataViewModel(String id, List<String> cell)
 	{

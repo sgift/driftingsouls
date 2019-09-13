@@ -217,7 +217,7 @@ public class Taskmanager {
 			.setInteger("timeout", timeout)
 			.list());
 
-		return tasks.toArray(new Task[tasks.size()]);
+		return tasks.toArray(new Task[0]);
 	}
 
 	/**
@@ -257,7 +257,7 @@ public class Taskmanager {
 
 		List<Task> tasks = Common.cast(q.list());
 
-		return tasks.toArray(new Task[tasks.size()]);
+		return tasks.toArray(new Task[0]);
 	}
 
 	/**

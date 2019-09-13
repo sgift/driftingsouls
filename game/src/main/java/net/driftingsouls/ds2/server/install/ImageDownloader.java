@@ -143,11 +143,11 @@ public class ImageDownloader
 			{
 				// Pfad relativ zur aufgerufenen CSS-Datei
 
-				String prefix = "";
+				StringBuilder prefix = new StringBuilder();
 				File parent = cssFile.getParentFile();
 				while( parent != null )
 				{
-					prefix = parent.getName()+"/"+prefix;
+					prefix.insert(0, parent.getName() + "/");
 
 					if( "data".equalsIgnoreCase(parent.getName()) )
 					{
@@ -242,7 +242,7 @@ public class ImageDownloader
 		List<T> list = Common.cast(db.createCriteria(entityClass).list());
 		for (Function<T, String> getter : getters)
 		{
-			imgs.addAll(list.stream().map(getter::apply).collect(Collectors.toList()));
+			imgs.addAll(list.stream().map(getter).collect(Collectors.toList()));
 		}
 
 		return imgs;

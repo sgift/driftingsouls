@@ -109,9 +109,8 @@ public class StatData implements Statistic {
 						uptime_sec -= uptime_hours * 3600;
 
 						long uptime_min = (long) (uptime_sec / 60);
-						uptime_sec -= uptime_min * 60;
 
-						echo.append("<tr><td align=\"left\">Uptime des Servers:</td>\n");
+                        echo.append("<tr><td align=\"left\">Uptime des Servers:</td>\n");
 						echo.append("<td align=\"left\">").append(Long.toString(uptime_days)).append(" Tage ").append(Long.toString(uptime_hours)).append(" Stunden ").append(Long.toString(uptime_min)).append(" Minuten</td></tr>\n");
 					}
 				}

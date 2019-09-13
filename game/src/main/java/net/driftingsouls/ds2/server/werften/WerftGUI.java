@@ -1034,7 +1034,7 @@ public class WerftGUI {
 		}
 		// Bau ausfuehren
 		else {
-			boolean result = werft.buildShip(build, itemid, perTick, false );
+			boolean result = werft.buildShip(build, itemid, false, false );
 
 			if( !result ) {
 				t.setVar("build.error", werft.getMessage().replace("\n", "<br/>\n"));

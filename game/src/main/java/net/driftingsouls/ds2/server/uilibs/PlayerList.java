@@ -129,7 +129,7 @@ public class PlayerList {
 		if( (ord == null) || "".equals(ord) ) {
 			query += "u.id";
 		}
-		else if( "id".equals(ord) || "name".equals("ord") || "race".equals(ord) || "signup".equals(ord) || "ally".equals(ord) ) {
+		else if( "id".equals(ord) || "name".equals(ord) || "race".equals(ord) || "signup".equals(ord) || "ally".equals(ord) ) {
 			query += "u."+ord;
 		}
 		else if( "inakt".equals(ord) && (user != null) && context.hasPermission(WellKnownPermission.STATISTIK_ERWEITERTE_SPIELERLISTE) ) {

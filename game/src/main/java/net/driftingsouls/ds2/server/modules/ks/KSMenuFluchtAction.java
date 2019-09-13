@@ -91,11 +91,7 @@ public class KSMenuFluchtAction extends BasicKSMenuAction {
             gotone = true;
         }
 
-        if( !ownShip.hasFlag(BattleShipFlag.JOIN) && !ownShip.hasFlag(BattleShipFlag.DESTROYED) &&
-            !ownShip.hasFlag(BattleShipFlag.FLUCHT) && !ownShip.getShip().isLanded() && !ownShip.getShip().isDocked() &&
-            (ownShip.getShip().getEngine() > 0) &&
-            ( !ownShip.getShip().isBattleAction() || fluchtmode.equals("next") ) &&
-            gotone && ( !ownShip.hasFlag(BattleShipFlag.FLUCHTNEXT) || fluchtmode.equals("current")) ) {
+        if(!ownShip.hasFlag(BattleShipFlag.JOIN) && !ownShip.hasFlag(BattleShipFlag.DESTROYED) && !ownShip.hasFlag(BattleShipFlag.FLUCHT) && !ownShip.getShip().isLanded() && !ownShip.getShip().isDocked() && ownShip.getShip().getEngine() > 0 && gotone && !ownShip.hasFlag(BattleShipFlag.FLUCHTNEXT)) {
 
             if( ownShip.getEngine() > 0 ) {
                 this.menuEntry(t, "Flucht",

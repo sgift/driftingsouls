@@ -40,6 +40,7 @@ public class ShipFlag
     /**
      * Konstruktor.
      */
+    @SuppressWarnings("unused")
     public ShipFlag()
     {
         //Hibernate
@@ -51,7 +52,7 @@ public class ShipFlag
      * @param ship Das betroffene Schiff
      * @param remaining Die Anzahl der Ticks bis das Flag entfernt wird (-1 fuer unendlich)
      */
-    public ShipFlag(int flagType, Ship ship, int remaining)
+    ShipFlag(int flagType, Ship ship, int remaining)
     {
         this.flagType = flagType;
         this.remaining = remaining;

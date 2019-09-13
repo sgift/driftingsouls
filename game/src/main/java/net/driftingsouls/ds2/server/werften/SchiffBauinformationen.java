@@ -9,6 +9,8 @@ import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import org.hibernate.Session;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 /**
  * Die Bauinformationen fuer ein Schiff zusammen mit ihren Quellinformationen.
  */
@@ -109,13 +111,13 @@ public class SchiffBauinformationen implements Comparable<SchiffBauinformationen
 		{
 			return false;
 		}
-		if (item != null ? !item.equals(that.item) : that.item != null)
+		if (!Objects.equals(item, that.item))
 		{
 			return false;
 		}
 		if( quelle == BauinformationenQuelle.FORSCHUNG )
 		{
-			return baudaten != null ? baudaten.equals(that.baudaten) : that.baudaten == null;
+			return Objects.equals(baudaten, that.baudaten);
 		}
 
 

@@ -233,6 +233,9 @@ public class TileCache
 		}
 
 		File[] files = cacheDir.listFiles(pathname -> pathname.isFile() && pathname.getName().startsWith(TileCache.this.system.getID() + "_"));
+		if(files == null) {
+			return;
+		}
 
 		LOG.info("System "+this.system.getID()+": Loesche "+files.length+" Tiles aus dem Cache");
 

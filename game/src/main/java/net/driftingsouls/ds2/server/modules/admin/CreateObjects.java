@@ -135,26 +135,26 @@ public class CreateObjects implements AdminPlugin {
 
 		@Override
 		public String toHtml(Request request) {
-			String out = "<tr><td class=\"noBorderX\">"+this.title+"</td>\n";
+			StringBuilder out = new StringBuilder("<tr><td class=\"noBorderX\">" + this.title + "</td>\n");
 
 			String currentVal = request.getParameter(this.name);
 
 			boolean first = true;
 
-			out += "<td class=\"noBorderX\"><select name=\""+this.name+"\">";
+			out.append("<td class=\"noBorderX\"><select name=\"").append(this.name).append("\">");
 			for( T value : values )
 			{
-				out += "<option value='"+value+"'";
+				out.append("<option value='").append(value).append("'");
 				if( value.toString().equals(currentVal) || (currentVal == null && first) )
 				{
-					out += " selected='selected'";
+					out.append(" selected='selected'");
 					first = false;
 				}
-				out += ">"+value+"</option>";
+				out.append(">").append(value).append("</option>");
 			}
-			out += "</select></td></tr>\n";
+			out.append("</select></td></tr>\n");
 
-			return out;
+			return out.toString();
 		}
 	}
 
@@ -173,13 +173,13 @@ public class CreateObjects implements AdminPlugin {
 
 		@Override
 		public String toHtml(Request request) {
-			String out = "<tr><td class=\"noBorderX\">"+this.title+"</td>\n";
+			StringBuilder out = new StringBuilder("<tr><td class=\"noBorderX\">" + this.title + "</td>\n");
 
 			String currentVal = request.getParameter(this.name);
 
 			boolean first = true;
 
-			out += "<td class=\"noBorderX\"><select name=\""+this.name+"\">";
+			out.append("<td class=\"noBorderX\"><select name=\"").append(this.name).append("\">");
 			Session db = ContextMap.getContext().getDB();
 			List<T> results = Common.cast(db.createCriteria(this.entityCls).list());
 			for( T value :  results )
@@ -196,17 +196,17 @@ public class CreateObjects implements AdminPlugin {
 					continue;
 				}
 
-				out += "<option value='"+id+"'";
+				out.append("<option value='").append(id).append("'");
 				if( id.toString().equals(currentVal) || (currentVal == null && first) )
 				{
-					out += " selected='selected'";
+					out.append(" selected='selected'");
 					first = false;
 				}
-				out += ">"+label+" ("+id+")</option>";
+				out.append(">").append(label).append(" (").append(id).append(")</option>");
 			}
-			out += "</select></td></tr>\n";
+			out.append("</select></td></tr>\n");
 
-			return out;
+			return out.toString();
 		}
 
 		private String readLabel(T value)

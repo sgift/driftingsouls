@@ -61,7 +61,7 @@ public class CargoDefault implements SchiffPlugin {
 			Ship othership) {
 		Ship ship = caller.ship;
 
-		String output = "";
+		StringBuilder output = new StringBuilder();
 
 		/*if( act.equals("load") ) {
 			if( !max.equals("") ) {
@@ -137,27 +137,27 @@ public class CargoDefault implements SchiffPlugin {
 				cargo.substractResource(Resources.NAHRUNG, usenahrung);
 
 				ship.setCargo(cargo);
-				output += usenahrung + " Nahrung in den Speicher transferiert.<br />";
+				output.append(usenahrung).append(" Nahrung in den Speicher transferiert.<br />");
 			}
 		}
 		else if( act.equals("feedcargo"))
 		{
 			if(othership == null)
 			{
-				output += "<span style=\"color:red\">Sie m&uuml;ssen auch eine korrekte ID angeben.</span><br />\n";
-				return output;
+				output.append("<span style=\"color:red\">Sie m&uuml;ssen auch eine korrekte ID angeben.</span><br />\n");
+				return output.toString();
 			}
 
 			if( othership.getOwner().getId() != ship.getOwner().getId())
 			{
-				output += "<span style=\"color:red\">Sie k&ouml;nnen nur von eigenen Schiffen aufladen.</span><br />\n";
-				return output;
+				output.append("<span style=\"color:red\">Sie k&ouml;nnen nur von eigenen Schiffen aufladen.</span><br />\n");
+				return output.toString();
 			}
 
 			if( !othership.getLocation().equals(ship.getLocation()))
 			{
-				output += "<span style=\"color:red\">Die Schiffe m&uuml;ssen sich im selben Sektor befinden.</span><br />\n";
-				return output;
+				output.append("<span style=\"color:red\">Die Schiffe m&uuml;ssen sich im selben Sektor befinden.</span><br />\n");
+				return output.toString();
 			}
 
 			usenahrung = ship.getTypeData().getNahrungCargo() - ship.getNahrungCargo();
@@ -174,32 +174,32 @@ public class CargoDefault implements SchiffPlugin {
 				long feeding = usenahrung / 100000 + 1;
 				for(int i=0; i < feeding; i++)
 				{
-					output += "*mampf*<br />";
+					output.append("*mampf*<br />");
 				}
-				output += "*Bauch streichel* Das tat gut.<br />";
+				output.append("*Bauch streichel* Das tat gut.<br />");
 			}
 
 			othership.setCargo(cargo);
-			output += usenahrung + " Nahrung in den Speicher transferiert.<br />";
+			output.append(usenahrung).append(" Nahrung in den Speicher transferiert.<br />");
 		}
 		else if( setautodeut ) {
 			if( caller.shiptype.getDeutFactor() <= 0 ) {
-				output += "<span style=\"color:red\">Nur Tanker k&ouml;nnen automatisch Deuterium sammeln</span><br />\n";
-				return output;
+				output.append("<span style=\"color:red\">Nur Tanker k&ouml;nnen automatisch Deuterium sammeln</span><br />\n");
+				return output.toString();
 			}
 
 			SchiffEinstellungen einstellungen = ship.getEinstellungen();
 			einstellungen.setAutoDeut(autodeut != 0);
 			einstellungen.persistIfNecessary(ship);
 
-			output += "Automatisches Deuteriumsammeln "+(autodeut != 0 ? "":"de")+"aktiviert<br />\n";
+			output.append("Automatisches Deuteriumsammeln ").append(autodeut != 0 ? "" : "de").append("aktiviert<br />\n");
 		}
 		else if( setautomine ) {
 			SchiffEinstellungen einstellungen = ship.getEinstellungen();
 			einstellungen.setAutoMine(automine != 0);
 			einstellungen.persistIfNecessary(ship);
 
-			output += "Automatisches Felsbrockenabbauen "+(automine != 0 ? "":"de")+"aktiviert<br />\n";
+			output.append("Automatisches Felsbrockenabbauen ").append(automine != 0 ? "" : "de").append("aktiviert<br />\n");
 		}
 		else if(setstartfighter)
 		{
@@ -207,7 +207,7 @@ public class CargoDefault implements SchiffPlugin {
 			einstellungen.setStartFighters(startfighter != 0);
 			einstellungen.persistIfNecessary(ship);
 
-			output += "Automatisches Starten von J&auml;gern "+(startfighter != 0 ? "":"de")+"aktiviert<br />\n";
+			output.append("Automatisches Starten von J&auml;gern ").append(startfighter != 0 ? "" : "de").append("aktiviert<br />\n");
 		}
 		else if(setgotosecondrow)
 		{
@@ -215,7 +215,7 @@ public class CargoDefault implements SchiffPlugin {
 			einstellungen.setGotoSecondrow(gotosecondrow != 0);
 			einstellungen.persistIfNecessary(ship);
 
-			output += "Automatisches Verlegen in die 2. Reihe "+(gotosecondrow != 0 ? "":"de")+"aktiviert<br />\n";
+			output.append("Automatisches Verlegen in die 2. Reihe ").append(gotosecondrow != 0 ? "" : "de").append("aktiviert<br />\n");
 		}
 		else if( setfeeding )
 		{
@@ -223,7 +223,7 @@ public class CargoDefault implements SchiffPlugin {
 			einstellungen.setFeeding(isfeeding);
 			einstellungen.persistIfNecessary(ship);
 
-			output += "Automatisches Versorgen "+(isfeeding ? "":"de")+"aktiviert<br />\n";
+			output.append("Automatisches Versorgen ").append(isfeeding ? "" : "de").append("aktiviert<br />\n");
 		}
 		else if( setallyfeeding )
 		{
@@ -231,10 +231,10 @@ public class CargoDefault implements SchiffPlugin {
 			einstellungen.setAllyFeeding(isallyfeeding);
 			einstellungen.persistIfNecessary(ship);
 
-			output += "Automatisches Versorgen von Allianzschiffen "+(isallyfeeding ? "":"de")+"aktiviert<br />\n";
+			output.append("Automatisches Versorgen von Allianzschiffen ").append(isallyfeeding ? "" : "de").append("aktiviert<br />\n");
 		}
 
-		return output;
+		return output.toString();
 	}
 
 	@Action(ActionType.DEFAULT)

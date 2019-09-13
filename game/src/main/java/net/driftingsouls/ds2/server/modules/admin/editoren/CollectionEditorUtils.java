@@ -18,6 +18,7 @@ public final class CollectionEditorUtils
 		JqGridColumnViewModel colViewModel = new JqGridColumnViewModel(columnDefinition.getId(), columnDefinition.getFormatter());
 		colViewModel.editable = columnDefinition.isEditable();
 		colViewModel.edittype = columnDefinition.getEditType();
+		@SuppressWarnings("unchecked")
 		Map<String,String> editOptions = columnDefinition.getEditOptions();
 		if( !editOptions.isEmpty() )
 		{

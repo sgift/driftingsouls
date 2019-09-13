@@ -26,12 +26,14 @@ import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleType;
 import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.*;
 import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
+import net.driftingsouls.ds2.server.map.TileCache;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -58,8 +60,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -101,6 +103,7 @@ public class AdminCommands {
 			cmds.put("tick", TickCommand.class);
         	cmds.put("autofire", AutoFireCommand.class);
 			cmds.put("clearcache", ClearCache.class);
+			cmds.put("cleartilecache", ClearSystemTileCache.class);
 		}
 	}
 
@@ -761,7 +764,7 @@ public class AdminCommands {
 		public List<String> autoComplete(String[] command)
 		{
 			if( command.length == 1 ) {
-				return Arrays.asList("<shipId> ...");
+				return Collections.singletonList("<shipId> ...");
 			}
 
 			List<String> validCommands = Arrays.asList(
@@ -886,7 +889,9 @@ public class AdminCommands {
 			try {
 				ResourceID resid = Resources.fromString(command[2]);
 				org.hibernate.Session db = ContextMap.getContext().getDB();
-				item = (Item)db.get(Item.class, resid.getItemID());
+				item = (Item) Optional.ofNullable(resid)
+						.map(resourceID -> db.get(Item.class, resourceID.getItemID()))
+						.orElse(null);
 			}
 			catch( RuntimeException e ) {
 				// EMPTY
@@ -935,7 +940,7 @@ public class AdminCommands {
 		@Override
 		public List<String> autoComplete(String[] command)
 		{
-			return Arrays.asList(getTargetAutoComplete(command)+" "+getItemAutoComplete(command)+" <Menge>");
+			return Collections.singletonList(getTargetAutoComplete(command) + " " + getItemAutoComplete(command) + " <Menge>");
 		}
 	}
 
@@ -1092,7 +1097,7 @@ public class AdminCommands {
 		@Override
 		public List<String> autoComplete(String[] command)
 		{
-			return Arrays.asList("end <battleID>");
+			return Collections.singletonList("end <battleID>");
 		}
 	}
 
@@ -1340,9 +1345,10 @@ public class AdminCommands {
 								continue;
 							}
 
-							if (new File(path + (sizedimg ? imgcount : "") + fleet + ".png").isFile())
+							final File file = new File(path + (sizedimg ? imgcount : "") + fleet + ".png");
+							if (file.isFile())
 							{
-								new File(path + (sizedimg ? imgcount : "") + fleet + ".png").delete();
+								file.delete();
 							}
 
 							checkImage(path + (sizedimg ? imgcount : ""), fleet);
@@ -1483,6 +1489,29 @@ public class AdminCommands {
 		@Override
 		public List<String> autoComplete(String[] command)
 		{
+			return Collections.singletonList("");
+		}
+	}
+
+	protected static class ClearSystemTileCache implements Command {
+
+		@Override
+		public String execute(Context context, String[] command) throws CommandFailedException {
+			if(command.length != 1) {
+				return "Usage: cleartilecache";
+			}
+
+			List<StarSystem> systems = Common.cast(ContextMap.getContext().getDB().createQuery("from StarSystem order by id asc").list());
+			for (StarSystem system: systems) {
+				TileCache tileCache = TileCache.forSystem(system);
+				tileCache.resetCache();
+			}
+
+			return "Tile Cache cleared";
+		}
+
+		@Override
+		public List<String> autoComplete(String[] command) {
 			return Collections.singletonList("");
 		}
 	}

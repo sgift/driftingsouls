@@ -106,22 +106,15 @@ public class Werft extends DefaultBuilding {
 				final int totalSlots = werftObj.getWerftSlots();
 				int usedSlots = 0;
 				int buildingCount = 0;
-				String imBau = "";
+				StringBuilder imBau = new StringBuilder();
 				for (WerftQueueEntry entry : entries)
 				{
 					if( entry.isScheduled() ) {
 						usedSlots += entry.getSlots();
 						buildingCount++;
-						imBau = imBau+"<br />Aktuell im Bau: "+entry.getBuildShipType().getNickname()+" <img src='./data/interface/time.gif' alt='Dauer: ' />"+entry.getRemainingTime();
+						imBau.append("<br />Aktuell im Bau: ").append(entry.getBuildShipType().getNickname()).append(" <img src='./data/interface/time.gif' alt='Dauer: ' />").append(entry.getRemainingTime());
 					}
 				}
-
-				StringBuilder popup = new StringBuilder(100);
-				popup.append(this.getName()).append(":<br />");
-				popup.append("Belegte Werftslots: <img style='vertical-align:middle;border:0px' src='./data/interface/schiffinfo/werftslots.png' alt='' />").append(usedSlots).append("/").append(totalSlots).append("<br />");
-				popup.append("Im Bau: ").append(buildingCount).append(" Schiffe<br />");
-				popup.append("In der Warteschlange: ").append(entries.size() - buildingCount);
-				popup.append(imBau);
 
 				result.append("<a class=\"error tooltip\" href=\"./ds?module=building");
 				result.append("&amp;col=");
@@ -130,6 +123,11 @@ public class Werft extends DefaultBuilding {
 				result.append(field);
 				result.append("\">[W]<span style=\"font-weight:normal\">");
 				result.append(entries.size());
+				String popup = this.getName() + ":<br />" +
+						"Belegte Werftslots: <img style='vertical-align:middle;border:0px' src='./data/interface/schiffinfo/werftslots.png' alt='' />" + usedSlots + "/" + totalSlots + "<br />" +
+						"Im Bau: " + buildingCount + " Schiffe<br />" +
+						"In der Warteschlange: " + (entries.size() - buildingCount) +
+						imBau;
 				result.append("</span><span class='ttcontent'>").append(popup).append("</span></a>");
 			}
 		}

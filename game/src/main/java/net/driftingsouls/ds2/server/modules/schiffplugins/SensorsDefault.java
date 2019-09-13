@@ -504,7 +504,7 @@ public class SensorsDefault implements SchiffPlugin {
 				//Angreifen
 				if (!disableIFF && (aship.getOwner().getId() != user.getId()) && (aship.getBattle() == null) && shiptype.isMilitary() && !(ashiptype.getShipClass() == ShipClasses.FELSBROCKEN))
 				{
-					if (((user.getAlly() != null) && (aship.getOwner().getAlly() != user.getAlly())) || (user.getAlly() == null))
+					if (user.getAlly() == null || (aship.getOwner().getAlly() != user.getAlly()))
 					{
 						t.setVar("sships.action.angriff", 1);
 					}

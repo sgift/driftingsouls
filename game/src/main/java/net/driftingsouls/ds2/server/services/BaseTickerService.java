@@ -55,13 +55,13 @@ public class BaseTickerService
 	private String proofBuildings(Base base)
 	{
 		User owner = base.getOwner();
-		String msg = "";
+		StringBuilder msg = new StringBuilder();
 
 		if( (base.getCore() != null) && base.isCoreActive() ) {
 			if( base.getCore().isShutDown() && !owner.hasResearched(base.getCore().getTechRequired()) )
 			{
 				base.setCoreActive(false);
-				msg += "Der Core wurde wegen unzureichenden Voraussetzungen abgeschaltet.\n";
+				msg.append("Der Core wurde wegen unzureichenden Voraussetzungen abgeschaltet.\n");
 			}
 		}
 
@@ -87,18 +87,18 @@ public class BaseTickerService
 							|| (owner.getRace() != building.getRace() && building.getRace() != 0)))
 			{
 				bebon[o] = 0;
-				msg += "Das Geb&auml;ude "+building.getName()+" wurde wegen unzureichenden Voraussetzungen abgeschaltet.\n";
+				msg.append("Das Geb&auml;ude ").append(building.getName()).append(" wurde wegen unzureichenden Voraussetzungen abgeschaltet.\n");
 			}
 		}
 
 		base.setActive(bebon);
 
-		return msg;
+		return msg.toString();
 	}
 
 	private String produce(Base base, BaseStatus state, int newenergy)
 	{
-		String msg = "";
+		StringBuilder msg = new StringBuilder();
 		Cargo baseCargo = (Cargo)base.getCargo().clone();
 		Cargo nettoproduction = state.getNettoProduction();
 		Cargo nettoconsumption = state.getNettoConsumption();
@@ -128,7 +128,7 @@ public class BaseTickerService
 				else if (base.getSpawnableRessAmount(item.getID()) < 0 && !ressMap.containsRess(item) ) {
 					// Dann ziehen wir die Production eben ab
 					nettoproduction.setResource(entry.getId(), 0);
-					msg += "Ihre Arbeiter konnten keine Vorkommen der Ressource "+item.getName()+" finden.\n";
+					msg.append("Ihre Arbeiter konnten keine Vorkommen der Ressource ").append(item.getName()).append(" finden.\n");
 				}
 				// Es kann nicht mehr die volle Produktion gefoerdert werden
 				else {
@@ -152,7 +152,7 @@ public class BaseTickerService
 			//Not enough resources for production
 			if(balance < 0)
 			{
-				msg += "Zu wenig "+entry.getPlainName()+" vorhanden. Die Produktion f&auml;llt aus.\n";
+				msg.append("Zu wenig ").append(entry.getPlainName()).append(" vorhanden. Die Produktion f&auml;llt aus.\n");
 				ok = false;
 			}
 
@@ -169,20 +169,20 @@ public class BaseTickerService
 
 		if(!base.feedInhabitants(baseCargo))
 		{
-			msg += "Wegen einer Hungersnot fliehen ihre Einwohner. Die Produktion f&auml;llt aus.\n";
+			msg.append("Wegen einer Hungersnot fliehen ihre Einwohner. Die Produktion f&auml;llt aus.\n");
 			ok = false;
 		}
 
 		// Zuerst sollen die Marines verhungern danach die Bevoelkerung.
 		if(!base.feedMarines(baseCargo))
 		{
-			msg += "Wegen Unterern&auml;hrung desertieren ihre Truppen.\n";
+			msg.append("Wegen Unterern&auml;hrung desertieren ihre Truppen.\n");
 		}
 
 		// Ja, Marines futtern erstmal bevor Sie abhauen ...
 		if(!base.payMarines(baseCargo))
 		{
-			msg += "Wegen fehlendem Sold desertieren ihre Truppen.\n";
+			msg.append("Wegen fehlendem Sold desertieren ihre Truppen.\n");
 		}
 
 		if(ok)
@@ -204,7 +204,7 @@ public class BaseTickerService
 			base.setEnergy(newenergy);
 			base.setCargo(baseCargo);
 		}
-		return msg;
+		return msg.toString();
 	}
 
 	/**

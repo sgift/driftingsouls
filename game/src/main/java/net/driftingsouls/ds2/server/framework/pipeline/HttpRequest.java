@@ -47,9 +47,9 @@ import java.util.stream.Collectors;
  */
 public class HttpRequest implements Request {
 	private static final Log log = LogFactory.getLog(HttpRequest.class);
-	private HttpServletRequest request = null;
+	private HttpServletRequest request;
 	private Map<String,String[]> parameters = new HashMap<>();
-	private boolean isMultipart = false;
+	private boolean isMultipart;
 	private List<?> uploadedFiles = null;
 
 	/**

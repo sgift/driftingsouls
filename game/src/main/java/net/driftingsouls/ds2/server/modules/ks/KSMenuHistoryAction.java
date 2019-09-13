@@ -40,9 +40,9 @@ import java.util.Map;
  */
 public class KSMenuHistoryAction extends BasicKSMenuAction {
 	private static final Log log = LogFactory.getLog(KSMenuHistoryAction.class);
-	private String text = "";
-	private boolean showOK = true;
-	private boolean showTakeCommand = false;
+	private String text;
+	private boolean showOK;
+	private boolean showTakeCommand;
 	
 	private StringBuilder history_text = new StringBuilder();
 	private int historyPage = -1;

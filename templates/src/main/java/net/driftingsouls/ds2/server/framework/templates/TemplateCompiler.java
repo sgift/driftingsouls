@@ -294,7 +294,7 @@ public class TemplateCompiler {
 		Matcher match = Pattern.compile("\\{if (['\"]?)([^\"'\\}]*)\\1}").matcher(block);
 		int index = 0;
 		while( match.find() ) {
-			blockBuilder.append(block.substring(index, match.start()));
+			blockBuilder.append(block, index, match.start());
 			blockBuilder.append(parse_if(match.group(2)));
 			index = match.end();
 		}
@@ -302,9 +302,9 @@ public class TemplateCompiler {
 
 		block = blockBuilder.toString();
 
-		block = Pattern.compile("\\{else\\}").matcher(block).replaceAll("\"); } else { str.append(\"");
+		block = Pattern.compile("\\{else}").matcher(block).replaceAll("\"); } else { str.append(\"");
 
-		block = Pattern.compile("\\{\\/endif\\}").matcher(block).replaceAll("\"); } str.append(\"");
+		block = Pattern.compile("\\{/endif}").matcher(block).replaceAll("\"); } str.append(\"");
 		return block;
 	}
 
@@ -347,20 +347,20 @@ public class TemplateCompiler {
 
 	private String parse_functions( String block ) {
 		StringBuilder blockBuilder = new StringBuilder(block.length());
-		Matcher match = Pattern.compile("\\{#([^\\s^\\}^\\?]+)([^\\}]*)\\}").matcher(block);
+		Matcher match = Pattern.compile("\\{#([^\\s^}^?]+)([^}]*)}").matcher(block);
 		int index = 0;
 		while( match.find() ) {
-			blockBuilder.append(block.substring(index, match.start()));
+			blockBuilder.append(block, index, match.start());
 			blockBuilder.append(parse_function(match.group(1), match.group(2), false));
 			index = match.end();
 		}
 		blockBuilder.append(block.substring(index));
 
-		match = Pattern.compile("\\{!([^\\s^\\}^\\?]+)([^\\}]*)\\}").matcher(blockBuilder.toString());
+		match = Pattern.compile("\\{!([^\\s^}^?]+)([^}]*)}").matcher(blockBuilder.toString());
 		blockBuilder.setLength(0);
 		index = 0;
 		while( match.find() ) {
-			blockBuilder.append(block.substring(index, match.start()));
+			blockBuilder.append(block, index, match.start());
 			blockBuilder.append(parse_function(match.group(1), match.group(2), true));
 			index = match.end();
 		}
@@ -370,7 +370,7 @@ public class TemplateCompiler {
 	}
 
 	private String parse_vars( String block ) {
-		return Pattern.compile("\\{([^\\}^\\s^\\?]+)\\}").matcher(block).replaceAll("\\\"); str.append(templateEngine.getVar(\"$1\")); str.append(\\\"");
+		return Pattern.compile("\\{([^}^\\s^?]+)}").matcher(block).replaceAll("\\\"); str.append(templateEngine.getVar(\"$1\")); str.append(\\\"");
 	}
 
 	private static class CompiledBlock {

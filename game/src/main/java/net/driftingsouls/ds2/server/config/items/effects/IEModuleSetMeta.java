@@ -66,7 +66,7 @@ public class IEModuleSetMeta extends ItemEffect {
 			}
 			combos.add(currentCombo);
 		}
-		return combos.toArray(new SchiffstypModifikation[combos.size()]);
+		return combos.toArray(new SchiffstypModifikation[0]);
 	}
 	
 	/**
@@ -87,13 +87,13 @@ public class IEModuleSetMeta extends ItemEffect {
 	@Override
 	public String toString() {
 		Map<Integer, SchiffstypModifikation> combos = getCombos();
-		String itemstring = "module-set-meta:" + getName() + "&";
+		StringBuilder itemstring = new StringBuilder("module-set-meta:" + getName() + "&");
 		for(int i = 1; i <= 10; i++) {
 			if( combos.containsKey(i)) {
-				itemstring = itemstring + i + "\\" + combos.get(i).toString() + "&";
+				itemstring.append(i).append("\\").append(combos.get(i).toString()).append("&");
 			}
 		}
-		itemstring = itemstring.substring(0, itemstring.length()-1);
-		return itemstring;
+		itemstring = new StringBuilder(itemstring.substring(0, itemstring.length() - 1));
+		return itemstring.toString();
 	}
 }

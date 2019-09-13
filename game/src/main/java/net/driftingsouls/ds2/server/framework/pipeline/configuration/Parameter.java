@@ -55,6 +55,7 @@ class Parameter {
 		else if( "urldirectory".equals(node.getNodeName()) ) {
 			type = URL_DIRECTORY;
 			data = XMLUtils.getStringByXPath(node, "@number").trim();
+			//noinspection ResultOfMethodCallIgnored
 			Integer.parseInt(data); // Check, ob das Konvertieren ohne Probleme geht
 		}
 	}
@@ -74,7 +75,7 @@ class Parameter {
 			return context.getRequest().getParameter(data);
 
 		case URL_DIRECTORY:
-			String[] dirs = context.getRequest().getPath().substring(1).split("\\/");
+			String[] dirs = context.getRequest().getPath().substring(1).split("/");
 			
 			int number = Integer.parseInt(data);
 			if( (Math.abs(number) > dirs.length) || (number == 0) ) {

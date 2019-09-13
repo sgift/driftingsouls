@@ -87,7 +87,7 @@ public class ResourceList implements Iterable<ResourceEntry> {
 	 *
 	 */
 	private static class ResourceIterator implements Iterator<ResourceEntry> {
-		private Iterator<ResourceEntry> iter = null;
+		private Iterator<ResourceEntry> iter;
 
 		protected ResourceIterator(Iterator<ResourceEntry> inner) {
 			this.iter = inner;

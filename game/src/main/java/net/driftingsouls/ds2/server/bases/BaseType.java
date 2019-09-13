@@ -101,6 +101,8 @@ public class BaseType
 		this.smallImage = baseType.smallImage;
 		this.largeImage = baseType.largeImage;
 		this.starmapImage = baseType.starmapImage;
+		this.upgradeMaxValues = baseType.upgradeMaxValues;
+		this.upgradeInfos = baseType.upgradeInfos;
 	}
 	
 	/**

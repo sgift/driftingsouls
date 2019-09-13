@@ -488,7 +488,10 @@ public class Offizier extends DSObject {
 				break;
 			}
 			case WAF:
-				break;
+
+            case COM:
+            case SEC:
+                break;
 
 			case NAV: {
 				int fak = difficulty;
@@ -513,12 +516,7 @@ public class Offizier extends DSObject {
 				}
 				break;
 			}
-			case SEC:
-				break;
-
-			case COM:
-				break;
-		}
+        }
 
 		if( count != 0 ) {
 			double rangf = (this.ing+this.waf+this.nav+this.sec+this.com)/5.0;

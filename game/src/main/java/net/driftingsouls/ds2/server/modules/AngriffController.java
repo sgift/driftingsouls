@@ -757,12 +757,12 @@ public class AngriffController extends Controller
 		-----------------------------------------------------------*/
 		
 		t.setBlock("_ANGRIFF","ships.typelist.item","ships.typelist.none");
-		t.setBlock("_ANGRIFF","ownShipsfrontrow.listitem","ownShipsfrontrow.list");
-    t.setBlock("_ANGRIFF","enemyShipsfrontrow.listitem","enemyShipsfrontrow.list");
-    t.setBlock("_ANGRIFF","ownShipssecondrow.listitem","ownShipssecondrow.list");
-    t.setBlock("_ANGRIFF","enemyShipssecondrow.listitem","enemyShipssecondrow.list");
-    t.setBlock("_ANGRIFF","ownShipsjoinflucht.listitem","ownShipsjoinflucht.list");
-    t.setBlock("_ANGRIFF","enemyShipsjoinflucht.listitem","enemyShipsjoinflucht.list");
+		t.setBlock("_ANGRIFF","ownShips.frontrow.listitem","ownShips.frontrow.list");
+    	t.setBlock("_ANGRIFF","enemyShips.frontrow.listitem","enemyShips.frontrow.list");
+    	t.setBlock("_ANGRIFF","ownShips.secondrow.listitem","ownShips.secondrow.list");
+    	t.setBlock("_ANGRIFF","enemyShips.secondrow.listitem","enemyShips.secondrow.list");
+    	t.setBlock("_ANGRIFF","ownShips.joinflucht.listitem","ownShips.joinflucht.list");
+    	t.setBlock("_ANGRIFF","enemyShips.joinflucht.listitem","enemyShips.joinflucht.list");
 		
 		int ownGroupCount = 0;
 		int enemyGroupCount = 0;
@@ -911,7 +911,7 @@ public class AngriffController extends Controller
 				else {
 					t.setVar("ship.addline",1);
 				}
-				t.parse("ownShipsjoinflucht.list","ownShipsjoinflucht.listitem",true);
+				t.parse("ownShips.joinflucht.list","ownShips.joinflucht.listitem",true);
 		
 				t.stop_record();
 				t.clear_record();
@@ -1054,7 +1054,7 @@ public class AngriffController extends Controller
 						t.setVar("shiptypelist.addline",1);
 					}
 		
-					t.parse("ownShipsjoinflucht.list","ships.typelist.item",true);
+					t.parse("ownShips.joinflucht.list","ships.typelist.item",true);
 				}
 			}
     }
@@ -1176,7 +1176,7 @@ public class AngriffController extends Controller
 				else {
 					t.setVar("ship.addline",1);
 				}
-				t.parse("ownShipssecondrow.list","ownShipssecondrow.listitem",true);
+				t.parse("ownShips.secondrow.list","ownShips.secondrow.listitem",true);
 		
 				t.stop_record();
 				t.clear_record();
@@ -1317,7 +1317,7 @@ public class AngriffController extends Controller
 						t.setVar("shiptypelist.addline",1);
 					}
 		
-					t.parse("ownShipssecondrow.list","ships.typelist.item",true);
+					t.parse("ownShips.secondrow.list","ships.typelist.item",true);
 				}
 			}
     }
@@ -1439,7 +1439,7 @@ public class AngriffController extends Controller
 				else {
 					t.setVar("ship.addline",1);
 				}
-				t.parse("ownShipsfrontrow.list","ownShipsfrontrow.listitem",true);
+				t.parse("ownShips.frontrow.list","ownShips.frontrow.listitem",true);
 		
 				t.stop_record();
 				t.clear_record();
@@ -1582,7 +1582,7 @@ public class AngriffController extends Controller
 						t.setVar("shiptypelist.addline",1);
 					}
 		
-					t.parse("ownShipsfrontrow.list","ships.typelist.item",true);
+					t.parse("ownShips.frontrow.list","ships.typelist.item",true);
 				}
 			}
     }
@@ -1711,7 +1711,7 @@ public class AngriffController extends Controller
 				else {
 					t.setVar("ship.addline",1);
 				}
-				t.parse("enemyShipsfrontrow.list", "enemyShipsfrontrow.listitem", true);
+				t.parse("enemyShips.frontrow.list", "enemyShips.frontrow.listitem", true);
 
 				t.stop_record();
 				t.clear_record();
@@ -1816,7 +1816,7 @@ public class AngriffController extends Controller
 						t.setVar("shiptypelist.addline",1);
 					}
 		
-					t.parse("enemyShipsfrontrow.list","ships.typelist.item",true);
+					t.parse("enemyShips.frontrow.list","ships.typelist.item",true);
 				}
 			}
     }
@@ -1913,7 +1913,7 @@ public class AngriffController extends Controller
 				else {
 					t.setVar("ship.addline",1);
 				}
-				t.parse("enemyShipssecondrow.list", "enemyShipssecondrow.listitem", true);
+				t.parse("enemyShips.secondrow.list", "enemyShips.secondrow.listitem", true);
 
 				t.stop_record();
 				t.clear_record();
@@ -2016,7 +2016,7 @@ public class AngriffController extends Controller
 						t.setVar("shiptypelist.addline",1);
 					}
 		
-					t.parse("enemyShipssecondrow.list","ships.typelist.item",true);
+					t.parse("enemyShips.secondrow.list","ships.typelist.item",true);
 				}
 			}
     }
@@ -2113,7 +2113,7 @@ public class AngriffController extends Controller
 				else {
 					t.setVar("ship.addline",1);
 				}
-				t.parse("enemyShipsjoinflucht.list", "enemyShipsjoinflucht.listitem", true);
+				t.parse("enemyShips.joinflucht.list", "enemyShips.joinflucht.listitem", true);
 
 				t.stop_record();
 				t.clear_record();
@@ -2216,7 +2216,7 @@ public class AngriffController extends Controller
 						t.setVar("shiptypelist.addline",1);
 					}
 		
-					t.parse("enemyShipsjoinflucht.list","ships.typelist.item",true);
+					t.parse("enemyShips.joinflucht.list","ships.typelist.item",true);
 				}
 			}
 		}

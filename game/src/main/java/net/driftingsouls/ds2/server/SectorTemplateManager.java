@@ -243,7 +243,7 @@ public class SectorTemplateManager {
 				.setInteger("id", flship.shipid);
 		}
 
-		return shipids.toArray(new Integer[shipids.size()]);
+		return shipids.toArray(new Integer[0]);
 	}
 
 	/**

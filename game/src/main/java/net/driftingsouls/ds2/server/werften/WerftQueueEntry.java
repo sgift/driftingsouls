@@ -103,7 +103,6 @@ public class WerftQueueEntry {
 		this.werft = werft;
 		this.position = getNextEmptyPosition(werft);
 		this.building = building;
-		this.buildItem = -1;
 		this.remaining = remaining;
 		this.costsPerTick = new Cargo();
 		this.slots = slots;

@@ -47,7 +47,7 @@ public class HttpResponse implements Response {
 	private HttpServletRequest request;
 	private boolean send;
 	private boolean manualSend = false;
-	private boolean cacheOutput = false;
+	private boolean cacheOutput;
 	
 	/**
 	 * Konstruktor.

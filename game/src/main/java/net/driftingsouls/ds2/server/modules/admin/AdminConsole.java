@@ -26,8 +26,6 @@ import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
-import java.io.IOException;
-
 /**
  * Ermoeglicht das Absetzen von Admin-Kommandos.
  * @author Christopher Jung
@@ -36,7 +34,7 @@ import java.io.IOException;
 @AdminMenuEntry(category="Sonstiges", name="Admin-Konsole", permission = WellKnownAdminPermission.CONSOLE)
 public class AdminConsole implements AdminPlugin {
 	@Override
-	public void output(StringBuilder echo) throws IOException {
+	public void output(StringBuilder echo) {
 		Context context = ContextMap.getContext();
 
 		String cmd = context.getRequest().getParameterString("cmd");

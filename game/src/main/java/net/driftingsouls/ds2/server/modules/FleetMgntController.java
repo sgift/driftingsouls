@@ -204,7 +204,7 @@ public class FleetMgntController extends Controller
 		if (shiplist.charAt(0) != 'g')
 		{
 			shiplistInt = Common.explodeToInteger("|", shiplist);
-			if ((shiplist.length() == 0) || shiplistInt.length == 0)
+			if (shiplistInt.length == 0)
 			{
 				throw new ValidierungException("Sie haben keine Schiffe angegeben");
 			}

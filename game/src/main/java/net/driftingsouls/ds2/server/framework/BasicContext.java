@@ -150,7 +150,7 @@ public class BasicContext implements Context
 	@Override
 	public Error[] getErrorList()
 	{
-		return errorList.toArray(new Error[errorList.size()]);
+		return errorList.toArray(new Error[0]);
 	}
 
 	@Override

@@ -10,10 +10,7 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.HtmlUtils;
 import javax.persistence.Entity;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Klasse zum Erstellen eines Eingabeformulars.
@@ -24,7 +21,7 @@ class EditorForm implements AutoCloseable
 	private Class<? extends AdminPlugin> plugin;
 	private List<CustomFieldGenerator> fields = new ArrayList<>();
 
-	public EditorForm(Class<? extends AdminPlugin> plugin, StringBuilder echo)
+	EditorForm(Class<? extends AdminPlugin> plugin, StringBuilder echo)
 	{
 		this.echo = echo;
 		this.plugin = plugin;
@@ -63,7 +60,7 @@ class EditorForm implements AutoCloseable
 		private String value;
 		private boolean withRemove;
 
-		public DynamicContentFieldGenerator(String label, String name, String value)
+		DynamicContentFieldGenerator(String label, String name, String value)
 		{
 			this.label = label;
 			this.name = name;
@@ -72,8 +69,7 @@ class EditorForm implements AutoCloseable
 		}
 
 		@Override
-		public void generate(StringBuilder echo) throws IOException
-		{
+		public void generate(StringBuilder echo) {
 			echo.append("<tr class='dynamicContentEdit'>");
 
 			writeCommonDynamicContentPart(label, name, value);
@@ -82,23 +78,23 @@ class EditorForm implements AutoCloseable
 			{
 				String entityId = ContextMap.getContext().getRequest().getParameter("entityId");
 
-				echo.append("<td><a title='entfernen' href='./ds?module=admin&amp;namedplugin=").append(plugin.getClass().getName()).append("&amp;entityId=").append(entityId).append("&reset=").append(name).append("'>X</a>");
+				echo.append("<td><a title='entfernen' href='./ds?module=admin&amp;namedplugin=").append(plugin.getName()).append("&amp;entityId=").append(entityId).append("&reset=").append(name).append("'>X</a>");
 			}
 
 			echo.append("</tr>");
 		}
 
-		public DynamicContentFieldGenerator withRemove()
+		@SuppressWarnings("UnusedReturnValue")
+		DynamicContentFieldGenerator withRemove()
 		{
 			this.withRemove = true;
 			return this;
 		}
 
-		private void writeCommonDynamicContentPart(String label, String name, String value) throws IOException
-		{
+		private void writeCommonDynamicContentPart(String label, String name, String value) {
 			echo.append("<td>").append(label).append(": </td>").append("<td>").append(value != null && !value.trim().isEmpty() ? "<img src='" + value + "' />" : "").append("</td>").append("<td>");
 
-			DynamicContent content = DynamicContentManager.lookupMetadata(value != null ? value : "dummy", true);
+			DynamicContent content = Objects.requireNonNull(DynamicContentManager.lookupMetadata(value != null ? value : "dummy", true));
 
 			echo.append("<input type=\"file\" name=\"").append(name).append("\">");
 
@@ -137,15 +133,14 @@ class EditorForm implements AutoCloseable
 		private final String label;
 		private final Object value;
 
-		public LabelGenerator(String label, Object value)
+		LabelGenerator(String label, Object value)
 		{
 			this.label = label;
 			this.value = value;
 		}
 
 		@Override
-		public void generate(StringBuilder echo) throws IOException
-		{
+		public void generate(StringBuilder echo) {
 			echo.append("<tr>");
 			echo.append("<td colspan='2'>").append(label.trim().isEmpty() ? "" : label + ":").append("</td>").append("<td>").append(value != null ? value.toString() : "").append("</td></tr>\n");
 		}
@@ -169,7 +164,7 @@ class EditorForm implements AutoCloseable
 		private final Object value;
 		private final Map<Serializable,Object> selectionOptions = new LinkedHashMap<>();
 
-		public FieldGenerator(String label, String name, Class<?> type, Object value)
+		FieldGenerator(String label, String name, Class<?> type, Object value)
 		{
 			this.label = label;
 			this.name = name;
@@ -182,13 +177,6 @@ class EditorForm implements AutoCloseable
 			}
 		}
 
-		public FieldGenerator withOptions(Map<? extends Serializable, ?> options)
-		{
-			this.selectionOptions.clear();
-			this.selectionOptions.putAll(options);
-			return this;
-		}
-
 		public FieldGenerator withNullOption(String label)
 		{
 			this.selectionOptions.put(null, label);
@@ -196,8 +184,7 @@ class EditorForm implements AutoCloseable
 		}
 
 		@Override
-		public void generate(StringBuilder echo) throws IOException
-		{
+		public void generate(StringBuilder echo) {
 			echo.append("<tr>");
 			echo.append("<td colspan='2'>").append(label.trim().isEmpty() ? "" : label + ":").append("</td>");
 			echo.append("<td>");
@@ -240,8 +227,7 @@ class EditorForm implements AutoCloseable
 			return result;
 		}
 
-		private void editEntityBySelection(String name, Class<?> type, Object value) throws IOException
-		{
+		private void editEntityBySelection(String name, Class<?> type, Object value) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 
 			Serializable selected = -1;

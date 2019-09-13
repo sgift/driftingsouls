@@ -633,7 +633,7 @@ public class MapController extends Controller
 		FieldView field;
 		if (admin && hasPermission(WellKnownAdminPermission.STARMAP_VIEW))
 		{
-			field = new AdminFieldView(db, user, loc);
+			field = new AdminFieldView(db, loc);
 		}
 		else
 		{
