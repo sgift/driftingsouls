@@ -362,7 +362,8 @@
 	{if shiptypelist.mangelreaktorcount}&nbsp;<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{shiptypelist.mangelreaktorcount}{/endif}
 	{if shiptypelist.landedcount}&nbsp;<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" title="gelandet" />{shiptypelist.landedcount}{/endif}
 	{if shiptypelist.dockedcount}&nbsp;<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" title="gedockt" />{shiptypelist.dockedcount}{/endif}
-	<br />
+		{if shiptypelist.haslandedcount}&nbsp;<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" title="gelandet" /><a style="color:#CCAA33" class="nonbold">[{shiptypelist.haslandedcount}/{shiptypelist.jdockcount}]{/endif}
+	{if shiptypelist.hasdockedcount}&nbsp;<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" title="gedockt" /><a style="color:#CCAA33" class="nonbold">[{shiptypelist.hasdockedcount}/{shiptypelist.adockcount}]{/endif}<br />
 	<a class="noborder" target="_blank"
 		onclick="ShiptypeBox.show({shiptypelist.id});return false;"
 		href="./ds?module=schiffinfo&amp;ship={shiptypelist.id}">
