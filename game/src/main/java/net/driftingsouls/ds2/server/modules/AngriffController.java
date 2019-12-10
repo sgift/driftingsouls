@@ -820,7 +820,7 @@ public class AngriffController extends Controller
 				if(battle.isGuest() && aship.getShip().isLanded() ) {
 					continue;
         }
-        if(!aship.hasFlag(BattleShipFlag.FLUCHT) || aship.hasFlag(BattleShipFlag.JOIN)){
+        if(!aship.hasFlag(BattleShipFlag.FLUCHT) || !aship.hasFlag(BattleShipFlag.JOIN)){
           continue;
         }
 				
