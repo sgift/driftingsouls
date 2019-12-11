@@ -779,8 +779,8 @@ public class AngriffController extends Controller
 		int groupoffset = 0;
 		int grouptypecount = 0;
 		
-		boolean showgroups = (ownGroupCount >= 1) || (battle.getOwnShips().size() >= 1);
-		if( showgroups && (battle.getOwnShipGroup().length() > 0) ) {
+		boolean showgroups = (battle.getOwnShips().size() >= 1);//(ownGroupCount >= 1) || (battle.getOwnShips().size() >= 1);
+		if( showgroups ){//&& (battle.getOwnShipGroup().length() > 0) ) {
 			String[] tmp = StringUtils.split(battle.getOwnShipGroup(), ':');
 			grouptype = Integer.parseInt(tmp[0]);
 			groupoffset = Integer.parseInt(tmp[1]);
