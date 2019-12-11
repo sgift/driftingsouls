@@ -779,8 +779,8 @@ public class AngriffController extends Controller
 		int groupoffset = 0;
 		int grouptypecount = 0;
 		
-		boolean showgroups = (ownGroupCount >= 1) || (battle.getOwnShips().size() >= 1);
-		if( showgroups && (battle.getOwnShipGroup().length() > 0) ) {
+		boolean showgroups = (battle.getOwnShips().size() >= 1);//(ownGroupCount >= 1) || (battle.getOwnShips().size() >= 1);
+		if( showgroups ){//&& (battle.getOwnShipGroup().length() > 0) ) {
 			String[] tmp = StringUtils.split(battle.getOwnShipGroup(), ':');
 			grouptype = Integer.parseInt(tmp[0]);
 			groupoffset = Integer.parseInt(tmp[1]);
@@ -820,7 +820,7 @@ public class AngriffController extends Controller
 				if(battle.isGuest() && aship.getShip().isLanded() ) {
 					continue;
         }
-        if(!aship.hasFlag(BattleShipFlag.FLUCHT) || aship.hasFlag(BattleShipFlag.JOIN)){
+        if(!(aship.hasFlag(BattleShipFlag.FLUCHT) || aship.hasFlag(BattleShipFlag.JOIN))){
           continue;
         }
 				
@@ -2134,7 +2134,7 @@ public class AngriffController extends Controller
                 if (aship.getShip().isLanded()) {
                     continue;
                 }
-                if( !aship.hasFlag(BattleShipFlag.JOIN)||!aship.hasFlag(BattleShipFlag.FLUCHT)){
+                if( !(aship.hasFlag(BattleShipFlag.JOIN)||aship.hasFlag(BattleShipFlag.FLUCHT))){
                   continue;
                 }
                 Common.safeIntInc(shiptypegroupcount, aship.getShip().getType());
