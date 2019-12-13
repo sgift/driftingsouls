@@ -929,7 +929,7 @@ public class AngriffController extends Controller
 			List<BattleShip> ownShips = battle.getOwnShips();
             for (BattleShip aship : ownShips)
             {
-                if(!aship.hasFlag(BattleShipFlag.JOIN)||!aship.hasFlag(BattleShipFlag.FLUCHT)){
+                if(!(aship.hasFlag(BattleShipFlag.JOIN)||aship.hasFlag(BattleShipFlag.FLUCHT))){
                   continue;
                 }
                 Common.safeIntInc(shiptypegroupcount, aship.getShip().getType());
@@ -2048,7 +2048,7 @@ public class AngriffController extends Controller
 				if( aship.getShip().isLanded() ) {
 					continue;
         }
-        if( !aship.hasFlag(BattleShipFlag.JOIN)||!aship.hasFlag(BattleShipFlag.FLUCHT)){
+        if( !(aship.hasFlag(BattleShipFlag.JOIN)||aship.hasFlag(BattleShipFlag.FLUCHT))){
           continue;
         }
       
