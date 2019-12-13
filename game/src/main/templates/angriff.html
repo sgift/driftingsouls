@@ -396,7 +396,7 @@
 				{if ship.docked}<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" />{/endif}
 				{if ship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
 				{if ship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
-				<img src="data/interface/ks/flucht.gif" alt="" title="flucht" />
+				{if ship.action.flucht}<img src="data/interface/ks/flucht.gif" alt="" title="flucht" />{/endif}
 				{if ship.action.fluchtnext}<img src="data/interface/ks/fluchtnext.png" alt="" title="flieht n&auml;chste Runde" />{/endif}
 				{if ship.action.shot}<img src="data/interface/ks/shot.gif" alt="" title="Waffen abgefeuert" />{/endif}
 				{if ship.action.join}<img src="data/interface/ks/join.gif" alt="" title="tritt der Schlacht bei" />{/endif}
