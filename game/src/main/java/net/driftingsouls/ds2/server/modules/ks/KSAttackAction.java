@@ -364,7 +364,7 @@ public class KSAttackAction extends BasicKSAction {
 		// Schiff als zerstoert makieren
 		//
 
-		int remove = 1; // Anzahl der zerstoerten Schiffe
+    int remove = 1; // Anzahl der zerstoerten Schiffe
 
 		eShip.addFlag(BattleShipFlag.DESTROYED);
 
@@ -382,12 +382,25 @@ public class KSAttackAction extends BasicKSAction {
 		{
 			if (s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == eShip.getId())
 			{
-				remove++;
-				s.addFlag(BattleShipFlag.DESTROYED);
-				if (s.getDestroyer() == 0)
-				{
-					s.setDestroyer(id);
-				}
+        //Rettungskapseln sollen nicht zerstört werden, wenn sie gedockt wurden
+        if ( s.getShipClass() !=  ShipClasses.RETTUNGSKAPSEL)
+        {
+          //muss ja niemand erfahren, dass Rettungskapseln fliehen konnten. Also verschweigen wir das. Das Opfer freut sich bestimmt darueber, dass es nicht geloggt wird.
+          //Rettungskapseln fliehen instant, wenn das Traegerschiff zerstoert wurde
+          s.addFlag(BattleShipFlag.FLUCHT);
+          // nun noch den Offi des Schiffs retten
+          s.getShip().onOffiziertStationiert(s.getShip().getBaseShip().getOffizier());
+          s.getShip().getBaseShip().onOffizierEntfernt(s.getShip().getBaseShip().getOffizier());
+        }
+        else
+        {
+          remove++;
+          s.addFlag(BattleShipFlag.DESTROYED);
+          if (s.getDestroyer() == 0)
+          {
+            s.setDestroyer(id);
+          }
+        }
 			}
 		}
 
@@ -402,7 +415,7 @@ public class KSAttackAction extends BasicKSAction {
 		if( remove > 1 ) {
 			logMsg.append(remove - 1).append(" gedockte/gelandete Schiffe wurden bei der Explosion zerstört\n");
 			battle.logme( (remove-1)+" gedockte/gelandete Schiffe wurden bei der Explosion zerst&ouml;rt\n" );
-		}
+    }
 	}
 
 	private int getTrefferWS(int defTrefferWS, BattleShip eShip, ShipTypeData eShipType, int defensivskill, int navskill) {
