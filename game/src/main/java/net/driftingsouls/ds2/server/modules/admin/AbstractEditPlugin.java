@@ -138,7 +138,7 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 		return true;
 	}
 
-	protected static String generateLabelFor(Serializable identifier, Object entity)
+	private static String generateLabelFor(Serializable identifier, Object entity)
 	{
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
@@ -184,7 +184,7 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 		}
 	}
 
-	protected final String processDynamicContent(String name, String currentValue) throws IOException
+	final String processDynamicContent(String name, String currentValue) throws IOException
 	{
 		Context context = ContextMap.getContext();
 
@@ -193,11 +193,8 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 			if (name.equals(file.getFieldName()) && file.getSize() > 0)
 			{
 				String id = DynamicContentManager.add(file);
-				if (id != null)
-				{
-					processDynamicContentMetadata(name, id);
-					return id;
-				}
+				processDynamicContentMetadata(name, id);
+				return id;
 			}
 		}
 		if (currentValue != null)
@@ -234,8 +231,7 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 		}
 	}
 
-	private void beginSelectionBox(StringBuilder echo) throws IOException
-	{
+	private void beginSelectionBox(StringBuilder echo) {
 		echo.append("<div class='gfxbox adminSelection' style='width:390px'>");
 		echo.append("<form action=\"./ds\" method=\"post\">");
 		echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
@@ -243,8 +239,7 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 		echo.append("<select size=\"1\" name=\"entityId\">");
 	}
 
-	private void addSelectionOption(StringBuilder echo, Object id, String label) throws IOException
-	{
+	private void addSelectionOption(StringBuilder echo, Object id, String label) {
 		Context context = ContextMap.getContext();
 		String currentIdStr = context.getRequest().getParameter("entityId");
 		String idStr = id.toString();
@@ -252,16 +247,14 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 		echo.append("<option value=\"").append(idStr).append("\" ").append(idStr.equals(currentIdStr) ? "selected=\"selected\"" : "").append(">").append(label).append("</option>");
 	}
 
-	private void endSelectionBox(StringBuilder echo) throws IOException
-	{
+	private void endSelectionBox(StringBuilder echo) {
 		echo.append("</select>");
 		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
 		echo.append("</form>");
 		echo.append("</div>");
 	}
 
-	private EditorForm beginEditorTable(final StringBuilder echo, Object entityId) throws IOException
-	{
+	private EditorForm beginEditorTable(final StringBuilder echo, Object entityId) {
 		echo.append("<div class='gfxbox adminEditor' style='width:700px'>");
 		echo.append("<form action=\"./ds\" method=\"post\" enctype='multipart/form-data'>");
 		echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
@@ -273,7 +266,7 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 		return new EditorForm(getClass(), echo);
 	}
 
-	protected final boolean isResetted(String name)
+	final boolean isResetted(String name)
 	{
 		Context context = ContextMap.getContext();
 		String reset = context.getRequest().getParameterString("reset");

@@ -578,10 +578,10 @@ public class TransportController extends Controller
 
 	private List<TransportTarget> parseListeDerTransportZiele(String key, String toString)
 	{
-		List<TransportTarget> to = new ArrayList<>();
+		List<TransportTarget> to;
 		if (wayhandler.containsKey(key))
 		{
-			to.addAll(wayhandler.get(key).createTargets(TransportTarget.ROLE_TARGET, toString));
+			to = new ArrayList<>(wayhandler.get(key).createTargets(TransportTarget.ROLE_TARGET, toString));
 		}
 		else
 		{
@@ -594,10 +594,10 @@ public class TransportController extends Controller
 
 	private List<TransportTarget> parseListeDerTransportQuellen(String key, String fromString)
 	{
-		List<TransportTarget> from = new ArrayList<>();
+		List<TransportTarget> from;
 		if (wayhandler.containsKey(key))
 		{
-			from.addAll(wayhandler.get(key).createTargets(TransportTarget.ROLE_SOURCE, fromString));
+			from = new ArrayList<>(wayhandler.get(key).createTargets(TransportTarget.ROLE_SOURCE, fromString));
 		}
 		else
 		{

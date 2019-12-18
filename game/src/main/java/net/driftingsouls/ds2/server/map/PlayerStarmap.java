@@ -77,7 +77,7 @@ public class PlayerStarmap extends PublicStarmap
 			}
 		}
 
-		return Ship.getAlertStatus(user, zuPruefendeSektoren.toArray(new Location[zuPruefendeSektoren.size()]));
+		return Ship.getAlertStatus(user, zuPruefendeSektoren.toArray(new Location[0]));
 	}
 
 	private Set<Location> findeBekannteOrte(User user)

@@ -156,10 +156,10 @@ public class KSKapernAction extends BasicKSAction {
 			attmulti = attoffizier.getKaperMulti(false);
 		}
 
-		String msg = "";
+		StringBuilder msg = new StringBuilder();
 		if( !ownUnits.isEmpty() && !(enemyUnits.isEmpty() && enemyShip.getCrew() == 0) ) {
 			battle.logme("Die Einheiten st&uuml;rmen das Schiff\n");
-			msg = "Die Einheiten der "+Battle.log_shiplink(ownShip.getShip())+" stürmen die "+Battle.log_shiplink(enemyShip.getShip())+"\n";
+			msg = new StringBuilder("Die Einheiten der " + Battle.log_shiplink(ownShip.getShip()) + " stürmen die " + Battle.log_shiplink(enemyShip.getShip()) + "\n");
 
 			UnitCargo toteeigeneUnits = new TransientUnitCargo();
 			UnitCargo totefeindlicheUnits = new TransientUnitCargo();
@@ -170,7 +170,7 @@ public class KSKapernAction extends BasicKSAction {
 				if(toteeigeneUnits.isEmpty() && totefeindlicheUnits.isEmpty())
 				{
 					battle.logme("Angriff erfolgreich. Schiff wird widerstandslos &uuml;bernommen.\n");
-					msg += "Das Schiff ist kampflos verloren.\n";
+					msg.append("Das Schiff ist kampflos verloren.\n");
 					if( attoffizier != null)
 					{
 						attoffizier.gainExperience(Offizier.Ability.COM, 5);
@@ -179,31 +179,31 @@ public class KSKapernAction extends BasicKSAction {
 				else
 				{
 					battle.logme("Angriff erfolgreich.\n");
-					msg += "Das Schiff ist verloren.\n";
+					msg.append("Das Schiff ist verloren.\n");
 					Map<UnitType, Long> ownunitlist = toteeigeneUnits.getUnitMap();
 					Map<UnitType, Long> enemyunitlist = totefeindlicheUnits.getUnitMap();
 
 					if(!ownunitlist.isEmpty())
 					{
 						battle.logme("Angreifer:\n");
-						msg += "Angreifer:\n";
+						msg.append("Angreifer:\n");
 						for(Entry<UnitType, Long> unit : ownunitlist.entrySet())
 						{
 							UnitType unittype = unit.getKey();
 							battle.logme(unit.getValue()+" "+unittype.getName()+" gefallen\n");
-							msg += unit.getValue()+" "+unittype.getName()+" erschossen\n";
+							msg.append(unit.getValue()).append(" ").append(unittype.getName()).append(" erschossen\n");
 						}
 					}
 
 					if(!enemyunitlist.isEmpty())
 					{
 						battle.logme("Verteidiger:\n");
-						msg += "Verteidiger:\n";
+						msg.append("Verteidiger:\n");
 						for(Entry<UnitType, Long> unit : enemyunitlist.entrySet())
 						{
 							UnitType unittype = unit.getKey();
 							battle.logme(unit.getValue()+" "+unittype.getName()+" erschossen\n");
-							msg += unit.getValue()+" "+unittype.getName()+" gefallen\n";
+							msg.append(unit.getValue()).append(" ").append(unittype.getName()).append(" gefallen\n");
 						}
 					}
 
@@ -216,31 +216,31 @@ public class KSKapernAction extends BasicKSAction {
 			else
 			{
 				battle.logme("Angriff abgebrochen.\n");
-				msg += "Angreifer flieht.\n";
+				msg.append("Angreifer flieht.\n");
 				Map<UnitType, Long> ownunitlist = toteeigeneUnits.getUnitMap();
 				Map<UnitType, Long> enemyunitlist = totefeindlicheUnits.getUnitMap();
 
 				if(!ownunitlist.isEmpty())
 				{
 					battle.logme("Angreifer:\n");
-					msg += "Angreifer:\n";
+					msg.append("Angreifer:\n");
 					for(Entry<UnitType, Long> unit : ownunitlist.entrySet())
 					{
 						UnitType unittype = unit.getKey();
 						battle.logme(unit.getValue()+" "+unittype.getName()+" gefallen\n");
-						msg += unit.getValue()+" "+unittype.getName()+" erschossen\n";
+						msg.append(unit.getValue()).append(" ").append(unittype.getName()).append(" erschossen\n");
 					}
 				}
 
 				if(!enemyunitlist.isEmpty())
 				{
 					battle.logme("Verteidiger:\n");
-					msg += "Verteidiger:\n";
+					msg.append("Verteidiger:\n");
 					for(Entry<UnitType, Long> unit : enemyunitlist.entrySet())
 					{
 						UnitType unittype = unit.getKey();
 						battle.logme(unit.getValue()+" "+unittype.getName()+" erschossen\n");
-						msg += unit.getValue()+" "+unittype.getName()+" gefallen\n";
+						msg.append(unit.getValue()).append(" ").append(unittype.getName()).append(" gefallen\n");
 					}
 				}
 
@@ -257,12 +257,12 @@ public class KSKapernAction extends BasicKSAction {
 				attoffizier.gainExperience(Offizier.Ability.COM, 5);
 			}
 			battle.logme("Schiff wird widerstandslos &uuml;bernommen\n");
-			msg += "Das Schiff "+Battle.log_shiplink(enemyShip.getShip())+" wird an die "+Battle.log_shiplink(ownShip.getShip())+" übergeben\n";
+			msg.append("Das Schiff ").append(Battle.log_shiplink(enemyShip.getShip())).append(" wird an die ").append(Battle.log_shiplink(ownShip.getShip())).append(" übergeben\n");
 		}
 
 		ownUnits.addCargo(saveunits);
 
-		battle.log(new SchlachtLogAktion(battle.getOwnSide(), msg));
+		battle.log(new SchlachtLogAktion(battle.getOwnSide(), msg.toString()));
 		ownShip.getShip().setBattleAction(true);
 		ownShip.setUnits(ownUnits);
 

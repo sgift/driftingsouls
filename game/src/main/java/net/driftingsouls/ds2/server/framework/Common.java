@@ -32,6 +32,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.*;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.text.NumberFormat;
 import java.util.*;
@@ -383,7 +384,7 @@ public class Common {
 			char chr = pattern.charAt(i);
 			switch( chr ) {
 			case 'a':
-				if( cal.get(Calendar.HOUR) < 12 ) {
+				if( cal.get(Calendar.HOUR_OF_DAY) < 12 ) {
 					buffer.append("am");
 				}
 				else {
@@ -391,7 +392,7 @@ public class Common {
 				}
 				break;
 			case 'A':
-				if( cal.get(Calendar.HOUR) < 12 ) {
+				if( cal.get(Calendar.HOUR_OF_DAY) < 12 ) {
 					buffer.append("AM");
 				}
 				else {
@@ -399,12 +400,13 @@ public class Common {
 				}
 				break;
 			case 'B':
-				// TODO
+				case 'W':
+				case 'r':
+				case 'L':
+				case 'c':
+					// TODO
 				break;
-			case 'c':
-				// TODO
-				break;
-			case 'd': {
+				case 'd': {
 					int dayOfMonth = cal.get(Calendar.DAY_OF_MONTH);
 					if( dayOfMonth < 10 ) {
 						buffer.append('0');
@@ -413,7 +415,8 @@ public class Common {
 				}
 				break;
 			case 'D':
-				buffer.append(months[cal.get(Calendar.MONTH)].substring(0,3));
+				case 'M':
+					buffer.append(months[cal.get(Calendar.MONTH)], 0, 3);
 				break;
 			case 'F':
 				buffer.append(months[cal.get(Calendar.MONTH)]);
@@ -471,10 +474,7 @@ public class Common {
 			case 'l':
 				buffer.append(days[cal.get(Calendar.DAY_OF_MONTH)]);
 				break;
-			case 'L':
-				// TODO
-				break;
-			case 'm': {
+				case 'm': {
 					int month = cal.get(Calendar.MONTH)+1;
 					if( month < 10 ) {
 						buffer.append('0');
@@ -482,19 +482,13 @@ public class Common {
 					buffer.append(month);
 				}
 				break;
-			case 'M':
-				buffer.append(months[cal.get(Calendar.MONTH)].substring(0,3));
-				break;
-			case 'n':
+				case 'n':
 				buffer.append(cal.get(Calendar.MONTH)+1);
 				break;
 			case 'O':
 				buffer.append(cal.getTimeZone().getRawOffset());
 				break;
-			case 'r':
-				// TODO
-				break;
-			case 's':
+				case 's':
 				int sec = cal.get(Calendar.SECOND);
 				if( sec < 10 ) {
 					buffer.append('0');
@@ -530,10 +524,7 @@ public class Common {
 			case 'w':
 				buffer.append(cal.get(Calendar.DAY_OF_WEEK));
 				break;
-			case 'W':
-				// TODO
-				break;
-			case 'Y': {
+				case 'Y': {
 					int year = cal.get(Calendar.YEAR);
 					if( year < 1000 )
 					{
@@ -838,7 +829,7 @@ public class Common {
 		try {
 			MessageDigest digest = MessageDigest.getInstance("MD5");
 			digest.reset();
-			digest.update(text.getBytes("UTF-8"));
+			digest.update(text.getBytes(StandardCharsets.UTF_8));
 			byte[] md5 = digest.digest();
 			StringBuilder hexString = new StringBuilder();
 			for (byte aMd5 : md5)

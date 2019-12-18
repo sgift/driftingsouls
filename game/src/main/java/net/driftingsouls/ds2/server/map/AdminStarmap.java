@@ -108,11 +108,6 @@ public class AdminStarmap extends PublicStarmap
 				imageName += "_fo";
 			}
 
-			if(alliedShips > 0)
-			{
-				imageName += "_fa";
-			}
-
 			if(enemyShips > 0)
 			{
 				imageName += "_fe";

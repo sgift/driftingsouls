@@ -18,7 +18,6 @@
  */
 package net.driftingsouls.ds2.server.ships;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.GenericGenerator;
@@ -51,6 +50,7 @@ public class ShipHistory
 	@Lob
 	private String history;
 	
+	@SuppressWarnings("unused")
 	protected ShipHistory()
 	{
 		// EMPTY
@@ -60,7 +60,7 @@ public class ShipHistory
 	 * Konstruktor.
 	 * @param ship Das Schiff, zu dem die Historienangaben gehoeren.
 	 */
-	public ShipHistory(Ship ship)
+	ShipHistory(Ship ship)
 	{
 		this.history = "";
 		this.ship = ship;
@@ -91,46 +91,5 @@ public class ShipHistory
 	public void addHistory(String history)
 	{
 		this.history += history+"\n";
-	}
-	
-	/**
-	 * Gibt den Tick zurueck, an dem die letzte Uebergabe des Schiffes an einen anderen Spieler stattgefunden hat.
-	 * Falls noch keine Uebergabe durchgefuehrt wurde wird <code>-1</code> zurueckgegeben.
-	 * @return Der Tick oder <code>-1</code>
-	 */
-	public int getLastUebergabeTick()
-	{
-		String[] history = StringUtils.split(this.history.trim(), '\n');
-		if( history.length > 0 ) {
-			String lastHistory = history[history.length-1].trim();
-
-			final int length = "&Uuml;bergeben am [tick=".length();
-
-			if( lastHistory.startsWith("&Uuml;bergeben am [tick=") )
-			{
-				int endIndex = lastHistory.indexOf("] an ",length);
-				if( endIndex > -1 ) {				
-					try
-					{
-
-						return Integer.parseInt(
-								lastHistory.substring(
-										length,
-										endIndex
-								)
-						);
-					}
-					catch( StringIndexOutOfBoundsException e )
-					{
-						log.warn("[Ships.generateLoot] Fehler beim Parsen des Schiffshistoryeintrags '"+lastHistory+"' - "+length+", "+endIndex);
-					}
-				}
-				else
-				{
-					log.warn("[Ships.generateLoot] Fehler beim Parsen des Schiffshistoryeintrags '"+lastHistory+"'");
-				}
-			}
-		}
-		return -1;
 	}
 }

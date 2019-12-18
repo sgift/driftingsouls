@@ -10,7 +10,7 @@
 		<property name="hibernate.jdbc.batch_versioned_data">true</property>
 
 		<!-- configure transaction manager -->
-		<property name="transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</property>
+		<property name="transaction.factory_class">org.hibernate.engine.transaction.internal.jdbc.JdbcTransactionFactory</property>
 		<property name="current_session_context_class">managed</property>
 
 		<!-- C3P0 connection pool -->

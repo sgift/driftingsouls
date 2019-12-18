@@ -35,12 +35,12 @@ public class MarkovTrainer
 {
 	private float[][][] table;
 	private boolean probabilitiesCalculated = false;
-	private int a = 0, b = 0, c = 0;
-	private float total = 0;
+	private int b = 0;
+	private int c = 0;
 	private Map<Integer, Integer> charMap = new HashMap<>();
 	private List<String> words = new ArrayList<>();
 
-	public MarkovTrainer()
+	MarkovTrainer()
 	{
 		charMap.put(0, 0);
 	}
@@ -72,12 +72,11 @@ public class MarkovTrainer
 
 	private void nextChar(int newC)
 	{
-		a = b;
+		int a = b;
 		b = c;
 		c = charMap.get(newC);
 
 		table[a][b][c] += 1;
-		total += 1;
 	}
 
 	private void calculateProbabilities()
@@ -124,23 +123,13 @@ public class MarkovTrainer
 		}
 	}
 
-	private char c(int x) {
-		for (Map.Entry<Integer, Integer> entry : charMap.entrySet())
-		{
-			if( entry.getValue() == x ) {
-				return (char)(int)entry.getKey();
-			}
-		}
-		return '¹';
-	}
-
 	/**
 	 * Erzeugt das aus dem Lernprozess resultierende Markov-Objekt,
 	 * dass wiederum zur Generierung von Namen verwendet werden kann.
 	 *
 	 * @return das Objekt
 	 */
-	public Markov toMarkov()
+	Markov toMarkov()
 	{
 		this.calculateProbabilities();
 

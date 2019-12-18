@@ -82,7 +82,7 @@ public class DigBuilding extends DefaultBuilding {
 
 		for (Entry<ItemID, Double> entry : productions.entrySet())
 		{
-			production.addResource(entry.getKey(), 1l);
+			production.addResource(entry.getKey(), 1L);
 		}
 
 		return production;
@@ -105,7 +105,7 @@ public class DigBuilding extends DefaultBuilding {
 			double rnd = Math.random();
 			if (rnd <= entry.getValue() / 100)
 			{
-				production.addResource(entry.getKey(), 1l);
+				production.addResource(entry.getKey(), 1L);
 			}
 		}
 

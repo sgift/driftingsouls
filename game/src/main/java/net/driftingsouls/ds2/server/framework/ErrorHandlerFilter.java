@@ -3,7 +3,6 @@ package net.driftingsouls.ds2.server.framework;
 import com.google.gson.Gson;
 import net.driftingsouls.ds2.server.framework.authentication.TickInProgressException;
 import net.driftingsouls.ds2.server.user.authentication.AccountInVacationModeException;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.StaleStateException;
@@ -28,8 +27,7 @@ public class ErrorHandlerFilter implements Filter
 	private static Log log = LogFactory.getLog(ErrorHandlerFilter.class);
 
 	@Override
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException
-	{
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException {
 		try
 		{
 			chain.doFilter(request, response);
@@ -40,11 +38,11 @@ public class ErrorHandlerFilter implements Filter
 			ErrorReporter reporter;
 			if( json )
 			{
-				reporter = new JsonErrorReporter(request, response);
+				reporter = new JsonErrorReporter(response);
 			}
 			else
 			{
-				reporter = new HtmlErrorReporter(request, response);
+				reporter = new HtmlErrorReporter(response);
 			}
 			Throwable ex = e;
 			do
@@ -122,8 +120,7 @@ public class ErrorHandlerFilter implements Filter
 	}
 
 	@Override
-	public void init(FilterConfig arg0) throws ServletException
-	{}
+	public void init(FilterConfig arg0) {}
 
 	@Override
 	public void destroy()
@@ -141,12 +138,10 @@ public class ErrorHandlerFilter implements Filter
 	
 	private class HtmlErrorReporter implements ErrorReporter
 	{
-		private ServletRequest request;
 		private ServletResponse response;
 		
-		HtmlErrorReporter(ServletRequest request, ServletResponse response)
+		HtmlErrorReporter(ServletResponse response)
 		{
-			this.request = request;
 			this.response = response;
 		}
 
@@ -171,7 +166,7 @@ public class ErrorHandlerFilter implements Filter
 		@Override
 		public void reportNotLoggedIn(NotLoggedInException e) throws IOException
 		{
-			redirectToPortal(response, "Du musst eingeloggt sein, um diese Seite zu sehen.");
+			redirectToPortal(response);
 		}
 
 		@Override
@@ -193,25 +188,23 @@ public class ErrorHandlerFilter implements Filter
 			printBoxedErrorMessage(response, "Ein genereller Fehler ist aufgetreten. Die Entwickler arbeiten daran ihn zu beheben.");
 		}
 		
-		private void redirectToPortal(ServletResponse response, String message) throws IOException
+		private void redirectToPortal(ServletResponse response) throws IOException
 		{
 			Writer sb = response.getWriter();
 			sb.append("<script type=\"text/javascript\">\n");
 			sb.append("var url=parent.location.href;\n");
 			sb.append("parent.location.href=url.substring(0,url.indexOf('?'));");
 			sb.append("</script>");
-			sb.append("<div id=\"error-box\" align=\"center\">\n");
-			sb.append("<div class='gfxbox' style='width:470px'>");
-			sb.append("<ul>");
-			sb.append("<li><span style=\"font-size:14px; color:red\">").append(message).append("</span></li>\n");
-			sb.append("</ul>");
-			sb.append("</div>");
-			sb.append("</div>\n");
+			printBoxedErrorMessage("Du musst eingeloggt sein, um diese Seite zu sehen.", sb);
 		}
 
 		private void printBoxedErrorMessage(ServletResponse response, String message) throws IOException
 		{
 			Writer sb = response.getWriter();
+			printBoxedErrorMessage(message, sb);
+		}
+
+		private void printBoxedErrorMessage(String message, Writer sb) throws IOException {
 			sb.append("<div id=\"error-box\" align=\"center\">\n");
 			sb.append("<div class='gfxbox' style='width:470px'>");
 			sb.append("<ul>");
@@ -226,7 +219,7 @@ public class ErrorHandlerFilter implements Filter
 	{
 		private ServletResponse response;
 		
-		JsonErrorReporter(ServletRequest request, ServletResponse response)
+		JsonErrorReporter(ServletResponse response)
 		{
 			this.response = response;
 		}

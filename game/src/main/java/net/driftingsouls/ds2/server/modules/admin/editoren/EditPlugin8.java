@@ -24,11 +24,7 @@ import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.SingularAttribute;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -393,7 +389,7 @@ public class EditPlugin8<T> implements AdminPlugin
 			echo.append(updateTask.name);
 			if( jobData.size() > 1 )
 			{
-				echo.append(": ").append(Integer.toString(jobData.size())).append(" Objekte aktualisiert");
+				echo.append(": ").append(jobData.size()).append(" Objekte aktualisiert");
 			}
 			echo.append("<br />");
 		}
@@ -440,7 +436,7 @@ public class EditPlugin8<T> implements AdminPlugin
 		Context context = ContextMap.getContext();
 		String currentIdStr = context.getRequest().getParameter("entityId");
 		String idStr = id != null ? id.toString() : null;
-		boolean selektiert = idStr != null ? idStr.equals(currentIdStr) : null == currentIdStr;
+		boolean selektiert = Objects.equals(idStr, currentIdStr);
 
 		echo.append("<option value=\"").append(idStr).append("\" ").append(selektiert ? "selected=\"selected\"" : "").append(">").append(label).append("</option>");
 	}
@@ -532,7 +528,7 @@ public class EditPlugin8<T> implements AdminPlugin
 		CriteriaQuery<Long> countQuery = builder.createQuery(Long.class);
 		Root<T> countRoot = countQuery.from(baseClass);
 		countQuery.select(builder.count(countRoot));
-		countQuery = addRestrictionsToTableQuery(form, builder, countQuery, countRoot);
+		addRestrictionsToTableQuery(form, builder, countQuery, countRoot);
 		Number rowCount = getEM().createQuery(countQuery).getSingleResult();
 
 		JqGridTableDataViewModel model = new JqGridTableDataViewModel();
@@ -559,7 +555,7 @@ public class EditPlugin8<T> implements AdminPlugin
 			}
 		}
 
-		entityQuery = addRestrictionsToTableQuery(form, builder, entityQuery, entityRoot);
+		addRestrictionsToTableQuery(form, builder, entityQuery, entityRoot);
 
 		List<T> entities = getEM().createQuery(entityQuery)
 				.setFirstResult((page-1)*rows)
@@ -610,7 +606,7 @@ public class EditPlugin8<T> implements AdminPlugin
 				LOG.warn("Konnte Suchkriterium nicht erzeugen", e);
 			}
 		}
-		entityQuery.where(predicates.toArray(new Predicate[predicates.size()]));
+		entityQuery.where(predicates.toArray(new Predicate[0]));
 		return entityQuery;
 	}
 

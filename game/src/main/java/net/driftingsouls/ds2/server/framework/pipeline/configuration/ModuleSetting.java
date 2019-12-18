@@ -21,7 +21,7 @@ package net.driftingsouls.ds2.server.framework.pipeline.configuration;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 
 class ModuleSetting implements Cloneable {
-	Class<? extends Controller> generator = null;
+	Class<? extends Controller> generator;
 
 	ModuleSetting(Class<?> generator) {
 		this.generator = generator.asSubclass(Controller.class);

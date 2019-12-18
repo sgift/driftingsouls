@@ -39,10 +39,7 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Die Basenliste.
@@ -53,12 +50,12 @@ public class BasenController extends Controller
 {
 	private static final Map<String,List<String>> ordmapper = new HashMap<>();
 	static {
-		ordmapper.put("id", Arrays.asList("id"));
-		ordmapper.put("name", Arrays.asList("name"));
-		ordmapper.put("type", Arrays.asList("type"));
+		ordmapper.put("id", Collections.singletonList("id"));
+		ordmapper.put("name", Collections.singletonList("name"));
+		ordmapper.put("type", Collections.singletonList("type"));
 		ordmapper.put("sys", Arrays.asList("system","x","y"));
-		ordmapper.put("bew", Arrays.asList("bewohner"));
-		ordmapper.put("e", Arrays.asList("energy"));
+		ordmapper.put("bew", Collections.singletonList("bewohner"));
+		ordmapper.put("e", Collections.singletonList("energy"));
 	}
 
 	private TemplateViewResultFactory templateViewResultFactory;
@@ -125,7 +122,7 @@ public class BasenController extends Controller
 		}
 		else
 		{
-			ow = Arrays.asList("id");
+			ow = Collections.singletonList("id");
 		}
 
 		t.setBlock("_BASEN", "bases.listitem", "bases.list");

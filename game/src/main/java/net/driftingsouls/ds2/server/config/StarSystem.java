@@ -149,15 +149,11 @@ public class StarSystem {
 			this.orderloc = "";
 		}
 		else {
-			for(int i=0; i < orderlocs.size(); i++) {
-				if( i != 0 ) {
-					this.orderloc = this.orderloc + "|" + orderlocs.get(i).getX() + "/" + orderlocs.get(i).getY();
-				}
-				else
-				{
-					this.orderloc = orderlocs.get(i).getX() + "/" + orderlocs.get(i).getY();
-				}
+			StringBuilder orderLoc = new StringBuilder(orderlocs.get(0).getX() + "/" + orderlocs.get(0).getY());
+			for(int i=1; i < orderlocs.size(); i++) {
+				orderLoc.append("|").append(orderlocs.get(i).getX()).append("/").append(orderlocs.get(i).getY());
 			}
+			this.orderloc = orderLoc.toString();
 		}
 	}
 
@@ -195,7 +191,7 @@ public class StarSystem {
 	 */
 	public Location[] getOrderLocations() {
 		StringtoLocations();
-		return orderlocs.toArray(new Location[orderlocs.size()]);
+		return orderlocs.toArray(new Location[0]);
 	}
 
 	/**

@@ -843,7 +843,7 @@ public class Cargo implements Cloneable {
 
 				ResourceEntry entry = new ResourceEntry(aitem, name, plainname, image, fcargo1, fcargo2, cargo1, cargo2, diff);
 				if( large ) {
-					entry.setLargeImages(large);
+					entry.setLargeImages(true);
 				}
 
 				reslist.addEntry(entry);
@@ -1307,11 +1307,10 @@ public class Cargo implements Cloneable {
 			}
 
 			// Menge vergleichen
-			return o1[1] > o2[1] ? 1 : (o1[1] < o2[1] ? -1 : 0);
+			return o1[1].compareTo(o2[1]);
 		};
 
-		List<Long[]> items = new ArrayList<>();
-		items.addAll(this.items);
+		List<Long[]> items = new ArrayList<>(this.items);
 		items.sort(comp);
 
 		for (Long[] item : items)

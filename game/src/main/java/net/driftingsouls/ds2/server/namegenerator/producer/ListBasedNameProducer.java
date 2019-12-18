@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -22,7 +23,7 @@ public class ListBasedNameProducer implements NameProducer
 
 	public ListBasedNameProducer(URL filename, boolean capitalize) {
 		this.captialize = capitalize;
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(filename.openStream(), "UTF-8")))
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(filename.openStream(), StandardCharsets.UTF_8)))
 		{
 			String firstName;
 			while ((firstName = reader.readLine()) != null)

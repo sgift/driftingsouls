@@ -125,7 +125,7 @@ public class ModuleSlot {
 	 * @return <code>true</code>, falls einer der aufgelisteten Slots kompatibel ist
 	 */
 	public boolean isMemberIn( Collection<String> slottype ) {
-		return isMemberIn(slottype.toArray(new String[slottype.size()]), "or");
+		return isMemberIn(slottype.toArray(new String[0]), "or");
 	}
 	
 	/**

@@ -71,13 +71,13 @@ public class KaserneTick extends TickController {
 
 				boolean build = false;
 
-				String msg = "";
+				StringBuilder msg = new StringBuilder();
 
 				if(kaserne.isBuilding())
 				{
 					log("\tAusbildung laeuft");
 
-					msg = "Die Ausbildung von\n";
+					msg = new StringBuilder("Die Ausbildung von\n");
 
 					for(KaserneEntry entry : kaserne.getQueueEntries())
 					{
@@ -85,12 +85,12 @@ public class KaserneTick extends TickController {
 						if(entry.getRemaining() <= 0)
 						{
 							UnitType unittype = entry.getUnit();
-							msg = msg+entry.getCount()+" "+unittype.getName()+"\n";
+							msg.append(entry.getCount()).append(" ").append(unittype.getName()).append("\n");
 							entry.finishBuildProcess(base);
 							build = true;
 						}
 					}
-					msg = msg + "auf der Basis [base="+base.getId()+"]"+base.getName()+"[/base] ist abgeschlossen.";
+					msg.append("auf der Basis [base=").append(base.getId()).append("]").append(base.getName()).append("[/base] ist abgeschlossen.");
 
 				}
 
@@ -98,7 +98,7 @@ public class KaserneTick extends TickController {
 				{
 					// Nachricht versenden
                     if(base.getOwner().getUserValue(WellKnownUserValue.GAMEPLAY_USER_UNIT_BUILD_PM)) {
-                        PM.send(sourceUser, base.getOwner().getId(), "Ausbildung abgeschlossen", msg);
+                        PM.send(sourceUser, base.getOwner().getId(), "Ausbildung abgeschlossen", msg.toString());
                     }
 				}
 			}

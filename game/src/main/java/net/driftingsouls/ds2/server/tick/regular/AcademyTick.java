@@ -96,7 +96,7 @@ public class AcademyTick extends TickController {
 
 					List<AcademyQueueEntry> entries = acc.getScheduledQueueEntries();
 
-					String msg = "Die Ausbildung von\n";
+					StringBuilder msg = new StringBuilder("Die Ausbildung von\n");
 
 					boolean build = false;
 
@@ -110,14 +110,14 @@ public class AcademyTick extends TickController {
 
 							if( entry.getTraining() < 0 )
 							{
-								msg = msg+"einem Neuen Offizier ("+offis.get(-entry.getTraining())+")\n";
+								msg.append("einem Neuen Offizier (").append(offis.get(-entry.getTraining())).append(")\n");
 							}
 							else
 							{
 								Offizier offi = Offizier.getOffizierByID(entry.getTraining());
 								if( offi != null )
 								{
-									msg = msg+offi.getName()+" ("+dTrain.get(entry.getTrainingType())+")\n";
+									msg.append(offi.getName()).append(" (").append(dTrain.get(entry.getTrainingType())).append(")\n");
 								}
 							}
 							entry.finishBuildProcess();
@@ -125,7 +125,7 @@ public class AcademyTick extends TickController {
 							log("\tOffizier Aus-/Weitergebildet");
 						}
 					}
-					msg = msg+" auf dem Asteroiden [base="+base.getId()+"]"+base.getName()+"[/base] wurde abgeschlossen.";
+					msg.append(" auf dem Asteroiden [base=").append(base.getId()).append("]").append(base.getName()).append("[/base] wurde abgeschlossen.");
 
 					if( build )
 					{
@@ -134,7 +134,7 @@ public class AcademyTick extends TickController {
 						final User sourceUser = (User)db.get(User.class, -1);
                         User accUser = base.getOwner();
                         if(accUser.getUserValue(WellKnownUserValue.GAMEPLAY_USER_OFFICER_BUILD_PM)) {
-                            PM.send(sourceUser, base.getOwner().getId(), "Ausbildung abgeschlossen", msg);
+                            PM.send(sourceUser, base.getOwner().getId(), "Ausbildung abgeschlossen", msg.toString());
                         }
 					}
 

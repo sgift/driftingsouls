@@ -115,7 +115,7 @@ public class AddGtu implements AdminPlugin {
 
 			echo.append("Schiff eingef&uuml;gt<br />");
 		}
-		else if( resource.length() > 0 ) {
+		else {
 			int tick = context.get(ContextCommon.class).getTick();
 
 			Cargo cargo = new Cargo();

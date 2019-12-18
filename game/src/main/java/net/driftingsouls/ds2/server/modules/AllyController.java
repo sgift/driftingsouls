@@ -47,7 +47,6 @@ import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -1326,12 +1325,11 @@ public class AllyController extends Controller
 				"show.einstellungen.channels.list", "");
 
 		// Zuerst alle vorhandenen Channels dieser Allianz auslesen (max 2)
-		List<ComNetChannel> channels = new ArrayList<>();
 		List<?> channelList = db.createQuery("from ComNetChannel where allyOwner=:ally")
 				.setEntity("ally", this.ally)
 				.setMaxResults(2)
 				.list();
-		channels.addAll(channelList.stream().map(aChannelList -> (ComNetChannel) aChannelList).collect(Collectors.toList()));
+		List<ComNetChannel> channels = channelList.stream().map(aChannelList -> (ComNetChannel) aChannelList).collect(Collectors.toList());
 		channels.add(null);
 
 		t.setBlock("_ALLY", "show.einstellungen.channels.listitem", "show.einstellungen.channels.list");

@@ -24,23 +24,18 @@ import java.util.TreeMap;
 public class AdminFieldView implements FieldView
 {
 	private final Field field;
-	private final User user;
 	private final Session db;
-	private final Location location;
 
 	/**
 	 * Legt eine neue Sicht an.
 	 *
 	 * @param db Ein aktives Hibernate Sessionobjekt.
-	 * @param user Der Spieler fuer den die Sicht gelten soll.
 	 * @param position Der gesuchte Sektor.
 	 */
-	public AdminFieldView(Session db, User user, Location position)
+	public AdminFieldView(Session db, Location position)
 	{
 		this.field = new Field(db, position);
-		this.user = user;
 		this.db = db;
-		this.location = position;
 	}
 
 	@Override

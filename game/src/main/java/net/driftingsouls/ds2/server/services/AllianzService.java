@@ -74,14 +74,12 @@ public class AllianzService
 				.executeUpdate();
 
 		// Delete Ally from running Battles
-		Set<Battle> battles = new LinkedHashSet<>();
 
 		Query battleQuery = db.createQuery("from Battle " +
 				"where ally1 = :ally or ally2 = :ally")
 				.setParameter("ally", allianz.getId());
 
-		battles.addAll(Common.cast(battleQuery.list(), Battle.class));
-
+		Set<Battle> battles = new LinkedHashSet<>(Common.cast(battleQuery.list(), Battle.class));
 		for (Battle battle : battles)
 		{
 			if (battle.getAlly(0) == allianz.getId())

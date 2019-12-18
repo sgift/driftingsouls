@@ -30,7 +30,7 @@ import java.util.Comparator;
 import java.util.Map;
 
 abstract class AbstractStatistic implements Statistic {
-	private Context context = null;
+	private Context context;
 
 	protected AbstractStatistic() {
 		context = ContextMap.getContext();

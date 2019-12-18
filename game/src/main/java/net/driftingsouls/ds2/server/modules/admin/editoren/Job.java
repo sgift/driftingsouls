@@ -1,7 +1,7 @@
 package net.driftingsouls.ds2.server.modules.admin.editoren;
 
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -26,11 +26,11 @@ public class Job<E,T>
 
 	public static <E> Job<E, Boolean> forRunnable(String name, BiConsumer<E, E> job)
 	{
-		return new Job<>(name, (entity) -> Arrays.asList(Boolean.TRUE), (o, e, b) -> job.accept(o, e));
+		return new Job<>(name, (entity) -> Collections.singletonList(Boolean.TRUE), (o, e, b) -> job.accept(o, e));
 	}
 
 	public static <E> Job<E, Boolean> forRunnable(String name, Consumer<E> job)
 	{
-		return new Job<>(name, (entity) -> Arrays.asList(Boolean.TRUE), (o, e, b) -> job.accept(e));
+		return new Job<>(name, (entity) -> Collections.singletonList(Boolean.TRUE), (o, e, b) -> job.accept(e));
 	}
 }
