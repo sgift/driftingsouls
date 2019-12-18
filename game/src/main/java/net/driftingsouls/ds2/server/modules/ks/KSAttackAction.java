@@ -383,7 +383,7 @@ public class KSAttackAction extends BasicKSAction {
 			if (s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == eShip.getId())
 			{
         //Rettungskapseln sollen nicht zerstört werden, wenn sie gedockt wurden
-        if ( s.getShipClass() !=  ShipClasses.RETTUNGSKAPSEL)
+        if ( s.getShip().getTypeData().getShipClass() ==  ShipClasses.RETTUNGSKAPSEL)
         {
           //muss ja niemand erfahren, dass Rettungskapseln fliehen konnten. Also verschweigen wir das. Das Opfer freut sich bestimmt darueber, dass es nicht geloggt wird.
           //Rettungskapseln fliehen instant, wenn das Traegerschiff zerstoert wurde
