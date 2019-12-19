@@ -392,19 +392,13 @@ public class KSAttackAction extends BasicKSAction {
           	//Rettungskapseln fliehen instant, wenn das Traegerschiff zerstoert wurde
           	s.addFlag(BattleShipFlag.FLUCHT);
           	// nun noch den Offi des Schiffs retten, falls Platz ist
-		long tarOffiCount = ((Number) db.createQuery("select count(*) from Offizier where stationiertAufSchiff=:dest AND owner=:owner")
-				.setEntity("dest", tarShip)
-				.setEntity("owner", tarShip.getOwner())
-				.iterate().next()
-		).longValue();
-		if (tarOffiCount <=1)
-		{
+		
 			offizier.stationierenAuf(s.getShip());
 			offizier.setOwner(s.getShip());
 
 			s.getShip().recalculateShipStatus();
 			s.getShip().getBaseShip().recalculateShipStatus();
-		}
+		
           }
         else
         {
