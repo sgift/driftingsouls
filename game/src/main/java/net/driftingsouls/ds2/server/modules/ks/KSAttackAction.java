@@ -385,13 +385,21 @@ public class KSAttackAction extends BasicKSAction {
         //Rettungskapseln sollen nicht zerstört werden, wenn sie gedockt wurden
         if ( s.getShip().getTypeData().getShipClass() ==  ShipClasses.RETTUNGSKAPSEL)
         {
-          //muss ja niemand erfahren, dass Rettungskapseln fliehen konnten. Also verschweigen wir das. Das Opfer freut sich bestimmt darueber, dass es nicht geloggt wird.
-          //Rettungskapseln fliehen instant, wenn das Traegerschiff zerstoert wurde
-          s.addFlag(BattleShipFlag.FLUCHT);
-          // nun noch den Offi des Schiffs retten
-          s.getShip().onOffiziertStationiert(s.getShip().getBaseShip().getOffizier());
-          s.getShip().getBaseShip().onOffizierEntfernt(s.getShip().getBaseShip().getOffizier());
-        }
+		Offizier offizier;
+		offizier = ship.getOffizier();
+		
+          	//muss ja niemand erfahren, dass Rettungskapseln fliehen konnten. Also verschweigen wir das. Das Opfer freut sich bestimmt darueber, dass es nicht geloggt wird.
+          	//Rettungskapseln fliehen instant, wenn das Traegerschiff zerstoert wurde
+          	s.addFlag(BattleShipFlag.FLUCHT);
+          	// nun noch den Offi des Schiffs retten, falls Platz ist
+		
+			offizier.stationierenAuf(s.getShip());
+			offizier.setOwner(s.getShip());
+
+			s.getShip().recalculateShipStatus();
+			s.getShip().getBaseShip().recalculateShipStatus();
+		
+          }
         else
         {
           remove++;
