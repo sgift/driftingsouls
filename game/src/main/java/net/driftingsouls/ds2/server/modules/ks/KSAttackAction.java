@@ -386,7 +386,7 @@ public class KSAttackAction extends BasicKSAction {
         if ( s.getShip().getTypeData().getShipClass() ==  ShipClasses.RETTUNGSKAPSEL)
         {
 		Offizier offizier;
-		offizier = ship.getOffizier();
+		offizier = s.getShip().getOffizier();
 		
           	//muss ja niemand erfahren, dass Rettungskapseln fliehen konnten. Also verschweigen wir das. Das Opfer freut sich bestimmt darueber, dass es nicht geloggt wird.
           	//Rettungskapseln fliehen instant, wenn das Traegerschiff zerstoert wurde
@@ -394,7 +394,7 @@ public class KSAttackAction extends BasicKSAction {
           	// nun noch den Offi des Schiffs retten, falls Platz ist
 		
 			offizier.stationierenAuf(s.getShip());
-			offizier.setOwner(s.getShip());
+			offizier.setOwner(s.getShip().getOwner());
 
 			s.getShip().recalculateShipStatus();
 			s.getShip().getBaseShip().recalculateShipStatus();
