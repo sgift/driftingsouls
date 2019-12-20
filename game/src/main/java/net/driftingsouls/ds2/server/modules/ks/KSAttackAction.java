@@ -391,6 +391,7 @@ public class KSAttackAction extends BasicKSAction {
           	//muss ja niemand erfahren, dass Rettungskapseln fliehen konnten. Also verschweigen wir das. Das Opfer freut sich bestimmt darueber, dass es nicht geloggt wird.
           	//Rettungskapseln fliehen instant, wenn das Traegerschiff zerstoert wurde
           	s.addFlag(BattleShipFlag.FLUCHT);
+		s.addFlag(BattleShipFlag.SECONDROW);
           	// nun noch den Offi des Schiffs retten, falls Platz ist
 		
 			offizier.stationierenAuf(s.getShip());
