@@ -382,23 +382,38 @@ public class KSAttackAction extends BasicKSAction {
 		{
 			if (s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == eShip.getId())
 			{
-        //Rettungskapseln sollen nicht zerstört werden, wenn sie gedockt wurden
+        //Rettungskapseln sollen nicht zerstört werden, wenn sie gedockt/gelandet wurden
         if ( s.getShip().getTypeData().getShipClass() ==  ShipClasses.RETTUNGSKAPSEL)
         {
-		Offizier offizier;
-		offizier = s.getShip().getOffizier();
-		
-          	//muss ja niemand erfahren, dass Rettungskapseln fliehen konnten. Also verschweigen wir das. Das Opfer freut sich bestimmt darueber, dass es nicht geloggt wird.
-          	//Rettungskapseln fliehen instant, wenn das Traegerschiff zerstoert wurde
-          	s.addFlag(BattleShipFlag.FLUCHT);
-		s.addFlag(BattleShipFlag.SECONDROW);
-          	// nun noch den Offi des Schiffs retten, falls Platz ist
-		
-			offizier.stationierenAuf(s.getShip());
-			offizier.setOwner(s.getShip().getOwner());
+          //Den Offizier des Traegerschiffs identifizieren
+          Offizier offizier;
+          offizier = s.getShip().getBaseShip().getOffizier();
+          
+          //testen, ob es ueberhaupt einen Offizier zu retten gibt
+          if (offizier != null)
+          {
+            // er betritt nun die Rettungskapsel
+            offizier.stationierenAuf(s.getShip());
+            offizier.setOwner(s.getShip().getOwner());
+          }
+          //jetzt Rettungskapsel starten/abdocken
+          if(s.getShip().isLanded())
+          {
+            s.getShip().getBaseShip().start(s.getShip());
+          }
+          else
+          {
+            s.getShip().getBaseShip().undock(s.getShip());
+          }
+          //die Kapsel hat das Traegerschiff verlassen
+          //nun darf die Rettungskapsel fliehen und in die 2. Reihe
+          s.addFlag(BattleShipFlag.FLUCHT);
+          s.addFlag(BattleShipFlag.SECONDROW);
 
-			s.getShip().recalculateShipStatus();
-			s.getShip().getBaseShip().recalculateShipStatus();
+               
+          //und jetzt raeumen wir noch auf
+          s.getShip().recalculateShipStatus();
+          s.getShip().getBaseShip().recalculateShipStatus();
 		
           }
         else
