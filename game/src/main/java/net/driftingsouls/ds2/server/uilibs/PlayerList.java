@@ -73,7 +73,7 @@ public class PlayerList {
 			echo.append("<tr>\n");
 			echo.append("<td class=\"noBorderX\" align=\"center\"><a class=\"forschinfo\" href=\"").append(url).append("&ord=id\">ID</a></td>\n");
 			echo.append("<td class=\"noBorderX\" align=\"center\"></td>\n");
-			echo.append("<td class=\"noBorderX\" align=\"center\"><a class=\"forschinfo\" href=\"").append(url).append("&ord=id\">Name</a></td>\n");
+			echo.append("<td class=\"noBorderX\" align=\"center\"><a class=\"forschinfo\" href=\"").append(url).append("&ord=name\">Name</a></td>\n");
 			echo.append("<td class=\"noBorderX\" align=\"center\"><a class=\"forschinfo\" href=\"").append(url).append("&ord=race\">Rasse</a></td>\n");
 			echo.append("<td class=\"noBorderX\" align=\"center\"><a class=\"forschinfo\" href=\"").append(url).append("&ord=signup\">Dabei seit</a></td>\n");
 			echo.append("<td class=\"noBorderX\" align=\"center\"><a class=\"forschinfo\" href=\"").append(url).append("&ord=ally\">Allianz</b></a></td>");
