@@ -8,7 +8,7 @@
 				<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
 				Letzter Tick: {global.ticktime}<br />
 				Zeitpunkt: {time.current} ({global.ticks})<br />
-				<img src="{res.re.image}" alt="Kontostand:" /> {user.konto} RE 
+				<a title="Zum Konto" class="error" href="./ds?module=ersteigern&action=default&faction=-8"><img src="{res.re.image}" alt="Kontostand:" /></a>{user.konto} RE
 				{if user.balance.plain > 0}
 					<span style="color:green">+{user.balance}</span>
 				{/endif}
@@ -16,7 +16,7 @@
 					<span style="color:red">{user.balance}</span>
 				{/endif}
 				<br />
-				Nahrungsbilanz: 
+				Nahrungsbilanz:
 				{if user.nahrung.new.plain < 0}
 					&nbsp;<span style="color:red">{user.nahrung.new}</span>
 				{else}
@@ -43,7 +43,7 @@
 			</td>
 		</tr>
 		</table>
-		
+
 		<table class="noBorder" style="height:300px">
 		<tr>
 			<td class="noBorderS">
@@ -87,7 +87,7 @@
 				{/endif}
 
 				{if user.wait4vac}Achtung! Sie haben den Vacation-Modus aktiviert. Dieser wird in {user.wait4vac} Ticks die Kontrolle &uuml;bernehmen. {!link_to abbrechen, stopWait4Vac, css_class:error}<br /><br />{/endif}
-				{if global.survey}{!link_to Es gibt eine neue Umfrage an der Sie teilnehmen können, default, module:survey, css_style:color:orange;font-weight:bold}<br /><br />{/endif} 
+				{if global.survey}{!link_to Es gibt eine neue Umfrage an der Sie teilnehmen können, default, module:survey, css_style:color:orange;font-weight:bold}<br /><br />{/endif}
 			</td>
 		</tr>
 		</table>
@@ -140,54 +140,54 @@
 				{else}
 					<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_mangel_none.gif" alt="" />
 				{/endif}
-			</a> 
+			</a>
 			{schiffe.mangel}
-			 - 
+			 -
 			<a title="Schiffe ohne volle Crew" class="error" href="./ds?module=schiffe&amp;crewless=1">
 				{if schiffe.nocrew}
 					<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_nocrew.gif" alt="" />
 				{else}
 					<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_nocrew_none.gif" alt="" />
 				{/endif}
-			</a> 
+			</a>
 			{schiffe.nocrew}
-			 - 
+			 -
 			<a title="Asteroiden mit Vorr&auml;ten welche f&uuml;r weniger als 10 Runden reichen" class="error" href="./ds?module=basen">
 				{if astis.mangel}
 					<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_mangel_asti.gif" alt="" />
 				{else}
 					<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_mangel_asti_none.gif" alt="" />
 				{/endif}
-			</a> 
+			</a>
 			{astis.mangel}
-			 - 
+			 -
 			<a title="Neue ungelesene PMs" class="error" href="./ds?module=comm&amp;action=showInbox">
 				{if user.newmsgs}
 					<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_pm.gif" alt="" />
 				{else}
 					<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_pm_none.gif" alt="" />
 				{/endif}
-			</a> 
+			</a>
 			{user.newmsgs}
-			 - 
+			 -
 			<a title="Schlachten die du verloren hast" class="error" href="#">
 				<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_battle_lost.gif" alt="" />
-			</a> 
+			</a>
 			{user.lostBattles}
-			 - 
+			 -
 			<a title="Schlachten die du gewonnen hast" class="error" href="#">
 				<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_battle_won.gif" alt="" />
-			</a> 
+			</a>
 			{user.wonBattles}
-			 - 
+			 -
 			<a title="Schiffe die du verloren hast" class="error" href="#">
 				<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_lost_ships.gif" alt="" />
-			</a> 
+			</a>
 			{user.lostShips}
-			 - 
+			 -
 			<a title="Schiffe die von deinen Schiffen zerst&ouml;rt wurden" class="error" href="#">
 				<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_destroyed_ships.gif" alt="" />
-			</a> 
+			</a>
 			{user.destroyedShips}
 	</td>
 </tr>
