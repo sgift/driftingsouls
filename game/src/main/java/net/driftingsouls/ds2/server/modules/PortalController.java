@@ -422,17 +422,16 @@ public class PortalController extends Controller
 		PM.send(source, newid, "Willkommen bei Drifting Souls 2",
 				"[font=arial]Herzlich willkommen bei Drifting Souls 2.\n" +
 						"Diese PM wird automatisch an alle neuen Spieler versandt, um\n" +
-						"ihnen Hilfsquellen fuer den relativ komplizierten Einstieg zu\n" +
+						"ihnen Hilfsquellen für den nicht immer einfachen Einstieg zu\n" +
 						"nennen.\n" +
 						" Falls Probleme auftreten sollten, gibt es:\n" +
-						"- eine Wiki ([url=http://wiki.drifting-souls.net/]Wiki zu Drifing-Souls[/url])\n" +
-						"- Informationen via Menue/Technische Datenbank\n" +
-						"- das Forum via Menue/Technische Datenbank oder [url=http://ds.rnd-it.de]Forum-Link[/url]\n" +
-						"- einen IRC-Chat (Server: irc.euirc.net / Chan #ds2 oder\n" +
-						"- #ds-help) - und die Moeglichkeit via PM an die ID -16 Fragen zu stellen.\n" +
+						"- das [url=https://drifting-souls.fandom.com/de/wiki/Drifting_Souls_Wiki]DriftingSoulsWiki[/url]\n" +
+						"- das [url=http://ds.rnd-it.de]Forum[/url]\n" +
+						"- einen [url=https://discord.gg/cpxxAGy]Discord-Chat[/url] und\n" +
+						"- die Moeglichkeit via Nachricht/PM an die ID -16 Fragen zu stellen.\n" +
 						"\n" +
 						"\n" +
-						"Viel Spass noch bei DS wuenschen dir die Admins[/font]");
+						"Viel Spaß bei DS2 wünschen Dir die Admins[/font]");
 
 		t.setVar("show.register.msg.ok", 1,
 				"register.newid", newid);
