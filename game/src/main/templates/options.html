@@ -209,7 +209,7 @@
 		<tr>
 			<td class="noBorderX"><img src="data/logos/user/{user.id}.gif" width="75" height="75" alt="Kein Logo vorhanden" /></td>
 			{if user.ally}
-				<td class="noBorderX"><img src="data/logos/ally/{user.ally}.gif" width="75" height="75" alt="Kein Allylogo vorhanden" /></td>
+				<td class="noBorderX"><img src="data/logos/ally/{user.ally}.gif" width="75" height="75" alt="Kein Allianzlogo vorhanden" /></td>
 			{/endif}
 		</tr>
 		</table>
@@ -246,13 +246,13 @@
 		<form action="./ds" method="post">
 			<div>
 				<span style="font-weight:bold">Vacation-Modus:</span><br />
-				<p>Du kannst den Vacation-Modus maximal {vacation.maxtime} Tage lang aktivieren.</p>
+				<p>Du kannst den Vacation-Modus ("Urlaubsmodus") maximal {vacation.maxtime} Tage lang aktivieren.</p>
 				{!form_create_hidden vacMode}
 				<input type="text" maxlength="5" size="5" name="vacdays" /> Tage
 				<input type="submit" value="ok" /><br /><br />
-				<span style="font-size:10px">Nach dem Starten den Vacationmodus dauert es einige Ticks bis dieser auch aktiviert wird.
-					W&auml;hrenddessen kannst du jeder Zeit den Vacationmodus abbrechen. Auch eine normale Nutzung des Accounts ist m&ouml;glich.
-					Sobald der Vacationmodus allerdings vollst&auml;ndig aktiviert ist, ist ein Login nicht mehr m&ouml;glich bis entweder der Vacationmodus abgelaufen ist oder durch einen Administrator abgeschaltet wurde.
+				<span style="font-size:10px">Nach dem Starten den Vacationmodus dauert es einige Ticks, bis dieser auch aktiviert wird.
+					W&auml;hrenddessen kannst Du jeder Zeit den Vacation-Modus abbrechen. Auch eine normale Nutzung des Accounts ist bis dahin m&ouml;glich.
+					Sobald der Vacation-Modus allerdings vollst&auml;ndig aktiviert ist, ist ein Login nicht mehr m&ouml;glich, bis entweder der Vacation-Modus abgelaufen ist oder durch einen Administrator abgeschaltet wurde.
 				</span>
 			</div>
 		</form>
