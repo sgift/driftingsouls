@@ -88,18 +88,18 @@ public class StatsController extends Controller
 		setPageTitle("Statistik");
 
 		registerStat( "Spieler", new StatOwnCiv(), "Meine Zivilisation", 0 );
-		registerStat( "Spieler", new StatBiggestFleet(false), "Die gr&ouml;ssten Flotten", 60 );
-		registerStat( "Spieler", new StatBiggestTrader(false), "Die gr&ouml;ssten Handelsflotten", 60);
+		registerStat( "Spieler", new StatBiggestFleet(false), "Die größten Flotten", 60 );
+		registerStat( "Spieler", new StatBiggestTrader(false), "Die größen Handelsflotten", 60);
 		registerStat( "Spieler", new StatRichestUser(false), "Die reichsten Siedler", 60);
-		registerStat( "Spieler", new StatBiggestPopulation(false), "Die gr&ouml;&szlig;ten V&ouml;lker", 30 );
-		registerStat( "Spieler", new StatBiggestAsteroid(), "Die gr&ouml;&szlig;ten Asteroiden", 100 );
-		registerStat( "Spieler", new StatGtuPrice(), "Die h&ouml;chsten Gebote", 60 );
+		registerStat( "Spieler", new StatBiggestPopulation(false), "Die größten Völker", 30 );
+		registerStat( "Spieler", new StatBiggestAsteroid(), "Die größten Asteroiden", 100 );
+		registerStat( "Spieler", new StatGtuPrice(), "Die höchsten Gebote", 60 );
 
-		registerStat( "Allianzen", new StatBiggestFleet(true), "Die gr&ouml;ssten Flotten", 60 );
-		registerStat( "Allianzen", new StatBiggestTrader(true), "Die gr&ouml;ssten Handelsflotten", 60);
+		registerStat( "Allianzen", new StatBiggestFleet(true), "Die größten Flotten", 60 );
+		registerStat( "Allianzen", new StatBiggestTrader(true), "Die größten Handelsflotten", 60);
 		registerStat( "Allianzen", new StatRichestUser(true), "Die reichsten Allianzen", 60);
-		registerStat( "Allianzen", new StatBiggestPopulation(true), "Die gr&ouml;&szlig;ten V&ouml;lker", 30 );
-		registerStat( "Allianzen", new StatMemberCount(), "Die gr&ouml;&szlig;ten Allianzen", 30 );
+		registerStat( "Allianzen", new StatBiggestPopulation(true), "Die größten Völker", 30 );
+		registerStat( "Allianzen", new StatMemberCount(), "Die größten Allianzen", 30 );
 
 		registerStat( "Sonstiges", new StatPopulationDensity(), "Siedlungsdichte", 0 );
 		registerStat( "Sonstiges", new StatShips(), "Schiffe", 0 );
@@ -110,7 +110,7 @@ public class StatsController extends Controller
 		registerStat( "Sonstiges", new StatEinheiten(), "Einheiten", 0);
 		registerStat( "Sonstiges", new StatData(), "Diverse Daten", 0 );
 
-		registerStat( "Eigene K&auml;mpfe", new StatOwnKampf(), "Eigene K&auml;mpfe", 0 );
+		registerStat( "Eigene K&auml;mpfe", new StatOwnKampf(), "Eigene Kämpfe", 0 );
 		registerStat( "Offiziere", new StatOwnOffiziere(), "Offiziere", 0 );
 		registerStat( "Spielerliste", new StatPlayerList(), "Spielerliste", 0 );
 	}
