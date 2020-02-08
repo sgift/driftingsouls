@@ -89,6 +89,7 @@ public class StatsController extends Controller
 
 		registerStat( "Spieler", new StatOwnCiv(), "Meine Zivilisation", 0 );
 		registerStat( "Spieler", new StatBiggestFleet(false), "Die größten Flotten", 60 );
+		registerStat( "Spieler", new StatBiggestTrader(false), "Die größten Handelsflotten", 60);
 		registerStat( "Spieler", new StatBiggestTrader(false), "Die größen Handelsflotten", 60);
 		registerStat( "Spieler", new StatRichestUser(false), "Die reichsten Siedler", 60);
 		registerStat( "Spieler", new StatBiggestPopulation(false), "Die größten Völker", 30 );
