@@ -6,8 +6,8 @@
 	
 		<title>DS2 - Drifting Souls 2</title>
 		
-		<meta name="keywords" content="Spiel,Game,Games,Spiele,Browsergame,Strategie,Weltraum,Freespace,Strategiespiel,Strategiespiele,Browsergames,GTVA,Shivaner,Vasudaner,Onlinegame,Onlinespiel" />
-		<meta name="description" content="Drifting Souls 2 - Ein kostenloses werbefreies Browsergame, welches im Weltraum spielt und sich an Freespace anlehnt" />
+		<meta name="keywords" content="Spiel,Game,Games,Spiele,Browsergame,Strategie,Weltraum,Freespace,Strategiespiel,Strategiespiele,Browsergames,GTVA,Shivaner,Vasudaner,Onlinegame,Onlinespiel,Browserspiel" />
+		<meta name="description" content="Drifting Souls 2 - ein kostenloses Indie-Weltraum-RPG-Browsergame, welches auf der Narration der Freespace-Spiele basiert. Es wird seit 2001 ständig weiterentwickelt." />
 
 		<link type="text/css" rel="stylesheet" href="data/css/ds_2_portal.css" />
 			
@@ -63,7 +63,7 @@
 			
 	<p>
 			<span class="red">Das Passwort stimmt nicht!</span><br />
-			<span class="white">Offenbar ist etwas schiefgelaufen .... Versuch geloggt</span>
+			<span class="white">Offenbar ist etwas schiefgelaufen... Versuch geloggt</span>
 	</p>
 			
 		{/endif}
@@ -77,14 +77,14 @@
 		{if show.login.msg.tick}
 			
 	<p>
-			<span class="red">Der Tick bearbeitet gerade einige ihrer Accountdaten. Bitte versuchen sie es gleich nochmal!</span>
+			<span class="red">Der Tick bearbeitet gerade einige Ihrer Accountdaten. Bitte versuchen Sie es gleich noch einmal!</span>
 	</p>
 			
 		{/endif}
 		{if show.login.logindisabled}
 			
 	<p>
-			<span class="red">Es ist zur Zeit leider nicht m&ouml;glich sich in Drifting Souls einzuloggen</span>
+			<span class="red">Es ist zurzeit leider nicht m&ouml;glich, sich in Drifting Souls einzuloggen</span>
 	</p>
 					
 			<p>Grund: {login.logindisabled.msg}</p>
@@ -93,7 +93,7 @@
 		{if show.login.vacmode.msg.accerror}
 		
 	<p>
-			<span class="red">Es liegt ein Problem mit den Accountdaten vor.<br />Bitte loggen sie sich neu ein und versuchen sie es nocheinmal!</span>
+			<span class="red">Es liegt ein Problem mit den Accountdaten vor.<br />Bitte loggen Sie sich neu ein und versuchen Sie es noch einmal!</span>
 	</p>
 		
 		{/endif}
@@ -107,14 +107,14 @@
 		{if show.register.msg.wrongemail}
 		
 	<p>
-			<a href="./ds?module=portal&amp;action=register"><span class="red">Die E-Mail Adresse wird bereits von einem anderen Account verwendet</span></a>
+			<a href="./ds?module=portal&amp;action=register"><span class="red">Die E-Mail-Adresse wird bereits von einem anderen Account verwendet</span></a>
 	</p>
 			
 		{/endif}
 		{if show.register.msg.wrongrace}
 		
 	<p>
-			<a href="./ds?module=portal&amp;action=register"><span class="red">Die von Ihnen gew&uuml;nschte Rasse ist leider nicht spielbar. Bitte w&auml;hlen sie eine andere Rasse aus!</span></a>
+			<a href="./ds?module=portal&amp;action=register"><span class="red">Die von Ihnen gew&uuml;nschte Rasse ist leider nicht spielbar. Bitte w&auml;hlen Sie eine andere Rasse aus!</span></a>
 	</p>		
 			
 		{/endif}
@@ -136,7 +136,7 @@
 			
 		<h1>Registrierung erfolgreich.</h1>
 		<p>
-					Dein Account hat die ID "{register.newid}" bekommen. Au&szlig;erdem wurde dir das Passwort via E-Mail zugesendet.<br />
+					Dein Account hat die ID "{register.newid}" bekommen. Au&szlig;erdem wurde Dir das Passwort via E-Mail zugesendet.<br />
 					Viel Spa&szlig; bei Drifting Souls 2
 		</p>
 
@@ -146,7 +146,7 @@
 		{if show.register.registerdisabled}
 		
 		<p>
-				<span class="red">Es ist zur Zeit leider nicht m&ouml;glich sich bei Drifting Souls anzumelden</span>
+				<span class="red">Es ist zurzeit leider nicht m&ouml;glich, sich bei Drifting Souls anzumelden</span>
 		</p>
 				<p>	Grund: {register.registerdisabled.msg}
 		</p>
@@ -223,8 +223,8 @@
 			<div id="register-neusiedler-startsystem">
 				<h2>Startpunkt</h2>
 				<p>
-					Es wurde automatisch das Sternensystem {register.system.name} als g&uuml;nstigster Startpunkt f&uuml;r sie festgestellt.<br />
-					Sollten sie einen anderen Startpunkt bevorzugen k&ouml;nnen sie diesen nun ausw&auml;hlen:<br />
+					Es wurde automatisch das Sternensystem {register.system.name} als g&uuml;nstigster Startpunkt f&uuml;r Sie festgestellt.<br />
+					Sollten Sie einen anderen Startpunkt bevorzugen, k&ouml;nnen Sie diesen nun ausw&auml;hlen:<br />
 					<div style="text-align:left">
 						<form action="./ds" method="post">
 						<select name="system" size="1" style="width:300px" onchange="actionSystemSelectChange(this.options[this.options.selectedIndex].value)">
@@ -283,8 +283,8 @@
 			<div id="register-neusiedler-daten">
 				<h2>Registrierung</h2>
 				<p>Bitte f&uuml;lle alle Felder aus<br />
-				Das Passwort wird dir anschlie&szlig;end via E-Mail zugesandt</p>
-				<p><span class="red">Das setzt die Angabe einer g&uuml;ltigen E-mail Adresse voraus.</span></p>
+				Das Passwort wird Dir anschlie&szlig;end via E-Mail zugesandt</p>
+				<p><span class="red">Das setzt die Angabe einer g&uuml;ltigen E-mail-Adresse voraus.</span></p>
 				
 				<p>
 					<span class="left">Spezies</span>
@@ -331,7 +331,7 @@
 		{if show.passwordlost.msg.ok}
 			
 				<p>
-					<span class="green">Das Password wurde erstellt und zu ihrer Email-Adresse gesendet</span>
+					<span class="green">Das Passwort wurde erstellt und zu Ihrer E-Eail-Adresse gesendet</span>
 				</p>
 			
 		{/endif}
@@ -339,7 +339,7 @@
 		
 				<p>
 					<span class="green">Der angegebene Username existiert nicht! Fehleingabe?</span><br />
-					Offenbar ist etwas schiefgelaufen .... Versuch geloggt
+					Offenbar ist etwas schiefgelaufen... Versuch geloggt
 				</p>
 		
 		{/endif}
@@ -366,15 +366,15 @@
 		{if show.register}
 		<div id="register-fraktionsbeschreibung">
 			<h2>Die Fraktionen</h2>
-			<p>In den Lost Lands gibt es drei Hauptfraktionen, die jeweils eine wesentliche Macht darstellen. Da ihre Ziele
-			oft entgegen gesetzt sind kann ein Spieler sich nur einer davon anschließen, durch die jeweilige Rasse ist diese
-			Auswahl weiter eingeschr&auml;nkt.</p>
-			<p>Neben diesen Hauptfraktionen gibt es andere, oft kleinere, zu entdecken mit denen man auf verschiedene
+			<p>In den bekannten Sternensystemen gibt es drei Hauptfraktionen, die jeweils eine wesentliche Macht darstellen. Da ihre Ziele
+			oft entgegen gesetzt sind, kann ein Spieler sich nur einer davon anschließen, durch seine jeweilige Rasse ist diese
+			Auswahl aber weiter eingeschr&auml;nkt.</p>
+			<p>Neben diesen Hauptfraktionen gibt es andere, oft kleinere Fraktionen zu entdecken, mit denen man auf verschiedene
 			Arten interagieren kann.</p>
 			<ul>
 				<li>
 					<ol>
-						<li><img src="./data/interface/portal/gtve.gif" alt="" />Galactic Terran-Vasudan Empire (GTVE)</li>
+						<li><img src="./data/interface/portal/gtve.gif" alt="" />Galactic Terran-Vasudan Republic (GTVR)</li>
 						<li>Ein Zusammenschlu&szlig; von Siedlern, der sich für die gemeinsame, friedliche Besiedlung der Systeme einsetzt.</li>
 					</ol>
 				</li>
@@ -397,12 +397,12 @@
 	{if show.register.choosesystem}
 	<div id="register-systembeschreibung">
 	<h2>Die Systeme</h2>
-	<p>Hier sind die bekannten Systeme der Lost Lands aufgelistet.</p>
+	<p>Hier sind die derzeit besiedelungsfähigen Sternensysteme aufgelistet.</p>
 	<p><ul>
 			<li>Eta Nebular (605)</li>
 	</ul>
 </p>
-	<p>Andere Systeme existieren, sind aber aufgrund verschiedener Ereignisse derzeit nicht (mehr) erreichbar.</p>
+	<p>Andere Systeme existieren, sind aber aufgrund verschiedener Ereignisse derzeit nicht (mehr) erreichbar oder nicht zur anfänglichen Besiedelung geeignet.</p>
 	</div>	
 	{/endif}
 		{if show.banner}
@@ -415,7 +415,7 @@
 					<h2>Allgemeine Gesch&auml;ftsbedingungen</h2>
 					<ol id="agb">
 						<li>Durch die Benutzung von DS2 erkennt der Spieler diese AGB automatisch an</li>
-						<li>Die Registrierung/Betreibung mehrerer Accounts durch die selbe Person ist untersagt.</li>
+						<li>Die Registrierung/Betreibung mehrerer Accounts durch dieselbe Person ist untersagt.</li>
 						<li>Ausnahmegenehmigungen k&ouml;nnen durch die Administration erteilt werden.</li>
 						<li>Eine kurzzeitige &uuml;bernahme eines fremden Accounts zum Zwecke der Vertretung ist gestattet, sofern nur die Grundfunktionen aufrecht gehalten werden. Hierzu ist es erlaubt Waren vom eigenen Account zum vertretenen Account zu transferieren. Warentransfers in die andere Richtung sind dabei untersagt.</li>
 						<li>Es besteht kein Recht auf einen Account</li>
@@ -492,7 +492,7 @@
 <!-- Ende Contentbereich - Beginn Footernavigation -->
 		<div id="footer">
 				<ul id="footernavigation">
-						<li><a  title="Zur AGB" href="./ds?module=portal&amp;action=infosAgb">AGB</a></li>
+						<li><a  title="Zu den AGB" href="./ds?module=portal&amp;action=infosAgb">AGB</a></li>
 						<li> | </li>
 						<li><a  title="Zum Impressum" href="./ds?module=portal&amp;action=impressum">Impressum</a></li>
 				</ul>
