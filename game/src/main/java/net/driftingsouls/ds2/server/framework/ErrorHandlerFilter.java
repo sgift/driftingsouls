@@ -174,18 +174,18 @@ public class ErrorHandlerFilter implements Filter
 		{
 			if(e.getDauer() > 1)
 			{
-				printBoxedErrorMessage(response, "Du bist noch " + e.getDauer() + " Ticks im Vacationmodus.");
+				printBoxedErrorMessage(response, "Du bist noch " + e.getDauer() + " Ticks im Vacation-Modus.");
 			}
 			else
 			{
-				printBoxedErrorMessage(response, "Du bist noch " + e.getDauer() + " Tick im Vacationmodus.");
+				printBoxedErrorMessage(response, "Du bist noch " + e.getDauer() + " Tick im Vacation-Modus.");
 			}
 		}
 
 		@Override
 		public void reportUnexpected(Throwable t) throws IOException
 		{
-			printBoxedErrorMessage(response, "Ein genereller Fehler ist aufgetreten. Die Entwickler arbeiten daran ihn zu beheben.");
+			printBoxedErrorMessage(response, "Ein genereller Fehler ist aufgetreten. Die Entwickler arbeiten daran, ihn zu beheben.");
 		}
 		
 		private void redirectToPortal(ServletResponse response) throws IOException
@@ -266,11 +266,11 @@ public class ErrorHandlerFilter implements Filter
 			ViewMessage obj;
 			if(e.getDauer() > 1)
 			{
-				obj = ViewMessage.error("Du bist noch " + e.getDauer() + " Ticks im Vacationmodus.");
+				obj = ViewMessage.error("Du bist noch " + e.getDauer() + " Ticks im Vacation-Modus.");
 			}
 			else
 			{
-				obj = ViewMessage.error("Du bist noch " + e.getDauer() + " Tick im Vacationmodus.");
+				obj = ViewMessage.error("Du bist noch " + e.getDauer() + " Tick im Vacation-Modus.");
 			}
 			obj.message.cls = e.getClass().getSimpleName();
 			obj.message.redirect = true;
@@ -280,7 +280,7 @@ public class ErrorHandlerFilter implements Filter
 		@Override
 		public void reportUnexpected(Throwable t) throws IOException
 		{
-			ViewMessage obj = ViewMessage.error("Ein genereller Fehler ist aufgetreten. Die Entwickler arbeiten daran ihn zu beheben.");
+			ViewMessage obj = ViewMessage.error("Ein genereller Fehler ist aufgetreten. Die Entwickler arbeiten daran ihn, zu beheben.");
 			obj.message.cls = t.getClass().getSimpleName();
 			respondWithObject(obj);
 		}
