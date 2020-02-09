@@ -174,7 +174,7 @@ public final class InstallUtils
 	{
 		try
 		{
-			ApplicationContext springContext = new FileSystemXmlApplicationContext("web/WEB-INF/cfg/spring.xml");
+			ApplicationContext springContext = new FileSystemXmlApplicationContext("game/src/main/webapp/WEB-INF/cfg/spring.xml");
 
 			// Ticks provisorisch deaktivieren
 			StdScheduler quartzSchedulerFactory = (StdScheduler) springContext.getBean("quartzSchedulerFactory");
