@@ -1022,7 +1022,6 @@ public class AngriffController extends Controller
 					ShipTypeData shiptype = Ship.getShipType(stid);
           GroupEntry data = groupdata.get(key);
           User aUser = ownShips.get(0).getOwner();
-
 					t.setVar(	"shiptypelist.count",		count,
 								"shiptypelist.name",		shiptype.getNickname(),
 								"shiptypelist.groupid",		key,
@@ -1288,7 +1287,6 @@ public class AngriffController extends Controller
 					ShipTypeData shiptype = Ship.getShipType(stid);
           GroupEntry data = groupdata.get(key);
           User aUser = ownShips.get(0).getOwner();
-
 					t.setVar(	"shiptypelist.count",		count,
 								"shiptypelist.name",		shiptype.getNickname(),
 								"shiptypelist.groupid",		key,
@@ -1564,7 +1562,6 @@ public class AngriffController extends Controller
 					ShipTypeData shiptype = Ship.getShipType(stid);
           GroupEntry data = groupdata.get(key);
           User aUser = ownShips.get(0).getOwner();
-
 					t.setVar(	"shiptypelist.count",		count,
 								"shiptypelist.name",		shiptype.getNickname(),
 								"shiptypelist.groupid",		key,
