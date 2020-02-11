@@ -1303,7 +1303,7 @@ return counter > 0;
 
 				PM.send(com, this.getCommanders()[i].getId(), "Schlacht &uuml;bernommen", "Ich habe die Leitung der Schlacht bei "+this.getLocation().displayCoordinates(false)+" &uuml;bernommen.");
 
-				this.log(new SchlachtLogAktion(i, "[Automatisch] "+Common._titleNoFormat(com.getName())+" kommandiert nun die gegnerischen Truppen"));
+				this.log(new SchlachtLogAktion(i, "[Automatisch] "+Common._titleNoFormat(com.getName())+" kommandiert nun die Truppen"));
 
 				this.setCommander(i, com);
 
