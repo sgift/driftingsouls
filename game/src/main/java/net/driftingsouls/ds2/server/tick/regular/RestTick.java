@@ -196,7 +196,7 @@ public class RestTick extends TickController {
 
 						PM.send(user, newcommander.getId(), "Schlacht &uuml;bernommen", "Die Leitung der Schlacht bei " + battle.getLocation().displayCoordinates(false) + " wurde dir automatisch &uuml;bergeben, da der bisherige Kommandant in den Vacationmodus gewechselt ist");
 
-						battle.log(new SchlachtLogAktion(battle.getOwnSide(), Common._titleNoFormat(newcommander.getName()) + " kommandiert nun die gegnerischen Truppen"));
+						battle.log(new SchlachtLogAktion(battle.getOwnSide(), Common._titleNoFormat(newcommander.getName()) + " kommandiert nun die Truppen"));
 
 						battle.setCommander(battle.getOwnSide(), newcommander);
 

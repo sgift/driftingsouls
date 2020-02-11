@@ -44,28 +44,28 @@ public class KSNewCommanderAction extends BasicKSAction {
 	public KSNewCommanderAction() {
 		this.requireActive(false);
 	}
-	
+
 	@Override
 	public Result execute(TemplateEngine t, Battle battle) throws IOException {
 		Result result = super.execute(t, battle);
 		if( result != Result.OK ) {
 			return result;
 		}
-		
+
 		Context context = ContextMap.getContext();
-		User user = (User)context.getActiveUser();		
+		User user = (User)context.getActiveUser();
 
 		int newcom = context.getRequest().getParameterInt("newcom");
 		User com = (User)context.getDB().get(User.class, newcom);
-		
+
 		if( user.getId() == com.getId() ) {
 			battle.logme( "Sie k&ouml;nnen die Leitung der Schlacht nicht an sich selbst &uuml;bertragen\n" );
 			return Result.ERROR;
 		}
-		
-		if( (battle.getAlly(battle.getOwnSide()) == 0) || 
+
+		if( (battle.getAlly(battle.getOwnSide()) == 0) ||
 			((com.getAlly() != null) && (com.getAlly().getId() != battle.getAlly(battle.getOwnSide()))) ) {
-			
+
 			boolean found = false;
 			List<BattleShip> ownShips = battle.getOwnShips();
 			for (BattleShip ownShip : ownShips)
@@ -81,22 +81,22 @@ public class KSNewCommanderAction extends BasicKSAction {
 				return Result.ERROR;
 			}
 		}
-		
+
 		if( (com.getVacationCount() != 0) && (com.getWait4VacationCount() == 0) ) {
 			battle.logme( "Der Spieler befindet sich im Vacation-Modus!\n" );
 			return Result.ERROR;
-		} 
+		}
 
 		PM.send(user, com.getId(), "Schlacht &uuml;bergeben", "Ich habe dir die Leitung der Schlacht bei "+battle.getLocation().displayCoordinates(false)+" &uuml;bergeben.");
 
-		battle.log(new SchlachtLogAktion(battle.getOwnSide(), "[userprofile="+com.getId()+",profile_alog]"+Common._titleNoFormat(com.getName())+"[/userprofile] kommandiert nun die gegnerischen Truppen"));
+		battle.log(new SchlachtLogAktion(battle.getOwnSide(), "[userprofile="+com.getId()+",profile_alog]"+Common._titleNoFormat(com.getName())+"[/userprofile] kommandiert nun die Truppen"));
 
 		battle.setCommander(battle.getOwnSide(), com);
 
 		battle.log(new SchlachtLogKommandantWechselt(battle.getOwnSide(), battle.getCommander(battle.getOwnSide())));
 
 		battle.setTakeCommand(battle.getOwnSide(), 0);
-		
+
 		return Result.OK;
 	}
 }
