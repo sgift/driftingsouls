@@ -785,7 +785,7 @@ public class AngriffController extends Controller
 		int groupoffset = 0;
 		int grouptypecount = 0;
 
-		boolean showgroups = (battle.getOwnShips().size() >= 1);//(ownGroupCount >= 1) || (battle.getOwnShips().size() >= 1);
+		boolean showgroups = true; // (ownGroupCount >= 1) || (battle.getOwnShips().size() >= 10);
 		if( showgroups && (battle.getOwnShipGroup().length() > 0) ) {
 			String[] tmp = StringUtils.split(battle.getOwnShipGroup(), ':');
 			grouptype = Integer.parseInt(tmp[0]);
@@ -1613,7 +1613,7 @@ public class AngriffController extends Controller
 		grouptypecount = 0;
 		grouptype = 0;
 
-		showgroups = (enemyGroupCount >= 2) || (battle.getEnemyShips().size() >= 10);
+		showgroups = true; //(enemyGroupCount >= 2) || (battle.getEnemyShips().size() >= 10); Gruppieren erzwingen, damit keine leeren Spalten im KS entstehen
 		if( showgroups && (battle.getEnemyShipGroup().length() > 0) ) {
 			String[] tmp = StringUtils.split(battle.getEnemyShipGroup(), ':');
 			grouptype = Integer.parseInt(tmp[0]);
