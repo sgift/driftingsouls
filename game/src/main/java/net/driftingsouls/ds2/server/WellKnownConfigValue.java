@@ -172,7 +172,7 @@ public class WellKnownConfigValue<T> implements ConfigValueDescriptor<T>
 	/**
 	 * Der Cargo der beim Registrieren automatisch zugewiesenen Basis.
 	 */
-	public static final ConfigValueDescriptor<String> REGISTER_BASECARGO = new WellKnownConfigValue<>(String.class, "register_basecargo", "16|3500|0|0;17|1500|0|0;18|2500|0|0;19|3500|0|0;20|3500|0|0;22|1000|0|0;23|2500|0|0;24|2500|0|0;25|500|0|0", "Der Cargo der beim Registrieren automatisch zugewiesenen Basis.");
+	public static final ConfigValueDescriptor<String> REGISTER_BASECARGO = new WellKnownConfigValue<>(String.class, "register_basecargo", "16|3600|0|0;17|1500|0|0;18|2820|0|0;19|4540|0|0;20|3800|0|0;22|1000|0|0;23|2560|0|0;24|2510|0|0;25|500|0|0", "Der Cargo der beim Registrieren automatisch zugewiesenen Basis.");
 	/**
 	 * Die URL zum Stash-Repository.
 	 */

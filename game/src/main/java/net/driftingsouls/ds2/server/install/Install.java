@@ -113,7 +113,7 @@ public class Install
 		{
 			String dburl = "jdbc:mysql://" + dblocation + "/" + db;
 
-			HibernateUtil.initConfiguration("web/WEB-INF/cfg/hibernate.xml", dburl, user, pw);
+			HibernateUtil.initConfiguration("game/src/main/webapp/WEB-INF/cfg/hibernate.xml", dburl, user, pw);
 			HibernateUtil.createFactories();
 
 			try (Connection con = DriverManager.getConnection(dburl, user, pw))
@@ -152,8 +152,8 @@ public class Install
 			}
 
 			System.out.println("\n\nDrifting Souls wurde erfolgreich installiert");
-			System.out.println("Du solltest es nun mittels 'ant clean compile' erneut uebersetzen.");
-			System.out.println("Anschliessend kannst du DS mittels des Kommandos 'ant run' starten und im Browser unter http://localhost:8080/driftingsouls/ aufrufen.");
+			System.out.println("Du solltest es nun mittels 'mvn clean package' erneut uebersetzen.");
+			System.out.println("Anschliessend kannst du DS mittels des Kommandos 'mvn clean install tomcat7:run-war' starten und im Browser unter http://localhost:8080/driftingsouls-game/ aufrufen.");
 		}
 		catch (SQLException e)
 		{
@@ -166,7 +166,7 @@ public class Install
 	{
 		try
 		{
-			new DriftingSouls("web/WEB-INF/cfg/", true);
+			new DriftingSouls("game/src/main/webapp/WEB-INF/cfg/", true);
 		}
 		catch (Exception e)
 		{
@@ -184,7 +184,7 @@ public class Install
 	{
 		System.out.println("Das Installationsprogramm kann nun versuchen noch fehlende Grafiken " +
 				"insbesondere fuer den eingespielten Musterdatensatz nachzuladen. Achtung: Diese Grafiken " +
-				"unterliegen moeglicherweise speziellen Lizenzen die ihre Verwendung nur im Kontext" +
+				"unterliegen moeglicherweise speziellen Lizenzen die ihre Verwendung nur im Kontext " +
 				"von Drifting Souls zulassen. Moeglicherweise verbietet die jeweilige Lizenz auch eine " +
 				"Weiterbearbeitung der Grafik.\n");
 		System.out.print("Sollen das Installationsprogramm nun die fehlenden Grafiken nachladen (y/n)? ");
@@ -205,21 +205,21 @@ public class Install
 		imgs = inst.readFromDb(con, "users", "id");
 		inst.store(imgs, "data/logos/user/", ".gif");
 
-		File[] cssFiles = new File("web/data/css").listFiles((FileFilter) FileFilterUtils.suffixFileFilter(".css"));
+		File[] cssFiles = new File("game/src/main/webapp/data/css").listFiles((FileFilter) FileFilterUtils.suffixFileFilter(".css"));
 		for (File cssFile : cssFiles)
 		{
 			imgs = inst.readFromCss(cssFile);
 			inst.store(imgs);
 		}
 
-		cssFiles = new File("web/data/css/common").listFiles((FileFilter) FileFilterUtils.suffixFileFilter(".css"));
+		cssFiles = new File("game/src/main/webapp/data/css/common").listFiles((FileFilter) FileFilterUtils.suffixFileFilter(".css"));
 		for (File cssFile : cssFiles)
 		{
 			imgs = inst.readFromCss(cssFile);
 			inst.store(imgs);
 		}
 
-		File[] templateFiles = new File("templates").listFiles((FileFilter) FileFilterUtils.suffixFileFilter(".html"));
+		File[] templateFiles = new File("game/src/main/templates").listFiles((FileFilter) FileFilterUtils.suffixFileFilter(".html"));
 		for (File templateFile : templateFiles)
 		{
 			imgs = inst.readFromTemplate(templateFile);
@@ -304,18 +304,18 @@ public class Install
 
 	private static void erstelleVerzeichnisse() throws IOException
 	{
-		InstallUtils.createDirectory(new File("lox/tick"));
-		InstallUtils.createDirectory(new File("lox/raretick"));
-		InstallUtils.createDirectory(new File("lox/battles"));
+		InstallUtils.createDirectory(new File("game/src/main/lox/tick"));
+		InstallUtils.createDirectory(new File("game/src/main/lox/raretick"));
+		InstallUtils.createDirectory(new File("game/src/main/lox/battles"));
 
-		InstallUtils.createDirectory(new File("quests"));
+		InstallUtils.createDirectory(new File("game/src/main/quests"));
 
-		InstallUtils.createDirectory(new File("web/data/starmap/_tilecache"));
+		InstallUtils.createDirectory(new File("game/src/main/webapp/data/starmap/_tilecache"));
 	}
 
 	private static boolean createConfigXml(BufferedReader reader, String dblocation, String db, String user, String pw) throws IOException
 	{
-		if( new File("web/WEB-INF/cfg/config.xml").canRead() )
+		if( new File("game/src/main/webapp/WEB-INF/cfg/config.xml").canRead() )
 		{
 			System.err.print("Es existiert bereits eine config.xml - Soll diese ueberschrieben werden (y/n)?: ");
 			String result = reader.readLine();
@@ -326,7 +326,7 @@ public class Install
 		}
 		try
 		{
-			Document doc = XMLUtils.readFile("web/WEB-INF/cfg/config.sample.xml");
+			Document doc = XMLUtils.readFile("game/src/main/webapp/WEB-INF/cfg/config.sample.xml");
 
 			Element el = (Element)XMLUtils.getNodeByXPath(doc, "/config/setting[@name='db_url']");
 			el.setAttribute("value", "jdbc:mysql://"+dblocation+"/"+db);
@@ -338,12 +338,12 @@ public class Install
 			el.setAttribute("value", pw);
 
 			el = (Element)XMLUtils.getNodeByXPath(doc, "/config/setting[@name='ABSOLUTE_PATH']");
-			el.setAttribute("value", new File("web").getAbsolutePath() + "/");
+			el.setAttribute("value", new File("game/src/main/webapp").getAbsolutePath() + "/");
 
 			el = (Element)XMLUtils.getNodeByXPath(doc, "/config/setting[@name='LOXPATH']");
-			el.setAttribute("value", new File("lox").getAbsolutePath() + "/");
+			el.setAttribute("value", new File("game/src/main/lox").getAbsolutePath() + "/");
 
-			XMLUtils.writeFile("web/WEB-INF/cfg/config.xml", doc);
+			XMLUtils.writeFile("game/src/main/webapp/WEB-INF/cfg/config.xml", doc);
 
 			System.out.println("config.xml erstellt");
 		}
@@ -373,17 +373,17 @@ public class Install
 			return true;
 		}
 
-		File webDir = new File("./web");
+		File webDir = new File("./game/src/main/webapp");
 		if( !webDir.isDirectory() )
 		{
-			System.err.println("Konnte das Verzeichnis 'web' nicht finden! Bitte das Installationsscript aus dem DS-Verzeichnis heraus aufrufen!");
+			System.err.println("Konnte das Verzeichnis 'game/src/main/webapp' nicht finden! Bitte das Installationsscript aus dem DS-Verzeichnis heraus aufrufen!");
 			return true;
 		}
 
-		File templatesDir = new File("./templates");
+		File templatesDir = new File("./game/src/main/templates");
 		if( !templatesDir.isDirectory() )
 		{
-			System.err.println("Konnte das Verzeichnis 'templates' nicht finden! Bitte das Installationsscript aus dem DS-Verzeichnis heraus aufrufen!");
+			System.err.println("Konnte das Verzeichnis 'game/src/main/templates' nicht finden! Bitte das Installationsscript aus dem DS-Verzeichnis heraus aufrufen!");
 			return true;
 		}
 
