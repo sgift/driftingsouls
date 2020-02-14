@@ -378,7 +378,7 @@ public boolean hasFrontRow( int side) {
 
 	int counter = 0;
 	for (BattleShip aship : shiplist) {
-			if (!(aship.hasFlag(BattleShipFlag.JOIN) || aship.hasFlag(BattleShipFlag.FLUCHT) || aship.hasFlag(BattleShipFlag.SECONDROW)) {
+			if (!(aship.hasFlag(BattleShipFlag.JOIN) || aship.hasFlag(BattleShipFlag.FLUCHT) || aship.hasFlag(BattleShipFlag.SECONDROW))) {
 					counter ++;
 			}
 	}
