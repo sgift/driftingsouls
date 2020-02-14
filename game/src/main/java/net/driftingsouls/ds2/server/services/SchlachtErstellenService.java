@@ -173,7 +173,7 @@ public class SchlachtErstellenService
 		//
 
 		if( ownBattleShip == null ) {
-			throw new IllegalArgumentException("Offenbar liegt ein Problem mit dem von ihnen angegebenen Schiff oder ihrem eigenen Schiff vor (wird es evt. bereits angegriffen?)");
+			throw new IllegalArgumentException("Offenbar liegt ein Problem mit dem von Ihnen angegebenen Schiff oder Ihrem eigenen Schiff vor (wird es evtl. bereits angegriffen?).");
 		}
 
 		Battle battle = new Battle(ownShip.getLocation());
@@ -414,12 +414,12 @@ public class SchlachtErstellenService
 		// Kann der Spieler ueberhaupt angreifen (Noob-Schutz?)
 		if (user.isNoob())
 		{
-			throw new IllegalArgumentException("Sie stehen unter GCP-Schutz und k&ouml;nnen daher keinen Gegner angreifen!<br />Hinweis: der GCP-Schutz kann unter Optionen vorzeitig beendet werden");
+			throw new IllegalArgumentException("Sie stehen unter GCP-Schutz (Neulingsschutz) und k&ouml;nnen daher keinen Gegner angreifen!<br />Hinweis: Der GCP-Schutz kann in den Optionen vorzeitig beendet werden");
 		}
 
 		if ((ownShip == null) || (ownShip.getId() < 0) || (ownShip.getOwner() != user))
 		{
-			throw new IllegalArgumentException("Das angreifende Schiff existiert nicht oder untersteht nicht ihrem Kommando!");
+			throw new IllegalArgumentException("Das angreifende Schiff existiert nicht oder untersteht nicht Ihrem Kommando!");
 		}
 
 		if ((enemyShip == null) || (enemyShip.getId() < 0))
@@ -438,7 +438,7 @@ public class SchlachtErstellenService
 
 		if (enemyUser.isNoob())
 		{
-			throw new IllegalArgumentException("Der Gegner steht unter GCP-Schutz und kann daher nicht angegriffen werden!");
+			throw new IllegalArgumentException("Der Gegner steht unter GCP-Schutz (Neulingsschutz) und kann daher nicht angegriffen werden!");
 		}
 
 		if (enemyUser.getVacationCount() != 0 && enemyUser.getWait4VacationCount() == 0)
@@ -452,7 +452,7 @@ public class SchlachtErstellenService
 		boolean disable_iff = enemyShip.getStatus().contains("disable_iff");
 		if (disable_iff)
 		{
-			throw new IllegalArgumentException("Dieses Schiff kann nicht angegriffen werden (egal wieviel du mit der URL rumspielt!)");
+			throw new IllegalArgumentException("Dieses Schiff kann nicht angegriffen werden (egal wieviel du mit der URL rumspielst!)");
 		}
 	}
 
