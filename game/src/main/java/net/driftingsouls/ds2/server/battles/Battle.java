@@ -316,30 +316,27 @@ public class Battle implements Locatable
 * @return <code>true</code>, falls eine zweite Reihe exitiert
 */
 public boolean hasSecondRow( int side) {
-List<BattleShip> shiplist;
-if( side == this.ownSide ) {
-	shiplist = getOwnShips();
-}
-else
-		{
-	shiplist = getEnemyShips();
-}
+	List<BattleShip> shiplist;
+	if( side == this.ownSide ) {
+		shiplist = getOwnShips();
+	}
+	else{
+		shiplist = getEnemyShips();
+	}
 
-int counter = 0;
-for (BattleShip aship : shiplist) {
-		if (aship.hasFlag(BattleShipFlag.JOIN)) {
-				continue;
-		}
+	int counter = 0;
+	for (BattleShip aship : shiplist) {
+			if (aship.hasFlag(BattleShipFlag.JOIN)) {
+					continue;
+			}
 
-		if (aship.hasFlag(BattleShipFlag.SECONDROW)) {
-				if (!aship.getShip().isDocked() && !aship.getShip().isLanded()) {
-						counter ++;
-				}
-		}
-}
-
-return counter > 0;
-
+			if (aship.hasFlag(BattleShipFlag.SECONDROW)) {
+					if (!aship.getShip().isDocked() && !aship.getShip().isLanded()) {
+							counter ++;
+					}
+			}
+	}
+	return counter > 0;
 }
 
 	/**
@@ -348,24 +345,21 @@ return counter > 0;
 * @return <code>true</code>, falls eine zweite Reihe exitiert
 */
 public boolean hasJoinFluchtRow( int side) {
-List<BattleShip> shiplist;
-if( side == this.ownSide ) {
-	shiplist = getOwnShips();
-}
-else
-		{
-	shiplist = getEnemyShips();
-}
+	List<BattleShip> shiplist;
+	if( side == this.ownSide ) {
+		shiplist = getOwnShips();
+	}
+	else{
+		shiplist = getEnemyShips();
+	}
 
-int counter = 0;
-for (BattleShip aship : shiplist) {
-		if (aship.hasFlag(BattleShipFlag.JOIN) || aship.hasFlag(BattleShipFlag.FLUCHT)) {
-				counter ++;
-		}
-}
-
-return counter > 0;
-
+	int counter = 0;
+	for (BattleShip aship : shiplist) {
+			if (aship.hasFlag(BattleShipFlag.JOIN) || aship.hasFlag(BattleShipFlag.FLUCHT)) {
+					counter ++;
+			}
+	}
+	return counter > 0;
 }
 
 	/**
@@ -374,24 +368,23 @@ return counter > 0;
 * @return <code>true</code>, falls eine zweite Reihe exitiert
 */
 public boolean hasFrontRow( int side) {
-List<BattleShip> shiplist;
-if( side == this.ownSide ) {
-	shiplist = getOwnShips();
-}
-else
-		{
-	shiplist = getEnemyShips();
-}
 
-int counter = 0;
-for (BattleShip aship : shiplist) {
-		if (!(aship.hasFlag(BattleShipFlag.JOIN) || aship.hasFlag(BattleShipFlag.FLUCHT) || aship.hasFlag(BattleShipFlag.SECONDROW))) {
-				counter ++;
-		}
-}
+	List<BattleShip> shiplist;
+	if( side == this.ownSide ) {
+		shiplist = getOwnShips();
+	}
+	else{
+		shiplist = getEnemyShips();
+	}
 
-return counter > 0;
 
+	int counter = 0;
+	for (BattleShip aship : shiplist) {
+			if (!(aship.hasFlag(BattleShipFlag.JOIN) || aship.hasFlag(BattleShipFlag.FLUCHT) || aship.hasFlag(BattleShipFlag.SECONDROW))) {
+					counter ++;
+			}
+	}
+	return counter > 0;
 }
 
 	/**
