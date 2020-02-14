@@ -1,9 +1,7 @@
 <table class="show" style="table-layout:fixed" cellpadding="2" cellspacing="2" width="100%">
-<colgroup span="3" style="width:36%"></colgroup>
-<colgroup span="3" style="width:28%"></colgroup>
-<colgroup span="3" style="width:36%"></colgroup>
+
 <tr>
-	<td class="Border" style="width:36%" colspan="3">
+	<td class="Border" style="width:36%">
 		{if ownside.secondrow.blocked}
 			<img style="vertical-align:middle" src="data/interface/ks/secondrow_blocked.png" alt="" title="Sie haben im Moment keine M&ouml;glichkeit in die zweite Reihe zu fliegen" />
 		{else}
@@ -24,10 +22,10 @@
 			{/endif}
 		</span>
 	</td>
-	<td class="Border" style="width:28%" colspan="3">
+	<td class="Border" style="width:28%">
 		Befehle
 	</td>
-	<td class="Border" style="width:36%" colspan="3">
+	<td class="Border" style="width:36%">
 		{if enemyside.secondrow.blocked}
 			<img style="vertical-align:middle" src="data/interface/ks/secondrow_blocked.png" alt="" title="Der Gegner hat im Moment keine M&ouml;glichkeit in die zweite Reihe zu fliegen" />
 		{else}
@@ -43,7 +41,7 @@
 	</td>
 </tr>
 <tr>
-	<td class="schiffData" style="width:36%" colspan="3">
+	<td class="schiffData" style="width:36%">
 		<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ownship.name} ({ownship.id})</a> (aktiv)
 		{if ownship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
 		{if ownship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
@@ -76,7 +74,7 @@
 		</a><br />
 		<a class="profile" href="./ds?module=userprofile&amp;user={ownship.owner.id}">{ownship.owner.name}</a><br />
 	</td>
-	<td rowspan="3" style="vertical-align:top;width:36%" class="schiffData" colspan="3">
+	<td rowspan="3" style="vertical-align:top;width:36%" class="schiffData">
 		{if battle.logoutput}
 			<table border="0" cellspacing="1" cellpadding="1" width="100%" class="nav">
 			<tr>
@@ -221,7 +219,7 @@
 						{if shipinfo.type.shields}
 							+ Schilde:
 							{if shipinfo.shields.bad}<span style="color:#ff0000">{/endif}
-							{if shipinfo.shields.normal}<span style="color:#ffff00">{/endif} 
+							{if shipinfo.shields.normal}<span style="color:#ffff00">{/endif}
 							{if shipinfo.shields.good}<span style="color:#00ff00">{/endif}
 							{shipinfo.shields}/{shipinfo.type.shields}</span>{if shipinfo.showtmp}&nbsp;({shipinfo.tmp.shields}){/endif}<br />
 						{/endif}
@@ -331,7 +329,7 @@
 			</div>
 		</div>
 	</td>
-	<td class="schiffData" style="width:36%" colspan="3">
+	<td class="schiffData" style="width:36%">
 		<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{enemyship.name} ({enemyship.id})</a> (Ziel)
 		{if enemyship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
 		{if enemyship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
@@ -371,219 +369,278 @@
 	</a><br />
 <!-- END ships.typelist.item -->
 <tr>
-	<td class="Border" style="vertical-align:top;width:12%"><div style="height:22px; overflow:auto; font-size:16px; font-weight: bold">Beitritt/Flucht
-	</td>
-	<td class="Border" style="vertical-align:top;width:12%"><div style="height:22px; overflow:auto; font-size:16px; font-weight: bold">Zweite Reihe
-	</td>
-	<td class="Border" style="vertical-align:top;width:12%"><div style="height:22px; overflow:auto; font-size:16px; font-weight: bold">Erste Reihe
-	</td>
-	<td class="Border" style="vertical-align:top;width:12%"><div style="height:22px; overflow:auto; font-size:16px; font-weight: bold">Erste Reihe
-	</td>
-	<td class="Border" style="vertical-align:top;width:12%"><div style="height:22px; overflow:auto; font-size:16px; font-weight: bold">Zweite Reihe
-	</td>
-	<td class="Border" style="vertical-align:top;width:12%"><div style="height:22px; overflow:auto; font-size:16px; font-weight: bold">Beitritt/Flucht
-	</td>
-</tr>
-<tr>
-	<td class="schiffData" style="vertical-align:top;width:12%">
-		<div style="height:500px; overflow:auto; font-size:16px">
-			<!-- BEGIN ownShips.joinflucht.listitem -->
-			{if ship.action.joinflucht}
-				{if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
-				{if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
-				<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(aktiv){/endif}<br />
-				{if ship.docked.name}auf {if ship.docked.name}{ship.docked.name}{/endif}({ship.docked.id}){/endif}
-				{if ship.docked}<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" />{/endif}
-				{if ship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
-				{if ship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
-				{if ship.action.flucht}<img src="data/interface/ks/flucht.gif" alt="" title="flucht" />{/endif}
-				{if ship.action.fluchtnext}<img src="data/interface/ks/fluchtnext.png" alt="" title="flieht n&auml;chste Runde" />{/endif}
-				{if ship.action.shot}<img src="data/interface/ks/shot.gif" alt="" title="Waffen abgefeuert" />{/endif}
-				{if ship.action.join}<img src="data/interface/ks/join.gif" alt="" title="tritt der Schlacht bei" />{/endif}
-				{if ship.mangelnahrung}<img src="data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />{/endif}
-				{if ship.mangelreaktor}<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}
-				{if ship.docks}
-					<br />
-					{if ship.adocks}
-						<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.adocks.docked}/{ship.adocks}]</a>
-					{/endif}
-					{if ship.jdocks}
-						<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.jdocks.docked}/{ship.jdocks}]</a>
+<td>
+  <table class="show" style="table-layout:fixed" cellpadding="2" cellspacing="2" width="100%">
+    <tr>
+			{if ownside.joinflucht.exists}
+			<td class="Border" style="vertical-align:top;width:12%"><div style="height:22px; overflow:auto; font-size:16px; font-weight: bold">Beitritt/Flucht
+				<img style="vertical-align:middle" src="data/interface/ks/flucht.gif" alt="" title="Flucht" />
+				<img style="vertical-align:middle" src="data/interface/ks/join.gif" alt="" title="Beitritt" />
+				</div>
+			</td>
+    {/endif}
+    {if ownside.secondrow.exists}
+			td class="Border" style="vertical-align:top;width:12%"><div style="height:22px; overflow:auto; font-size:16px; font-weight: bold">Zweite Reihe
+				{if ownside.secondrow.blocked}
+					<img style="vertical-align:middle" src="data/interface/ks/secondrow_blocked.png" alt="" title="Sie haben im Moment keine M&ouml;glichkeit in die zweite Reihe zu fliegen" />
+				{else}
+					{if ownside.secondrow.stable}
+						<img style="vertical-align:middle" src="data/interface/ks/secondrow.png" alt="" title="Ihre zweite Reihe ist im Moment stabil" />
+					{else}
+						<img style="vertical-align:middle" src="data/interface/ks/secondrow_unstable.png" alt="" title="Ihre zweite Reihe ist im Moment instabil, und kann daher vom Gegner &uuml;berrannt werden" />
 					{/endif}
 				{/endif}
-				<br />
-				<a class="noborder tooltip" target="_blank"
-					onclick="ShiptypeBox.show({ship.type});return false;"
-					href="./ds?module=schiffinfo&amp;ship={ship.type}">
-					<img src="{ship.type.image}" alt="" style="float:right; margin-right:5px; margin-left:15px;margin-bottom:10px; width:100%"/>
-					<span class="ttcontent">{ship.type.name}{ship.energy}</span>
-				</a><br />
-				<a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
-				{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+			</div>
+			<td>
+    {/endif}
+		{if ownside.frontrow.exists}
+			<td class="Border" style="vertical-align:top;width:12%"><div style="height:22px; overflow:auto; font-size:16px; font-weight: bold">Erste Reihe
+				</div>
+      </td>
+    {/endif}
+      </tr>
+      <tr>
+        {if ownside.joinflucht.exists}
+        <td class="schiffData" style="vertical-align:top;width:12%">
+          <div style="height:500px; overflow:auto; font-size:16px">
+            <!-- BEGIN ownShips.joinflucht.listitem -->
+            {if ship.action.joinflucht}
+              {if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+              {if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
+              <a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(aktiv){/endif}<br />
+              {if ship.docked.name}auf {if ship.docked.name}{ship.docked.name}{/endif}({ship.docked.id}){/endif}
+              {if ship.docked}<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" />{/endif}
+              {if ship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
+              {if ship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
+              {if ship.action.flucht}<img src="data/interface/ks/flucht.gif" alt="" title="flucht" />{/endif}
+              {if ship.action.fluchtnext}<img src="data/interface/ks/fluchtnext.png" alt="" title="flieht n&auml;chste Runde" />{/endif}
+              {if ship.action.shot}<img src="data/interface/ks/shot.gif" alt="" title="Waffen abgefeuert" />{/endif}
+							{if ship.action.join}<img src="data/interface/ks/join.gif" alt="" title="tritt der Schlacht bei" />{/endif}
+							{if ship.action.join}<img src="data/interface/ks/join.gif" alt="" title="tritt der Schlacht bei" />{/endif}
+							{if ship.action.secondrow}<img src="data/interface/ks/secondrow.png" alt="" title="Zweite Reihe" />{/endif}
+              {if ship.mangelnahrung}<img src="data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />{/endif}
+              {if ship.mangelreaktor}<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}
+              {if ship.docks}
+                <br />
+                {if ship.adocks}
+                  <img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.adocks.docked}/{ship.adocks}]</a>
+                {/endif}
+                {if ship.jdocks}
+                  <img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.jdocks.docked}/{ship.jdocks}]</a>
+                {/endif}
+              {/endif}
+              <br />
+              <a class="noborder tooltip" target="_blank"
+                onclick="ShiptypeBox.show({ship.type});return false;"
+                href="./ds?module=schiffinfo&amp;ship={ship.type}">
+                <img src="{ship.type.image}" alt="" style="float:right; margin-right:5px; margin-left:15px;margin-bottom:10px; width:100%"/>
+                <span class="ttcontent">{ship.type.name}{ship.energy}</span>
+              </a><br />
+              <a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
+              {if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+            {/endif}
+						<!-- END ownShips.joinflucht.listitem -->
+          </div>
+        </td>
+        {/endif}
+        {if ownside.secondrow.exists}
+        <td class="schiffData" style="vertical-align:top;width:12%">
+          <div style="height:500px; overflow:auto; font-size:16px">
+            <!-- BEGIN ownShips.secondrow.listitem -->
+            {if ship.action.secondrow}
+              {if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+              {if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
+              <a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(aktiv){/endif}<br />
+              {if ship.docked.name}auf {if ship.docked.name}{ship.docked.name}{/endif}({ship.docked.id}){/endif}
+              {if ship.docked}<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" />{/endif}
+              {if ship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
+              {if ship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
+              {if ship.action.fluchtnext}<img src="data/interface/ks/fluchtnext.png" alt="" title="flieht n&auml;chste Runde" />{/endif}
+              {if ship.action.shot}<img src="data/interface/ks/shot.gif" alt="" title="Waffen abgefeuert" />{/endif}
+              {if ship.mangelnahrung}<img src="data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />{/endif}
+              {if ship.mangelreaktor}<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}
+              {if ship.docks}
+                <br />
+                {if ship.adocks}
+                  <img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.adocks.docked}/{ship.adocks}]</a>
+                {/endif}
+                {if ship.jdocks}
+                  <img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.jdocks.docked}/{ship.jdocks}]</a>
+                {/endif}
+              {/endif}
+              <br />
+              <a class="noborder tooltip" target="_blank"
+                onclick="ShiptypeBox.show({ship.type});return false;"
+                href="./ds?module=schiffinfo&amp;ship={ship.type}">
+                <img src="{ship.type.image}" alt="" style="float:right; margin-right:5px; margin-left:15px;margin-bottom:10px; width:100%"/>
+                <span class="ttcontent">{ship.type.name}{ship.energy}</span>
+              </a><br />
+              <a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
+              {if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+            {/endif}
+            <!-- END ownShips.secondrow.listitem -->
+          </div>
+        </td>
+        {/endif}
+        {if ownside.frontrow.exists}
+        <td class="schiffData" style="vertical-align:top;width:12%">
+          <div style="height:500px; overflow:auto; font-size:16px">
+            <!-- BEGIN ownShips.frontrow.listitem -->
+            {if ship.action.frontrow}
+              {if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+              {if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
+              <a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(aktiv){/endif}<br />
+              {if ship.docked.name}auf {if ship.docked.name}{ship.docked.name}{/endif}({ship.docked.id}){/endif}
+              {if ship.docked}<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" />{/endif}
+              {if ship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
+              {if ship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
+              {if ship.action.fluchtnext}<img src="data/interface/ks/fluchtnext.png" alt="" title="flieht n&auml;chste Runde" />{/endif}
+              {if ship.action.shot}<img src="data/interface/ks/shot.gif" alt="" title="Waffen abgefeuert" />{/endif}
+              {if ship.mangelnahrung}<img src="data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />{/endif}
+              {if ship.mangelreaktor}<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}
+              {if ship.docks}
+                <br />
+                {if ship.adocks}
+                  <img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.adocks.docked}/{ship.adocks}]</a>
+                {/endif}
+                {if ship.jdocks}
+                  <img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.jdocks.docked}/{ship.jdocks}]</a>
+                {/endif}
+              {/endif}
+              <br />
+              <a class="noborder tooltip" target="_blank"
+                onclick="ShiptypeBox.show({ship.type});return false;"
+                href="./ds?module=schiffinfo&amp;ship={ship.type}">
+                <img src="{ship.type.image}" alt="" style="float:right; margin-right:5px; margin-left:15px;margin-bottom:10px; width:100%"/>
+                <span class="ttcontent">{ship.type.name}{ship.energy}</span>
+              </a><br />
+              <a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
+              {if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+            {/endif}
+            <!-- END ownShips.frontrow.listitem -->
+          </div>
+        </td>
+        {/endif}
+  </table>
+  </td>
+  <td>
+		<table class="show" style="table-layout:fixed" cellpadding="2" cellspacing="2" width="100%">
+			{if enemyShips.frontrow.exists}
+				<td class="Border" style="vertical-align:top;width:12%"><div style="height:22px; overflow:auto; font-size:16px; font-weight: bold">Erste Reihe
+				</td>
 			{/endif}
-			<!-- END ownShips.joinflucht.listitem -->
-		</div>
-	</td>
-	<td class="schiffData" style="vertical-align:top;width:12%">
-		<div style="height:500px; overflow:auto; font-size:16px">
-			<!-- BEGIN ownShips.secondrow.listitem -->
-			{if ship.action.secondrow}
-				{if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
-				{if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
-				<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(aktiv){/endif}<br />
-				{if ship.docked.name}auf {if ship.docked.name}{ship.docked.name}{/endif}({ship.docked.id}){/endif}
-				{if ship.docked}<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" />{/endif}
-				{if ship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
-				{if ship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
-				{if ship.action.fluchtnext}<img src="data/interface/ks/fluchtnext.png" alt="" title="flieht n&auml;chste Runde" />{/endif}
-				{if ship.action.shot}<img src="data/interface/ks/shot.gif" alt="" title="Waffen abgefeuert" />{/endif}
-				{if ship.mangelnahrung}<img src="data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />{/endif}
-				{if ship.mangelreaktor}<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}
-				{if ship.docks}
-					<br />
-					{if ship.adocks}
-						<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.adocks.docked}/{ship.adocks}]</a>
+			{if enemyShips.secondrow.exists}
+				<td class="Border" style="vertical-align:top;width:12%"><div style="height:22px; overflow:auto; font-size:16px; font-weight: bold">Zweite Reihe
+					{if enemyside.secondrow.blocked}
+						<img style="vertical-align:middle" src="data/interface/ks/secondrow_blocked.png" alt="" title="Der Gegner hat im Moment keine M&ouml;glichkeit in die zweite Reihe zu fliegen" />
+					{else}
+						{if enemyside.secondrow.stable}
+							<img style="vertical-align:middle" src="data/interface/ks/secondrow.png" alt="" title="Die zweite Reihe ihres Gegners ist im Moment stabil" />
+						{else}
+							<img style="vertical-align:middle" src="data/interface/ks/secondrow_unstable.png" alt="" title="Die zweite Reihe ihres Gegners ist im Moment instabil, und kann daher von ihnen &uuml;berrannt werden" />
+						{/endif}
 					{/endif}
-					{if ship.jdocks}
-						<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.jdocks.docked}/{ship.jdocks}]</a>
+					</div>
+				</td>
+			{/endif}
+			{if enemyShips.joinflucht.exists}
+				<td class="Border" style="vertical-align:top;width:12%"><div style="height:22px; overflow:auto; font-size:16px; font-weight: bold">Beitritt/Flucht
+					</div>
+				</td>
+			{/endif}
+			{if enemyShips.frontrow.exists}
+			<td class="schiffData" style="vertical-align:top;width:12%">
+				<div style="height:500px; overflow:auto; font-size:16px">
+					<!-- BEGIN enemyShips.frontrow.listitem -->
+					{if ship.action.frontrow}
+						{if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+						{if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
+						<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={ship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(Ziel){/endif}<br />
+						{if ship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
+						{if ship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
+						<br />
+						<a class="noborder tooltip" target="_blank"
+							onclick="ShiptypeBox.show({ship.type});return false;"
+							href="./ds?module=schiffinfo&amp;ship={ship.type}">
+							<img src="{ship.type.image}" alt="" style="float:right; margin-right:5px; margin-left:15px;margin-bottom:10px; width:100%"/>
+							<span class="ttcontent">{ship.type.name}</span>
+						</a><br />
+						<a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
+						{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
 					{/endif}
-				{/endif}
-				<br />
-				<a class="noborder tooltip" target="_blank"
-					onclick="ShiptypeBox.show({ship.type});return false;"
-					href="./ds?module=schiffinfo&amp;ship={ship.type}">
-					<img src="{ship.type.image}" alt="" style="float:right; margin-right:5px; margin-left:15px;margin-bottom:10px; width:100%"/>
-					<span class="ttcontent">{ship.type.name}{ship.energy}</span>
-				</a><br />
-				<a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
-				{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+					<!-- END enemyShips.frontrow.listitem -->
+				</div>
+			</td>
 			{/endif}
-			<!-- END ownShips.secondrow.listitem -->
-		</div>
-	</td>
-	<td class="schiffData" style="vertical-align:top;width:12%">
-		<div style="height:500px; overflow:auto; font-size:16px">
-			<!-- BEGIN ownShips.frontrow.listitem -->
-			{if ship.action.frontrow}
-				{if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
-				{if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
-				<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(aktiv){/endif}<br />
-				{if ship.docked.name}auf {if ship.docked.name}{ship.docked.name}{/endif}({ship.docked.id}){/endif}
-				{if ship.docked}<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" />{/endif}
-				{if ship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
-				{if ship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
-				{if ship.action.fluchtnext}<img src="data/interface/ks/fluchtnext.png" alt="" title="flieht n&auml;chste Runde" />{/endif}
-				{if ship.action.shot}<img src="data/interface/ks/shot.gif" alt="" title="Waffen abgefeuert" />{/endif}
-				{if ship.mangelnahrung}<img src="data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />{/endif}
-				{if ship.mangelreaktor}<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}
-				{if ship.docks}
-					<br />
-					{if ship.adocks}
-						<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.adocks.docked}/{ship.adocks}]</a>
+			{if enemyShips.secondrow.exists}
+			<td class="schiffData" style="vertical-align:top;width:12%">
+				<div style="height:500px; overflow:auto; font-size:16px">
+					<!-- BEGIN enemyShips.secondrow.listitem -->
+					{if ship.action.secondrow}
+						{if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+						{if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
+						<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={ship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(Ziel){/endif}<br />
+						{if ship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
+						{if ship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
+						<br />
+						<a class="noborder tooltip" target="_blank"
+							onclick="ShiptypeBox.show({ship.type});return false;"
+							href="./ds?module=schiffinfo&amp;ship={ship.type}">
+							<img src="{ship.type.image}" alt="" style="float:right; margin-right:5px; margin-left:15px;margin-bottom:10px; width:100%"/>
+							<span class="ttcontent">{ship.type.name}</span>
+						</a><br />
+						<a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
+						{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
 					{/endif}
-					{if ship.jdocks}
-						<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.jdocks.docked}/{ship.jdocks}]</a>
+					<!-- END enemyShips.secondrow.listitem -->
+				</div>
+			</td>
+			{/endif}
+			{if enemyShips.joinflucht.exists}
+			<td class="schiffData" style="vertical-align:top;width:12%">
+				<div style="height:500px; overflow:auto; font-size:16px">
+					<!-- BEGIN enemyShips.joinflucht.listitem -->
+					{if ship.action.joinflucht}
+						{if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+						{if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
+						<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={ship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(Ziel){/endif}<br />
+						{if ship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
+						{if ship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
+						{if ship.action.flucht}<img src="data/interface/ks/flucht.gif" alt="" title="flucht" />{/endif}
+						{if ship.action.join}<img src="data/interface/ks/join.gif" alt="" title="tritt der Schlacht bei" />{/endif}
+						{if ship.action.secondrow}<img src="data/interface/ks/secondrow.png" alt="" title="Zweite Reihe" />{/endif}
+						<br />
+						<a class="noborder tooltip" target="_blank"
+							onclick="ShiptypeBox.show({ship.type});return false;"
+							href="./ds?module=schiffinfo&amp;ship={ship.type}">
+							<img src="{ship.type.image}" alt="" style="float:right; margin-right:5px; margin-left:15px;margin-bottom:10px; width:100%"/>
+							<span class="ttcontent">{ship.type.name}</span>
+						</a><br />
+						<a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
+						{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
 					{/endif}
-				{/endif}
-				<br />
-				<a class="noborder tooltip" target="_blank"
-					onclick="ShiptypeBox.show({ship.type});return false;"
-					href="./ds?module=schiffinfo&amp;ship={ship.type}">
-					<img src="{ship.type.image}" alt="" style="float:right; margin-right:5px; margin-left:15px;margin-bottom:10px; width:100%"/>
-					<span class="ttcontent">{ship.type.name}{ship.energy}</span>
-				</a><br />
-				<a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
-				{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
-			{/endif}
-			<!-- END ownShips.frontrow.listitem -->
-		</div>
-	</td>
-	<td class="schiffData" style="vertical-align:top;width:12%">
-		<div style="height:500px; overflow:auto; font-size:16px">
-			<!-- BEGIN enemyShips.frontrow.listitem -->
-			{if ship.action.frontrow}	
-				{if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
-				{if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
-				<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={ship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(Ziel){/endif}<br />
-				{if ship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
-				{if ship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
-				<br />
-				<a class="noborder tooltip" target="_blank"
-					onclick="ShiptypeBox.show({ship.type});return false;"
-					href="./ds?module=schiffinfo&amp;ship={ship.type}">
-					<img src="{ship.type.image}" alt="" style="float:right; margin-right:5px; margin-left:15px;margin-bottom:10px; width:100%"/>
-					<span class="ttcontent">{ship.type.name}</span>
-				</a><br />
-				<a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
-				{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
-			{/endif}
-			<!-- END enemyShips.frontrow.listitem -->
-		</div>
-	</td>
-	<td class="schiffData" style="vertical-align:top;width:12%">
-		<div style="height:500px; overflow:auto; font-size:16px">
-			<!-- BEGIN enemyShips.secondrow.listitem -->
-			{if ship.action.secondrow}	
-				{if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
-				{if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
-				<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={ship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(Ziel){/endif}<br />
-				{if ship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
-				{if ship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
-				<br />
-				<a class="noborder tooltip" target="_blank"
-					onclick="ShiptypeBox.show({ship.type});return false;"
-					href="./ds?module=schiffinfo&amp;ship={ship.type}">
-					<img src="{ship.type.image}" alt="" style="float:right; margin-right:5px; margin-left:15px;margin-bottom:10px; width:100%"/>
-					<span class="ttcontent">{ship.type.name}</span>
-				</a><br />
-				<a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
-				{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
-			{/endif}
-			<!-- END enemyShips.secondrow.listitem -->
-		</div>
-	</td>
-	<td class="schiffData" style="vertical-align:top;width:12%">
-		<div style="height:500px; overflow:auto; font-size:16px">
-			<!-- BEGIN enemyShips.joinflucht.listitem -->
-			{if ship.action.joinflucht}
-				{if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
-				{if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
-				<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={ship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(Ziel){/endif}<br />
-				{if ship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
-				{if ship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
-				{if ship.action.flucht}<img src="data/interface/ks/flucht.gif" alt="" title="flucht" />{/endif}
-				{if ship.action.join}<img src="data/interface/ks/join.gif" alt="" title="tritt der Schlacht bei" />{/endif}
-				<br />
-				<a class="noborder tooltip" target="_blank"
-					onclick="ShiptypeBox.show({ship.type});return false;"
-					href="./ds?module=schiffinfo&amp;ship={ship.type}">
-					<img src="{ship.type.image}" alt="" style="float:right; margin-right:5px; margin-left:15px;margin-bottom:10px; width:100%"/>
-					<span class="ttcontent">{ship.type.name}</span>
-				</a><br />
-				<a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
-				{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
-			{/endif}
-			<!-- END enemyShips.joinflucht.listitem -->
-		</div>
-	</td>
-
+					<!-- END enemyShips.joinflucht.listitem -->
+				</div>
+			</td>
+		{/endif}
+	</table>
 </tr>
 <tr>
 	{if user.commander}
-		<td class="BorderS" style="width:36%" colspan="3">&nbsp;</td>
+		<td class="BorderS" style="width:36%">&nbsp;</td>
 		{if battle.turn.own}
-			<td style="text-align:center;width:28%" class="BorderS" colspan="3"><a class="forschinfo" href="javascript:DS.ask('Wollen sie ihren Zug wirklich beenden?',DS.getUrl()+'?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ksaction=endturn&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}')">Zug beenden</a></td>
+			<td style="text-align:center;width:28%" class="BorderS"><a class="forschinfo" href="javascript:DS.ask('Wollen sie ihren Zug wirklich beenden?',DS.getUrl()+'?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ksaction=endturn&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}')">Zug beenden</a></td>
 		{else}
-			<td style="text-align:center;width:28%" class="BorderS" colspan="3">Warte auf Gegner</td>
+			<td style="text-align:center;width:28%" class="BorderS">Warte auf Gegner</td>
 		{/endif}
 	{else}
-		<td class="BorderS" style="text-align:center;width:36%" colspan="3">{battle.owncom.name}{if battle.owncom.ready}&nbsp;<img src="data/interface/ks/ready.gif" alt="" />{/endif}</td>
+		<td class="BorderS" style="text-align:center;width:36%">{battle.owncom.name}{if battle.owncom.ready}&nbsp;<img src="data/interface/ks/ready.gif" alt="" />{/endif}</td>
 		{if battle.turn.own}
-			<td style="text-align:center;width:28%" class="BorderS" colspan="3">Warte auf Kommandanten</td>
+			<td style="text-align:center;width:28%" class="BorderS">Warte auf Kommandanten</td>
 		{else}
-			<td style="text-align:center;width:28%" class="BorderS" colspan="3">Warte auf Gegner</td>
+			<td style="text-align:center;width:28%" class="BorderS">Warte auf Gegner</td>
 		{/endif}
 	{/endif}
-	<td class="BorderS" style="text-align:center;width:36%" colspan="3">{battle.enemycom.name}{if battle.enemycom.ready}&nbsp;<img src="data/interface/ks/ready.gif" alt="" />{/endif}</td>
+	<td class="BorderS" style="text-align:center;width:36%">{battle.enemycom.name}{if battle.enemycom.ready}&nbsp;<img src="data/interface/ks/ready.gif" alt="" />{/endif}</td>
 </tr>
 </table>
