@@ -368,6 +368,7 @@ public boolean hasJoinFluchtRow( int side) {
 * @return <code>true</code>, falls eine zweite Reihe exitiert
 */
 public boolean hasFrontRow( int side) {
+
 	List<BattleShip> shiplist;
 	if( side == this.ownSide ) {
 		shiplist = getOwnShips();
@@ -375,6 +376,7 @@ public boolean hasFrontRow( int side) {
 	else{
 		shiplist = getEnemyShips();
 	}
+
 
 	int counter = 0;
 	for (BattleShip aship : shiplist) {
