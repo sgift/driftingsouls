@@ -817,7 +817,7 @@ public class AngriffController extends Controller
 
 				t.start_record();
 
-				if( !showgroups) ) {
+				if( !showgroups ) {
 					continue;
 				}
 				if( showgroups && (aship.getShip().getType() != grouptype) ) {
@@ -1345,7 +1345,7 @@ public class AngriffController extends Controller
 
 				t.start_record();
 
-				if( !showgroups) ) {
+				if( !showgroups ) {
 					continue;
 				}
 				if( showgroups && (aship.getShip().getType() != grouptype) ) {
@@ -1642,7 +1642,7 @@ public class AngriffController extends Controller
 
 				t.start_record();
 
-				if( !showgroups) ) {
+				if( !showgroups ) {
 					continue;
 				}
 				if( showgroups && (aship.getShip().getType() != grouptype) ) {
@@ -2043,7 +2043,7 @@ public class AngriffController extends Controller
 
 				t.start_record();
 
-				if( !showgroups) ) {
+				if( !showgroups ) {
 					continue;
 				}
 				if( showgroups && (aship.getShip().getType() != grouptype) ) {
