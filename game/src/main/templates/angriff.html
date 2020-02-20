@@ -520,11 +520,13 @@
             <!-- END ownShips.frontrow.listitem -->
           </div>
         </td>
-        {/endif}
+				{/endif}
+			</tr>
   </table>
   </td>
   <td>
 		<table class="show" style="table-layout:fixed" cellpadding="2" cellspacing="2" width="100%">
+			<tr>
 			{if enemyside.frontrow.exists}
 				<td class="Border" style="vertical-align:top;width:12%"><div style="height:22px; overflow:auto; font-size:16px; font-weight: bold">Erste Reihe
 				</td>
@@ -548,6 +550,8 @@
 					</div>
 				</td>
 			{/endif}
+		</tr>
+		<tr>
 			{if enemyside.frontrow.exists}
 			<td class="schiffData" style="vertical-align:top;width:12%">
 				<div style="height:500px; overflow:auto; font-size:16px">
@@ -623,6 +627,7 @@
 				</div>
 			</td>
 		{/endif}
+	</tr>
 	</table>
 </tr>
 <tr>
