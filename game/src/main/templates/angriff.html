@@ -74,7 +74,7 @@
 		</a><br />
 		<a class="profile" href="./ds?module=userprofile&amp;user={ownship.owner.id}">{ownship.owner.name}</a><br />
 	</td>
-	<td rowspan="3" style="vertical-align:top;width:36%" class="schiffData">
+	<td rowspan="2" style="vertical-align:top;width:36%" class="schiffData">
 		{if battle.logoutput}
 			<table border="0" cellspacing="1" cellpadding="1" width="100%" class="nav">
 			<tr>
@@ -360,8 +360,8 @@
 	{if shiptypelist.mangelreaktorcount}&nbsp;<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{shiptypelist.mangelreaktorcount}{/endif}
 	{if shiptypelist.landedcount}&nbsp;<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" title="gelandet" />{shiptypelist.landedcount}{/endif}
 	{if shiptypelist.dockedcount}&nbsp;<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" title="gedockt" />{shiptypelist.dockedcount}{/endif}
-		{if shiptypelist.haslandedcount}&nbsp;<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" title="gelandet" /><a style="color:#CCAA33" class="nonbold">[{shiptypelist.haslandedcount}/{shiptypelist.jdockcount}]{/endif}
-	{if shiptypelist.hasdockedcount}&nbsp;<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" title="gedockt" /><a style="color:#CCAA33" class="nonbold">[{shiptypelist.hasdockedcount}/{shiptypelist.adockcount}]{/endif}<br />
+		{if shiptypelist.haslandedcount}&nbsp;<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" title="gelandet" /><a style="color:#CCAA33" class="nonbold">[{shiptypelist.haslandedcount}/{shiptypelist.jdockcount}]</a>{/endif}
+	{if shiptypelist.hasdockedcount}&nbsp;<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" title="gedockt" /><a style="color:#CCAA33" class="nonbold">[{shiptypelist.hasdockedcount}/{shiptypelist.adockcount}]</a>{/endif}<br />
 	<a class="noborder" target="_blank"
 		onclick="ShiptypeBox.show({shiptypelist.id});return false;"
 		href="./ds?module=schiffinfo&amp;ship={shiptypelist.id}">
@@ -380,7 +380,7 @@
 			</td>
     {/endif}
     {if ownside.secondrow.exists}
-			td class="Border" style="vertical-align:top;width:12%"><div style="height:22px; overflow:auto; font-size:16px; font-weight: bold">Zweite Reihe
+			<td class="Border" style="vertical-align:top;width:12%"><div style="height:22px; overflow:auto; font-size:16px; font-weight: bold">Zweite Reihe
 				{if ownside.secondrow.blocked}
 					<img style="vertical-align:middle" src="data/interface/ks/secondrow_blocked.png" alt="" title="Sie haben im Moment keine M&ouml;glichkeit in die zweite Reihe zu fliegen" />
 				{else}
