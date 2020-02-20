@@ -391,7 +391,7 @@
 					{/endif}
 				{/endif}
 			</div>
-			<td>
+		</td>
     {/endif}
 		{if ownside.frontrow.exists}
 			<td class="Border" style="vertical-align:top;width:12%"><div style="height:22px; overflow:auto; font-size:16px; font-weight: bold">Erste Reihe
@@ -525,7 +525,7 @@
   </td>
   <td>
 		<table class="show" style="table-layout:fixed" cellpadding="2" cellspacing="2" width="100%">
-			{if enemyShips.frontrow.exists}
+			{if enemyside.frontrow.exists}
 				<td class="Border" style="vertical-align:top;width:12%"><div style="height:22px; overflow:auto; font-size:16px; font-weight: bold">Erste Reihe
 				</td>
 			{/endif}
@@ -543,12 +543,12 @@
 					</div>
 				</td>
 			{/endif}
-			{if enemyShips.joinflucht.exists}
+			{if enemyside.joinflucht.exists}
 				<td class="Border" style="vertical-align:top;width:12%"><div style="height:22px; overflow:auto; font-size:16px; font-weight: bold">Beitritt/Flucht
 					</div>
 				</td>
 			{/endif}
-			{if enemyShips.frontrow.exists}
+			{if enemyside.frontrow.exists}
 			<td class="schiffData" style="vertical-align:top;width:12%">
 				<div style="height:500px; overflow:auto; font-size:16px">
 					<!-- BEGIN enemyShips.frontrow.listitem -->
@@ -572,7 +572,7 @@
 				</div>
 			</td>
 			{/endif}
-			{if enemyShips.secondrow.exists}
+			{if enemyside.secondrow.exists}
 			<td class="schiffData" style="vertical-align:top;width:12%">
 				<div style="height:500px; overflow:auto; font-size:16px">
 					<!-- BEGIN enemyShips.secondrow.listitem -->
@@ -596,7 +596,7 @@
 				</div>
 			</td>
 			{/endif}
-			{if enemyShips.joinflucht.exists}
+			{if enemyside.joinflucht.exists}
 			<td class="schiffData" style="vertical-align:top;width:12%">
 				<div style="height:500px; overflow:auto; font-size:16px">
 					<!-- BEGIN enemyShips.joinflucht.listitem -->
