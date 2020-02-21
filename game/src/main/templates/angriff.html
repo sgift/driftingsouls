@@ -79,7 +79,9 @@
 			<table border="0" cellspacing="1" cellpadding="1" width="100%" class="nav">
 			<tr>
 				<td class="angrifflog">
-					{battle.logoutput}
+					<div id="ks-log" style="height:220px; overflow:auto">
+						{battle.logoutput}
+					</div>
 					<br /><br />
 					<div style="text-align:center">[ <a href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ksaction={global.ksaction}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">ok</a> ]</div>
 				</td>
@@ -129,9 +131,7 @@
 			<table border="0" cellspacing="1" cellpadding="1" width="100%" class="nav">
 			<tr>
 				<td class="angrifflog">
-					<div id="ks-log" style="height:220px; overflow:auto">
-						{global.showlog.text}
-					</div>
+					{global.showlog.text}
 					<br />
 					<div style="text-align:center;width:100%">
 						<div style="text-align:right;position:absolute;direction:rtl">
