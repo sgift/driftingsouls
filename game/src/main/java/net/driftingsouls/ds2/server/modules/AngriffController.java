@@ -522,7 +522,14 @@ public class AngriffController extends Controller
 		if( scan == null || scan.length() == 0 ) {
 			scan = "own";
 		}
+		
+		if( !(ownFokusRow.equals("front") || ownFokusRow.equals("second") || ownFokusRow.equals("join")) ){
+			ownFokusRow = "none";
+		}
 
+		if( !(enemyFokusRow.equals("front") || enemyFokusRow.equals("second") || enemyFokusRow.equals("join")) ){
+			enemyFokusRow = "none";
+		}
 		/*--------------------------------------------------------------
 
 			Schlacht laden bzw. erstellen
@@ -643,13 +650,13 @@ public class AngriffController extends Controller
 					"global.ownFokusRow", ownFokusRow,
 					"global.enemyFokusRow" , enemyFokusRow,
 					"battle.id",				battle.getId(),
-					"ownside.secondrow.exists", ownFokusRow == "none" ? battle.hasSecondRow(battle.getOwnSide()) : ownFokusRow == "second",
+					"ownside.secondrow.exists", ownFokusRow.equals("none") ? battle.hasSecondRow(battle.getOwnSide()) : (ownFokusRow.equals("second")),
 					"ownside.secondrow.stable",battle.isSecondRowStable(battle.getOwnSide()),
-					"ownside.frontrow.exists", ownFokusRow == "none" ? battle.hasFrontRow(battle.getOwnSide()) : ownFokusRow == "front",
-					"ownside.joinflucht.exists", ownFokusRow == "none" ? battle.hasJoinFluchtRow(battle.getOwnSide()) : ownFokusRow == "join",
-					"enemyside.secondrow.exists", enemyFokusRow == "none" ? battle.hasSecondRow(battle.getEnemySide()) : enemyFokusRow == "second",
-					"enemyside.frontrow.exists", enemyFokusRow == "none" ? battle.hasFrontRow(battle.getEnemySide()) : enemyFokusRow == "front",
-					"enemyside.joinflucht.exists", enemyFokusRow == "none" ? battle.hasJoinFluchtRow(battle.getEnemySide()) : enemyFokusRow == "join",
+					"ownside.frontrow.exists", ownFokusRow.equals("none") ? battle.hasFrontRow(battle.getOwnSide()) : (ownFokusRow.equals("front")),
+					"ownside.joinflucht.exists", ownFokusRow.equals("none") ? battle.hasJoinFluchtRow(battle.getOwnSide()) : (ownFokusRow.equals("join")),
+					"enemyside.secondrow.exists", enemyFokusRow.equals("none") ? battle.hasSecondRow(battle.getEnemySide()) : (enemyFokusRow.equals("second")),
+					"enemyside.frontrow.exists", enemyFokusRow.equals("none") ? battle.hasFrontRow(battle.getEnemySide()) : (enemyFokusRow.equals("front")),
+					"enemyside.joinflucht.exists", enemyFokusRow.equals("none") ? battle.hasJoinFluchtRow(battle.getEnemySide()) : (enemyFokusRow.equals("join")),
 					"enemyside.secondrow.stable",	battle.isSecondRowStable(battle.getEnemySide()),
 					"ownship.id",				ownShip.getId(),
 					"ownship.name",				ownShip.getName(),
