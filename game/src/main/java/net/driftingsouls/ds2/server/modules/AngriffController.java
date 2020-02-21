@@ -654,6 +654,7 @@ public class AngriffController extends Controller
 					"ownship.type.name",		ownShipType.getNickname(),
 					"ownship.type.image",		ownShipType.getPicture(),
 					"ownship.owner.name",		Common._title(oUser.getName()),
+					"ownship.owner.race",		oUser.getRace(),
 					"ownship.owner.id",			ownShip.getOwner().getId(),
 					"ownship.action.hit",		ownShip.hasFlag(BattleShipFlag.HIT),
 					"ownship.action.flucht",	ownShip.hasFlag(BattleShipFlag.FLUCHT),
@@ -678,6 +679,7 @@ public class AngriffController extends Controller
 					"enemyship.type.image",		enemyShipType.getPicture(),
 					"enemyship.owner.name",		Common._title(eUser.getName()),
 					"enemyship.owner.id",		enemyShip.getOwner().getId(),
+					"enemyship.owner.race", enemyShip.getOwner().getRace(),
 					"enemyship.action.hit",		enemyShip.hasFlag(BattleShipFlag.HIT),
 					"enemyship.action.flucht",	enemyShip.hasFlag(BattleShipFlag.FLUCHT),
 					"enemyship.action.destroyed",	enemyShip.hasFlag(BattleShipFlag.DESTROYED),
@@ -882,6 +884,7 @@ public class AngriffController extends Controller
 							"ship.type.name",		aShipType.getNickname(),
 							"ship.type.image",		aShipType.getPicture(),
 							"ship.owner.name",		Common._title(aUser.getName()),
+							"ship.owner.race", 			aUser.getRace(),
 							"ship.owner.id",		aship.getOwner().getId(),
 							"ship.energy",			energy,
 							"ship.active",			(aship == ownShip),
@@ -894,7 +897,6 @@ public class AngriffController extends Controller
 							"ship.action.shot", 	!battle.isGuest() && aship.hasFlag(BattleShipFlag.SHOT),
               "ship.mangelnahrung",       !battle.isGuest() && (aship.getShip().getStatus().contains("mangel_nahrung")),
               "ship.mangelreaktor",       !battle.isGuest() && (aship.getShip().getStatus().contains("mangel_reaktor")),
-              "user.race", 			aUser.getRace(),
               "ship.jdocks", 			aShipType.getJDocks(),
               "ship.adocks", 			aShipType.getADocks(),
               "ship.docks", 			aShipType.getADocks()+aShipType.getJDocks(),
@@ -1051,7 +1053,7 @@ public class AngriffController extends Controller
                 "shiptypelist.hasdockedcount",  data.hasdockedcount,
                 "shiptypelist.adockcount",  data.adockcount,
                 "shiptypelist.jdockcount",  data.jdockcount,
-                "user.race", 				aUser.getRace() );
+                "shiptypelist.owner.race", 	aUser.getRace() );
 
 					if( firstEntry ) {
 						firstEntry = false;
@@ -1159,7 +1161,7 @@ public class AngriffController extends Controller
 							"ship.action.shot", 	!battle.isGuest() && aship.hasFlag(BattleShipFlag.SHOT),
               "ship.mangelnahrung",       !battle.isGuest() && (aship.getShip().getStatus().contains("mangel_nahrung")),
               "ship.mangelreaktor",       !battle.isGuest() && (aship.getShip().getStatus().contains("mangel_reaktor")),
-              "user.race", 			aUser.getRace(),
+              "ship.owner.race", 			aUser.getRace(),
               "ship.jdocks", 			aShipType.getJDocks(),
               "ship.adocks", 			aShipType.getADocks(),
               "ship.docks", 			aShipType.getADocks()+aShipType.getJDocks(),
@@ -1314,7 +1316,7 @@ public class AngriffController extends Controller
                 "shiptypelist.hasdockedcount",  data.hasdockedcount,
                 "shiptypelist.adockcount",  data.adockcount,
                 "shiptypelist.jdockcount",  data.jdockcount,
-                "user.race", 				aUser.getRace() );
+                "shiptypelist.owner.race", 				aUser.getRace() );
 
 					if( firstEntry ) {
 						firstEntry = false;
@@ -1422,7 +1424,7 @@ public class AngriffController extends Controller
 							"ship.action.shot", 	!battle.isGuest() && aship.hasFlag(BattleShipFlag.SHOT),
               "ship.mangelnahrung",       !battle.isGuest() && (aship.getShip().getStatus().contains("mangel_nahrung")),
               "ship.mangelreaktor",       !battle.isGuest() && (aship.getShip().getStatus().contains("mangel_reaktor")),
-              "user.race", 			aUser.getRace(),
+              "ship.owner.race", 			aUser.getRace(),
               "ship.jdocks", 			aShipType.getJDocks(),
               "ship.adocks", 			aShipType.getADocks(),
               "ship.docks", 			aShipType.getADocks()+aShipType.getJDocks(),
@@ -1579,7 +1581,7 @@ public class AngriffController extends Controller
                 "shiptypelist.hasdockedcount",  data.hasdockedcount,
                 "shiptypelist.adockcount",  data.adockcount,
                 "shiptypelist.jdockcount",  data.jdockcount,
-                "user.race", 				aUser.getRace() );
+                "shiptypelist.owner.race", 	aUser.getRace() );
 
 					if( firstEntry ) {
 						firstEntry = false;
@@ -1699,7 +1701,7 @@ public class AngriffController extends Controller
 							"ship.action.join",		aship.hasFlag(BattleShipFlag.JOIN),
 							"ship.action.secondrow",	aship.hasFlag(BattleShipFlag.SECONDROW),
               "ship.action.destroyed",	aship.hasFlag(BattleShipFlag.DESTROYED),
-              "user.race", aUser.getRace(),
+              "ship.owner.race", aUser.getRace(),
               "ship.action.joinflucht",   aship.hasFlag(BattleShipFlag.FLUCHT) || aship.hasFlag(BattleShipFlag.JOIN),
               "ship.action.frontrow",     !aship.hasFlag(BattleShipFlag.FLUCHT) && !aship.hasFlag(BattleShipFlag.JOIN) && !aship.hasFlag(BattleShipFlag.SECONDROW));
 
@@ -1901,7 +1903,7 @@ public class AngriffController extends Controller
 							"ship.action.join",		aship.hasFlag(BattleShipFlag.JOIN),
 							"ship.action.secondrow",	aship.hasFlag(BattleShipFlag.SECONDROW),
               "ship.action.destroyed",	aship.hasFlag(BattleShipFlag.DESTROYED),
-              "user.race", aUser.getRace(),
+              "ship.owner.race", aUser.getRace(),
               "ship.action.joinflucht",   aship.hasFlag(BattleShipFlag.FLUCHT) || aship.hasFlag(BattleShipFlag.JOIN),
               "ship.action.frontrow",     !aship.hasFlag(BattleShipFlag.FLUCHT) && !aship.hasFlag(BattleShipFlag.JOIN) && !aship.hasFlag(BattleShipFlag.SECONDROW));
 
@@ -2101,7 +2103,7 @@ public class AngriffController extends Controller
 							"ship.action.join",		aship.hasFlag(BattleShipFlag.JOIN),
 							"ship.action.secondrow",	aship.hasFlag(BattleShipFlag.SECONDROW),
               "ship.action.destroyed",	aship.hasFlag(BattleShipFlag.DESTROYED),
-              "user.race", aUser.getRace(),
+              "ship.owner.race", aUser.getRace(),
               "ship.action.joinflucht",   aship.hasFlag(BattleShipFlag.FLUCHT) || aship.hasFlag(BattleShipFlag.JOIN),
               "ship.action.frontrow",     !aship.hasFlag(BattleShipFlag.FLUCHT) && !aship.hasFlag(BattleShipFlag.JOIN) && !aship.hasFlag(BattleShipFlag.SECONDROW));
 

@@ -52,17 +52,17 @@
 		{if ownship.action.secondrow}<img src="data/interface/ks/secondrow.png" alt="" title="Zweite Reihe" />{/endif}
 		{if ownship.mangelnahrung}<img src="data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />{/endif}
     {if ownship.mangelreaktor}<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}
-    {if ownship.landed}<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" title="gelandet"/>{/endif}
-    {if ownship.docked}<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" title="dedockt"/>{/endif}
+    {if ownship.landed}<img src="data/interface/schiffe/{ownship.owner.race}/icon_schiff.gif" alt="" title="gelandet"/>{/endif}
+    {if ownship.docked}<img src="data/interface/schiffe/{ownship.owner.race}/icon_container.gif" alt="" title="dedockt"/>{/endif}
     {if ownship.docked.name} auf {if ownship.docked.name}{ownship.docked.name}{/endif} ({ownship.docked.id}){/endif}
     {if ownship.docks}
           {if ownship.adocks}
             <br />
-						<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ownship.adocks.docked}/{ownship.adocks}]</a>
+						<img src="data/interface/schiffe/{ownship.owner.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ownship.adocks.docked}/{ownship.adocks}]</a>
 					{/endif}
           {if ownship.jdocks}
             <br />
-						<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold" >[{ownship.jdocks.docked}/{ownship.jdocks}]</a>
+						<img src="data/interface/schiffe/{ownship.owner.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold" >[{ownship.jdocks.docked}/{ownship.jdocks}]</a>
 					{/endif}
 				{/endif}
 		<br />
@@ -358,10 +358,10 @@
 	{if shiptypelist.secondrowcount}<img src="data/interface/ks/secondrow.png" alt="" title="Zweite Reihe" />&nbsp;{shiptypelist.secondrowcount}{/endif}
 	{if shiptypelist.mangelnahrungcount}&nbsp;<img src="data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />&nbsp;{shiptypelist.mangelnahrungcount}{/endif}
 	{if shiptypelist.mangelreaktorcount}&nbsp;<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{shiptypelist.mangelreaktorcount}{/endif}
-	{if shiptypelist.landedcount}&nbsp;<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" title="gelandet" />{shiptypelist.landedcount}{/endif}
-	{if shiptypelist.dockedcount}&nbsp;<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" title="gedockt" />{shiptypelist.dockedcount}{/endif}
-		{if shiptypelist.haslandedcount}&nbsp;<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" title="gelandet" /><a style="color:#CCAA33" class="nonbold">[{shiptypelist.haslandedcount}/{shiptypelist.jdockcount}]</a>{/endif}
-	{if shiptypelist.hasdockedcount}&nbsp;<img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" title="gedockt" /><a style="color:#CCAA33" class="nonbold">[{shiptypelist.hasdockedcount}/{shiptypelist.adockcount}]</a>{/endif}<br />
+	{if shiptypelist.landedcount}&nbsp;<img src="data/interface/schiffe/{shiptypelist.owner.race}/icon_schiff.gif" alt="" title="gelandet" />{shiptypelist.landedcount}{/endif}
+	{if shiptypelist.dockedcount}&nbsp;<img src="data/interface/schiffe/{shiptypelist.owner.race}/icon_container.gif" alt="" title="gedockt" />{shiptypelist.dockedcount}{/endif}
+		{if shiptypelist.haslandedcount}&nbsp;<img src="data/interface/schiffe/{shiptypelist.owner.race}/icon_schiff.gif" alt="" title="gelandet" /><a style="color:#CCAA33" class="nonbold">[{shiptypelist.haslandedcount}/{shiptypelist.jdockcount}]</a>{/endif}
+	{if shiptypelist.hasdockedcount}&nbsp;<img src="data/interface/schiffe/{shiptypelist.owner.race}/icon_container.gif" alt="" title="gedockt" /><a style="color:#CCAA33" class="nonbold">[{shiptypelist.hasdockedcount}/{shiptypelist.adockcount}]</a>{/endif}<br />
 	<a class="noborder" target="_blank"
 		onclick="ShiptypeBox.show({shiptypelist.id});return false;"
 		href="./ds?module=schiffinfo&amp;ship={shiptypelist.id}">
@@ -409,7 +409,7 @@
               {if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
               <a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(aktiv){/endif}<br />
               {if ship.docked.name}auf {if ship.docked.name}{ship.docked.name}{/endif}({ship.docked.id}){/endif}
-              {if ship.docked}<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" />{/endif}
+              {if ship.docked}<img src="data/interface/schiffe/{ship.owner.race}/icon_schiff.gif" alt="" />{/endif}
               {if ship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
               {if ship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
               {if ship.action.flucht}<img src="data/interface/ks/flucht.gif" alt="" title="flucht" />{/endif}
@@ -423,10 +423,10 @@
               {if ship.docks}
                 <br />
                 {if ship.adocks}
-                  <img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.adocks.docked}/{ship.adocks}]</a>
+                  <img src="data/interface/schiffe/{ship.owner.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.adocks.docked}/{ship.adocks}]</a>
                 {/endif}
                 {if ship.jdocks}
-                  <img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.jdocks.docked}/{ship.jdocks}]</a>
+                  <img src="data/interface/schiffe/{ship.owner.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.jdocks.docked}/{ship.jdocks}]</a>
                 {/endif}
               {/endif}
               <br />
@@ -452,7 +452,7 @@
               {if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
               <a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(aktiv){/endif}<br />
               {if ship.docked.name}auf {if ship.docked.name}{ship.docked.name}{/endif}({ship.docked.id}){/endif}
-              {if ship.docked}<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" />{/endif}
+              {if ship.docked}<img src="data/interface/schiffe/{ship.owner.race}/icon_schiff.gif" alt="" />{/endif}
               {if ship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
               {if ship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
               {if ship.action.fluchtnext}<img src="data/interface/ks/fluchtnext.png" alt="" title="flieht n&auml;chste Runde" />{/endif}
@@ -462,10 +462,10 @@
               {if ship.docks}
                 <br />
                 {if ship.adocks}
-                  <img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.adocks.docked}/{ship.adocks}]</a>
+                  <img src="data/interface/schiffe/{ship.owner.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.adocks.docked}/{ship.adocks}]</a>
                 {/endif}
                 {if ship.jdocks}
-                  <img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.jdocks.docked}/{ship.jdocks}]</a>
+                  <img src="data/interface/schiffe/{ship.owner.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.jdocks.docked}/{ship.jdocks}]</a>
                 {/endif}
               {/endif}
               <br />
@@ -491,7 +491,7 @@
               {if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
               <a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(aktiv){/endif}<br />
               {if ship.docked.name}auf {if ship.docked.name}{ship.docked.name}{/endif}({ship.docked.id}){/endif}
-              {if ship.docked}<img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" />{/endif}
+              {if ship.docked}<img src="data/interface/schiffe/{ship.owner.race}/icon_schiff.gif" alt="" />{/endif}
               {if ship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
               {if ship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
               {if ship.action.fluchtnext}<img src="data/interface/ks/fluchtnext.png" alt="" title="flieht n&auml;chste Runde" />{/endif}
@@ -501,10 +501,10 @@
               {if ship.docks}
                 <br />
                 {if ship.adocks}
-                  <img src="data/interface/schiffe/{user.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.adocks.docked}/{ship.adocks}]</a>
+                  <img src="data/interface/schiffe/{ship.owner.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.adocks.docked}/{ship.adocks}]</a>
                 {/endif}
                 {if ship.jdocks}
-                  <img src="data/interface/schiffe/{user.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.jdocks.docked}/{ship.jdocks}]</a>
+                  <img src="data/interface/schiffe/{ship.owner.race}/icon_schiff.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.jdocks.docked}/{ship.jdocks}]</a>
                 {/endif}
               {/endif}
               <br />
