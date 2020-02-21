@@ -405,7 +405,7 @@
           <div style="height:500px; overflow:auto; font-size:16px">
             <!-- BEGIN ownShips.joinflucht.listitem -->
             {if ship.action.joinflucht}
-              {if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}&amp;ownFokusRow={global.ownFokusRow}&amp;enemyFokusRow={global.enemyFokusRow}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+              {if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}&amp;ownFokusRow=none&amp;enemyFokusRow={global.enemyFokusRow}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
               {if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
               <a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}&amp;ownFokusRow=join&amp;enemyFokusRow={global.enemyFokusRow}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(aktiv){/endif}<br />
               {if ship.docked.name}auf {if ship.docked.name}{ship.docked.name}{/endif}({ship.docked.id}){/endif}
@@ -437,7 +437,7 @@
                 <span class="ttcontent">{ship.type.name}{ship.energy}</span>
               </a><br />
               <a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
-              {if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}&amp;ownFokusRow={global.ownFokusRow}&amp;enemyFokusRow={global.enemyFokusRow}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+              {if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}&amp;ownFokusRow=none&amp;enemyFokusRow={global.enemyFokusRow}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
             {/endif}
 						<!-- END ownShips.joinflucht.listitem -->
           </div>
@@ -448,7 +448,7 @@
           <div style="height:500px; overflow:auto; font-size:16px">
             <!-- BEGIN ownShips.secondrow.listitem -->
             {if ship.action.secondrow}
-              {if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}&amp;ownFokusRow={global.ownFokusRow}&amp;enemyFokusRow={global.enemyFokusRow}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+              {if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}&amp;ownFokusRow=none&amp;enemyFokusRow={global.enemyFokusRow}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
               {if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
               <a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}&amp;ownFokusRow=second&amp;enemyFokusRow={global.enemyFokusRow}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(aktiv){/endif}<br />
               {if ship.docked.name}auf {if ship.docked.name}{ship.docked.name}{/endif}({ship.docked.id}){/endif}
@@ -476,7 +476,7 @@
                 <span class="ttcontent">{ship.type.name}{ship.energy}</span>
               </a><br />
               <a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
-              {if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}&amp;ownFokusRow={global.ownFokusRow}&amp;enemyFokusRow={global.enemyFokusRow}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+              {if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}&amp;ownFokusRow=none&amp;enemyFokusRow={global.enemyFokusRow}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
             {/endif}
             <!-- END ownShips.secondrow.listitem -->
           </div>
@@ -487,7 +487,7 @@
           <div style="height:500px; overflow:auto; font-size:16px">
             <!-- BEGIN ownShips.frontrow.listitem -->
             {if ship.action.frontrow}
-              {if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}&amp;ownFokusRow={global.ownFokusRow}&amp;enemyFokusRow={global.enemyFokusRow}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+              {if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}&amp;ownFokusRow=none&amp;enemyFokusRow={global.enemyFokusRow}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
               {if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
               <a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}&amp;ownFokusRow=front&amp;enemyFokusRow={global.enemyFokusRow}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(aktiv){/endif}<br />
               {if ship.docked.name}auf {if ship.docked.name}{ship.docked.name}{/endif}({ship.docked.id}){/endif}
@@ -515,7 +515,7 @@
                 <span class="ttcontent">{ship.type.name}{ship.energy}</span>
               </a><br />
               <a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
-              {if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}&amp;ownFokusRow={global.ownFokusRow}&amp;enemyFokusRow={global.enemyFokusRow}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+              {if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}&amp;ownFokusRow=none&amp;enemyFokusRow={global.enemyFokusRow}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
             {/endif}
             <!-- END ownShips.frontrow.listitem -->
           </div>
@@ -558,7 +558,7 @@
 				<div style="height:500px; overflow:auto; font-size:16px">
 					<!-- BEGIN enemyShips.frontrow.listitem -->
 					{if ship.action.frontrow}
-						{if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}&amp;ownFokusRow={global.ownFokusRow}&amp;enemyFokusRow={global.enemyFokusRow}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+						{if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}&amp;ownFokusRow={global.ownFokusRow}&amp;enemyFokusRow=none">zur&uuml;ck</a>&nbsp;----</div>{/endif}
 						{if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
 						<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={ship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}&amp;ownFokusRow={global.ownFokusRow}&amp;enemyFokusRow=front">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(Ziel){/endif}<br />
 						{if ship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
@@ -571,7 +571,7 @@
 							<span class="ttcontent">{ship.type.name}</span>
 						</a><br />
 						<a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
-						{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}&amp;ownFokusRow={global.ownFokusRow}&amp;enemyFokusRow={global.enemyFokusRow}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+						{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}&amp;ownFokusRow={global.ownFokusRow}&amp;enemyFokusRow=none">zur&uuml;ck</a>&nbsp;----</div>{/endif}
 					{/endif}
 					<!-- END enemyShips.frontrow.listitem -->
 				</div>
@@ -582,7 +582,7 @@
 				<div style="height:500px; overflow:auto; font-size:16px">
 					<!-- BEGIN enemyShips.secondrow.listitem -->
 					{if ship.action.secondrow}
-						{if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}&amp;ownFokusRow={global.ownFokusRow}&amp;enemyFokusRow={global.enemyFokusRow}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+						{if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}&amp;ownFokusRow={global.ownFokusRow}&amp;enemyFokusRow=none">zur&uuml;ck</a>&nbsp;----</div>{/endif}
 						{if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
 						<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={ship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}&amp;ownFokusRow={global.ownFokusRow}&amp;enemyFokusRow=second">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(Ziel){/endif}<br />
 						{if ship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
@@ -595,7 +595,7 @@
 							<span class="ttcontent">{ship.type.name}</span>
 						</a><br />
 						<a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
-						{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}&amp;ownFokusRow={global.ownFokusRow}&amp;enemyFokusRow={global.enemyFokusRow}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+						{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}&amp;ownFokusRow={global.ownFokusRow}&amp;enemyFokusRow=none">zur&uuml;ck</a>&nbsp;----</div>{/endif}
 					{/endif}
 					<!-- END enemyShips.secondrow.listitem -->
 				</div>
@@ -606,7 +606,7 @@
 				<div style="height:500px; overflow:auto; font-size:16px">
 					<!-- BEGIN enemyShips.joinflucht.listitem -->
 					{if ship.action.joinflucht}
-						{if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}&amp;ownFokusRow={global.ownFokusRow}&amp;enemyFokusRow={global.enemyFokusRow}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+						{if ship.firstEntry}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}&amp;ownFokusRow={global.ownFokusRow}&amp;enemyFokusRow=none">zur&uuml;ck</a>&nbsp;----</div>{/endif}
 						{if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
 						<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={ship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}&amp;ownFokusRow={global.ownFokusRow}&amp;enemyFokusRow=join">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(Ziel){/endif}<br />
 						{if ship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
@@ -622,7 +622,7 @@
 							<span class="ttcontent">{ship.type.name}</span>
 						</a><br />
 						<a class="profile" href="./ds?module=userprofile&amp;user={ship.owner.id}">{ship.owner.name}</a><br />
-						{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}&amp;ownFokusRow={global.ownFokusRow}&amp;enemyFokusRow={global.enemyFokusRow}">zur&uuml;ck</a>&nbsp;----</div>{/endif}
+						{if ship.showback}<div style="text-align:center">----&nbsp;<a class="ok" style="font-size:14px" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;weapon={global.weapon}&amp;ownFokusRow={global.ownFokusRow}&amp;enemyFokusRow=none">zur&uuml;ck</a>&nbsp;----</div>{/endif}
 					{/endif}
 					<!-- END enemyShips.joinflucht.listitem -->
 				</div>
