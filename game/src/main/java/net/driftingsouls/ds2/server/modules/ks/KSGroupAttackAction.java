@@ -64,7 +64,9 @@ public class KSGroupAttackAction extends BasicKSAction {
         for(BattleShip aship : togoShips)
         {
             BattleShip enemyShip = battle.getEnemyShip();
-            battle.setFiringShip(aship.getShip());
+            //Die Funktion "setFiringShip" setzt lediglich den Zeiger des aktiven Schiffs weiter. Das braucht man mMn nicht, da alles hier ueber die Schleife 
+            //gesteuert wird. Durch das Umsetzen des Zeigers wird lediglich das letzte Schiff der Gruppe als aktiv gewaehlt. Daher kommt es mal raus.
+            //battle.setFiringShip(aship.getShip());
             battle.logme("Schiff: "+Battle.log_shiplink(aship.getShip())+"\n");
 
             if(enemyShip.getTypeData().getTypeId() != enemytypeid)
