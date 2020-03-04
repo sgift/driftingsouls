@@ -1495,6 +1495,25 @@ public boolean hasFrontRow( int side) {
 	}
 
 	/**
+	 * Gibt das eigene Schiff mit der angegebenen ID oder null zurueck, falls nicht gefunden.
+	 * @param shipID Die Schiffs-ID
+	 * @return Das Schiff
+	 */
+	public BattleShip getShipByID( int shipID ) {
+		if(shipID > 0)
+        {
+            for(int i=0; i < ownShips.size(); i++)
+            {
+                if(ownShips.get(i).getId() == shipID)
+                {
+                    return ownShips.get(i);
+                }
+            }
+        }
+		return null;
+	}
+
+	/**
 	 * Gibt die mit einer Seite assoziierte Allianz zurueck.
 	 * @param side Die Seite
 	 * @return Die ID der Allianz oder 0
