@@ -1893,7 +1893,7 @@ public class AngriffController extends Controller
               "ship.action.destroyed",	aship.hasFlag(BattleShipFlag.DESTROYED),
               "ship.owner.race", aUser.getRace(),
               "ship.action.joinflucht",   false,
-              "ship.action.frontrow",     false;
+              "ship.action.frontrow",     false);
 
 
 				if( !firstEntry && showgroups && ((pos >= battle.getEnemyShipTypeCount(grouptype)) || (pos == groupoffset+SHIPGROUPSIZE)) ) {
