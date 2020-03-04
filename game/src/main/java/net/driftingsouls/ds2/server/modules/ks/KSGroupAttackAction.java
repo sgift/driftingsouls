@@ -24,6 +24,8 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 
 import java.io.IOException;
 import java.util.List;
@@ -58,15 +60,17 @@ public class KSGroupAttackAction extends BasicKSAction {
         int typeid = battle.getOwnShip().getTypeData().getTypeId();
         int enemytypeid = battle.getEnemyShip().getTypeData().getTypeId();
 
+        Context context = ContextMap.getContext();
+        final int activeShipID = context.getRequest().getParameterInt("ship");
+        BattleShip activeShip = battle.getShipByID(activeShipID);
+
         List<BattleShip> togoShips = battle.getOwnShips().stream().filter(bship -> bship.getTypeData().getTypeId() == typeid).collect(Collectors.toList());
         battle.logme(togoShips.size() + " Schiffe zu feuern.\n");
 
         for(BattleShip aship : togoShips)
         {
             BattleShip enemyShip = battle.getEnemyShip();
-            //Die Funktion "setFiringShip" setzt lediglich den Zeiger des aktiven Schiffs weiter. Das braucht man mMn nicht, da alles hier ueber die Schleife 
-            //gesteuert wird. Durch das Umsetzen des Zeigers wird lediglich das letzte Schiff der Gruppe als aktiv gewaehlt. Daher kommt es mal raus.
-            //battle.setFiringShip(aship.getShip());
+            battle.setFiringShip(aship.getShip());
             battle.logme("Schiff: "+Battle.log_shiplink(aship.getShip())+"\n");
 
             if(enemyShip.getTypeData().getTypeId() != enemytypeid)
@@ -79,10 +83,18 @@ public class KSGroupAttackAction extends BasicKSAction {
 
             if(result == Result.HALT)
             {
+                if (activeShip != null)
+                {
+                    battle.setFiringShip(activeShip);
+                }
                 return result;
             }
         }
-        
+        if (activeShip != null)
+        {
+            battle.setFiringShip(activeShip);
+        }
+
         return Result.OK;
     }
 
