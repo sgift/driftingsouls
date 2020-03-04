@@ -43,6 +43,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Version;
+import java.util.List;
 import java.util.Map;
 
 /**
