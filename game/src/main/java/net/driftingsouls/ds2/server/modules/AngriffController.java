@@ -812,6 +812,7 @@ public class AngriffController extends Controller
 			int pos = groupoffset;
 			energy = "";
 			boolean firstEntry = true;
+			boolean secondrowDock = false;
 
 			List<BattleShip> ownShips = battle.getOwnShips();
 			for( int i=0; i < ownShips.size(); i++ ) {
@@ -873,7 +874,8 @@ public class AngriffController extends Controller
 
                             break;
                         }
-                    }
+										}
+										secondrowDock = aship.getShip().getBaseShip().hasFlag(BattleShipFlag.SECONDROW);
 				}
 
 				User aUser = aship.getOwner();
@@ -892,7 +894,7 @@ public class AngriffController extends Controller
 							"ship.action.flucht",	aship.hasFlag(BattleShipFlag.FLUCHT),
 							"ship.action.destroyed",	aship.hasFlag(BattleShipFlag.DESTROYED),
 							"ship.action.join",			aship.hasFlag(BattleShipFlag.JOIN),
-							"ship.action.secondrow",	aship.hasFlag(BattleShipFlag.SECONDROW),
+							"ship.action.secondrow",	aship.hasFlag(BattleShipFlag.SECONDROW)||secondrowDock,
 							"ship.action.fluchtnext", false,
 							"ship.action.shot", 	!battle.isGuest() && aship.hasFlag(BattleShipFlag.SHOT),
               "ship.mangelnahrung",       !battle.isGuest() && (aship.getShip().getStatus().contains("mangel_nahrung")),
@@ -983,10 +985,16 @@ public class AngriffController extends Controller
                         data.mangelreaktorcount++;
                     }
                     if (aship.getShip().isLanded()){
-                        data.landedcount++;
+												data.landedcount++;
+												if (aship.getShip().getBaseShip().hasFlag(BattleShipFlag.SECONDROW)){
+													data.srcount++;
+												}
                     }
                     if (aship.getShip().isDocked()){
-                        data.dockedcount++;
+												data.dockedcount++;
+												if (aship.getShip().getBaseShip().hasFlag(BattleShipFlag.SECONDROW)){
+													data.srcount++;
+												}
                     }
                     if (aship.getShip().getTypeData().getADocks()>0){
                         data.adockcount+=aship.getShip().getTypeData().getADocks();
@@ -1090,7 +1098,7 @@ public class AngriffController extends Controller
 				if(battle.isGuest() && aship.getShip().isLanded() ) {
 					continue;
         }
-        if(!aship.hasFlag(BattleShipFlag.SECONDROW)){
+        if(!aship.hasFlag(BattleShipFlag.SECONDROW)&&!aship.getBaseShip().hasFlag(BattleShipFlag.SECONDROW)){
           continue;
 				}
 				//Joinende / fliehende Schiffe werden in eigener Spalte angezeigt
@@ -1139,7 +1147,7 @@ public class AngriffController extends Controller
 
                             break;
                         }
-                    }
+										}
 				}
 
 				User aUser = aship.getOwner();
@@ -1203,7 +1211,7 @@ public class AngriffController extends Controller
 			List<BattleShip> ownShips = battle.getOwnShips();
             for (BattleShip aship : ownShips)
             {
-                if(!aship.hasFlag(BattleShipFlag.SECONDROW)){
+                if(!aship.hasFlag(BattleShipFlag.SECONDROW)&&!aship.getBaseShip().hasFlag(BattleShipFlag.SECONDROW)){
                   continue;
 								}
 								//joinende / fliehende Schiffe haben eigene Spalte
@@ -1355,7 +1363,7 @@ public class AngriffController extends Controller
 				if(battle.isGuest() && aship.getShip().isLanded() ) {
 					continue;
         }
-        if(aship.hasFlag(BattleShipFlag.FLUCHT) || aship.hasFlag(BattleShipFlag.JOIN) || aship.hasFlag(BattleShipFlag.SECONDROW)){
+        if(aship.hasFlag(BattleShipFlag.FLUCHT) || aship.hasFlag(BattleShipFlag.JOIN) || aship.hasFlag(BattleShipFlag.SECONDROW) || ( (aship.isLanded()||aship.isDocked() ) && aship.getBaseShip().hasFlag(BattleShipFlag.SECONDROW)) ){
           continue;
         }
 
@@ -1464,7 +1472,7 @@ public class AngriffController extends Controller
 			List<BattleShip> ownShips = battle.getOwnShips();
             for (BattleShip aship : ownShips)
             {
-                if(aship.hasFlag(BattleShipFlag.FLUCHT) || aship.hasFlag(BattleShipFlag.JOIN) || aship.hasFlag(BattleShipFlag.SECONDROW)){
+                if(aship.hasFlag(BattleShipFlag.FLUCHT) || aship.hasFlag(BattleShipFlag.JOIN) || aship.hasFlag(BattleShipFlag.SECONDROW) || ( (aship.isLanded()||aship.isDocked() ) && aship.getBaseShip().hasFlag(BattleShipFlag.SECONDROW)) ){
                   continue;
                 }
                 Common.safeIntInc(shiptypegroupcount, aship.getShip().getType());
