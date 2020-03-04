@@ -79,14 +79,14 @@ public class BattleShip {
 	private int ablativeArmor;
 	@Version
 	private int version;
-	
+
 	/**
 	 * Konstruktor.
 	 */
 	public BattleShip() {
 		// EMPTY
 	}
-	
+
 	/**
 	 * Erstellt einen neuen Schlachteintrag fuer ein Schiff.
 	 * @param battle Die Schlacht
@@ -113,7 +113,7 @@ public class BattleShip {
 	public int getId() {
 		return shipid;
 	}
-	
+
 	/**
 	 * Gibt das Schiff zurueck.
 	 * @return Das Schiff
@@ -201,7 +201,7 @@ public class BattleShip {
 	public void setEngine(int engine) {
 		this.engine = engine;
 	}
-	
+
 	/**
 	 * Gibt die Anzahl an Waffenpunkten, welche das Schiff am Ende der Runde hat, zurueck.
 	 * @return Die Waffenpunkte am Ende der Runde
@@ -322,7 +322,7 @@ public class BattleShip {
 	public int getCrew() {
 		return ship.getCrew();
 	}
-	
+
 	/**
 	 * Gibt die Einheiten auf dem Schiff zurueck.
 	 * @return Die Einheiten
@@ -331,7 +331,7 @@ public class BattleShip {
 	public UnitCargo getUnits() {
 		return ship.getUnits();
 	}
-	
+
 	/**
 	 * Setzt die Einheiten auf dem Schiff.
 	 * @param unitcargo Die neuen Einheiten
@@ -399,16 +399,16 @@ public class BattleShip {
 	public int getVersion() {
 		return this.version;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "{BattleShip: "+this.shipid+" Battle: "+(this.battle != null ? battle.getId() : "null")+"}";
 	}
-	
+
 	/**
 	 * Returns the battle value of a ship.
 	 * The battle value is a measurement of the fighting power a single ship has.
-	 * 
+	 *
 	 * @return The battle value.
 	 */
 	public int getBattleValue()
@@ -417,20 +417,20 @@ public class BattleShip {
 		{
 			return 0;
 		}
-		
+
 		if(isStarved())
 		{
 			return 0;
 		}
-		
+
 		if(!isMilitary())
 		{
 			return 0;
 		}
-		
+
 		int sizeModifier = new ConfigService().getValue(WellKnownConfigValue.BATTLE_VALUE_SIZE_MODIFIER);
 		int dockModifier = new ConfigService().getValue(WellKnownConfigValue.BATTLE_VALUE_DOCK_MODIFIER);
-		
+
 		return getTypeData().getSize() * sizeModifier + getTypeData().getJDocks() * dockModifier;
 	}
 
@@ -447,48 +447,48 @@ public class BattleShip {
 
         return possibleDamage;
     }
-	
+
 	/**
 	 * Checks if the ship is joining the battle.
-	 * 
+	 *
 	 * @return true, if the ship is joining, false otherwise.
 	 */
 	public boolean isJoining()
 	{
 		return hasFlag(BattleShipFlag.JOIN);
 	}
-	
+
 	/**
 	 * Checks, if the ship is starved.
 	 * A ship is starved, if the shiptype demands crew, but the ship is crewless.
-	 * 
+	 *
 	 * @return true, if the ship is starved, false otherwise.
 	 */
 	public boolean isStarved()
 	{
 		return getCrew() == 0 && getTypeData().getCrew() > 0;
 	}
-	
+
 	/**
 	 * Determines, if the ship is a military ship.
-	 * 
+	 *
 	 * @return true, if it is a military ship, false otherwise.
 	 */
 	public boolean isMilitary()
 	{
 		return getTypeData().isMilitary();
 	}
-	
+
 	/**
 	 * Checks, if the ship is in the second row.
-	 * 
+	 *
 	 * @return true, if the ship is in the second row, false otherwise.
 	 */
 	public boolean isSecondRow()
 	{
 		return hasFlag(BattleShipFlag.SECONDROW);
 	}
-	
+
 	/**
 	 * @return Offensivwert des Schiffes.
 	 */
@@ -499,10 +499,10 @@ public class BattleShip {
 		{
 			return officer.getOffensiveSkill();
 		}
-		
+
 		return 1;
 	}
-	
+
 	/**
 	 * @return Defensivwert des Schiffes.
 	 */
@@ -514,38 +514,53 @@ public class BattleShip {
 			double value = officer.getDefensiveSkill() / (double)getTypeData().getSize();
 			return Math.max(1, (int)Math.round(value));
 		}
-		
+
 		return 1;
 	}
-	
+
 	/**
 	 * @return Aktueller Panzerungswert des Schiffes.
 	 */
 	public int getArmor()
 	{
 		ShipTypeData shipType = getTypeData();
-		
+
 		return (int)Math.round(shipType.getPanzerung()*ship.getHull()/(double)shipType.getHull());
 	}
-	
+
 	/**
 	 * @return Navigationswert des Schiffes.
 	 */
 	public int getNavigationalValue()
 	{
 		double navskill = getTypeData().getSize();
-		
+
 		Offizier officer = ship.getOffizier();
-		if(officer != null ) 
+		if(officer != null )
 		{
 			navskill = officer.getAbility(Offizier.Ability.NAV);
-		} 
-		
+		}
+
 		navskill *= (ship.getEngine()/100d);
-		
+
 		return Math.max(1, (int)Math.round(navskill));
 	}
-	
+/**
+ * @return Das Traegerschiff
+ */
+	public BattleShip getBaseShip()
+	{
+		List<BattleShip> ownShips = getBattle().getOwnShips();
+		int shipid = getId();
+
+		for (BattleShip ownShip1 : ownShips) {
+				if (ownShip1.getId() == shipid) {
+						return ownShip1;
+				}
+		}
+		return null;
+	}
+
 	private Session getDB()
 	{
 		return ContextMap.getContext().getDB();

@@ -871,11 +871,10 @@ public class AngriffController extends Controller
                             t.setVar("ship.docked.name", ownShip1.getName(),
                                     "ship.docked.id", shipid,
                                     "ship.docked",1);
-
+														secondrowDock = ownShip1.hasFlag(BattleShipFlag.SECONDROW);
                             break;
-                        }
+												}
 										}
-										secondrowDock = aship.getShip().getBaseShip().hasFlag(BattleShipFlag.SECONDROW);
 				}
 
 				User aUser = aship.getOwner();
@@ -986,13 +985,13 @@ public class AngriffController extends Controller
                     }
                     if (aship.getShip().isLanded()){
 												data.landedcount++;
-												if (aship.getShip().getBaseShip().hasFlag(BattleShipFlag.SECONDROW)){
+												if (aship.getBaseShip().hasFlag(BattleShipFlag.SECONDROW)){
 													data.srcount++;
 												}
                     }
                     if (aship.getShip().isDocked()){
 												data.dockedcount++;
-												if (aship.getShip().getBaseShip().hasFlag(BattleShipFlag.SECONDROW)){
+												if (aship.getBaseShip().hasFlag(BattleShipFlag.SECONDROW)){
 													data.srcount++;
 												}
                     }
@@ -1363,7 +1362,7 @@ public class AngriffController extends Controller
 				if(battle.isGuest() && aship.getShip().isLanded() ) {
 					continue;
         }
-        if(aship.hasFlag(BattleShipFlag.FLUCHT) || aship.hasFlag(BattleShipFlag.JOIN) || aship.hasFlag(BattleShipFlag.SECONDROW) || ( (aship.isLanded()||aship.isDocked() ) && aship.getBaseShip().hasFlag(BattleShipFlag.SECONDROW)) ){
+        if(aship.hasFlag(BattleShipFlag.FLUCHT) || aship.hasFlag(BattleShipFlag.JOIN) || aship.hasFlag(BattleShipFlag.SECONDROW) || ( (aship.getShip().isLanded()||aship.getShip().isDocked() ) && aship.getBaseShip().hasFlag(BattleShipFlag.SECONDROW)) ){
           continue;
         }
 
@@ -1472,7 +1471,7 @@ public class AngriffController extends Controller
 			List<BattleShip> ownShips = battle.getOwnShips();
             for (BattleShip aship : ownShips)
             {
-                if(aship.hasFlag(BattleShipFlag.FLUCHT) || aship.hasFlag(BattleShipFlag.JOIN) || aship.hasFlag(BattleShipFlag.SECONDROW) || ( (aship.isLanded()||aship.isDocked() ) && aship.getBaseShip().hasFlag(BattleShipFlag.SECONDROW)) ){
+                if(aship.hasFlag(BattleShipFlag.FLUCHT) || aship.hasFlag(BattleShipFlag.JOIN) || aship.hasFlag(BattleShipFlag.SECONDROW) || ( (aship.getShip()isLanded()||aship.getShip().isDocked() ) && aship.getBaseShip().hasFlag(BattleShipFlag.SECONDROW)) ){
                   continue;
                 }
                 Common.safeIntInc(shiptypegroupcount, aship.getShip().getType());
