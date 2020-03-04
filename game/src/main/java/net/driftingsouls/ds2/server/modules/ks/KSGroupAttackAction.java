@@ -85,14 +85,14 @@ public class KSGroupAttackAction extends BasicKSAction {
             {
                 if (activeShip != null)
                 {
-                    battle.setFiringShip(activeShip);
+                    battle.setFiringShip(activeShip.getShip());
                 }
                 return result;
             }
         }
         if (activeShip != null)
         {
-            battle.setFiringShip(activeShip);
+            battle.setFiringShip(activeShip.getShip());
         }
 
         return Result.OK;
