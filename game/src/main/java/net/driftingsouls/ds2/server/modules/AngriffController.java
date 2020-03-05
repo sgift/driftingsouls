@@ -1378,10 +1378,10 @@ public class AngriffController extends Controller
 				if(battle.isGuest() && aship.getShip().isLanded() ) {
 					continue;
         }
-        if(aship.hasFlag(BattleShipFlag.FLUCHT) || aship.hasFlag(BattleShipFlag.JOIN) || aship.hasFlag(BattleShipFlag.SECONDROW) ) ){
+        if(aship.hasFlag(BattleShipFlag.FLUCHT) || aship.hasFlag(BattleShipFlag.JOIN) || aship.hasFlag(BattleShipFlag.SECONDROW) ) {
           continue;
 				}
-				if( (aship.getShip().isLanded()||aship.getShip().isDocked() ){
+				if( aship.getShip().isLanded()||aship.getShip().isDocked() ){
 					BattleShip baseShip = aship.getBaseShip();
 					if (baseShip != null){
 						if(baseShip.hasFlag(BattleShipFlag.SECONDROW)){
@@ -1498,7 +1498,7 @@ public class AngriffController extends Controller
                 if(aship.hasFlag(BattleShipFlag.FLUCHT) || aship.hasFlag(BattleShipFlag.JOIN) || aship.hasFlag(BattleShipFlag.SECONDROW)  ){
                   continue;
 								}
-								if( (aship.getShip().isLanded()||aship.getShip().isDocked() ){
+								if( aship.getShip().isLanded()||aship.getShip().isDocked() ){
 									BattleShip baseShip = aship.getBaseShip();
 									if (baseShip != null){
 										if(baseShip.hasFlag(BattleShipFlag.SECONDROW)){
