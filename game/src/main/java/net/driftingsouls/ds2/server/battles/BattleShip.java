@@ -552,7 +552,7 @@ public class BattleShip {
 	public BattleShip getBaseShip()
 	{
 		List<BattleShip> ownShips = getBattle().getOwnShips();
-		int shipid = getId();
+		int shipid = getShip().getBaseShip().getId();
 
 		for (BattleShip ownShip1 : ownShips) {
 				if (ownShip1.getId() == shipid) {
