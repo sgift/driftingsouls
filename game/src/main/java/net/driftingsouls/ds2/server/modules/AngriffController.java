@@ -1101,7 +1101,7 @@ public class AngriffController extends Controller
 					BattleShip baseShip = aship.getBaseShip();
 					//hat kein Traegerschiff
 					if (baseShip == null){
-						continue
+						continue;
 					}
 					//hat also ein Traegerschiff, ist das vielleicht in Reihe 2?
 					if(!baseShip.hasFlag(BattleShipFlag.SECONDROW)){
@@ -1222,7 +1222,7 @@ public class AngriffController extends Controller
 									BattleShip baseShip = aship.getBaseShip();
 									//hat kein Traegerschiff
 									if (baseShip == null){
-										continue
+										continue;
 									}
 									//hat also ein Traegerschiff, ist das vielleicht in Reihe 2?
 									if(!baseShip.hasFlag(BattleShipFlag.SECONDROW)){
