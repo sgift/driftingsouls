@@ -551,14 +551,30 @@ public class BattleShip {
  */
 	public BattleShip getBaseShip()
 	{
+		//Schiffe zum durchsuchen laden
 		List<BattleShip> ownShips = getBattle().getOwnShips();
-		int shipid = getShip().getBaseShip().getId();
+		//gucken, ob das BattleShiff ueberhaupt einen Traeger hat
+		//erst umwandeln vom BattleShip in ein Ship
+		Ship ship = getShip();
+		if (ship.isLanded() ||ship.isDocked())
+		{
+			//OK, es sollte also einen Traeger haben
+			Ship baseShip = getShip().getBaseShip();
+			//sicherheitshalber auch hier nochmal eine Null abfangen
+			if(baseShip != null)
+			{
+				int shipid = baseShip.getId();
 
-		for (BattleShip ownShip1 : ownShips) {
-				if (ownShip1.getId() == shipid) {
-						return ownShip1;
+				for (BattleShip ownShip1 : ownShips) {
+						if (ownShip1.getId() == shipid) {
+								return ownShip1;
+						}
 				}
+				//nicht in der Schlacht gefunden
+			}
+			//kein Traegerschiff, komisch
 		}
+		//nicht gelandet oder gedockt, also kein Traegerschiff
 		return null;
 	}
 
