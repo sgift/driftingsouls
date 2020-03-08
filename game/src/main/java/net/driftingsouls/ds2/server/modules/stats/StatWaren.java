@@ -56,13 +56,14 @@ public class StatWaren implements Statistic {
 
 		Writer echo = context.getResponse().getWriter();
 
-		Iterator iterator = db.createQuery("SELECT cargo FROM StatCargo ORDER BY tick DESC").setMaxResults(1).iterate();
+		@SuppressWarnings("unchecked")
+		Iterator<Cargo> iterator = db.createQuery("SELECT cargo FROM StatCargo ORDER BY tick DESC").setMaxResults(1).iterate();
 		if( !iterator.hasNext() )
 		{
 			echo.append("Keine Datenbasis vorhanden");
 			return;
 		}
-		Cargo cargo = new Cargo((Cargo) iterator.next());
+		Cargo cargo = new Cargo(iterator.next());
 
 		StatUserCargo userCargo = (StatUserCargo) db.createQuery("from StatUserCargo where user=:user")
 				.setEntity("user", user)

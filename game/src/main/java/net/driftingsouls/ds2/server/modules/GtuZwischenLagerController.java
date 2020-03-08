@@ -23,6 +23,7 @@ import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.config.items.Munition;
 import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -317,8 +318,8 @@ public class GtuZwischenLagerController extends Controller
 			ResourceList reslist = tradecargo.getResourceList();
 			Resources.echoResList(t, reslist, "res.list");
 
-			List<ItemCargoEntry> itemlist = tradecargo.getItems();
-			for (ItemCargoEntry item : itemlist)
+			List<ItemCargoEntry<Item>> itemlist = tradecargo.getItems();
+			for (ItemCargoEntry<Item> item : itemlist)
 			{
 				Item itemobject = item.getItem();
 				if (itemobject.isUnknownItem())

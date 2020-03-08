@@ -454,11 +454,11 @@ public class Kommandozentrale extends DefaultBuilding {
 						"res.lbatterien.image",	Cargo.getResourceImage(Resources.LBATTERIEN),
 						"res.platin.image",		Cargo.getResourceImage(Resources.PLATIN) );
 
-			List<ItemCargoEntry> itemlist = cargo.getItems();
+			List<ItemCargoEntry<Item>> itemlist = cargo.getItems();
 			if( itemlist.size() != 0 ) {
 				Ally ally = user.getAlly();
 				if( ally != null ) {
-					for( ItemCargoEntry item : itemlist ) {
+					for( ItemCargoEntry<Item> item : itemlist ) {
 						Item itemobject = item.getItem();
 						if( itemobject.getEffect().hasAllyEffect() ) {
 							t.setVar(	"item.id",		item.getItemID(),

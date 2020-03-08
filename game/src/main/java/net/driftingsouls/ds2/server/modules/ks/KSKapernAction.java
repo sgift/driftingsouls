@@ -274,8 +274,8 @@ public class KSKapernAction extends BasicKSAction {
 			// Unbekannte Items bekannt machen
 			Cargo cargo = enemyShip.getCargo();
 
-			List<ItemCargoEntry> itemlist = cargo.getItems();
-			for (ItemCargoEntry item : itemlist)
+			List<ItemCargoEntry<Item>> itemlist = cargo.getItems();
+			for (ItemCargoEntry<Item> item : itemlist)
 			{
 				Item itemobject = item.getItem();
 				if (itemobject.isUnknownItem())

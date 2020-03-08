@@ -108,7 +108,7 @@ public final class HtmlUtils
 	{
 		if( identifier instanceof Enum )
 		{
-			return ((Enum)identifier).name();
+			return ((Enum<?>)identifier).name();
 		}
 		return identifier != null ? identifier.toString() : "";
 	}

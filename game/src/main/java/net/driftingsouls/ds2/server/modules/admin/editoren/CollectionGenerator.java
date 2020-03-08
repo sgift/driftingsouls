@@ -49,7 +49,7 @@ public class CollectionGenerator<E, T, V extends Collection<T>> implements Custo
 	}
 
 	@Override
-	public void generate(StringBuilder echo, E entity) throws IOException
+	public void generate(StringBuilder echo, E entity)
 	{
 		V valueCollection = getter.apply(entity);
 
@@ -105,7 +105,7 @@ public class CollectionGenerator<E, T, V extends Collection<T>> implements Custo
 		JqGridColumnViewModel idCol = new JqGridColumnViewModel("id", null);
 		model.colModel.add(idCol);
 
-		Class identifierClass = db.getSessionFactory().getClassMetadata(this.type).getIdentifierType().getReturnedClass();
+		Class<?> identifierClass = db.getSessionFactory().getClassMetadata(this.type).getIdentifierType().getReturnedClass();
 		if( Number.class.isAssignableFrom(identifierClass) )
 		{
 			idCol.width = 50;
@@ -118,7 +118,7 @@ public class CollectionGenerator<E, T, V extends Collection<T>> implements Custo
 	public void applyRequestValues(Request request, E entity) throws IOException
 	{
 		Session db = ContextMap.getContext().getDB();
-		Class identifierClass = db.getSessionFactory().getClassMetadata(this.type).getIdentifierType().getReturnedClass();
+		Class<?> identifierClass = db.getSessionFactory().getClassMetadata(this.type).getIdentifierType().getReturnedClass();
 
 		EditorForm8<T> form = new EditorForm8<>(mode, plugin);
 		subFormGenerator.accept(form);

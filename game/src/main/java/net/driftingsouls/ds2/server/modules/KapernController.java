@@ -342,8 +342,8 @@ public class KapernController extends Controller
 	{
 		Cargo cargo = targetShip.getCargo();
 
-		List<ItemCargoEntry> itemlist = cargo.getItems();
-		for (ItemCargoEntry item : itemlist)
+		List<ItemCargoEntry<Item>> itemlist = cargo.getItems();
+		for (ItemCargoEntry<Item> item : itemlist)
 		{
 			Item itemobject = item.getItem();
 			if (itemobject.isUnknownItem())

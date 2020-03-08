@@ -151,7 +151,7 @@ public class ItemCargoEntry<T extends Item> {
 	 * @param cargo der Cargo
 	 * @return der kopierte Item-Eintrag
 	 */
-	public ItemCargoEntry cloneItem( Cargo cargo ) {
+	public ItemCargoEntry<T> cloneItem( Cargo cargo ) {
 		// TODO
 		throw new RuntimeException("STUB");
 	}
