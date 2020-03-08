@@ -19,7 +19,7 @@ public enum ShipTypeFlag
 	/**
 	 * Das angegebene Schiff verfuegt ueber eine Zerstoererpanzerung (Schadensabsorption).
 	 */
-	ZERSTOERERPANZERUNG("zerstoererpanzerung", "Schadensabsorption", "Die Schadensabsorption sorgt dafür, dass pro Kampfrunde maximal 25 % Schaden gemessen an an der maximalen Hüllenstärke dem Schiff zugefügt werden kann"),
+	ZERSTOERERPANZERUNG("zerstoererpanzerung", "Schadensabsorption", "Die Schadensabsorption sorgt dafür, dass pro Kampfrunde dem Schiff maximal 25 % Schaden gemessen an an der maximalen Hüllenstärke zugefügt werden kann"),
 
 	/**
 	 * Das angegebene Schiff kann Asteroiden kolonisieren.
@@ -44,7 +44,7 @@ public enum ShipTypeFlag
 	/**
 	 * Das Schiff ist nur sichtbar, wenn man sich im selben Sektor befindet.
 	 */
-	SEHR_KLEIN("sehr_klein", "sehr klein", "Ein Objekt mit der Eigenschaft 'sehr kleinÄ kann aufgrund seiner Größe nicht auf den Langstreckensensoren geortet werden"),
+	SEHR_KLEIN("sehr_klein", "sehr klein", "Ein Objekt mit der Eigenschaft 'sehr klein' kann aufgrund seiner Größe nicht auf den Langstreckensensoren geortet werden"),
 
 	/**
 	 * Transfers von und zu dem Schiff sind nicht moeglich.
@@ -129,7 +129,7 @@ public enum ShipTypeFlag
 	/**
 	 * Muss im Kampf als erstes zerstört werden.
 	 */
-	SCHUTZSCHILD("schutzschild", "Schutzschild", "Schützt verbündete Schiffe vor Angriffen, bis es zerstört worden ist. Im Kampf muss es als erstes zerstört werden, ehe andere Schiffe 'hinter dem Schild' angegriffen werden können");
+	SCHUTZSCHILD("schutzschild", "Schutzschild", "Dieses Schiff schützt verbündete Schiffe vor Angriffen, bis es zerstört worden ist. Im Kampf muss es als erstes zerstört werden, ehe andere Schiffe 'hinter dem Schild' angegriffen werden können");
 
 	private final String flag;
 	private final String label;
