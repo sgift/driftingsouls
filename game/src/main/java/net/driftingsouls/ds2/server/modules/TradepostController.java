@@ -422,12 +422,8 @@ public class TradepostController extends Controller
 			if (fill)
 			{
 				Cargo cargo = ship.getCargo();
-				long cnt = cargo.getResourceCount(rid);
-				if (cnt < saleslimit)
-				{
-					cargo.setResource(rid, saleslimit);
-					ship.setCargo(cargo);
-				}
+				cargo.setResource(rid, saleslimit);
+				ship.setCargo(cargo);
 			}
 		}
 
