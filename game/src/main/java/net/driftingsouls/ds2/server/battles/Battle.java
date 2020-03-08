@@ -307,7 +307,85 @@ public class Battle implements Locatable
 
         return Double.valueOf(secondrowcaps).intValue() == 0 || Double.valueOf(owncaps).intValue() >= Double.valueOf(secondrowcaps).intValue() * 2;
 
-    }
+		}
+
+
+	/**
+* Prueft, ob eine zweite Reihe existiert
+* @param side Die Seite deren zweite Reihe geprueft werden soll
+* @return <code>true</code>, falls eine zweite Reihe exitiert
+*/
+public boolean hasSecondRow( int side) {
+	List<BattleShip> shiplist;
+	if( side == this.ownSide ) {
+		shiplist = getOwnShips();
+	}
+	else{
+		shiplist = getEnemyShips();
+	}
+
+	int counter = 0;
+	for (BattleShip aship : shiplist) {
+			if (aship.hasFlag(BattleShipFlag.JOIN)) {
+					continue;
+			}
+
+			if (aship.hasFlag(BattleShipFlag.SECONDROW)) {
+					if (!aship.getShip().isDocked() && !aship.getShip().isLanded()) {
+							counter ++;
+					}
+			}
+	}
+	return counter > 0;
+}
+
+	/**
+* Prueft, ob fiehende / beitretende Schiffe existiert
+* @param side Die Seite deren zweite Reihe geprueft werden soll
+* @return <code>true</code>, falls eine zweite Reihe exitiert
+*/
+public boolean hasJoinFluchtRow( int side) {
+	List<BattleShip> shiplist;
+	if( side == this.ownSide ) {
+		shiplist = getOwnShips();
+	}
+	else{
+		shiplist = getEnemyShips();
+	}
+
+	int counter = 0;
+	for (BattleShip aship : shiplist) {
+			if (aship.hasFlag(BattleShipFlag.JOIN) || aship.hasFlag(BattleShipFlag.FLUCHT)) {
+					counter ++;
+			}
+	}
+	return counter > 0;
+}
+
+	/**
+* Prueft, ob eine erste Reihe existiert
+* @param side Die Seite deren zweite Reihe geprueft werden soll
+* @return <code>true</code>, falls eine zweite Reihe exitiert
+*/
+public boolean hasFrontRow( int side) {
+
+	List<BattleShip> shiplist;
+	if( side == this.ownSide ) {
+		shiplist = getOwnShips();
+	}
+	else{
+		shiplist = getEnemyShips();
+	}
+
+
+	int counter = 0;
+	for (BattleShip aship : shiplist) {
+			if (!(aship.hasFlag(BattleShipFlag.JOIN) || aship.hasFlag(BattleShipFlag.FLUCHT) || aship.hasFlag(BattleShipFlag.SECONDROW))) {
+					counter ++;
+			}
+	}
+	return counter > 0;
+}
 
 	/**
 	 * Prueft, ob die Schlacht ueber das angegebene Flag verfuegt.
@@ -1217,7 +1295,7 @@ public class Battle implements Locatable
 
 				PM.send(com, this.getCommanders()[i].getId(), "Schlacht &uuml;bernommen", "Ich habe die Leitung der Schlacht bei "+this.getLocation().displayCoordinates(false)+" &uuml;bernommen.");
 
-				this.log(new SchlachtLogAktion(i, "[Automatisch] "+Common._titleNoFormat(com.getName())+" kommandiert nun die gegnerischen Truppen"));
+				this.log(new SchlachtLogAktion(i, "[Automatisch] "+Common._titleNoFormat(com.getName())+" kommandiert nun die Truppen"));
 
 				this.setCommander(i, com);
 
@@ -1414,6 +1492,25 @@ public class Battle implements Locatable
 	 */
 	public BattleShip getOwnShip( int index ) {
 		return ownShips.get(index);
+	}
+
+	/**
+	 * Gibt das eigene Schiff mit der angegebenen ID oder null zurueck, falls nicht gefunden.
+	 * @param shipID Die Schiffs-ID
+	 * @return Das Schiff
+	 */
+	public BattleShip getShipByID( int shipID ) {
+		if(shipID > 0)
+        {
+            for(int i=0; i < ownShips.size(); i++)
+            {
+                if(ownShips.get(i).getId() == shipID)
+                {
+                    return ownShips.get(i);
+                }
+            }
+        }
+		return null;
 	}
 
 	/**

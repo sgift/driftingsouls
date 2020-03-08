@@ -1,4 +1,4 @@
-<div style="font-weight:bold">GCP Com-net - 4. Testversion<br /></div>
+<div style="font-weight:bold">Com-net - Version 5<br /></div>
 {if show.inputform}
 	<div>
 		{if show.vorschau}
@@ -156,7 +156,7 @@
 			[base=BaseID]Eine Beschreibung[/base]<br />
 			[userprofile=SpielerID]Eine Beschreibung[/userprofile]<br />
 			[resource=iID|0|0,PARAM]Anzahl[/resource]</br />
-			Als PARAM kann i oder n angegeben werden, um nur den Namen oder nur das Bild anzeigen zu lassen. Das ,PARAM kann aber auch komplett weggelassen werden.<br />
+			Als PARAM kann i oder n angegeben werden, um nur den Namen oder nur das Bild anzeigen zu lassen. Das PARAM kann aber auch komplett weggelassen werden.<br />
 			Beispiel f&uuml;r 5 Nahrung: [resource=i16|0|0]5[/resource]<br />
 		</span>
 	</div>
@@ -164,8 +164,8 @@
 {if show.channellist}
 	<div>
 		<br />
-		Subraum-Tranciever ... Aktiviert<br />
-		Kommunikations-System einsatzbereit<br /><br />
+		Subraum-Tranciever... aktiviert<br />
+		Kommunikations-System... einsatzbereit<br /><br />
 	</div>
 	<table class="noBorder">
 	<tr>
@@ -200,22 +200,22 @@
 {/endif}
 {if show.submit}
 	<div>
-		Transmission gesendet... Erhalt wurde vom GCP Com-net best&auml;tigt.<br /><br /><br />
-		{!link_to zur&uuml;ck zum Com-net Men&uuml;, default, channel:$channel.id}
+		Transmission gesendet... Erhalt wurde vom Com-Net best&auml;tigt.<br /><br /><br />
+		{!link_to zur&uuml;ck zum Com-Net-Men&uuml;, default, channel:$channel.id}
 	</div>
 {/endif}
 {if show.searcherror}
 	<div>
 		<br />
-		<span style="color:red">Zu ihrer Suche wurden leider keine Ergebnisse gefunden.</span><br />
+		<span style="color:red">Zu Ihrer Suche wurden leider keine Ergebnisse gefunden.</span><br />
 		<br />
-		{!link_to zur&uuml;ck zum Com-net Men&uuml;, default, channel:$channel.id}
+		{!link_to zur&uuml;ck zum Com-Net-Men&uuml;, default, channel:$channel.id}
 	</div>
 {/endif}
 {if show.read}
 	<div>
 		<br />
-		{!link_to zur&uuml;ck zum Com-net Men&uuml;, default, channel:$channel.id}
+		{!link_to zur&uuml;ck zum Com-Net-Men&uuml;, default, channel:$channel.id}
 		{if channel.writeable}
 			- {!link_to Antworten, write, channel:$channel.id}
 		{/endif}
