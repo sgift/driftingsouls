@@ -318,7 +318,7 @@ public class BuildingController extends Controller
 		if( !conf.equals("ok") ) {
 			echo.append("<div align=\"center\">\n");
 			echo.append("<img align=\"middle\" src=\"./").append(building.getPictureForRace(user.getRace())).append("\" alt=\"\" /> ").append(Common._plaintitle(building.getName())).append("<br /><br />\n");
-			echo.append("Wollen sie dieses Geb&auml;ude wirklich abreissen?<br /><br />\n");
+			echo.append("Wollen Sie dieses Geb&auml;ude wirklich abreißen?<br /><br />\n");
 			echo.append("<a class=\"error\" href=\"").append(Common.buildUrl("demo", "col", base.getId(), "field", field, "conf", "ok")).append("\">abreissen</a><br /></div>");
 			echo.append("</div>");
 
@@ -487,11 +487,11 @@ public class BuildingController extends Controller
 
 		if (building.getId() != Building.KOMMANDOZENTRALE)
 		{
-			echo.append("<a style=\"font-size:16px\" class=\"error\" href=\"").append(Common.buildUrl("demo", "col", base.getId(), "field", field)).append("\">abreissen</a><br />");
+			echo.append("<a style=\"font-size:16px\" class=\"error\" href=\"").append(Common.buildUrl("demo", "col", base.getId(), "field", field)).append("\">abreißen</a><br />");
 		}
 		else
 		{
-			echo.append("<a style=\"font-size:16px\" class=\"error\" href=\"javascript:DS.ask('Wollen sie den Asteroiden wirklich aufgeben?','").append(Common.buildUrl("demo", "col", base.getId(), "field", field)).append("');\">Asteroid aufgeben</a><br />");
+			echo.append("<a style=\"font-size:16px\" class=\"error\" href=\"javascript:DS.ask('Wollen Sie den Asteroiden wirklich aufgeben?','").append(Common.buildUrl("demo", "col", base.getId(), "field", field)).append("');\">Asteroid aufgeben</a><br />");
 		}
 
 		if (!classicDesign)
