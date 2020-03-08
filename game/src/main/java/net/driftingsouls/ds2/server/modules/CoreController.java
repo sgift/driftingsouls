@@ -291,9 +291,9 @@ public class CoreController extends Controller
 			ResourceList reslist = costs.compare(cargo, false, true);
 			for (ResourceEntry res : reslist)
 			{
-				if (res.getDiff() > 0)
-				{
+				if (res.getDiff() > 0) {
 					buildable = false;
+					break;
 				}
 			}
 

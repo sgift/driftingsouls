@@ -177,7 +177,7 @@ public class TileCache
 
 	private double distanceFactor(int edge, int x, int y, int w, int h)
 	{
-		double[] edgePos = {((edge%3)/2d)*w, ((edge/3)/2d)*h};
+		double[] edgePos = {((edge%3)/2d)*w, ((edge/3d)/2d)*h};
 
 		double distance = Math.sqrt(Math.pow(edgePos[0]-x, 2)+Math.pow(edgePos[1]-y, 2));
 		double maxDistance = Math.sqrt(Math.pow(w, 2)+Math.pow(h, 2))/(edge%2==1 ? 3d : 2.5d);

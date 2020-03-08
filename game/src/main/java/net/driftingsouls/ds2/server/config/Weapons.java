@@ -23,6 +23,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -51,6 +52,7 @@ public class Weapons implements Iterable<Weapon> {
 		return instance;
 	}
 
+	@NotNull
 	@Override
 	public Iterator<Weapon> iterator() {
 		Session db = ContextMap.getContext().getDB();

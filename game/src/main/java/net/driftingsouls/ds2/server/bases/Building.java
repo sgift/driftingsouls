@@ -229,7 +229,7 @@ public abstract class Building
 		for(String dig : digs)
 		{
 			String[] thisdig = StringUtils.split(dig, ";");
-			productions.put(new ItemID(Integer.valueOf(thisdig[0])), Double.valueOf(thisdig[1]));
+			productions.put(new ItemID(Integer.parseInt(thisdig[0])), Double.valueOf(thisdig[1]));
 		}
 		return productions;
 	}

@@ -491,7 +491,7 @@ public class BuildingController extends Controller
 		}
 		else
 		{
-			echo.append("<a style=\"font-size:16px\" class=\"error\" href=\"javascript:DS.ask(\'Wollen sie den Asteroiden wirklich aufgeben?\',\'").append(Common.buildUrl("demo", "col", base.getId(), "field", field)).append("\');\">Asteroid aufgeben</a><br />");
+			echo.append("<a style=\"font-size:16px\" class=\"error\" href=\"javascript:DS.ask('Wollen sie den Asteroiden wirklich aufgeben?','").append(Common.buildUrl("demo", "col", base.getId(), "field", field)).append("');\">Asteroid aufgeben</a><br />");
 		}
 
 		if (!classicDesign)

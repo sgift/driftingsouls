@@ -172,7 +172,7 @@ public class ShipFleet {
 				break;
 			}
 
-			jaegerlist = jaegerliste.subList(0, free > jaegerliste.size() ? jaegerliste.size() : free);
+			jaegerlist = jaegerliste.subList(0, Math.min(free, jaegerliste.size()));
 			ship.land(jaegerlist.toArray(new Ship[0]));
 		}
 	}
@@ -283,7 +283,7 @@ public class ShipFleet {
 				break;
 			}
 
-			containerlist = Common.cast(containers, Ship.class).subList(0, free > containers.size() ? containers.size() : free);
+			containerlist = Common.cast(containers, Ship.class).subList(0, Math.min(free, containers.size()));
 			ship.dock(containerlist.toArray(new Ship[0]));
 		}
 	}
@@ -332,7 +332,7 @@ public class ShipFleet {
 				break;
 			}
 
-			geschuetzlist = Common.cast(geschuetze, Ship.class).subList(0, free > geschuetze.size() ? geschuetze.size() : free);
+			geschuetzlist = Common.cast(geschuetze, Ship.class).subList(0, Math.min(free, geschuetze.size()));
 			ship.dock(geschuetzlist.toArray(new Ship[0]));
 		}
 	}

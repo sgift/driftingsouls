@@ -301,7 +301,7 @@ public class TradeController extends Controller
 					message.append("[resource=").append(res.getId()).append("]").append(nichtVerkauft).append("[/resource] nicht verkauft - Alle Lager sind voll\n");
 				}
 
-				BigDecimal get = BigDecimal.valueOf(tmp).multiply(new BigDecimal(res.getCount1() / 1000d));
+				BigDecimal get = BigDecimal.valueOf(tmp).multiply(BigDecimal.valueOf(res.getCount1() / 1000d));
 
 				//Aufpassen das ich nicht das Konto leerfresse
 				if (reconsumption > 0)
@@ -326,7 +326,7 @@ public class TradeController extends Controller
 					continue;
 				}
 
-				get = BigDecimal.valueOf(tmp).multiply(new BigDecimal(res.getCount1() / 1000d));
+				get = BigDecimal.valueOf(tmp).multiply(BigDecimal.valueOf(res.getCount1() / 1000d));
 
 				message.append("[resource=").append(res.getId()).append("]").append(tmp).append("[/resource] für ").append(Common.ln(get)).append(" RE verkauft\n");
 

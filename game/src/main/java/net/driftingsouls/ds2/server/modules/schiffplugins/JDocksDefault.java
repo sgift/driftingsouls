@@ -102,7 +102,7 @@ public class JDocksDefault implements SchiffPlugin {
 					"ship.id",				data.getId(),
 					"ship.docklist",		idlist,
 					"ship.jdocks",			datatype.getJDocks(),
-					"docks.width",			100/(datatype.getJDocks()>5 ? 5 : datatype.getJDocks() ),
+					"docks.width",			100/Math.min(datatype.getJDocks(), 5),
 					"ship.docklist.nofleet",	nofleet );
 
 		t.setBlock("_PLUGIN_"+pluginid,"jdocks.listitem","jdocks.list");

@@ -23,6 +23,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
 import java.util.List;
@@ -49,6 +50,7 @@ public class ModuleSlots implements Iterable<ModuleSlot> {
 		return moduleList;
 	}
 	
+	@NotNull
 	@Override
 	public Iterator<ModuleSlot> iterator() {
 		Session db = ContextMap.getContext().getDB();

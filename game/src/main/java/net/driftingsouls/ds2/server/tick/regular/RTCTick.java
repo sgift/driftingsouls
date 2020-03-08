@@ -115,17 +115,15 @@ public class RTCTick extends TickController {
 				}
 
 				int gtucost = 100;
-				User targetuser = null;
 
 				if (entry.getOwner() != this.gtuuser)
 				{
-					targetuser = entry.getOwner();
-
-					gtucost = targetuser.getUserValue(WellKnownUserValue.GTU_AUCTION_USER_COST);
+					gtucost = entry.getOwner().getUserValue(WellKnownUserValue.GTU_AUCTION_USER_COST);
 				}
 
 				String entryname;
 
+				double priceAfterGtuCost = price - Math.ceil(price * gtucost / 100d);
 				if (entry instanceof VersteigerungSchiff)
 				{
 					VersteigerungSchiff shipEntry = (VersteigerungSchiff) entry;
@@ -170,7 +168,7 @@ public class RTCTick extends TickController {
 
 					if (entry.getOwner() != this.gtuuser)
 					{
-						msg = "Es wurde ihre " + entryname + " versteigert.\nDas Objekt wurde dem Gewinner " + winner.getName() + " f&uuml;r den Preis von " + Common.ln(price) + " RE &uuml;bergeben. Die GTU berechnet ihnen " + gtucost + "% des Gewinnes als Preis. Dies entspricht " + Common.ln(Math.ceil(price * gtucost / 100d)) + " RE. Ihnen bleiben somit noch " + Common.ln(price - Math.ceil(price * gtucost / 100d)) + " RE\n\nJack Miller\nHan Ronalds";
+						msg = "Es wurde ihre " + entryname + " versteigert.\nDas Objekt wurde dem Gewinner " + winner.getName() + " f&uuml;r den Preis von " + Common.ln(price) + " RE &uuml;bergeben. Die GTU berechnet ihnen " + gtucost + "% des Gewinnes als Preis. Dies entspricht " + Common.ln(Math.ceil(price * gtucost / 100d)) + " RE. Ihnen bleiben somit noch " + Common.ln(priceAfterGtuCost) + " RE\n\nJack Miller\nHan Ronalds";
 						PM.send(gtuuser, entry.getOwner().getId(), entryname + " versteigert", msg);
 
 						msg = "Es wurde " + entryname + " im Auftrag von " + entry.getOwner().getId() + " versteigert.\nDas Objekt wurde bei " + loc.displayCoordinates(false) + " dem Gewinner " + winner.getId() + " f&uuml;r den Preis von " + Common.ln(price) + " RE &uuml;bergeben. Einnahme: " + Common.ln(Math.ceil(price * gtucost / 100d)) + " RE (" + gtucost + "%)";
@@ -202,17 +200,16 @@ public class RTCTick extends TickController {
 
 					if (entry.getOwner() != this.gtuuser)
 					{
-						msg = "Es wurde ihr " + entryname + " versteigert.\nDas Objekt wurde dem Gewinner " + winner.getName() + " f&uuml;r den Preis von " + Common.ln(price) + " RE &uuml;bergeben. Die GTU berechnet ihnen " + gtucost + "% des Gewinnes als Preis. Dies entspricht " + Common.ln(Math.ceil(price * gtucost / 100d)) + " RE. Ihnen bleiben somit noch " + Common.ln((price - Math.ceil(price * gtucost / 100d))) + " RE\n\nJack Miller\nHan Ronalds";
+						msg = "Es wurde ihr " + entryname + " versteigert.\nDas Objekt wurde dem Gewinner " + winner.getName() + " f&uuml;r den Preis von " + Common.ln(price) + " RE &uuml;bergeben. Die GTU berechnet ihnen " + gtucost + "% des Gewinnes als Preis. Dies entspricht " + Common.ln(Math.ceil(price * gtucost / 100d)) + " RE. Ihnen bleiben somit noch " + Common.ln(priceAfterGtuCost) + " RE\n\nJack Miller\nHan Ronalds";
 						PM.send(gtuuser, entry.getOwner().getId(), entryname + " versteigert", msg);
 
 						msg = "Es wurde " + entryname + " im Auftrag von " + entry.getOwner().getId() + " versteigert.\nDas Objekt wurde bei " + loc.displayCoordinates(false) + " dem Gewinner " + winner.getId() + " f&uuml;r den Preis von " + Common.ln(price) + " RE hinterlegt. Einnahme: " + Common.ln(Math.ceil(price * gtucost / 100d)) + " RE (" + gtucost + "%)";
-						PM.send(sourceUser, Faction.GTU, entryname + " ersteigert", msg);
 					}
 					else
 					{
 						msg = "Es wurde " + entryname + " versteigert.\nDas Objekt wurde bei " + loc.displayCoordinates(false) + " dem Gewinner " + winner.getName() + " f&uuml;r den Preis von " + Common.ln(price) + " RE hinterlegt.";
-						PM.send(sourceUser, Faction.GTU, entryname + " ersteigert", msg);
 					}
+					PM.send(sourceUser, Faction.GTU, entryname + " ersteigert", msg);
 
 					GtuZwischenlager lager = new GtuZwischenlager(posten, winner, entry.getOwner());
 					lager.setCargo1(mycargo);
@@ -223,7 +220,7 @@ public class RTCTick extends TickController {
 
 				if (entry.getOwner() != this.gtuuser)
 				{
-					targetuser.transferMoneyFrom(Faction.GTU, price - (long) Math.ceil(price * gtucost / 100d),
+					entry.getOwner().transferMoneyFrom(Faction.GTU, price - (long) Math.ceil(price * gtucost / 100d),
 							"Gewinn Versteigerung #2" + entry.getId() + " abzgl. " + gtucost + "% Auktionskosten",
 							false, UserMoneyTransfer.Transfer.AUTO);
 				}

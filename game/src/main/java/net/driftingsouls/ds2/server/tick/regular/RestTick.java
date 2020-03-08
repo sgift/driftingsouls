@@ -481,7 +481,7 @@ public class RestTick extends TickController {
 
 			this.log("Erhoehe Tickzahl");
 			ConfigValue value = new ConfigService().get(WellKnownConfigValue.TICKS);
-			int ticks = Integer.valueOf(value.getValue()) + 1;
+			int ticks = Integer.parseInt(value.getValue()) + 1;
 			value.setValue(Integer.toString(ticks));
 			transaction.commit();
 		}

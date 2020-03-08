@@ -239,12 +239,9 @@ public class TradepostController extends Controller
 			kurse = new GtuWarenKurse("p" + ship.getId(), ship.getName(), buylistgtu);
 			db.persist(kurse);
 
-			return kurse;
 		}
-		else
-		{
-			return kurse;
-		}
+
+		return kurse;
 	}
 
 	/**

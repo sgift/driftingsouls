@@ -545,7 +545,7 @@ public class KSAttackAction extends BasicKSAction {
 				if (tmppanzerung >= 10){
 					tmppanzerung = 10;
 				}
-				schaden = Math.round(schaden*(10-tmppanzerung)/10);
+				schaden = schaden*(10-tmppanzerung)/10;
 
 			}
 		}
@@ -565,7 +565,7 @@ public class KSAttackAction extends BasicKSAction {
 				hit = 0;
 			}
 			else {
-				hit -= Math.ceil(eShip.getShields()/absSchaden);
+				hit -= eShip.getShields()/absSchaden;
 				eShip.setShields(0);
 				battle.logme( "+ Schilde ausgefallen\n" );
 				logMsg.append("+ Schilde ausgefallen\n");

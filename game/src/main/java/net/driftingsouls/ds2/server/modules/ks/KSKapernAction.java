@@ -398,12 +398,9 @@ public class KSKapernAction extends BasicKSAction {
 				battle.setEnemyShipIndex(newindex);
 			}
 
-			enemyShip.getShip().recalculateShipStatus();
 		}
 		// Das Schiff konnte offenbar nicht gekapert werden....
-		else {
-			enemyShip.getShip().recalculateShipStatus();
-		}
+		enemyShip.getShip().recalculateShipStatus();
 
 		ownShip.getShip().recalculateShipStatus();
 

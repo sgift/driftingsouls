@@ -717,13 +717,13 @@ public class AngriffController extends Controller
 		if( !battle.isGuest() ) {
 			//Energieanzeige im ersten eigenene Schiff
 			if( ownShip.getShip().getEnergy() < ownShipType.getEps()/4 ) {
-				energy = "<br />E: <span style=\'color:#ff0000\'>";
+				energy = "<br />E: <span style='color:#ff0000'>";
 			}
 			else if( ownShip.getShip().getEnergy() < ownShipType.getEps() ) {
-		  		energy = "<br />E: <span style=\'color:#ffff00\'>";
+		  		energy = "<br />E: <span style='color:#ffff00'>";
 			}
 			else {
-				energy = "<br />E: <span style=\'color:#00ff00\'>";
+				energy = "<br />E: <span style='color:#00ff00'>";
 			}
 
 			energy += ownShip.getShip().getEnergy()+"/"+ownShipType.getEps()+"</span>";
@@ -849,13 +849,13 @@ public class AngriffController extends Controller
 				// Energiestatus anzeigen, wenn der User kein Gast ist
 				if( !battle.isGuest() ) {
 					if( aship.getShip().getEnergy() < aShipType.getEps()/4 ) {
-						energy = "<br />E: <span style=\'color:#ff0000\'>";
+						energy = "<br />E: <span style='color:#ff0000'>";
 					}
 					else if( aship.getShip().getEnergy() < aShipType.getEps() ) {
-						energy =  "<br />E: <span style=\'color:#ffff00\'>";
+						energy = "<br />E: <span style='color:#ffff00'>";
 					}
 					else {
-						energy =  "<br />E: <span style=\'color:#00ff00\'>";
+						energy = "<br />E: <span style='color:#00ff00'>";
 					}
 
 					energy += aship.getShip().getEnergy()+"/"+aShipType.getEps()+"</span>";
@@ -1129,13 +1129,13 @@ public class AngriffController extends Controller
 				// Energiestatus anzeigen, wenn der User kein Gast ist
 				if( !battle.isGuest() ) {
 					if( aship.getShip().getEnergy() < aShipType.getEps()/4 ) {
-						energy = "<br />E: <span style=\'color:#ff0000\'>";
+						energy = "<br />E: <span style='color:#ff0000'>";
 					}
 					else if( aship.getShip().getEnergy() < aShipType.getEps() ) {
-						energy =  "<br />E: <span style=\'color:#ffff00\'>";
+						energy = "<br />E: <span style='color:#ffff00'>";
 					}
 					else {
-						energy =  "<br />E: <span style=\'color:#00ff00\'>";
+						energy = "<br />E: <span style='color:#00ff00'>";
 					}
 
 					energy += aship.getShip().getEnergy()+"/"+aShipType.getEps()+"</span>";
@@ -1406,13 +1406,13 @@ public class AngriffController extends Controller
 				// Energiestatus anzeigen, wenn der User kein Gast ist
 				if( !battle.isGuest() ) {
 					if( aship.getShip().getEnergy() < aShipType.getEps()/4 ) {
-						energy = "<br />E: <span style=\'color:#ff0000\'>";
+						energy = "<br />E: <span style='color:#ff0000'>";
 					}
 					else if( aship.getShip().getEnergy() < aShipType.getEps() ) {
-						energy =  "<br />E: <span style=\'color:#ffff00\'>";
+						energy = "<br />E: <span style='color:#ffff00'>";
 					}
 					else {
-						energy =  "<br />E: <span style=\'color:#00ff00\'>";
+						energy = "<br />E: <span style='color:#00ff00'>";
 					}
 
 					energy += aship.getShip().getEnergy()+"/"+aShipType.getEps()+"</span>";

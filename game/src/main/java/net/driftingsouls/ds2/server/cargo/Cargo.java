@@ -185,14 +185,13 @@ public class Cargo implements Cloneable {
 			if(orgitems == null)
 			{
 				orgitems = count;
-				items.add(parseItems(count));
 			}
 			else
 			{
 				orgitems += ";";
 				orgitems += count;
-				items.add(parseItems(count));
 			}
+			items.add(parseItems(count));
 		}
 	}
 

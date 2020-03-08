@@ -1162,9 +1162,7 @@ public boolean hasFrontRow( int side) {
 
                 Map<String, Integer> heat = ship.getWeaponHeat();
 
-                for (String weaponName : heat.keySet()) {
-                    heat.put(weaponName, 0);
-                }
+				heat.replaceAll((n, v) -> 0);
 
                 if (ship.hasFlag(BattleShipFlag.FLUCHTNEXT)) {
 					ship.removeFlag(BattleShipFlag.FLUCHTNEXT);
@@ -1500,17 +1498,14 @@ public boolean hasFrontRow( int side) {
 	 * @return Das Schiff
 	 */
 	public BattleShip getShipByID( int shipID ) {
-		if(shipID > 0)
-        {
-            for(int i=0; i < ownShips.size(); i++)
-            {
-                if(ownShips.get(i).getId() == shipID)
-                {
-                    return ownShips.get(i);
-                }
-            }
-        }
-		return null;
+		if(shipID <= 0) {
+			return null;
+		}
+
+		return ownShips.stream()
+				.filter(ownShip -> ownShip.getId() == shipID)
+				.findAny()
+				.orElse(null);
 	}
 
 	/**

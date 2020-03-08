@@ -405,13 +405,11 @@ public class SchiffeController extends Controller
 					}
 				}
 
-				StringBuilder popup = new StringBuilder(100);
-				popup.append("Belegte Werftslots: <img style='vertical-align:middle;border:0px' src='./data/interface/schiffinfo/werftslots.png' alt='' />").append(usedSlots).append("/").append(totalSlots).append("<br />");
-				popup.append("Im Bau: ").append(buildingCount).append(" Schiffe<br />");
-				popup.append("In der Warteschlange: ").append(entries.size() - buildingCount);
-				popup.append(imBau);
-
-				t.setVar("ship.werft.popup", popup.toString(),
+				String popup = "Belegte Werftslots: <img style='vertical-align:middle;border:0px' src='./data/interface/schiffinfo/werftslots.png' alt='' />" + usedSlots + "/" + totalSlots + "<br />" +
+						"Im Bau: " + buildingCount + " Schiffe<br />" +
+						"In der Warteschlange: " + (entries.size() - buildingCount) +
+						imBau;
+				t.setVar("ship.werft.popup", popup,
 						"ship.werft.entries", entries.size(),
 						"ship.werft.building", 1);
 			}

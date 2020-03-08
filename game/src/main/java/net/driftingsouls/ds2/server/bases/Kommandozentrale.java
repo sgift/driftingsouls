@@ -54,6 +54,7 @@ import javax.persistence.Entity;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -85,10 +86,7 @@ public class Kommandozentrale extends DefaultBuilding {
 		base.setOwner(nullUser);
 		// Fahre Basis runter
 		Integer[] active = base.getActive();
-		for(int i = 0; i < active.length; i++)
-		{
-			active[i] = 0;
-		}
+		Arrays.fill(active, 0);
 
 		base.setActive(active);
 		base.setCoreActive(false);
@@ -250,7 +248,7 @@ public class Kommandozentrale extends DefaultBuilding {
 						continue;
 					}
 
-					BigDecimal get = BigDecimal.valueOf(tmp).multiply(new BigDecimal(res.getCount1()/1000d));
+					BigDecimal get = BigDecimal.valueOf(tmp).multiply(BigDecimal.valueOf(res.getCount1() / 1000d));
 
 					message.append("<img src=\"").append(res.getImage()).append("\" alt=\"\" />").append(Common.ln(tmp)).append(" f&uuml;r ").append(Common.ln(get)).append(" RE verkauft<br />\n");
 					totalRE = totalRE.add(get.toBigInteger());
@@ -578,7 +576,7 @@ public class Kommandozentrale extends DefaultBuilding {
 				t.parse("general.sell.list", "general.sell.listitem", true);
 			}
 		}
-		else if( show.equals("autogtu") ) {
+		else {
 			t.setVar("show.autogtu", 1);
 			t.setBlock("_BUILDING", "autogtu.acts.listitem", "autogtu.acts.list");
 			t.setBlock("_BUILDING", "autogtu.reslist.listitem", "autogtu.reslist.list");

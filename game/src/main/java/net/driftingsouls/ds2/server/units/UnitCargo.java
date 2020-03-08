@@ -614,18 +614,18 @@ public abstract class UnitCargo implements Cloneable {
 			double uebermacht = 6;
 			// Gibt Anzahl der zu reduzierenden KaperValue auf beiden Seiten an. Formel nach X umgeformt: (offValue - X) > uebermacht*(deffValue - X). Nicht aufgerundet sondern +1, da es echt groesser sein soll.
 			int totekapervalue = (int) ((uebermacht * (kaperunitcargo.getKaperValue() + feindCrew.getValue() * 10) * defmulti - getKaperValue() * amulti) / (uebermacht - 1)) + 1;
-			reduziereKaperValue((int) Math.ceil(totekapervalue / amulti), gefalleneeigeneUnits);
+			reduziereKaperValue(totekapervalue / amulti, gefalleneeigeneUnits);
 			// Wenn mehr theoretische tote Deffeinheiten als vorhanden
 			if (totekapervalue > kaperunitcargo.getKaperValue() * defmulti)
 			{
 				// Vllt noch mehr aufrunden? Wurde aber unten beim nicht-gekapert auch nicht gemacht
-				feindCrew.setValue(feindCrew.getValue() - ((int) Math.ceil(totekapervalue / defmulti) - kaperunitcargo.getKaperValue()) / 10);
+				feindCrew.setValue(feindCrew.getValue() - ((totekapervalue / defmulti) - kaperunitcargo.getKaperValue()) / 10);
 				totekapervalue = kaperunitcargo.getKaperValue();
 			}
 			else
 			{
 				// Einheiten nur reduzieren, welche leben lassen
-				totekapervalue = (int) Math.ceil(totekapervalue / defmulti);
+				totekapervalue = totekapervalue / defmulti;
 			}
 			kaperunitcargo.reduziereKaperValue(totekapervalue, gefallenefeindlicheUnits);
 			return true;
@@ -646,9 +646,9 @@ public abstract class UnitCargo implements Cloneable {
 	 * Diese Methode reduziert diesen UnitCargo um die angegebene Menge an KaperValue.
 	 * Dabei werden zuerst Einheiten mit hoher KaperValue entfernt.
 	 * @param totekapervalue Die KaperValue die entfernt werden soll
-	 * @param toteUnits Der UnitCargo der alle abgestorbenen Einheiten enthaelt
+	 * @param deadUnits Der UnitCargo der alle abgestorbenen Einheiten enthaelt
 	 */
-	public void reduziereKaperValue(int totekapervalue, UnitCargo toteUnits)
+	public void reduziereKaperValue(int totekapervalue, UnitCargo deadUnits)
 	{
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		List<UnitType> unitlist = Common.cast(db.createQuery("from UnitType ORDER BY kapervalue DESC").list());
@@ -663,14 +663,14 @@ public abstract class UnitCargo implements Cloneable {
 				if( unit.getKaperValue() * unitcount < totekapervalue)
 				{
 					totekapervalue -= unit.getKaperValue() * unitcount;
-					toteUnits.addUnit(unit, unitcount);
+					deadUnits.addUnit(unit, unitcount);
 					setUnit(unit,0);
 				}
 				// Die Einheiten reichen aus
 				else
 				{
-					toteUnits.addUnit(unit, (long)Math.ceil(totekapervalue / unit.getKaperValue()));
-					substractUnit(unit, (long)Math.ceil(totekapervalue / unit.getKaperValue()));
+					deadUnits.addUnit(unit, totekapervalue / unit.getKaperValue());
+					substractUnit(unit, totekapervalue / unit.getKaperValue());
 					return;
 				}
 			}
