@@ -64,7 +64,7 @@ public class AutofireTick extends TickController {
 				org.hibernate.Session db = getDB();
 				Battle battle = (Battle)db.get(Battle.class, battleId);
 				battle.load( battle.getCommander(0), null, null, 0 );
-                log("Automatisches Feuer aktiviert fuer Spieler: " + battle.getCommander(0).getId());
+                log("Automatisches Feuer aktiviert für Spieler: " + battle.getCommander(0).getId());
                 AutoFire autoFire = new AutoFire(getDB(), battle);
                 autoFire.fireShips();
 			}
@@ -79,7 +79,7 @@ public class AutofireTick extends TickController {
                 org.hibernate.Session db = getDB();
                 Battle battle = (Battle)db.get(Battle.class, battleId);
                 battle.load( battle.getCommander(1), null, null, 0 );
-                log("Automatisches Feuer aktiviert fuer Spieler: " + battle.getCommander(1).getId());
+                log("Automatisches Feuer aktiviert für Spieler: " + battle.getCommander(1).getId());
                 AutoFire autoFire = new AutoFire(getDB(), battle);
                 autoFire.fireShips();
             }
