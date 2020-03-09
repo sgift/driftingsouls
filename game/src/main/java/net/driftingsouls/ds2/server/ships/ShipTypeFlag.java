@@ -60,7 +60,7 @@ public enum ShipTypeFlag
 	 * Das Schiff verfuegt ueber zusaetzliche Erweiterungen zuzueglich zu den erweiterten SRS-Sensoren.
 	 * (Nur wirksam in Kombination mit {@link #SRS_AWAC}
 	 */
-	SRS_EXT_AWAC("srs_ext_awac", "Erweiterte AWACS-SRS", "Mit den Verbesserten AWACS-Kurzstreckensensoren ist eine detailierte Analyse von Antriebsüberhitzung, Crew und Enegiereserven eines anderen Schiffes im selben Sektor möglich"),
+	SRS_EXT_AWAC("srs_ext_awac", "erweiterte AWACS-SRS", "Mit den Verbesserten AWACS-Kurzstreckensensoren ist eine detailierte Analyse von Antriebsüberhitzung, Crew und Enegiereserven eines anderen Schiffes im selben Sektor möglich"),
 
 	/**
 	 * Das Schiff verfuegt ueber einen shivanischen Sprungantrieb.
@@ -116,7 +116,7 @@ public enum ShipTypeFlag
 	/**
 	 * Das Schiff kann keine selbstzerstoerung.
 	 */
-	NICHT_ZERSTOERBAR("nosuicide", "Keine Selbstzerstörung", "Dieses Schiff verfügt über keine Selbstzerstörungsanlage"),
+	NICHT_ZERSTOERBAR("nosuicide", "keine Selbstzerstörung", "Dieses Schiff verfügt über keine Selbstzerstörungsanlage"),
 
 	/**
 	 * Das Schiff ist ein Versorger.
@@ -125,7 +125,7 @@ public enum ShipTypeFlag
 	/**
 	 * Übergabe von und zu dem Schiff sind nicht moeglich.
 	 */
-	NICHT_UEBERGEBBAR("nicht_uebergebbar", "Nicht übergebbar", "Sie können dieses Schiff nicht an andere Kolonisten übergeben"),
+	NICHT_UEBERGEBBAR("nicht_uebergebbar", "nicht übergebbar", "Der Inhaber dieses Schiffes kann es nicht an andere Kolonisten übergeben"),
 	/**
 	 * Muss im Kampf als erstes zerstört werden.
 	 */
