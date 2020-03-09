@@ -77,7 +77,7 @@ public class BuildingController extends Controller
 
 		if ((feld >= basis.getBebauung().length) || (basis.getBebauung()[feld] == 0))
 		{
-			throw new ValidierungException("Es existiert kein Geb&auml;ude an dieser Stelle");
+			throw new ValidierungException("Es existiert kein Gebäude an dieser Stelle");
 		}
 	}
 
@@ -108,7 +108,7 @@ public class BuildingController extends Controller
 						|| (base.getOwner().getRace() != building.getRace() && building.getRace() != 0)))
 		{
 			response.success = false;
-			response.message = "Sie können dieses Geb&auml;ude wegen unzureichenden Voraussetzungen nicht aktivieren";
+			response.message = "Sie können dieses Gebäude wegen unzureichender Voraussetzungen nicht aktivieren";
 		}
 		else
 		{
@@ -141,13 +141,13 @@ public class BuildingController extends Controller
 
 		if ((building.getArbeiter() > 0) && (building.getArbeiter() + base.getArbeiter() > base.getBewohner()))
 		{
-			echo.append("<span style=\"color:#ff0000\">Nicht gen&uuml;gend Arbeiter vorhanden</span><br /><br />\n");
+			echo.append("<span style=\"color:#ff0000\">Nicht genügend Arbeiter vorhanden</span><br /><br />\n");
 		}
 		else if (building.isShutDown() &&
 				(!base.getOwner().hasResearched(building.getTechRequired())
 						|| (base.getOwner().getRace() != building.getRace() && building.getRace() != 0)))
 		{
-			echo.append("<span style=\"color:#ff0000\">Sie k&ouml;nnen dieses Geb&auml;ude wegen unzureichenden Voraussetzungen nicht aktivieren</span><br /><br />\n");
+			echo.append("<span style=\"color:#ff0000\">Sie können dieses Gebäude wegen unzureichenden Voraussetzungen nicht aktivieren</span><br /><br />\n");
 		}
 		else
 		{
@@ -157,7 +157,7 @@ public class BuildingController extends Controller
 
 			base.setArbeiter(base.getArbeiter() + building.getArbeiter());
 
-			echo.append("<span style=\"color:#00ff00\">Geb&auml;ude aktiviert</span><br /><br />\n");
+			echo.append("<span style=\"color:#00ff00\">Gebäude aktiviert</span><br /><br />\n");
 		}
 
 		return new RedirectViewResult("default");
@@ -216,7 +216,7 @@ public class BuildingController extends Controller
 
 		if (!building.isDeakAble())
 		{
-			echo.append("<span style=\"color:red\">Sie k&ouml;nnen dieses Geb&auml;ude nicht deaktivieren</span>\n");
+			echo.append("<span style=\"color:red\">Sie können dieses Gebäude nicht deaktivieren</span>\n");
 		}
 		else
 		{
@@ -226,7 +226,7 @@ public class BuildingController extends Controller
 
 			base.setArbeiter(base.getArbeiter() - building.getArbeiter());
 
-			echo.append("<span style=\"color:#ff0000\">Geb&auml;ude deaktiviert</span><br /><br />\n");
+			echo.append("<span style=\"color:#ff0000\">Gebäude deaktiviert</span><br /><br />\n");
 		}
 
 		return new RedirectViewResult("default");
@@ -318,12 +318,12 @@ public class BuildingController extends Controller
 		if( !conf.equals("ok") ) {
 			echo.append("<div align=\"center\">\n");
 			echo.append("<img align=\"middle\" src=\"./").append(building.getPictureForRace(user.getRace())).append("\" alt=\"\" /> ").append(Common._plaintitle(building.getName())).append("<br /><br />\n");
-			echo.append("Wollen Sie dieses Geb&auml;ude wirklich abreißen?<br /><br />\n");
-			echo.append("<a class=\"error\" href=\"").append(Common.buildUrl("demo", "col", base.getId(), "field", field, "conf", "ok")).append("\">abreissen</a><br /></div>");
+			echo.append("Wollen Sie dieses Gebäude wirklich abreißen?<br /><br />\n");
+			echo.append("<a class=\"error\" href=\"").append(Common.buildUrl("demo", "col", base.getId(), "field", field, "conf", "ok")).append("\">abreißen</a><br /></div>");
 			echo.append("</div>");
 
 			echo.append("<br />\n");
-			echo.append("<a class=\"back\" href=\"").append(Common.buildUrl("default", "module", "base", "col", base.getId())).append("\">zur&uuml;ck</a><br />\n");
+			echo.append("<a class=\"back\" href=\"").append(Common.buildUrl("default", "module", "base", "col", base.getId())).append("\">zurück</a><br />\n");
 
 			return;
 		}
@@ -331,14 +331,14 @@ public class BuildingController extends Controller
 		Cargo buildcosts =(Cargo)building.getBuildCosts().clone();
 		buildcosts.multiply( 0.8, Cargo.Round.FLOOR );
 
-		echo.append("<div align=\"center\">R&uuml;ckerstattung:</div><br />\n");
+		echo.append("<div align=\"center\">Rückerstattung:</div><br />\n");
 		ResourceList reslist = buildcosts.getResourceList();
 		Cargo addcargo = buildcosts.cutCargo(base.getMaxCargo()-base.getCargo().getMass());
 
 		for( ResourceEntry res : reslist ) {
 			echo.append("<img src=\"").append(res.getImage()).append("\" alt=\"\" />").append(res.getCargo1());
 			if( !addcargo.hasResource(res.getId()) ) {
-				echo.append(" - <span style=\"color:red\">Nicht genug Platz f&uuml;r alle Waren</span>");
+				echo.append(" - <span style=\"color:red\">Nicht genügend Platz für alle Waren</span>");
 			}
 			echo.append("<br />\n");
 		}
@@ -360,11 +360,11 @@ public class BuildingController extends Controller
 
 		echo.append("<br />\n");
 		echo.append("<hr noshade=\"noshade\" size=\"1\" style=\"color:#cccccc\" /><br />\n");
-		echo.append("<div align=\"center\"><span style=\"color:#ff0000\">Das Geb&auml;ude wurde demontiert</span></div>\n");
+		echo.append("<div align=\"center\"><span style=\"color:#ff0000\">Das Gebäude wurde demontiert</span></div>\n");
 		echo.append("</div>");
 
 		echo.append("<br />\n");
-		echo.append("<a class=\"back\" href=\"").append(Common.buildUrl("default", "module", "base", "col", base.getId())).append("\">zur&uuml;ck</a><br />\n");
+		echo.append("<a class=\"back\" href=\"").append(Common.buildUrl("default", "module", "base", "col", base.getId())).append("\">zurück</a><br />\n");
 	}
 
 	@ViewModel
@@ -502,7 +502,7 @@ public class BuildingController extends Controller
 			echo.append("<br />\n");
 		}
 
-		echo.append("<br /><a style=\"font-size:16px\" class=\"back\" href=\"").append(Common.buildUrl("default", "module", "base", "col", base.getId())).append("\">zur&uuml;ck zur Basis</a><br /></div>\n");
+		echo.append("<br /><a style=\"font-size:16px\" class=\"back\" href=\"").append(Common.buildUrl("default", "module", "base", "col", base.getId())).append("\">zurück zur Basis</a><br /></div>\n");
 
 		return echo.toString();
 	}
