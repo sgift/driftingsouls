@@ -102,9 +102,9 @@ public class OptionsController extends Controller
 				newname = newname.replace("[name]", name);
 			}
 
-			changemsg += "<span style=\"color:green\">Der Ingame-Namen <span style=\"color:white\">" + Common._title(user.getNickname()) + "</span> wurde in <span style=\"color:white\">" + Common._title(name) + "</span> ge&auml;ndert</span><br />\n";
+			changemsg += "<span style=\"color:green\">Der Ingame-Name <span style=\"color:white\">" + Common._title(user.getNickname()) + "</span> wurde in <span style=\"color:white\">" + Common._title(name) + "</span> geändert</span><br />\n";
 
-			Common.writeLog("login.log", Common.date("j.m.Y H:i:s") + ": <" + getContext().getRequest().getRemoteAddress() + "> (" + user.getId() + ") <" + user.getUN() + "> Namensaenderung: Ingame-Namen <" + user.getNickname() + "> in <" + name + "> Browser <" + getContext().getRequest().getUserAgent() + ">\n");
+			Common.writeLog("login.log", Common.date("j.m.Y H:i:s") + ": <" + getContext().getRequest().getRemoteAddress() + "> (" + user.getId() + ") <" + user.getUN() + "> Namensänderung: Ingame-Name <" + user.getNickname() + "> in <" + name + "> Browser <" + getContext().getRequest().getUserAgent() + ">\n");
 
 			if (addhistory)
 			{
@@ -120,12 +120,12 @@ public class OptionsController extends Controller
 			String enc_pw = Common.md5(pw);
 
 			user.setPassword(enc_pw);
-			changemsg += "<span style=\"color:red\">Das Password wurde ge&auml;ndert</span><br />\n";
+			changemsg += "<span style=\"color:red\">Das Passwort wurde geändert</span><br />\n";
 
-			String subject = "Drifting Souls - Passwortaenderung";
+			String subject = "Drifting Souls - Passwortänderung";
 			String message = "Hallo {username},\n" +
-					"du hast dein Password geaendert. Dein Password wird kodiert gespeichert. Wenn es verloren geht, musst Du Dir ueber die \"neues Password zuteilen\" Funktion der Login-Seite ein neues erstellen lassen.\n" +
-					"Das Admin-Team wuenscht einen angenehmen Aufenthalt in Drifting Souls 2\n" +
+					"Du hast Dein Password geändert. Dein Passwort wird kodiert gespeichert. Wenn es verloren geht, musst Du Dir über die \"neues Password zuteilen\"-Funktion der Login-Seite ein neues erstellen lassen.\n" +
+					"Das Admin-Team wünscht viel Spaß mit Drifting Souls 2!\n" +
 					"Gruss Guzman\n" +
 					"Admin\n" +
 					"{date} Serverzeit";
@@ -138,7 +138,7 @@ public class OptionsController extends Controller
 		}
 		else if (pw.length() != 0)
 		{
-			changemsg += "<span style=\"color:red\">Die beiden eingegebenen Passw&ouml;rter stimmen nicht &uuml;berein</span><br />\n";
+			changemsg += "<span style=\"color:red\">Die beiden eingegebenen Passwörter stimmen nicht überein</span><br />\n";
 		}
 
 		t.setVar("options.changenamepwd", 1,
@@ -166,7 +166,7 @@ public class OptionsController extends Controller
 		}
 		else if (reason.length() < 5)
 		{
-			t.setVar("options.message", "Bitte geben sie Gr&uuml;nde f&uuml;r die L&ouml;schung an!<br />\n",
+			t.setVar("options.message", "Bitte geben Sie Gründe für die Löschung an!<br />\n",
 					"options.delaccountform", 1);
 
 		}
@@ -185,7 +185,7 @@ public class OptionsController extends Controller
 					"\n" +
 					"MY REASONS:\n" +
 					reason;
-			PM.sendToAdmins(user, "Account l&ouml;schen", msg, 0);
+			PM.sendToAdmins(user, "Account löschen", msg, 0);
 
 			t.setVar("options.delaccountresp", 1,
 					"delaccountresp.admins", configService.getValue(WellKnownConfigValue.ADMIN_PMS_ACCOUNT));
@@ -253,7 +253,7 @@ public class OptionsController extends Controller
 
 		if (defrelation != user.getRelation(null))
 		{
-			changemsg += "Diplomatiehaltung ge&auml;ndert...<br />\n";
+			changemsg += "Diplomatieeinstellung geändert...<br />\n";
 
 			user.setRelation(0, defrelation);
 			if (user.getAlly() != null)
@@ -274,11 +274,11 @@ public class OptionsController extends Controller
 			if (apikey.length()==25||apikey.length()==0)//Die ApiKeys sind alle 25 Zeichen lang
 			{
 				user.setUserValue(WellKnownUserValue.APIKEY, apikey);
-					new Notifier(apikey).sendMessage("Drifting Souls Push-Benachrichtigungen", user.getPlainname()+", du hast die Push-Benachrichtigungen erfolgreich aktiviert.");
+					new Notifier(apikey).sendMessage("'Drifting Souls 2'-Push-Benachrichtigungen", user.getPlainname()+", Du hast die Push-Benachrichtigungen erfolgreich aktiviert...");
 			}
 			else
 			{
-				changemsg += "Ung&uuml;ltiger API Key eingegeben ... zum Entfernen das Feld leeren<br />\\n";
+				changemsg += "Ungültigen API Key eingegeben... zum Entfernen das Feld leeren<br />\\n";
 			}
 		}
 
@@ -464,7 +464,7 @@ public class OptionsController extends Controller
 
 		if (list.get(0).getSize() > MAX_UPLOAD_SIZE)
 		{
-			return new RedirectViewResult("default").withMessage("Das Logo ist leider zu gro&szlig;. Bitte wähle eine Datei mit maximal 300kB Größe<br />");
+			return new RedirectViewResult("default").withMessage("Das Logo ist leider zu groß. Bitte wähle eine Datei mit einer Größe von maximal 300 kB.<br />");
 		}
 
 		String message;
@@ -477,7 +477,7 @@ public class OptionsController extends Controller
 		}
 		catch (Exception e)
 		{
-			message = "Offenbar ging beim Upload etwas schief (Ist die Datei evt. zu groß?)<br />";
+			message = "Offenbar ging beim Upload etwas schief (ist die Datei evtl. zu groß?)<br />";
 			log.warn(e);
 		}
 		return new RedirectViewResult("default").withMessage(message);
@@ -545,7 +545,7 @@ public class OptionsController extends Controller
 		if (user.isNoob())
 		{
 			user.setFlag(UserFlag.NOOB, false);
-			message = "GCP-Schutz wurde vorzeitig aufgehoben.<br />";
+			message = "Der Neuspielerschutz (GCP-Schutz) wurde vorzeitig aufgehoben.<br />";
 		}
 
 		return new RedirectViewResult("default").withMessage(message);
