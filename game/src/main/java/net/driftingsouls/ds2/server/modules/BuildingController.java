@@ -147,7 +147,7 @@ public class BuildingController extends Controller
 				(!base.getOwner().hasResearched(building.getTechRequired())
 						|| (base.getOwner().getRace() != building.getRace() && building.getRace() != 0)))
 		{
-			echo.append("<span style=\"color:#ff0000\">Sie können dieses Gebäude wegen unzureichenden Voraussetzungen nicht aktivieren</span><br /><br />\n");
+			echo.append("<span style=\"color:#ff0000\">Sie können dieses Gebäude wegen unzureichender Voraussetzungen nicht aktivieren</span><br /><br />\n");
 		}
 		else
 		{
