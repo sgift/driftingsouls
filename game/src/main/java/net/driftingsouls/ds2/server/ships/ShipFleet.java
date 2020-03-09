@@ -401,7 +401,7 @@ public class ShipFleet {
 	 */
 	public void removeShip(Ship ship) {
 		if( !this.equals(ship.getFleet()) ) {
-			throw new IllegalArgumentException("Das Schiff gehoert nicht zu dieser Flotte");
+			throw new IllegalArgumentException("Das Schiff gehört nicht zu dieser Flotte");
 		}
 
 		org.hibernate.Session db = ContextMap.getContext().getDB();
@@ -412,7 +412,7 @@ public class ShipFleet {
 
 		if( fleetcount > 2 || this.consignMode ) {
 			ship.setFleet(null);
-			MESSAGE.get().append("aus der Flotte ausgetreten");
+			MESSAGE.get().append("Das Schiff hat die Flotte verlassen");
 		}
 		else {
 			final Iterator<?> shipIter = db.createQuery("from Ship where fleet=:fleet")
@@ -424,7 +424,7 @@ public class ShipFleet {
 			}
 
 			db.delete(this);
-			MESSAGE.get().append("Flotte aufgel&ouml;&szlig;t");
+			MESSAGE.get().append("Flotte aufgelöst");
 		}
 	}
 
