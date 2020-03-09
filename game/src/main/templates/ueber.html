@@ -86,8 +86,8 @@
 					<br />
 				{/endif}
 
-				{if user.wait4vac}Achtung! Sie haben den Vacation-Modus aktiviert. Dieser wird in {user.wait4vac} Ticks die Kontrolle &uuml;bernehmen. {!link_to abbrechen, stopWait4Vac, css_class:error}<br /><br />{/endif}
-				{if global.survey}{!link_to Es gibt eine neue Umfrage an der Sie teilnehmen können, default, module:survey, css_style:color:orange;font-weight:bold}<br /><br />{/endif}
+				{if user.wait4vac}Achtung! Sie haben den Vacation-Modus aktiviert. Dieser wird in {user.wait4vac} Ticks in Kraft gesetzt. {!link_to abbrechen, stopWait4Vac, css_class:error}<br /><br />{/endif}
+				{if global.survey}{!link_to Es gibt eine neue Umfrage, an der Sie teilnehmen können, default, module:survey, css_style:color:orange;font-weight:bold}<br /><br />{/endif}
 			</td>
 		</tr>
 		</table>
@@ -124,7 +124,7 @@
 			</div>
 			<div style="height:260px; overflow:auto; padding:4px; font-size:13px">
 				<!-- BEGIN fleets.listitem -->
-					{if fleet.jaegerfleet}<br />+++ gelandete J&auml;gerstaffeln +++<br />{/endif}
+					{if fleet.jaegerfleet}<br />+++ gelandete Jägerstaffeln +++<br />{/endif}
 					{!link_to $fleet.name, default, css_style:font-size:13px, module:schiff, ship:$fleet.shipid}
 					- {fleet.shipcount} Schiffe - {fleet.location}<br />
 				<!-- END fleets.listitem -->
@@ -134,7 +134,7 @@
 </tr>
 <tr>
 	<td class="noBorderS" colspan="2" valign="top" align="center" style="font-size:17px">
-			<a title="Schiffe mit Vorr&auml;ten f&uuml;r weniger als 10 Runden" class="error" href="./ds?module=schiffe&amp;low=9">
+			<a title="Schiffe mit Vorräten für weniger als 10 Runden" class="error" href="./ds?module=schiffe&amp;low=9">
 				{if schiffe.mangel}
 					<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_mangel.gif" alt="" />
 				{else}
@@ -152,7 +152,7 @@
 			</a>
 			{schiffe.nocrew}
 			 -
-			<a title="Asteroiden mit Vorr&auml;ten welche f&uuml;r weniger als 10 Runden reichen" class="error" href="./ds?module=basen">
+			<a title="Asteroiden mit Vorräten, welche für weniger als 10 Runden reichen" class="error" href="./ds?module=basen">
 				{if astis.mangel}
 					<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_mangel_asti.gif" alt="" />
 				{else}
@@ -161,7 +161,7 @@
 			</a>
 			{astis.mangel}
 			 -
-			<a title="Neue ungelesene PMs" class="error" href="./ds?module=comm&amp;action=showInbox">
+			<a title="Neue, ungelesene PMs" class="error" href="./ds?module=comm&amp;action=showInbox">
 				{if user.newmsgs}
 					<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_pm.gif" alt="" />
 				{else}
@@ -170,22 +170,22 @@
 			</a>
 			{user.newmsgs}
 			 -
-			<a title="Schlachten die du verloren hast" class="error" href="#">
+			<a title="Verlorene Schlachten" class="error" href="#">
 				<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_battle_lost.gif" alt="" />
 			</a>
 			{user.lostBattles}
 			 -
-			<a title="Schlachten die du gewonnen hast" class="error" href="#">
+			<a title="Siegreiche Schlachten" class="error" href="#">
 				<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_battle_won.gif" alt="" />
 			</a>
 			{user.wonBattles}
 			 -
-			<a title="Schiffe die du verloren hast" class="error" href="#">
+			<a title="Anzahl der verlorenen, eigenen Schiffe" class="error" href="#">
 				<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_lost_ships.gif" alt="" />
 			</a>
 			{user.lostShips}
 			 -
-			<a title="Schiffe die von deinen Schiffen zerst&ouml;rt wurden" class="error" href="#">
+			<a title="Anzahl der feindlichen Schiffe, die von eigenen Schiffen zerstört wurden" class="error" href="#">
 				<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_destroyed_ships.gif" alt="" />
 			</a>
 			{user.destroyedShips}
