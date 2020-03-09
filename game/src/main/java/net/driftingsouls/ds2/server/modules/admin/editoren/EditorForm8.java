@@ -239,7 +239,7 @@ public class EditorForm8<E> implements FormElementCreator<E>
 	{
 		if( this.defaultEntityClass != null )
 		{
-			throw new IllegalStateException("Es wurde bereits eine Standard-Entityklasse gesetzt. Wurden evt. zwei EntityClass-Felder registriert?");
+			throw new IllegalStateException("Es wurde bereits eine Standard-Entityklasse gesetzt. Wurden evtl. zwei EntityClass-Felder registriert?");
 		}
 		this.defaultEntityClass = defaultEntityClass;
 		return custom(new EntityClassGenerator<>(label, generateName("entityClass"), modus == EditorMode.CREATE, defaultEntityClass, options));
