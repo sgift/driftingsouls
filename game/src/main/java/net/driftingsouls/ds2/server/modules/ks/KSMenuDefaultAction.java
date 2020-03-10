@@ -115,15 +115,15 @@ public class KSMenuDefaultAction extends BasicKSMenuAction {
 		}
 
 		// Naechstes eigenes Schiff
-		menuEntry(t, "Nächstes eigenes Schiff",
-									"ship",			battle.getNextOwnBattleShip.getId(),
+		menuEntry(t, "N&auml;chstes eigenes Schiff",
+									"ship",			battle.getNextOwnBattleShip().getId(),
 									"attack",		enemyShip.getId(),
 									"ksaction",		"default" );
 
 		// Naechstes feindliches Schiff
-		menuEntry(t, "Nächstes feindliche Schiff",
+		menuEntry(t, "N&auml;chstes feindliche Schiff",
 									"ship",			ownShip.getId(),
-									"attack",		battle.getNextEnemyBattleShip.getId(),
+									"attack",		battle.getNextEnemyBattleShip().getId(),
 									"ksaction",		"default" );
 
 
