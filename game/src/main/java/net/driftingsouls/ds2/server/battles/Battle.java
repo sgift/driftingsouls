@@ -171,6 +171,24 @@ public class Battle implements Locatable
 		return this.id;
 	}
 
+
+	/**
+	 * Gibt die Anzahl der eigenen Schiffe zurueck.
+	 * @return die Anzahl
+	 */
+	public int getOwnShipCount() {
+		return ownShips.Count();
+	}
+
+
+	/**
+	 * Gibt die Anzahl der feindlichen Schiffe zurueck.
+	 * @return die Anzahl
+	 */
+	public int getEnemyShipCount() {
+		return enemyShips.Count();
+	}
+
 	/**
 	 * Gibt den aktuellen Blockierungs-Zaehler fuer den Rundenwechsel zurueck.
 	 * @return Der Zaehler
