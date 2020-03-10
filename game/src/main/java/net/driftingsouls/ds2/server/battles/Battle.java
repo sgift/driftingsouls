@@ -474,7 +474,75 @@ public boolean hasFrontRow( int side) {
 	 */
 	public boolean isValidTarget() {
         return this.activeSEnemy < this.enemyShips.size() && this.activeSEnemy >= 0;
-    }
+		}
+
+	/**
+	 * Liefert das naechste eigene Schiff nach dem aktuell ausgewaehlten.
+	 * @return Das naechste passende BattleShip
+	 */
+	public BattleShip getNextOwnBattleShip() {
+
+		// alle Schiffe ab dem aktiven durchlaufen
+		for( int i= activeSOwn+1; i < ownShips.size(); i++){
+
+			BattleShip aship = ownShips.get(i);
+			if( !aship.getShip().isLanded() &&
+						!aship.hasFlag(BattleShipFlag.DESTROYED) &&
+						!aship.hasFlag(BattleShipFlag.FLUCHT) &&
+						!aship.hasFlag(BattleShipFlag.JOIN) ) {
+					return aship;
+				}
+		}
+		// nichts gefunden, dann von vorne bis zum aktiven
+		for( int i= 0; i < activeSOwn; i++){
+
+			BattleShip aship = ownShips.get(i);
+			if( !aship.getShip().isLanded() &&
+						!aship.hasFlag(BattleShipFlag.DESTROYED) &&
+						!aship.hasFlag(BattleShipFlag.FLUCHT) &&
+						!aship.hasFlag(BattleShipFlag.JOIN) ) {
+					return aship;
+				}
+		}
+		// immer noch nichts gefunden, dann bleibt es beim aktuellen
+		return ownShips.get(activeSOwn);
+
+	}
+
+	/**
+	 * Liefert das naechste feindlioche Schiff nach dem aktuell ausgewaehlten.
+	 * @return Das naechste passende BattleShip
+	 */
+	public BattleShip getNextEnemyBattleShip() {
+
+		// alle Schiffe ab dem aktiven durchlaufen
+		for( int i= activeSEnemy+1; i < enemyShips.size(); i++){
+
+			BattleShip aship = enemyShips.get(i);
+			if( !aship.getShip().isLanded() &&
+						!aship.hasFlag(BattleShipFlag.DESTROYED) &&
+						!aship.hasFlag(BattleShipFlag.FLUCHT) &&
+						!aship.hasFlag(BattleShipFlag.JOIN) &&
+						!aship.hasFlag(BattleShipFlag.SECONDROW)) {
+					return aship;
+				}
+		}
+		// nichts gefunden, dann von vorne bis zum aktiven
+		for( int i= 0; i < activeSEnemy; i++){
+
+			BattleShip aship = enemyShips.get(i);
+			if( !aship.getShip().isLanded() &&
+						!aship.hasFlag(BattleShipFlag.DESTROYED) &&
+						!aship.hasFlag(BattleShipFlag.FLUCHT) &&
+						!aship.hasFlag(BattleShipFlag.JOIN) &&
+						!aship.hasFlag(BattleShipFlag.SECONDROW)) {
+					return aship;
+				}
+		}
+		// immer noch nichts gefunden, dann bleibt es beim aktuellen
+		return enemyShips.get(activeSEnemy);
+
+	}
 
 	/**
 	 * Liefert den Index des naechsten feindlichen Schiffes nach dem aktuell ausgewaehlten.
