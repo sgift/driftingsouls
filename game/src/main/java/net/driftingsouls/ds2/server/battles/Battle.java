@@ -177,7 +177,7 @@ public class Battle implements Locatable
 	 * @return die Anzahl
 	 */
 	public int getOwnShipCount() {
-		return ownShips.Count();
+		return ownShips.size();
 	}
 
 
@@ -186,7 +186,7 @@ public class Battle implements Locatable
 	 * @return die Anzahl
 	 */
 	public int getEnemyShipCount() {
-		return enemyShips.Count();
+		return enemyShips.size();
 	}
 
 	/**
