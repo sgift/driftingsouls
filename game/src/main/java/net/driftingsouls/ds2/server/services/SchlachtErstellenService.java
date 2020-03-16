@@ -150,8 +150,16 @@ public class SchlachtErstellenService
 				}
 			}
 
-            if (shiptype.hasFlag(ShipTypeFlag.SECONDROW) && aShip.getEinstellungen().gotoSecondrow()) {
+      if (shiptype.hasFlag(ShipTypeFlag.SECONDROW) && aShip.getEinstellungen().gotoSecondrow()) {
 				secondRowShips.add(battleShip);
+			}
+			//ist Schiff gedockt und Traeger Reihe 2, dann Schiff auch Reihe 2
+			else if (aShip.isDocked()){
+				BattleShip traeger = new BattleShip(null, aShip.getBaseShip());
+				//Traegertschiff ebenso abfragen wie oben
+				if (traeger.getEinstellungen().gotoSecondrow()  && traeger.getShip().getBaseType().hasFlag(ShipTypeFlag.SECONDROW)){
+					secondRowShips.add(battleShip);
+				}
 			}
 			else
 			{
@@ -483,26 +491,38 @@ public class SchlachtErstellenService
 
 		for(BattleShip ship: secondRowShips)
 		{
-			if( (ship.getSide() == 0 && firstRowExists && ship.getShip().getEinstellungen().gotoSecondrow() ) || (ship.getSide() == 1 && firstRowEnemyExists && ship.getShip().getEinstellungen().gotoSecondrow() ) )
+			if( (ship.getSide() == 0 && firstRowExists && ship.getShip().getEinstellungen().gotoSecondrow() ) || (ship.getSide() == 1 && firstRowEnemyExists && ship.getShip().getEinstellungen().gotoSecondrow() ))
 			{
+
 				ship.addFlag(BattleShipFlag.SECONDROW);
-				if(ship.getTypeData().getJDocks() == 0)
+				if(ship.getTypeData().getJDocks() > 0)
 				{
-					continue;
-				}
-
-				List<Ship> landedShips = ship.getShip().getLandedShips();
-				for(Ship landedShip: landedShips)
-				{
-					if(!landedShip.getTypeData().hasFlag(ShipTypeFlag.SECONDROW))
+					List<Ship> landedShips = ship.getShip().getLandedShips();
+					for(Ship landedShip: landedShips)
 					{
-						continue;
+						if(!landedShip.getTypeData().hasFlag(ShipTypeFlag.SECONDROW))
+						{
+							continue;
+						}
+
+						BattleShip aship = battleShipMap.get(landedShip);
+						if(aship != null)
+						{
+							aship.addFlag(BattleShipFlag.SECONDROW);
+						}
 					}
-
-					BattleShip aship = battleShipMap.get(landedShip);
-					if(aship != null)
+				}
+				if( ship.getTypeData().getADocks() == 0)
+				{
+					List<Ship> dockedShips = ship.getShip().getDockedShips();
+					for(Ship dockedShip: dockedShips)
 					{
-						aship.addFlag(BattleShipFlag.SECONDROW);
+
+						BattleShip aship = battleShipMap.get(dockedShip);
+						if(aship != null)
+						{
+							aship.addFlag(BattleShipFlag.SECONDROW);
+						}
 					}
 				}
 			}
