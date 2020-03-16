@@ -155,9 +155,9 @@ public class SchlachtErstellenService
 			}
 			//ist Schiff gedockt und Traeger Reihe 2, dann Schiff auch Reihe 2
 			else if (aShip.isDocked()){
-				BattleShip traeger = new BattleShip(null, aShip.getBaseShip());
+				Ship traeger =  aShip.getBaseShip();
 				//Traegertschiff ebenso abfragen wie oben
-				if (traeger.getEinstellungen().gotoSecondrow()  && traeger.getShip().getBaseType().hasFlag(ShipTypeFlag.SECONDROW)){
+				if (traeger.getEinstellungen().gotoSecondrow()  && traeger.getBaseType().hasFlag(ShipTypeFlag.SECONDROW)){
 					secondRowShips.add(battleShip);
 				}
 			}
