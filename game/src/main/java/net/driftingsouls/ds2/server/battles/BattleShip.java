@@ -487,6 +487,9 @@ public class BattleShip {
 	 */
 	public boolean isSecondRow()
 	{
+		if ( getShip().isDocked() || getShip().isLanded() ){
+			return getBaseShip().hasFlag(BattleShipFlag.SECONDROW);
+		}
 		return hasFlag(BattleShipFlag.SECONDROW);
 	}
 
