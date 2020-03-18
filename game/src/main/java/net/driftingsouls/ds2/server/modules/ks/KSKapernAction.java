@@ -274,8 +274,8 @@ public class KSKapernAction extends BasicKSAction {
 			// Unbekannte Items bekannt machen
 			Cargo cargo = enemyShip.getCargo();
 
-			List<ItemCargoEntry> itemlist = cargo.getItems();
-			for (ItemCargoEntry item : itemlist)
+			List<ItemCargoEntry<Item>> itemlist = cargo.getItems();
+			for (ItemCargoEntry<Item> item : itemlist)
 			{
 				Item itemobject = item.getItem();
 				if (itemobject.isUnknownItem())
@@ -398,12 +398,9 @@ public class KSKapernAction extends BasicKSAction {
 				battle.setEnemyShipIndex(newindex);
 			}
 
-			enemyShip.getShip().recalculateShipStatus();
 		}
 		// Das Schiff konnte offenbar nicht gekapert werden....
-		else {
-			enemyShip.getShip().recalculateShipStatus();
-		}
+		enemyShip.getShip().recalculateShipStatus();
 
 		ownShip.getShip().recalculateShipStatus();
 

@@ -2299,8 +2299,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 		Cargo cargo = this.cargo;
-		List<ItemCargoEntry> itemlist = cargo.getItems();
-		for( ItemCargoEntry item : itemlist ) {
+		List<ItemCargoEntry<Item>> itemlist = cargo.getItems();
+		for( ItemCargoEntry<Item> item : itemlist ) {
 			Item itemobject = item.getItem();
 			if( itemobject.isUnknownItem() ) {
 				newowner.addKnownItem(item.getItemID());

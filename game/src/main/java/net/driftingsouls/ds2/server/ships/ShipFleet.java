@@ -172,7 +172,7 @@ public class ShipFleet {
 				break;
 			}
 
-			jaegerlist = jaegerliste.subList(0, free > jaegerliste.size() ? jaegerliste.size() : free);
+			jaegerlist = jaegerliste.subList(0, Math.min(free, jaegerliste.size()));
 			ship.land(jaegerlist.toArray(new Ship[0]));
 		}
 	}
@@ -283,7 +283,7 @@ public class ShipFleet {
 				break;
 			}
 
-			containerlist = Common.cast(containers, Ship.class).subList(0, free > containers.size() ? containers.size() : free);
+			containerlist = Common.cast(containers, Ship.class).subList(0, Math.min(free, containers.size()));
 			ship.dock(containerlist.toArray(new Ship[0]));
 		}
 	}
@@ -332,7 +332,7 @@ public class ShipFleet {
 				break;
 			}
 
-			geschuetzlist = Common.cast(geschuetze, Ship.class).subList(0, free > geschuetze.size() ? geschuetze.size() : free);
+			geschuetzlist = Common.cast(geschuetze, Ship.class).subList(0, Math.min(free, geschuetze.size()));
 			ship.dock(geschuetzlist.toArray(new Ship[0]));
 		}
 	}
@@ -401,7 +401,7 @@ public class ShipFleet {
 	 */
 	public void removeShip(Ship ship) {
 		if( !this.equals(ship.getFleet()) ) {
-			throw new IllegalArgumentException("Das Schiff gehoert nicht zu dieser Flotte");
+			throw new IllegalArgumentException("Das Schiff gehört nicht zu dieser Flotte");
 		}
 
 		org.hibernate.Session db = ContextMap.getContext().getDB();
@@ -412,7 +412,7 @@ public class ShipFleet {
 
 		if( fleetcount > 2 || this.consignMode ) {
 			ship.setFleet(null);
-			MESSAGE.get().append("aus der Flotte ausgetreten");
+			MESSAGE.get().append("Das Schiff hat die Flotte verlassen");
 		}
 		else {
 			final Iterator<?> shipIter = db.createQuery("from Ship where fleet=:fleet")
@@ -424,7 +424,7 @@ public class ShipFleet {
 			}
 
 			db.delete(this);
-			MESSAGE.get().append("Flotte aufgel&ouml;&szlig;t");
+			MESSAGE.get().append("Flotte aufgelöst");
 		}
 	}
 

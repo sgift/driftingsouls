@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.cargo;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -148,6 +150,7 @@ public class ResourceList implements Iterable<ResourceEntry> {
 		return list.size();
 	}
 
+	@NotNull
 	@Override
 	public Iterator<ResourceEntry> iterator() {
 		return new ResourceIterator(list.iterator());

@@ -35,15 +35,6 @@ public class TestRequest implements Request
 	}
 
 	/**
-	 * Erstellt ein neues Request-Objekt.
-	 * @param params Die Parameter
-	 */
-	public TestRequest(Map<String,String> params)
-	{
-		params.putAll(params);
-	}
-
-	/**
 	 * Erstellt ein neues Request-Objekt mit genau einem Parameter.
 	 * @param paramKey Der Name des Parameters
 	 * @param paramValue Der Wert des Parameters

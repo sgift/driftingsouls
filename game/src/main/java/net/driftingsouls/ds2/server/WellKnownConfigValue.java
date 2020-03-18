@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class WellKnownConfigValue<T> implements ConfigValueDescriptor<T>
 {
-	private static final List<WellKnownConfigValue> VALUES = new ArrayList<>();
+	private static final List<WellKnownConfigValue<?>> VALUES = new ArrayList<>();
 
 	// Hinweis: Keine Enum, da Enums keine Type Parameter unterstuetzen und
 	// es Ziel ist, dass ein Nutzer dieser Klasse den Datentyp nicht extra

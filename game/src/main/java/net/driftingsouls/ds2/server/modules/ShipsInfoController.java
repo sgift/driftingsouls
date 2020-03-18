@@ -172,7 +172,7 @@ public class ShipsInfoController extends Controller
 		ASTEROID, GANYMED, LACKING_RESEARCH, OTHER_SPECIES, NOWHERE
 	}
 
-	private class NameSorter implements Comparator<ShipType>
+	private static class NameSorter implements Comparator<ShipType>
 	{
 
 		@Override

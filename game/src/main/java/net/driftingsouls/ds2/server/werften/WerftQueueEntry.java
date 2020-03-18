@@ -23,6 +23,7 @@ import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
+import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
@@ -342,9 +343,9 @@ public class WerftQueueEntry {
 		// Item benutzen
 		if( this.getRequiredItem() > -1 ) {
 			Cargo cargo = this.werft.getCargo(true);
-			List<ItemCargoEntry> itemlist = cargo.getItem(this.getRequiredItem());
+			List<ItemCargoEntry<Item>> itemlist = cargo.getItem(this.getRequiredItem());
 			boolean ok = false;
-			for (ItemCargoEntry anItemlist : itemlist)
+			for (ItemCargoEntry<Item> anItemlist : itemlist)
 			{
 				if (anItemlist.getMaxUses() == 0)
 				{
@@ -360,7 +361,7 @@ public class WerftQueueEntry {
 				if( user.getAlly() != null ) {
 					allyitems = new Cargo( Cargo.Type.ITEMSTRING, user.getAlly().getItems() );
 					itemlist = allyitems.getItem(this.getRequiredItem());
-					for (ItemCargoEntry anItemlist : itemlist)
+					for (ItemCargoEntry<Item> anItemlist : itemlist)
 					{
 						if (anItemlist.getMaxUses() == 0)
 						{
@@ -371,7 +372,7 @@ public class WerftQueueEntry {
 				}
 
 				if( !ok ) {
-					ItemCargoEntry item;
+					ItemCargoEntry<Item> item;
 					String source;
 					if( (user.getAlly() != null) && allyitems.hasResource(new ItemID(this.getRequiredItem())) ) {
 						item = allyitems.getItem(this.getRequiredItem()).get(0);
@@ -439,7 +440,7 @@ public class WerftQueueEntry {
 				cargo.addCargo( allyitems );
 			}
 
-			List<ItemCargoEntry> itemlist = cargo.getItem(this.getRequiredItem());
+			List<ItemCargoEntry<Item>> itemlist = cargo.getItem(this.getRequiredItem());
 			if( itemlist.size() == 0 ) {
 				return false;
 			}

@@ -601,7 +601,7 @@ public class Fabrik extends DefaultBuilding
 
 						if (aEntry == entry)
 						{
-							if ((count < 0) && (ammoCount + count < 0))
+							if (count < 0)
 							{
 								count = -ammoCount;
 							}

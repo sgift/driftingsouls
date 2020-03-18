@@ -230,7 +230,7 @@ public class JsServiceGenerator
 		writer.indent(-1).doIndent().write("}");
 	}
 
-	private static String mapTypeToJsDoc(Class cls, Type type)
+	private static String mapTypeToJsDoc(Class<?> cls, Type type)
 	{
 		if (cls == String.class)
 		{
@@ -250,7 +250,7 @@ public class JsServiceGenerator
 		else if(Map.class.isAssignableFrom(cls) )
 		{
 			Type[] arguments = ((ParameterizedType)type).getActualTypeArguments();
-			return "object.<"+mapTypeToJsDoc((Class)arguments[0], null)+","+mapTypeToJsDoc((Class)arguments[1], null)+">";
+			return "object.<"+mapTypeToJsDoc((Class<?>)arguments[0], null)+","+mapTypeToJsDoc((Class<?>)arguments[1], null)+">";
 		}
 		else if( cls.isAnnotationPresent(ViewModel.class) )
 		{
@@ -271,7 +271,7 @@ public class JsServiceGenerator
 		return "object";
 	}
 
-	private static String mapViewModelName(Class cls)
+	private static String mapViewModelName(Class<?> cls)
 	{
 		String name = cls.getCanonicalName().substring("net.driftingsouls.ds2.server.".length());
 		return "ds.viewmodel."+name;

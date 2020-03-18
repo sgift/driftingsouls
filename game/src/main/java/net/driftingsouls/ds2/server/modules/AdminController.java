@@ -253,7 +253,7 @@ public class AdminController extends Controller
 				throw new ValidierungException("Fuer dieses Plugin koennen keine Tabellendaten generiert werden: '"+namedplugin+"'");
 			}
 
-			EditPlugin8 eplugin = (EditPlugin8)plugin;
+			EditPlugin8<?> eplugin = (EditPlugin8<?>)plugin;
 			EntityPluginOverviewViewModel model = new EntityPluginOverviewViewModel();
 			model.entitySelection = eplugin.generateEntitySelectionViewModel();
 			model.table = eplugin.generateEntityTableModel();
@@ -282,7 +282,7 @@ public class AdminController extends Controller
 				throw new ValidierungException("Fuer dieses Plugin koennen keine Tabellendaten generiert werden: '"+namedplugin+"'");
 			}
 
-			return ((EditPlugin8)plugin).generateTableData(page,
+			return ((EditPlugin8<?>)plugin).generateTableData(page,
 					rows,
 					sidx != null && !sidx.isEmpty() ? sidx : null,
 					sord != null && !sord.isEmpty() ? JqGridSortOrder.valueOf(sord.toUpperCase()) : null);

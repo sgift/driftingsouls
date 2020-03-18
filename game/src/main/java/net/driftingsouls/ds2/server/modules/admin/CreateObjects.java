@@ -432,7 +432,7 @@ public class CreateObjects implements AdminPlugin {
 				String name = ship.getAttribute("name");
 				int owner = Integer.parseInt(ship.getAttribute("owner"));
 				int typeId = Integer.parseInt(ship.getAttribute("type"));
-				boolean tradepost = Boolean.valueOf(ship.getAttribute("tradepost"));
+				boolean tradepost = Boolean.parseBoolean(ship.getAttribute("tradepost"));
 				
 				User ownerObj = (User)db.get(User.class, owner);
 				if( ownerObj == null ) {

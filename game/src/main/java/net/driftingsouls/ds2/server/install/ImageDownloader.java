@@ -8,6 +8,7 @@ import org.hibernate.Session;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -116,7 +117,7 @@ public class ImageDownloader
 		String content;
 		try (FileInputStream in = new FileInputStream(cssFile))
 		{
-			content = IOUtils.toString(in, "UTF-8");
+			content = IOUtils.toString(in, StandardCharsets.UTF_8);
 		}
 
 		Set<String> imgs = new HashSet<>();
@@ -177,7 +178,7 @@ public class ImageDownloader
 		String content;
 		try (FileInputStream in = new FileInputStream(templateFile))
 		{
-			content = IOUtils.toString(in, "UTF-8");
+			content = IOUtils.toString(in, StandardCharsets.UTF_8);
 		}
 
 		Set<String> imgs = new HashSet<>();

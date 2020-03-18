@@ -68,6 +68,7 @@ public class StringToTypeConverterTest
 		StringToTypeConverter.convert(getClass(), valueStr);
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	@Test
 	public void gegebenNullAlsWertUndEineBeliebigeKlasseAlsZieldatentyp_convert_sollteNullZurueckgeben() throws Exception
 	{

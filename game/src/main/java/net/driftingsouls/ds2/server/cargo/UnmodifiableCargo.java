@@ -55,7 +55,7 @@ public class UnmodifiableCargo extends Cargo {
 	}
 
 	@Override
-	public void addItem(ItemCargoEntry item) {
+	public void addItem(ItemCargoEntry<Item> item) {
 		throw new UnsupportedOperationException("addResourceObject nicht erlaubt");
 	}
 
@@ -80,7 +80,7 @@ public class UnmodifiableCargo extends Cargo {
 	}
 
 	@Override
-	public List<ItemCargoEntry> getItem(int itemid) {
+	public List<ItemCargoEntry<Item>> getItem(int itemid) {
 		return innerCargo.getItem(itemid);
 	}
 
@@ -112,7 +112,7 @@ public class UnmodifiableCargo extends Cargo {
 	}
 
 	@Override
-	public List<ItemCargoEntry> getItems() {
+	public List<ItemCargoEntry<Item>> getItems() {
 		return innerCargo.getItems();
 	}
 
@@ -167,7 +167,7 @@ public class UnmodifiableCargo extends Cargo {
 	}
 
 	@Override
-	public void substractItem(ItemCargoEntry item) {
+	public void substractItem(ItemCargoEntry<Item> item) {
 		throw new UnsupportedOperationException("substractResourceObject nicht erlaubt");
 	}
 

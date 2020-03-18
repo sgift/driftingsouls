@@ -16,7 +16,7 @@ public class UserFlagTest
 		String id = UserFlag.HIDE.getFlag();
 
 		// run
-		@SuppressWarnings("ConstantConditions")
+		@SuppressWarnings({"OptionalGetWithoutIsPresent"})
 		UserFlag userFlag = UserFlag.byFlag(id).get();
 
 		// assert

@@ -224,7 +224,7 @@ public class AdminCommands {
                 throw new CommandFailedException("Schlacht existiert nicht.");
             }
             
-            int side = Integer.valueOf(command[2]);
+            int side = Integer.parseInt(command[2]);
             if(side != 0 && side != 1)
             {
 				throw new CommandFailedException("Side war nicht 0 oder 1.");

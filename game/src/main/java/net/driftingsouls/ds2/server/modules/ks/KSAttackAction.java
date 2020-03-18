@@ -94,7 +94,7 @@ public class KSAttackAction extends BasicKSAction {
 
 		public abstract String getName();
 
-		public abstract ItemCargoEntry getAmmoItem();
+		public abstract ItemCargoEntry<Munition> getAmmoItem();
 
 		public abstract boolean isAreaDamageFull();
 
@@ -109,9 +109,9 @@ public class KSAttackAction extends BasicKSAction {
 		private Munitionsdefinition ammo;
 		private Weapon weapon;
 		private boolean kleinesZiel;
-		private ItemCargoEntry ammoitem;
+		private ItemCargoEntry<Munition> ammoitem;
 
-		private AmmoBasierteWaffenbeschreibung(Weapon weapon, Munitionsdefinition ammo, ItemCargoEntry ammoitem, boolean kleinesZiel)
+		private AmmoBasierteWaffenbeschreibung(Weapon weapon, Munitionsdefinition ammo, ItemCargoEntry<Munition> ammoitem, boolean kleinesZiel)
 		{
 			this.weapon = weapon;
 			this.ammo = ammo;
@@ -184,7 +184,7 @@ public class KSAttackAction extends BasicKSAction {
 		}
 
 		@Override
-		public ItemCargoEntry getAmmoItem()
+		public ItemCargoEntry<Munition> getAmmoItem()
 		{
 			return this.ammoitem;
 		}
@@ -229,7 +229,7 @@ public class KSAttackAction extends BasicKSAction {
 		}
 
 		@Override
-		public ItemCargoEntry getAmmoItem()
+		public ItemCargoEntry<Munition> getAmmoItem()
 		{
 			return null;
 		}
@@ -545,7 +545,7 @@ public class KSAttackAction extends BasicKSAction {
 				if (tmppanzerung >= 10){
 					tmppanzerung = 10;
 				}
-				schaden = Math.round(schaden*(10-tmppanzerung)/10);
+				schaden = schaden*(10-tmppanzerung)/10;
 
 			}
 		}
@@ -565,7 +565,7 @@ public class KSAttackAction extends BasicKSAction {
 				hit = 0;
 			}
 			else {
-				hit -= Math.ceil(eShip.getShields()/absSchaden);
+				hit -= eShip.getShields()/absSchaden;
 				eShip.setShields(0);
 				battle.logme( "+ Schilde ausgefallen\n" );
 				logMsg.append("+ Schilde ausgefallen\n");
@@ -757,7 +757,7 @@ public class KSAttackAction extends BasicKSAction {
 		int weaponCount = weapons.get(weaponName);
 
 		Munitionsdefinition munitionsdefinition = null;
-		ItemCargoEntry ammoitem;
+		ItemCargoEntry<Munition> ammoitem;
 
 		// Munition
 		Cargo mycargo = ownShip.getCargo();

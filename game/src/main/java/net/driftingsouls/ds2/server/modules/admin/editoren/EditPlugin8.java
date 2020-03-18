@@ -166,7 +166,7 @@ public class EditPlugin8<T> implements AdminPlugin
 
 		new SingleUnitOfWork("Hinzufuegen") {
 			@Override
-			public void doWork() throws Exception
+			public void doWork()
 			{
 				db.persist(entityToPersist);
 				echo.append("<p>Hinzufügen abgeschlossen.</p>");
@@ -203,7 +203,7 @@ public class EditPlugin8<T> implements AdminPlugin
 			new SingleUnitOfWork("Hinzufuegen")
 			{
 				@Override
-				public void doWork() throws Exception
+				public void doWork()
 				{
 					//noinspection unchecked
 					T deletedEntity = (T) db.get(EditPlugin8.this.clazz, toEntityId(EditPlugin8.this.clazz, request.getParameter("entityId")));
@@ -229,12 +229,12 @@ public class EditPlugin8<T> implements AdminPlugin
 		model.pager = "#pager";
 		model.colNames.add("Id");
 		model.colModel.add(new JqGridColumnViewModel("id", null));
-		Class identifierClass = db.getSessionFactory().getClassMetadata(this.clazz).getIdentifierType().getReturnedClass();
+		Class<?> identifierClass = db.getSessionFactory().getClassMetadata(this.clazz).getIdentifierType().getReturnedClass();
 		if( Number.class.isAssignableFrom(identifierClass) )
 		{
 			model.colModel.get(0).width = 50;
 		}
-		for (ColumnDefinition columnDefinition : form.getColumnDefinitions(false))
+		for (ColumnDefinition<?> columnDefinition : form.getColumnDefinitions(false))
 		{
 			model.colNames.add(columnDefinition.getLabel());
 			JqGridColumnViewModel colModel = new JqGridColumnViewModel(columnDefinition.getId(), columnDefinition.getFormatter());
@@ -255,12 +255,12 @@ public class EditPlugin8<T> implements AdminPlugin
 		model.pager = "#pager";
 		model.colNames.add("Id");
 		model.colModel.add(new JqGridColumnViewModel("id", null));
-		Class identifierClass = db.getSessionFactory().getClassMetadata(this.clazz).getIdentifierType().getReturnedClass();
+		Class<?> identifierClass = db.getSessionFactory().getClassMetadata(this.clazz).getIdentifierType().getReturnedClass();
 		if( Number.class.isAssignableFrom(identifierClass) )
 		{
 			model.colModel.get(0).width = 50;
 		}
-		for (ColumnDefinition columnDefinition : form.getColumnDefinitions(false))
+		for (ColumnDefinition<?> columnDefinition : form.getColumnDefinitions(false))
 		{
 			model.colNames.add(columnDefinition.getLabel());
 			model.colModel.add(new JqGridColumnViewModel(columnDefinition.getId(), columnDefinition.getFormatter()));
@@ -324,10 +324,14 @@ public class EditPlugin8<T> implements AdminPlugin
 		{
 			beginSelectionBox(echo, this.getPluginClass());
 
+			String currentIdStr = ContextMap.getContext().getRequest().getParameter("entityId");
+			if( currentIdStr == null )
+			{
+				currentIdStr = "";
+			}
+
 			if (count < 500)
 			{
-				String currentIdStr = ContextMap.getContext().getRequest().getParameter("entityId");
-
 				Map<Serializable,Object> options = new HashMap<>();
 
 				List<T> entities = Common.cast(db.createCriteria(baseClass).list());
@@ -340,11 +344,7 @@ public class EditPlugin8<T> implements AdminPlugin
 			}
 			else
 			{
-				String currentIdStr = ContextMap.getContext().getRequest().getParameter("entityId");
-				if( currentIdStr == null )
-				{
-					currentIdStr = "";
-				}
+
 				HtmlUtils.textInput(echo, "entityId", isAddDisplayed(), db.getSessionFactory().getClassMetadata(baseClass).getIdentifierType().getReturnedClass(), currentIdStr);
 			}
 

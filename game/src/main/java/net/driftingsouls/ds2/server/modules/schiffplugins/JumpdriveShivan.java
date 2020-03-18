@@ -127,7 +127,7 @@ public class JumpdriveShivan implements SchiffPlugin
 				jump.setX(x);
 				jump.setY(y);
 
-				output.append(ship.getName()).append(" &auml;ndert das Sprungziel.<br />\n");
+				output.append(ship.getName()).append(" ändert das Sprungziel.<br />\n");
 
 				if( ship.getFleet() != null )
 				{
@@ -151,7 +151,7 @@ public class JumpdriveShivan implements SchiffPlugin
 
 						output.append("<tr>");
 						output.append("<td valign=\"top\" class=\"noBorderS\"><span style=\"color:orange;font-size:12px\"> ").append(aship.getName()).append(" (").append(aship.getId()).append("):</span></td><td class=\"noBorderS\"><span style=\"font-size:12px\">\n");
-						output.append("Das Schiff &auml;ndert das Sprungziel");
+						output.append("Das Schiff ändert das Sprungziel");
 
 						jump = (Jump) db.createQuery("from Jump where ship=:ship")
 								.setEntity("ship", ship)

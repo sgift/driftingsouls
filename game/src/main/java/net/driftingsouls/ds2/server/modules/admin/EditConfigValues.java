@@ -20,18 +20,18 @@ public class EditConfigValues implements AdminPlugin
 {
 	@Override
 	@SuppressWarnings("unchecked")
-	public void output(StringBuilder echo) throws IOException
+	public void output(StringBuilder echo)
 	{
 		Context context = ContextMap.getContext();
 
-		WellKnownConfigValue[] configValues = WellKnownConfigValue.values();
+		WellKnownConfigValue<?>[] configValues = WellKnownConfigValue.values();
 		ConfigService configService = new ConfigService();
 		
 		// Update values?
 		boolean update = context.getRequest().getParameterString("change").equals("Aktualisieren");
 		if(update)
 		{
-			for(WellKnownConfigValue value: configValues)
+			for(WellKnownConfigValue<?> value: configValues)
 			{
 				ConfigValue configValue = configService.get(value);
 				String newValue = context.getRequest().getParameterString(value.getName());
@@ -44,7 +44,7 @@ public class EditConfigValues implements AdminPlugin
 		echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 		echo.append("<table width=\"100%\">");
-		for(WellKnownConfigValue value: configValues)
+		for(WellKnownConfigValue<?> value: configValues)
 		{
 			Object configServiceValue = configService.getValue(value);
 			echo.append("<tr><td>").append(value.getName()).append("</td>");

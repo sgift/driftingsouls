@@ -250,7 +250,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			// Falls ein Item benoetigt wird pruefen, ob es vorhanden ist
 			if (entry.getRequiredItem() != -1)
 			{
-				List<ItemCargoEntry> itemlist = cargo.getItem(entry.getRequiredItem());
+				List<ItemCargoEntry<Item>> itemlist = cargo.getItem(entry.getRequiredItem());
 				if (itemlist.size() == 0)
 				{
 					entry.setScheduled(false);
@@ -610,7 +610,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			return;
 		}
 
-		ItemCargoEntry myitem = null;
+		ItemCargoEntry<Schiffsmodul> myitem = null;
 
 		for (ItemCargoEntry<Schiffsmodul> anItemlist : itemlist)
 		{
@@ -1125,8 +1125,9 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		//Kosten ausgeben
 		ResourceList reslist = rc.cost.compare( cargo, false );
 		for( ResourceEntry res : reslist ) {
-			if( res.getDiff() > 0 ) {
+			if (res.getDiff() > 0) {
 				ok = false;
+				break;
 			}
 		}
 		newcargo.substractCargo( rc.cost );

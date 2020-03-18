@@ -160,6 +160,9 @@ public class SchiffBauinformationen implements Comparable<SchiffBauinformationen
 		else
 		{
 			item = ItemID.fromString(idStr);
+			if(item == null) {
+				throw new IllegalArgumentException("Keine gueltige ID: "+id);
+			}
 			Item itemData = (Item) db.get(Item.class, item.getItemID());
 			baudaten = ((IEDraftShip)itemData.getEffect()).toShipBaubar();
 		}

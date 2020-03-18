@@ -13,12 +13,12 @@ public final class CollectionEditorUtils
 		// EMPTY
 	}
 
-	public static JqGridColumnViewModel convertColumnDefinitionToModel(ColumnDefinition columnDefinition)
+	public static JqGridColumnViewModel convertColumnDefinitionToModel(ColumnDefinition<?> columnDefinition)
 	{
 		JqGridColumnViewModel colViewModel = new JqGridColumnViewModel(columnDefinition.getId(), columnDefinition.getFormatter());
 		colViewModel.editable = columnDefinition.isEditable();
 		colViewModel.edittype = columnDefinition.getEditType();
-		@SuppressWarnings("unchecked")
+
 		Map<String,String> editOptions = columnDefinition.getEditOptions();
 		if( !editOptions.isEmpty() )
 		{
@@ -39,8 +39,8 @@ public final class CollectionEditorUtils
 		List<ColumnDefinition<T>> columnDefinitionsForEditing = form.getColumnDefinitions(true);
 		for (int i = 0; i < columnDefinitions.size(); i++)
 		{
-			ColumnDefinition columnDefinition = columnDefinitions.get(i);
-			ColumnDefinition columnDefinitionForEditing = columnDefinitionsForEditing.get(i);
+			ColumnDefinition<T> columnDefinition = columnDefinitions.get(i);
+			ColumnDefinition<T> columnDefinitionForEditing = columnDefinitionsForEditing.get(i);
 			if (!columnDefinitionForEditing.getEditOptions().isEmpty())
 			{
 				rowMap.put(columnDefinition.getId(), CollectionEditorUtils.safeDropDownOption(entityValues.get(i)));
@@ -61,7 +61,7 @@ public final class CollectionEditorUtils
 	}
 
 	public static <T> void addColumnModelsOfForm(JqGridViewModel model, EditorForm8<T> form) {
-		for (ColumnDefinition columnDefinition : form.getColumnDefinitions(true))
+		for (ColumnDefinition<T> columnDefinition : form.getColumnDefinitions(true))
 		{
 			model.colNames.add(columnDefinition.getLabel());
 			JqGridColumnViewModel colViewModel = CollectionEditorUtils.convertColumnDefinitionToModel(columnDefinition);

@@ -51,7 +51,7 @@ public class ModuleContainerShip extends Module {
 		}
 		String[] dataArray = StringUtils.split(entry.getData(), '_');
 
-		return Integer.valueOf(dataArray[0]) == this.shipid;
+		return Integer.parseInt(dataArray[0]) == this.shipid;
 	}
 
 	@Override

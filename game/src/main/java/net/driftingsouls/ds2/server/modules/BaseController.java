@@ -98,11 +98,11 @@ public class BaseController extends Controller
 				break;
 			case 2:
 				base.setLoading(false);
-				message = "Automatisches auffüllen abgeschaltet!";
+				message = "Automatisches Auffüllen abgeschaltet!";
 				break;
 			case 3:
 				base.setLoading(true);
-				message = "Automatisches auffüllen angeschaltet.";
+				message = "Automatisches Auffüllen angeschaltet!";
 				break;
 		}
 
@@ -151,7 +151,7 @@ public class BaseController extends Controller
 				(!base.getOwner().hasResearched(building.getTechRequired())
 						|| ((base.getOwner().getRace() != building.getRace()) && building.getRace() != 0)))
 		{
-			message = "<span style=\"color:red\">Sie haben nicht die notwendigen Voraussetzungen um diese Gebäude aktivieren zu können</span>";
+			message = "<span style=\"color:red\">Sie haben nicht die notwendigen Voraussetzungen, um diese Gebäude aktivieren zu können</span>";
 		}
 		else if( building.isDeakAble() ) {
 			int count = 0;

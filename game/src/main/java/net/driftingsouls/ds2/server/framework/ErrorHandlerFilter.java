@@ -136,7 +136,7 @@ public class ErrorHandlerFilter implements Filter
 		void reportUnexpected(Throwable t) throws IOException;
 	}
 	
-	private class HtmlErrorReporter implements ErrorReporter
+	private static class HtmlErrorReporter implements ErrorReporter
 	{
 		private ServletResponse response;
 		
@@ -215,7 +215,7 @@ public class ErrorHandlerFilter implements Filter
 		}
 	}
 	
-	private class JsonErrorReporter implements ErrorReporter
+	private static class JsonErrorReporter implements ErrorReporter
 	{
 		private ServletResponse response;
 		

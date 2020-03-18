@@ -22,6 +22,7 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -95,7 +96,7 @@ public final class InstallUtils
 			String str;
 			try (FileInputStream in = new FileInputStream(file))
 			{
-				str = IOUtils.toString(in, "UTF-8");
+				str = IOUtils.toString(in, StandardCharsets.UTF_8);
 			}
 
 			StringBuilder statement = new StringBuilder();

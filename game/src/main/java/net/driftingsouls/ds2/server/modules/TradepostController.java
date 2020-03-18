@@ -239,12 +239,9 @@ public class TradepostController extends Controller
 			kurse = new GtuWarenKurse("p" + ship.getId(), ship.getName(), buylistgtu);
 			db.persist(kurse);
 
-			return kurse;
 		}
-		else
-		{
-			return kurse;
-		}
+
+		return kurse;
 	}
 
 	/**
@@ -425,7 +422,6 @@ public class TradepostController extends Controller
 			if (fill)
 			{
 				Cargo cargo = ship.getCargo();
-				long cnt = cargo.getResourceCount(rid);
 				cargo.setResource(rid, saleslimit);
 				ship.setCargo(cargo);
 			}

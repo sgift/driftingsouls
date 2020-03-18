@@ -277,7 +277,7 @@ public class User extends BasicUser {
 		setSignup((int) Common.time());
 		setInactivity(0);
 		this.medals = "";
-		this.rang = (int) Byte.valueOf("0");
+		this.rang = (int) Byte.parseByte("0");
 		this.konto = BigInteger.valueOf(0);
 		setLoginFailedCount(0);
 		setAccesslevel(0);
@@ -288,15 +288,16 @@ public class User extends BasicUser {
 		setDisabled(false);
 		this.vaccount = 0;
 		this.wait4vac = 0;
-		this.lostBattles = Short.valueOf("0");
+		this.lostBattles = Short.parseShort("0");
 		this.lostShips = 0;
-		this.wonBattles = Short.valueOf("0");
+		this.wonBattles = Short.parseShort("0");
 		this.destroyedShips = 0;
 		Integer newUserId = (Integer)db.createQuery("SELECT max(id) from User").uniqueResult();
 		setId(newUserId != null ? ++newUserId : 1);
 		this.knownItems = "";
         bounty = BigInteger.ZERO;
 		db.persist(this);
+		@SuppressWarnings("ConstantConditions")
 		Ordner trash = Ordner.createNewOrdner("Papierkorb", Ordner.getOrdnerByID(0, this), this);
 		trash.setFlags(Ordner.FLAG_TRASH);
 		this.forschungen = new HashSet<>();
