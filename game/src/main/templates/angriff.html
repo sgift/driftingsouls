@@ -410,8 +410,8 @@
               {if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
               <a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(aktiv){/endif}<br />
               {if ship.docked.name}auf {if ship.docked.name}{ship.docked.name}{/endif}({ship.docked.id}){/endif}
-							{if ship.docked}<img src="data/interface/schiffe/{ship.owner.race}/icon_schiff.gif" alt="" />{/endif}
-							{if ship.landed}<img src="data/interface/schiffe/{ship.owner.race}/icon_container.gif" alt="" />{/endif}
+							{if ship.landed}<img src="data/interface/schiffe/{ship.owner.race}/icon_schiff.gif" alt="" />{/endif}
+							{if ship.docked}<img src="data/interface/schiffe/{ship.owner.race}/icon_container.gif" alt="" />{/endif}
               {if ship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
               {if ship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
               {if ship.action.flucht}<img src="data/interface/ks/flucht.gif" alt="" title="flucht" />{/endif}
@@ -453,8 +453,8 @@
               {if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
               <a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(aktiv){/endif}<br />
               {if ship.docked.name}auf {if ship.docked.name}{ship.docked.name}{/endif}({ship.docked.id}){/endif}
-							{if ship.docked}<img src="data/interface/schiffe/{ship.owner.race}/icon_schiff.gif" alt="" />{/endif}
-							{if ship.landed}<img src="data/interface/schiffe/{ship.owner.race}/icon_container.gif" alt="" />{/endif}
+							{if ship.landed}<img src="data/interface/schiffe/{ship.owner.race}/icon_schiff.gif" alt="" />{/endif}
+							{if ship.docked}<img src="data/interface/schiffe/{ship.owner.race}/icon_container.gif" alt="" />{/endif}
               {if ship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
               {if ship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
               {if ship.action.fluchtnext}<img src="data/interface/ks/fluchtnext.png" alt="" title="flieht n&auml;chste Runde" />{/endif}
@@ -494,8 +494,8 @@
               {if ship.addline}<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />{/endif}
               <a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(aktiv){/endif}<br />
               {if ship.docked.name}auf {if ship.docked.name}{ship.docked.name}{/endif}({ship.docked.id}){/endif}
-							{if ship.docked}<img src="data/interface/schiffe/{ship.owner.race}/icon_schiff.gif" alt="" />{/endif}
-							{if ship.landed}<img src="data/interface/schiffe/{ship.owner.race}/icon_container.gif" alt="" />{/endif}
+							{if ship.docked}<img src="data/interface/schiffe/{ship.owner.race}/icon_container.gif" alt="" />{/endif}
+							{if ship.landed}<img src="data/interface/schiffe/{ship.owner.race}/icon_schiff.gif" alt="" />{/endif}
               {if ship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
               {if ship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
               {if ship.action.fluchtnext}<img src="data/interface/ks/fluchtnext.png" alt="" title="flieht n&auml;chste Runde" />{/endif}
