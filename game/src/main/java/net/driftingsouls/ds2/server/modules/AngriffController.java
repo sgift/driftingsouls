@@ -1198,7 +1198,7 @@ public class AngriffController extends Controller
 			List<BattleShip> ownShips = battle.getOwnShips();
             for (BattleShip aship : ownShips)
             {
-								if(!aship.isSecondRow(){
+								if(!aship.isSecondRow()) {
 									continue;
 								}
 								//joinende / fliehende Schiffe haben eigene Spalte
