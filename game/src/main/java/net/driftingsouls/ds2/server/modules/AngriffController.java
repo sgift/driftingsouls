@@ -626,7 +626,8 @@ public class AngriffController extends Controller
                         if (ownShip1.getId() == shipid) {
                             t.setVar("ownship.docked.name", ownShip1.getName(),
                                     "ownship.docked.id", shipid,
-                                    "ownship.docked",1);
+																		"ownship.docked", ownShip.getShip().isDocked(),
+																		"ownship.landed", ownShip.getShip().isLanded());
 
                             break;
                         }
@@ -1130,7 +1131,8 @@ public class AngriffController extends Controller
                         if (ownShip1.getId() == shipid) {
                             t.setVar("ship.docked.name", ownShip1.getName(),
                                     "ship.docked.id", shipid,
-                                    "ship.docked",1);
+																		"ship.docked", aship.getShip().isDocked(),
+																		"ship.landed", aship.getShip().isLanded());
 
                             break;
                         }
@@ -1399,7 +1401,8 @@ public class AngriffController extends Controller
                         if (ownShip1.getId() == shipid) {
                             t.setVar("ship.docked.name", ownShip1.getName(),
                                     "ship.docked.id", shipid,
-                                    "ship.docked",1);
+                                    "ship.docked", aship.getShip().isDocked(),
+																		"ship.landed", aship.getShip().isLanded());
 
                             break;
                         }
