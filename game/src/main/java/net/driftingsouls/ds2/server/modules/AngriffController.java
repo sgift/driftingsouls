@@ -661,7 +661,7 @@ public class AngriffController extends Controller
 					"ownship.action.destroyed",	ownShip.hasFlag(BattleShipFlag.DESTROYED),
 					"ownship.action.shot",		!battle.isGuest() && ownShip.hasFlag(BattleShipFlag.SHOT),
 					"ownship.action.join",		ownShip.hasFlag(BattleShipFlag.JOIN),
-					"ownship.action.secondrow",	ownShip.hasFlag(BattleShipFlag.SECONDROW),
+					"ownship.action.secondrow",	ownShip.isSecondRow(),
 					"ownship.action.fluchtnext", !battle.isGuest() && ownShip.hasFlag(BattleShipFlag.FLUCHTNEXT),
 					"ownship.mangelnahrung", !battle.isGuest() ? ownShip.getShip().getStatus().contains("mangel_nahrung") : 0,
           "ownship.mangelreaktor",	(!battle.isGuest() ? ownShip.getShip().getStatus().contains("mangel_reaktor") : 0),
@@ -684,7 +684,7 @@ public class AngriffController extends Controller
 					"enemyship.action.flucht",	enemyShip.hasFlag(BattleShipFlag.FLUCHT),
 					"enemyship.action.destroyed",	enemyShip.hasFlag(BattleShipFlag.DESTROYED),
 					"enemyship.action.join",		enemyShip.hasFlag(BattleShipFlag.JOIN),
-          "enemyship.action.secondrow",	enemyShip.hasFlag(BattleShipFlag.SECONDROW),
+          "enemyship.action.secondrow",	enemyShip.isSecondRow(),
           "user.race", oUser.getRace()  );
 
 		Nebel.Typ nebula = Nebel.getNebula(ownShip.getShip().getLocation());
@@ -871,7 +871,7 @@ public class AngriffController extends Controller
                             t.setVar("ship.docked.name", ownShip1.getName(),
                                     "ship.docked.id", shipid,
                                     "ship.docked",1);
-														secondrowDock = ownShip1.hasFlag(BattleShipFlag.SECONDROW);
+														secondrowDock = ownShip1.isSecondRow();
                             break;
 												}
 										}
@@ -893,7 +893,7 @@ public class AngriffController extends Controller
 							"ship.action.flucht",	aship.hasFlag(BattleShipFlag.FLUCHT),
 							"ship.action.destroyed",	aship.hasFlag(BattleShipFlag.DESTROYED),
 							"ship.action.join",			aship.hasFlag(BattleShipFlag.JOIN),
-							"ship.action.secondrow",	aship.hasFlag(BattleShipFlag.SECONDROW)||secondrowDock,
+							"ship.action.secondrow",	aship.isSecondRow()||secondrowDock,
 							"ship.action.fluchtnext", false,
 							"ship.action.shot", 	!battle.isGuest() && aship.hasFlag(BattleShipFlag.SHOT),
               "ship.mangelnahrung",       !battle.isGuest() && (aship.getShip().getStatus().contains("mangel_nahrung")),
@@ -970,7 +970,7 @@ public class AngriffController extends Controller
                 if (aship.hasFlag(BattleShipFlag.JOIN)) {
                     data.joincount++;
                 }
-                if (aship.hasFlag(BattleShipFlag.SECONDROW)) {
+                if (aship.isSecondRow()) {
                     data.srcount++;
                 }
                 if (!battle.isGuest()) {
@@ -982,18 +982,6 @@ public class AngriffController extends Controller
                     }
                     if (aship.getShip().getStatus().contains("mangel_reaktor")) {
                         data.mangelreaktorcount++;
-                    }
-                    if (aship.getShip().isLanded()){
-												data.landedcount++;
-												if (aship.getBaseShip().hasFlag(BattleShipFlag.SECONDROW)){
-													data.srcount++;
-												}
-                    }
-                    if (aship.getShip().isDocked()){
-												data.dockedcount++;
-												if (aship.getBaseShip().hasFlag(BattleShipFlag.SECONDROW)){
-													data.srcount++;
-												}
                     }
                     if (aship.getShip().getTypeData().getADocks()>0){
                         data.adockcount+=aship.getShip().getTypeData().getADocks();
@@ -1097,16 +1085,8 @@ public class AngriffController extends Controller
 				if(battle.isGuest() && aship.getShip().isLanded() ) {
 					continue;
         }
-        if(!aship.hasFlag(BattleShipFlag.SECONDROW)){
-					BattleShip baseShip = aship.getBaseShip();
-					//hat kein Traegerschiff
-					if (baseShip == null){
-						continue;
-					}
-					//hat also ein Traegerschiff, ist das vielleicht in Reihe 2?
-					if(!baseShip.hasFlag(BattleShipFlag.SECONDROW)){
-						continue;
-					}
+        if(!aship.isSecondRow()){
+					continue;
 				}
 				//Joinende / fliehende Schiffe werden in eigener Spalte angezeigt
 				if(aship.hasFlag(BattleShipFlag.JOIN) || aship.hasFlag(BattleShipFlag.FLUCHT)){
@@ -1218,16 +1198,8 @@ public class AngriffController extends Controller
 			List<BattleShip> ownShips = battle.getOwnShips();
             for (BattleShip aship : ownShips)
             {
-								if(!aship.hasFlag(BattleShipFlag.SECONDROW)){
-									BattleShip baseShip = aship.getBaseShip();
-									//hat kein Traegerschiff
-									if (baseShip == null){
-										continue;
-									}
-									//hat also ein Traegerschiff, ist das vielleicht in Reihe 2?
-									if(!baseShip.hasFlag(BattleShipFlag.SECONDROW)){
-										continue;
-									}
+								if(!aship.isSecondRow(){
+									continue;
 								}
 								//joinende / fliehende Schiffe haben eigene Spalte
 								if(aship.hasFlag(BattleShipFlag.JOIN)||aship.hasFlag(BattleShipFlag.FLUCHT)){
@@ -1256,7 +1228,7 @@ public class AngriffController extends Controller
                 if (aship.hasFlag(BattleShipFlag.HIT)) {
                     data.hitcount++;
                 }
-                if (aship.hasFlag(BattleShipFlag.SECONDROW)&&!(aship.hasFlag(BattleShipFlag.JOIN)||aship.hasFlag(BattleShipFlag.FLUCHT))) {
+                if (aship.isSecondRow()&&!(aship.hasFlag(BattleShipFlag.JOIN)||aship.hasFlag(BattleShipFlag.FLUCHT))) {
                     data.srcount++;
                 }
                 if (!battle.isGuest()) {
@@ -1378,7 +1350,7 @@ public class AngriffController extends Controller
 				if(battle.isGuest() && aship.getShip().isLanded() ) {
 					continue;
         }
-        if(aship.hasFlag(BattleShipFlag.FLUCHT) || aship.hasFlag(BattleShipFlag.JOIN) || aship.hasFlag(BattleShipFlag.SECONDROW) ) {
+        if(aship.hasFlag(BattleShipFlag.FLUCHT) || aship.hasFlag(BattleShipFlag.JOIN) || aship.isSecondRow() ) {
           continue;
 				}
 				if( aship.getShip().isLanded()||aship.getShip().isDocked() ){
@@ -1495,7 +1467,7 @@ public class AngriffController extends Controller
 			List<BattleShip> ownShips = battle.getOwnShips();
             for (BattleShip aship : ownShips)
             {
-                if(aship.hasFlag(BattleShipFlag.FLUCHT) || aship.hasFlag(BattleShipFlag.JOIN) || aship.hasFlag(BattleShipFlag.SECONDROW)  ){
+                if(aship.hasFlag(BattleShipFlag.FLUCHT) || aship.hasFlag(BattleShipFlag.JOIN) || aship.isSecondRow()  ){
                   continue;
 								}
 								if( aship.getShip().isLanded()||aship.getShip().isDocked() ){
@@ -1529,7 +1501,7 @@ public class AngriffController extends Controller
                 if (aship.hasFlag(BattleShipFlag.HIT)) {
                     data.hitcount++;
                 }
-                if (aship.hasFlag(BattleShipFlag.SECONDROW)&&!(aship.hasFlag(BattleShipFlag.JOIN)||aship.hasFlag(BattleShipFlag.FLUCHT))) {
+                if (aship.isSecondRow()&&!(aship.hasFlag(BattleShipFlag.JOIN)||aship.hasFlag(BattleShipFlag.FLUCHT))) {
                     data.srcount++;
                 }
                 if (!battle.isGuest()) {
@@ -1682,7 +1654,7 @@ public class AngriffController extends Controller
 				if( showgroups && (aship.getShip().getType() != grouptype) ) {
 					continue;
         }
-        if(aship.hasFlag(BattleShipFlag.SECONDROW)||aship.hasFlag(BattleShipFlag.FLUCHT)||aship.hasFlag(BattleShipFlag.JOIN)){
+        if(aship.isSecondRow()||aship.hasFlag(BattleShipFlag.FLUCHT)||aship.hasFlag(BattleShipFlag.JOIN)){
           continue;
         }
 
@@ -1772,7 +1744,7 @@ public class AngriffController extends Controller
                 if (aship.getShip().isLanded()) {
                     continue;
                 }
-                if(aship.hasFlag(BattleShipFlag.SECONDROW)||aship.hasFlag(BattleShipFlag.FLUCHT)||aship.hasFlag(BattleShipFlag.JOIN)){
+                if(aship.isSecondRow()||aship.hasFlag(BattleShipFlag.FLUCHT)||aship.hasFlag(BattleShipFlag.JOIN)){
                   continue;
                 }
 
@@ -1879,7 +1851,7 @@ public class AngriffController extends Controller
 				if( aship.getShip().isLanded() ) {
 					continue;
         }
-        if( !aship.hasFlag(BattleShipFlag.SECONDROW)){
+        if( !aship.isSecondRow()){
           continue;
 				}
 				//Beitretende / fliehende Schiffe gehoeren in die naechste Spalte
@@ -1969,7 +1941,7 @@ public class AngriffController extends Controller
                 if (aship.getShip().isLanded()) {
                     continue;
                 }
-                if( !aship.hasFlag(BattleShipFlag.SECONDROW)){
+                if( !aship.isSecondRow()){
                   continue;
 								}
 								if ( aship.hasFlag(BattleShipFlag.JOIN) || aship.hasFlag(BattleShipFlag.FLUCHT)){
@@ -1997,7 +1969,7 @@ public class AngriffController extends Controller
                 if (aship.hasFlag(BattleShipFlag.HIT)) {
                     data.hitcount++;
                 }
-                if (aship.hasFlag(BattleShipFlag.SECONDROW)&&!(aship.hasFlag(BattleShipFlag.JOIN)||aship.hasFlag(BattleShipFlag.FLUCHT))) {
+                if (aship.isSecondRow()&&!(aship.hasFlag(BattleShipFlag.JOIN)||aship.hasFlag(BattleShipFlag.FLUCHT))) {
                     data.srcount++;
                 }
             }
@@ -2125,7 +2097,7 @@ public class AngriffController extends Controller
 							"ship.action.hit",		aship.hasFlag(BattleShipFlag.HIT),
 							"ship.action.flucht",	aship.hasFlag(BattleShipFlag.FLUCHT),
 							"ship.action.join",		aship.hasFlag(BattleShipFlag.JOIN),
-							"ship.action.secondrow",	aship.hasFlag(BattleShipFlag.SECONDROW),
+							"ship.action.secondrow",	aship.isSecondRow(),
               "ship.action.destroyed",	aship.hasFlag(BattleShipFlag.DESTROYED),
               "ship.owner.race", aUser.getRace(),
               "ship.action.joinflucht",   true,
@@ -2197,7 +2169,7 @@ public class AngriffController extends Controller
                 if (aship.hasFlag(BattleShipFlag.JOIN)) {
                     data.joincount++;
                 }
-                if (aship.hasFlag(BattleShipFlag.SECONDROW)) {
+                if (aship.isSecondRow()) {
                     data.srcount++;
                 }
             }
