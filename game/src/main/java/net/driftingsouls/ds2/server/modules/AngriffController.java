@@ -871,7 +871,8 @@ public class AngriffController extends Controller
                         if (ownShip1.getId() == shipid) {
                             t.setVar("ship.docked.name", ownShip1.getName(),
                                     "ship.docked.id", shipid,
-                                    "ship.docked",1);
+																		"ship.docked", aship.getShip().isDocked(),
+																		"ship.landed", aship.getShip().isLanded());
 														secondrowDock = ownShip1.isSecondRow();
                             break;
 												}
