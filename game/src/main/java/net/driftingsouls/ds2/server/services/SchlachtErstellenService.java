@@ -231,8 +231,8 @@ public class SchlachtErstellenService
 
 		insertShipsIntoDatabase(battle, battle.getEnemyShips(), startlist, idlist);
 		if( startlist.size() > 0 ) {
-			battle.logme(startlist.size() + " J&auml;ger sind automatisch gestartet\n");
-			battle.log(new SchlachtLogAktion(1, startlist.size() + " J&auml;ger sind automatisch gestartet"));
+			battle.logme(startlist.size() + " Jäger sind automatisch gestartet\n");
+			battle.log(new SchlachtLogAktion(1, startlist.size() + " Jäger sind automatisch gestartet"));
 
 			startlist.clear();
 		}
@@ -258,7 +258,7 @@ public class SchlachtErstellenService
 
 		insertShipsIntoDatabase(battle, battle.getOwnShips(), startlist, idlist);
 		if( startOwn && startlist.size() > 0 ) {
-			battle.logme(startlist.size() + " J&auml;ger sind automatisch gestartet\n");
+			battle.logme(startlist.size() + " Jäger sind automatisch gestartet\n");
 			battle.log(new SchlachtLogAktion(0, startlist.size() + " Jäger sind automatisch gestartet"));
 		}
 		battle.getOwnShips().add(ownBattleShip);
@@ -335,7 +335,7 @@ public class SchlachtErstellenService
 		}
 		User niemand = (User)db.get(User.class, -1);
 		String msg = "Es wurde eine Schlacht bei "+ownShip.getLocation().displayCoordinates(false)+" eröffnet.\n" +
-				"Es kämpfen "+eparty+"("+ battle.getOwnShips().size() +" Schiffe) und "+eparty2+"("+ battle.getEnemyShips().size() +" Schiffe) gegeneinander."+
+				"Es kämpfen "+eparty+" ("+ battle.getOwnShips().size() +" Schiffe) und "+eparty2+" ("+ battle.getEnemyShips().size() +" Schiffe) gegeneinander. "+
 				"Deine 2. Reihe ist ";
 		String msg1 = "";
 		String msg2 = "";
@@ -460,7 +460,7 @@ public class SchlachtErstellenService
 		boolean disable_iff = enemyShip.getStatus().contains("disable_iff");
 		if (disable_iff)
 		{
-			throw new IllegalArgumentException("Dieses Schiff kann nicht angegriffen werden (egal wieviel du mit der URL rumspielst!)");
+			throw new IllegalArgumentException("Dieses Schiff kann nicht angegriffen werden (egal wieviel Du mit der URL rumspielst!)");
 		}
 	}
 
