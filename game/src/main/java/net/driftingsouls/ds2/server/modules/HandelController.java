@@ -39,8 +39,6 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.RedirectViewR
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.Context;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;

@@ -59,6 +59,7 @@ public class UnmodifiableCargo extends Cargo {
 		throw new UnsupportedOperationException("addResourceObject nicht erlaubt");
 	}
 
+	@SuppressWarnings("MethodDoesntCallSuperMethod")
 	@Override
 	public Object clone() {
 		return innerCargo.clone();

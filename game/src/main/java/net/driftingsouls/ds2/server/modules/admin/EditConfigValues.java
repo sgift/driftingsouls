@@ -8,8 +8,6 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.admin.editoren.HtmlUtils;
 
-import java.io.IOException;
-
 /**
  * Ein Tool, um die diversen globalen Konfigurationswerte zu aendern.
  * 
