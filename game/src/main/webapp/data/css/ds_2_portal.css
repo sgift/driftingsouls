@@ -372,13 +372,13 @@ div.rechte-spalte p img.systemkarte {
 
 #seite-agb{
 	padding: 2em;
+	list-style-type: none;
 }
 
 ol#agb {
 	padding : 1em 0.2em 0.1em 0.5em;
 }
 ol#agb > li {
-	list-style-type: none;
 	margin-bottom: 0.2em;
 }
 #impressum{
