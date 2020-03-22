@@ -378,7 +378,7 @@ ol#agb {
 	padding : 1em 0.2em 0.1em 0.5em;
 }
 ol#agb > li {
-	list-style : decimal;
+	list-style : none;
 	margin-bottom: 0.2em;
 }
 #impressum{
