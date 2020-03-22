@@ -576,6 +576,7 @@ public class PortalController extends Controller
 				"register.email", email,
 				"register.needkey", needkey,
 				"register.key", key,
+				"register.acceptAgb", acceptAgb,
 				"register.race", race,
 				"register.system.id", system != null ? system.getID() : 1,
 				"register.system.name", (system != null ? system.getName() : ""));
