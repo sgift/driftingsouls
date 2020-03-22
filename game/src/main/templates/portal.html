@@ -154,6 +154,11 @@
 		</p>
 			
 		{/endif}
+		{if show.register.acceptagb}
+		<p>
+			<span class="red">{register.acceptagb.msg}</span>
+		</p>
+		{/endif}
 		{if show.login.vacmode}
 	
 		<p>
@@ -305,6 +310,10 @@
 					<br />
 				</p>
 			{/endif}
+				<p class="checkbox">
+					<input type="checkbox" id="login_acceptagb" name="acceptAgb" value="true" />
+					<label for="login_acceptagb"><a  href="./ds?module=portal&amp;action=infosAgb" target="_blank">AGB</a> akzeptieren</label>
+				</p>
 				<p>
 					<input type="hidden" name="action" value="register" />
 					<input type="hidden" name="module" value="portal" />

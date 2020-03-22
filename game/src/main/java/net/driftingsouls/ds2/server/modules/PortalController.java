@@ -102,7 +102,6 @@ public class PortalController extends Controller
 					String enc_pw = Common.md5(password);
 
 					user.setPassword(enc_pw);
-					//db.update("UPDATE users SET passwort='",enc_pw,"' WHERE un='",username,"'");
 
 					String subject = "Neues Passwort fuer Drifting Souls 2";
 
@@ -253,12 +252,21 @@ public class PortalController extends Controller
 		return new StartLocations(systemID, orderLocationID, minsysdistance);
 	}
 
-	private boolean register(TemplateEngine t, String username, String email, int race, StarSystem system, String key, ConfigValue keys)
+	private boolean register(TemplateEngine t, String username, String email, int race, StarSystem system, String key, boolean agbAccepted, ConfigValue keys)
 	{
 		Session db = getDB();
 
 		if ("".equals(username) || "".equals(email))
 		{
+			return false;
+		}
+
+		if(!agbAccepted) {
+
+			String acceptAgbMessage = configService.getValue(WellKnownConfigValue.ACCEPT_AGB_MESSAGE);
+			t.setVar("show.register.acceptagb", 1,
+					"register.acceptagb.msg", Common._text(acceptAgbMessage));
+
 			return false;
 		}
 
@@ -542,7 +550,7 @@ public class PortalController extends Controller
 	 * @param system Das Startsystem
 	 */
 	@Action(ActionType.DEFAULT)
-	public TemplateEngine registerAction(String username, int race, String email, String key, StarSystem system)
+	public TemplateEngine registerAction(String username, int race, String email, String key, String acceptAgb, StarSystem system)
 	{
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 
@@ -572,7 +580,8 @@ public class PortalController extends Controller
 				"register.system.id", system != null ? system.getID() : 1,
 				"register.system.name", (system != null ? system.getName() : ""));
 
-		showform = !register(t, username, email, race, system, key, keys);
+		boolean agbAccepted = Boolean.parseBoolean(acceptAgb);
+		showform = !register(t, username, email, race, system, key, agbAccepted, keys);
 
 		if (showform)
 		{
