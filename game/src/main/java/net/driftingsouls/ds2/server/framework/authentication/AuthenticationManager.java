@@ -31,11 +31,10 @@ public interface AuthenticationManager {
 	 * Loggt einen Benutzer ein.
 	 * @param username Der Benutzername
 	 * @param password Das Passwort im Klartext
-	 * @param rememberMe <code>true</code>, wenn der Spieler eingeloggt bleiben will.
 	 * @return Der Account des eingeloggten Benutzers
 	 * @throws AuthenticationException Falls der Loginvorgang nicht erfolgreich ist
 	 */
-    BasicUser login(String username, String password, boolean rememberMe)
+    BasicUser login(String username, String password)
 			throws AuthenticationException;
 
 	/**
@@ -63,11 +62,4 @@ public interface AuthenticationManager {
 	 * @return <code>true</code>, if the user is logged in, <code>false</code> otherwise.
 	 */
     boolean authenticateCurrentSession();
-	
-	/**
-	 * Checks, if the player is remembered by ds.
-	 * 
-	 * @return <code>true</code> if ds remembers the player, <code>false</code> otherwise.
-	 */
-    boolean isRemembered();
 }

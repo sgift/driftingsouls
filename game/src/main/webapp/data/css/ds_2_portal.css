@@ -278,14 +278,6 @@ border-radius: 15px;
 	}
 /* Ende Einlogbuttons */
 
-/* Beginn checkbox */
-li.checkbox input#login_rememberme {
-	border: 1px solid #CCC;
-	border-radius: 10px;
-	padding: 5px;
-	}
-
-
 /* hier beginnt der submit-button */
 p.submit {
 }

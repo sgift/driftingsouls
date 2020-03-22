@@ -18,7 +18,6 @@
  */
 package net.driftingsouls.ds2.server.framework.authentication;
 
-import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.BasicUser;
@@ -40,7 +39,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.ServiceLoader;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * Verwaltungsklasse fuer Aktionen rund um das ein- und ausloggen.
@@ -64,7 +62,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	}
 
 	@Override
-	public BasicUser login(String username, String password, boolean rememberMe) throws AuthenticationException {
+	public BasicUser login(String username, String password) throws AuthenticationException {
 		log.info("Trying login for user: " + username);
 
 		Context context = ContextMap.getContext();
@@ -118,7 +116,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 
 		log.info("vaction checked, finishing login");
 
-		return finishLogin(user, rememberMe);
+		return finishLogin(user);
 	}
 
 	private void checkAccountNotInVacationMode(BasicUser basicuser)
@@ -130,7 +128,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		}
 	}
 
-	private BasicUser finishLogin(BasicUser user,  boolean rememberMe) throws AuthenticationException
+	private BasicUser finishLogin(BasicUser user) throws AuthenticationException
 	{
 		Context context = ContextMap.getContext();
 		Request request = context.getRequest();
@@ -154,30 +152,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		jsession.setUser(user);
 		jsession.setIP("<"+context.getRequest().getRemoteAddress()+">");
 
-
-
-		if(rememberMe)
-		{
-			createPermanentSessionAndCookie(user, context);
-		}
-
 		return user;
-	}
-
-	private void createPermanentSessionAndCookie(BasicUser user, Context context)
-	{
-		org.hibernate.Session db = context.getDB();
-
-		UUID uuid = UUID.randomUUID();
-		String value = user.getId() + "####" + uuid;
-		context.getResponse().setCookie("dsRememberMe", value, 157680000);
-
-		PermanentSession permanentSession = new PermanentSession();
-		permanentSession.setTick(context.get(ContextCommon.class).getTick());
-		permanentSession.setToken(Common.md5(uuid.toString()));
-		permanentSession.setUser(user);
-
-		db.save(permanentSession);
 	}
 
 	private void checkLoginDisabled() throws LoginDisabledException
@@ -244,24 +219,12 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 			{
 				try
 				{
-					finishLogin(user, true);
+					finishLogin(user);
 				}
 				catch (AuthenticationException e)
 				{
 					return false;
 				}
-			}
-		}
-		else if( jsession == null || jsession.getUser() == null )
-		{
-			// Laden des Users aus einem Cookie versuchen
-			try
-			{
-				user = checkRememberMe();
-			}
-			catch(AuthenticationException e)
-			{
-				return false;
 			}
 		}
 		else
@@ -342,63 +305,5 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 
 			throw new AccountDisabledException();
 		}
-	}
-
-	/**
-	 * Checks, if the player is remembered by ds.
-	 *
-	 * @return <code>true</code> if ds remembers the player, <code>false</code> otherwise.
-	 */
-	@Override
-	public boolean isRemembered()
-	{
-		return getPermanentSession() != null;
-	}
-
-	//Prueft, ob der User einen remember me Token hat, um automatisch neu authentifiziert zu werden
-	private BasicUser checkRememberMe() throws AuthenticationException
-	{
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-
-		PermanentSession session = getPermanentSession();
-		if(session == null)
-		{
-			return null;
-		}
-
-		db.delete(session);
-		BasicUser user = session.getUser();
-
-		return finishLogin(user, true);
-	}
-
-	private PermanentSession getPermanentSession()
-	{
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-		Request request = context.getRequest();
-
-		String value = request.getCookie("dsRememberMe");
-
-		if(value == null)
-		{
-			return null;
-		}
-
-		if(!value.contains("####"))
-		{
-			return null;
-		}
-
-		String[] parts = value.split("####");
-		int userId = Integer.parseInt(parts[0]);
-		String token = parts[1];
-
-		return (PermanentSession)db
-			.createQuery("from PermanentSession where user.id=:user and token=:token")
-			.setParameter("user", userId)
-			.setParameter("token", Common.md5(token))
-			.uniqueResult();
 	}
 }

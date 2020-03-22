@@ -615,7 +615,7 @@ public class PortalController extends Controller
 	 * @param password Das Passwort
 	 */
 	@Action(ActionType.DEFAULT)
-	public TemplateEngine loginAction(String username, String password, String rememberMe)
+	public TemplateEngine loginAction(String username, String password)
 	{
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 
@@ -623,7 +623,7 @@ public class PortalController extends Controller
 		{
 			try
 			{
-				this.authManager.login(username, password, Boolean.parseBoolean(rememberMe));
+				this.authManager.login(username, password);
 
 				doLogin(t);
 
@@ -730,11 +730,6 @@ public class PortalController extends Controller
 	public TemplateEngine defaultAction(boolean archiv)
 	{
 		TemplateEngine t = templateViewResultFactory.createFor(this);
-
-		if (this.authManager.isRemembered())
-		{
-			t.setVar("is.logged.in", 1);
-		}
 
 		zeigeNewsListeAn(t, archiv);
 
