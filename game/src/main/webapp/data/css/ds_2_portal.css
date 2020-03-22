@@ -99,7 +99,6 @@ input{
 }
 select {
  background: transparent;
- -webkit-appearance: none;
  width: 268px;
  padding: 5px;
  font-size: 18px;
