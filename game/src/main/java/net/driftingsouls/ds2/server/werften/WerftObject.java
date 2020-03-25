@@ -1092,7 +1092,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	public @Nonnull ReloadCosts getReloadCosts( @Nonnull Ship ship )
 	{
 		ShipTypeData shiptype = ship.getTypeData();
-		SipModules shipmodule = ship.getModules();
+		ShipModules shipmodule = ship.getModules();
 		ReloadCosts reloadCosts = new ReloadCosts();
 		double dampeningFactor = new ConfigService().getValue(WellKnownConfigValue.REPAIR_COST_DAMPENING_FACTOR);
 		reloadCosts.e =  (shiptype.getEps() + shipmodule.getEps() - ship.getEnergy()) * 1.1 * dampeningFactor;
@@ -1128,11 +1128,8 @@ public abstract class WerftObject extends DSObject implements Locatable {
             return false;
         }
 
-		ShipTypeData shiptype = ship.getTypeData();
-
-
+		boolean ok = true;
 		ReloadCosts rc = this.getReloadCosts(ship);
-
 		int newe = this.getEnergy();
 
 		if( rc.e > 0 ) {
@@ -1149,7 +1146,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		}
 		else if( !testonly ) {
 			ShipTypeData shiptype = ship.getTypeData();
-			SipModules shipmodule = ship.getModules();
+			ShipModules shipmodule = ship.getModules();
 			this.setEnergy(newe);
 			ship.setEnergy(ship.getEnergy()+shiptype.getEps()+shipmodule.getEps());
             ship.addFlag(Ship.FLAG_RECENTLY_REPAIRED, 5);
