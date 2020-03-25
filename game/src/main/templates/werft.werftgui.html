@@ -55,7 +55,7 @@
 				</div>
 				<br /><br />
 				<!-- BEGIN ws.repair.res.listitem -->
-					<img align="middle" src="{res.image}" alt="{res.plainname}" title="{res.plainname}" />{res.cargo.needed} ben&ouml;tigt - 
+					<img align="middle" src="{res.image}" alt="{res.plainname}" title="{res.plainname}" />{res.cargo.needed} ben&ouml;tigt -
 					<img align="middle" src="{res.image}" alt="{res.plainname}" title="{res.plainname}" />{res.cargo.available} vorhanden<br />
 				<!-- END ws.repair.res.listitem -->
 				<br />
@@ -72,7 +72,33 @@
 						</div>
 					{else}
 						<div style="text-align:center; color:green">{ship.name} repariert</div>
-					{/endif}				
+					{/endif}
+				{/endif}
+			{/endif}
+			{if werftgui.ws.reload}
+				<div align="center">
+					<img src="{ship.type.image}" alt="" />
+				</div>
+				<br /><br />
+				<!-- BEGIN ws.reload.res.listitem -->
+					<img align="middle" src="{res.image}" alt="{res.plainname}" title="{res.plainname}" />{res.cargo.needed} ben&ouml;tigt -
+					<img align="middle" src="{res.image}" alt="{res.plainname}" title="{res.plainname}" />{res.cargo.available} vorhanden<br />
+				<!-- END ws.reload.res.listitem -->
+				<br />
+				{if ws.reload.error}
+					<span style="color:red">
+						{ws.reload.error}
+					</span>
+				{else}
+					{ws.reload.message}
+					{if ws.reload.conf}
+						<br />
+						<div align="center">
+							<a class="ok" href="{werftgui.urlbase}&amp;ws={ship.id}&amp;werftact=reload&amp;conf=ok">{ship.name} aufladen</a>
+						</div>
+					{else}
+						<div style="text-align:center; color:green">{ship.name} aufgeladen</div>
+					{/endif}
 				{/endif}
 			{/endif}
 			{if werftgui.ws.dismantle}
@@ -161,12 +187,13 @@
 					</li>
 				<!-- END ws.modules.slots.listitem -->
 				</ul>
-			{/endif}			
+			{/endif}
 			</td>
 			<td valign="top" align="center" class="noBorderX">
 				<a class="forschinfo" href="{werftgui.urlbase}&amp;ws={ship.id}">Infos</a><br />
 				<a class="forschinfo" href="{werftgui.urlbase}&amp;ws={ship.id}&amp;werftact=repair">Reparieren</a><br />
 				{if ship.own}
+					<a class="forschinfo" href="{werftgui.urlbase}&amp;ws={ship.id}&amp;werftact=reload">Aufladen</a><br />
 					<a class="forschinfo" href="{werftgui.urlbase}&amp;ws={ship.id}&amp;werftact=dismantle">Demontieren</a><br />
 				{/endif}
 				{if ship.type.modules}
@@ -189,9 +216,9 @@
 		<div style="text-align:center">
 			<h2>{build.type.name}</h2>
 			<img src="{build.type.image}" alt="" />
-			
+
 			<hr noshade="noshade" size="1" style="color:#cccccc;width:80%" />
-			
+
 			<table class="noBorderX" cellpadding="2" cellspacing="1" style="margin-left:auto;margin-right:auto">
 			<tr>
 				<th style="text-align:center" colspan="5"><h3>Baukosten</h3></th>
@@ -231,12 +258,12 @@
 			<tr>
 				<th style="text-align:center" colspan="5"><h3>Werftkapazit&auml;t</h3></th>
 			</tr>
-			
+
 			{build.othercosts.list}
-			
+
 			</table>
 			<br />
-			
+
 			<hr noshade="noshade" size="1" style="color:#cccccc;width:80%" />
 			<h3>Aktionen</h3>
 			<div style="margin-top:3px; margin-bottom:3px">
@@ -290,7 +317,7 @@
 		</td>
 		</tr>
 		</table>
-	
+
 		<br />
 		<h3>Aktionen</h3>
 		<table class="noBorderX" style="width:90%; margin-left:auto; margin-right:auto">
@@ -370,7 +397,7 @@
 							<td class="noBorderX">
 								<a class="forschinfo" href="{werftgui.urlbase}&amp;build={buildship.id}{if buildship.item.id}&amp;item={buildship.item.id}{/endif}">bauen</a>
 							</td>
-						</tr>		
+						</tr>
 					<!-- END buildshiplist.listitem -->
 					</table>
 				</div>
@@ -390,7 +417,7 @@
 							<option value="{ship.id}">{if ship.needsrepair}* {/endif}{ship.name} ({ship.id}){if ship.owner.name} {ship.owner.name}{/endif}</option>
 						<!-- END wsshiplist.listitem -->
 					</select>&nbsp;
-				
+
 					<input type="submit" value="zur Werkstatt" />
 				</div>
 				</form>
@@ -432,7 +459,7 @@
 									<br />Ben&ouml;tigt: <img style="vertical-align:middle" src="data/items/{queueship.item.picture}" alt="{queueship.item.name}" />{queueship.item.name}
 								{/endif}
 								{if queueship.buildcosts.list}
-									<br />Pro Tick: 
+									<br />Pro Tick:
 									<!-- BEGIN queueship.buildcosts.listitem -->
 										<img style="vertical-align:middle" src="{res.image}" alt="{res.plainname}" title="{res.plainname}" />{res.cargo}
 									<!-- END queueship.buildcosts.listitem -->
@@ -472,8 +499,8 @@
 									</a>
 								{/endif}
 							</td>
-							
-						</tr>		
+
+						</tr>
 					<!-- END queueshiplist.listitem -->
 					</table>
 				</div>
@@ -520,8 +547,8 @@
 									<img style="vertical-align:middle;border:0px" src="data/interface/werft/delete.gif" alt="Entfernen" title="Entfernen" />
 								</a>
 							</td>
-							
-						</tr>		
+
+						</tr>
 					<!-- END werftgui.komplexparts.listitem -->
 					</table>
 				</div>
