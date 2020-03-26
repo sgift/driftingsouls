@@ -1146,7 +1146,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		else if( !testonly ) {
 			ShipTypeData shiptype = ship.getTypeData();
 			this.setEnergy(newe);
-			ship.setEnergy(ship.getEnergy()+shiptype.getEps());
+			ship.setEnergy(shiptype.getEps());
             ship.addFlag(Ship.FLAG_RECENTLY_REPAIRED, 5);
 		}
 		return true;
