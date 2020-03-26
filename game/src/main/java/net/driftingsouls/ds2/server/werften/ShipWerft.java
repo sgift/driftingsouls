@@ -433,6 +433,14 @@ public class ShipWerft extends WerftObject {
 	}
 
 	@Override
+	public boolean reloadShip(@Nonnull Ship ship, boolean testonly) {
+		boolean result = super.reloadShip(ship, testonly);
+
+		this.ship.recalculateShipStatus();
+		return result;
+	}
+
+	@Override
 	public void removeModule( @NotNull Ship ship, int slot ) {
 		super.removeModule( ship, slot );
 
