@@ -29,6 +29,7 @@ public class AccessLevelPermissionResolver implements PermissionResolver, Serial
 		Map<String,Integer> perms = new HashMap<>();
 		perms.put("admin#*", 30);
 		perms.put("comm#adminPM", 30);
+		perms.put("comm#PManAlleSpieler", 30);
 		perms.put("comm#offiziellePM", 30);
 		perms.put("comnet#allesLesbar", 100);
 		perms.put("comnet#allesSchreibbar", 100);
