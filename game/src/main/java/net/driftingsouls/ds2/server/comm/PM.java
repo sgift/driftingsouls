@@ -230,6 +230,28 @@ public class PM {
 	}
 
 	/**
+	 * Sendet eine Nachricht an alle Spieler (jeden mit ID > 0)
+	 *
+	 * @param from Der Absender
+	 * @param title Der Titel der PM
+	 * @param msg Der Text der PM
+	 * @param flags Flags der PM
+	 */
+	public static void sendToAll(User from, String title, String msg, int flags) {
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+
+		@SuppressWarnings("unchecked")
+		List<User> players = db.createQuery("from User where id>0").list();
+		for(User player: players) {
+			PM pm = new PM(from, player, title, msg);
+			pm.setFlags(flags);
+			db.persist(pm);
+		}
+	}
+
+
+	/**
 	 * Loescht alle PMs aus einem Ordner eines bestimmten Spielers.
 	 * Der Vorgang schlaegt fehl, wenn noch nicht alle wichtigen PMs gelesen wurden.
 	 * @param ordner Der Ordner, dessen Inhalt geloescht werden soll
