@@ -998,7 +998,7 @@ public class AngriffController extends Controller
                         data.haslandedcount+=aship.getShip().getLandedCount();
 										}
 										if (aship.getShip().getAlarm().getCode() > 0 ){ //0 = gruen, 1 = gelb, 2 = rot
-												if (aship.getShip().getAlarm() == 2 ){
+												if (aship.getShip().getAlarm().getCode() == 2 ){
 													data.alarmed++;
 												}
 												else{
@@ -1278,7 +1278,7 @@ public class AngriffController extends Controller
                         data.haslandedcount+=aship.getShip().getLandedCount();
 										}
 										if (aship.getShip().getAlarm().getCode() > 0 ){ //0 = gruen, 1 = gelb, 2 = rot
-											if (aship.getShip().getAlarm() == 2 ){
+											if (aship.getShip().getAlarm().getCode() == 2 ){
 												data.alarmed++;
 											}
 											else{
@@ -1564,7 +1564,7 @@ public class AngriffController extends Controller
                         data.haslandedcount+=aship.getShip().getLandedCount();
 										}
 										if (aship.getShip().getAlarm().getCode() > 0 ){ //0 = gruen, 1 = gelb, 2 = rot
-											if (aship.getShip().getAlarm() == 2 ){
+											if (aship.getShip().getAlarm().getCode() == 2 ){
 												data.alarmed++;
 											}
 											else{
