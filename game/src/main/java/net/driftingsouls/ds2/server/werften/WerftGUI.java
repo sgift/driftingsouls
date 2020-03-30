@@ -603,6 +603,7 @@ public class WerftGUI {
 					"ship.name",			ship.getName(),
 					"ship.own",				(ship.getOwner() == user),
 					"ship.owner.id",		ship.getOwner(),
+					"ship.rettungskapsel", (shipType.getShipClass() == ShipClasses.RETTUNGSKAPSEL),
 					"ship.type.modules",	shipType.getTypeModules() );
 
 		if( ship.getOwner() != user ) {

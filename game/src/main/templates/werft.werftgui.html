@@ -193,7 +193,9 @@
 				<a class="forschinfo" href="{werftgui.urlbase}&amp;ws={ship.id}">Infos</a><br />
 				<a class="forschinfo" href="{werftgui.urlbase}&amp;ws={ship.id}&amp;werftact=repair">Reparieren</a><br />
 				{if ship.own}
-					<a class="forschinfo" href="{werftgui.urlbase}&amp;ws={ship.id}&amp;werftact=reload">Aufladen</a><br />
+					{if ship.rettungskapsel}
+						<a class="forschinfo" href="{werftgui.urlbase}&amp;ws={ship.id}&amp;werftact=reload">Aufladen</a><br />
+					{/endif}
 					<a class="forschinfo" href="{werftgui.urlbase}&amp;ws={ship.id}&amp;werftact=dismantle">Demontieren</a><br />
 				{/endif}
 				{if ship.type.modules}
