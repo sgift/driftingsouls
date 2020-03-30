@@ -999,7 +999,7 @@ public class AngriffController extends Controller
 										}
 										if (aship.getShip().getAlarm().getCode() > 0 ){ //0 = gruen, 1 = gelb, 2 = rot
 												if (aship.getShip().getAlarm().getCode() == 2 ){
-													data.alarmed++;
+													data.alarmred++;
 												}
 												else{
 													data.alarmyellow++;
@@ -1060,7 +1060,7 @@ public class AngriffController extends Controller
                 "shiptypelist.adockcount",  data.adockcount,
                 "shiptypelist.jdockcount",  data.jdockcount,
 								"shiptypelist.owner.race", 	aUser.getRace(),
-								"shiptypelist.alarmred",   data.alarmed,
+								"shiptypelist.alarmred",   data.alarmred,
 								"shiptypelist.alarmyellow",   data.alarmyellow );
 
 					if( firstEntry ) {
@@ -1279,7 +1279,7 @@ public class AngriffController extends Controller
 										}
 										if (aship.getShip().getAlarm().getCode() > 0 ){ //0 = gruen, 1 = gelb, 2 = rot
 											if (aship.getShip().getAlarm().getCode() == 2 ){
-												data.alarmed++;
+												data.alarmred++;
 											}
 											else{
 												data.alarmyellow++;
@@ -1565,7 +1565,7 @@ public class AngriffController extends Controller
 										}
 										if (aship.getShip().getAlarm().getCode() > 0 ){ //0 = gruen, 1 = gelb, 2 = rot
 											if (aship.getShip().getAlarm().getCode() == 2 ){
-												data.alarmed++;
+												data.alarmred++;
 											}
 											else{
 												data.alarmyellow++;
@@ -1626,7 +1626,7 @@ public class AngriffController extends Controller
                 "shiptypelist.adockcount",  data.adockcount,
                 "shiptypelist.jdockcount",  data.jdockcount,
                 "shiptypelist.owner.race", 	aUser.getRace() ,
-								"shiptypelist.alarmred",   data.alarmed,
+								"shiptypelist.alarmred",   data.alarmred,
 								"shiptypelist.alarmyellow",   data.alarmyellow );
 
 					if( firstEntry ) {
