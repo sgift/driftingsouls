@@ -909,8 +909,8 @@ public class AngriffController extends Controller
               "ship.jdocks.docked",       aship.getShip().getLandedCount(),
               "ship.action.joinflucht",   true,
 							"ship.action.frontrow",     false,
-							"ship.alarm",     ship.getAlarm().name().toLowerCase(),
-							"ship.alarmed",     ship.getAlarm().getCode() > 0 );
+							"ship.alarm",     aship.getShip().getAlarm().name().toLowerCase(),
+							"ship.alarmed",     aship.getShip().getAlarm().getCode() > 0 );
 
 
 				if( !firstEntry && showgroups && ((pos >= battle.getOwnShipTypeCount(grouptype)) || (pos == groupoffset+SHIPGROUPSIZE)) ) {
@@ -997,8 +997,8 @@ public class AngriffController extends Controller
                         data.jdockcount+=aship.getShip().getTypeData().getJDocks();
                         data.haslandedcount+=aship.getShip().getLandedCount();
 										}
-										if (aship.getAlarm().getCode() > 0 ){ //0 = gruen, 1 = gelb, 2 = rot
-												if (aship.getAlarm() == 2 ){
+										if (aship.getShip().getAlarm().getCode() > 0 ){ //0 = gruen, 1 = gelb, 2 = rot
+												if (aship.getShip().getAlarm() == 2 ){
 													data.alarmed++;
 												}
 												else{
@@ -1182,8 +1182,8 @@ public class AngriffController extends Controller
               "ship.jdocks.docked",       aship.getShip().getLandedCount(),
               "ship.action.joinflucht",   false,
               "ship.action.frontrow",     false,
-							"ship.alarm",     ship.getAlarm().name().toLowerCase(),
-							"ship.alarmed",     !ship.getAlarm().name().toLowerCase().equals("green") );
+							"ship.alarm",     aship.getShip().getAlarm().name().toLowerCase(),
+							"ship.alarmed",      aship.getShip().getAlarm().getCode() > 0  );
 
 
 				if( !firstEntry && showgroups && ((pos >= battle.getOwnShipTypeCount(grouptype)) || (pos == groupoffset+SHIPGROUPSIZE)) ) {
@@ -1277,8 +1277,8 @@ public class AngriffController extends Controller
                         data.jdockcount+=aship.getShip().getTypeData().getJDocks();
                         data.haslandedcount+=aship.getShip().getLandedCount();
 										}
-										if (aship.getAlarm().getCode() > 0 ){ //0 = gruen, 1 = gelb, 2 = rot
-											if (aship.getAlarm() == 2 ){
+										if (aship.getShip().getAlarm().getCode() > 0 ){ //0 = gruen, 1 = gelb, 2 = rot
+											if (aship.getShip().getAlarm() == 2 ){
 												data.alarmed++;
 											}
 											else{
@@ -1464,8 +1464,8 @@ public class AngriffController extends Controller
               "ship.jdocks.docked",       aship.getShip().getLandedCount(),
               "ship.action.joinflucht",   false,
               "ship.action.frontrow",     true,
-							"ship.alarm",     ship.getAlarm().name().toLowerCase(),
-							"ship.alarmed",     !ship.getAlarm().name().toLowerCase().equals("green") );
+							"ship.alarm",     aship.getShip().getAlarm().name().toLowerCase(),
+							"ship.alarmed",      aship.getShip().getAlarm().getCode() > 0  );
 
 
 				if( !firstEntry && showgroups && ((pos >= battle.getOwnShipTypeCount(grouptype)) || (pos == groupoffset+SHIPGROUPSIZE)) ) {
@@ -1563,8 +1563,8 @@ public class AngriffController extends Controller
                         data.jdockcount+=aship.getShip().getTypeData().getJDocks();
                         data.haslandedcount+=aship.getShip().getLandedCount();
 										}
-										if (aship.getAlarm().getCode() > 0 ){ //0 = gruen, 1 = gelb, 2 = rot
-											if (aship.getAlarm() == 2 ){
+										if (aship.getShip().getAlarm().getCode() > 0 ){ //0 = gruen, 1 = gelb, 2 = rot
+											if (aship.getShip().getAlarm() == 2 ){
 												data.alarmed++;
 											}
 											else{
