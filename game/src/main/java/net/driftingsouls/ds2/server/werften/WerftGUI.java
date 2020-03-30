@@ -36,6 +36,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -603,6 +604,7 @@ public class WerftGUI {
 					"ship.name",			ship.getName(),
 					"ship.own",				(ship.getOwner() == user),
 					"ship.owner.id",		ship.getOwner(),
+					"ship.rettungskapsel", (shipType.getShipClass() == ShipClasses.RETTUNGSKAPSEL),
 					"ship.type.modules",	shipType.getTypeModules() );
 
 		if( ship.getOwner() != user ) {

@@ -363,6 +363,8 @@
 	{if shiptypelist.dockedcount}&nbsp;<img src="data/interface/schiffe/{shiptypelist.owner.race}/icon_container.gif" alt="" title="gedockt" />{shiptypelist.dockedcount}{/endif}
 		{if shiptypelist.haslandedcount}&nbsp;<img src="data/interface/schiffe/{shiptypelist.owner.race}/icon_schiff.gif" alt="" title="gelandet" /><a style="color:#CCAA33" class="nonbold">[{shiptypelist.haslandedcount}/{shiptypelist.jdockcount}]</a>{/endif}
 	{if shiptypelist.hasdockedcount}&nbsp;<img src="data/interface/schiffe/{shiptypelist.owner.race}/icon_container.gif" alt="" title="gedockt" /><a style="color:#CCAA33" class="nonbold">[{shiptypelist.hasdockedcount}/{shiptypelist.adockcount}]</a>{/endif}<br />
+	{if shiptypelist.alarmred}&nbsp;<div class="alarm red" ></div> {shiptypelist.alarmred}{/endif}
+	{if shiptypelist.alarmyellow}&nbsp;<div class="alarm yellow" ></div> {shiptypelist.alarmyellow}{/endif}
 	<a class="noborder" target="_blank"
 		onclick="ShiptypeBox.show({shiptypelist.id});return false;"
 		href="./ds?module=schiffinfo&amp;ship={shiptypelist.id}">
@@ -420,7 +422,8 @@
 							{if ship.action.join}<img src="data/interface/ks/join.gif" alt="" title="tritt der Schlacht bei" />{/endif}
 							{if ship.action.secondrow}<img src="data/interface/ks/secondrow.png" alt="" title="Zweite Reihe" />{/endif}
               {if ship.mangelnahrung}<img src="data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />{/endif}
-              {if ship.mangelreaktor}<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}
+							{if ship.mangelreaktor}<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}
+							{if ship.alarmed}<div class="alarm {ship.alarm}" ></div>{/endif}
               {if ship.docks}
                 <br />
                 {if ship.adocks}
@@ -461,7 +464,8 @@
 			  {if ship.action.shot}<img src="data/interface/ks/shot.gif" alt="" title="Waffen abgefeuert" />{/endif}
 			  {if ship.action.secondrow}<img src="data/interface/ks/secondrow.png" alt="" title="Zweite Reihe" />{/endif}
               {if ship.mangelnahrung}<img src="data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />{/endif}
-              {if ship.mangelreaktor}<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}
+							{if ship.mangelreaktor}<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}
+							{if ship.alarmed}<div class="alarm {ship.alarm}" ></div>{/endif}
               {if ship.docks}
                 <br />
                 {if ship.adocks}
@@ -501,7 +505,8 @@
               {if ship.action.fluchtnext}<img src="data/interface/ks/fluchtnext.png" alt="" title="flieht n&auml;chste Runde" />{/endif}
               {if ship.action.shot}<img src="data/interface/ks/shot.gif" alt="" title="Waffen abgefeuert" />{/endif}
               {if ship.mangelnahrung}<img src="data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />{/endif}
-              {if ship.mangelreaktor}<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}
+							{if ship.mangelreaktor}<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}
+							{if ship.alarmed}<div class="alarm {ship.alarm}" ></div>{/endif}
               {if ship.docks}
                 <br />
                 {if ship.adocks}

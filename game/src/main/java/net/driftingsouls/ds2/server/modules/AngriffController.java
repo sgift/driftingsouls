@@ -472,7 +472,9 @@ public class AngriffController extends Controller
     int haslandedcount;
     int hasdockedcount;
     int adockcount;
-    int jdockcount;
+		int jdockcount;
+		int alarmred;
+		int alarmyellow;
 	}
 
 	/**
@@ -906,7 +908,9 @@ public class AngriffController extends Controller
               "ship.adocks.docked",       aship.getShip().getDockedCount(),
               "ship.jdocks.docked",       aship.getShip().getLandedCount(),
               "ship.action.joinflucht",   true,
-              "ship.action.frontrow",     false);
+							"ship.action.frontrow",     false,
+							"ship.alarm",     aship.getShip().getAlarm().name().toLowerCase(),
+							"ship.alarmed",     aship.getShip().getAlarm().getCode() > 0 );
 
 
 				if( !firstEntry && showgroups && ((pos >= battle.getOwnShipTypeCount(grouptype)) || (pos == groupoffset+SHIPGROUPSIZE)) ) {
@@ -992,7 +996,15 @@ public class AngriffController extends Controller
                     if (aship.getShip().getTypeData().getJDocks()>0){
                         data.jdockcount+=aship.getShip().getTypeData().getJDocks();
                         data.haslandedcount+=aship.getShip().getLandedCount();
-                    }
+										}
+										if (aship.getShip().getAlarm().getCode() > 0 ){ //0 = gruen, 1 = gelb, 2 = rot
+												if (aship.getShip().getAlarm().getCode() == 2 ){
+													data.alarmred++;
+												}
+												else{
+													data.alarmyellow++;
+												}
+										}
                 }
             }
 
@@ -1022,7 +1034,6 @@ public class AngriffController extends Controller
 					ShipTypeData shiptype = Ship.getShipType(stid);
           GroupEntry data = groupdata.get(key);
           User aUser = ownShips.get(0).getOwner();
-
 					t.setVar(	"shiptypelist.count",		count,
 								"shiptypelist.name",		shiptype.getNickname(),
 								"shiptypelist.groupid",		key,
@@ -1047,7 +1058,9 @@ public class AngriffController extends Controller
                 "shiptypelist.hasdockedcount",  data.hasdockedcount,
                 "shiptypelist.adockcount",  data.adockcount,
                 "shiptypelist.jdockcount",  data.jdockcount,
-                "shiptypelist.owner.race", 	aUser.getRace() );
+								"shiptypelist.owner.race", 	aUser.getRace(),
+								"shiptypelist.alarmred",   data.alarmred,
+								"shiptypelist.alarmyellow",   data.alarmyellow );
 
 					if( firstEntry ) {
 						firstEntry = false;
@@ -1167,7 +1180,9 @@ public class AngriffController extends Controller
               "ship.adocks.docked",       aship.getShip().getDockedCount(),
               "ship.jdocks.docked",       aship.getShip().getLandedCount(),
               "ship.action.joinflucht",   false,
-              "ship.action.frontrow",     false);
+              "ship.action.frontrow",     false,
+							"ship.alarm",     aship.getShip().getAlarm().name().toLowerCase(),
+							"ship.alarmed",      aship.getShip().getAlarm().getCode() > 0  );
 
 
 				if( !firstEntry && showgroups && ((pos >= battle.getOwnShipTypeCount(grouptype)) || (pos == groupoffset+SHIPGROUPSIZE)) ) {
@@ -1260,7 +1275,15 @@ public class AngriffController extends Controller
                     if (aship.getShip().getTypeData().getJDocks()>0){
                         data.jdockcount+=aship.getShip().getTypeData().getJDocks();
                         data.haslandedcount+=aship.getShip().getLandedCount();
-                    }
+										}
+										if (aship.getShip().getAlarm().getCode() > 0 ){ //0 = gruen, 1 = gelb, 2 = rot
+											if (aship.getShip().getAlarm().getCode() == 2 ){
+												data.alarmred++;
+											}
+											else{
+												data.alarmyellow++;
+											}
+									}
                 }
             }
 
@@ -1288,7 +1311,6 @@ public class AngriffController extends Controller
 					ShipTypeData shiptype = Ship.getShipType(stid);
           GroupEntry data = groupdata.get(key);
           User aUser = ownShips.get(0).getOwner();
-
 					t.setVar(	"shiptypelist.count",		count,
 								"shiptypelist.name",		shiptype.getNickname(),
 								"shiptypelist.groupid",		key,
@@ -1313,7 +1335,9 @@ public class AngriffController extends Controller
                 "shiptypelist.hasdockedcount",  data.hasdockedcount,
                 "shiptypelist.adockcount",  data.adockcount,
                 "shiptypelist.jdockcount",  data.jdockcount,
-                "shiptypelist.owner.race", 				aUser.getRace() );
+                "shiptypelist.owner.race", 				aUser.getRace() ,
+								"shiptypelist.alarmred",   data.alarmred,
+								"shiptypelist.alarmyellow",   data.alarmyellow );
 
 					if( firstEntry ) {
 						firstEntry = false;
@@ -1437,7 +1461,9 @@ public class AngriffController extends Controller
               "ship.adocks.docked",       aship.getShip().getDockedCount(),
               "ship.jdocks.docked",       aship.getShip().getLandedCount(),
               "ship.action.joinflucht",   false,
-              "ship.action.frontrow",     true);
+              "ship.action.frontrow",     true,
+							"ship.alarm",     aship.getShip().getAlarm().name().toLowerCase(),
+							"ship.alarmed",      aship.getShip().getAlarm().getCode() > 0  );
 
 
 				if( !firstEntry && showgroups && ((pos >= battle.getOwnShipTypeCount(grouptype)) || (pos == groupoffset+SHIPGROUPSIZE)) ) {
@@ -1534,7 +1560,15 @@ public class AngriffController extends Controller
                     if (aship.getShip().getTypeData().getJDocks()>0){
                         data.jdockcount+=aship.getShip().getTypeData().getJDocks();
                         data.haslandedcount+=aship.getShip().getLandedCount();
-                    }
+										}
+										if (aship.getShip().getAlarm().getCode() > 0 ){ //0 = gruen, 1 = gelb, 2 = rot
+											if (aship.getShip().getAlarm().getCode() == 2 ){
+												data.alarmred++;
+											}
+											else{
+												data.alarmyellow++;
+											}
+									}
                 }
             }
 
@@ -1564,7 +1598,6 @@ public class AngriffController extends Controller
 					ShipTypeData shiptype = Ship.getShipType(stid);
           GroupEntry data = groupdata.get(key);
           User aUser = ownShips.get(0).getOwner();
-
 					t.setVar(	"shiptypelist.count",		count,
 								"shiptypelist.name",		shiptype.getNickname(),
 								"shiptypelist.groupid",		key,
@@ -1589,7 +1622,9 @@ public class AngriffController extends Controller
                 "shiptypelist.hasdockedcount",  data.hasdockedcount,
                 "shiptypelist.adockcount",  data.adockcount,
                 "shiptypelist.jdockcount",  data.jdockcount,
-                "shiptypelist.owner.race", 	aUser.getRace() );
+                "shiptypelist.owner.race", 	aUser.getRace() ,
+								"shiptypelist.alarmred",   data.alarmred,
+								"shiptypelist.alarmyellow",   data.alarmyellow );
 
 					if( firstEntry ) {
 						firstEntry = false;
