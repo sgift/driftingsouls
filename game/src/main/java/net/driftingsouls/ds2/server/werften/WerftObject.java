@@ -1093,9 +1093,8 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	{
 		ShipTypeData shiptype = ship.getTypeData();
 		ReloadCosts reloadCosts = new ReloadCosts();
-		double dampeningFactor = new ConfigService().getValue(WellKnownConfigValue.REPAIR_COST_DAMPENING_FACTOR);
 		int baseCosts = shiptype.getEps() - ship.getEnergy();
-		reloadCosts.e =  (int) Math.round(baseCosts * 1.1 * dampeningFactor);
+		reloadCosts.e =  (int) Math.round(baseCosts * 1.1);
 
 		return reloadCosts;
 
