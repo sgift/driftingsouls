@@ -12,7 +12,7 @@
 			<br />
 		{/endif}
 		{if shiptype.showorderable}
-			<span class="verysmallfont" style="color:red;font-style:italic;font-weight:normal">orderbar f&uuml;r {shiptype.ordercost}</span>
+			<span class="verysmallfont" style="color:red;font-style:italic;font-weight:normal">orderbar für {shiptype.ordercost}</span>
 			<br />
 		{/endif}
 		<span class="verysmallfont" style="font-style:italic">{shiptype.class}</span><br />
@@ -31,7 +31,7 @@
 
 	{if shiptype.buildable}
 		<td valign="top" class="noBorderX">
-			<h3>Vorrausetzungen</h3>
+			<h3>Vorausetzungen</h3>
 			{if global.login}
 				{if shiptype.tr1}
 					{!link_to $shiptype.tr1.name, default, module:forschinfo, css_class:$shiptype.tr1.status, res:$shiptype.tr1}<br />
@@ -107,24 +107,27 @@
 
 	<td valign="top" class="noBorderX">
 		<h3>Antrieb</h3>
-		{shiptype.cost} Flugkosten<br />{shiptype.heat} &Uuml;berhitzung<br /><br />
-		Gr&ouml;&szlig;e/Beweglichkeit: {shiptype.size}<br />
+		{shiptype.cost} Flugkosten<br />
+		{shiptype.heat} Überhitzung<br /><br />
+		Größe/Beweglichkeit: {shiptype.size}<br />
 		Sensorreichweite: {shiptype.sensorrange}<br /><br />
 		
 		<h3>Ausstattung</h3>
-		{shiptype.eps} Energiespeicher<br />{shiptype.cargo} Cargo<br />{shiptype.crew} Kabinen<br />
+		{shiptype.eps} Energiespeicher<br />
+		{shiptype.cargo} Cargo<br />
+		{shiptype.crew} Kabinen<br />
 		{if shiptype.jdocks}
-			{shiptype.jdocks} J&auml;gerdocks<br />
+			{shiptype.jdocks} Jäger- und Bomberdocks<br />
 		{/endif}
 		{if shiptype.adocks}
-	        Externe Dockinganlage (Kapazit&auml;t: {shiptype.adocks})<br />
+	        	Externe Dockinganlage (Kapazität: {shiptype.adocks})<br />
 		{/endif}
 		{if shiptype.moduleslots}
-			{shiptype.moduleslots} Modulsteckpl&auml;tze 
+			{shiptype.moduleslots} Modulsteckplätze 
 			<a href="#" class="forschinfo tooltip">
 				<img border="0" src="data/interface/schiffinfo/info.gif" alt="i" style="vertical-align:middle" />
 				<span class="ttcontent">
-					<h1>Modulsteckpl&auml;tze</h1>
+					<h1>Modulsteckplätze</h1>
 					{shiptype.moduleslots.desc}
 				</span>
 			</a>
@@ -136,23 +139,23 @@
 
 		<br />
 		{if shiptype.shields}
-				Schildst&auml;rke: {shiptype.shields}<br />
+				Schildstärke: {shiptype.shields}<br />
 		{/endif}
 		{if shiptype.ablativearmor}
-			Ablative Panzerung: {shiptype.ablativearmor}<br />
+			ablative Panzerung: {shiptype.ablativearmor}<br />
 		{/endif}
-		H&uuml;llenst&auml;rke: {shiptype.hull}<br  />
+		Hüllenstärke: {shiptype.hull}<br  />
 		{if shiptype.panzerung}Panzerung: {shiptype.panzerung}<br />{/endif}
 		{if shiptype.units}
-			Platz f&uuml;r Einheiten: {shiptype.unitspace}<br />
+			Platz für Einheiten: {shiptype.unitspace}<br />
 		{/endif}
-		Maximale Einheitengr&ouml;&szlig;e: {shiptype.maxunitsize}<br />
+		maximale Einheitengröße: {shiptype.maxunitsize}<br />
 		Nahrungsspeicher: {shiptype.nahrungcargo}<br />
 		{if shiptype.deutfactor}
-			Tanker: <img src="{deuterium.image}" alt="Deuterium" />{shiptype.deutfactor} f&uuml;r <img src="data/interface/energie.gif" alt="Energie" />1<br />
+			Tanker: <img src="{deuterium.image}" alt="Deuterium" />{shiptype.deutfactor} für <img src="data/interface/energie.gif" alt="Energie" />1<br />
 		{/endif}
 		{if shiptype.hydro}
-			Produziert: <img src="{nahrung.image}" alt="Nahrung" />{shiptype.hydro}<br />
+			Produktion: <img src="{nahrung.image}" alt="Nahrung" />{shiptype.hydro}<br />
 		{/endif}
 		{if shiptype.torpedodef}
 			Torpedoabwehr: {shiptype.torpedodef}%<br />
@@ -172,13 +175,13 @@
 			{/endif}<br />
 		<!-- END shiptypeflags.listitem -->
 		{if shiptype.flagschiff}
-			<span style="color:#EECC44">Flagschiff</span>
+			<span style="color:#EECC44">Flaggschiff</span>
 			<a href="#" class="forschinfo tooltip">
 				<img border="0" src="data/interface/schiffinfo/info.gif" alt="i" style="vertical-align:middle" />
 				<span class="ttcontent">
-					Ein Flagschiff ist das Zentrum einer gesamten Flotte.<br />
-					Es ist deutlich St&auml;rker als andere Schiffe. Daher darf<br />
-					jeder Spieler <span style="text-decoration:underline">nur ein einziges Flagschiff</span> besitzen.
+					Ein Flaggschiff ist das Zentrum einer gesamten Flotte.<br />
+					Es ist deutlich stärker als andere Schiffe. Daher darf<br />
+					jeder Spieler <span style="text-decoration:underline">nur ein einziges Flaggschiff</span> besitzen.
 				</span>
 			</a>
 			<br />
