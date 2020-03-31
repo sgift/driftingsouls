@@ -1,6 +1,7 @@
 #modul-schiffe .alarm {
 	width:20px;
 	height:10px;
+	display:inline-block;
 }
 
 #modul-schiffe .alarm.red {
