@@ -361,10 +361,11 @@
 	{if shiptypelist.mangelreaktorcount}&nbsp;<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{shiptypelist.mangelreaktorcount}{/endif}
 	{if shiptypelist.landedcount}&nbsp;<img src="data/interface/schiffe/{shiptypelist.owner.race}/icon_schiff.gif" alt="" title="gelandet" />{shiptypelist.landedcount}{/endif}
 	{if shiptypelist.dockedcount}&nbsp;<img src="data/interface/schiffe/{shiptypelist.owner.race}/icon_container.gif" alt="" title="gedockt" />{shiptypelist.dockedcount}{/endif}
-		{if shiptypelist.haslandedcount}&nbsp;<img src="data/interface/schiffe/{shiptypelist.owner.race}/icon_schiff.gif" alt="" title="gelandet" /><a style="color:#CCAA33" class="nonbold">[{shiptypelist.haslandedcount}/{shiptypelist.jdockcount}]</a>{/endif}
-	{if shiptypelist.hasdockedcount}&nbsp;<img src="data/interface/schiffe/{shiptypelist.owner.race}/icon_container.gif" alt="" title="gedockt" /><a style="color:#CCAA33" class="nonbold">[{shiptypelist.hasdockedcount}/{shiptypelist.adockcount}]</a>{/endif}<br />
-	{if shiptypelist.alarmred}&nbsp;<div id="modul-schiffe"><div class="alarm red"></div>&nbsp;{shiptypelist.alarmred}</div>{/endif}
+	{if shiptypelist.haslandedcount}&nbsp;<img src="data/interface/schiffe/{shiptypelist.owner.race}/icon_schiff.gif" alt="" title="gelandet" /><a style="color:#CCAA33" class="nonbold">[{shiptypelist.haslandedcount}/{shiptypelist.jdockcount}]</a>{/endif}
+	{if shiptypelist.hasdockedcount}&nbsp;<img src="data/interface/schiffe/{shiptypelist.owner.race}/icon_container.gif" alt="" title="gedockt" /><a style="color:#CCAA33" class="nonbold">[{shiptypelist.hasdockedcount}/{shiptypelist.adockcount}]</a>{/endif}
+	{if shiptypelist.alarmred}&nbsp;<div id="modul-schiffe"><div class="alarm red">&nbsp;{shiptypelist.alarmred}</div></div>{/endif}
 	{if shiptypelist.alarmyellow}&nbsp;<div id="modul-schiffe"><div class="alarm yellow"></div>&nbsp;{shiptypelist.alarmyellow}</div>{/endif}
+	<br />
 	<a class="noborder" target="_blank"
 		onclick="ShiptypeBox.show({shiptypelist.id});return false;"
 		href="./ds?module=schiffinfo&amp;ship={shiptypelist.id}">
@@ -423,9 +424,8 @@
 							{if ship.action.secondrow}<img src="data/interface/ks/secondrow.png" alt="" title="Zweite Reihe" />{/endif}
               {if ship.mangelnahrung}<img src="data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />{/endif}
 							{if ship.mangelreaktor}<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}
-							{if ship.alarmed}<div id="modul-schiffe"><div class="alarm {ship.alarm}"></div></div>{/endif}
+							{if ship.alarmed}&nbsp;<div id="modul-schiffe"><div class="alarm {ship.alarm}"></div></div>{/endif}
               {if ship.docks}
-                <br />
                 {if ship.adocks}
                   <img src="data/interface/schiffe/{ship.owner.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.adocks.docked}/{ship.adocks}]</a>
                 {/endif}
@@ -465,9 +465,8 @@
 			  {if ship.action.secondrow}<img src="data/interface/ks/secondrow.png" alt="" title="Zweite Reihe" />{/endif}
               {if ship.mangelnahrung}<img src="data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />{/endif}
 							{if ship.mangelreaktor}<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}
-							{if ship.alarmed}<div id="modul-schiffe"><div class="alarm {ship.alarm}"></div></div>{/endif}
+							{if ship.alarmed}&nbsp;<div id="modul-schiffe"><div class="alarm {ship.alarm}"></div></div>{/endif}
               {if ship.docks}
-                <br />
                 {if ship.adocks}
                   <img src="data/interface/schiffe/{ship.owner.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.adocks.docked}/{ship.adocks}]</a>
                 {/endif}
@@ -506,9 +505,8 @@
               {if ship.action.shot}<img src="data/interface/ks/shot.gif" alt="" title="Waffen abgefeuert" />{/endif}
               {if ship.mangelnahrung}<img src="data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />{/endif}
 							{if ship.mangelreaktor}<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}
-							{if ship.alarmed}<div id="modul-schiffe"><div class="alarm {ship.alarm}"></div></div>{/endif}
+							{if ship.alarmed}&nbsp;<div id="modul-schiffe"><div class="alarm {ship.alarm}"></div></div>{/endif}
               {if ship.docks}
-                <br />
                 {if ship.adocks}
                   <img src="data/interface/schiffe/{ship.owner.race}/icon_container.gif" alt="" /><a style="color:#CCAA33" class="nonbold">[{ship.adocks.docked}/{ship.adocks}]</a>
                 {/endif}
