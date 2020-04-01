@@ -68,7 +68,7 @@ public class EditShiptypes implements EntityEditor<ShipType>
 		form.field("Uranreaktor", Integer.class, ShipType::getRu, ShipType::setRu);
 		form.field("Deuteriumreaktor", Integer.class, ShipType::getRd, ShipType::setRd);
 		form.field("Antimateriereaktor", Integer.class, ShipType::getRa, ShipType::setRa);
-		form.field("Reaktor Maximal", Integer.class, ShipType::getRm, ShipType::setRm);
+		form.field("Reaktor maximal", Integer.class, ShipType::getRm, ShipType::setRm);
 		form.field("EPS", Integer.class, ShipType::getEps, ShipType::setEps);
 		form.field("Flugkosten", Integer.class, ShipType::getCost, ShipType::setCost);
 		form.field("Hülle", Integer.class, ShipType::getHull, ShipType::setHull);
@@ -77,18 +77,18 @@ public class EditShiptypes implements EntityEditor<ShipType>
 		form.field("Nahrungsspeicher", Long.class, ShipType::getNahrungCargo, ShipType::setNahrungCargo);
 		form.field("Hitze", Integer.class, ShipType::getHeat, ShipType::setHeat);
 		form.field("Crew", Integer.class, ShipType::getCrew, ShipType::setCrew);
-		form.field("Maximale Größe für Einheiten", Integer.class, ShipType::getMaxUnitSize, ShipType::setMaxUnitSize);
+		form.field("maximale Größe für Einheiten", Integer.class, ShipType::getMaxUnitSize, ShipType::setMaxUnitSize);
 		form.field("Laderaum für Einheiten", Integer.class, ShipType::getUnitSpace, ShipType::setUnitSpace);
 		form.field("Waffen", String.class, (st) -> Weapons.packWeaponList(st.getWeapons()), (st,s) -> st.setWeapons(Weapons.parseWeaponList(s)));
 		form.field("Maximale Hitze", String.class, (st) -> Weapons.packWeaponList(st.getMaxHeat()), (st,s) -> st.setMaxHeat(Weapons.parseWeaponList(s)));
 		form.field("Torpedoabwehr", Integer.class, ShipType::getTorpedoDef, ShipType::setTorpedoDef);
 		form.field("Schilde", Integer.class, ShipType::getShields, ShipType::setShields);
 		form.field("Größe", Integer.class, ShipType::getSize, ShipType::setSize);
-		form.field("Jägerdocks", Integer.class, ShipType::getJDocks, ShipType::setJDocks);
-		form.field("Aussendocks", Integer.class, ShipType::getADocks, ShipType::setADocks);
+		form.field("Jäger- / Bomberdocks", Integer.class, ShipType::getJDocks, ShipType::setJDocks);
+		form.field("externe Docks", Integer.class, ShipType::getADocks, ShipType::setADocks);
 		form.field("Sensorreichweite", Integer.class, ShipType::getSensorRange, ShipType::setSensorRange);
 		form.field("Hydros", Integer.class, ShipType::getHydro, ShipType::setHydro);
-		form.field("RE Kosten", Integer.class, ShipType::getReCost, ShipType::setReCost);
+		form.field("RE-Kosten", Integer.class, ShipType::getReCost, ShipType::setReCost);
 		form.textArea("Beschreibung", ShipType::getDescrip, ShipType::setDescrip);
 		form.field("Deuteriumsammeln", Integer.class, ShipType::getDeutFactor, ShipType::setDeutFactor);
 
@@ -102,8 +102,8 @@ public class EditShiptypes implements EntityEditor<ShipType>
 		form.field("Loot-Chance", Integer.class, ShipType::getChance4Loot, ShipType::setChance4Loot);
 		form.field("Module", String.class, ShipType::getModules, ShipType::setModules);
 		form.field("Verstecken", Boolean.class, ShipType::isHide, ShipType::setHide);
-		form.field("Ablative Panzerung", Integer.class, ShipType::getAblativeArmor, ShipType::setAblativeArmor);
-		form.field("Besitzt SRS", Boolean.class, ShipType::hasSrs, ShipType::setSrs);
+		form.field("ablative Panzerung", Integer.class, ShipType::getAblativeArmor, ShipType::setAblativeArmor);
+		form.field("besitzt SRS", Boolean.class, ShipType::hasSrs, ShipType::setSrs);
 		form.field("Mindest-Crew", Integer.class, ShipType::getMinCrew, ShipType::setMinCrew);
 		form.field("EMP verfliegen", Double.class, ShipType::getLostInEmpChance, ShipType::setLostInEmpChance);
 		form.field("Kopfgeld", BigInteger.class, ShipType::getBounty, ShipType::setBounty);
