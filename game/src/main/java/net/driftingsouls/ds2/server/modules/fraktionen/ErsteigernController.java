@@ -96,7 +96,7 @@ public class ErsteigernController extends Controller
 			}
 			else
 			{
-				throw new ValidierungException("Keine Fraktion will mit ihnen zu handeln solange die Beziehungen feindlich sind");
+				throw new ValidierungException("Keine Fraktion will mit Ihnen zu handeln, solange die Beziehungen feindlich sind.");
 			}
 		}
 
@@ -145,7 +145,7 @@ public class ErsteigernController extends Controller
 	{
 		if (faction == null)
 		{
-			throw new ValidierungException("Die angegebene Fraktion verfügt über keine eigene Seite");
+			throw new ValidierungException("Die angegebene Fraktion verfügt über keine eigene Seite.");
 		}
 	}
 
@@ -228,7 +228,7 @@ public class ErsteigernController extends Controller
 
 		if (!istHandelErlaubt(user, factionObj))
 		{
-			addError("Die angegebene Fraktion weigert sich mit ihnen zu handeln solange die Beziehungen feindlich sind");
+			addError("Die angegebene Fraktion weigert sich, mit Ihnen zu handeln, solange die Beziehungen feindlich sind.");
 			return new RedirectViewResult("default");
 		}
 
@@ -315,12 +315,12 @@ public class ErsteigernController extends Controller
 					User factionUser = factionObj.getUser();
 
 					PM.send(factionUser, entry.getBieter().getId(),
-							"Bei Versteigerung &uuml;berboten",
+							"Bei Versteigerung überboten",
 							"Sie wurden bei der Versteigerung um '"
 									+ entryname
-									+ "' &uuml;berboten. Die von ihnen gebotenen RE in H&ouml;he von "
+									+ "' überboten. Die von Ihnen gebotenen RE in Höhe von "
 									+ Common.ln(entry.getPreis())
-									+ " wurden auf ihr Konto zur&uuml;ck&uuml;berwiesen.\n\nGaltracorp Unlimited");
+									+ " wurden auf Ihr Konto zurücküberwiesen.\n\nGaltracorp Unlimited");
 
 					bieter.transferMoneyFrom(factionObj.getUser().getId(), entry.getPreis(),
 							"R&uuml;ck&uuml;berweisung Gebot #2" + entry.getId() + " '" + entryname
@@ -338,11 +338,11 @@ public class ErsteigernController extends Controller
 				gtu.transferMoneyFrom(user.getId(), bid, "&Uuml;berweisung Gebot #2"
 						+ entry.getId() + " '" + entryname + "'", false, UserMoneyTransfer.Transfer.SEMIAUTO);
 
-				return new RedirectViewResult("versteigerung").withMessage("Sie sind der höchstbietende");
+				return new RedirectViewResult("versteigerung").withMessage("Sie sind der Höchstbietende.");
 			}
 			else
 			{
-				return new RedirectViewResult("versteigerung").withMessage("<span style=\"color:red\">Zuwenig RE auf ihrem Konto</span>");
+				return new RedirectViewResult("versteigerung").withMessage("<span style=\"color:red\">Zu wenig RE auf Ihrem Konto.</span>");
 			}
 		}
 
@@ -409,7 +409,7 @@ public class ErsteigernController extends Controller
 		User user = (User) getUser();
 		if (!istHandelErlaubt(user, factionObj))
 		{
-			addError("Die angegebene Fraktion weigert sich mit ihnen zu handeln solange die Beziehungen feindlich sind");
+			addError("Die angegebene Fraktion weigert sich, mit Ihnen zu handeln, solange die Beziehungen feindlich sind.");
 			return new RedirectViewResult("default");
 		}
 
@@ -426,7 +426,7 @@ public class ErsteigernController extends Controller
 		User tmp = User.lookupByIdentifier(to);
 		if (tmp == null)
 		{
-			addError("Der angegebene Spieler konnte nicht gefunden werden");
+			addError("Der angegebene Spieler konnte nicht gefunden werden.");
 			return new RedirectViewResult("bank");
 		}
 
@@ -453,15 +453,15 @@ public class ErsteigernController extends Controller
 
 		int ticks = getContext().get(ContextCommon.class).getTick();
 
-		tmp.transferMoneyFrom(user.getId(), count, "&Uuml;berweisung vom "
+		tmp.transferMoneyFrom(user.getId(), count, "Überweisung vom "
 				+ Common.getIngameTime(ticks));
 		User factionUser = factionObj.getUser();
 
 		PM.send(factionUser, tmp.getId(), "RE überwiesen", user.getNickname()
-				+ " hat dir soeben " + Common.ln(count) + " RE überwiesen");
+				+ " hat Dir soeben " + Common.ln(count) + " RE überwiesen.");
 		PM.send(factionUser, user.getId(), "RE überwiesen an " + tmp.getNickname(),
 				"Du hast " + tmp.getNickname() + " soeben " + Common.ln(count)
-						+ " RE überwiesen");
+						+ " RE überwiesen.");
 
 		return new RedirectViewResult("bank");
 	}
@@ -1040,7 +1040,7 @@ public class ErsteigernController extends Controller
 
 		if (!istHandelErlaubt(user, factionObj))
 		{
-			addError("Die angegebene Fraktion weigert sich mit ihnen zu handeln solange die Beziehungen feindlich sind");
+			addError("Die angegebene Fraktion weigert sich mit, Ihnen zu handeln, solange die Beziehungen feindlich sind.");
 			return new RedirectViewResult("default");
 		}
 
@@ -1062,7 +1062,7 @@ public class ErsteigernController extends Controller
 				gany.getSystem() != sourcesystem ||
 				gany.getType() != ShopGanyTransportEntry.SHIPTYPE_GANYMEDE)
 		{
-			addError("Die angegebene Ganymede konnte im Ausgangssystem nicht lokalisiert werden");
+			addError("Die angegebene Ganymede konnte im Ausgangssystem nicht lokalisiert werden.");
 
 			return new RedirectViewResult("shopOrderGanymede")
 					.setParameter("sourcesystem", 0)
@@ -1076,7 +1076,7 @@ public class ErsteigernController extends Controller
 				.uniqueResult();
 		if (sameorder != null)
 		{
-			addError("Es existiert bereits ein Transport-Auftrag f&uuml;r diese Ganymede");
+			addError("Es existiert bereits ein Transport-Auftrag für diese Ganymede.");
 			return new RedirectViewResult("shopOrderGanymede")
 					.setParameter("sourcesystem", 0)
 					.setParameter("ganymedeid", 0);
@@ -1085,7 +1085,7 @@ public class ErsteigernController extends Controller
 		StarSystem system = (StarSystem) db.get(StarSystem.class, targetsystem);
 		if (system.isVisibleFor(user))
 		{
-			addError("Die angegebene Zielsystem konnte nicht lokalisiert werden");
+			addError("Die angegebene Zielsystem konnte nicht lokalisiert werden.");
 
 			return new RedirectViewResult("shopOrderGanymede")
 					.setParameter("targetsystem", 0);
@@ -1094,7 +1094,7 @@ public class ErsteigernController extends Controller
 		if ((targetx < 1) || (targetx > system.getWidth()) || (targety < 1)
 				|| (targety > system.getHeight()))
 		{
-			addError("Die angegebene Zielkoordinaten konnten im Zielsystem nicht lokalisiert werden");
+			addError("Die angegebene Zielkoordinaten konnten im Zielsystem nicht lokalisiert werden.");
 
 			return new RedirectViewResult("shopOrderGanymede")
 					.setParameter("targetx", 0)
@@ -1126,7 +1126,7 @@ public class ErsteigernController extends Controller
 		if (shortestpath == null)
 		{
 			transport = 0;
-			t.setVar("transport.price", "<span style=\"color:red\">Kein Weg gefunden</span>");
+			t.setVar("transport.price", "<span style=\"color:red\">Kein Weg gefunden.</span>");
 		}
 		else
 		{
@@ -1228,11 +1228,11 @@ public class ErsteigernController extends Controller
 			Taskmanager taskmanager = Taskmanager.getInstance();
 			taskmanager.addTask(Taskmanager.Types.GANY_TRANSPORT, 1, Integer.toString(newOrder.getId()), "", "");
 
-			String message = "Bestellung &uuml;ber 1 Ganymede-Transport des Objekts "
+			String message = "Bestellung über 1 Ganymede-Transport des Objekts "
 					+ gany.getId() + " von " + sourcesystem + ":" + gany.getX() + "/"
 					+ gany.getY() + " nach " + targetsystem + ":" + targetx + "/" + targety
-					+ " f&uuml;r " + Common.ln(totalcost)
-					+ " erhalten und vom System best&auml;tigt.<br />Einen angenehmen Tag noch!";
+					+ " für " + Common.ln(totalcost)
+					+ " erhalten und vom System bestätigt.<br />Einen angenehmen Tag noch!";
 
 			return new RedirectViewResult("shop").withMessage(message);
 		}
@@ -1264,7 +1264,7 @@ public class ErsteigernController extends Controller
 
 		if (!istHandelErlaubt(user, factionObj))
 		{
-			addError("Die angegebene Fraktion weigert sich mit ihnen zu handeln solange die Beziehungen feindlich sind");
+			addError("Die angegebene Fraktion weigert sich, mit Ihnen zu handeln, solange die Beziehungen feindlich sind.");
 			return new RedirectViewResult("default");
 		}
 
@@ -1445,23 +1445,23 @@ public class ErsteigernController extends Controller
 
 		if (!istHandelErlaubt(user, factionObj))
 		{
-			addError("Die angegebene Fraktion weigert sich mit ihnen zu handeln solange die Beziehungen feindlich sind");
+			addError("Die angegebene Fraktion weigert sich, mit Ihnen zu handeln, solange die Beziehungen feindlich sind.");
 			return new RedirectViewResult("default");
 		}
 
 		if (shopentry == null)
 		{
-			return new RedirectViewResult("shop").withMessage("<span style=\"color:red\">Es existiert kein passendes Angebot</span>");
+			return new RedirectViewResult("shop").withMessage("<span style=\"color:red\">Es existiert kein passendes Angebot.</span>");
 		}
 
 		if (!shopentry.canBuy(user))
 		{
-			return new RedirectViewResult("shop").withMessage("<span style=\"color:red\">Es existiert kein passendes Angebot</span>");
+			return new RedirectViewResult("shop").withMessage("<span style=\"color:red\">Es existiert kein passendes Angebot.</span>");
 		}
 
 		if (shopentry.getAvailability() == 2)
 		{
-			return new RedirectViewResult("shop").withMessage("<span style=\"color:red\">Das Angebot ist nicht verf&uuml;gbar</span>");
+			return new RedirectViewResult("shop").withMessage("<span style=\"color:red\">Das Angebot ist nicht verfügbar.</span>");
 		}
 
 		// Ganymed-Transporte verarbeiten
@@ -1493,13 +1493,13 @@ public class ErsteigernController extends Controller
 
 		if (user.getKonto().compareTo(new BigDecimal(entry.getPrice() * ordercount).toBigInteger()) < 0)
 		{
-			return new RedirectViewResult("shop").withMessage("<span style=\"color:red\">Sie verf&uuml;gen nicht &uuml;ber genug Geld</span>");
+			return new RedirectViewResult("shop").withMessage("<span style=\"color:red\">Sie verfügen nicht über genug Geld.</span>");
 		}
 
 		User factionUser = factionObj.getUser();
 		if (user.getLoyalitaetspunkteTotalBeiNpc(factionUser) < entry.getLpKosten() * ordercount)
 		{
-			return new RedirectViewResult("shop").withMessage("<span style=\"color:red\">Sie verfügen nicht über genug Loyalitätspunkte</span>");
+			return new RedirectViewResult("shop").withMessage("<span style=\"color:red\">Sie verfügen nicht über genug Loyalitätspunkte.</span>");
 		}
 
 		if (ordersys == 0 || orderx == 0 || ordery == 0)
@@ -1553,7 +1553,7 @@ public class ErsteigernController extends Controller
 							+ " für "
 							+ Common.ln(entry.getPrice() * ordercount) + " RE"
 							+ (entry.getLpKosten() > 0 ? " und " + Common.ln(entry.getLpKosten()) + " LP " : "")
-							+ " erhalten und vom System bestätigt.<br />Sollten noch Rückfragen bestehend so wird sich ein Sachbearbeiter bei ihnen melden.<br />Einen angenehmen Tag noch!";
+							+ " erhalten und vom System bestätigt.<br />Sollten noch Rückfragen bestehen, so wird sich ein Sachbearbeiter bei Ihnen melden.<br />Einen angenehmen Tag noch!";
 
 			return new RedirectViewResult("shop").withMessage(message);
 		}
@@ -1590,26 +1590,26 @@ public class ErsteigernController extends Controller
 					type = FactionShopEntry.Type.SHIP;
 					if (!NumberUtils.isCreatable(entryTypeId))
 					{
-						return new RedirectViewResult("shop").withMessage("<span style=\"color:red\">Format ungueltig</span>");
+						return new RedirectViewResult("shop").withMessage("<span style=\"color:red\">Format ungültig.</span>");
 					}
 					ShipType st = (ShipType) db.get(ShipType.class, Integer.parseInt(entryTypeId));
 					if (st == null)
 					{
-						return new RedirectViewResult("shop").withMessage("<span style=\"color:red\">Kein bekannter Schiffstyp</span>");
+						return new RedirectViewResult("shop").withMessage("<span style=\"color:red\">Kein bekannter Schiffstyp.</span>");
 					}
 					break;
 				case "item":
 					type = FactionShopEntry.Type.ITEM;
 					if (ItemID.fromString(entryTypeId) == null)
 					{
-						return new RedirectViewResult("shop").withMessage("<span style=\"color:red\">Format ungueltig</span>");
+						return new RedirectViewResult("shop").withMessage("<span style=\"color:red\">Format ungültig.</span>");
 					}
 					break;
 				case "transport":
 					type = FactionShopEntry.Type.TRANSPORT;
 					if (!NumberUtils.isCreatable(entryTypeId) && !"*".equals(entryTypeId))
 					{
-						return new RedirectViewResult("shop").withMessage("<span style=\"color:red\">Format ungueltig</span>");
+						return new RedirectViewResult("shop").withMessage("<span style=\"color:red\">Format ungültig.</span>");
 					}
 					break;
 			}
@@ -1653,7 +1653,7 @@ public class ErsteigernController extends Controller
 		{
 			if ((shopentry == null) || (shopentry.getFaction() != factionObj.getUser()))
 			{
-				addError("Es konnte kein passender Shopeintrag gefunden werden");
+				addError("Es konnte kein passender Shop-Eintrag gefunden werden.");
 				return new RedirectViewResult("shop");
 			}
 
@@ -1661,13 +1661,13 @@ public class ErsteigernController extends Controller
 			{
 				if (shopentry.getAnzahlOffeneBestellungen() > 0)
 				{
-					addError("Es gibt noch offene Bestellungen zu diesem Shopeintrag");
+					addError("Es gibt noch offene Bestellungen zu diesem Shop-Eintrag.");
 					return new RedirectViewResult("shop");
 				}
 
 				db.delete(shopentry);
 
-				return new RedirectViewResult("shop").withMessage("Eintrag gelöscht");
+				return new RedirectViewResult("shop").withMessage("Eintrag gelöscht.");
 			}
 
 			if (availability < 0 || availability > 2)
@@ -1681,7 +1681,7 @@ public class ErsteigernController extends Controller
 			shopentry.setPrice(entryPrice);
 			shopentry.setLpKosten(entryLpKosten);
 
-			return new RedirectViewResult("shop").withMessage("Eintrag geaendert");
+			return new RedirectViewResult("shop").withMessage("Eintrag geändert.");
 		}
 		return new RedirectViewResult("shop");
 	}
@@ -1710,7 +1710,7 @@ public class ErsteigernController extends Controller
 			if ((orderentry == null) || (orderentry.getStatus() > 3)
 					|| (orderentry.getShopEntry().getFaction() != factionObj.getUser()))
 			{
-				addError("Es konnte kein passender Ordereintrag gefunden werden");
+				addError("Es konnte kein passender Ordereintrag gefunden werden.");
 				return new RedirectViewResult("shop");
 			}
 
@@ -1722,7 +1722,7 @@ public class ErsteigernController extends Controller
 
 			orderentry.setStatus(orderstatus);
 
-			return new RedirectViewResult("shop").withMessage("Neuer Status erfolgreich zugewiesen");
+			return new RedirectViewResult("shop").withMessage("Neuer Status erfolgreich zugewiesen.");
 		}
 		return new RedirectViewResult("shop");
 	}
@@ -1748,13 +1748,13 @@ public class ErsteigernController extends Controller
 		switch (status)
 		{
 			case 0:
-				return "&nbsp;&nbsp;Neu&nbsp;&nbsp;";
+				return "&nbsp;&nbsp;neu&nbsp;&nbsp;";
 			case 1:
-				return "In Bearbeitung";
+				return "in Bearbeitung";
 			case 2:
 				return "Auslieferung";
 			case 3:
-				return "Nicht verf&uuml;gbar";
+				return "nicht verfügbar";
 		}
 		return "";
 	}
@@ -1799,13 +1799,13 @@ public class ErsteigernController extends Controller
 		{
 			if (base == null)
 			{
-				addError("Der angew&auml;hlte Asteroid existiert nicht");
+				addError("Der angewählte Asteroid existiert nicht.");
 				return new RedirectViewResult("default");
 			}
 
 			if (!base.getOwner().equals(getUser()))
 			{
-				addError("Dieser Asteroid gehört Ihnen nicht");
+				addError("Dieser Asteroid gehört Ihnen nicht.");
 				return new RedirectViewResult("default");
 			}
 
@@ -1813,7 +1813,7 @@ public class ErsteigernController extends Controller
 					|| !colonizer.getLocation().equals(base.getLocation())
 					|| !colonizer.getTypeData().hasFlag(ShipTypeFlag.COLONIZER))
 			{
-				addError("Der ausgewählte Colonizer ist ungültig");
+				addError("Das ausgewählte Kolonieschiff ist ungültig.");
 				return new RedirectViewResult("default");
 			}
 
@@ -1827,7 +1827,7 @@ public class ErsteigernController extends Controller
 
 			if (auftrag != null)
 			{
-				addError("F&uuml;r diesen Asteroid besteht bereits ein Auftrag");
+				addError("Für diesen Asteroid besteht bereits ein Auftrag.");
 				return new RedirectViewResult("default");
 			}
 
@@ -1852,7 +1852,7 @@ public class ErsteigernController extends Controller
 				// Testen ob genuegend Geld vorhanden ist um es uns untern Nagel zu reiszen
 				if (user.getKonto().compareTo(new BigDecimal(auftrag.getPrice()).toBigInteger()) < 0)
 				{
-					addError("Sie verfügen nicht über genug Geld");
+					addError("Sie verfügen nicht über genug Geld.");
 					return new RedirectViewResult("default");
 				}
 				factionUser.transferMoneyFrom(user.getId(), auftrag.getPrice(), "Ausbau von " + base.getName());
@@ -1861,7 +1861,7 @@ public class ErsteigernController extends Controller
 			// Den Besitzer des Colonizers ändern
 			if (colonizer.consign(factionUser, false))
 			{
-				addError("Der Colonizer konnte nicht übergeben werden.");
+				addError("Das Kolonieschiff konnte nicht übergeben werden.");
 				return new RedirectViewResult("default");
 			}
 
@@ -2197,7 +2197,7 @@ public class ErsteigernController extends Controller
 			}
 			else
 			{
-				throw new RuntimeException("Unbekannter Shopeintrag-Typ '"
+				throw new RuntimeException("Unbekannter Shop-Eintrag-Typ '"
 						+ shopentry.getType() + "'");
 			}
 
@@ -2262,7 +2262,7 @@ public class ErsteigernController extends Controller
 
 		if (meldungstext == null || meldungstext.trim().length() < 10)
 		{
-			addError("Bitte gib eine genaue Beschreibung deiner Aktion ein");
+			addError("Bitte gib eine genaue Beschreibung deiner Aktion ein.");
 			return new RedirectViewResult("aktionMelden");
 		}
 
@@ -2272,7 +2272,7 @@ public class ErsteigernController extends Controller
 
         PM.send(user, factionUser.getId(), "LP Meldung", "Es ist eine neue Meldung zum Erhalt von Loyalitätspunkten eingegangen.");
 
-		return new RedirectViewResult("aktionMelden").withMessage("Die Aktionsmeldung wurde der Fraktion erfolgreich übermittelt");
+		return new RedirectViewResult("aktionMelden").withMessage("Die Aktionsmeldung wurde der Fraktion erfolgreich übermittelt.");
 	}
 
 	/**
