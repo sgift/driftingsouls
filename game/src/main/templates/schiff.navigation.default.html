@@ -10,7 +10,7 @@
 	{else}
 		{!link_to Abflug, start, ship:$schiff.navigation.docked.master.id, shiplist:$ship.id}<br />
 	{/endif}
-	{!link_to Auftanken, default, module:transport, to:$schiff.navigation.docked.master.id, from:$ship.id, way:stos}
+	{!link_to be- und entladen, default, module:transport, to:$schiff.navigation.docked.master.id, from:$ship.id, way:stos}
 {else}
 	{if schiff.navigation.showmessage}
 		{schiff.navigation.showmessage}
@@ -33,7 +33,7 @@
 					{/endif}
 					<div class="sectorlabel {if schiff.navigation.nav.warn}warn{/endif}">
 						{if schiff.navigation.nav.warn}
-							<div class="label" onclick="DS.ask('Wenn sie in diese Richtung fliegen werden Schiffe auf Alarmstufe Rot auf sie feuern!\nWollen sie diese Aktion wirklich ausf&uuml;hren?',DS.getUrl()+'?module=schiff&amp;ship={ship.id}&amp;action=plugin&amp;plugin={global.pluginid}&amp;navigation_ops[act]={schiff.navigation.nav.direction}&amp;navigation_ops[count]=1')">
+							<div class="label" onclick="DS.ask('Wenn Sie in diese Richtung fliegen, werden alarmierte Schiffe auf sie feuern!\nWollen Sie diese Aktion wirklich ausführen?',DS.getUrl()+'?module=schiff&amp;ship={ship.id}&amp;action=plugin&amp;plugin={global.pluginid}&amp;navigation_ops[act]={schiff.navigation.nav.direction}&amp;navigation_ops[count]=1')">
 						{else}
 							<div class="label" onclick="document.location.href=DS.getUrl()+'?module=schiff&amp;ship={ship.id}&amp;action=plugin&amp;plugin={global.pluginid}&amp;navigation_ops[act]={schiff.navigation.nav.direction}&amp;navigation_ops[count]=1'">
 						{/endif}
