@@ -1,10 +1,10 @@
 <table width="100%" class="show" cellpadding="3" cellspacing="3" align="center">
 <tr>
-	<td class="schiff" colspan="{ship.jdocks}">J&auml;gerdocks
+	<td class="schiff" colspan="{ship.jdocks}">Jäger- und Bomberdocks
 		{if ship.docklist}
-			- <a class="forschinfo" href="./ds?module=transport&amp;from={ship.id}&amp;to={ship.docklist}&amp;way=stos">Alle Auftanken</a>
-		 	- <a class="forschinfo" href="./ds?module=schiff&amp;ship={ship.id}&amp;action=plugin&amp;plugin={global.pluginid}&amp;jdocks_ops[act]=unload">Alle Entladen</a>
-			- <a class="forschinfo" href="./ds?module=schiff&amp;ship={ship.id}&amp;action=start&amp;shiplist={ship.docklist}">Alle J&auml;ger starten</a>
+			- <a class="forschinfo" href="./ds?module=transport&amp;from={ship.id}&amp;to={ship.docklist}&amp;way=stos">alle be- & entladen</a>
+		 	- <a class="forschinfo" href="./ds?module=schiff&amp;ship={ship.id}&amp;action=plugin&amp;plugin={global.pluginid}&amp;jdocks_ops[act]=unload">alle entladen</a>
+			- <a class="forschinfo" href="./ds?module=schiff&amp;ship={ship.id}&amp;action=start&amp;shiplist={ship.docklist}">alle starten</a>
 			{if ship.docklist.nofleet}
 				- <a class="forschinfo" href="javascript:PopupWnd('&shiplist={ship.docklist}&action=create')">Flotte bilden</a>
 			{/endif}
@@ -23,11 +23,11 @@
 				href="./ds?module=schiffinfo&amp;ship={docks.entry.type}">
 				<img src="{docks.entry.image}" alt="" />
 			</a><br />
-			<a class="forschinfo" href="./ds?module=schiff&amp;ship={ship.id}&amp;action=start&amp;shiplist={docks.entry.id}">abladen</a><br>
-			<a class="forschinfo" href="./ds?module=transport&amp;to={docks.entry.id}&amp;from={ship.id}&amp;way=stos">Auftanken</a>
+			<a class="forschinfo" href="./ds?module=schiff&amp;ship={ship.id}&amp;action=start&amp;shiplist={docks.entry.id}">starten</a><br>
+			<a class="forschinfo" href="./ds?module=transport&amp;to={docks.entry.id}&amp;from={ship.id}&amp;way=stos">be- & entladen</a>
 		</td>
 	{else}
-		<td align="center" valign="middle" class="BorderS">Leer</td>
+		<td align="center" valign="middle" class="BorderS">leer</td>
 	{/endif}
 <!-- END jdocks.listitem -->
 </tr></table>

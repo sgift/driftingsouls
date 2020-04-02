@@ -317,8 +317,8 @@ public class GtuZwischenLagerController extends Controller
 			ResourceList reslist = tradecargo.getResourceList();
 			Resources.echoResList(t, reslist, "res.list");
 
-			List<ItemCargoEntry> itemlist = tradecargo.getItems();
-			for (ItemCargoEntry item : itemlist)
+			List<ItemCargoEntry<Item>> itemlist = tradecargo.getItems();
+			for (ItemCargoEntry<Item> item : itemlist)
 			{
 				Item itemobject = item.getItem();
 				if (itemobject.isUnknownItem())

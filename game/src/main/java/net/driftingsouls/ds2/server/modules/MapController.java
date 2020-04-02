@@ -701,9 +701,9 @@ public class MapController extends Controller
 			{
 				for (ShipType shipType : ships.keySet())
 				{
-					if (shipType.getShipClass().isDarfSchlachtenAnsehen())
-					{
+					if (shipType.getShipClass().isDarfSchlachtenAnsehen()) {
 						viewable = true;
+						break;
 					}
 				}
 			}

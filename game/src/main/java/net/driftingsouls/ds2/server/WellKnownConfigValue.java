@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class WellKnownConfigValue<T> implements ConfigValueDescriptor<T>
 {
-	private static final List<WellKnownConfigValue> VALUES = new ArrayList<>();
+	private static final List<WellKnownConfigValue<?>> VALUES = new ArrayList<>();
 
 	// Hinweis: Keine Enum, da Enums keine Type Parameter unterstuetzen und
 	// es Ziel ist, dass ein Nutzer dieser Klasse den Datentyp nicht extra
@@ -197,6 +197,10 @@ public class WellKnownConfigValue<T> implements ConfigValueDescriptor<T>
 	 * Wartung von Schiffen (de)aktivieren
 	 */
 	public static final ConfigValueDescriptor<Boolean> REQUIRE_SHIP_COSTS = new WellKnownConfigValue<>(Boolean.class, "require_ship_costs", "true", "Schiffs-Wartungskosten");
+	/**
+	 * Meldung, wenn AGB nicht akzeptiert sind
+	 */
+	public static final ConfigValueDescriptor<String> ACCEPT_AGB_MESSAGE = new WellKnownConfigValue<>(String.class, "agb_accept_message", "Die AGB müssen akzeptiert werden zur Registrierung", "Text, wenn die Checkbox AGB akzeptieren nicht angehakt wurde");
 
 	private String name;
 	private String description;

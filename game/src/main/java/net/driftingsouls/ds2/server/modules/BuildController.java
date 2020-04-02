@@ -321,9 +321,9 @@ public class BuildController extends Controller
 			ResourceList compreslist = buildcosts.compare(basecargo, false, true);
 			for (ResourceEntry compres : compreslist)
 			{
-				if (compres.getDiff() > 0)
-				{
+				if (compres.getDiff() > 0) {
 					ok = false;
+					break;
 				}
 			}
 

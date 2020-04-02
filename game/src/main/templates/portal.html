@@ -46,6 +46,8 @@
  							<li><a  title="Wiki" href="http://de.drifting-souls.wikia.com" target="_blank">Wiki</a></li>
  					</ul>
 			</li>
+			<li><a  title="Zu den AGB" href="./ds?module=portal&amp;action=infosAgb">AGB</a></li>
+			<li><a  title="Zum Impressum" href="./ds?module=portal&amp;action=impressum">Impressum</a></li>
  	</ul>
 </div> 	
 </div> 
@@ -152,6 +154,11 @@
 		</p>
 			
 		{/endif}
+		{if show.register.acceptagb}
+		<p>
+			<span class="red">{register.acceptagb.msg}</span>
+		</p>
+		{/endif}
 		{if show.login.vacmode}
 	
 		<p>
@@ -170,9 +177,6 @@
 							<p><span class="left">Name: </span><input class="name-input" style="width:170px" name="username" type="text" maxlength="40" value="{login.username}" /></p>
 								
 							<p><span class="left">Passwort: </span><input  class="pw-input" style="width:170px" name="password" type="password" value="" /></p>
-						
-						<!--	<p class="checkbox"><input type="checkbox" id="login_usegfxpak" name="usegfxpak" value="1" checked="checked" /><label for="login_usegfxpak">Grafikpack verwenden</label></p> -->
-							<p class="checkbox"><input type="checkbox" id="login_rememberme" name="rememberme" value="true" /><label for="login_rememberme">Eingeloggt bleiben</label></p>
 						
 						<p><input type="hidden" name="action" value="login" />
 							<input type="hidden" name="module" value="portal" /></p>
@@ -237,6 +241,7 @@
 						<input type="hidden" name="username" value="{register.username}" />
 						<input type="hidden" name="email" value="{register.email}" />
 						<input type="hidden" name="race" value="{register.race}" />
+						<input type="hidden" name="acceptAgb" value="{register.acceptAgb}" />
 						{if register.needkey}
 							<input type="hidden" name="key" value="{register.key}" />
 						{/endif}
@@ -306,6 +311,10 @@
 					<br />
 				</p>
 			{/endif}
+				<p class="checkbox">
+					<input type="checkbox" id="login_acceptagb" name="acceptAgb" value="true" />
+					<label for="login_acceptagb"><a  href="./ds?module=portal&amp;action=infosAgb" target="_blank">AGB</a> akzeptieren</label>
+				</p>
 				<p>
 					<input type="hidden" name="action" value="register" />
 					<input type="hidden" name="module" value="portal" />
@@ -412,22 +421,80 @@
 		
 	<div id="seite-agb">
 	
-					<h2>Allgemeine Gesch&auml;ftsbedingungen</h2>
+					<h2>Allgemeine Geschäftsbedingungen (AGBs)</h2>
 					<ol id="agb">
-						<li>Durch die Benutzung von DS2 erkennt der Spieler diese AGB automatisch an</li>
-						<li>Die Registrierung/Betreibung mehrerer Accounts durch dieselbe Person ist untersagt.</li>
-						<li>Ausnahmegenehmigungen k&ouml;nnen durch die Administration erteilt werden.</li>
-						<li>Eine kurzzeitige &uuml;bernahme eines fremden Accounts zum Zwecke der Vertretung ist gestattet, sofern nur die Grundfunktionen aufrecht gehalten werden. Hierzu ist es erlaubt Waren vom eigenen Account zum vertretenen Account zu transferieren. Warentransfers in die andere Richtung sind dabei untersagt.</li>
-						<li>Es besteht kein Recht auf einen Account</li>
-						<li>Es wird keinerlei Haftung f&uuml;r Sch&auml;den &uuml;bernommen, welche durch die Benutzung von Drifting Souls 2 und damit zusammenh&auml;ngender Produkte entstehen.</li>
-						<li>Es besteht keinerlei Anspruch auf die Teilnahme an Drifting Souls.</li>
-						<li>Die Administration beh&auml;lt sich das Recht vor, jederzeit und ohne Ank&uuml;ndigung Accounts und ohne Nennung von Gr&uuml;nden zu sperren oder zu l&ouml;schen.</li>
-						<li>Durch die Teilnahme an Drifting Souls werden diese Nutzungsbedingungen automatisch akzeptiert</li>
-						<li>Drifting Souls ist kostenlos und werbefrei.</li>
-						<li>Das Ausnutzen von Bugs zum Vorteil seines Accounts oder eines anderen bzw. zum Schaden eines anderen ist untersagt.</li>
-						<li>Durch den Nutzer gefundene Bugs sind der Administration unverz&uuml;glich zu melden.</li>
-						<li>Das Benutzen von Programmen, bei denen es sich nicht eindeutig um Internetbrowser handelt, um auf Drifting Souls 2 zuzugreifen ist nur gestattet, wenn die Administration informiert wurde und eine Genehmigung erteilt wurde. Auf Nachfrage sind die Quellentexte des Programms zu Kontrollzwecken herauszugeben sowie eine Zug&auml;nglichmachung f&uuml;r alle DS2-Spieler durchzuf&uuml;hren.</li>
-						<li>Die Administration beh&auml;lt sich das Recht vor diese AGB jederzeit zu &auml;ndern.</li>
+						<li>§ 1 Grundsätzliches
+							<ol>
+								<li>I. Drifting Souls 2 (im folgenden: Spiel) ist ein Online-Browser Spiel, welches von Ralf Hajek, Schönauer Straße 4, 65232 Taunusstein (im folgenden: Betreiber) betrieben wird. Der Betreiber stellt das Spiel grundsätzlich allen Benutzern (im folgenden: Spieler) zur Verfügung. Der Betreiber wird vertreten durch die Spielleitung.</li>
+								<li>II. Alle im Rahmen vom Spiel veröffentlichten Inhalte, sowie Medien und Nachrichten unterliegen den Vorgaben dieser AGB sowie anderer, vom Betreiber oder der Spielleitung herausgegebenen Regelungen. Bei einem Konflikt zwischen AGB und anderen Regelungen gehen die AGB vor.</li>
+								<li>III. Durch das Anklicken des Häkchens "AGB akzeptieren" bestätigt der Spieler die AGB und ihre Bestimmungen vollumfänglich zur Kenntnis genommen zu haben. Durch das Absenden der Daten unterbreitet der Spieler dem Betreiber und der Spielleitung ein Angebot zum Abschluss eines Endbenutzer-Lizenzvertrags.</li>
+								<li>IV. Diese Vereinbarungen und andere Regelungen können vom Betreiber oder der Spielleitung mit Wirkung für die Zukunft verändert werden. Eine solche Veränderung wird nur aus einem wichtigen Grund durchgeführt. Die Spieler werden rechtzeitig über eine solche informiert und müssen dieser zustimmen.</li>
+							</ol>
+						</li>
+						<li>§ 2 Endbenutzer-Lizenzvertrag
+							<ol>
+								<li>I. Der Endbenutzer-Lizenzvertrags ist kostenlos und kommt zustande über den Zugang des Angebotes gemäß § 1 Abs. 3 AGB und der Freischaltung des Spielerkontos (im folgenden: Account) seitens des Betreibers oder der Spielleitung.</li>
+								<li>II. Der Spieler hat keinen Anspruch auf Teilhabe am Spiel. Ein bestehender Endbenutzer-Lizenzvertrags kann von Seiten des Spielers, des Betreibers oder der Spielleitung jederzeit gekündigt werden.</li>
+								<li>III. Das Spiel steht grundsätzlich nur Personen über 16 Jahren zur Verfügung. Werden dem Betreiber Umstände bekannt, nach denen ein Spieler unter dem  Mindestalter liegt, so muss dieser auf Nachfrage eine Einwilligung eines Erziehungsberechtigten vorlegen.</li>
+							</ol>
+						</li>
+						<li>§ 3 Account
+							<ol>
+								<li>I. Ein bestehender Endbenutzer-Lizenzvertrags berechtigt den Spieler zu einem Account. Mit diesem kann er am Spiel teilnehmen, seinen Namen sowie sein Profilbild ändern, Nachrichten verfassen und am internen Forum (Com-Net) teilhaben. Der Account teilt das Schicksal des gekündigten oder sonst wie wirkungslosen Endbenutzer-Lizenzvertrags.</li>
+								<li>II. Der Betreiber behält sich vor Accountnamen, Anzeigenamen sowie alle vom Spieler eingebrachten Inhalte aus technischen, ethischen sowie rechtlichen Gründen zu ändern oder zu löschen.</li>
+								<li>III. Das Erstellen von mehreren Accounts (Multiaccounting) ist verboten. Verstöße hiergegen können neben der Kündigung des Endbenutzer-Lizenzvertrags mit den Multiaccounts auch zur Kündigung  des Endbenutzer-Lizenzvertrags mit dem Hauptaccount des Spielers führen.</li>
+								<li>IV. Jeder Account ist an den jeweiligen Spieler gebunden. Das Führen eines fremden Accounts ist unzulässig und kann zu Kündigung des Endbenutzer-Lizenzvertrags mit dem Hauptaccount des fremden sowie des eigenen Spielers führen.</li>
+								<li>V. Bei inaktiven Accounts gilt der Endbenutzer-Lizenzvertrags als gekündigt. Als inaktiv gilt ein Account, auf den seit mindestens 6 Monaten nicht mehr zugegriffen wurde oder der sich seit mindestens 12 Monate im Urlaubsmodus (VAC) befindet.</li>
+								<li>VI. Der Spieler ist dazu verpflichtet die Zugangsdaten zu seinem Account mit größter Sorgfalt zu behandeln und ein Abhandenkommen nach allen Umständen zu verhindern. Das Verlieren der Zugangsdaten muss unverzüglich dem Betreiber angezeigt werden.</li>
+							</ol>
+						</li>
+						<li>
+							§ 4 Spielregeln
+							<ol>
+								<li>I. Der Spieler ist ohne die Erlaubnis des Betreibers nicht berechtigt, Mechanismen, Software, Programme oder sonstige Routinen zu verwenden, die den Server oder die Systeme stören könnten. Er darf keine Maßnahmen ergreifen, die zu einer unzumutbaren Überbelastung der Systeme führen könnten. Die Nutzung von besonderer Software, insbesondere zur systematischen oder automatischen Steuerung der Spiele oder einzelner Spielfunktionen (Bots, Makros), zur Reproduktion oder Auswertung der Spiele, ist unzulässig.</li>
+								<li>II. Es ist verboten, Bugs bzw. Fehler in der Programmierung des Spiels und im Spielverlauf, die einen Vorteil für den Spieler darstellen können, für eigene und/oder für fremde Zwecke auszunutzen. Wurden Bugs bzw. Fehler vorsätzlich ausgenutzt, kann dies zur fristlosen Kündigung des Endbenutzer-Lizenzvertrags führen.</li>
+								<li>III. Es ist ohne die Erlaubnis des Betreibers verboten, Software zu benutzen, die "Datamining" ermöglicht oder auf andere Weise im Zusammenhang mit dem Spiel stehende Informationen sammelt.</li>
+								<li>IV. Es ist verboten, Spielinhalte außerhalb der Spiele zu nutzen, für reales Geld zu kaufen oder zu verkaufen oder zu tauschen.</li>
+								<li>V. Der Betreiber oder die Spielleitung kann jederzeit weitere Regeln mit Wirkung für die Zukunft erlassen; vgl. § 1 Abs. 4 AGB. Zum Verhältnis der AGB und den sonstigen Spielregeln vgl. § 1 Abs. 2 AGB.</li>
+							</ol>
+						</li>
+						<li>
+							§ 5 Haftung
+							<ol>
+								<li>I. Grundsätzlich ist jegliche Haftung des Betreibers ausgeschlossen und findet nur im Einzelfall und nach Maßgabe der folgenden Regelungen statt.</li>
+								<li>II. Der Betreiber haftet auf Schadensersatz und Ersatz vergeblicher Aufwendungen („Schadensersatz") wegen Verletzung vertraglicher oder außervertraglicher Pflichten nur:
+									<ol>
+										<li>1. bei Vorsatz oder grober Fahrlässigkeit,</li>
+										<li>2. bei fahrlässiger oder vorsätzlicher Verletzung des Lebens, des Körpers oder der 	Gesundheit,</li>
+										<li>3. bei fahrlässiger oder vorsätzlicher Verletzung wesentlicher Vertragspflichten,</li>
+										<li>4. wegen der Übernahme einer Beschaffenheitsgarantie,</li>
+										<li>5. aufgrund zwingender Haftung nach dem Produkthaftungsgesetz sowie im Anwendungsbereich des § 44a TKG oder</li>
+										<li>6. aufgrund sonstiger zwingender Haftung</li>
+									</ol>
+								</li>
+								<li>III. Der Schadensersatz für die Verletzung wesentlicher Vertragspflichten ist auf den vertragstypischen, vorhersehbaren Schaden begrenzt, soweit nicht Vorsatz oder grobe Fahrlässigkeit vorliegt oder wegen der Verletzung des Lebens, des Körpers oder der Gesundheit oder der Übernahme einer Beschaffenheitsgarantie oder aus Produkthaftung gehaftet wird.</li>
+							</ol>
+						</li>
+						<li>§ 6 Datenschutz
+							<ol>
+								<li>I. Der Betreiber speichert nur die unmittelbar zur Teilnahme am Spiel notwendigen Daten. Diese sind nur durch den Betreiber einsehbar und werden nicht zu werbe- oder sonstigen kommerziellen Zwecken genutzt oder gehandelt.</li>
+								<li>II. Die gespeicherten Daten umfassen:
+									<ol>
+										<li>1. die zur Anmeldung angegebene E-Mailadresse des Spielers</li>
+										<li>die IP-Adresse; diese wird für 30 Tage gespeichert und dann automatisch gelöscht</li>
+										<li>ein „Sessioncookie“ zur Authentifizierung des Spielers; dieses wird mit Schließen des jeweiligen Browsers automatisch gelöscht. Das Spiel benutzt keinerlei „Third Party Cookies“.</li>
+									</ol>
+								</li>
+								<li>III. Der Spieler kann jederzeit und ohne Angaben von Gründen die Löschung seiner persönlichen Daten verlangen. In einem solchen Fall endet der Endbenutzer-Lizenzvertrag mit der Löschung. Eine erneute Spielteilnahme ist nur unter den Voraussetzungen des § 1 Abs. 3 AGB wieder möglich.</li>
+							</ol>
+						</li>
+						<li>§ 7 Änderungen der AGB
+							<ol>
+								<li>I. Gemäß § 1 Abs. 4 AGB können die AGB geändert werden. In einem solchen Fall wird der Spieler über das interne Nachrichtensystem (PM) sowie mittels Ankündigung auf der Startseite des Spiels über die Änderungen informiert.</li>
+								<li>II. Diese Vereinbarungen gelten als angenommen, wenn der Spieler ihnen nicht innerhalb von 14 Tagen nach Information hierüber widersprochen hat. In Zukunft veränderte AGB gelten ebenfalls als angenommen, wenn der Spieler nicht innerhalb von 14 Tagen nach der Information hierüber diesen widerspricht.</li>
+								<li>III. Der Widerspruch ist dem Betreiber oder die Spielleitung anzuzeigen. Folge des Widerspruchs ist die Beendigung des Endbenutzter-Lizenzvertrages.</li>
+							</ol>
+						</li>
 					</ol>
 			</div>
 			
@@ -488,14 +555,5 @@
 	</div>  <!-- Ende class. re-inhalt (gegenstueck "documents") -->
 	</div>	<!-- Ende class. Rechte Spalte -->
 </div> <!-- Ende ID Container -->
-
-<!-- Ende Contentbereich - Beginn Footernavigation -->
-		<div id="footer">
-				<ul id="footernavigation">
-						<li><a  title="Zu den AGB" href="./ds?module=portal&amp;action=infosAgb">AGB</a></li>
-						<li> | </li>
-						<li><a  title="Zum Impressum" href="./ds?module=portal&amp;action=impressum">Impressum</a></li>
-				</ul>
-		</div>
 		
 <!-- hier wird von wo anders der Schluss eingefügt -->

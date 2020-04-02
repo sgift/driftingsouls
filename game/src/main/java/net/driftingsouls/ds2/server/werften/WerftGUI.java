@@ -36,6 +36,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -146,7 +147,8 @@ public class WerftGUI {
 					"werftgui.werftslots",	werft.getWerftSlots(),
 					"werftgui.totalqueueentries",	queue.size(),
 					"werftgui.allowBuild", !werft.isEinwegWerft(),
-					"werftgui.allowRepair", !werft.isEinwegWerft()
+					"werftgui.allowRepair", !werft.isEinwegWerft(),
+					"werftgui.allowReload", !werft.isEinwegWerft()
 					);
 
 			// Resourcenliste
@@ -169,6 +171,11 @@ public class WerftGUI {
 					break;
 				case "repair":
 					t.setVar("werftgui.main.repair", 1);
+
+					this.out_wsShipList(werft);
+					break;
+				case "reload":
+					t.setVar("werftgui.main.reload", 1);
 
 					this.out_wsShipList(werft);
 					break;
@@ -597,6 +604,7 @@ public class WerftGUI {
 					"ship.name",			ship.getName(),
 					"ship.own",				(ship.getOwner() == user),
 					"ship.owner.id",		ship.getOwner(),
+					"ship.rettungskapsel", (shipType.getShipClass() == ShipClasses.RETTUNGSKAPSEL),
 					"ship.type.modules",	shipType.getTypeModules() );
 
 		if( ship.getOwner() != user ) {
@@ -612,6 +620,13 @@ public class WerftGUI {
 				String conf = context.getRequest().getParameterString("conf");
 
 				this.out_repairShip(ship, werft, conf);
+				break;
+			}
+			case "reload":
+			{
+				String conf = context.getRequest().getParameterString("conf");
+
+				this.out_reloadShip(ship, werft, conf);
 				break;
 			}
 			case "dismantle":
@@ -922,6 +937,46 @@ public class WerftGUI {
 			String msg = werft.getMessage();
 			if( msg.length() > 0 ) {
 				t.setVar("ws.repair.message", msg);
+			}
+		}
+	}
+	private void out_reloadShip(Ship ship, WerftObject werft, String conf) {
+		Context context = ContextMap.getContext();
+
+		if( (ship == null) || (ship.getId() < 0) ) {
+			context.addError("Das angegebene Schiff existiert nicht oder geh&ouml;rt nicht ihnen");
+			return;
+		}
+
+		ShipTypeData shiptype = ship.getTypeData();
+
+		t.setBlock("_WERFT.WERFTGUI", "ws.reload.res.listitem", "ws.reload.res.list");
+
+		t.setVar(	"ship.type.image",		shiptype.getPicture(),
+					"werftgui.ws.reload",	1,
+					"ws.reload.conf",		!conf.equals("ok") );
+
+		Cargo cargo = werft.getCargo(false);
+
+		ReloadCosts reloadCost = werft.getReloadCosts(ship);
+
+		if( reloadCost.e > 0 ) {
+			t.setVar(	"res.image",			"./data/interface/energie.gif",
+						"res.plainname",		"Energie",
+						"res.cargo.needed",		reloadCost.e,
+						"res.cargo.available",	werft.getEnergy() );
+			t.parse("ws.reload.res.list", "ws.reload.res.listitem", true);
+		}
+
+		boolean ok = werft.reloadShip(ship, !conf.equals("ok"));
+
+		if( !ok ) {
+			t.setVar("ws.reload.error", werft.getMessage());
+		}
+		else {
+			String msg = werft.getMessage();
+			if( msg.length() > 0 ) {
+				t.setVar("ws.reload.message", msg);
 			}
 		}
 	}

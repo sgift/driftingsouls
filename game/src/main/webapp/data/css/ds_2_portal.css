@@ -99,7 +99,6 @@ input{
 }
 select {
  background: transparent;
- -webkit-appearance: none;
  width: 268px;
  padding: 5px;
  font-size: 18px;
@@ -278,14 +277,6 @@ border-radius: 15px;
 	}
 /* Ende Einlogbuttons */
 
-/* Beginn checkbox */
-li.checkbox input#login_rememberme {
-	border: 1px solid #CCC;
-	border-radius: 10px;
-	padding: 5px;
-	}
-
-
 /* hier beginnt der submit-button */
 p.submit {
 }
@@ -380,13 +371,13 @@ div.rechte-spalte p img.systemkarte {
 
 #seite-agb{
 	padding: 2em;
+	list-style-type: none;
 }
 
 ol#agb {
 	padding : 1em 0.2em 0.1em 0.5em;
 }
 ol#agb > li {
-	list-style : decimal;
 	margin-bottom: 0.2em;
 }
 #impressum{

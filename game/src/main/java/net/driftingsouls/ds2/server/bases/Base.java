@@ -1652,7 +1652,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 
 	public boolean feedInhabitants(Cargo baseCargo)
 	{
-		int hungryPeople = (int)Math.ceil(getBewohner() / 10);
+		int hungryPeople = getBewohner() / 10;
 		int fleeingPeople = feedPeople(hungryPeople, baseCargo);
 
 		if(fleeingPeople > 0)
@@ -1702,9 +1702,9 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		for (String spawnres : spawnress)
 		{
 			String[] thisress = StringUtils.split(spawnres, ",");
-			if (Integer.valueOf(thisress[0]) == itemid)
+			if (Integer.parseInt(thisress[0]) == itemid)
 			{
-				return Integer.valueOf(thisress[1]);
+				return Integer.parseInt(thisress[1]);
 			}
 		}
 		return 0;

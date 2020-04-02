@@ -837,10 +837,7 @@ public class SchiffstypModifikation
 		@Override
 		public int getADocks() {
 			int value = inner.getADocks() + SchiffstypModifikation.this.getADocks();
-			if( value < 0 ) {
-				return 0;
-			}
-			return value;
+			return Math.max(value, 0);
 		}
 
 		@Override
@@ -870,10 +867,7 @@ public class SchiffstypModifikation
 		public int getCost() {
 			if( getType().getCost() > 0 ) {
 				int value = inner.getCost() + SchiffstypModifikation.this.getCost();
-				if( value < 1 ) {
-					return 1;
-				}
-				return value;
+				return Math.max(value, 1);
 			}
 			return inner.getCost();
 		}
@@ -882,10 +876,7 @@ public class SchiffstypModifikation
 		public int getCrew() {
 			if( getType().getCrew() > 0 ) {
 				int value = inner.getCrew() + SchiffstypModifikation.this.getCrew();
-				if( value < 1 ) {
-					return 1;
-				}
-				return value;
+				return Math.max(value, 1);
 			}
 			return inner.getCrew();
 		}
@@ -894,10 +885,7 @@ public class SchiffstypModifikation
 		public int getMaxUnitSize() {
 			if( getType().getMaxUnitSize() > 0 ) {
 				int value = inner.getMaxUnitSize() + SchiffstypModifikation.this.getMaxUnitSize();
-					if( value < 1 ) {
-						return 1;
-					}
-				return value;
+				return Math.max(value, 1);
 			}
 			return inner.getMaxUnitSize();
 		}
@@ -906,10 +894,7 @@ public class SchiffstypModifikation
 		public int getUnitSpace() {
 			if( getType().getUnitSpace() > 0 ) {
 				int value = inner.getUnitSpace() + SchiffstypModifikation.this.getUnitSpace();
-					if( value < 0 ) {
-						return 0;
-					}
-				return value;
+				return Math.max(value, 0);
 			}
 			return inner.getUnitSpace();
 		}
@@ -922,19 +907,13 @@ public class SchiffstypModifikation
 		@Override
 		public int getDeutFactor() {
 			int value = inner.getDeutFactor() + SchiffstypModifikation.this.getDeutFactor();
-			if( value < 0 ) {
-				return 0;
-			}
-			return value;
+			return Math.max(value, 0);
 		}
 
 		@Override
 		public int getEps() {
 			int value = inner.getEps() + SchiffstypModifikation.this.getEps();
-			if( value < 0 ) {
-				return 0;
-			}
-			return value;
+			return Math.max(value, 0);
 		}
 
 		@Override
@@ -956,10 +935,7 @@ public class SchiffstypModifikation
 		public int getHeat() {
 			if( getType().getHeat() > 0 ) {
 				int value = inner.getHeat() + SchiffstypModifikation.this.getHeat();
-				if( value < 2 ) {
-					return 2;
-				}
-				return value;
+				return Math.max(value, 2);
 			}
 			return inner.getHeat();
 		}
@@ -967,28 +943,19 @@ public class SchiffstypModifikation
 		@Override
 		public int getHull() {
 			int value = inner.getHull() + SchiffstypModifikation.this.getHull();
-			if( value < 1 ) {
-				return 1;
-			}
-			return value;
+			return Math.max(value, 1);
 		}
 
 		@Override
 		public int getHydro() {
 			int value = inner.getHydro() + SchiffstypModifikation.this.getHydro();
-			if( value < 0 ) {
-				return 0;
-			}
-			return value;
+			return Math.max(value, 0);
 		}
 
 		@Override
 		public int getJDocks() {
 			int value = inner.getJDocks() + SchiffstypModifikation.this.getJDocks();
-			if( value < 0 ) {
-				return 0;
-			}
-			return value;
+			return Math.max(value, 0);
 		}
 
 		private void calcWeaponData() {
@@ -1093,10 +1060,7 @@ public class SchiffstypModifikation
 		@Override
 		public int getPanzerung() {
 			int value = inner.getPanzerung() + SchiffstypModifikation.this.getPanzerung();
-			if( value < 0 ) {
-				return 0;
-			}
-			return value;
+			return Math.max(value, 0);
 		}
 
 		@Override
@@ -1110,46 +1074,31 @@ public class SchiffstypModifikation
 		@Override
 		public int getRa() {
 			int value = inner.getRa() + SchiffstypModifikation.this.getRa();
-			if( value < 0 ) {
-				return 0;
-			}
-			return value;
+			return Math.max(value, 0);
 		}
 
 		@Override
 		public int getRd() {
 			int value = inner.getRd() + SchiffstypModifikation.this.getRd();
-			if( value < 0 ) {
-				return 0;
-			}
-			return value;
+			return Math.max(value, 0);
 		}
 
 		@Override
 		public int getReCost() {
 			int value = inner.getReCost() + SchiffstypModifikation.this.getReCost();
-			if( value < 0 ) {
-				return 0;
-			}
-			return value;
+			return Math.max(value, 0);
 		}
 
 		@Override
 		public int getRm() {
 			int value = inner.getRm() + SchiffstypModifikation.this.getRm();
-			if( value < 0 ) {
-				return 0;
-			}
-			return value;
+			return Math.max(value, 0);
 		}
 
 		@Override
 		public int getRu() {
 			int value = inner.getRu() + SchiffstypModifikation.this.getRu();
-			if( value < 0 ) {
-				return 0;
-			}
-			return value;
+			return Math.max(value, 0);
 		}
 
 		@Override
@@ -1168,10 +1117,7 @@ public class SchiffstypModifikation
 		@Override
 		public int getShields() {
 			int value = inner.getShields() + SchiffstypModifikation.this.getShields();
-			if( value < 0 ) {
-				return 0;
-			}
-			return value;
+			return Math.max(value, 0);
 		}
 
 		@Override
@@ -1193,19 +1139,13 @@ public class SchiffstypModifikation
 			if( value > ShipType.SMALL_SHIP_MAXSIZE ) {
 				return 3;
 			}
-			if( value < 1 ) {
-				return 1;
-			}
-			return value;
+			return Math.max(value, 1);
 		}
 
 		@Override
 		public int getTorpedoDef() {
 			int value = inner.getTorpedoDef() + SchiffstypModifikation.this.getTorpedoDef();
-			if( value < 0 ) {
-				return 0;
-			}
-			return value;
+			return Math.max(value, 0);
 		}
 
 		@Override
@@ -1230,10 +1170,7 @@ public class SchiffstypModifikation
 		@Override
 		public int getWerft() {
 			int value = inner.getWerft() + SchiffstypModifikation.this.getWerft();
-			if( value < 0 ) {
-				return 0;
-			}
-			return value;
+			return Math.max(value, 0);
 		}
 
 		@Override
@@ -1265,10 +1202,7 @@ public class SchiffstypModifikation
 		@Override
 		public int getAblativeArmor() {
 			int value = inner.getAblativeArmor() + SchiffstypModifikation.this.getAblativeArmor();
-			if( value < 0 ) {
-				return 0;
-			}
-			return value;
+			return Math.max(value, 0);
 		}
 
 		@Override

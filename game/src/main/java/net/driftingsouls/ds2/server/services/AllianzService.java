@@ -157,8 +157,8 @@ public class AllianzService
 					PM.send(nullUser, supermember.getId(), "Drohende Allianzauflösung",
 							"[Automatische Nachricht]\n" +
 									"Achtung!\n" +
-									"Durch den jüngsten Weggang eines Allianzmitglieds hat deine Allianz zu wenig Mitglieder um weiterhin zu bestehen. " +
-									"Du hast nun 21 Ticks Zeit diesen Zustand zu ändern. Andernfalls wird die Allianz aufgelößt.");
+									"Durch den jüngsten Weggang eines Allianzmitglieds hat deine Allianz zu wenig Mitglieder, um weiterhin zu bestehen. " +
+									"Du hast nun 21 Ticks Zeit, diesen Zustand zu ändern. Andernfalls wird die Allianz aufgelöst.");
 				}
 			}
 		}

@@ -25,6 +25,7 @@ import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.cargo.modules.Module;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleItemModule;
+import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.Munition;
 import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
 import net.driftingsouls.ds2.server.entities.User;
@@ -173,8 +174,8 @@ public class RestTick extends TickController {
 				}
 
 
-				List<ItemCargoEntry> itemlist = bcargo.getItems();
-				for (ItemCargoEntry aitem : itemlist)
+				List<ItemCargoEntry<Item>> itemlist = bcargo.getItems();
+				for (ItemCargoEntry<Item> aitem : itemlist)
 				{
 					if (aitem.getItem() instanceof Munition)
 					{
@@ -236,8 +237,8 @@ public class RestTick extends TickController {
 					usercargos.get(ship.getOwner()).addCargo(scargo);
 				}
 
-				List<ItemCargoEntry> itemlist = scargo.getItems();
-				for (ItemCargoEntry aitem : itemlist)
+				List<ItemCargoEntry<Item>> itemlist = scargo.getItems();
+				for (ItemCargoEntry<Item> aitem : itemlist)
 				{
 					if (aitem.getItem() instanceof Munition)
 					{
@@ -308,8 +309,8 @@ public class RestTick extends TickController {
 				usercargos.get(entry.getUser1()).addCargo(acargo);
 			}
 
-			List<ItemCargoEntry> itemlist = acargo.getItems();
-			for (ItemCargoEntry aitem : itemlist)
+			List<ItemCargoEntry<Item>> itemlist = acargo.getItems();
+			for (ItemCargoEntry<Item> aitem : itemlist)
 			{
 				if (aitem.getItem() instanceof Munition)
 				{
@@ -342,7 +343,7 @@ public class RestTick extends TickController {
 			}
 
 			itemlist = acargo.getItems();
-			for (ItemCargoEntry aitem : itemlist)
+			for (ItemCargoEntry<Item> aitem : itemlist)
 			{
 				if (aitem.getItem() instanceof Munition)
 				{

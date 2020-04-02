@@ -98,7 +98,7 @@ public class ADocksDefault implements SchiffPlugin {
 					"ship.id",				ship.getId(),
 					"ship.docklist",		idlist,
 					"ship.adocks",			shiptype.getADocks(),
-					"docks.width",			100/(shiptype.getADocks()>4 ? 4 : shiptype.getADocks()) );
+					"docks.width",			100/(Math.min(shiptype.getADocks(), 4)) );
 
 		t.setBlock("_PLUGIN_"+pluginid,"adocks.listitem","adocks.list");
 		for( int j = 0; j < shiptype.getADocks(); j++ ) {

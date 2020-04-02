@@ -185,14 +185,13 @@ public class Cargo implements Cloneable {
 			if(orgitems == null)
 			{
 				orgitems = count;
-				items.add(parseItems(count));
 			}
 			else
 			{
 				orgitems += ";";
 				orgitems += count;
-				items.add(parseItems(count));
 			}
+			items.add(parseItems(count));
 		}
 	}
 
@@ -378,7 +377,7 @@ public class Cargo implements Cloneable {
 	 * Fuegt den angegebenen ItemCargo-Eintrag zum Cargo hinzu.
 	 * @param item Der ItemCargo-Eintrag
 	 */
-	public void addItem( ItemCargoEntry item ) {
+	public void addItem( ItemCargoEntry<Item> item ) {
 		addResource(item.getResourceID(), item.getCount());
 	}
 
@@ -413,7 +412,7 @@ public class Cargo implements Cloneable {
 	 * Zieht den angegebenen ItemCargo-Eintrag von Cargo ab.
 	 * @param item der ItemCargo-Eintrag
 	 */
-	public void substractItem( ItemCargoEntry item ) {
+	public void substractItem(ItemCargoEntry<Item> item ) {
 		substractResource(item.getResourceID(), item.getCount());
 	}
 
@@ -471,15 +470,15 @@ public class Cargo implements Cloneable {
 	 * @param itemid Die ID des Item-Typs
 	 * @return Liste aller Items des Typs im Cargo
 	 */
-	public List<ItemCargoEntry> getItem( int itemid ) {
-		List<ItemCargoEntry> result = new ArrayList<>();
+	public List<ItemCargoEntry<Item>> getItem( int itemid ) {
+		List<ItemCargoEntry<Item>> result = new ArrayList<>();
 		for (Long[] item : items)
 		{
 			if (item[0] != itemid)
 			{
 				continue;
 			}
-			result.add(new ItemCargoEntry(this, item[0].intValue(), item[1], item[2].intValue(), item[3].intValue()));
+			result.add(new ItemCargoEntry<>(this, item[0].intValue(), item[1], item[2].intValue(), item[3].intValue()));
 		}
 
 		return result;
@@ -489,11 +488,11 @@ public class Cargo implements Cloneable {
 	 * Gibt alle Items im Cargo als <code>ItemCargoEntry</code>-Instanzen zurueck.
 	 * @return Liste aller Items im Cargo
 	 */
-	public List<ItemCargoEntry> getItems() {
-		List<ItemCargoEntry> result = new ArrayList<>();
+	public List<ItemCargoEntry<Item>> getItems() {
+		List<ItemCargoEntry<Item>> result = new ArrayList<>();
 		for (Long[] item : items)
 		{
-			result.add(new ItemCargoEntry(this, item[0].intValue(), item[1], item[2].intValue(), item[3].intValue()));
+			result.add(new ItemCargoEntry<>(this, item[0].intValue(), item[1], item[2].intValue(), item[3].intValue()));
 		}
 
 		return result;

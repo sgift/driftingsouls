@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.config;
 
 import net.driftingsouls.ds2.server.entities.Rasse;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
 
@@ -47,6 +48,7 @@ public class Rassen implements Iterable<Rasse>
 		return rassenList;
 	}
 
+	@NotNull
 	@SuppressWarnings("unchecked")
 	@Override
 	public Iterator<Rasse> iterator()

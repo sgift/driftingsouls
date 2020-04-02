@@ -39,7 +39,7 @@
 			</tr>
 			<tr>
 				<td class="noBorderX" colspan="8" style="text-align:center">
-					<a class="forschinfo" href="javascript:DS.ask('Achtung! Es werden beliebige Offiziere von diesem Asteroiden zu Schiffen der Flotte ohne Offizier transferier!\nWollen sie dies wirklich?',DS.getUrl()+'?module=tc&action={tc.fleetmode}&ship={tc.ship}&target={tc.target}')">Flotte mit Offizieren ausr&uuml;sten</a>
+					<a class="forschinfo" href="javascript:DS.ask('Achtung! Es werden beliebige Offiziere von diesem Asteroiden zu Schiffen der Flotte ohne Offizier transferiert!\nWollen Sie dies wirklich?',DS.getUrl()+'?module=tc&action={tc.fleetmode}&ship={tc.ship}&target={tc.target}')">Flotte mit Offizieren ausr&uuml;sten</a>
 				</td>
 			</tr>
 		{/endif}
@@ -51,13 +51,13 @@
 	{if ! tc.selectoffizier}
 		{if tc.confirm}
 			<div class="gfxbox" style="width:690px;text-align:center">
-				Wollen sie den Offizier {tc.offizier.name} wirklich auf die {tc.target.name} ({tc.target}) transferieren?<br /><br />
+				Wollen Sie den Offizier {tc.offizier.name} wirklich auf die {tc.target.name} ({tc.target}) transferieren?<br /><br />
 				{!link_to Offizier transferieren, $tc.mode, css_class:ok, ship:$tc.ship, target:$tc.target, conf:ok}
 			</div>
 			<br />
 		{else}
 			<div class="gfxbox" style="width:440px;text-align:center">
-	 			{tc.offizier.name} wurde erfolgreich transferiert
+	 			{tc.offizier.name} wurde erfolgreich transferiert.
 		 	</div>
 			 <br />
 		{/endif}
@@ -73,13 +73,13 @@
 	{if ! tc.selectoffizier}
 		{if tc.confirm}
 			<div class="gfxbox" style="width:690px;text-align:center">
-				Wollen sie den Offizier {tc.offizier.name} wirklich nach {tc.target.name} transferieren?<br /><br />
+				Wollen Sie den Offizier {tc.offizier.name} wirklich nach {tc.target.name} transferieren?<br /><br />
 				{!link_to Offizier transferieren, shipToBase, css_class:ok, ship:$tc.ship, target:$tc.target, conf:ok}
 			</div>
 			<br />
 		{else}
 			<div class="gfxbox" style="width:440px;text-align:center">
-		 		{tc.offizier.name} wurde erfolgreich transferiert
+		 		{tc.offizier.name} wurde erfolgreich transferiert.
 		 	</div>
 		 	<br />
 		{/endif}
@@ -94,7 +94,7 @@
 {if tc.captainzuweisen}
 	{if tc.offizier}
 		<div class="gfxbox" style="width:440px;text-align:center">
-	 		{tc.offizier.name} wurde erfolgreich transferiert
+	 		{tc.offizier.name} wurde erfolgreich transferiert.
 	 	</div>
 	 	<br />
 	{/endif}

@@ -150,8 +150,16 @@ public class SchlachtErstellenService
 				}
 			}
 
-            if (shiptype.hasFlag(ShipTypeFlag.SECONDROW) && aShip.getEinstellungen().gotoSecondrow()) {
+      if (shiptype.hasFlag(ShipTypeFlag.SECONDROW) && aShip.getEinstellungen().gotoSecondrow()) {
 				secondRowShips.add(battleShip);
+			}
+			//ist Schiff gedockt und Traeger Reihe 2, dann Schiff auch Reihe 2
+			else if (aShip.isDocked()){
+				Ship traeger =  aShip.getBaseShip();
+				//Traegertschiff ebenso abfragen wie oben
+				if (traeger.getEinstellungen().gotoSecondrow()  && traeger.getBaseType().hasFlag(ShipTypeFlag.SECONDROW)){
+					secondRowShips.add(battleShip);
+				}
 			}
 			else
 			{
@@ -223,8 +231,8 @@ public class SchlachtErstellenService
 
 		insertShipsIntoDatabase(battle, battle.getEnemyShips(), startlist, idlist);
 		if( startlist.size() > 0 ) {
-			battle.logme(startlist.size() + " J&auml;ger sind automatisch gestartet\n");
-			battle.log(new SchlachtLogAktion(1, startlist.size() + " J&auml;ger sind automatisch gestartet"));
+			battle.logme(startlist.size() + " Jäger sind automatisch gestartet\n");
+			battle.log(new SchlachtLogAktion(1, startlist.size() + " Jäger sind automatisch gestartet"));
 
 			startlist.clear();
 		}
@@ -250,7 +258,7 @@ public class SchlachtErstellenService
 
 		insertShipsIntoDatabase(battle, battle.getOwnShips(), startlist, idlist);
 		if( startOwn && startlist.size() > 0 ) {
-			battle.logme(startlist.size() + " J&auml;ger sind automatisch gestartet\n");
+			battle.logme(startlist.size() + " Jäger sind automatisch gestartet\n");
 			battle.log(new SchlachtLogAktion(0, startlist.size() + " Jäger sind automatisch gestartet"));
 		}
 		battle.getOwnShips().add(ownBattleShip);
@@ -327,7 +335,7 @@ public class SchlachtErstellenService
 		}
 		User niemand = (User)db.get(User.class, -1);
 		String msg = "Es wurde eine Schlacht bei "+ownShip.getLocation().displayCoordinates(false)+" eröffnet.\n" +
-				"Es kämpfen "+eparty+"("+ battle.getOwnShips().size() +" Schiffe) und "+eparty2+"("+ battle.getEnemyShips().size() +" Schiffe) gegeneinander."+
+				"Es kämpfen "+eparty+" ("+ battle.getOwnShips().size() +" Schiffe) und "+eparty2+" ("+ battle.getEnemyShips().size() +" Schiffe) gegeneinander. "+
 				"Deine 2. Reihe ist ";
 		String msg1 = "";
 		String msg2 = "";
@@ -452,7 +460,7 @@ public class SchlachtErstellenService
 		boolean disable_iff = enemyShip.getStatus().contains("disable_iff");
 		if (disable_iff)
 		{
-			throw new IllegalArgumentException("Dieses Schiff kann nicht angegriffen werden (egal wieviel du mit der URL rumspielst!)");
+			throw new IllegalArgumentException("Dieses Schiff kann nicht angegriffen werden (egal wieviel Du mit der URL rumspielst!)");
 		}
 	}
 
@@ -483,26 +491,38 @@ public class SchlachtErstellenService
 
 		for(BattleShip ship: secondRowShips)
 		{
-			if( (ship.getSide() == 0 && firstRowExists && ship.getShip().getEinstellungen().gotoSecondrow() ) || (ship.getSide() == 1 && firstRowEnemyExists && ship.getShip().getEinstellungen().gotoSecondrow() ) )
+			if( (ship.getSide() == 0 && firstRowExists && ship.getShip().getEinstellungen().gotoSecondrow() ) || (ship.getSide() == 1 && firstRowEnemyExists && ship.getShip().getEinstellungen().gotoSecondrow() ))
 			{
+
 				ship.addFlag(BattleShipFlag.SECONDROW);
-				if(ship.getTypeData().getJDocks() == 0)
+				if(ship.getTypeData().getJDocks() > 0)
 				{
-					continue;
-				}
-
-				List<Ship> landedShips = ship.getShip().getLandedShips();
-				for(Ship landedShip: landedShips)
-				{
-					if(!landedShip.getTypeData().hasFlag(ShipTypeFlag.SECONDROW))
+					List<Ship> landedShips = ship.getShip().getLandedShips();
+					for(Ship landedShip: landedShips)
 					{
-						continue;
+						if(!landedShip.getTypeData().hasFlag(ShipTypeFlag.SECONDROW))
+						{
+							continue;
+						}
+
+						BattleShip aship = battleShipMap.get(landedShip);
+						if(aship != null)
+						{
+							aship.addFlag(BattleShipFlag.SECONDROW);
+						}
 					}
-
-					BattleShip aship = battleShipMap.get(landedShip);
-					if(aship != null)
+				}
+				if( ship.getTypeData().getADocks() == 0)
+				{
+					List<Ship> dockedShips = ship.getShip().getDockedShips();
+					for(Ship dockedShip: dockedShips)
 					{
-						aship.addFlag(BattleShipFlag.SECONDROW);
+
+						BattleShip aship = battleShipMap.get(dockedShip);
+						if(aship != null)
+						{
+							aship.addFlag(BattleShipFlag.SECONDROW);
+						}
 					}
 				}
 			}

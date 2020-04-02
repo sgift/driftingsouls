@@ -507,12 +507,21 @@ public class CommController extends Controller
 
 			PM.sendToAlly(user, user.getAlly(), title, msg, flags);
 		}
+		else if("all".equals(to))
+		{
+			if(!hasPermission(WellKnownPermission.COMM_ALL_PLAYER_PM)) {
+				t.setVar("show.message", "<span style=\"color:#ff0000\">Sie müssen einen gültigen Empfänger angeben</span>");
+				return t;
+			}
+
+			PM.sendToAll(user, title, msg, flags);
+		}
 		else
 		{
 			User auser = User.lookupByIdentifier(to);
 			if (auser == null)
 			{
-				t.setVar("show.message", "<span style=\"color:#ff0000\">Sie m&uuml;ssen einen gülten Empf&auml;nger angeben</span>");
+				t.setVar("show.message", "<span style=\"color:#ff0000\">Sie müssen einen gültigen Empfänger angeben</span>");
 				return t;
 			}
 			t.setVar("show.message", "<span style=\"color:#00ff55\">Nachricht versendet an</span> " + Common._title(auser.getName()));

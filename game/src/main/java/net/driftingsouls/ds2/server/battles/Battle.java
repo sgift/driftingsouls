@@ -171,6 +171,24 @@ public class Battle implements Locatable
 		return this.id;
 	}
 
+
+	/**
+	 * Gibt die Anzahl der eigenen Schiffe zurueck.
+	 * @return die Anzahl
+	 */
+	public int getOwnShipCount() {
+		return ownShips.size();
+	}
+
+
+	/**
+	 * Gibt die Anzahl der feindlichen Schiffe zurueck.
+	 * @return die Anzahl
+	 */
+	public int getEnemyShipCount() {
+		return enemyShips.size();
+	}
+
 	/**
 	 * Gibt den aktuellen Blockierungs-Zaehler fuer den Rundenwechsel zurueck.
 	 * @return Der Zaehler
@@ -474,7 +492,75 @@ public boolean hasFrontRow( int side) {
 	 */
 	public boolean isValidTarget() {
         return this.activeSEnemy < this.enemyShips.size() && this.activeSEnemy >= 0;
-    }
+		}
+
+	/**
+	 * Liefert das naechste eigene Schiff nach dem aktuell ausgewaehlten.
+	 * @return Das naechste passende BattleShip
+	 */
+	public BattleShip getNextOwnBattleShip() {
+
+		// alle Schiffe ab dem aktiven durchlaufen
+		for( int i= activeSOwn+1; i < ownShips.size(); i++){
+
+			BattleShip aship = ownShips.get(i);
+			if( !aship.getShip().isLanded() &&
+						!aship.hasFlag(BattleShipFlag.DESTROYED) &&
+						!aship.hasFlag(BattleShipFlag.FLUCHT) &&
+						!aship.hasFlag(BattleShipFlag.JOIN) ) {
+					return aship;
+				}
+		}
+		// nichts gefunden, dann von vorne bis zum aktiven
+		for( int i= 0; i < activeSOwn; i++){
+
+			BattleShip aship = ownShips.get(i);
+			if( !aship.getShip().isLanded() &&
+						!aship.hasFlag(BattleShipFlag.DESTROYED) &&
+						!aship.hasFlag(BattleShipFlag.FLUCHT) &&
+						!aship.hasFlag(BattleShipFlag.JOIN) ) {
+					return aship;
+				}
+		}
+		// immer noch nichts gefunden, dann bleibt es beim aktuellen
+		return ownShips.get(activeSOwn);
+
+	}
+
+	/**
+	 * Liefert das naechste feindlioche Schiff nach dem aktuell ausgewaehlten.
+	 * @return Das naechste passende BattleShip
+	 */
+	public BattleShip getNextEnemyBattleShip() {
+
+		// alle Schiffe ab dem aktiven durchlaufen
+		for( int i= activeSEnemy+1; i < enemyShips.size(); i++){
+
+			BattleShip aship = enemyShips.get(i);
+			if( !aship.getShip().isLanded() &&
+						!aship.hasFlag(BattleShipFlag.DESTROYED) &&
+						!aship.hasFlag(BattleShipFlag.FLUCHT) &&
+						!aship.hasFlag(BattleShipFlag.JOIN) &&
+						!aship.hasFlag(BattleShipFlag.SECONDROW)) {
+					return aship;
+				}
+		}
+		// nichts gefunden, dann von vorne bis zum aktiven
+		for( int i= 0; i < activeSEnemy; i++){
+
+			BattleShip aship = enemyShips.get(i);
+			if( !aship.getShip().isLanded() &&
+						!aship.hasFlag(BattleShipFlag.DESTROYED) &&
+						!aship.hasFlag(BattleShipFlag.FLUCHT) &&
+						!aship.hasFlag(BattleShipFlag.JOIN) &&
+						!aship.hasFlag(BattleShipFlag.SECONDROW)) {
+					return aship;
+				}
+		}
+		// immer noch nichts gefunden, dann bleibt es beim aktuellen
+		return enemyShips.get(activeSEnemy);
+
+	}
 
 	/**
 	 * Liefert den Index des naechsten feindlichen Schiffes nach dem aktuell ausgewaehlten.
@@ -1162,9 +1248,7 @@ public boolean hasFrontRow( int side) {
 
                 Map<String, Integer> heat = ship.getWeaponHeat();
 
-                for (String weaponName : heat.keySet()) {
-                    heat.put(weaponName, 0);
-                }
+				heat.replaceAll((n, v) -> 0);
 
                 if (ship.hasFlag(BattleShipFlag.FLUCHTNEXT)) {
 					ship.removeFlag(BattleShipFlag.FLUCHTNEXT);
@@ -1500,17 +1584,14 @@ public boolean hasFrontRow( int side) {
 	 * @return Das Schiff
 	 */
 	public BattleShip getShipByID( int shipID ) {
-		if(shipID > 0)
-        {
-            for(int i=0; i < ownShips.size(); i++)
-            {
-                if(ownShips.get(i).getId() == shipID)
-                {
-                    return ownShips.get(i);
-                }
-            }
-        }
-		return null;
+		if(shipID <= 0) {
+			return null;
+		}
+
+		return ownShips.stream()
+				.filter(ownShip -> ownShip.getId() == shipID)
+				.findAny()
+				.orElse(null);
 	}
 
 	/**

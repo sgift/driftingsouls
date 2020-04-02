@@ -487,6 +487,15 @@ public class BattleShip {
 	 */
 	public boolean isSecondRow()
 	{
+		Ship aship = this.getShip();
+		if (aship != null){
+			if ( aship.isDocked() || aship.isLanded() ){
+				BattleShip traeger = this.getBaseShip();
+				if (traeger != null){
+					return traeger.hasFlag(BattleShipFlag.SECONDROW);
+				}
+			}
+		}
 		return hasFlag(BattleShipFlag.SECONDROW);
 	}
 
@@ -551,23 +560,33 @@ public class BattleShip {
  */
 	public BattleShip getBaseShip()
 	{
-		//Schiffe zum durchsuchen laden
-		List<BattleShip> ownShips = getBattle().getOwnShips();
 		//gucken, ob das BattleShiff ueberhaupt einen Traeger hat
 		//erst umwandeln vom BattleShip in ein Ship
 		Ship ship = getShip();
 		if (ship.isLanded() ||ship.isDocked())
 		{
 			//OK, es sollte also einen Traeger haben
-			Ship baseShip = getShip().getBaseShip();
+			Ship baseShip = ship.getBaseShip();
 			//sicherheitshalber auch hier nochmal eine Null abfangen
 			if(baseShip != null)
 			{
 				int shipid = baseShip.getId();
+				//Schiffe zum durchsuchen laden
+				//dazu erstmal die Seite bestimmen
+				int side = this.getSide();
+				List<BattleShip> ships;
+				Battle battle = this.getBattle();
 
-				for (BattleShip ownShip1 : ownShips) {
-						if (ownShip1.getId() == shipid) {
-								return ownShip1;
+				if ( side == battle.getOwnSide()){
+					ships = battle.getOwnShips();
+				}
+				else{
+					ships = battle.getEnemyShips();
+				}
+
+				for (BattleShip aship : ships) {
+						if (aship.getId() == shipid) {
+								return aship;
 						}
 				}
 				//nicht in der Schlacht gefunden

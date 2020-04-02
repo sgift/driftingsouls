@@ -9,6 +9,7 @@ public enum WellKnownPermission implements PermissionDescriptor
 {
 	COMM_ADMIN_PM("comm", "adminPM"),
 	COMM_OFFIZIELLE_PM("comm", "offiziellePM"),
+	COMM_ALL_PLAYER_PM("comm", "PManAlleSpieler"),
 	COMNET_ALLES_LESBAR("comnet", "allesLesbar"),
 	COMNET_ALLES_SCHREIBBAR("comnet", "allesSchreibbar"),
 	FRAKTIONEN_BIETERNAME("fraktionen", "bietername"),

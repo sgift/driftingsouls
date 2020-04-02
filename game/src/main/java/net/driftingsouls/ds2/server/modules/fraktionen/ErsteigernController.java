@@ -1887,8 +1887,8 @@ public class ErsteigernController extends Controller
 
         ConfigValue configrabattfaktor = configService.get(WellKnownConfigValue.DI_FAKTOR_RABATT);
         ConfigValue configzeitfaktor = configService.get(WellKnownConfigValue.DI_FAKTOR_ZEIT);
-        double rabattfaktor = Double.valueOf(configrabattfaktor.getValue());
-        double zeitfaktor = Double.valueOf(configzeitfaktor.getValue());
+        double rabattfaktor = Double.parseDouble(configrabattfaktor.getValue());
+        double zeitfaktor = Double.parseDouble(configzeitfaktor.getValue());
 
         t.setVar("ausbau.rabattfaktordi", rabattfaktor,
                  "ausbau.zeitfaktordi", zeitfaktor );

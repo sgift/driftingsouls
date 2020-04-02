@@ -128,7 +128,7 @@ class EditorForm implements AutoCloseable
 		return custom(new DynamicContentFieldGenerator(label, name, value));
 	}
 
-	public class LabelGenerator implements CustomFieldGenerator
+	public static class LabelGenerator implements CustomFieldGenerator
 	{
 		private final String label;
 		private final Object value;

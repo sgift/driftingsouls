@@ -250,7 +250,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			// Falls ein Item benoetigt wird pruefen, ob es vorhanden ist
 			if (entry.getRequiredItem() != -1)
 			{
-				List<ItemCargoEntry> itemlist = cargo.getItem(entry.getRequiredItem());
+				List<ItemCargoEntry<Item>> itemlist = cargo.getItem(entry.getRequiredItem());
 				if (itemlist.size() == 0)
 				{
 					entry.setScheduled(false);
@@ -610,7 +610,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			return;
 		}
 
-		ItemCargoEntry myitem = null;
+		ItemCargoEntry<Schiffsmodul> myitem = null;
 
 		for (ItemCargoEntry<Schiffsmodul> anItemlist : itemlist)
 		{
@@ -1083,6 +1083,75 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		return rc;
 		*/
 	}
+		/**
+	 * Berechnet die Aufladungskosten fuer ein Schiff.
+	 * @param ship Das Schiff
+	 *
+	 * @return Die Aufladungskosten
+	 */
+	public @Nonnull ReloadCosts getReloadCosts( @Nonnull Ship ship )
+	{
+		ShipTypeData shiptype = ship.getTypeData();
+		ReloadCosts reloadCosts = new ReloadCosts();
+		int baseCosts = shiptype.getEps() - ship.getEnergy();
+		reloadCosts.e =  (int) Math.round(baseCosts * 1.1);
+
+		return reloadCosts;
+
+	}
+		/**
+	 * Laedt ein Schiff in einer Werft auf.
+	 * Es werden nur Dinge geprueft, die unmittelbar mit dem Aufladevorgang selbst
+	 * etwas zu tun haben. Die Positionen von Schiff und Werft usw werden jedoch nicht gecheckt.
+	 * {@link DSObject#MESSAGE} enthaelt die Hinweistexte
+	 *
+	 * @param ship Das Schiff
+	 * @param testonly Soll nur getestet (true) oder auch wirklich aufgeladen (false) werden?
+	 *
+	 * @return true, wenn kein Fehler aufgetreten ist
+	 */
+	public boolean reloadShip(@Nonnull Ship ship, boolean testonly) {
+		if(!ship.getLocation().sameSector(0, this.getLocation(), this.getSize()))
+		{
+			MESSAGE.get().append("Diese Werft befindet sich nicht an der gleichen Position wie das Schiff.");
+			return false;
+		}
+		if(this.isEinwegWerft())
+		{
+			MESSAGE.get().append("Diese Werft ist vollständig auf ihr einziges Bauprojekt konzentriert.");
+			return false;
+		}
+        if(ship.hasFlag(Ship.FLAG_RECENTLY_REPAIRED))
+        {
+            MESSAGE.get().append("Das Schiff wurde k&uuml;rzlich aufgeladen und kann derzeit nicht aufgeladen werden.");
+            return false;
+        }
+
+		boolean ok = true;
+		ReloadCosts rc = this.getReloadCosts(ship);
+		int newe = this.getEnergy();
+
+		if( rc.e > 0 ) {
+			if( rc.e > newe ) {
+				ok = false;
+			}
+			newe -= rc.e;
+		}
+
+
+		if( !ok ) {
+			MESSAGE.get().append("Nicht gen&uuml;gend Energie f&uuml;r den Aufladevorgang vorhanden");
+			return false;
+		}
+		else if( !testonly ) {
+			ShipTypeData shiptype = ship.getTypeData();
+			this.setEnergy(newe);
+			ship.setEnergy(shiptype.getEps());
+            ship.addFlag(Ship.FLAG_RECENTLY_REPAIRED, 5);
+		}
+		return true;
+	}
+	//-------
 
 	/**
 	 * Repariert ein Schiff auf einer Werft.
@@ -1125,8 +1194,9 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		//Kosten ausgeben
 		ResourceList reslist = rc.cost.compare( cargo, false );
 		for( ResourceEntry res : reslist ) {
-			if( res.getDiff() > 0 ) {
+			if (res.getDiff() > 0) {
 				ok = false;
+				break;
 			}
 		}
 		newcargo.substractCargo( rc.cost );

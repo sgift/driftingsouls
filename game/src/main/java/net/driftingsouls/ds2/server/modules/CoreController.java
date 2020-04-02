@@ -83,7 +83,7 @@ public class CoreController extends Controller
 
 		if (base.getCore() != null)
 		{
-			throw new ValidierungException("Sie können nur eine Core pro Asteroid bauen", Common.buildUrl("default", "module", "base", "col", base.getId()));
+			throw new ValidierungException("Sie können nur einen Core pro Asteroid bauen", Common.buildUrl("default", "module", "base", "col", base.getId()));
 		}
 
 		if (core == null)
@@ -98,7 +98,7 @@ public class CoreController extends Controller
 
 		if (core.getAstiType() != base.getKlasse())
 		{
-			throw new ValidierungException("Diese Core passt nicht in diesen Asteroiden rein", Common.buildUrl("default", "module", "base", "col", base.getId()));
+			throw new ValidierungException("Diese ausgewählte Core passt nicht in diesen Asteroiden hinein", Common.buildUrl("default", "module", "base", "col", base.getId()));
 		}
 
 		Cargo costs = core.getBuildCosts();
@@ -135,7 +135,7 @@ public class CoreController extends Controller
 
 			if (core.getArbeiter() + base.getArbeiter() > base.getBewohner())
 			{
-				t.setVar("build.message", "<span style=\"color:#ff0000\">Nicht gen&uuml;gend Arbeiter</span>");
+				t.setVar("build.message", "<span style=\"color:#ff0000\">Nicht genügend Arbeiter</span>");
 			}
 			else
 			{
@@ -205,11 +205,11 @@ public class CoreController extends Controller
 		Core core = base.getCore();
 		if (core.getArbeiter() + base.getArbeiter() > base.getBewohner())
 		{
-			message = "<span style=\"color:#ff0000\">Nicht gen&uuml;gend Arbeiter</span>";
+			message = "<span style=\"color:#ff0000\">Nicht genügend Arbeiter</span>";
 		}
 		else if (core.isShutDown() && !base.getOwner().hasResearched(core.getTechRequired()))
 		{
-			message = "<span sytel=\"color:#ff0000\">Sie haben nicht die notwendigen Voraussetzungen um dieses Geb&auml;ude aktivieren zu k&ouml;nnen.</span>";
+			message = "<span sytel=\"color:#ff0000\">Sie haben nicht die notwendigen Voraussetzungen, um dieses Gebäude aktivieren zu können.</span>";
 		}
 		else
 		{
@@ -291,9 +291,9 @@ public class CoreController extends Controller
 			ResourceList reslist = costs.compare(cargo, false, true);
 			for (ResourceEntry res : reslist)
 			{
-				if (res.getDiff() > 0)
-				{
+				if (res.getDiff() > 0) {
 					buildable = false;
+					break;
 				}
 			}
 

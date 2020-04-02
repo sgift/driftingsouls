@@ -16,7 +16,7 @@ public class ShipTypeFlagTest
 		String id = ShipTypeFlag.COLONIZER.getFlag();
 
 		// run
-		@SuppressWarnings("ConstantConditions")
+		@SuppressWarnings({"OptionalGetWithoutIsPresent"})
 		ShipTypeFlag shipTypeFlag = ShipTypeFlag.byFlag(id).get();
 
 		// assert

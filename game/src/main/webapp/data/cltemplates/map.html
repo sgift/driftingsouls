@@ -21,8 +21,8 @@
 			Bitte wähle die Zielposition für {{fokusaktion.flotte && 'die Flotte' || 'das Schiff'}} '{{fokusaktion.flotte.name || fokusaktion.schiff.name}}' aus...
 		</span>
 	</span>
-	<span class="abbruch" ng-click="kartenaktionAbbrechen()">abbruch</span>
-	<span ui-if="fokusaktion.ziel" class="bestaetigung" ng-click="kartenaktionBestaetigen()">ja</span>
+	<span class="abbruch" ng-click="kartenaktionAbbrechen()">Abbruch</span>
+	<span ui-if="fokusaktion.ziel" class="bestaetigung" ng-click="kartenaktionBestaetigen()">Ja</span>
 </div>
 
 <div id="starmapSystemOverviewPopup"
@@ -38,7 +38,7 @@
 			<div class="label">{{node.label}}</div>
 			<div class="sysid">{{node.id}}</div>
 			<div class="icons">
-				<div class="allianz" ui-if="node.allianz"><img title="Vorherschende Fraktion: {{node.allianz.plainname}}" ng-src="data/logos/ally/{{node.allianz.id}}.gif" /></div>
+				<div class="allianz" ui-if="node.allianz"><img title="Vorherrschende Fraktion: {{node.allianz.plainname}}" ng-src="data/logos/ally/{{node.allianz.id}}.gif" /></div>
 				<div class="schiff" ui-if="node.schiff"><img title="Eigene Schiffe im System" src="data/interface/schiffe/1/icon_schiff.gif" /></div>
 			</div>
 		</div>
@@ -72,7 +72,7 @@
 	</div>
 	<div ng-show="geladen">
 		<div class="header"><span>Sektor {{position.system}}:{{position.x}}/{{position.y}}</span></div>
-		<div class="warnung" ui-if="sektor.roterAlarm"><span>Warnung: Mindestens ein feindliches Schiff hat seine Waffensysteme aktiviert und wird angreifen solltest du mit einem Schiff in den Sektor fliegen.</span></div>
+		<div class="warnung" ui-if="sektor.roterAlarm"><span>Warnung: Mindestens ein feindliches Schiff hat seine Waffensysteme aktiviert und wird angreifen, solltest Du mit einem Schiff in diesen Sektor fliegen.</span></div>
 		<div ui-if="sektor.nebel"><img class="nebel" ng-src="{{sektor.nebel.image}}" alt="Nebel" /></div>
 		<div ui-if="sektor.jumpnodes.length>0">
 			<ul class='jumpnodes'>

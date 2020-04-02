@@ -36,10 +36,10 @@ public class KSMenuDefaultAction extends BasicKSMenuAction {
 		if( result != Result.OK ) {
 			return result;
 		}
-		
+
 		BattleShip ownShip = battle.getOwnShip();
 		BattleShip enemyShip = battle.getEnemyShip();
-		
+
 		if( this.isPossible(battle, new KSMenuAttackAction()) == Result.OK ) {
 			this.menuEntry(t, "Angriff",	"ship",		ownShip.getId(),
 										"attack",	enemyShip.getId(),
@@ -51,7 +51,7 @@ public class KSMenuDefaultAction extends BasicKSMenuAction {
                                         "attack", enemyShip.getId(),
                                         "ksaction", "groupattack" );
         }
-		
+
 		this.menuEntry(t, "Flucht",	"ship",		ownShip.getId(),
 									"attack",	enemyShip.getId(),
 									"ksaction",	"flucht" );
@@ -62,8 +62,8 @@ public class KSMenuDefaultAction extends BasicKSMenuAction {
 											"attack",	enemyShip.getId(),
 											"ksaction",	"endbattle" );
 		}
-		
-		
+
+
 		// Kampf beenden weil die eigene Streitmacht deutlich groesser ist?
 		if( this.isPossible(battle, new KSEndBattleEqualAction()) == Result.OK ) {
 			this.menuEntryAsk(t, "Durchbrechen",
@@ -72,8 +72,8 @@ public class KSMenuDefaultAction extends BasicKSMenuAction {
 												"ksaction",	"endbattleequal" },
 								"Wollen Sie mit so vielen Schiffen wie möglich die Schlachtlinien durchbrechen?" );
 		}
-		
-		
+
+
 		// Kapern?
 		if( this.isPossible(battle, new KSKapernAction()) == Result.OK ) {
 			this.menuEntry(t, "Kapern",
@@ -81,7 +81,7 @@ public class KSMenuDefaultAction extends BasicKSMenuAction {
 									"attack",		enemyShip.getId(),
 									"ksaction",		"kapern" );
 		}
-		
+
 		// Die zweiten Reihe stuermen
 		if( this.isPossible(battle, new KSSecondRowAttackAction()) == Result.OK ) {
 			this.menuEntry(t, "Sturmangriff",
@@ -89,7 +89,7 @@ public class KSMenuDefaultAction extends BasicKSMenuAction {
 									"attack",		enemyShip.getId(),
 									"ksaction",		"secondrowattack" );
 		}
-		
+
 		// Zur zweiten Reihe vorruecken
 		if( this.isPossible(battle, new KSSecondRowEngageAction()) == Result.OK ) {
 			this.menuEntry(t, "Vorr&uuml;cken",
@@ -97,7 +97,7 @@ public class KSMenuDefaultAction extends BasicKSMenuAction {
 									"attack",		enemyShip.getId(),
 									"ksaction",		"secondrowengage" );
 		}
-		
+
 		// Zweite Reihe verlassen
 		if( this.isPossible(battle, new KSLeaveSecondRowAction()) == Result.OK ) {
 			this.menuEntry(t, "Zweite Reihe verlassen",
@@ -105,7 +105,7 @@ public class KSMenuDefaultAction extends BasicKSMenuAction {
 									"attack",		enemyShip.getId(),
 									"ksaction",		"leavesecondrow" );
 		}
-		
+
 		// Zweite Reihe
 		if( this.isPossible(battle, new KSSecondRowAction()) == Result.OK ) {
 			this.menuEntry(t, "In zweite Reihe verlegen",
@@ -114,10 +114,26 @@ public class KSMenuDefaultAction extends BasicKSMenuAction {
 									"ksaction",		"secondrow" );
 		}
 
+		// Naechstes eigenes Schiff
+		if(battle.getOwnShipCount()>1){
+			this.menuEntry(t, "N&auml;chstes eigenes Schiff",
+									"ship",			battle.getNextOwnBattleShip().getId(),
+									"attack",		enemyShip.getId(),
+									"ksaction",		"default" );
+		}
+
+		// Naechstes feindliches Schiff
+		if( battle.getEnemyShipCount()>1){
+			this.menuEntry(t, "N&auml;chstes feindliches Schiff",
+									"ship",			ownShip.getId(),
+									"attack",		battle.getNextEnemyBattleShip().getId(),
+									"ksaction",		"default" );
+		}
+
 		menuEntry(t, "sonstiges",	"ship",		ownShip.getId(),
 								"attack",	enemyShip.getId(),
 								"ksaction",	"other" );
-	
+
 		return Result.OK;
 	}
 }

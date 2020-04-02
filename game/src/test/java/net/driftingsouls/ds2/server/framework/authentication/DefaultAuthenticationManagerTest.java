@@ -23,7 +23,7 @@ public class DefaultAuthenticationManagerTest extends DBSingleTransactionTest
 		User user = persist(new User("foo", Common.md5("bar"), 0, "", new Cargo(), "foo@localhost"));
 
 		// run
-		BasicUser authenticated = authenticationManager.login("foo", "bar", false);
+		BasicUser authenticated = authenticationManager.login("foo", "bar");
 
 		// assert
 		assertSame(user, authenticated);
@@ -39,7 +39,7 @@ public class DefaultAuthenticationManagerTest extends DBSingleTransactionTest
 		persist(new User("foo", Common.md5("bar"), 0, "", new Cargo(), "foo@localhost"));
 
 		// run
-		authenticationManager.login("foo", "barx", false);
+		authenticationManager.login("foo", "barx");
 	}
 
 	@Test
@@ -54,7 +54,7 @@ public class DefaultAuthenticationManagerTest extends DBSingleTransactionTest
 		// run
 		try
 		{
-			authenticationManager.login("foo", "bar", false);
+			authenticationManager.login("foo", "bar");
 			// assert
 
 			fail("AccountInVacationModeException erwartet");

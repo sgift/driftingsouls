@@ -839,10 +839,8 @@ public class Common {
 			return hexString.toString();
 		}
 		catch( Exception e ) {
-			log.error(e,e);
+			throw new RuntimeException("Unable to generate hash", e);
 		}
-		
-		return null;
 	}
 	
 	/**
