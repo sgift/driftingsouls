@@ -87,7 +87,7 @@ public class BaseTickerService
 							|| (owner.getRace() != building.getRace() && building.getRace() != 0)))
 			{
 				bebon[o] = 0;
-				msg.append("Das Geb&auml;ude ").append(building.getName()).append(" wurde wegen unzureichenden Voraussetzungen abgeschaltet.\n");
+				msg.append("Das Gebäude ").append(building.getName()).append(" wurde wegen unzureichenden Voraussetzungen abgeschaltet.\n");
 			}
 		}
 
@@ -107,7 +107,7 @@ public class BaseTickerService
 
 		if(state.getArbeiter() > base.getBewohner())
 		{
-			return "Sie haben mehr Arbeiter als (maximal)Bev&ouml;lkerung. Die Produktion f&auml;llt aus.";
+			return "Sie haben mehr Arbeiter als (Maximal)-Bevölkerung. Die Produktion fällt aus.";
 		}
 
 		baseCargo.addResource(Resources.RE, base.getOwner().getKonto().longValue());
@@ -152,7 +152,7 @@ public class BaseTickerService
 			//Not enough resources for production
 			if(balance < 0)
 			{
-				msg.append("Zu wenig ").append(entry.getPlainName()).append(" vorhanden. Die Produktion f&auml;llt aus.\n");
+				msg.append("Zu wenig ").append(entry.getPlainName()).append(" vorhanden. Die Produktion fällt aus.\n");
 				ok = false;
 			}
 
@@ -169,20 +169,20 @@ public class BaseTickerService
 
 		if(!base.feedInhabitants(baseCargo))
 		{
-			msg.append("Wegen einer Hungersnot fliehen ihre Einwohner. Die Produktion f&auml;llt aus.\n");
+			msg.append("Wegen einer Hungersnot fliehen Ihre Einwohner. Die Produktion fällt aus.\n");
 			ok = false;
 		}
 
 		// Zuerst sollen die Marines verhungern danach die Bevoelkerung.
 		if(!base.feedMarines(baseCargo))
 		{
-			msg.append("Wegen Unterern&auml;hrung desertieren ihre Truppen.\n");
+			msg.append("Wegen Unterernährung desertieren Ihre Truppen.\n");
 		}
 
 		// Ja, Marines futtern erstmal bevor Sie abhauen ...
 		if(!base.payMarines(baseCargo))
 		{
-			msg.append("Wegen fehlendem Sold desertieren ihre Truppen.\n");
+			msg.append("Wegen fehlenden Solds desertieren Ihre Truppen.\n");
 		}
 
 		if(ok)
@@ -231,7 +231,7 @@ public class BaseTickerService
 		int newenergy = base.rebalanceEnergy(state);
 		if(newenergy < 0)
 		{
-			message += "Zu wenig Energie. Die Produktion f&auml;llt aus.\n";
+			message += "Zu wenig Energie. Die Produktion fällt aus.\n";
 			usefullMessage = true;
 		}
 		else
@@ -253,13 +253,13 @@ public class BaseTickerService
 
 				if(money > 0)
 				{
-					message += "Ihnen wurden " + money + " RE f&uuml;r automatische Verk&auml;ufe gut geschrieben.\n";
+					message += "Ihnen wurden " + money + " RE für automatische Verkäufe gutgeschrieben.\n";
 					usefullMessage = true;
 				}
 
 				if(overfullCargo)
 				{
-					message += "Wegen uuml;berfuuml;llten Lagerr&auml;umen wurde ein Teil der Produktion vernichtet.\n";
+					message += "Wegen überfüllten Lagerräumen wurde ein Teil oder die gesamte der Produktion vernichtet.\n";
 					usefullMessage = true;
 				}
 			}
