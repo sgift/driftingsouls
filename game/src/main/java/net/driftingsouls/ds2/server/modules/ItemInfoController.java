@@ -58,7 +58,7 @@ import java.util.stream.Collectors;
 @Module(name = "iteminfo")
 public class ItemInfoController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public ItemInfoController(TemplateViewResultFactory templateViewResultFactory)
@@ -852,7 +852,7 @@ public class ItemInfoController extends Controller
 	@ViewModel
 	public static class AjaxViewModel
 	{
-		public List<ItemViewModel> items = new ArrayList<>();
+		public final List<ItemViewModel> items = new ArrayList<>();
 	}
 
 	/**

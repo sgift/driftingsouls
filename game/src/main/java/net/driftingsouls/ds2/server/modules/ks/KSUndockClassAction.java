@@ -29,7 +29,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
  *
  */
 public class KSUndockClassAction extends KSUndockAllAction {
-    private ShipClasses undockclass;
+    private final ShipClasses undockclass;
     /**
      * Konstruktor.
      *

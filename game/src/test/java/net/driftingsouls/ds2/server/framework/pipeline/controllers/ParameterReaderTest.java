@@ -485,8 +485,8 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	}
 
 	private static class DummyParameterizedType implements ParameterizedType{
-		private Type[] actualTypeArguments;
-		private Type rawType;
+		private final Type[] actualTypeArguments;
+		private final Type rawType;
 
 		public DummyParameterizedType(Type rawType, Type ... actualTypeArguments)
 		{

@@ -45,7 +45,7 @@ import java.util.Map;
 @Module(name = "pluendern")
 public class PluendernController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public PluendernController(TemplateViewResultFactory templateViewResultFactory)

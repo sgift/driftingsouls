@@ -100,7 +100,7 @@ public class PM {
 	private int version;
 
 	@Transient
-	private static Log log = LogFactory.getLog(PM.class);
+	private static final Log log = LogFactory.getLog(PM.class);
 
 	/**
 	 * Sendet eine PM von einem Spieler zu einem anderen.

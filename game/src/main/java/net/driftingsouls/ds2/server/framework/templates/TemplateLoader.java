@@ -18,7 +18,7 @@ public class TemplateLoader
 	private static final Log log = LogFactory.getLog(TemplateLoader.class);
 	private static final String PACKAGE = "net.driftingsouls.ds2.server.framework.templates";
 
-	private Map<String, Template> templateMap = new ConcurrentHashMap<>();
+	private final Map<String, Template> templateMap = new ConcurrentHashMap<>();
 
 	/**
 	 * Laedt das Templateobjekt zur angegebenen Templatedatei. Falls kein Templateobjekt

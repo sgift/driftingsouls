@@ -68,7 +68,7 @@ import java.util.Set;
 public class UeberController extends Controller
 {
 	private static final Log log = LogFactory.getLog(UeberController.class);
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public UeberController(TemplateViewResultFactory templateViewResultFactory)

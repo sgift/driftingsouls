@@ -43,8 +43,8 @@ import java.util.List;
 public class ModuleItemModule extends Module {
 	private static final Log log = LogFactory.getLog(ModuleItemModule.class);
 
-	private int slot;
-	private int itemid;
+	private final int slot;
+	private final int itemid;
 	private String[] weaponrepl;
 	private boolean calculateSetEffect;
 

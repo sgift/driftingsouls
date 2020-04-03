@@ -52,7 +52,7 @@ import java.util.Map;
 @Module(name = "comnet")
 public class ComNetController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public ComNetController(TemplateViewResultFactory templateViewResultFactory)

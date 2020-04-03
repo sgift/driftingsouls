@@ -33,5 +33,5 @@ public abstract class SessionBasedFilter extends DSFilter
 
 	}
 	
-	private Set<String> sessionFreeModules = new HashSet<>();
+	private final Set<String> sessionFreeModules = new HashSet<>();
 }

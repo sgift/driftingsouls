@@ -23,7 +23,7 @@ import java.io.IOException;
 @Module(name = "newsdetail")
 public class NewsDetailController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public NewsDetailController(TemplateViewResultFactory templateViewResultFactory)

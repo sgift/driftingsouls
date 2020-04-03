@@ -56,7 +56,7 @@ public class CommController extends Controller
 {
 	private static final Log log = LogFactory.getLog(CommController.class);
 
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public CommController(TemplateViewResultFactory templateViewResultFactory)

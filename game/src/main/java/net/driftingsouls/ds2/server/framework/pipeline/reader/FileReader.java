@@ -43,7 +43,7 @@ import java.util.Map;
 public class FileReader implements Reader {
 	private static final Log log = LogFactory.getLog(FileReader.class);
 
-	private Map<String,String> extensionMap;
+	private final Map<String,String> extensionMap;
 
 	/**
 	 * Konstruktor.

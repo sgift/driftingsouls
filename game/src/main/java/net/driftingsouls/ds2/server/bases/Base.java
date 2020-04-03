@@ -138,7 +138,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	private Set<Factory> factories;
 
 	@OneToMany(fetch=FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "stationiertAufBasis")
-	private Set<Offizier> offiziere = new HashSet<>();
+	private final Set<Offizier> offiziere = new HashSet<>();
 
 	@SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
 	@OneToMany(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH, CascadeType.REMOVE},
@@ -713,8 +713,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 
 	public static class SpawnableRessMap
 	{
-		private Map<Integer,SpawnableRess> chanceMap;
-		private Map<Integer,SpawnableRess> itemMap;
+		private final Map<Integer,SpawnableRess> chanceMap;
+		private final Map<Integer,SpawnableRess> itemMap;
 		private int totalChance;
 
 		SpawnableRessMap()

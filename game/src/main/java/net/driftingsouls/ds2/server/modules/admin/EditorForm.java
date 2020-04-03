@@ -17,9 +17,9 @@ import java.util.*;
  */
 class EditorForm implements AutoCloseable
 {
-	private StringBuilder echo;
-	private Class<? extends AdminPlugin> plugin;
-	private List<CustomFieldGenerator> fields = new ArrayList<>();
+	private final StringBuilder echo;
+	private final Class<? extends AdminPlugin> plugin;
+	private final List<CustomFieldGenerator> fields = new ArrayList<>();
 
 	EditorForm(Class<? extends AdminPlugin> plugin, StringBuilder echo)
 	{
@@ -55,9 +55,9 @@ class EditorForm implements AutoCloseable
 
 	public class DynamicContentFieldGenerator implements CustomFieldGenerator
 	{
-		private String label;
-		private String name;
-		private String value;
+		private final String label;
+		private final String name;
+		private final String value;
 		private boolean withRemove;
 
 		DynamicContentFieldGenerator(String label, String name, String value)

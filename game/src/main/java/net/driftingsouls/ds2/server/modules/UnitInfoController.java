@@ -42,7 +42,7 @@ import java.util.List;
 @Module(name = "unitinfo")
 public class UnitInfoController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public UnitInfoController(TemplateViewResultFactory templateViewResultFactory)

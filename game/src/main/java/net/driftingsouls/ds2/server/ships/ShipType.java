@@ -117,7 +117,7 @@ public class ShipType implements ShipTypeData {
 	private int unitspace;
 	@Index(name="shiptype_versorger")
 	private boolean versorger;
-	@Column(nullable = false, scale = 0)
+	@Column(nullable = false)
 	private BigInteger bounty = BigInteger.ZERO;
 	
 	@Version

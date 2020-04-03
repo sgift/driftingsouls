@@ -36,9 +36,9 @@ public class Offiziere {
 	 * den aus der Ausbildung resultierenden Offizier.
 	 */
 	public static class Offiziersausbildung {
-		private int id;
-		private String name;
-		private Map<Offizier.Ability,Integer> abilities;
+		private final int id;
+		private final String name;
+		private final Map<Offizier.Ability,Integer> abilities;
 		private int[] specials;
 
 		/**

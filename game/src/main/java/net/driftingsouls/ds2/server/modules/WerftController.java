@@ -44,7 +44,7 @@ import java.io.Writer;
 @Module(name = "werft")
 public class WerftController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public WerftController(TemplateViewResultFactory templateViewResultFactory)

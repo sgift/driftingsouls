@@ -28,10 +28,10 @@ import java.util.List;
  *
  */
 class SimpleBBCodeFunction implements BBCodeFunction {
-	private String replace;
-	private String[] parts;
-	private Integer[] indexParts;
-	private int max;
+	private final String replace;
+	private final String[] parts;
+	private final Integer[] indexParts;
+	private final int max;
 	
 	SimpleBBCodeFunction(String replace) {
 		List<String> parts = new ArrayList<>();

@@ -20,7 +20,7 @@ import javax.persistence.ManyToOne;
 @DiscriminatorValue("1")
 public class BaseUnitCargoEntry extends UnitCargoEntry
 {
-	@ManyToOne(cascade = {})
+	@ManyToOne()
 	@JoinColumn
 	@ForeignKey(name="cargo_entries_units_fk_basis")
 	private Base basis;

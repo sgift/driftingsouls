@@ -36,7 +36,7 @@ import net.driftingsouls.ds2.server.ships.ShipType;
  *
  */
 public class IEDisableShip extends ItemEffect {
-	private ShipType shipType;
+	private final ShipType shipType;
 	
 	public IEDisableShip(boolean allyEffect, ShipType shiptype) {
 		super(ItemEffect.Type.DISABLE_SHIP, allyEffect);

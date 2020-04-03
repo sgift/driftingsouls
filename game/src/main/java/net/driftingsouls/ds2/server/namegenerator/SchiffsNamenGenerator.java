@@ -21,7 +21,7 @@ public enum SchiffsNamenGenerator
 		}
 	},
 	STAEDTE("Städtenamen") {
-		private NameProducer nameProducer = NameProducerManager.INSTANCE.getListBasedNameProducer(SchiffsNamenGenerator.class.getResource("staedtenamen.txt"), false);
+		private final NameProducer nameProducer = NameProducerManager.INSTANCE.getListBasedNameProducer(SchiffsNamenGenerator.class.getResource("staedtenamen.txt"), false);
 
 		@Override
 		public String generiere(ShipTypeData schiffsTyp)
@@ -46,7 +46,7 @@ public enum SchiffsNamenGenerator
 		}
 	},
 	AEGYPTISCHE_NAMEN("Ägyptische Namen") {
-		private NameProducer markov = NameProducerManager.INSTANCE.getMarkovNameProducer(PersonenNamenGenerator.class.getResource("aegyptische_nachnamen.txt"));
+		private final NameProducer markov = NameProducerManager.INSTANCE.getMarkovNameProducer(PersonenNamenGenerator.class.getResource("aegyptische_nachnamen.txt"));
 
 		@Override
 		public String generiere(ShipTypeData schiffsTyp)
@@ -72,7 +72,7 @@ public enum SchiffsNamenGenerator
 	};
 
 	private final String label;
-	private Random rnd = new Random();
+	private final Random rnd = new Random();
 
 	SchiffsNamenGenerator(final String label)
 	{

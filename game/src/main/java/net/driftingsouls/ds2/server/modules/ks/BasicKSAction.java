@@ -59,7 +59,7 @@ public abstract class BasicKSAction {
 	private boolean requireActive;
 	private boolean requireOwnShipReady;
 	private AngriffController controller;
-    private User commander;
+    private final User commander;
 	
 	/**
 	 * Konstruktor.

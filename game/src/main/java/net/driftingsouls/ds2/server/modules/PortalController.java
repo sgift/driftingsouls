@@ -61,9 +61,9 @@ import java.util.concurrent.ThreadLocalRandom;
 @Module(name = "portal", defaultModule = true, outputHandler = EmptyHeaderOutputHandler.class)
 public class PortalController extends Controller
 {
-	private AuthenticationManager authManager;
-	private TemplateViewResultFactory templateViewResultFactory;
-	private ConfigService configService;
+	private final AuthenticationManager authManager;
+	private final TemplateViewResultFactory templateViewResultFactory;
+	private final ConfigService configService;
 
 	@Autowired
 	public PortalController(AuthenticationManager authManager, TemplateViewResultFactory templateViewResultFactory, ConfigService configService)
@@ -189,8 +189,8 @@ public class PortalController extends Controller
 
 	private static class StartLocation
 	{
-		int orderLocationID;
-		int distance;
+		final int orderLocationID;
+		final int distance;
 
 		StartLocation(int orderLocationID, int distance)
 		{

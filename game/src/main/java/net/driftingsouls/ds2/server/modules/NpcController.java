@@ -60,7 +60,7 @@ import java.util.stream.Collectors;
 @Module(name = "npc")
 public class NpcController extends Controller
 {
-	private FraktionsGuiEintragService fraktionsGuiEintragService;
+	private final FraktionsGuiEintragService fraktionsGuiEintragService;
 	private boolean isHead = false;
 	private boolean shop = false;
 
@@ -132,7 +132,7 @@ public class NpcController extends Controller
 			public ShipViewModel ship;
 		}
 
-		public List<TransporterViewModel> transporter = new ArrayList<>();
+		public final List<TransporterViewModel> transporter = new ArrayList<>();
 	}
 
 	/**
@@ -409,9 +409,9 @@ public class NpcController extends Controller
 		}
 
 		public boolean alleMeldungen;
-		public List<FraktionAktionsMeldungViewModel> meldungen = new ArrayList<>();
+		public final List<FraktionAktionsMeldungViewModel> meldungen = new ArrayList<>();
 		public UserViewModel user;
-		public List<LpMenuLoyalitaetspunkteViewModel> lpListe = new ArrayList<>();
+		public final List<LpMenuLoyalitaetspunkteViewModel> lpListe = new ArrayList<>();
 		public String rang;
 		public int lpBeiNpc;
 	}
@@ -485,8 +485,8 @@ public class NpcController extends Controller
 	{
 		public UserViewModel user;
 		public int aktiverRang;
-		public List<RangViewModel> raenge = new ArrayList<>();
-		public List<MedalViewModel> medals = new ArrayList<>();
+		public final List<RangViewModel> raenge = new ArrayList<>();
+		public final List<MedalViewModel> medals = new ArrayList<>();
 	}
 
 	/**
@@ -699,9 +699,9 @@ public class NpcController extends Controller
 
 		public int npcpunkte;
 		public String aktuelleLieferposition;
-		public List<OrderableOffizierViewModel> offiziere = new ArrayList<>();
-		public List<OrderableShipViewModel> ships = new ArrayList<>();
-		public List<LieferpositionViewModel> lieferpositionen = new ArrayList<>();
+		public final List<OrderableOffizierViewModel> offiziere = new ArrayList<>();
+		public final List<OrderableShipViewModel> ships = new ArrayList<>();
+		public final List<LieferpositionViewModel> lieferpositionen = new ArrayList<>();
 	}
 
 	/**

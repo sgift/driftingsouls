@@ -103,14 +103,14 @@ public class User extends BasicUser {
 		 * Die Beziehungen des Spielers zu anderen Spielern.
 		 * Schluessel ist die Spieler-ID
 		 */
-		protected Map<Integer,Relation> toOther = new HashMap<>();
+		protected final Map<Integer,Relation> toOther = new HashMap<>();
 		/**
 		 * Die Beziehungen von anderen Spielern zum Spieler selbst.
 		 * Schluessel ist die Spieler-ID.
 		 */
-		protected Map<Integer,Relation> fromOther = new HashMap<>();
+		protected final Map<Integer,Relation> fromOther = new HashMap<>();
 
-		private User user;
+		private final User user;
 
 		protected Relations(User user) {
 			this.user = user;
@@ -185,13 +185,13 @@ public class User extends BasicUser {
 	private int rang;
 	private String ApiKey;
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="ally", nullable=true)
+	@JoinColumn(name="ally")
 	@ForeignKey(name="users_fk_ally")
 	private Ally ally;
 	private BigInteger konto;
 	private int npcpunkte;
 	@OneToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="allyposten", nullable=true, unique = true)
+	@JoinColumn(name="allyposten", unique = true)
 	@ForeignKey(name="users_fk_ally_posten")
 	private AllyPosten allyposten;
 	private int gtudropzone;
@@ -242,7 +242,7 @@ public class User extends BasicUser {
 	private String flags;
 
 	@Transient
-	private Context context;
+	private final Context context;
 
 	/**
 	 * Konstruktor.

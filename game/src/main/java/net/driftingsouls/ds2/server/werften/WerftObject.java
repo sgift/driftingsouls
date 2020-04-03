@@ -72,7 +72,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	@Column(nullable = false)
 	private WerftTyp type = WerftTyp.SCHIFF;
 	@ManyToOne(fetch=FetchType.EAGER)
-	@JoinColumn(name="linkedWerft", nullable=true)
+	@JoinColumn(name="linkedWerft")
 	@ForeignKey(name="werften_fk_werften")
 	private WerftKomplex linkedWerft = null;
 
@@ -81,11 +81,11 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	private int version;
 
 	@OneToMany(mappedBy = "werft", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<WerftQueueEntry> queue;
+	private final Set<WerftQueueEntry> queue;
 
 
 	@Transient
-	private Logger log = Logger.getLogger(WerftObject.class);
+	private final Logger log = Logger.getLogger(WerftObject.class);
 
 	/**
 	 * Konstruktor.

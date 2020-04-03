@@ -51,9 +51,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class PipelineConfig {
 	private static final Log log = LogFactory.getLog(PipelineConfig.class);
 	
-	private Map<String,ModuleSetting> modules = new ConcurrentHashMap<>();
+	private final Map<String,ModuleSetting> modules = new ConcurrentHashMap<>();
 	private ModuleSetting defaultModule = null;
-	private List<Rule> rules = new CopyOnWriteArrayList<>();
+	private final List<Rule> rules = new CopyOnWriteArrayList<>();
 
 	ModuleSetting getModuleSettingByName(String name) throws Exception {
 		ModuleSetting moduleSetting = (ModuleSetting)defaultModule.clone();

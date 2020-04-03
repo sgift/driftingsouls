@@ -86,7 +86,7 @@ public abstract class BasicUser {
 	private String plainname;
 	private byte disabled;
 	@OneToMany(mappedBy="user", cascade=CascadeType.ALL, orphanRemoval = true)
-	private Set<Permission> permissions;
+	private final Set<Permission> permissions;
 
 	@Version
 	private int version;

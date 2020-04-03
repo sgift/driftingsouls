@@ -44,11 +44,11 @@ public class KSMenuHistoryAction extends BasicKSMenuAction {
 	private boolean showOK;
 	private boolean showTakeCommand;
 	
-	private StringBuilder history_text = new StringBuilder();
+	private final StringBuilder history_text = new StringBuilder();
 	private int historyPage = -1;
 	private int historyCurrentpage = 0;
 	private int historyMaxpage = 0;
-	private Map<Integer,String> historySides = new HashMap<>();
+	private final Map<Integer,String> historySides = new HashMap<>();
 
 	private final Map<Integer,Boolean> filter = new HashMap<>();
 

@@ -45,7 +45,7 @@ import java.util.Set;
 @Module(name = "userprofile")
 public class UserProfileController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public UserProfileController(TemplateViewResultFactory templateViewResultFactory)

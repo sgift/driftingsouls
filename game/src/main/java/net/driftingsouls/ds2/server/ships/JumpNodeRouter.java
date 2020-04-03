@@ -45,7 +45,7 @@ public class JumpNodeRouter
 		/**
 		 * Der Pfad. Elemente sind die zu benutzenden Jumpnodes.
 		 */
-		public List<JumpNode> path = new ArrayList<>();
+		public final List<JumpNode> path = new ArrayList<>();
 
 		@Override
 		public String toString()
@@ -61,8 +61,8 @@ public class JumpNodeRouter
 		}
 	}
 
-	private Map<Integer,Integer> systemInterestLevel = new HashMap<>();
-	private Map<Integer,List<JumpNode>> jnlist = new HashMap<>();
+	private final Map<Integer,Integer> systemInterestLevel = new HashMap<>();
+	private final Map<Integer,List<JumpNode>> jnlist = new HashMap<>();
 
 	/**
 	 * Konstruktor.

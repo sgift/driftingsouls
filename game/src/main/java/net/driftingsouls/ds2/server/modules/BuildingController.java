@@ -242,7 +242,7 @@ public class BuildingController extends Controller
 
 		public int col;
 		public int field;
-		public List<DemoResourceEntryViewModel> demoCargo = new ArrayList<>();
+		public final List<DemoResourceEntryViewModel> demoCargo = new ArrayList<>();
 		public boolean success;
 	}
 

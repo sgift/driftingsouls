@@ -54,7 +54,7 @@ public class ParameterReader
 
 	private Request request;
 	private String subParameter;
-	private Map<String, Object> parameter = new HashMap<>();
+	private final Map<String, Object> parameter = new HashMap<>();
 	private org.hibernate.Session session;
 
 	public ParameterReader(Request request, Session session)

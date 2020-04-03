@@ -63,9 +63,9 @@ import java.util.concurrent.ThreadLocalRandom;
 @Module(name = "kapern")
 public class KapernController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
-	private SchlachtErstellenService schlachtErstellenService;
-	private ConfigService configService;
+	private final TemplateViewResultFactory templateViewResultFactory;
+	private final SchlachtErstellenService schlachtErstellenService;
+	private final ConfigService configService;
 
 	@Autowired
 	public KapernController(TemplateViewResultFactory templateViewResultFactory,

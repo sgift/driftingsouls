@@ -56,15 +56,15 @@ public class Fabrik extends DefaultBuilding
     @ContextInstance(ContextInstance.Scope.REQUEST)
 	public static class ContextVars
 	{
-        List<Integer> buildingidlist = new ArrayList<>();
-		Set<FactoryEntry> owneritemsbase = new HashSet<>();
-		Map<Integer, Cargo> stats = new HashMap<>();
-		Map<Integer, Cargo> productionstats = new HashMap<>();
-		Map<Integer, Cargo> consumptionstats = new HashMap<>();
-		Map<Integer, BigDecimal> usedcapacity = new HashMap<>();
-        List<Integer> modified = new ArrayList<>();
-        List<Integer> prodmodified = new ArrayList<>();
-        List<Integer> conmodified = new ArrayList<>();
+        final List<Integer> buildingidlist = new ArrayList<>();
+		final Set<FactoryEntry> owneritemsbase = new HashSet<>();
+		final Map<Integer, Cargo> stats = new HashMap<>();
+		final Map<Integer, Cargo> productionstats = new HashMap<>();
+		final Map<Integer, Cargo> consumptionstats = new HashMap<>();
+		final Map<Integer, BigDecimal> usedcapacity = new HashMap<>();
+        final List<Integer> modified = new ArrayList<>();
+        final List<Integer> prodmodified = new ArrayList<>();
+        final List<Integer> conmodified = new ArrayList<>();
         boolean init = false;
 
 		/**

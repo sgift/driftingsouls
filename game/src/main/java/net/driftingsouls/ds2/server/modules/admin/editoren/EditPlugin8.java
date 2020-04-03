@@ -37,9 +37,9 @@ public class EditPlugin8<T> implements AdminPlugin
 {
 	private static final Logger LOG = LogManager.getLogger(EditPlugin8.class);
 
-	private EntityEditor<T> entityEditor;
+	private final EntityEditor<T> entityEditor;
 	private Class<? extends T> clazz;
-	private Class<T> baseClass;
+	private final Class<T> baseClass;
 
 	public EditPlugin8(EntityEditor<T> entityEditor)
 	{

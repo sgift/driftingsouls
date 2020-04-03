@@ -61,9 +61,9 @@ public class AllyController extends Controller
 {
 	private static final Log log = LogFactory.getLog(AllyController.class);
 
-	private AllianzService allianzService;
-	private TemplateViewResultFactory templateViewResultFactory;
-	private AllyPostenService allyPostenService;
+	private final AllianzService allianzService;
+	private final TemplateViewResultFactory templateViewResultFactory;
+	private final AllyPostenService allyPostenService;
 	private Ally ally = null;
 
 	@Autowired

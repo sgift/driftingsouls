@@ -30,7 +30,7 @@ import java.util.Comparator;
 import java.util.Map;
 
 abstract class AbstractStatistic implements Statistic {
-	private Context context;
+	private final Context context;
 
 	protected AbstractStatistic() {
 		context = ContextMap.getContext();
@@ -57,7 +57,7 @@ abstract class AbstractStatistic implements Statistic {
 	 */
 	protected static class MapValueDescComparator<T> implements Comparator<T>
 	{
-		private Map<T,Long> map;
+		private final Map<T,Long> map;
 
 		/**
 		 * Konstruktor.

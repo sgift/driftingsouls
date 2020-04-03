@@ -35,8 +35,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Module(name="logout")
 public class LogoutController extends Controller
 {
-	private AuthenticationManager authManager;
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final AuthenticationManager authManager;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public LogoutController(AuthenticationManager authManager, TemplateViewResultFactory templateViewResultFactory)

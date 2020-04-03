@@ -53,7 +53,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	private static final ServiceLoader<AuthenticateEventListener> authListenerList = ServiceLoader.load(AuthenticateEventListener.class);
 	private static final boolean DEV_MODE = !Configuration.isProduction();
 
-	private ConfigService configService;
+	private final ConfigService configService;
 
 	@Autowired
 	public DefaultAuthenticationManager(ConfigService configService)

@@ -62,8 +62,8 @@ import java.util.List;
 @Module(name = "gtuzwischenlager")
 public class GtuZwischenLagerController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
-	private HandelspostenService handelspostenService;
+	private final TemplateViewResultFactory templateViewResultFactory;
+	private final HandelspostenService handelspostenService;
 
 	@Autowired
 	public GtuZwischenLagerController(TemplateViewResultFactory templateViewResultFactory,

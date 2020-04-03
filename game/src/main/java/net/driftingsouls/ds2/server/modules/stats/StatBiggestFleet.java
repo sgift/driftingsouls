@@ -36,7 +36,7 @@ import java.util.List;
  *
  */
 public class StatBiggestFleet extends AbstractStatistic implements Statistic {
-	private boolean allys;
+	private final boolean allys;
 
 	/**
 	 * Konstruktor.

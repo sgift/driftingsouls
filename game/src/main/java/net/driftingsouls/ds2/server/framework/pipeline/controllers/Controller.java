@@ -41,8 +41,8 @@ import java.util.Map;
 public abstract class Controller implements PermissionResolver
 {
 	private String pageTitle;
-	private List<PageMenuEntry> pageMenuEntries;
-	private Context context;
+	private final List<PageMenuEntry> pageMenuEntries;
+	private final Context context;
 
 	/**
 	 * Konstruktor.

@@ -59,7 +59,7 @@ public class TradeController extends Controller
 {
 	private static final Log log = LogFactory.getLog(TradeController.class);
 
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public TradeController(TemplateViewResultFactory templateViewResultFactory)

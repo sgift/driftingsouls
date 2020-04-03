@@ -45,7 +45,7 @@ public abstract class AbstractTickExecuter extends TickController
 
 	private String name = "";
 	private String status = null;
-	private Map<Class<? extends TickController>, Long> tickTimes = new LinkedHashMap<>();
+	private final Map<Class<? extends TickController>, Long> tickTimes = new LinkedHashMap<>();
 	public AbstractTickExecuter()
 	{
 		this.loxpath = Configuration.getLogPath();

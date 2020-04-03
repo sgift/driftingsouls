@@ -50,8 +50,8 @@ import java.util.Map;
  *
  */
 public class WerftGUI {
-	private Context context;
-	private TemplateEngine t;
+	private final Context context;
+	private final TemplateEngine t;
 
 	/**
 	 * Erstellt eine neue Instanz einer Werftgui auf Basis des Kontexts.

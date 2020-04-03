@@ -29,7 +29,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
  *
  */
 public class KSFluchtClassAction extends KSFluchtAllAction {
-	private ShipClasses fluchtclass;
+	private final ShipClasses fluchtclass;
 
 	/**
 	 * Konstruktor.

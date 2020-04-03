@@ -42,7 +42,7 @@ import java.util.List;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class BaseTick extends TickController 
 {
-	private BaseTickerService baseTickerService;
+	private final BaseTickerService baseTickerService;
 
 	@Autowired
 	public BaseTick(BaseTickerService baseTickerService)

@@ -55,8 +55,8 @@ public class UnitTauschController extends Controller
 {
 	private static class MultiTarget
 	{
-		private String name;
-		private String targetlist;
+		private final String name;
+		private final String targetlist;
 
 		MultiTarget(String name, String targetlist)
 		{
@@ -542,8 +542,8 @@ public class UnitTauschController extends Controller
 		}
 	}
 
-	private TemplateViewResultFactory templateViewResultFactory;
-	private Map<String, TransportFactory> wayhandler;
+	private final TemplateViewResultFactory templateViewResultFactory;
+	private final Map<String, TransportFactory> wayhandler;
 
 	@Autowired
 	public UnitTauschController(TemplateViewResultFactory templateViewResultFactory)

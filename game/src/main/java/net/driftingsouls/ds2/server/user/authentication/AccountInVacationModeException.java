@@ -27,7 +27,7 @@ package net.driftingsouls.ds2.server.user.authentication;
 public class AccountInVacationModeException extends RuntimeException {
 	private static final long serialVersionUID = 4226868012372360527L;
 	
-	private int dauer;
+	private final int dauer;
 	
 	/**
 	 * Konstruktor.

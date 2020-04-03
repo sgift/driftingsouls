@@ -53,7 +53,7 @@ import java.util.TreeSet;
 @Module(name = "schiffinfo")
 public class SchiffInfoController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public SchiffInfoController(TemplateViewResultFactory templateViewResultFactory)

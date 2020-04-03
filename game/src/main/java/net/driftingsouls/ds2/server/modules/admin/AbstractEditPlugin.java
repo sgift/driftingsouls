@@ -28,7 +28,7 @@ import java.util.List;
  */
 public abstract class AbstractEditPlugin<T> implements AdminPlugin
 {
-	private Class<T> clazz;
+	private final Class<T> clazz;
 
 	protected AbstractEditPlugin(Class<T> clazz)
 	{
@@ -36,8 +36,7 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 	}
 
 	@Override
-	public final void output(StringBuilder echo) throws IOException
-	{
+	public final void output(StringBuilder echo) {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 
@@ -110,7 +109,7 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 
 	public static class DefaultStatusWriter implements StatusWriter
 	{
-		private StringBuilder echo;
+		private final StringBuilder echo;
 
 		public DefaultStatusWriter(StringBuilder echo)
 		{

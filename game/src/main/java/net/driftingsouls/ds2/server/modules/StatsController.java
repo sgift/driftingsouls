@@ -66,9 +66,9 @@ public class StatsController extends Controller
 	public static final int MIN_USER_ID = 0;
 
 	private static class StatEntry {
-		Statistic stat;
-		String name;
-		int width;
+		final Statistic stat;
+		final String name;
+		final int width;
 
 		StatEntry( Statistic stat, String name, int width ) {
 			this.stat = stat;
@@ -76,8 +76,8 @@ public class StatsController extends Controller
 			this.width = width;
 		}
 	}
-	private Map<Integer,List<StatEntry>> statslist = new HashMap<>();
-	private Map<String,Integer> catlist = new LinkedHashMap<>();
+	private final Map<Integer,List<StatEntry>> statslist = new HashMap<>();
+	private final Map<String,Integer> catlist = new LinkedHashMap<>();
 
 	/**
 	 * Konstruktor.

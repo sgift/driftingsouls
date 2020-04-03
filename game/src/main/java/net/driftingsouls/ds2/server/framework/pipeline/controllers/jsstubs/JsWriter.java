@@ -6,7 +6,7 @@ import java.io.Writer;
 
 class JsWriter implements Closeable
 {
-	private Writer writer;
+	private final Writer writer;
 	private int indent;
 
 	JsWriter(Writer writer)

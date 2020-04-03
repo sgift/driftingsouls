@@ -71,8 +71,8 @@ public class AdminController extends Controller
 
 	private static class MenuCategory implements Comparable<MenuCategory>
 	{
-		String name;
-		SortedSet<MenuEntry> actions = new TreeSet<>();
+		final String name;
+		final SortedSet<MenuEntry> actions = new TreeSet<>();
 
 		MenuCategory(String name)
 		{
@@ -116,7 +116,7 @@ public class AdminController extends Controller
 
 	private static class MenuEntry implements Comparable<MenuEntry>
 	{
-		String name;
+		final String name;
 		Class<?> cls;
 
 		MenuEntry(String name)
@@ -154,8 +154,8 @@ public class AdminController extends Controller
 		}
 	}
 
-	private NavigableMap<String, MenuCategory> menu = new TreeMap<>();
-	private Set<String> validPlugins = new HashSet<>();
+	private final NavigableMap<String, MenuCategory> menu = new TreeMap<>();
+	private final Set<String> validPlugins = new HashSet<>();
 
 	/**
 	 * Konstruktor.

@@ -57,7 +57,7 @@ public class ShipWerft extends WerftObject {
 	private Ship ship;
 
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="linked", nullable=true)
+	@JoinColumn(name="linked")
 	@ForeignKey(name="werften_fk_bases")
 	private Base linked;
 

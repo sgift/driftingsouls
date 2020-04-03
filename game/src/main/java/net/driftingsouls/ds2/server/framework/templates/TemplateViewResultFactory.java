@@ -11,8 +11,8 @@ import javax.annotation.Nonnull;
 public class TemplateViewResultFactory
 {
 	private static final String MASTERTEMPLATE = "__MASTERTEMPLATE";
-	private Version version;
-	private TemplateLoader templateLoader;
+	private final Version version;
+	private final TemplateLoader templateLoader;
 
 	@Autowired
 	public TemplateViewResultFactory(Version version, TemplateLoader templateLoader)

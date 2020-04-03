@@ -7,8 +7,8 @@ import java.util.List;
 @ViewModel
 public class JqGridRowDataViewModel
 {
-	public String id;
-	public List<String> cell;
+	public final String id;
+	public final List<String> cell;
 
 	public JqGridRowDataViewModel(String id, List<String> cell)
 	{

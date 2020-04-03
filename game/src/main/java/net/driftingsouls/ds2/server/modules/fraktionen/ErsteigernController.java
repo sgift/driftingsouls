@@ -67,9 +67,9 @@ import java.util.stream.Collectors;
 @Module(name = "ersteigern")
 public class ErsteigernController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
-	private ConfigService configService;
-	private FraktionsGuiEintragService fraktionsGuiEintragService;
+	private final TemplateViewResultFactory templateViewResultFactory;
+	private final ConfigService configService;
+	private final FraktionsGuiEintragService fraktionsGuiEintragService;
 
 	@Autowired
 	public ErsteigernController(TemplateViewResultFactory templateViewResultFactory,

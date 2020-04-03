@@ -30,7 +30,7 @@ import java.util.Map;
 public class ActionMethodInvoker
 {
 	private static final Log log = LogFactory.getLog(ActionMethodInvoker.class);
-	private static List<Class<? extends ActionMethodInterceptor>> DEFAULT_INTERCEPTORS = new ArrayList<>();
+	private static final List<Class<? extends ActionMethodInterceptor>> DEFAULT_INTERCEPTORS = new ArrayList<>();
 	static {
 		DEFAULT_INTERCEPTORS.add(AccountVacationMethodInterceptor.class);
 		DEFAULT_INTERCEPTORS.add(UserAuthenticationMethodInterceptor.class);

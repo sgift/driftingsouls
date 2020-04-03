@@ -62,8 +62,8 @@ public class SectorTemplateManager {
 	}
 
 	private static class DockEntry {
-		String docked;
-		int shipid;
+		final String docked;
+		final int shipid;
 
 		DockEntry(int shipid, String docked) {
 			this.shipid = shipid;
@@ -72,8 +72,8 @@ public class SectorTemplateManager {
 	}
 
 	private static class FleetEntry {
-		int fleetid;
-		int shipid;
+		final int fleetid;
+		final int shipid;
 
 		FleetEntry(int shipid, int fleetid) {
 			this.shipid = shipid;

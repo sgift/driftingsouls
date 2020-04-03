@@ -35,7 +35,7 @@ import java.util.Map;
 @Module(name = "tradepost")
 public class TradepostController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public TradepostController(TemplateViewResultFactory templateViewResultFactory)

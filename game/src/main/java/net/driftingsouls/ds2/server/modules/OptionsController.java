@@ -61,8 +61,8 @@ import java.util.List;
 public class OptionsController extends Controller
 {
 	private static final Log log = LogFactory.getLog(OptionsController.class);
-	private TemplateViewResultFactory templateViewResultFactory;
-	private ConfigService configService;
+	private final TemplateViewResultFactory templateViewResultFactory;
+	private final ConfigService configService;
 
 	@Autowired
 	public OptionsController(TemplateViewResultFactory templateViewResultFactory, ConfigService configService)
@@ -301,7 +301,7 @@ public class OptionsController extends Controller
 	@ViewModel
 	public static class GenerierePersonenNamenBeispieleViewModel
 	{
-		public List<String> namen = new ArrayList<>();
+		public final List<String> namen = new ArrayList<>();
 	}
 
 	@Action(ActionType.AJAX)
@@ -354,7 +354,7 @@ public class OptionsController extends Controller
 	@ViewModel
 	public static class GeneriereSchiffsNamenBeispieleViewModel
 	{
-		List<SchiffsKlasseNameBeispiel> namen = new ArrayList<>();
+		final List<SchiffsKlasseNameBeispiel> namen = new ArrayList<>();
 	}
 
 	@Action(ActionType.AJAX)

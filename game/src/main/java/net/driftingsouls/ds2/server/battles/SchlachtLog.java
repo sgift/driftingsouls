@@ -39,7 +39,7 @@ public class SchlachtLog implements Locatable
 	@OrderBy("zeitpunkt,id")
 	@Sort(type = SortType.NATURAL)
 	@ForeignKey(name="schlachtlogeintrag_fk_schlachtlog")
-	private SortedSet<SchlachtLogEintrag> eintraege = new TreeSet<>();
+	private final SortedSet<SchlachtLogEintrag> eintraege = new TreeSet<>();
 
 	/**
 	 * Konstruktor.

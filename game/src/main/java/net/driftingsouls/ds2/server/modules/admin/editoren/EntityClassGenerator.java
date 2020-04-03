@@ -18,7 +18,7 @@ public class EntityClassGenerator<E> implements CustomFieldGenerator<E>
 {
 	private final String label;
 	private final String name;
-	private boolean editierbar;
+	private final boolean editierbar;
 	private Class<? extends E> currentEntityClass;
 	private final List<Class<?>> options;
 

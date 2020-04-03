@@ -45,7 +45,7 @@ import java.util.List;
 @Module(name="allylist")
 public class AllyListController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public AllyListController(TemplateViewResultFactory templateViewResultFactory)

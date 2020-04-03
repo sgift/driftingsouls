@@ -61,8 +61,8 @@ import java.util.Map;
 public class SensorsDefault implements SchiffPlugin {
 	private static final Log log = LogFactory.getLog(SensorsDefault.class);
 
-	private HandelspostenService handelspostenService;
-	private Session db;
+	private final HandelspostenService handelspostenService;
+	private final Session db;
 
 	@Autowired
 	public SensorsDefault(HandelspostenService handelspostenService, Session db)

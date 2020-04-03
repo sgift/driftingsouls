@@ -71,7 +71,7 @@ import java.util.stream.Collectors;
  *
  */
 public class AdminCommands {
-	private Map<String,Class<? extends Command>> cmds = new HashMap<>();
+	private final Map<String,Class<? extends Command>> cmds = new HashMap<>();
 
 	/**
 	 * Konstruktor.
@@ -151,8 +151,8 @@ public class AdminCommands {
 	@ViewModel
 	public static class AdminCommandResultViewModel
 	{
-		public String message;
-		public boolean success;
+		public final String message;
+		public final boolean success;
 
 		public AdminCommandResultViewModel(String message, boolean success)
 		{

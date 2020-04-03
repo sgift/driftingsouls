@@ -16,7 +16,7 @@ public class AccessLevelPermissionResolver implements PermissionResolver, Serial
 {
 	private static final long serialVersionUID = -5738261004354716068L;
 
-	private int accessLevel;
+	private final int accessLevel;
 
 	public AccessLevelPermissionResolver(int accessLevel)
 	{

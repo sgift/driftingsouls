@@ -38,13 +38,13 @@ import java.util.regex.Pattern;
  *
  */
 public class HttpResponse implements Response {
-	private Log log = LogFactory.getLog(HttpResponse.class);
+	private final Log log = LogFactory.getLog(HttpResponse.class);
 	
 	private String charSet;
 	private StringBuffer content;
 	private Writer writer;
-	private HttpServletResponse response;
-	private HttpServletRequest request;
+	private final HttpServletResponse response;
+	private final HttpServletRequest request;
 	private boolean send;
 	private boolean manualSend = false;
 	private boolean cacheOutput;

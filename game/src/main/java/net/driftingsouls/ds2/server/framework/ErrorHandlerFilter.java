@@ -24,7 +24,7 @@ import java.util.Map;
  */
 public class ErrorHandlerFilter implements Filter
 {
-	private static Log log = LogFactory.getLog(ErrorHandlerFilter.class);
+	private static final Log log = LogFactory.getLog(ErrorHandlerFilter.class);
 
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException {
@@ -138,7 +138,7 @@ public class ErrorHandlerFilter implements Filter
 	
 	private static class HtmlErrorReporter implements ErrorReporter
 	{
-		private ServletResponse response;
+		private final ServletResponse response;
 		
 		HtmlErrorReporter(ServletResponse response)
 		{
@@ -217,7 +217,7 @@ public class ErrorHandlerFilter implements Filter
 	
 	private static class JsonErrorReporter implements ErrorReporter
 	{
-		private ServletResponse response;
+		private final ServletResponse response;
 		
 		JsonErrorReporter(ServletResponse response)
 		{

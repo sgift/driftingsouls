@@ -61,7 +61,7 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 
 	private static class SystemImg
 	{
-		private String path;
+		private final String path;
 		private BufferedImage img;
 		private Set<Integer> erkannteFarben;
 
@@ -222,9 +222,9 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 
 	private static class UploadFieldGenerator implements  EditorForm.CustomFieldGenerator
 	{
-		private String label;
-		private String name;
-		private SystemImg img;
+		private final String label;
+		private final String name;
+		private final SystemImg img;
 
 		private UploadFieldGenerator(String label, String name, SystemImg img)
 		{

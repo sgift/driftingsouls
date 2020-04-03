@@ -11,13 +11,13 @@ import net.driftingsouls.ds2.server.framework.Common;
  */
 abstract class ShopEntry
 {
-	private int id;
-	private User factionID;
-	private FactionShopEntry.Type type;
-	private String resource;
-	private long price;
-	private long lpKosten;
-	private int availability;
+	private final int id;
+	private final User factionID;
+	private final FactionShopEntry.Type type;
+	private final String resource;
+	private final long price;
+	private final long lpKosten;
+	private final int availability;
 
 	/**
 	 * Konstruktor.

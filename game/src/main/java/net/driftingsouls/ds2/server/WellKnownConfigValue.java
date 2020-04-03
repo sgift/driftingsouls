@@ -202,10 +202,10 @@ public class WellKnownConfigValue<T> implements ConfigValueDescriptor<T>
 	 */
 	public static final ConfigValueDescriptor<String> ACCEPT_AGB_MESSAGE = new WellKnownConfigValue<>(String.class, "agb_accept_message", "Die AGB müssen akzeptiert werden zur Registrierung", "Text, wenn die Checkbox AGB akzeptieren nicht angehakt wurde");
 
-	private String name;
-	private String description;
-	private String defaultValue;
-	private Class<T> type;
+	private final String name;
+	private final String description;
+	private final String defaultValue;
+	private final Class<T> type;
 
 	private WellKnownConfigValue(Class<T> type, String name, String defaultValue, String description)
 	{
