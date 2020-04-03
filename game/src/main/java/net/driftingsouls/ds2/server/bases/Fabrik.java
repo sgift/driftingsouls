@@ -580,47 +580,26 @@ public class Fabrik extends DefaultBuilding
 
 				if (count != 0)
 				{
-					boolean gotit = false;
-					List<Factory.Task> producelist = new ArrayList<>(
-																	Arrays.asList(wf.getProduces())
-					);
+					List<Factory.Task> producelist = new ArrayList<>(Arrays.asList(wf.getProduces()));
 
-					for (int i = 0; i < producelist.size(); i++)
-					{
-						int aId = producelist.get(i).getId();
-						int ammoCount = producelist.get(i).getCount();
+					// clean up entries which shouldn't exist anyway
+					producelist.removeIf(task -> {
+						int aId = task.getId();
+						int ammoCount = task.getCount();
 
 						FactoryEntry aEntry = (FactoryEntry) db.get(FactoryEntry.class, aId);
 
-						if ((aEntry == null) || (ammoCount <= 0))
-						{
-							producelist.remove(i);
-							i--;
-							continue;
-						}
+						return aEntry == null || ammoCount <= 0;
+					});
 
-						if (aEntry == entry)
-						{
-							if (count < 0)
-							{
-								count = -ammoCount;
-							}
-							ammoCount += count;
-							gotit = true;
-						}
-						if (ammoCount > 0)
-						{
-							producelist.set(i, new Factory.Task(aEntry.getId(), ammoCount));
-						}
-						else
-						{
-							producelist.remove(i);
-							i--;
-						}
+					int entryId = findExistingItemTask(entry, producelist);
+					int newCount = computeNewBuildCount(count, producelist, entryId);
+
+					if (entryId != -1) {
+						producelist.remove(entryId);
 					}
-					if (!gotit && (count > 0))
-					{
-						producelist.add(new Factory.Task(entry.getId(), count));
+					if(newCount > 0) {
+						producelist.add(new Factory.Task(entry.getId(), newCount));
 					}
 
 					wf.setProduces(producelist.toArray(new Factory.Task[0]));
@@ -782,6 +761,29 @@ public class Fabrik extends DefaultBuilding
 		echo.append("<div><br /></div>\n");
 
 		return echo.toString();
+	}
+
+	private int findExistingItemTask(FactoryEntry entry, List<Factory.Task> producelist) {
+		int entryId = -1;
+		for (int i = 0; i < producelist.size(); i++)
+		{
+			int aId = producelist.get(i).getId();
+			if(aId == entry.getId()) {
+				entryId = i;
+				break;
+			}
+		}
+		return entryId;
+	}
+
+	private int computeNewBuildCount(int count, List<Factory.Task> producelist, int entryId) {
+		int currentCount;
+		if(entryId == -1) {
+			currentCount = 0;
+		} else {
+			currentCount = producelist.get(entryId).getCount();
+		}
+		return currentCount + count;
 	}
 
 	private void fabrikEintragButton(StringBuilder echo, FactoryEntry entry, Base base, int field, int count, String label)
