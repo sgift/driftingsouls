@@ -42,8 +42,7 @@ import java.util.List;
 public class GtuVerkaeufe implements AdminPlugin
 {
 	@Override
-	public void output(StringBuilder echo) throws IOException
-	{
+	public void output(StringBuilder echo) {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 

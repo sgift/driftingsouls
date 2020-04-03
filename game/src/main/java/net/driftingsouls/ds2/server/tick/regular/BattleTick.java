@@ -59,8 +59,7 @@ public class BattleTick extends TickController {
 		new EvictableUnitOfWork<Integer>("Battle Tick")
 		{
 			@Override
-			public void doWork(Integer battleId) throws Exception
-			{
+			public void doWork(Integer battleId) {
 				org.hibernate.Session db = getDB();
 				Battle battle = (Battle)db.get(Battle.class, battleId);
 

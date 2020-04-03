@@ -67,7 +67,7 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 				reset(new DefaultStatusWriter(echo), entity);
 				echo.append("<p>Update abgeschlossen.</p>");
 			}
-			catch (IOException | RuntimeException e)
+			catch (RuntimeException e)
 			{
 				echo.append("<p>Fehler bei Reset: ").append(e.getMessage());
 			}
@@ -126,8 +126,7 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 
 	protected abstract void update(StatusWriter writer, T entity) throws IOException;
 
-	protected void reset(StatusWriter writer, T entity) throws IOException
-	{
+	protected void reset(StatusWriter writer, T entity) {
 	}
 
 	protected abstract void edit(EditorForm form, T entity);

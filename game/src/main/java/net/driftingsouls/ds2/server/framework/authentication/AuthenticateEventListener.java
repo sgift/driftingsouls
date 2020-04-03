@@ -30,7 +30,6 @@ public interface AuthenticateEventListener {
 	 * Wird immer dann aufgerufen, wenn ein User eine Aktion
 	 * durchfuehrt und die Session validiert wird.
 	 * @param user Der User
-	 * @throws AuthenticationException Falls die Authentifizierung fehlschlaegt
-	 */
-    void onAuthenticate(BasicUser user) throws AuthenticationException;
+     */
+    void onAuthenticate(BasicUser user);
 }

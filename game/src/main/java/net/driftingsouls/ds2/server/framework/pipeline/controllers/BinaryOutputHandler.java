@@ -12,7 +12,6 @@ public class BinaryOutputHandler extends OutputHandler
 	@Override
 	public void printFooter() {}
 	@Override
-	public void printErrorList() throws IOException
-	{
+	public void printErrorList() {
 	}
 }

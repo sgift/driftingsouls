@@ -100,7 +100,7 @@ public class EditPlugin8<T> implements AdminPlugin
 				reset(new DefaultStatusWriter(echo), entity);
 				echo.append("<p>Update abgeschlossen.</p>");
 			}
-			catch (IOException | RuntimeException e)
+			catch (RuntimeException e)
 			{
 				echo.append("<p>Fehler bei Reset: ").append(e.getMessage()).append("</p>");
 			}
@@ -367,8 +367,7 @@ public class EditPlugin8<T> implements AdminPlugin
 		return (Serializable) StringToTypeConverter.convert(targetType, idString);
 	}
 
-	private void processJobs(StringBuilder echo, T entity, T updatedEntity, List<Job<T, ?>> updateTasks) throws IOException
-	{
+	private void processJobs(StringBuilder echo, T entity, T updatedEntity, List<Job<T, ?>> updateTasks) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		if( db.getTransaction().isActive() )
 		{
@@ -397,8 +396,7 @@ public class EditPlugin8<T> implements AdminPlugin
 		db.getTransaction().begin();
 	}
 
-	private void endEditorTable(StringBuilder echo) throws IOException
-	{
+	private void endEditorTable(StringBuilder echo) {
 		echo.append("</table>");
 		echo.append("</form>\n");
 		echo.append("</div>");
@@ -414,8 +412,7 @@ public class EditPlugin8<T> implements AdminPlugin
 		return ContextMap.getContext().getEM();
 	}
 
-	protected void reset(StatusWriter writer, T entity) throws IOException
-	{
+	protected void reset(StatusWriter writer, T entity) {
 		// TODO
 	}
 
@@ -424,15 +421,13 @@ public class EditPlugin8<T> implements AdminPlugin
 		return true;
 	}
 
-	private void beginSelectionBox(StringBuilder echo, Class<?> plugin) throws IOException
-	{
+	private void beginSelectionBox(StringBuilder echo, Class<?> plugin) {
 		echo.append("<form action=\"./ds\" method=\"post\">");
 		echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(plugin.getName()).append("\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 	}
 
-	private void addSelectionOption(StringBuilder echo, Object id, String label) throws IOException
-	{
+	private void addSelectionOption(StringBuilder echo, Object id, String label) {
 		Context context = ContextMap.getContext();
 		String currentIdStr = context.getRequest().getParameter("entityId");
 		String idStr = id != null ? id.toString() : null;
@@ -441,14 +436,12 @@ public class EditPlugin8<T> implements AdminPlugin
 		echo.append("<option value=\"").append(idStr).append("\" ").append(selektiert ? "selected=\"selected\"" : "").append(">").append(label).append("</option>");
 	}
 
-	private void endSelectionBox(StringBuilder echo) throws IOException
-	{
+	private void endSelectionBox(StringBuilder echo) {
 		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
 		echo.append("</form>");
 	}
 
-	private void addForm(StringBuilder echo, Class<?> plugin) throws IOException
-	{
+	private void addForm(StringBuilder echo, Class<?> plugin) {
 		echo.append("<form action=\"./ds\" method=\"post\">");
 		echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(plugin.getName()).append("\" />\n");
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
@@ -456,8 +449,7 @@ public class EditPlugin8<T> implements AdminPlugin
 		echo.append("</form>");
 	}
 
-	private void beginEditorTable(final StringBuilder echo, Class<?> plugin, Object entityId) throws IOException
-	{
+	private void beginEditorTable(final StringBuilder echo, Class<?> plugin, Object entityId) {
 		echo.append("<div class='gfxbox adminEditor' style='width:700px'>");
 		echo.append("<form action=\"./ds\" method=\"post\" enctype='multipart/form-data'>");
 		echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(plugin.getName()).append("\" />\n");

@@ -82,7 +82,7 @@ public class CmdLineRequest implements Request {
 	}
 
 	@Override
-	public InputStream getInputStream() throws IOException {
+	public InputStream getInputStream() {
 		return null;
 	}
 

@@ -36,9 +36,8 @@ class EditorForm implements AutoCloseable
 		/**
 		 * Generiert den HTML-Code fuer das Eingabefeld.
 		 * @param echo Der Writer in den der HTML-Code geschrieben werden soll
-		 * @throws IOException Bei I/O-Fehlern
 		 */
-        void generate(StringBuilder echo) throws IOException;
+        void generate(StringBuilder echo);
 	}
 
 	/**
@@ -260,21 +259,14 @@ class EditorForm implements AutoCloseable
 	@Override
 	public void close()
 	{
-		try
+		for (CustomFieldGenerator field : fields)
 		{
-			for (CustomFieldGenerator field : fields)
-			{
-				field.generate(echo);
-			}
+			field.generate(echo);
+		}
 
-			echo.append("<tr><td colspan='2'></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
-			echo.append("</table>");
-			echo.append("</form>\n");
-			echo.append("</div>");
-		}
-		catch (IOException e)
-		{
-			throw new IllegalStateException(e);
-		}
+		echo.append("<tr><td colspan='2'></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
+		echo.append("</table>");
+		echo.append("</form>\n");
+		echo.append("</div>");
 	}
 }

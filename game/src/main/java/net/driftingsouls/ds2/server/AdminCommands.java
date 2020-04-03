@@ -1445,8 +1445,7 @@ public class AdminCommands {
 			new EvictableUnitOfWork<Integer>("AdminCommand: RecalculateShipModules") {
 
 				@Override
-				public void doWork(Integer object) throws Exception
-				{
+				public void doWork(Integer object) {
 					Ship ship = (Ship)getDB().get(Ship.class, object);
 					ship.recalculateModules();
 					count.incrementAndGet();

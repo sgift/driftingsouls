@@ -23,8 +23,7 @@ public class PictureGenerator<E> implements CustomFieldGenerator<E>
 	}
 
 	@Override
-	public void generate(StringBuilder echo, E entity) throws IOException
-	{
+	public void generate(StringBuilder echo, E entity) {
 		String value = getter.apply(entity);
 		echo.append("<tr>");
 		echo.append("<td colspan='2'>").append(label.trim().isEmpty() ? "" : label + ":").append("</td>").append("<td>");

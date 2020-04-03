@@ -47,7 +47,7 @@ import java.util.concurrent.ThreadLocalRandom;
 @AdminMenuEntry(category="Schiffe", name="hinzufügen", permission = WellKnownAdminPermission.ADD_SHIPS)
 public class AddShips implements AdminPlugin {
     @Override
-	public void output(StringBuilder echo) throws IOException {
+	public void output(StringBuilder echo) {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 		User user = (User)context.getActiveUser();

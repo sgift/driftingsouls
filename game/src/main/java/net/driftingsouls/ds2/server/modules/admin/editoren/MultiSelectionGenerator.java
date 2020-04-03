@@ -162,8 +162,7 @@ public class MultiSelectionGenerator<E, T> implements CustomFieldGenerator<E>
 		return result;
 	}
 
-	private void editEntityBySelection(StringBuilder echo, String name, Class<?> type, E entity) throws IOException
-	{
+	private void editEntityBySelection(StringBuilder echo, String name, Class<?> type, E entity) {
 		echo.append("<select multiple=\"multiple\" size=\"10\" ").append(readOnly.apply(entity) ? "disabled='disabled' " : "").append("name=\"").append(name).append("\">");
 
 		Set<T> selectedValues = getter.apply(entity);

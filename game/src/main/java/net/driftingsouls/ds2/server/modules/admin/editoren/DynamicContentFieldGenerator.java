@@ -136,8 +136,7 @@ public class DynamicContentFieldGenerator<V> implements CustomFieldGenerator<V>
 		return this;
 	}
 
-	private void writeCommonDynamicContentPart(StringBuilder echo, String value) throws IOException
-	{
+	private void writeCommonDynamicContentPart(StringBuilder echo, String value) {
 		echo.append("<td>").append(label).append(": </td>").append("<td>").append(value != null && !value.trim().isEmpty() ? "<img src='" + value + "' />" : "").append("</td>").append("<td>");
 
 		DynamicContent content = DynamicContentManager.lookupMetadata(value != null ? value : "dummy", true);

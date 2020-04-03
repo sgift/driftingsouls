@@ -180,7 +180,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	}
 
 	@Override
-	public BasicUser adminLogin(BasicUser user, boolean attach) throws AuthenticationException {
+	public BasicUser adminLogin(BasicUser user, boolean attach) {
 		Context context = ContextMap.getContext();
 
 		BasicUser oldUser = context.getActiveUser();
@@ -247,13 +247,8 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 			return false;
 		}
 
-		try {
-			for( AuthenticateEventListener listener : authListenerList ) {
-				listener.onAuthenticate(user);
-			}
-		}
-		catch( AuthenticationException e ) {
-			return false;
+		for( AuthenticateEventListener listener : authListenerList ) {
+			listener.onAuthenticate(user);
 		}
 
 		if( jsession.getAttach() != null )

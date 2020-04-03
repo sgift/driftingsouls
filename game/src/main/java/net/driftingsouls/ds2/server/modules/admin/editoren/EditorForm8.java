@@ -364,10 +364,9 @@ public class EditorForm8<E> implements FormElementCreator<E>
 	}
 
 	@SuppressWarnings("unchecked")
-	protected Class<? extends E> getEntityClassRequestValue(Request request, E entity) throws IOException
-	{
+	protected Class<? extends E> getEntityClassRequestValue(Request request, E entity) {
 		Optional<CustomFieldGenerator<E>> field = fields.stream().filter((f) -> f instanceof EntityClassGenerator).findFirst();
-		if( !field.isPresent() )
+		if(field.isEmpty())
 		{
 			return (Class<? extends E>) entity.getClass();
 		}

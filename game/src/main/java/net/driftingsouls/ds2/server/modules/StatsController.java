@@ -187,10 +187,9 @@ public class StatsController extends Controller
 	 * @param stat Die ID der Statistik in der ausgewaehlten Kategorie
 	 * @param show die ID der ausgeaehlten Kategorie
 	 * @return Die JSON-Daten zur Statistik
-	 * @throws IOException
 	 */
 	@Action(ActionType.AJAX)
-	public AjaxStatistic.DataViewModel ajaxAction(int stat, int show) throws IOException {
+	public AjaxStatistic.DataViewModel ajaxAction(int stat, int show) {
 		show = ermittleAnzuzeigendeStatistikkategorie(show);
 		if( this.statslist.get(show).size() <= stat ) {
 			stat = 1;

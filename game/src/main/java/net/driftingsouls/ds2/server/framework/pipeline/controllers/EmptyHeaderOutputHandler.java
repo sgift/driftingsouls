@@ -9,7 +9,6 @@ import java.io.IOException;
 public class EmptyHeaderOutputHandler extends HtmlOutputHandler
 {
 	@Override
-	public void printHeader() throws IOException
-	{
+	public void printHeader() {
 	}
 }

@@ -35,7 +35,7 @@ import java.io.IOException;
 @AdminMenuEntry(category="Portal", name="News schreiben", permission = WellKnownAdminPermission.PORTAL_NEWS)
 public class PortalNews implements AdminPlugin {
 	@Override
-	public void output(StringBuilder echo) throws IOException {
+	public void output(StringBuilder echo) {
 		Context context = ContextMap.getContext();
 
 		String news = context.getRequest().getParameterString("news");
