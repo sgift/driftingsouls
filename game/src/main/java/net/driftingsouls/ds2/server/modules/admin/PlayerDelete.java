@@ -89,7 +89,7 @@ public class PlayerDelete implements AdminPlugin
 			return;
 		}
 		if( user.isNPC() || user.isAdmin() ) {
-			echo.append("Der NPCs/Admins können nicht gelöscht werden.<br />\n");
+			echo.append("Der NPC/Admin kann nicht gelöscht werden.<br />\n");
 			echo.append("</div>");
 
 			return;
@@ -110,8 +110,8 @@ public class PlayerDelete implements AdminPlugin
 
 		if( (user.getAlly() != null) && (user.getAlly().getPresident() == user) )
 		{
-			echo.append("Der Spieler ").append(userid).append(" ist Pr&auml;sident einer Allianz.<br />\n");
-			echo.append("Die Allianz muss zuerst gel&ouml;scht werden oder einen anderen Pr&auml;sidenten bekommen, bevor der Spieler gel&ouml;scht werden kann.<br />\n");
+			echo.append("Der Spieler ").append(userid).append(" ist Anführer einer Allianz.<br />\n");
+			echo.append("Die Allianz muss zuerst gelöscht werden oder einen anderen Anführer bekommen, bevor der Spieler gelöscht werden kann.<br />\n");
 			echo.append("</div>");
 
 			return;
@@ -121,7 +121,7 @@ public class PlayerDelete implements AdminPlugin
 
 		if( user.getAlly() != null )
 		{
-			echo.append("Stelle fest ob die Ally jetzt zu wenig Member hat\n");
+			echo.append("Stelle fest ob die Allianz jetzt zu wenig Mitglieder hat\n");
 
 			Ally ally = user.getAlly();
 
@@ -148,11 +148,11 @@ public class PlayerDelete implements AdminPlugin
 						PM.send(
 							sourceUser,
 							supermember.getId(),
-							"Drohende Allianzaufl&oum;sung",
+							"Drohende Allianzauflösung",
 							"[Automatische Nachricht]\nAchtung!\n"
-									+ "Durch das L&ouml;schen eines Allianzmitglieds hat deine Allianz zu wenig Mitglieder "
-									+ "um weiterhin zu bestehen. Du hast nun 21 Ticks Zeit diesen Zustand zu &auml;ndern. "
-									+ "Andernfalls wird die Allianz aufgel&ouml;&szlig;t.");
+									+ "Durch das Löschen eines Allianzmitglieds hat Deine Allianz zu wenig Mitglieder, "
+									+ "um weiterhin zu bestehen. Du hast nun 21 Ticks Zeit, diesen Zustand zu ändern. "
+									+ "Anderenfalls wird die Allianz aufgelöst.");
 					}
 
 					echo.append("....sie hat jetzt zu wenig");
@@ -161,7 +161,7 @@ public class PlayerDelete implements AdminPlugin
 			echo.append("<br />\n");
 		}
 
-		echo.append("Entferne GTU Zwischenlager...<br />\n");
+		echo.append("Entferne GTU-Zwischenlager...<br />\n");
 		db.createQuery("delete from GtuZwischenlager where user1=:user")
 			.setInteger("user", userid)
 			.executeUpdate();
@@ -175,19 +175,19 @@ public class PlayerDelete implements AdminPlugin
 			.executeUpdate();
 		echo.append(count).append("<br />\n");
 
-		echo.append("Entferne comnet-visits...");
+		echo.append("Entferne Com-Net-visits...");
 		count = db.createQuery("delete from ComNetVisit where user=:user")
 			.setInteger("user", userid)
 			.executeUpdate();
 		echo.append(count).append("<br />\n");
 
-		echo.append("Ordne Comnet-Posts ID 0 zu...");
+		echo.append("Ordne Com-Net-Posts ID 0 zu...");
 		count = db.createQuery("update ComNetEntry set user=0 where user=:user")
 			.setInteger("user", userid)
 			.executeUpdate();
 		echo.append(count).append("<br />\n");
 
-		echo.append("Entferne user-raenge...");
+		echo.append("Entferne User-Ränge...");
 		count = db.createQuery("delete from UserRank where userRankKey.owner=:user")
 				.setInteger("user", userid)
 				.executeUpdate();
@@ -226,7 +226,7 @@ public class PlayerDelete implements AdminPlugin
 			baselist.add(base);
 		}
 
-		echo.append("&Uuml;bereigne Basen an Spieler 0 (+ reset)...\n");
+		echo.append("Übereigne Basen an Spieler 0 (+ reset)...\n");
 
 		User nullUser = (User)db.get(User.class, 0);
 
@@ -260,13 +260,13 @@ public class PlayerDelete implements AdminPlugin
 
 		echo.append(baselist.size()).append(" Basen bearbeitet<br />\n");
 
-		echo.append("Entferne Handelseintr&auml;ge...");
+		echo.append("Entferne Handelseinträge...");
 		count = db.createQuery("delete from Handel where who=:user")
 			.setInteger("user", userid)
 			.executeUpdate();
 		echo.append(count).append("<br />\n");
 
-		echo.append("&Uuml;berstelle GTU-Gebote an die GTU (-2)...<br />");
+		echo.append("Überstelle GTU-Gebote an die GTU (-2)...<br />");
 		db.createQuery("update Versteigerung set bieter=-2 where bieter=:user")
 			.setInteger("user", userid)
 			.executeUpdate();
@@ -275,7 +275,7 @@ public class PlayerDelete implements AdminPlugin
 			.setInteger("user", userid)
 			.executeUpdate();
 
-		echo.append("L&ouml;sche PM's...");
+		echo.append("Lösche PM's...");
 		count = db.createQuery("delete from PM where empfaenger = :user")
 			.setEntity("user", user)
 			.executeUpdate();
@@ -285,63 +285,63 @@ public class PlayerDelete implements AdminPlugin
 			.setEntity("user", user)
 			.executeUpdate();
 
-		echo.append("L&ouml;sche PM-Ordner...");
+		echo.append("Lösche PM-Ordner...");
 		count = db.createQuery("delete from Ordner where owner=:user")
 			.setInteger("user", userid)
 			.executeUpdate();
 		echo.append(count).append("<br />");
 
-		echo.append("L&ouml;sche Diplomatieeintr&auml;ge...");
+		echo.append("Lösche Diplomatieeinträge...");
 		count = db.createQuery("delete from UserRelation where user=:user1 or target=:user2")
 			.setInteger("user1", userid)
 			.setInteger("user2", userid)
 			.executeUpdate();
 		echo.append(count).append("<br />\n");
 
-		echo.append("L&ouml;sche Kontobewegungen...<br />\n");
+		echo.append("Lösche Kontobewegungen...<br />\n");
 		db.createQuery("delete from UserMoneyTransfer umt where umt.from= :user or umt.to = :user")
 			.setEntity("user", user)
 			.executeUpdate();
 
-		echo.append("L&ouml;sche Userlogo...<br />\n");
+		echo.append("Lösche Userlogo...<br />\n");
 		new File(Configuration.getAbsolutePath() + "data/logos/user/" + userid + ".gif")
 				.delete();
 
-		echo.append("L&ouml;sche Offiziere...");
+		echo.append("Lösche Offiziere...");
 		count = db.createQuery("delete from Offizier where owner=:user")
 			.setInteger("user", userid)
 			.executeUpdate();
 		echo.append(count).append("<br />");
 
-		echo.append("L&ouml;sche Shop-Auftraege...");
+		echo.append("Lösche Shop-Aufträge...");
 		count = db.createQuery("delete from FactionShopOrder where user=:user")
 			.setInteger("user", userid)
 			.executeUpdate();
 		echo.append(count).append("<br />\n");
 
-		echo.append("L&ouml;sche Statistik 'Item-Locations'...");
+		echo.append("Lösche Statistik 'Item-Locations'...");
 		count = db.createQuery("delete from StatItemLocations where user=:user")
 			.setInteger("user", userid)
 			.executeUpdate();
 		echo.append(count).append("<br />\n");
 
-		echo.append("L&ouml;sche Statistik 'User-Cargo'...");
+		echo.append("Lösche Statistik 'User-Cargo'...");
 		count = db.createQuery("delete from StatUserCargo where user=:user")
 			.setInteger("user", userid)
 			.executeUpdate();
 		echo.append(count).append("<br />\n");
 
-		echo.append("L&ouml;sche Sessioneintrag...");
+		echo.append("Lösche Sessioneintrag...");
 		count = db.createQuery("delete from PermanentSession where user=:user")
 			.setEntity("user", user)
 			.executeUpdate();
 		echo.append(count).append("<br />\n");
 
-		echo.append("L&ouml;sche Usereintrag...<br />\n");
+		echo.append("Lösche Usereintrag...<br />\n");
 		db.flush();
 		db.delete(user);
 
-		echo.append("<br />Spieler ").append(userid).append(" gel&ouml;scht!<br />\n");
+		echo.append("<br />Spieler ").append(userid).append(" gelöscht!<br />\n");
 
 		echo.append("</div>");
 	}
