@@ -19,11 +19,11 @@
 						|
 					{/endif}
 				{/endif}
-				{!link_to K&auml;mpfe, showBattles, show:battles}
+				{!link_to Kämpfe, showBattles, show:battles}
 				|
 				{!link_to Allianzen auflisten, default, module:allylist}
 				|
-				{!link_to Austreten, part, css_class:error, show:$show}
+				{!link_to Austritt, part, css_class:error, show:$show}
 			</div>
 		</td>
 	</tr>
@@ -55,16 +55,16 @@
 	{if show.allgemein}
 		<div class="gfxbox" style="width:740px">
 		<div>
-			<img src="data/logos/ally/{ally.id}.gif" width="75" height="75" alt="Kein Allylogo vorhanden" /><br /><br />
+			<img src="data/logos/ally/{ally.id}.gif" width="75" height="75" alt="Kein Allianzlogo vorhanden" /><br /><br />
 			<span style="color:#cccccc">{ally.description}</span><br /><br />
 		</div>
 		<table>
 		<tr>
 			<td valign="top">
-				Gegr&uuml;ndet: {ally.founded}<br />
+				Gegründet: {ally.founded}<br />
 				Gewonnene Schlachten: {ally.wonBattles}<br />
 				Verlorene Schlachten: {ally.lostBattles}<br />
-				Zerst&ouml;rte Schiffe: {ally.destroyedShips}<br />
+				Zerstörte Schiffe: {ally.destroyedShips}<br />
 				Verlorene Schiffe: {ally.lostShips}<br />
 				Mitglieder: {ally.membercount}<br /><br />
 			</td>
@@ -139,7 +139,7 @@
 					<a class="profile tooltip" style="color:#c7c7c7;white-space:nowrap" href="./ds?module=userprofile&amp;user={show.members.id}">
 						{show.members.name}
 						<span class="ttcontent">
-							Aktivit&auml;t: <span style="font-weight:bold">{show.members.inaktstatus}</span>
+							Aktivität: <span style="font-weight:bold">{show.members.inaktstatus}</span>
 						</span>
 					</a>
 					({show.members.id})
@@ -148,7 +148,7 @@
 					{!link_to rauswerfen, kick, kick:$show.members.id}
 				</td>
 				<td class="noBorderX">
-					{!link_to zum Pr&auml;sidenten ernenne, newPraesi, presn:$show.members.id}
+					{!link_to zum Allianzanführer ernennen, newPraesi, presn:$show.members.id}
 				</td>
 			{else}
 				<td colspan="2" class="noBorderX">
@@ -163,7 +163,7 @@
 	{/endif}
 	{if show.einstellungen}
 		<div class="gfxbox" style="width:590px">
-			Daten &auml;ndern:<br />
+			Daten ändern:<br />
 			<form action="./ds" method="post">
 			<table class="noBorderX">
 			<tr>
@@ -181,11 +181,11 @@
 				<td class="noBorderX"><input name="hp" type="text" size="50" style="width:350px" value="{ally.hp}" /></td>
 			</tr>
 			<tr>
-				<td class="noBorderX">Allytag:</td>
+				<td class="noBorderX">Allianz-Tag (dt. Kürzel):</td>
 				<td class="noBorderX"><input name="allytag" type="text" size="50" style="width:350px" maxlength="255" value="{ally.allytag}" /></td>
 			</tr>
 			<tr>
-				<td class="noBorderX">Pr&auml;sident:</td>
+				<td class="noBorderX">Allianzanführer:</td>
 				<td class="noBorderX"><input name="praesi" type="text" size="50" style="width:350px" maxlength="100" value="{ally.pname}" /></td>
 			</tr>
 			<tr>
@@ -197,7 +197,7 @@
 				<td class="noBorderX"><input name="showGtuBieter" type="checkbox" value="1" {if ally.showgtubieter}checked="checked"{/endif} /></td>
 			</tr>
 			<tr>
-				<td class="noBorderX">Gemeinsame Awac-LRS:</td>
+				<td class="noBorderX">Gemeinsamer Sensorreichweitenzugriff:</td>
 				<td class="noBorderX"><input name="showlrs" type="checkbox" value="1" {if ally.showlrs}checked="checked"{/endif} /></td>
 			</tr>
 			<tr>
@@ -209,8 +209,8 @@
 			</table>
 			<br />
 			<span style="font-size:10px">
-				<span style="font-weight:bold">Hinweis:</span> F&uuml;r Namen, Beschreibung & Allytag k&ouml;nnen die Com-Net Tags verwendet werden<br /><br />
-				<span style="font-weight:bold">Hinweise (Allytags):</span> F&uuml;r den Allytag existiert au&szlig;erdem noch der Tag [name], welcher hinterher automatisch durch den entsprechenden Spielernamen ersetzt wird!<br />
+				<span style="font-weight:bold">Hinweis:</span> F&uuml;r Namen, Beschreibung & Allianz-Tag können die Com-Net-Tags verwendet werden<br /><br />
+				<span style="font-weight:bold">Hinweise (Allytags):</span> Für den Allianz-Tag existiert außerdem noch der Tag [name], welcher hinterher automatisch durch den entsprechenden Spielernamen ersetzt wird!<br />
 			</span>
 		</div>
 		</form>
@@ -225,7 +225,7 @@
 				<input type="hidden" name="MAX_FILE_SIZE" value="307200" />
 				<input name="logofile" type="file" />
 				{!form_create_hidden uploadLogo}
-				&nbsp;<input type="submit" value="Hochladen" /><br />
+				&nbsp;<input type="submit" value="hochladen" /><br />
 				gif-format; 75x75; max 300kb
 			</form>
 		</div>
@@ -264,9 +264,9 @@
 				<td class="noBorder" style="width:300px; vertical-align:top">
 					<div class="gfxbox" style="width:360px">
 						<div align="center">
-							{show.einstellungen.channels.index}. Com-Net Frequenz -
+							{show.einstellungen.channels.index}. Com-Net-Frequenz -
 							{if show.einstellungen.channels.id} 
-								{!link_to L&ouml;schen, deleteChannel, css_class:error, channel:$show.einstellungen.channels.id}
+								{!link_to löschen, deleteChannel, css_class:error, channel:$show.einstellungen.channels.id}
 							{/endif}
 						</div>
 						<form action="./ds" method="post">
@@ -429,7 +429,7 @@
 					</td>
 					<td class="noBorderX">
 						{!form_create_hidden addPosten}
-						<input type="submit" value="hinzuf&uuml;gen" />
+						<input type="submit" value="hinzufügen" />
 					</td>
 				</tr>
 				</form>
@@ -495,7 +495,7 @@
 				</td>
 				<td class="noBorderX">
 					{!form_create_hidden addOrEditRang}
-					<input type="submit" value="hinzuf&uuml;gen" />
+					<input type="submit" value="hinzufügen" />
 				</td>
 			</tr>
 			</form>
@@ -529,7 +529,7 @@
 		</tr>
 		<tr>
 			<td class="noBorderS" align="left" colspan="2">
-				{!link_to zur&uuml;ck, showBattles, destpos:$show.destpos.back}
+				{!link_to zurück, showBattles, destpos:$show.destpos.back}
 			</td>
 			<td class="noBorderS" align="right" colspan="3">
 				{!link_to vor, showBattles, destpos:$show.destpos.forward}
@@ -580,7 +580,7 @@
 			<div class="gfxbox" style="width:640px;text-align:center">
 				{!link_to Allianz beitreten, defaultNoAlly, show:join}
 				&nbsp;|&nbsp;
-				{!link_to Allianz gr&uuml;nden, showCreateAlly, show:create}
+				{!link_to Allianz gründen, showCreateAlly, show:create}
 				&nbsp;|&nbsp;
 				{!link_to Allianzen auflisten, default, module:allylist}
 			</div>
@@ -617,28 +617,28 @@
 			<form action="./ds" method="post">
 			<table class="noBorderX" border="1">
 			<tr>
-				<td class="noBorderX" colspan="2" align="center">Allianz gr&uuml;nden</td>
+				<td class="noBorderX" colspan="2" align="center">Allianz gründen</td>
 			</tr>
 			<tr>
 				<td class="noBorderX">Name:</td>
 				<td class="noBorderX"><input name="name" type="text" size="20" maxlength="60" value="" /></td>
 			</tr>
 			<tr>
-				<td class="noBorderX" colspan="2">Du ben&ouml;tigst zwei Spieler, die die Allianzgr&uuml;ndung unterst&uuml;tzen. Diese werden automatisch Mitglied der Allianz!</td>
+				<td class="noBorderX" colspan="2">Du benötigst zwei Spieler, die die Allianzgründung unterstützen. Diese werden automatisch Mitglied der Allianz!</td>
 			</tr>
 			<tr>
-				<td class="noBorderX">1. Unterst&uuml;tzer:</td>
+				<td class="noBorderX">1. Unterstützer:</td>
 				<td class="noBorderX"><input name="confuser1" type="text" size="20" value="ID" /></td>
 			</tr>
 			<tr>
-				<td class="noBorderX">2. Unterst&uuml;tzer:</td>
+				<td class="noBorderX">2. Unterstützer:</td>
 				<td class="noBorderX"><input name="confuser2" type="text" size="20" value="ID" /></td>
 			</tr>
 			<tr>
 				<td colspan="2" align="center" class="noBorderX">
 					{!form_create_hidden found}
 					<br />
-					<input style="width:200px" type="submit" value="Allianz gr&uuml;nden" />
+					<input style="width:200px" type="submit" value="Allianz gründen" />
 				</td>
 			</tr>
 			</table>
@@ -647,7 +647,7 @@
 	{/endif}
 	{if show.join}
 		<div class="smallfont">
-			Bitte w&auml;hlen sie die Allianz aus, der sie beitreten wollen:<br />
+			Bitte wählen Sie die Allianz aus, der Sie beitreten wollen:<br />
 		</div>
 		<table class="noBorder">
 		<!-- BEGIN show.join.allylist.listitem -->
