@@ -126,7 +126,7 @@ public class Ally {
 		this.founded = new Date();
 		this.tick = ContextMap.getContext().get(ContextCommon.class).getTick();
 		this.showastis = true;
-		this.showGtuBieter = 0;
+		this.showGtuBieter = 1;
 		this.showlrs = 1;
 		this.items = "";
 		this.rangDescriptors = new TreeSet<>();
