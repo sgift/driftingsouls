@@ -34,7 +34,7 @@
 
 					{if ally.logo}
 						<td class="noBorderS" valign="middle" align="center">
-							<img src="data/logos/ally/{ally.logo}.gif" width="75" height="75" alt="Kein Allylogo vorhanden" />
+							<img src="data/logos/ally/{ally.logo}.gif" width="75" height="75" alt="Kein Allianzlogo vorhanden" />
 						</td>
 					{/endif}
 
@@ -86,7 +86,7 @@
 					<br />
 				{/endif}
 
-				{if user.wait4vac}Achtung! Sie haben den Vacation-Modus aktiviert. Dieser wird in {user.wait4vac} Ticks in Kraft gesetzt. {!link_to abbrechen, stopWait4Vac, css_class:error}<br /><br />{/endif}
+				{if user.wait4vac}Achtung! Sie haben den Vacation-Modus (Urlaubsmodus) aktiviert. Dieser wird in {user.wait4vac} Ticks in Kraft gesetzt. {!link_to abbrechen, stopWait4Vac, css_class:error}<br /><br />{/endif}
 				{if global.survey}{!link_to Es gibt eine neue Umfrage, an der Sie teilnehmen können, default, module:survey, css_style:color:orange;font-weight:bold}<br /><br />{/endif}
 			</td>
 		</tr>
@@ -124,7 +124,7 @@
 			</div>
 			<div style="height:260px; overflow:auto; padding:4px; font-size:13px">
 				<!-- BEGIN fleets.listitem -->
-					{if fleet.jaegerfleet}<br />+++ gelandete Jägerstaffeln +++<br />{/endif}
+					{if fleet.jaegerfleet}<br />+++ gelandete Jäger- / Bomberstaffeln +++<br />{/endif}
 					{!link_to $fleet.name, default, css_style:font-size:13px, module:schiff, ship:$fleet.shipid}
 					- {fleet.shipcount} Schiffe - {fleet.location}<br />
 				<!-- END fleets.listitem -->
@@ -143,7 +143,7 @@
 			</a>
 			{schiffe.mangel}
 			 -
-			<a title="Schiffe ohne volle Crew" class="error" href="./ds?module=schiffe&amp;crewless=1">
+			<a title="Schiffe ohne volle Besatzungsstärke" class="error" href="./ds?module=schiffe&amp;crewless=1">
 				{if schiffe.nocrew}
 					<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_nocrew.gif" alt="" />
 				{else}
@@ -161,7 +161,7 @@
 			</a>
 			{astis.mangel}
 			 -
-			<a title="Neue, ungelesene PMs" class="error" href="./ds?module=comm&amp;action=showInbox">
+			<a title="neue, ungelesene Nachrichten" class="error" href="./ds?module=comm&amp;action=showInbox">
 				{if user.newmsgs}
 					<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_pm.gif" alt="" />
 				{else}
@@ -170,12 +170,12 @@
 			</a>
 			{user.newmsgs}
 			 -
-			<a title="Verlorene Schlachten" class="error" href="#">
+			<a title="verlorene Schlachten" class="error" href="#">
 				<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_battle_lost.gif" alt="" />
 			</a>
 			{user.lostBattles}
 			 -
-			<a title="Siegreiche Schlachten" class="error" href="#">
+			<a title="siegreiche Schlachten" class="error" href="#">
 				<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_battle_won.gif" alt="" />
 			</a>
 			{user.wonBattles}
