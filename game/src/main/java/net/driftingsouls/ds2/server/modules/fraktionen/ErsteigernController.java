@@ -342,7 +342,7 @@ public class ErsteigernController extends Controller
 			}
 			else
 			{
-				return new RedirectViewResult("versteigerung").withMessage("<span style=\"color:red\">Zu wenig RE auf Ihrem Konto.</span>");
+				return new RedirectViewResult("versteigerung").withMessage("<span style=\"color:red\">Fehler: Entweder haben Sie zu wenig RE auf Ihrem Konto oder Sie haben das nächsthöchte Mindestgebot unterschritten.</span>");
 			}
 		}
 
