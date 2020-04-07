@@ -85,7 +85,7 @@
 		</form>
 		<br />
 		<div style="text-align:center">
-			{!link_to abbrechen und zur&uuml;ck zum Com-net Men&uuml;, default}
+			{!link_to abbrechen und zurück zum Com-Net-Menü, default}
 		</div>
 	</div>
 	<div>
@@ -113,10 +113,10 @@
 			<td align="center" class="noBorderX">
 				{!form_create_hidden -, channel:$channel.id}
 				{if show.vorschau}
-					<input type="submit" name="action" style="width:200px" value="vorschau" />
+					<input type="submit" name="action" style="width:200px" value="Vorschau" />
 					<input type="submit" name="action" style="width:200px" value="senden" />
 				{else}
-					<input type="submit" name="action" style="width:300px" value="vorschau" />
+					<input type="submit" name="action" style="width:300px" value="Vorschau" />
 				{/endif}
 			</td>
 		</tr>
@@ -124,19 +124,19 @@
 		</form>
 		<div style="text-align:center">
 			<br />
-			{!link_to abbrechen und zur&uuml;ck zum Com-net Men&uuml;, default}
+			{!link_to abbrechen und zurück zum Com-Net-Menü, default}
 		</div>
 	</div>
 	<div>
 		<br /><br />
 		<span style="font-weight:bold">Folgende Tags sind erlaubt:</span><br />
 		<span style="font-size:8pt">
-			[url]http://www.dieGew&uuml;nschteSeite.de[/url]<br />
-			[url=http://www.dieGew&uuml;nschteSeite.de]Eine Beschreibung[/url]<br />
+			[url]http://www.dieGewünschteSeite.de[/url]<br />
+			[url=http://www.dieGewünschteSeite.de]Eine Beschreibung[/url]<br />
 			[img]AdresseDesBildes[/img]<br />
 			[email]Irgendeine@EmailAdresse.de[/email]<br />
 			[email=Irgendeine@EmailAdresse.de]Eine Beschreibung[/email]<br />
-			[size=SchriftGr&ouml;&szlig;e]Irgendein Text[/size]<br />
+			[size=SchriftGröße]Irgendein Text[/size]<br />
 			Eine Auflistung erzeugt man so:<br />
 			[list=ListenTyp]<br />[*]Eintrag1<br />[*]Eintrag2<br />[/list]<br />
 			ListenTyp kann z.B. circle,I,i,A usw. sein<br />
@@ -148,7 +148,7 @@
 			[b] text [/b] <br />
 	    		[i] text [/i] <br />
 			[u] text [/u] <br />
-			[youtube=breite,h&ouml;he]Youtube-Code[/youtube]<br />
+			[youtube=Breite,Höhe]Youtube-Code[/youtube]<br />
 			Zudem gibt es auch einige speziellere Tags:<br />
 			[shiptype]ShiffsTyp-Id[/shiptype]<br />
 			[ship=ID]Eine Beschreibung[/ship]<br />
@@ -157,7 +157,7 @@
 			[userprofile=SpielerID]Eine Beschreibung[/userprofile]<br />
 			[resource=iID|0|0,PARAM]Anzahl[/resource]</br />
 			Als PARAM kann i oder n angegeben werden, um nur den Namen oder nur das Bild anzeigen zu lassen. Das PARAM kann aber auch komplett weggelassen werden.<br />
-			Beispiel f&uuml;r 5 Nahrung: [resource=i16|0|0]5[/resource]<br />
+			Beispiel für 5 Nahrung: [resource=i16|0|0]5[/resource]<br />
 		</span>
 	</div>
 {/endif}
@@ -169,7 +169,7 @@
 	</div>
 	<table class="noBorder">
 	<tr>
-		<td class="noBorderS" colspan="2" style="font-weight:bold">&Ouml;ffentliche Frequenzen:</td>
+		<td class="noBorderS" colspan="2" style="font-weight:bold">Öffentliche Frequenzen:</td>
 	</tr>
 	<!-- BEGIN channels.listitem -->
 		{if thischannel.showprivateinfo}
@@ -183,11 +183,11 @@
 				<td class="noBorderS">{thischannel.name}
 
 		{if thischannel.readable}
-			 - {!link_to Lesen, read, channel:$thischannel.id} - {!link_to Scannen, search, channel:$thischannel.id}
+			 - {!link_to lesen, read, channel:$thischannel.id} - {!link_to scannen, search, channel:$thischannel.id}
 		{/endif}
 
 		{if thischannel.writeable}
-			 - {!link_to Senden, write, channel:$thischannel.id}
+			 - {!link_to senden, write, channel:$thischannel.id}
 		{/endif}
 
 		{if thischannel.newposts}
@@ -200,8 +200,8 @@
 {/endif}
 {if show.submit}
 	<div>
-		Transmission gesendet... Erhalt wurde vom Com-Net best&auml;tigt.<br /><br /><br />
-		{!link_to zur&uuml;ck zum Com-Net-Men&uuml;, default, channel:$channel.id}
+		Transmission gesendet... Erhalt wurde vom Com-Net bestätigt.<br /><br /><br />
+		{!link_to zurück zum Com-Net-Menü, default, channel:$channel.id}
 	</div>
 {/endif}
 {if show.searcherror}
@@ -209,15 +209,15 @@
 		<br />
 		<span style="color:red">Zu Ihrer Suche wurden leider keine Ergebnisse gefunden.</span><br />
 		<br />
-		{!link_to zur&uuml;ck zum Com-Net-Men&uuml;, default, channel:$channel.id}
+		{!link_to zurück zum Com-Net-Menü, default, channel:$channel.id}
 	</div>
 {/endif}
 {if show.read}
 	<div>
 		<br />
-		{!link_to zur&uuml;ck zum Com-Net-Men&uuml;, default, channel:$channel.id}
+		{!link_to zurück zum Com-Net-Menü, default, channel:$channel.id}
 		{if channel.writeable}
-			- {!link_to Antworten, write, channel:$channel.id}
+			- {!link_to antworten, write, channel:$channel.id}
 		{/endif}
 		<br /><br />
 		Eingegangene Nachrichten: <br />
@@ -229,9 +229,9 @@
 
 		---
 		{if show.back}
-			{!link_to zur&uuml;ck, $posts.action, back:$show.back, channel:$channel.id, search:$search.string, searchtype:$search.type}
+			{!link_to zurück, $posts.action, back:$show.back, channel:$channel.id, search:$search.string, searchtype:$search.type}
 		{else}
-			<span class="smallfont">zur&uuml;ck</span>
+			<span class="smallfont">zurück</span>
 		{/endif}
 		<br /><br />
 	</div>
@@ -254,7 +254,7 @@
 				<br /><br />
 				<img src="data/logos/user/{post.pic}.gif" width="75" height="75" alt="logo" />
 				{if post.allypic}
-					<img src="data/logos/ally/{post.allypic}.gif" width="75" height="75" alt="Allylogo" />
+					<img src="data/logos/ally/{post.allypic}.gif" width="75" height="75" alt="Allianzlogo" />
 				{/endif}
 			</td>
 			<td class="noBorderX" valign="top">
@@ -289,9 +289,9 @@
 		{/endif}
 		---
 		{if show.back}
-			{!link_to zur&uuml;ck, $posts.action, back:$show.back, channel:$channel.id, search:$search.string, searchtype:$search.type}
+			{!link_to zurück, $posts.action, back:$show.back, channel:$channel.id, search:$search.string, searchtype:$search.type}
 		{else}
-			<span class="smallfont">zur&uuml;ck</span>
+			<span class="smallfont">zurück</span>
 		{/endif}
 	</div>
 {/endif}
