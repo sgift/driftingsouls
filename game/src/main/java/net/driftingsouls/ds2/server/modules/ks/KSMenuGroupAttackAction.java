@@ -48,8 +48,8 @@ public class KSMenuGroupAttackAction extends BasicKSMenuAction {
 		ATTMODES.put("single", "Einzelsalve");
 		ATTMODES.put("alphastrike", "Mehrfachsalve (5)");
 		ATTMODES.put("strafe", "Sperrfeuer (5)");
-		ATTMODES.put("alphastrike_max", "Mehrfachsalve (max)");
-		ATTMODES.put("strafe_max", "Sperrfeuer (max)");
+		ATTMODES.put("alphastrike_max", "Mehrfachsalve (max.)");
+		ATTMODES.put("strafe_max", "Sperrfeuer (max.)");
 		
 		NEXTATTMODES.put("single", "alphastrike");
 		NEXTATTMODES.put("alphastrike", "strafe");
@@ -169,7 +169,7 @@ public class KSMenuGroupAttackAction extends BasicKSMenuAction {
 		ShipTypeData enemyShipType = enemyShip.getTypeData();
 									
 		menuEntry( t, "<span style=\"font-size:3px\">&nbsp;<br /></span>Feuermodus: "+ATTMODES.get(attmode)+"<br /> "+
-							"<span style=\"font-size:12px\">&lt; Klicken um Feuermodus zu wechseln &gt;</span><span style=\"font-size:4px\"><br />&nbsp;</span>",
+							"<span style=\"font-size:12px\">&lt; Klicken, um Feuermodus zu wechseln &gt;</span><span style=\"font-size:4px\"><br />&nbsp;</span>",
 							"ship",		ownShip.getId(),
 						 	"attack",	enemyShip.getId(),
 						 	"ksaction",	"groupattack",
@@ -177,7 +177,7 @@ public class KSMenuGroupAttackAction extends BasicKSMenuAction {
 	
 		String ask = "";
 		if( battle.getBetakStatus(battle.getOwnSide()) && !enemyShipType.isMilitary() ) {
-			ask = "Wenn sie auf das gew&auml;hlte Ziel feuern, versto&szlig;en sie gegen die BETAK-Konvention. Wollen sie dies wirklich tun?";
+			ask = "Wenn Sie auf das gewählte Ziel feuern, verstoßen Sie gegen die BETAK-Konvention. Wollen Sie dies wirklich tun?";
 		} 
 
 		Map<String,Integer> weaponlist = ownShipType.getWeapons();
