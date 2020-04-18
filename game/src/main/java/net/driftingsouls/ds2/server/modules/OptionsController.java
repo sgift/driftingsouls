@@ -126,7 +126,7 @@ public class OptionsController extends Controller
 			String message = "Hallo {username},\n" +
 					"Du hast Dein Password geändert. Dein Passwort wird kodiert gespeichert. Wenn es verloren geht, musst Du Dir über die \"neues Password zuteilen\"-Funktion der Login-Seite ein neues erstellen lassen.\n" +
 					"Das Admin-Team wünscht viel Spaß mit Drifting Souls 2!\n" +
-					"Gruss Guzman\n" +
+					"Gruß Guzman\n" +
 					"Admin\n" +
 					"{date} Serverzeit";
 			message = message.replace("{username}", user.getUN());
