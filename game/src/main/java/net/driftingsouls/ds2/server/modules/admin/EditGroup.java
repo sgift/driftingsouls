@@ -56,7 +56,7 @@ public class EditGroup implements AdminPlugin
 		int shiptypeId = context.getRequest().getParameterInt("shiptype");
 
 		// Update values?
-		boolean update = context.getRequest().getParameterString("change").equals("Aktualisieren");
+		boolean update = context.getRequest().getParameterString("change").equals("aktualisieren");
 		List<ShipType> shiptypes = Common.cast(db.createQuery("from ShipType").list());
 
 		echo.append("<form action=\"./ds\" method=\"post\">");
@@ -68,7 +68,7 @@ public class EditGroup implements AdminPlugin
 			echo.append("<option value=\"").append(shiptype.getId()).append("\" ").append(shiptype.getId() == shiptypeId ? "selected=\"selected\"" : "").append(">").append(shiptype.getNickname()).append("</option>");
 		}
 		echo.append("</select>");
-		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
+		echo.append("<input type=\"submit\" name=\"choose\" value=\"ok\" />");
 		echo.append("</form>");
 		
 		if(update && shiptypeId != 0)
@@ -192,7 +192,7 @@ public class EditGroup implements AdminPlugin
 				int uses = 0;
 				echo.append("<tr><td class=\"noBorderS\"><img src=\"").append(item.getPicture()).append("\" alt=\"\" />").append(item.getName()).append(": </td><td><input type=\"text\" name=\"i").append(item.getID()).append("\"></td><td><input type=\"text\" name=\"i").append(item.getID()).append("u\" value=\"").append(uses).append("\"></td></tr>");
 			}
-			echo.append("<tr><td class=\"noBorderS\"></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\"></td><td><input type=\"submit\" name=\"change\" value=\"aktualisieren\"></td></tr>\n");
 			echo.append("</table>");
 			echo.append("</form>\n");
 		}
