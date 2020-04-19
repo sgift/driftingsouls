@@ -371,7 +371,7 @@ public class SchiffInfoController extends Controller
 				descrip.append("<br />");
 			}
 
-			descrip.append("Trefferws (GKS/J&B/Torp.): ");
+			descrip.append("TWS (GKS/J&B/Torp.): ");
 			if (!weapon.getMunitionstypen().isEmpty())
 			{
 				descrip.append("Munition<br />");
@@ -388,25 +388,25 @@ public class SchiffInfoController extends Controller
 
 			if (weapon.getAreaDamage() != 0)
 			{
-				descrip.append("Areadamage: ");
+				descrip.append("Umgebungsschaden: ");
 				descrip.append(weapon.getAreaDamage());
 				descrip.append("<br />");
 			}
 			if (weapon.getDestroyable())
 			{
-				descrip.append("Durch Abwehrfeuer zerst&ouml;rbar<br />");
+				descrip.append("durch Abwehrfeuer zerst&ouml;rbar<br />");
 			}
 			if (weapon.hasFlag(Weapon.Flags.DESTROY_AFTER))
 			{
-				descrip.append("Beim Angriff zerst&ouml;rt<br />");
+				descrip.append("nach Angriff zerst&ouml;rt<br />");
 			}
 			if (weapon.hasFlag(Weapon.Flags.LONG_RANGE))
 			{
-				descrip.append("Gro&szlig;e Reichweite<br />");
+				descrip.append("gro&szlig;e Reichweite<br />");
 			}
 			if (weapon.hasFlag(Weapon.Flags.VERY_LONG_RANGE))
 			{
-				descrip.append("Sehr gro&szlig;e Reichweite<br />");
+				descrip.append("sehr gro&szlig;e Reichweite<br />");
 			}
 
 			descrip.append("</span>");
