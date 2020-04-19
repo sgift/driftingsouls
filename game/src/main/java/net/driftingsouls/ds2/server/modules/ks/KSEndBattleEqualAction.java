@@ -63,7 +63,7 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 		}
 		
 		if( this.validate(battle) != Result.OK ) {
-			battle.logme("Die Aktion kann nicht ausgef&uuml;hrt werden");
+			battle.logme("Die Aktion kann nicht ausgeführt werden");
 			return Result.ERROR;
 		}
 		
@@ -89,8 +89,8 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 						((ashiptype.getMinCrew() == 0) || (aship.getCrew() >= ashiptype.getMinCrew() / 2d)))
 					{
 						battle.removeShip(aship, false);
-						battle.logme(Battle.log_shiplink(aship.getShip()) + "ist durchgebrochen\n");
-						msg.append(Battle.log_shiplink(aship.getShip())).append("ist durchgebrochen\n");
+						battle.logme(Battle.log_shiplink(aship.getShip()) + " ist durchgebrochen.\n");
+						msg.append(Battle.log_shiplink(aship.getShip())).append(" ist durchgebrochen.\n");
 					}
 				}
 			}
