@@ -52,7 +52,7 @@
 			{/endif}
 			{if shiptype.ablativearmor}
 				<tr>
-				<td>+ Ablative Panzerung:</td>
+				<td>+ ablative Panzerung:</td>
 				<td style="color:{ship.ablativearmor.color}">{ship.ablativearmor}/{shiptype.ablativearmor}</td>
 				</tr>
 			{/endif}
@@ -63,7 +63,7 @@
 			<tr><td>Subsysteme:</td></tr>
 			{if shiptype.cost}
 			<tr>
-				<td>+ Antrieb:</td>
+				<td>+ Antriebe:</td>
 				<td style="color:{ship.engine.color}">{ship.engine}</td>
 			</tr>
 			{/endif}
@@ -135,7 +135,7 @@
 			{/endif}
 			{if ship.npcislandlink}
 				<a class="noborder tooltip" href="./ds?module=schiff&amp;sess={global.sess}&amp;ship={ship.id}&amp;action=insel">
-					<img src="data/interface/schiffe/tunnel.png" alt="Insel der Gl&uuml;cksehligkeit" />
+					<img src="data/interface/schiffe/tunnel.png" alt="Insel der Gl&uuml;ckseligkeit" />
 					<span class="ttcontent">
 						zur Insel
 					</span>
@@ -189,7 +189,7 @@
 							<!-- END ship.alarms.listitem -->
 						</select>
 						{!form_create_hidden alarm, ship:$ship.id}
-						<input type="submit" value="ok" />
+						<input type="submit" value="bestätigen" />
 					</div>
 				</form>
 			{/endif}
