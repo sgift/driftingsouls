@@ -220,7 +220,7 @@ public class SchiffInfoController extends Controller
 				}
 				catch (NoSuchSlotException e)
 				{
-					moduletooltip.append("<span style='color:red'>UNGUELTIGER SLOTTYP ");
+					moduletooltip.append("<span style='color:red'>UNGÜLTIGER SLOT-TYP ");
 					moduletooltip.append(amodule[1]);
 					moduletooltip.append("</span><br />");
 				}
@@ -337,9 +337,9 @@ public class SchiffInfoController extends Controller
 
 			StringBuilder descrip = new StringBuilder(100);
 			descrip.append("<span style=\\'font-size:12px\\'>");
-
-			descrip.append("AP-Kosten: ");
-			descrip.append(weapon.getApCost());
+			//AP-Kosten-Anzeige auskommentiert
+			//descrip.append("AP-Kosten: ");
+			//descrip.append(weapon.getApCost());
 			descrip.append("<br />");
 			descrip.append("Energie-Kosten: ");
 			descrip.append(Common.ln(weapon.getECost()));
@@ -356,7 +356,7 @@ public class SchiffInfoController extends Controller
 			descrip.append(maxheat.get(weaponname));
 			descrip.append("<br />");
 
-			descrip.append("Schaden (H/S/Sub): ");
+			descrip.append("Schaden (H/S/Sub.): ");
 			if (!weapon.getMunitionstypen().isEmpty())
 			{
 				descrip.append("Munition<br />");
@@ -371,7 +371,7 @@ public class SchiffInfoController extends Controller
 				descrip.append("<br />");
 			}
 
-			descrip.append("Trefferws (C/J/Torp): ");
+			descrip.append("Trefferws (GKS/J&B/Torp.): ");
 			if (!weapon.getMunitionstypen().isEmpty())
 			{
 				descrip.append("Munition<br />");
