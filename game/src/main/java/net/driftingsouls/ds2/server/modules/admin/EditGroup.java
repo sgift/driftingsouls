@@ -170,8 +170,8 @@ public class EditGroup implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderS\">x: </td><td><input type=\"text\" name=\"x\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">y: </td><td><input type=\"text\" name=\"y\"></td></tr>\n");
 			echo.append("<tr></tr>");
-			echo.append("<tr><td class=\"noBorderS\">Huelle: </td><td><input type=\"text\" name=\"hull\" value=\"").append(type.getHull()).append("\"></td><td class=\"noBorderS\">/ ").append(type.getHull()).append("</td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Ablative Panzerung: </td><td><input type=\"text\" name=\"ablativearmor\" value=\"").append(type.getAblativeArmor()).append("\"></td><td class=\"noBorderS\">/ ").append(type.getAblativeArmor()).append("</td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Hülle: </td><td><input type=\"text\" name=\"hull\" value=\"").append(type.getHull()).append("\"></td><td class=\"noBorderS\">/ ").append(type.getHull()).append("</td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">ablative Panzerung: </td><td><input type=\"text\" name=\"ablativearmor\" value=\"").append(type.getAblativeArmor()).append("\"></td><td class=\"noBorderS\">/ ").append(type.getAblativeArmor()).append("</td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Schilde: </td><td><input type=\"text\" name=\"shields\" value=\"").append(type.getShields()).append("\"></td><td class=\"noBorderS\">/ ").append(type.getShields()).append("</td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Crew: </td><td><input type=\"text\" name=\"crew\" value=\"").append(type.getCrew()).append("\"></td><td class=\"noBorderS\">/ ").append(type.getCrew()).append("</td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Energie: </td><td><input type=\"text\" name=\"energy\" value=\"").append(type.getEps()).append("\"></td><td class=\"noBorderS\">/ ").append(type.getEps()).append("</td></tr>\n");
