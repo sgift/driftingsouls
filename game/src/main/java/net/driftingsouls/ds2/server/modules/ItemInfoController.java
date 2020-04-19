@@ -207,7 +207,7 @@ public class ItemInfoController extends Controller
 		if (mods.getJDocks() != 0)
 		{
 			colorize(effecttext, mods.getJDocks());
-			effecttext.append("J&auml;gerdocks ").append(mods.getJDocks());
+			effecttext.append("Hangarkapazität ").append(mods.getJDocks());
 			effecttext.append("</span><br />\n");
 		}
 
@@ -471,7 +471,7 @@ public class ItemInfoController extends Controller
 
 				if (effect.isFlagschiff())
 				{
-					t.setVar("entry.name", "Flagschiff",
+					t.setVar("entry.name", "Flaggschiff",
 							"entry.data", "ja");
 					t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 				}
@@ -524,7 +524,7 @@ public class ItemInfoController extends Controller
 					}
 					catch (NoSuchSlotException e)
 					{
-						targetslots.append("Ungueltiger Slot '").append(aslot).append("'");
+						targetslots.append("Ungültiger Slot '").append(aslot).append("'");
 					}
 				}
 
@@ -605,7 +605,7 @@ public class ItemInfoController extends Controller
 				if (ammo == null)
 				{
 					t.setVar("entry.name", "Munition",
-							"entry.data", "Es liegen keine genaueren Daten zur Munition vor");
+							"entry.data", "Es liegen keine genaueren Daten zur Munition vor.");
 
 					t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 				}
@@ -633,8 +633,8 @@ public class ItemInfoController extends Controller
 						data.append(ammo.getSubDamage()).append(" Subsystemschaden<br />\n");
 						data.append(ammo.getSubWS()).append("% Subsystem-Trefferwahrscheinlichkeit<br />\n");
 					}
-					data.append(ammo.getSmallTrefferWS()).append("% Trefferwahrscheinlichkeit gegen J&auml;ger<br />\n");
-					data.append(ammo.getTrefferWS()).append("% Trefferwahrscheinlichkeit gegen Capitals\n");
+					data.append(ammo.getSmallTrefferWS()).append("% Trefferwahrscheinlichkeit gegen Bomber/Jäger<br />\n");
+					data.append(ammo.getTrefferWS()).append("% Trefferwahrscheinlichkeit gegen Großkampfschiffe\n");
 					if (ammo.getTorpTrefferWS() != 0)
 					{
 						data.append("<br />").append(ammo.getTorpTrefferWS()).append("% Trefferwahrscheinlichkeit gegen Torpedos\n");
