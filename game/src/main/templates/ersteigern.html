@@ -472,12 +472,12 @@
 			</dt>
 			{if kurse.waren.list}
 				<dd class="ankauf">
-					<h3>Kauft:</h3>
+					<h3>Ankauf von:</h3>
 					<!-- BEGIN kurse.waren.listitem -->
 						<div {if ware.inaktiv}class="inaktiv"{/endif}>
 							<a class="tooltip" href="./ds?module=iteminfo&amp;itemlist={ware.id}">
 								<img src="{ware.image}" />
-								{if ware.preis}{ware.preis} RE{else}Kein Bedarf{/endif}
+								{if ware.preis}{ware.preis} RE{else}kein Bedarf{/endif}
 								<span class="ttcontent ttitem" ds-item-id="{ware.id}">
 									<img src="{ware.image}" alt="{ware.plainname}" />{ware.plainname}
 								</span>
@@ -488,7 +488,7 @@
 			{/endif}
 			{if kurse.verkaufswaren.list}
 				<dd class="verkauf">
-					<h3>Verkauft:</h3>
+					<h3>Verkauf von:</h3>
 					<!-- BEGIN kurse.verkaufswaren.listitem -->
 						<div {if ware.inaktiv}class="inaktiv"{/endif}>
 							<a class="tooltip" href="./ds?module=iteminfo&amp;itemlist={ware.id}">
