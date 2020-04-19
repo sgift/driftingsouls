@@ -11,7 +11,7 @@
 	<span style="font-weight:bold; font-style:italic">Flotte erstellen</span><br /><br />
 	<form action="ds" method="post">
 		{!form_create_hidden create2, shiplist:$create.shiplist}
-		Name der Flotte: <input type="text" name="fleetname" value="Neue Flotte" /><br />
+		Name der Flotte: <input type="text" name="fleetname" value="neue Flotte" /><br />
 		<input type="submit" value="Flotte erstellen" />
 	</form>
 {/endif}
@@ -40,9 +40,9 @@
 {/endif}
 {if show.kill}
 	<div class="gfxbox" style="width:390px;text-align:center">
-		<span style="font-weight:bold; font-style: italic">Flotte aufl&ouml;sen</span><br />
+		<span style="font-weight:bold; font-style: italic">Flotte auflösen</span><br />
 		<span style="font-style:italic">&gt; {fleet.name} &lt;</span><br /><br />
-		Wollen sie die Flotte wirklich aufl&ouml;sen?<br />
+		Wollen Sie die Flotte wirklich auflösen?<br />
 		{!link_to Nein, default, css_class:ok, fleet:$fleet.id} -
 		{!link_to Ja, kill2, css_class:error, fleet:$fleet.id}
 	</div>
@@ -51,7 +51,7 @@
 	<div class="gfxbox" style="width:390px;text-align:center">
 		<span style="font-weight:bold; font-style: italic">Flotte verschrotten</span><br />
 		<span style="font-style:italic">&gt; {fleet.name} &lt;</span><br /><br />
-		Wollen sie die Flotte wirklich verschrotten?<br />
+		Wollen Sie die Flotte wirklich verschrotten?<br />
 		{!link_to Nein, default, css_class:ok, fleet:$fleet.id} -
 		{!link_to Ja, dismantle, css_class:error, fleet:$fleet.id}
 	</div>
@@ -60,14 +60,14 @@
 	<div class="gfxbox" style="width:390px;text-align:center">
         <span style="font-weight:bold; font-style: italic">Flotte reparieren</span><br />
         <span style="font-style:italic">&gt; {fleet.name} &lt;</span><br /><br />
-        Wollen sie die Flotte wirklich reparieren?<br />
+        Wollen Sie die Flotte wirklich reparieren?<br />
         {!link_to Nein, default, css_class:ok, fleet:$fleet.id} -
         {!link_to Ja, repair, css_class:error, fleet:$fleet.id}
     </div>
 {/endif}
 {if show.newowner}
 	<div class="gfxbox" style="width:390px;text-align:center">
-		<span style="font-weight:bold; font-style: italic">Flotte &uuml;bergeben</span><br />
+		<span style="font-weight:bold; font-style: italic">Flotte übergeben</span><br />
 		<span style="font-style:italic">&gt; {fleet.name} &lt;</span><br /><br />
 		<form action="ds" method="post">
 			{!form_create_hidden newowner2, fleet:$fleet.id}
@@ -78,9 +78,9 @@
 {/endif}
 {if show.newowner2}
 	<div class="gfxbox" style="width:390px;text-align:center">
-		<span style="font-weight:bold; font-style:italic">Flotte &uuml;bergeben</span><br />
+		<span style="font-weight:bold; font-style:italic">Flotte übergeben</span><br />
 		<span style="font-style:italic">&gt; {fleet.name} &lt;</span><br /><br />
-		Wollen sie die Flotte wirklich an {newowner.name} &uuml;bergeben?<br />
+		Wollen Sie die Flotte wirklich an {newowner.name} &uuml;bergeben?<br />
 		{!link_to Nein, default, css_class:ok, fleet:$fleet.id} -
 		{!link_to Ja, newowner3, css_class:error, fleet:$fleet.id, ownerid:$newowner.id} 
 	</div>
@@ -98,7 +98,7 @@
 		<h3>Platzhalter</h3>
 		<ul>
 			<li>$(number) - Gibt jedem Schiff eine individuelle Nummer beginnend bei 1</li>
-			<li>$(roman) - Gibt jedem Schiff eine individuelle Nummer in Form einer r&ouml;mischen Ziffer beginnend bei I (1)</li>
+			<li>$(roman) - Gibt jedem Schiff eine individuelle Nummer in Form einer römischen Ziffer beginnend bei I (1)</li>
 		</ul>
 	</div>
 {/endif}
@@ -199,15 +199,15 @@
 					<option value="shup">Schilde aufladen</option>
 					<!--<option value="chargeBatteries">Batterien aufladen</option>
 					<option value="dischargeBatteries">Batterien entladen</option>-->
-					<option value="alarm">Alarmstufe &auml;ndern</option>
+					<option value="alarm">Alarmstufe ändern</option>
 					<option value="show">---------</option>
-					<option value="jstart">J&auml;ger starten</option>
+					<option value="jstart">Jäger/Bomber starten</option>
 					{if jaegertypes.list}
-						<option value="jland">J&auml;ger aufsammeln</option>
+						<option value="jland">Jäger/Bomber aufsammeln</option>
 					{/endif}
 					<option value="undock">Schiffe abdocken</option>
 					<option value="redock">Container aufsammeln</option>
-					<option value="redock2">Gesch&uuml;tze aufsammeln</option>
+					<option value="redock2">Geschütze aufsammeln</option>
 					<option value="show">---------</option>
 					{if fleetcombine.list}
 						<option value="fleetcombine">Flotten zusammenlegen</option>
@@ -228,8 +228,8 @@
                     {/endif}
                     <option value="fillFood">Nahrung transferieren</option>
 					<option value="rename">Flotte umbenennen</option>
-					<option value="kill">Flotte aufl&ouml;sen</option>
-					<option value="newowner">Flotte &uuml;bergeben</option>
+					<option value="kill">Flotte auflösen</option>
+					<option value="newowner">Flotte übergeben</option>
 					<option value="renameShips">Schiffe umbenennen</option>
 					<option value="show">---------</option>
 					<option value="export">Flotte exportieren</option>
@@ -250,7 +250,7 @@
 					</select>
 				{/endif}
 				<select id="alarm" name="alarm" size="1" style="display:none">
-					<option value="0">gr&uuml;n</option>
+					<option value="0">grün</option>
 					<option value="1">gelb</option>
 					<option value="2">rot</option>
 				</select>
