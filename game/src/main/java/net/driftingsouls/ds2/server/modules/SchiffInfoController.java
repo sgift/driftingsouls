@@ -340,7 +340,7 @@ public class SchiffInfoController extends Controller
 			//AP-Kosten-Anzeige auskommentiert
 			//descrip.append("AP-Kosten: ");
 			//descrip.append(weapon.getApCost());
-			descrip.append("<br />");
+			//descrip.append("<br />");
 			descrip.append("Energie-Kosten: ");
 			descrip.append(Common.ln(weapon.getECost()));
 			descrip.append("<br />");
