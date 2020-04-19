@@ -9,7 +9,7 @@
 	<div class="gfxbox" style="width:710px">
 		<div style="text-align:justify">
 			Es k&ouml;nnen die BBCode-Tags [b], [i], [u], [color], [font], [mark] und [align] verwendet werden.<br />
-			Nach der Password-&Auml;nderung wird Ihnen eine Best&auml;tigungsmail geschickt - das Passwort wird verschl&uuml;sselt gespeichert.<br />
+			Nach der Passwort-&Auml;nderung wird Ihnen eine Best&auml;tigungs-E-Mail zugeschickt - das Passwort wird verschl&uuml;sselt gespeichert.<br />
 			Wenn Sie nur den Benutzernamen bearbeiten wollen, lassen Sie bitte die Passwort-Felder leer.<br /><br />
 		</div>
 		<form action="./ds" method="post">
@@ -77,7 +77,7 @@
 	<div class="gfxbox" style="width:560px">
 		<table style="width:100%">
 		<tr>
-			<td>Schiffsgruppen-Multiplikator<br />(0=Keine Gruppierungen):</td>
+			<td>Schiffsgruppen-Multiplikator<br />(0 = keine Gruppierungen):</td>
 			<td><input name="shipgroupmulti" type="text" size="8" value="{user.wrapfactor}" /></td>
 		</tr>
 		<tr>
@@ -98,9 +98,9 @@
 			<td>
 				<span class="nobr">
 					<select name="defrelation" size="1">
-						<option value="1" {if user.defrelation == 1}selected="selected"{/endif}>Feindlich</option>
-						<option value="0" {if user.defrelation == 0}selected="selected"{/endif}>Neutral</option>
-						<option value="2" {if user.defrelation == 2}selected="selected"{/endif}>Freundlich</option>
+						<option value="1" {if user.defrelation == 1}selected="selected"{/endif}>feindlich</option>
+						<option value="0" {if user.defrelation == 0}selected="selected"{/endif}>neutral</option>
+						<option value="2" {if user.defrelation == 2}selected="selected"{/endif}>freundlich</option>
 					</select>
 				</span>
 			</td>
@@ -169,7 +169,7 @@
             <td><input name="handel_pm" type="checkbox" value="1" {if user.handelpm}checked="checked"{/endif} /></td>
         </tr>
         <tr>
-			<td>NotifyMyDevice API-Key:</td>
+			<td>NotifyMyDevice-API-Schlüssel:</td>
 			<td><input name="apikey" type="text" size="30" value="{user.apikey}" /></td>
 		</tr>
 		<tr>
@@ -187,14 +187,14 @@
 {if options.general}
 	{if user.noob}
 		<div class="gfxbox" style="width:510px">
-			Sie stehen noch unter GCP-Schutz (Neuspielerschutz). Klicken Sie hier, um diesen vorzeitig zu beenden.<br /><br />
+			Sie stehen noch unter Neuspieler-Schutz (ehemals "GCP-Schutz"). Klicken Sie hier, um diesen vorzeitig zu beenden.<br /><br />
 			<div style="text-align:center">
 				<input type="button" value="GCP-Schutz verlassen" style="width:300px" onclick="DS.ask('Haben Sie es sich auch genau &uuml;berlegt?\nEs gibt kein Zur&uuml;ck mehr!',DS.getUrl()+'?module=options&action=dropNoobProtection')" />
 				<br />
 			</div>
 			<br />
-			<span style="color:red">Ohne GCP-Schutz k&ouml;nnen sie JEDERZEIT angegriffen werden.
-			Sobald sie einmal den GCP-Schutz verlassen haben gibt es kein Zur&uuml;ck mehr!</span>
+			<span style="color:red">Ohne Neuspieler-Schutz k&ouml;nnen sie JEDERZEIT angegriffen werden.
+			Sobald sie einmal den Neuspieler-Schutz verlassen haben gibt es kein Zur&uuml;ck mehr!</span>
 		</div>
 		<br />
 	{/endif}
@@ -235,7 +235,7 @@
 				<span style="font-weight:bold">Hilfe</span><br />
 				{!checkbox Anzeigen, showtooltip, user.tooltip}<br /><br />
 				{!form_create_hidden saveOptions}<br /><br />
-				<input type="submit" value="Speichern" /><br />
+				<input type="submit" value="speichern" /><br />
 			</div>
 		</form>
 	</div>
@@ -250,7 +250,7 @@
 				{!form_create_hidden vacMode}
 				<input type="text" maxlength="5" size="5" name="vacdays" /> Tage
 				<input type="submit" value="ok" /><br /><br />
-				<span style="font-size:10px">Nach dem Starten den Vacationmodus dauert es einige Ticks, bis dieser auch aktiviert wird.
+				<span style="font-size:10px">Nach dem Starten den Vacation-Modus dauert es einige Ticks, bis dieser auch aktiviert wird.
 					W&auml;hrenddessen kannst Du jeder Zeit den Vacation-Modus abbrechen. Auch eine normale Nutzung des Accounts ist bis dahin m&ouml;glich.
 					Sobald der Vacation-Modus allerdings vollst&auml;ndig aktiviert ist, ist ein Login nicht mehr m&ouml;glich, bis entweder der Vacation-Modus abgelaufen ist oder durch einen Administrator abgeschaltet wurde.
 				</span>
