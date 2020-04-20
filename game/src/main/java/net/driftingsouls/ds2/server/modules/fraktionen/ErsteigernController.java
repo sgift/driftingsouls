@@ -698,10 +698,6 @@ public class ErsteigernController extends Controller
 			t.parse("kurse.waren.list", "kurse.waren.listitem", true);
 		}
 
-		/*
-		Vorerst keine Verkaufspreise, da die Liste zu lang und unuebersichtlich wird
-
-
 		ResourceList buyList = tradepost.getCargo().getResourceList();
 		for(ResourceEntry resource: buyList) {
 			SellLimit limit = SellLimit.fuerSchiffUndItem(tradepost, resource.getId());
@@ -730,7 +726,6 @@ public class ErsteigernController extends Controller
 
 			t.parse("kurse.verkaufswaren.list", "kurse.verkaufswaren.listitem", true);
 		}
-		*/
 		t.parse("kurse.list", "kurse.listitem", true);
 	}
 
