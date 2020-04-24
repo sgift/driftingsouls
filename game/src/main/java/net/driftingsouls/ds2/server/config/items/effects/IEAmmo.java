@@ -33,7 +33,7 @@ import net.driftingsouls.ds2.server.entities.Munitionsdefinition;
  *
  */
 public class IEAmmo extends ItemEffect {
-	private Munitionsdefinition munitionsdefinition;
+	private final Munitionsdefinition munitionsdefinition;
 
 	public IEAmmo(Munitionsdefinition munitionsdefinition)
 	{

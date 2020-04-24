@@ -31,7 +31,7 @@ import java.util.Iterator;
  */
 public class Rassen implements Iterable<Rasse>
 {
-	private static Rassen rassenList = new Rassen();
+	private static final Rassen rassenList = new Rassen();
 
 	private Rassen()
 	{

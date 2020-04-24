@@ -83,7 +83,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	private int id;
 
 	@OneToOne(cascade={CascadeType.REFRESH,CascadeType.DETACH,CascadeType.REMOVE})
-	@JoinColumn(name="modules", nullable=true)
+	@JoinColumn(name="modules")
 	@BatchSize(size=50)
 	@NotFound(action = NotFoundAction.IGNORE)
 	@ForeignKey(name="ships_fk_ships_modules")
@@ -149,13 +149,13 @@ public class Ship implements Locatable,Transfering,Feeding {
 	private SchiffEinstellungen einstellungen;
 
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="fleet", nullable=true)
+	@JoinColumn(name="fleet")
 	@BatchSize(size=50)
 	@ForeignKey(name="ships_fk_ship_fleets")
 	private ShipFleet fleet;
 
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="battle", nullable=true)
+	@JoinColumn(name="battle")
 	@BatchSize(size=50)
 	@ForeignKey(name="ships_fk_battles")
 	private Battle battle;

@@ -35,7 +35,7 @@ import java.util.Map;
 @ContextInstance(ContextInstance.Scope.REQUEST)
 public final class ContextCommon
 {
-	private Context context;
+	private final Context context;
 
 	/**
 	 * Konstruktur - Wird vom Kontext aufgerufen.

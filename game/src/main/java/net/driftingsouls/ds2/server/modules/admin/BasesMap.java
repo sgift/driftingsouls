@@ -44,8 +44,7 @@ public class BasesMap implements AdminPlugin
 	private static final Logger LOG = LogManager.getLogger(BasesMap.class);
 
     @Override
-	public void output(StringBuilder echo) throws IOException
-	{
+	public void output(StringBuilder echo) {
 		Context context = ContextMap.getContext();
 
 		int user = context.getRequest().getParameterInt("user");

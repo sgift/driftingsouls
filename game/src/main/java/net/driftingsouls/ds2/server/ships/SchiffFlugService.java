@@ -27,7 +27,7 @@ import java.util.concurrent.ThreadLocalRandom;
 @Service
 public class SchiffFlugService
 {
-	private SchlachtErstellenService schlachtErstellenService;
+	private final SchlachtErstellenService schlachtErstellenService;
 
 	@Autowired
 	public SchiffFlugService(SchlachtErstellenService schlachtErstellenService)
@@ -60,9 +60,9 @@ public class SchiffFlugService
 
 	private static class MovementResult
 	{
-		int distance;
-		boolean moved;
-		FlugStatus status;
+		final int distance;
+		final boolean moved;
+		final FlugStatus status;
 
 		MovementResult(int distance, boolean moved, FlugStatus status)
 		{
@@ -243,19 +243,19 @@ public class SchiffFlugService
 		/**
 		 * Die Schiffe in der Flotte.
 		 */
-		Map<Integer,Ship> ships = new HashMap<>();
+        final Map<Integer,Ship> ships = new HashMap<>();
 		/**
 		 * Die Offiziere auf den Schiffen der Flotte.
 		 */
-		Map<Integer,Offizier> offiziere = new HashMap<>();
+        final Map<Integer,Offizier> offiziere = new HashMap<>();
 		/**
 		 * Die Anzahl der gedockten/gelandeten Schiffe.
 		 */
-		Map<Integer,Long> dockedCount = new HashMap<>();
+        final Map<Integer,Long> dockedCount = new HashMap<>();
 		/**
 		 * Die Anzahl der extern gedocketen Schiffe.
 		 */
-		Map<Integer,Long> aDockedCount = new HashMap<>();
+        final Map<Integer,Long> aDockedCount = new HashMap<>();
 	}
 
 

@@ -53,8 +53,8 @@ public class SchiffAjaxController extends Controller
 		public String log;
 	}
 
-	private SchiffFlugService schiffFlugService;
-	private SchiffSprungService schiffSprungService;
+	private final SchiffFlugService schiffFlugService;
+	private final SchiffSprungService schiffSprungService;
 
 	@Autowired
 	public SchiffAjaxController(SchiffFlugService schiffFlugService, SchiffSprungService schiffSprungService)

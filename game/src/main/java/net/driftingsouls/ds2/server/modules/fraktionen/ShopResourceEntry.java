@@ -13,7 +13,7 @@ import net.driftingsouls.ds2.server.framework.Common;
  */
 class ShopResourceEntry extends ShopEntry
 {
-	private ResourceEntry resourceEntry;
+	private final ResourceEntry resourceEntry;
 
 	/**
 	 * Konstruktor.

@@ -18,12 +18,12 @@ import java.util.function.Function;
  */
 public class DynamicContentFieldGenerator<V> implements CustomFieldGenerator<V>
 {
-	private String label;
-	private String name;
-	private Function<V,String> getter;
-	private BiConsumer<V,String> setter;
+	private final String label;
+	private final String name;
+	private final Function<V,String> getter;
+	private final BiConsumer<V,String> setter;
 	private boolean withRemove;
-	private Class<?> plugin;
+	private final Class<?> plugin;
 
 	public DynamicContentFieldGenerator(Class<?> plugin, String label, String name, Function<V, String> getter, BiConsumer<V, String> setter)
 	{
@@ -136,8 +136,7 @@ public class DynamicContentFieldGenerator<V> implements CustomFieldGenerator<V>
 		return this;
 	}
 
-	private void writeCommonDynamicContentPart(StringBuilder echo, String value) throws IOException
-	{
+	private void writeCommonDynamicContentPart(StringBuilder echo, String value) {
 		echo.append("<td>").append(label).append(": </td>").append("<td>").append(value != null && !value.trim().isEmpty() ? "<img src='" + value + "' />" : "").append("</td>").append("<td>");
 
 		DynamicContent content = DynamicContentManager.lookupMetadata(value != null ? value : "dummy", true);

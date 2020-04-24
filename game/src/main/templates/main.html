@@ -3,8 +3,8 @@
 </style>
 <ul id="menu">
 <li class="statusfield">
-	<a id="mailicon" href="./ds?module=comm&action=showInbox" target="main"><img src="./data/interface/menubar/mail.png" alt="Neue Nachricht" title="Du hast neue Nachrichten erhalten" /></a>
-	<a id="comneticon" href="./ds?module=comnet" target="main"><img src="./data/interface/menubar/cn.png" alt="Neuer Com-Net Eintrag" title="Neuer Com-Net Eintrag" /></a>
+	<a id="mailicon" href="./ds?module=comm&action=showInbox" target="main"><img src="./data/interface/menubar/mail.png" alt="neue Nachricht" title="Du hast neue Nachrichten erhalten" /></a>
+	<a id="comneticon" href="./ds?module=comnet" target="main"><img src="./data/interface/menubar/cn.png" alt="neuer Com-Net-Eintrag" title="neuer Com-Net-Eintrag" /></a>
 </li>
 <li id="currentpage">
 	<dl>
@@ -16,7 +16,7 @@
 <li>
 	<dl>
 		<dt>
-			<a id="page_ueber" href="./ds?module=ueber" target="main">&Uuml;bersicht</a>
+			<a id="page_ueber" href="./ds?module=ueber" target="main">Übersicht</a>
 		</dt>
 	</dl>
 </li>
@@ -126,7 +126,7 @@
 		<dd>
 			<span>
 				<a href="./ds?module=schiffe&amp;only=kampf&amp;kampf_only=2" target="main">
-					Zerst&ouml;rer
+					Zerstörer
 				</a>
 				<a class="low" href="./ds?module=schiffe&amp;only=kampf&amp;kampf_only=2&amp;low=9" target="main">X</a>
 			</span>
@@ -134,7 +134,7 @@
 		<dd>
 			<span>
 				<a href="./ds?module=schiffe&amp;only=kampf&amp;kampf_only=15" target="main">
-					Tr&auml;ger
+					Träger
 				</a>
 				<a class="low" href="./ds?module=schiffe&amp;only=kampf&amp;kampf_only=15&amp;low=9" target="main">X</a>
 			</span>
@@ -174,7 +174,7 @@
 		<dd>
 			<span>
 				<a href="./ds?module=schiffe&amp;only=kampf&amp;kampf_only=9" target="main">
-					J&auml;ger
+					Jäger
 				</a>
 				<a class="low" href="./ds?module=schiffe&amp;only=kampf&amp;kampf_only=9&amp;low=9" target="main">X</a>
 			</span>
@@ -260,10 +260,10 @@
 			<a href="./client#/techliste" target="main">Forschungen</a>
 		</dd>
 		<dd>
-			<a href="./ds?module=buildings" target="main">Geb&auml;ude</a>
+			<a href="./ds?module=buildings" target="main">Gebäude</a>
 		</dd>
 		<dd>
-			<a href="./ds?module=iteminfo&amp;action=known" target="main">Gegenst&auml;nde</a>
+			<a href="./ds?module=iteminfo&amp;action=known" target="main">Gegenstände</a>
 		</dd>
 		<dd>
 			<a href="./ds?module=unitinfo&amp;action=list" target="main">Einheiten</a>
@@ -295,7 +295,7 @@
 		</dt>
 		<dd>
 			<a href="./ds?module=options" target="main">
-				Allgemein
+				Allgemeines
 			</a>
 		</dd>
 		<dd>
@@ -305,12 +305,12 @@
 		</dd>
 		<dd>
 			<a href="./ds?module=options&amp;action=xtra" target="main">
-				Erweitert
+				Sonstiges
 			</a>
 		</dd>
 		<dd>
 			<a style="color:red" href="./ds?module=options&amp;action=delAccount" target="main">
-				L&ouml;schantrag
+				Löschantrag
 			</a>
 		</dd>
 		<dd class="lastelement">
@@ -360,7 +360,7 @@
 	</a>
 	{if admin.showconsole}
 		<a href="#" onclick="adminBox.open()">
-			<img id="adminconsoleicon" src="./data/interface/menubar/adminconsole.png" alt="Adminconsole" title="Adminconsole" />
+			<img id="adminconsoleicon" src="./data/interface/menubar/adminconsole.png" alt="Adminconsole" title="Adminkonsole" />
 		</a>
 	{/endif}
 	<a href="#" onclick="SearchBox.open()">
@@ -372,7 +372,7 @@
 	<a id="infoicon" href="#" onclick="InfoBox.open()">i</a>
 	&nbsp;
 	<a href="./ds?module=logout" target="main">
-		<img src="./data/interface/menubar/logout.png" alt="Logout" title="Ausloggen" />
+		<img src="./data/interface/menubar/logout.png" alt="Logout" title="ausloggen" />
 	</a>
 </li>
 </ul>
@@ -383,7 +383,7 @@
 	<div class="content">
 		<textarea rows="15" cols="50">{user.notizen}</textarea>
 	</div>
-	<button type="button" onclick="boxClose('noticebox')" value="Schlie&szlig;en">Schlie&szlig;en</button>
+	<button type="button" onclick="boxClose('noticebox')" value="schließen">schließen</button>
 </div>
 
 <!-- Hilfebox -->
@@ -392,7 +392,7 @@
 	<div class="content">
 		<div id="helpboxtext"></div>
 	</div>
-	<button type="button" onclick="boxClose('helpbox')" value="Schlie&szlig;en">Schlie&szlig;en</button>
+	<button type="button" onclick="boxClose('helpbox')" value="schließen">schließen</button>
 </div>
 
 {if admin.showconsole}
@@ -402,7 +402,7 @@
 			<div id="adminConsoleResponse"> </div>
 			<div class="input">
 				<input id="adminConsoleCommand" type="text" name="search" />
-				<button type="button" onclick="adminBox.execute()">ausf&uuml;hren</button>
+				<button type="button" onclick="adminBox.execute()">ausführen</button>
 			</div>
 		</div>
 	</div>
@@ -412,7 +412,7 @@
 <div id="searchbox" class="gfxbox" style="display:none">
 	<div class="content">
 		<input id="searchInput" type="text" name="search" style="width:300px" />
-		<button class="submit" type="button" style="width:60px" onclick="SearchBox.execute()">Suchen</button>
+		<button class="submit" type="button" style="width:60px" onclick="SearchBox.execute()">suchen</button>
 		<div id="searchResult"></div>
 	</div>
 </div>
@@ -420,6 +420,7 @@
 <!-- Info -->
 <div id="infobox" class="gfxbox" style="display:none">
 	<div class="content">
+		<!-- (Kommentar: Auskommentiert, weil nicht mehr genutzt | stattdessen habe ich nun die Ankündigungen aus dem Forum verlinkt)
 		<h3>Version</h3>
 		<table>
 			<tbody>
@@ -427,16 +428,23 @@
 				<tr><td>Build</td><td id="build"></td></tr>
 				<tr><td>Commit</td><td id="commit"></td></tr>
 			</tbody>
-		</table>
-		<h3>Letzte Änderungen</h3>
+		</table> 
+		-->
+		<h3>Wichtige Informationen:</h3>
+		Alle Ankündigungen und Updates finden sich im Forum unter "Ankündigung", siehe <a href="http://ds.rnd-it.de/viewforum.php?f=8&sid=b3a03433ccfe523c46c29c464aa200ed">hier</a>.
+		Die AGB sind auf der Startseite zu finden oder unter <a href="https://ds2.drifting-souls.net/ds?module=portal&action=infosAgb">diesem Link</a>.
+		Das Impressum ist dort ebenfalls zu finden, siehe auch <a href="https://ds2.drifting-souls.net/ds?module=portal&action=impressum">hier</a>.
+		Die aktuellen Spielregeln des DS-Teams (Spielleitung) befinden sich ebenfalls im Forum, und zwar in <a href="http://ds.rnd-it.de/viewtopic.php?f=8&t=179&p=467#p467">diesem Thread</a>.
+		<!-- (Kommentar: Auskommentiert, weil nicht mehr genutzt | stattdessen habe ich nun die Ankündigungen aus dem Forum verlinkt)
 		<table id="commits" class="datatable">
 			<thead><tr><th></th><th>Commit</th><th>Beschreibung</th><th>von</th></tr></thead>
 			<tbody></tbody>
 		</table>
+		-->
 	</div>
 </div>
 
 <!-- Frame -->
 <iframe id="mainframe" name="main" scrolling="auto" frameborder="0" src="./ds?module=ueber">
-	Dein Browser unterst&uuml;tzt leider keine iFrames. Am besten installierst Du einen Browser neueren Datums, wie z.B. den <a class="forschinfo" href="http://www.mozilla.org">Mozilla Firefox</a>
+	Dein Browser unterstützt leider keine iFrames. Am besten installierst Du einen Browser neueren Datums, wie z.B. den <a class="forschinfo" href="http://www.mozilla.org">Mozilla Firefox</a>
 </iframe>

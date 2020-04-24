@@ -29,7 +29,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
  *
  */
 public class KSDischargeBatteriesClassAction extends KSDischargeBatteriesAllAction {
-	private ShipClasses battsclass;
+	private final ShipClasses battsclass;
 	
 	/**
 	 * Konstruktor.

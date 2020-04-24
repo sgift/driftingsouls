@@ -46,7 +46,7 @@ import java.util.Iterator;
 @Module(name = "core")
 public class CoreController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public CoreController(TemplateViewResultFactory templateViewResultFactory)

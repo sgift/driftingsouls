@@ -27,9 +27,8 @@ public abstract class SingleUnitOfWork extends UnitOfWork<Void>
 	/**
 	 * Fuehrt den isolierten Verarbeitunsschritt aus.
 	 * Diese Methode ist von entsprechenden Unterklassen zu implementieren.
-	 * @throws Exception Generelle Verarbeitungsfehler, die zu einem Abbruch der Transaktion fuehren sollen
-	 */
-	public abstract void doWork() throws Exception;
+     */
+	public abstract void doWork();
 
 	/**
 	 * Fuehrt die angegebene Aufgabe einmalig aus.

@@ -47,7 +47,7 @@ public class AllyRangDescriptor implements Comparable<AllyRangDescriptor>
 	@Version
 	private int version;
 	
-	@ManyToOne(cascade={}, optional = false)
+	@ManyToOne(optional = false)
 	@JoinColumn
 	@ForeignKey(name = "ally_rangdescriptors_fk_ally")
 	private Ally ally;

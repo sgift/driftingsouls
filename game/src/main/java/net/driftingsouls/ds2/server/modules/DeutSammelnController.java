@@ -49,7 +49,7 @@ import java.util.List;
 @Module(name = "deutsammeln")
 public class DeutSammelnController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public DeutSammelnController(TemplateViewResultFactory templateViewResultFactory)

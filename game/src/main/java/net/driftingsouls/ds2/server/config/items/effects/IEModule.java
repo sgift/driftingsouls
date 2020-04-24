@@ -31,9 +31,9 @@ import java.util.Set;
  *
  */
 public class IEModule extends ItemEffect {
-	private Set<String> slots;
-	private SchiffsmodulSet set;
-	private SchiffstypModifikation mods;
+	private final Set<String> slots;
+	private final SchiffsmodulSet set;
+	private final SchiffstypModifikation mods;
 	
 	public IEModule(Set<String> slots, SchiffstypModifikation mods, SchiffsmodulSet set) {
 		super(ItemEffect.Type.MODULE);

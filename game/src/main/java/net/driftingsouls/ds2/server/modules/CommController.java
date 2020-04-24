@@ -56,7 +56,7 @@ public class CommController extends Controller
 {
 	private static final Log log = LogFactory.getLog(CommController.class);
 
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public CommController(TemplateViewResultFactory templateViewResultFactory)
@@ -255,11 +255,9 @@ public class CommController extends Controller
 	 * @param moveto Die ID des Zielordners
 	 * @param ordnerMap Die IDs der zu verschiebenden Ordner
 	 * @param pmMap Die IDs der zu verschiebenden PMs
-	 * @throws IOException
 	 */
 	@Action(ActionType.AJAX)
-	public String moveAjaxAct(Ordner moveto, @UrlParam(name = "ordner") Ordner source, @UrlParam(name = "ordner_#") Map<Integer, Ordner> ordnerMap, @UrlParam(name = "pm_#") Map<Integer, Integer> pmMap) throws IOException
-	{
+	public String moveAjaxAct(Ordner moveto, @UrlParam(name = "ordner") Ordner source, @UrlParam(name = "ordner_#") Map<Integer, Ordner> ordnerMap, @UrlParam(name = "pm_#") Map<Integer, Integer> pmMap) {
 		User user = (User) getUser();
 
 		Ordner trash = Ordner.getTrash(user);

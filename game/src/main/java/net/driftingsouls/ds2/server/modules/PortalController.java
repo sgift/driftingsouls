@@ -61,9 +61,9 @@ import java.util.concurrent.ThreadLocalRandom;
 @Module(name = "portal", defaultModule = true, outputHandler = EmptyHeaderOutputHandler.class)
 public class PortalController extends Controller
 {
-	private AuthenticationManager authManager;
-	private TemplateViewResultFactory templateViewResultFactory;
-	private ConfigService configService;
+	private final AuthenticationManager authManager;
+	private final TemplateViewResultFactory templateViewResultFactory;
+	private final ConfigService configService;
 
 	@Autowired
 	public PortalController(AuthenticationManager authManager, TemplateViewResultFactory templateViewResultFactory, ConfigService configService)
@@ -106,11 +106,10 @@ public class PortalController extends Controller
 					String subject = "Neues Passwort fuer Drifting Souls 2";
 
 					String message = "Hallo {username},\n" +
-							"du hast ein neues Password angefordert. Dein neues Password lautet \"{password}\" und wurde verschluesselt gespeichert. Wenn es verloren geht, musst du dir ueber die \"Passwort vergessen?\" Funktion der Login-Seite ein neue\n" +
-							"s erstellen lassen.\n" +
-							"Bitte beachte, dass dein Passwort nicht an andere Nutzer weiter gegeben werden darf.\n" +
-							"Das Admin-Team wuenscht weiterhin einen angenehmen Aufenthalt in Drifting Souls 2\n" +
-							"Gruss Guzman\n" +
+							"Du hast ein neues Password angefordert. Dein neues Password lautet \"{password}\" und wurde verschlüsselt gespeichert. Wenn es verloren geht, musst Du Dir über die \"Passwort vergessen?\"-Funktion der Login-Seite ein neues erstellen lassen.\n" +
+							"Bitte beachte, dass Dein Passwort nicht an andere Nutzer weiter gegeben werden darf.\n" +
+							"Das Admin-Team wünscht weiterhin einen angenehmen Aufenthalt in Drifting Souls 2\n" +
+							"Gruß Guzman\n" +
 							"Admin\n" +
 							"{date} Serverzeit".replace("{username}", username);
 					message = message.replace("{password}", password);
@@ -189,8 +188,8 @@ public class PortalController extends Controller
 
 	private static class StartLocation
 	{
-		int orderLocationID;
-		int distance;
+		final int orderLocationID;
+		final int distance;
 
 		StartLocation(int orderLocationID, int distance)
 		{

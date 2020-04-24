@@ -9,8 +9,8 @@ package net.driftingsouls.ds2.server.framework.pipeline.controllers;
 */
 class PageMenuEntry
 {
-	String title;
-	String url;
+	final String title;
+	final String url;
 
 	PageMenuEntry(String title, String url) {
 		this.title = title;

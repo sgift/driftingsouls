@@ -85,10 +85,10 @@ public class StarSystem {
 	private int mapY;
 
 	@OneToMany(mappedBy = "system", cascade = CascadeType.ALL)
-	private Set<ConfigFelsbrockenSystem> felsbrockenKonfigurationen = new HashSet<>();
+	private final Set<ConfigFelsbrockenSystem> felsbrockenKonfigurationen = new HashSet<>();
 
 	@Transient
-	private ArrayList<Location> orderlocs = new ArrayList<>();
+	private final ArrayList<Location> orderlocs = new ArrayList<>();
 
 	/**
 	 * Standardkonstruktor.

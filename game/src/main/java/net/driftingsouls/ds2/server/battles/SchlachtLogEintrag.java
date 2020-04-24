@@ -22,7 +22,7 @@ public abstract class SchlachtLogEintrag implements Comparable<SchlachtLogEintra
 	private Integer version;
 
 	@Temporal(TemporalType.TIMESTAMP)
-	private Date zeitpunkt;
+	private final Date zeitpunkt;
 	private int tick;
 
 	protected SchlachtLogEintrag()

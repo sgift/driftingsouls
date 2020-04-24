@@ -82,8 +82,8 @@ public class Taskmanager {
 		 */
 		UPGRADE_JOB(8, HandleUpgradeJob.class);
 
-		private int typeID;
-		private Class<? extends TaskHandler> cls;
+		private final int typeID;
+		private final Class<? extends TaskHandler> cls;
 
 		Types(int typeID, Class<? extends TaskHandler> cls) {
 			this.typeID = typeID;

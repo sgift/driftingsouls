@@ -11,5 +11,5 @@ public class JqGridTableDataViewModel
 	public int page;
 	public int total;
 	public int records;
-	public List<JqGridRowDataViewModel> rows = new ArrayList<>();
+	public final List<JqGridRowDataViewModel> rows = new ArrayList<>();
 }

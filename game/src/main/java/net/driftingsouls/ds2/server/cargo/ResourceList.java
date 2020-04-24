@@ -43,7 +43,7 @@ public class ResourceList implements Iterable<ResourceEntry> {
 	private static class IDComparator implements Comparator<ResourceEntry>, Serializable {
 		private static final long serialVersionUID = 4261849413786052732L;
 
-		private ResourceIDComparator comp;
+		private final ResourceIDComparator comp;
 
 		IDComparator(boolean descending) {
 			this.comp = new ResourceIDComparator(descending);
@@ -64,7 +64,7 @@ public class ResourceList implements Iterable<ResourceEntry> {
 	private static class CargoComparator implements Comparator<ResourceEntry>, Serializable {
 		private static final long serialVersionUID = -2109193189213155880L;
 
-		private boolean descending;
+		private final boolean descending;
 
 		CargoComparator(boolean descending) {
 			this.descending = descending;
@@ -88,7 +88,7 @@ public class ResourceList implements Iterable<ResourceEntry> {
 	 *
 	 */
 	private static class ResourceIterator implements Iterator<ResourceEntry> {
-		private Iterator<ResourceEntry> iter;
+		private final Iterator<ResourceEntry> iter;
 
 		protected ResourceIterator(Iterator<ResourceEntry> inner) {
 			this.iter = inner;
@@ -110,7 +110,7 @@ public class ResourceList implements Iterable<ResourceEntry> {
 		}
 	}
 
-	private List<ResourceEntry> list = new ArrayList<>();
+	private final List<ResourceEntry> list = new ArrayList<>();
 
 	protected ResourceList() {
 		// EMPTY

@@ -22,8 +22,8 @@ public class NameProducerManager
 
 	public static final NameProducerManager INSTANCE = new NameProducerManager();
 
-	private ConcurrentMap<URL, Markov> markovCache = new ConcurrentHashMap<>();
-	private ConcurrentMap<URL, ListBasedNameProducer> listBasedCache = new ConcurrentHashMap<>();
+	private final ConcurrentMap<URL, Markov> markovCache = new ConcurrentHashMap<>();
+	private final ConcurrentMap<URL, ListBasedNameProducer> listBasedCache = new ConcurrentHashMap<>();
 
 	/**
 	 * Gibt fuer die angegebene Datei einen Markov-Namensgenerator zurueck.

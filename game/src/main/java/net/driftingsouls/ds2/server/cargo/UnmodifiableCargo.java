@@ -33,7 +33,7 @@ import java.util.List;
  *
  */
 public class UnmodifiableCargo extends Cargo {
-	private Cargo innerCargo;
+	private final Cargo innerCargo;
 	
 	/**
 	 * Erstellt eine neue Instanz um das angegebene Cargo-Objekt.

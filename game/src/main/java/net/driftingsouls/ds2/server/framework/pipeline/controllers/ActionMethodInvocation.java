@@ -10,9 +10,9 @@ import java.lang.reflect.Method;
  */
 class ActionMethodInvocation implements MethodInvocation
 {
-	private Method method;
-	private Object[] arguments;
-	private Object controller;
+	private final Method method;
+	private final Object[] arguments;
+	private final Object controller;
 
 	ActionMethodInvocation(Object controller, Method method, Object[] arguments)
 	{

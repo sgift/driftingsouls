@@ -18,8 +18,8 @@ import java.util.Map;
  */
 public class AdminStarmap extends PublicStarmap
 {
-	private Map<Location,Ship> scannableLocations;
-	private User adminUser;
+	private final Map<Location,Ship> scannableLocations;
+	private final User adminUser;
 	/**
 	 * Konstruktor.
 	 *

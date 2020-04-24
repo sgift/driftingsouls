@@ -130,8 +130,7 @@ public class NPCOrderTick extends TickController {
 		new SingleUnitOfWork("NPCOrderTick - PMs")
 		{
 			@Override
-			public void doWork() throws Exception
-			{
+			public void doWork() {
 				org.hibernate.Session db = getDB();
 				final User sourceUser = (User)db.get(User.class, -1);
 				for( Map.Entry<Integer, StringBuilder> entry : pmcache.entrySet() )
@@ -149,8 +148,7 @@ public class NPCOrderTick extends TickController {
 		new EvictableUnitOfWork<Integer>("NPCOrderTick - NPC-Punkte")
 		{
 			@Override
-			public void doWork(Integer userId) throws Exception
-			{
+			public void doWork(Integer userId) {
 				User user = (User)getDB().get(User.class, userId);
 				user.setNpcPunkte(user.getNpcPunkte()+1);
 			}

@@ -42,7 +42,7 @@ import java.util.Map;
 @Lazy
 public class Configuration
 {
-	private static Map<String, String> config = new HashMap<>();
+	private static final Map<String, String> config = new HashMap<>();
 
 	/**
 	 * Laedt alle Konfigurationseinstellungen aus der config.xml im angegebenen Verzeichnis. Alle

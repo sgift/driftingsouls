@@ -84,7 +84,7 @@ public abstract class Building
 	@ElementCollection
 	@CollectionTable(name = "building_alternativebilder")
 	@ForeignKey(name="building_alternativebilder_fk_building")
-	private Map<Integer, String> alternativeBilder;
+	private final Map<Integer, String> alternativeBilder;
 	@Type(type = "cargo")
 	@Column(name = "buildcosts", nullable = false)
 	private Cargo buildCosts;
@@ -767,7 +767,7 @@ public abstract class Building
 
 		public static class CPViewModel
 		{
-			public List<ResourceEntryViewModel> cargo = new ArrayList<>();
+			public final List<ResourceEntryViewModel> cargo = new ArrayList<>();
 			public EnergyViewModel energy;
 		}
 

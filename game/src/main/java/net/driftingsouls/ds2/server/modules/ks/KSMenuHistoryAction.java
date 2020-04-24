@@ -44,11 +44,11 @@ public class KSMenuHistoryAction extends BasicKSMenuAction {
 	private boolean showOK;
 	private boolean showTakeCommand;
 	
-	private StringBuilder history_text = new StringBuilder();
+	private final StringBuilder history_text = new StringBuilder();
 	private int historyPage = -1;
 	private int historyCurrentpage = 0;
 	private int historyMaxpage = 0;
-	private Map<Integer,String> historySides = new HashMap<>();
+	private final Map<Integer,String> historySides = new HashMap<>();
 
 	private final Map<Integer,Boolean> filter = new HashMap<>();
 
@@ -166,34 +166,27 @@ public class KSMenuHistoryAction extends BasicKSMenuAction {
 					"global.showlog.okbutton",		this.showOK,
 					"global.showlog.takecommand",	this.showTakeCommand,
 					"global.showlog.actionstr",		actionstr );
-		
-		try {
-			if( battle.getSchlachtLog() != null )
-			{
-				parseLog(battle.getSchlachtLog());
-			}
-			
-			BBCodeParser bbcodeparser = BBCodeParser.getNewInstance();
-			bbcodeparser.registerHandler( "tooltip", 2, "<a class='tooltip' href=\"#\">$1<span class='ttcontent'>$2</span></a>" );
-		
-			for( int i=0; i <= this.historyMaxpage; i++ ) {
-				t.setVar(	"global.showlog.turnlist.pageid",	i,
-							"global.showlog.turnlist.page",		i+1 );
-				t.parse("global.showlog.turnlist.list", "global.showlog.turnlist.item", true);
-			}
-		
-			t.setVar("global.showlog.log", bbcodeparser.parse(this.history_text.toString()).replace("\n", "<br />"));
+
+		if( battle.getSchlachtLog() != null )
+		{
+			parseLog(battle.getSchlachtLog());
 		}
-		catch( SAXException | IOException e ) {
-			t.setVar("global.showlog.log", "Fehler beim Anzeigen der Kampfhistorie: "+e);
-			log.error("", e);
+
+		BBCodeParser bbcodeparser = BBCodeParser.getNewInstance();
+		bbcodeparser.registerHandler( "tooltip", 2, "<a class='tooltip' href=\"#\">$1<span class='ttcontent'>$2</span></a>" );
+
+		for( int i=0; i <= this.historyMaxpage; i++ ) {
+			t.setVar(	"global.showlog.turnlist.pageid",	i,
+						"global.showlog.turnlist.page",		i+1 );
+			t.parse("global.showlog.turnlist.list", "global.showlog.turnlist.item", true);
 		}
+
+		t.setVar("global.showlog.log", bbcodeparser.parse(this.history_text.toString()).replace("\n", "<br />"));
 
 		return Result.OK;
 	}
 
-	private void parseLog(SchlachtLog ksLog) throws SAXException, IOException
-	{
+	private void parseLog(SchlachtLog ksLog) {
 		for (SchlachtLogEintrag eintrag : ksLog.getEintraege())
 		{
 			if( eintrag instanceof SchlachtLogAktion )

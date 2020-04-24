@@ -41,7 +41,7 @@ import java.util.concurrent.ThreadLocalRandom;
 @Table(name="academy_queue_entry")
 public class AcademyQueueEntry {
 
-	private static Map<Integer,Offizier.Ability> dTrain = new HashMap<>();
+	private static final Map<Integer,Offizier.Ability> dTrain = new HashMap<>();
 
 	static {
 		dTrain.put(1, Offizier.Ability.ING);

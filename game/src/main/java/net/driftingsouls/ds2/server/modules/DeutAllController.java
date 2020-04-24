@@ -46,7 +46,7 @@ import java.util.List;
 @Module(name="deutall")
 public class DeutAllController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public DeutAllController(TemplateViewResultFactory templateViewResultFactory) {

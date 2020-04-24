@@ -26,14 +26,14 @@ package net.driftingsouls.ds2.server.cargo;
  *
  */
 public class ResourceEntry {
-	private ResourceID id;
-	private String name;
-	private String plainName;
-	private String image;
-	private long count1;
+	private final ResourceID id;
+	private final String name;
+	private final String plainName;
+	private final String image;
+	private final long count1;
 	private long count2 = 0;
 	private long diff = 0;
-	private String cargo1;
+	private final String cargo1;
 	private String cargo2 = null;
 	private boolean largeImages = false;
 

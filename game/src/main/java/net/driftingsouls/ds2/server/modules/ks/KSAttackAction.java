@@ -106,10 +106,10 @@ public class KSAttackAction extends BasicKSAction {
 	 */
 	private static class AmmoBasierteWaffenbeschreibung extends Waffenbeschreibung
 	{
-		private Munitionsdefinition ammo;
-		private Weapon weapon;
-		private boolean kleinesZiel;
-		private ItemCargoEntry<Munition> ammoitem;
+		private final Munitionsdefinition ammo;
+		private final Weapon weapon;
+		private final boolean kleinesZiel;
+		private final ItemCargoEntry<Munition> ammoitem;
 
 		private AmmoBasierteWaffenbeschreibung(Weapon weapon, Munitionsdefinition ammo, ItemCargoEntry<Munition> ammoitem, boolean kleinesZiel)
 		{
@@ -219,8 +219,8 @@ public class KSAttackAction extends BasicKSAction {
 	 */
 	private static class WaffenBasierteWaffenbeschreibung extends Waffenbeschreibung
 	{
-		private Weapon weapon;
-		private boolean kleinesZiel;
+		private final Weapon weapon;
+		private final boolean kleinesZiel;
 
 		private WaffenBasierteWaffenbeschreibung(Weapon weapon, boolean kleinesZiel)
 		{
@@ -322,7 +322,7 @@ public class KSAttackAction extends BasicKSAction {
 		}
 	}
 
-	private Weapon weapon;
+	private final Weapon weapon;
 	private BattleShip ownShip;
 	private BattleShip enemyShip;
 	private Waffenbeschreibung localweapon;

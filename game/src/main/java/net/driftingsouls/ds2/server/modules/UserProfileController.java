@@ -45,7 +45,7 @@ import java.util.Set;
 @Module(name = "userprofile")
 public class UserProfileController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public UserProfileController(TemplateViewResultFactory templateViewResultFactory)
@@ -59,7 +59,7 @@ public class UserProfileController extends Controller
 	{
 		if ((benutzer == null) || (benutzer.hasFlag(UserFlag.HIDE) && !hasPermission(WellKnownPermission.USER_VERSTECKTE_SICHTBAR)))
 		{
-			throw new ValidierungException("Ihnen ist kein Benutzer unter der angegebenen ID bekannt", Common.buildUrl("default", "module", "ueber"));
+			throw new ValidierungException("Ihnen ist kein Benutzer unter der angegebenen ID bekannt.", Common.buildUrl("default", "module", "ueber"));
 		}
 	}
 
@@ -82,7 +82,7 @@ public class UserProfileController extends Controller
 
 		user.setRelation(ausgewaehlterBenutzer.getId(), relation);
 
-		return new RedirectViewResult("default").withMessage("Beziehungsstatus geändert");
+		return new RedirectViewResult("default").withMessage("Beziehungsstatus geändert.");
 	}
 
 	/**
@@ -100,20 +100,20 @@ public class UserProfileController extends Controller
 
 		if (user.getAlly() == null)
 		{
-			addError("Sie sind in keiner Allianz");
+			addError("Sie sind in keiner Allianz.");
 			return new RedirectViewResult("default");
 		}
 
 		if (user.getAlly() == ausgewaehlterBenutzer.getAlly())
 		{
-			addError("Sie befinden sich in der selben Allianz");
+			addError("Sie befinden sich in derselben Allianz.");
 			return new RedirectViewResult("default");
 		}
 
 		User allypresi = user.getAlly().getPresident();
 		if (allypresi.getId() != user.getId())
 		{
-			addError("Sie sind nicht der Präsident der Allianz");
+			addError("Sie sind nicht der Anführer der Allianz.");
 			return new RedirectViewResult("default");
 		}
 
@@ -123,7 +123,7 @@ public class UserProfileController extends Controller
 			auser.setRelation(ausgewaehlterBenutzer.getId(), relation);
 		}
 
-		return new RedirectViewResult("default").withMessage("Beziehungsstatus geändert");
+		return new RedirectViewResult("default").withMessage("Beziehungsstatus geändert.");
 	}
 
 	/**

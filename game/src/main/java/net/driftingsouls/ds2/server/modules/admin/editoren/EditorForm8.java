@@ -17,14 +17,14 @@ public class EditorForm8<E> implements FormElementCreator<E>
 
 	private Function<E,Boolean> allowDelete;
 	private final EditorMode modus;
-	private Class<?> plugin;
-	private List<CustomFieldGenerator<E>> fields = new ArrayList<>();
+	private final Class<?> plugin;
+	private final List<CustomFieldGenerator<E>> fields = new ArrayList<>();
 	private int counter;
 	private boolean allowAdd;
 	private Function<E,Boolean> allowUpdate;
-	private List<Job<E,?>> postAddTasks = new ArrayList<>();
-	private List<Job<E,?>> updateTasks = new ArrayList<>();
-	private List<Job<E,?>> deleteTasks = new ArrayList<>();
+	private final List<Job<E,?>> postAddTasks = new ArrayList<>();
+	private final List<Job<E,?>> updateTasks = new ArrayList<>();
+	private final List<Job<E,?>> deleteTasks = new ArrayList<>();
 	private Class<? extends E> defaultEntityClass = null;
 
 	public EditorForm8(EditorMode modus, Class<?> plugin)
@@ -364,10 +364,9 @@ public class EditorForm8<E> implements FormElementCreator<E>
 	}
 
 	@SuppressWarnings("unchecked")
-	protected Class<? extends E> getEntityClassRequestValue(Request request, E entity) throws IOException
-	{
+	protected Class<? extends E> getEntityClassRequestValue(Request request, E entity) {
 		Optional<CustomFieldGenerator<E>> field = fields.stream().filter((f) -> f instanceof EntityClassGenerator).findFirst();
-		if( !field.isPresent() )
+		if(field.isEmpty())
 		{
 			return (Class<? extends E>) entity.getClass();
 		}

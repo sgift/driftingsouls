@@ -100,7 +100,7 @@ public class KSMenuDefaultAction extends BasicKSMenuAction {
 
 		// Zweite Reihe verlassen
 		if( this.isPossible(battle, new KSLeaveSecondRowAction()) == Result.OK ) {
-			this.menuEntry(t, "Zweite Reihe verlassen",
+			this.menuEntry(t, "zweite Reihe verlassen",
 									"ship",			ownShip.getId(),
 									"attack",		enemyShip.getId(),
 									"ksaction",		"leavesecondrow" );
@@ -108,7 +108,7 @@ public class KSMenuDefaultAction extends BasicKSMenuAction {
 
 		// Zweite Reihe
 		if( this.isPossible(battle, new KSSecondRowAction()) == Result.OK ) {
-			this.menuEntry(t, "In zweite Reihe verlegen",
+			this.menuEntry(t, "in zweite Reihe verlegen",
 									"ship",			ownShip.getId(),
 									"attack",		enemyShip.getId(),
 									"ksaction",		"secondrow" );
@@ -116,7 +116,7 @@ public class KSMenuDefaultAction extends BasicKSMenuAction {
 
 		// Naechstes eigenes Schiff
 		if(battle.getOwnShipCount()>1){
-			this.menuEntry(t, "N&auml;chstes eigenes Schiff",
+			this.menuEntry(t, "n&auml;chstes eigenes Schiff",
 									"ship",			battle.getNextOwnBattleShip().getId(),
 									"attack",		enemyShip.getId(),
 									"ksaction",		"default" );
@@ -124,13 +124,13 @@ public class KSMenuDefaultAction extends BasicKSMenuAction {
 
 		// Naechstes feindliches Schiff
 		if( battle.getEnemyShipCount()>1){
-			this.menuEntry(t, "N&auml;chstes feindliches Schiff",
+			this.menuEntry(t, "n&auml;chstes feindliches Schiff",
 									"ship",			ownShip.getId(),
 									"attack",		battle.getNextEnemyBattleShip().getId(),
 									"ksaction",		"default" );
 		}
 
-		menuEntry(t, "sonstiges",	"ship",		ownShip.getId(),
+		menuEntry(t, "Sonstiges",	"ship",		ownShip.getId(),
 								"attack",	enemyShip.getId(),
 								"ksaction",	"other" );
 

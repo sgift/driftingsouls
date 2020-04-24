@@ -10,7 +10,7 @@ import java.util.List;
 
 class ControllerAnalyser
 {
-	private Class<?> controllerCls;
+	private final Class<?> controllerCls;
 
 	public ControllerAnalyser(Class<?> controllerCls)
 	{

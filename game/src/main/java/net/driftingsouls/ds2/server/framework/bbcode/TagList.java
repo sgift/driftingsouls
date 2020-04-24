@@ -30,7 +30,7 @@ class TagList implements BBCodeFunction {
 		SUBLIST
 	}
 
-	private Type type;
+	private final Type type;
 	
 	protected TagList( Type type ) {
 		this.type = type;

@@ -15,8 +15,8 @@ import java.util.Set;
  */
 public class PermissionDelegatePermissionResolver implements PermissionResolver
 {
-	private PermissionResolver inner;
-	private Set<Permission> permissions;
+	private final PermissionResolver inner;
+	private final Set<Permission> permissions;
 
 	/**
 	 * Konstruktor.

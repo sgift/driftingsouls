@@ -291,7 +291,7 @@ public class SchiffsTick extends TickController {
 			shipd.setCrew(0);
 		}
 
-		shipd.recalculateShipStatus(false);
+		shipd.recalculateShipStatus(true);
 
 		this.slog("\tNeu: crew "+shipd.getCrew()+" e "+e+" nc "+shipd.getNahrungCargo()+" : <");
 		this.slog(shipd.getStatus());
@@ -856,8 +856,7 @@ public class SchiffsTick extends TickController {
 		new EvictableUnitOfWork<Integer>("SchiffsTick - Schadensnebel")
 		{
 			@Override
-			public void doWork(Integer shipId) throws Exception
-			{
+			public void doWork(Integer shipId) {
 				org.hibernate.Session db = getDB();
 
 				Ship ship = (Ship)db.get(Ship.class, shipId);
@@ -907,8 +906,7 @@ public class SchiffsTick extends TickController {
 				.list());
 		new EvictableUnitOfWork<Integer>("SchiffsTick - destroy-status") {
 			@Override
-			public void doWork(Integer shipId) throws Exception
-			{
+			public void doWork(Integer shipId) {
 				org.hibernate.Session db = getDB();
 
 				Ship aship = (Ship)db.get(Ship.class, shipId);
@@ -931,8 +929,7 @@ public class SchiffsTick extends TickController {
 		new EvictableUnitOfWork<Integer>("SchiffsTick - user")
 		{
 			@Override
-			public void doWork(Integer userId) throws Exception
-			{
+			public void doWork(Integer userId) {
 				org.hibernate.Session db = getDB();
 
 				log("###### User "+userId+" ######");
@@ -963,8 +960,7 @@ public class SchiffsTick extends TickController {
 		new UnitOfWork<ShipFlag>("SchiffsTick - flags")
 		{
 			@Override
-			public void doWork(ShipFlag flag) throws Exception
-			{
+			public void doWork(ShipFlag flag) {
 				org.hibernate.Session db = getDB();
 
 				flag.setRemaining(flag.getRemaining()-1);

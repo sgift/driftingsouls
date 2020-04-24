@@ -46,7 +46,7 @@ import java.util.*;
 @Module(name = "fleetmgnt")
 public class FleetMgntController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public FleetMgntController(TemplateViewResultFactory templateViewResultFactory)
@@ -955,7 +955,7 @@ public class FleetMgntController extends Controller
 
 	private static class StringNamePatternElement implements NamePatternElement
 	{
-		private String text;
+		private final String text;
 
 		StringNamePatternElement(String text)
 		{

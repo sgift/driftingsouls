@@ -27,7 +27,7 @@ package net.driftingsouls.ds2.server.framework.pipeline;
  *
  */
 public class Error {
-	private String description;
+	private final String description;
 	private String url;
 	
 	/**

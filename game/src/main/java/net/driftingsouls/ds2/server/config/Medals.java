@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  *
  */
 public class Medals {
-	private static Medals medalList = new Medals();
+	private static final Medals medalList = new Medals();
 
 	private Medals() {
 		// EMPTY

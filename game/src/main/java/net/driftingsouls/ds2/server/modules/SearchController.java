@@ -84,9 +84,9 @@ public class SearchController extends Controller
 			public String plainname;
 		}
 
-		public List<BaseViewModel> bases = new ArrayList<>();
-		public List<ShipViewModel> ships = new ArrayList<>();
-		public List<UserViewModel> users = new ArrayList<>();
+		public final List<BaseViewModel> bases = new ArrayList<>();
+		public final List<ShipViewModel> ships = new ArrayList<>();
+		public final List<UserViewModel> users = new ArrayList<>();
 		public boolean maxObjects;
 	}
 

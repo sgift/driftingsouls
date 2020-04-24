@@ -53,7 +53,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	private static final ServiceLoader<AuthenticateEventListener> authListenerList = ServiceLoader.load(AuthenticateEventListener.class);
 	private static final boolean DEV_MODE = !Configuration.isProduction();
 
-	private ConfigService configService;
+	private final ConfigService configService;
 
 	@Autowired
 	public DefaultAuthenticationManager(ConfigService configService)
@@ -180,7 +180,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	}
 
 	@Override
-	public BasicUser adminLogin(BasicUser user, boolean attach) throws AuthenticationException {
+	public BasicUser adminLogin(BasicUser user, boolean attach) {
 		Context context = ContextMap.getContext();
 
 		BasicUser oldUser = context.getActiveUser();
@@ -247,13 +247,8 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 			return false;
 		}
 
-		try {
-			for( AuthenticateEventListener listener : authListenerList ) {
-				listener.onAuthenticate(user);
-			}
-		}
-		catch( AuthenticationException e ) {
-			return false;
+		for( AuthenticateEventListener listener : authListenerList ) {
+			listener.onAuthenticate(user);
 		}
 
 		if( jsession.getAttach() != null )

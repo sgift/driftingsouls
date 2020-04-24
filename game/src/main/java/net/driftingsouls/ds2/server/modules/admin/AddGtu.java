@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 @AdminMenuEntry(category="GTU", name="Versteigern", permission = WellKnownAdminPermission.ADD_GTU)
 public class AddGtu implements AdminPlugin {
 	@Override
-	public void output(StringBuilder echo) throws IOException {
+	public void output(StringBuilder echo) {
 		Context context = ContextMap.getContext();
 
 		int ship = context.getRequest().getParameterInt("ship");

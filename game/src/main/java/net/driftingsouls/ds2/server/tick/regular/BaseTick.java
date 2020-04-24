@@ -42,7 +42,7 @@ import java.util.List;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class BaseTick extends TickController 
 {
-	private BaseTickerService baseTickerService;
+	private final BaseTickerService baseTickerService;
 
 	@Autowired
 	public BaseTick(BaseTickerService baseTickerService)
@@ -64,8 +64,7 @@ public class BaseTick extends TickController
 		new EvictableUnitOfWork<Integer>("Base Tick")
 		{
 			@Override
-			public void doWork(Integer userId) throws Exception
-			{
+			public void doWork(Integer userId) {
 				// Get all bases, take everything with them - we need it all.
 				List<Base> bases = Common.cast(getDB().createQuery("from Base b fetch all properties where b.owner=:owner")
 						.setInteger("owner", userId)

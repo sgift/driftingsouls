@@ -37,7 +37,7 @@ import java.util.Map;
  *
  */
 public class StatRichestUser extends AbstractStatistic implements Statistic {
-	private boolean allys;
+	private final boolean allys;
 
 	/**
 	 * Konstruktor.

@@ -30,7 +30,7 @@ public class ResourceIDComparator implements Comparator<ResourceID>, Serializabl
 {
 	private static final long serialVersionUID = 3588397636540631609L;
 
-	private boolean descending;
+	private final boolean descending;
 
 	/**
 	 * Konstruktor.

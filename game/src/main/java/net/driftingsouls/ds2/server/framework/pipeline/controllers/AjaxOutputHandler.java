@@ -28,7 +28,7 @@ public class AjaxOutputHandler extends OutputHandler
 		}
 
 		public MessageViewModel message;
-		public List<ErrorViewModel> errors = new ArrayList<>();
+		public final List<ErrorViewModel> errors = new ArrayList<>();
 	}
 
 	@Override

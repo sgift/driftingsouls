@@ -44,10 +44,10 @@ public class ClippedStarmap extends Starmap
 {
 	private final Starmap inner;
 	private final int[] ausschnitt;
-	private Map<Location, List<Ship>> clippedShipMap;
-	private Map<Location, Nebel> clippedNebulaMap;
-	private Map<Location, List<Base>> clippedBaseMap;
-	private Session db;
+	private final Map<Location, List<Ship>> clippedShipMap;
+	private final Map<Location, Nebel> clippedNebulaMap;
+	private final Map<Location, List<Base>> clippedBaseMap;
+	private final Session db;
 
 	/**
 	 * Konstruktor.

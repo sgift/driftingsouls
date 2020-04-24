@@ -61,8 +61,8 @@ import java.util.List;
 public class OptionsController extends Controller
 {
 	private static final Log log = LogFactory.getLog(OptionsController.class);
-	private TemplateViewResultFactory templateViewResultFactory;
-	private ConfigService configService;
+	private final TemplateViewResultFactory templateViewResultFactory;
+	private final ConfigService configService;
 
 	@Autowired
 	public OptionsController(TemplateViewResultFactory templateViewResultFactory, ConfigService configService)
@@ -126,7 +126,7 @@ public class OptionsController extends Controller
 			String message = "Hallo {username},\n" +
 					"Du hast Dein Password geändert. Dein Passwort wird kodiert gespeichert. Wenn es verloren geht, musst Du Dir über die \"neues Password zuteilen\"-Funktion der Login-Seite ein neues erstellen lassen.\n" +
 					"Das Admin-Team wünscht viel Spaß mit Drifting Souls 2!\n" +
-					"Gruss Guzman\n" +
+					"Gruß Guzman\n" +
 					"Admin\n" +
 					"{date} Serverzeit";
 			message = message.replace("{username}", user.getUN());
@@ -301,7 +301,7 @@ public class OptionsController extends Controller
 	@ViewModel
 	public static class GenerierePersonenNamenBeispieleViewModel
 	{
-		public List<String> namen = new ArrayList<>();
+		public final List<String> namen = new ArrayList<>();
 	}
 
 	@Action(ActionType.AJAX)
@@ -354,7 +354,7 @@ public class OptionsController extends Controller
 	@ViewModel
 	public static class GeneriereSchiffsNamenBeispieleViewModel
 	{
-		List<SchiffsKlasseNameBeispiel> namen = new ArrayList<>();
+		final List<SchiffsKlasseNameBeispiel> namen = new ArrayList<>();
 	}
 
 	@Action(ActionType.AJAX)

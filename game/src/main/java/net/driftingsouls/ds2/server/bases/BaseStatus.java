@@ -29,14 +29,14 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
  *
  */
 public class BaseStatus {
-	private Cargo status;
-    private Cargo nettoproductionstatus;
-    private Cargo nettoconsumptionstatus;
-	private int e;
-	private int livingSpace;
-	private int arbeiter;
-	private Map<Integer,Integer> blocations;
-	private Integer[] active;
+	private final Cargo status;
+    private final Cargo nettoproductionstatus;
+    private final Cargo nettoconsumptionstatus;
+	private final int e;
+	private final int livingSpace;
+	private final int arbeiter;
+	private final Map<Integer,Integer> blocations;
+	private final Integer[] active;
 	
 	protected BaseStatus(Cargo status, Cargo nettoproductionstatus, Cargo nettoconsumptionstatus, int e, int bewohner, int arbeiter, Map<Integer,Integer> blocations, Integer[] active ) {
 		super();

@@ -83,9 +83,9 @@ public class ImpObjectsController extends Controller
 		}
 
 		public SystemViewModel system;
-		public List<JumpNodeViewModel> jumpnodes = new ArrayList<>();
-		public List<HandelspostenViewModel> posten = new ArrayList<>();
-		public List<BasisViewModel> bases = new ArrayList<>();
+		public final List<JumpNodeViewModel> jumpnodes = new ArrayList<>();
+		public final List<HandelspostenViewModel> posten = new ArrayList<>();
+		public final List<BasisViewModel> bases = new ArrayList<>();
 	}
 
 	/**

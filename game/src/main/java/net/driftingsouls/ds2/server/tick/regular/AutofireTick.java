@@ -59,8 +59,7 @@ public class AutofireTick extends TickController {
 		new EvictableUnitOfWork<Integer>("Battle Tick")
 		{
 			@Override
-			public void doWork(Integer battleId) throws Exception
-			{
+			public void doWork(Integer battleId) {
 				org.hibernate.Session db = getDB();
 				Battle battle = (Battle)db.get(Battle.class, battleId);
 				battle.load( battle.getCommander(0), null, null, 0 );
@@ -74,8 +73,7 @@ public class AutofireTick extends TickController {
         new EvictableUnitOfWork<Integer>("Battle Tick")
         {
             @Override
-            public void doWork(Integer battleId) throws Exception
-            {
+            public void doWork(Integer battleId) {
                 org.hibernate.Session db = getDB();
                 Battle battle = (Battle)db.get(Battle.class, battleId);
                 battle.load( battle.getCommander(1), null, null, 0 );

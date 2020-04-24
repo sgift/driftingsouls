@@ -44,8 +44,8 @@ import java.io.InputStream;
  *
  */
 public class XMLUtils {
-	private static DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-	private static XPathFactory xFactory = XPathFactory.newInstance();
+	private static final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+	private static final XPathFactory xFactory = XPathFactory.newInstance();
 	
 	static {
 		factory.setNamespaceAware(true);

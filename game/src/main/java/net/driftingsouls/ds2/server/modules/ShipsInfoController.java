@@ -32,7 +32,7 @@ import java.util.TreeSet;
 @Module(name = "shipsinfo")
 public class ShipsInfoController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public ShipsInfoController(TemplateViewResultFactory templateViewResultFactory)
@@ -182,7 +182,7 @@ public class ShipsInfoController extends Controller
 		}
 	}
 
-	private NameSorter sortTypeByName = new NameSorter();
+	private final NameSorter sortTypeByName = new NameSorter();
 }
 
 

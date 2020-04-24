@@ -29,7 +29,7 @@ import net.driftingsouls.ds2.server.framework.Common;
  */
 public class ItemID implements ResourceID
 {
-	private int itemid;
+	private final int itemid;
 	private int uses;
 	private int quest;
 	private int hashCode = 0;

@@ -12,7 +12,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
  */
 class ShopShipEntry extends ShopEntry
 {
-	private ShipTypeData shiptype;
+	private final ShipTypeData shiptype;
 
 	/**
 	 * Konstruktor.

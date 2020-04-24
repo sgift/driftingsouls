@@ -13,7 +13,7 @@ public class ColumnDefinition<E>
 	private final SingularAttribute<E,?> dbColumn;
 	private boolean editable;
 	private String edittype;
-	private Map<String,String> editoptions = new HashMap<>();
+	private final Map<String,String> editoptions = new HashMap<>();
 
 	public ColumnDefinition(String id, String label, Class<?> viewType)
 	{

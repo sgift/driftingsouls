@@ -124,8 +124,8 @@ public enum ShipClasses {
 	 */
 	MINER("Miner", "Miner", true, false);
 
-	private String singular;
-	private String plural;
+	private final String singular;
+	private final String plural;
 	private final boolean kaperbar;
 
 	private final boolean darfSchlachtenAnsehen;

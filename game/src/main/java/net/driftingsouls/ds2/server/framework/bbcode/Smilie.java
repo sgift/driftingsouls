@@ -44,9 +44,9 @@ public class Smilie {
 	@Id @GeneratedValue
 	private int id;
 	@Column(nullable = false)
-	private String tag;
+	private final String tag;
 	@Column(nullable = false)
-	private String image;
+	private final String image;
 	
 	@Version
 	private int version;

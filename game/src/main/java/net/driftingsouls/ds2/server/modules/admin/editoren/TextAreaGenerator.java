@@ -26,8 +26,7 @@ public class TextAreaGenerator<V> implements CustomFieldGenerator<V>
 	}
 
 	@Override
-	public void generate(StringBuilder echo, V entity) throws IOException
-	{
+	public void generate(StringBuilder echo, V entity) {
 		String value = getter.apply(entity);
 		echo.append("<tr>");
 		echo.append("<td colspan='2'>").append(label.trim().isEmpty() ? "" : label + ":").append("</td>");

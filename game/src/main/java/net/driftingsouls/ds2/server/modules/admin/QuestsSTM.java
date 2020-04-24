@@ -35,7 +35,7 @@ import java.util.List;
 @AdminMenuEntry(category="Quests", name="Sectortemplates", permission = WellKnownAdminPermission.QUESTS_STM)
 public class QuestsSTM implements AdminPlugin {
 	@Override
-	public void output(StringBuilder echo) throws IOException {
+	public void output(StringBuilder echo) {
 		Context context = ContextMap.getContext();
 
 		String stmid = context.getRequest().getParameterString("stmid");

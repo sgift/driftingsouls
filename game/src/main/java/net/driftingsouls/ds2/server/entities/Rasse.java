@@ -28,14 +28,14 @@ public class Rasse
 	@Id
 	@GeneratedValue
 	private int id;
-	@ManyToOne(optional = true)
-	@JoinColumn(nullable = true)
+	@ManyToOne()
+	@JoinColumn()
 	@ForeignKey(name = "rasse_fk_rasse")
 	private Rasse memberIn;
 	private boolean playable;
 	private boolean playableext;
-	@OneToOne(cascade = {})
-	@JoinColumn(nullable = true)
+	@OneToOne()
+	@JoinColumn()
 	@ForeignKey(name = "rasse_fk_user")
 	private User head;
 	@SuppressWarnings("UnusedDeclaration")

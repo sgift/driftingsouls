@@ -32,9 +32,9 @@ import static net.driftingsouls.ds2.server.namegenerator.NameGeneratorUtils.*;
  */
 public class SpanischeNamenGenerator
 {
-	private NameProducer lastname;
-	private NameProducer firstName;
-	private String[] kapitalisierungen;
+	private final NameProducer lastname;
+	private final NameProducer firstName;
+	private final String[] kapitalisierungen;
 
 	/**
 	 * Konstruktor.

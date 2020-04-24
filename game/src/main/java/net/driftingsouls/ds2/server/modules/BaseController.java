@@ -56,7 +56,7 @@ import java.util.TreeMap;
 @Module(name="base")
 public class BaseController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public BaseController(TemplateViewResultFactory templateViewResultFactory) {
@@ -216,8 +216,8 @@ public class BaseController extends Controller
 			public int arbeiter;
 			public int arbeiterErforderlich;
 			public int wohnraum;
-			public List<ResourceEntryViewModel> cargo = new ArrayList<>();
-			public List<UnitCargoEntryViewModel> einheiten = new ArrayList<>();
+			public final List<ResourceEntryViewModel> cargo = new ArrayList<>();
+			public final List<UnitCargoEntryViewModel> einheiten = new ArrayList<>();
 			public CoreViewModel core;
 		}
 
@@ -245,8 +245,8 @@ public class BaseController extends Controller
 
 		public int col;
 		public BaseViewModel base;
-		public List<FeldViewModel> karte = new ArrayList<>();
-		public List<GebaeudeStatusViewModel> gebaeudeStatus = new ArrayList<>();
+		public final List<FeldViewModel> karte = new ArrayList<>();
+		public final List<GebaeudeStatusViewModel> gebaeudeStatus = new ArrayList<>();
 	}
 
 	/**

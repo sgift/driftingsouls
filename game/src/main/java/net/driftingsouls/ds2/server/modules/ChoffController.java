@@ -41,7 +41,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Module(name = "choff")
 public class ChoffController extends Controller
 {
-	private TemplateViewResultFactory  templateViewResultFactory;
+	private final TemplateViewResultFactory  templateViewResultFactory;
 
 	@Autowired
 	public ChoffController(TemplateViewResultFactory templateViewResultFactory)

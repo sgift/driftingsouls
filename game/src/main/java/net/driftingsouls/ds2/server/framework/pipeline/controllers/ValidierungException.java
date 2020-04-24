@@ -5,7 +5,7 @@ package net.driftingsouls.ds2.server.framework.pipeline.controllers;
  */
 public class ValidierungException extends RuntimeException
 {
-	private String url;
+	private final String url;
 
 	public ValidierungException(String message)
 	{

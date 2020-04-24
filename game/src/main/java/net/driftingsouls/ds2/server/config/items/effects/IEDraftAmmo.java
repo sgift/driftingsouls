@@ -35,7 +35,7 @@ import net.driftingsouls.ds2.server.entities.FactoryEntry;
  *
  */
 public class IEDraftAmmo extends ItemEffect {
-	private FactoryEntry fabrikeintrag;
+	private final FactoryEntry fabrikeintrag;
 
 	public IEDraftAmmo(boolean allyEffect, FactoryEntry ammo) {
 		super(ItemEffect.Type.DRAFT_AMMO, allyEffect);

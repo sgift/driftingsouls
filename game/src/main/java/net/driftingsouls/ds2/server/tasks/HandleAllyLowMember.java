@@ -41,7 +41,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class HandleAllyLowMember implements TaskHandler {
-	private AllianzService allianzService;
+	private final AllianzService allianzService;
 
 	@Autowired
 	public HandleAllyLowMember(AllianzService allianzService)

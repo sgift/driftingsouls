@@ -46,8 +46,8 @@ import java.util.List;
 public class MainController extends Controller {
 	private static final String SCRIPT_FORUM = "http://ds.rnd-it.de/";
 
-	private Version version;
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final Version version;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public MainController(Version version, TemplateViewResultFactory templateViewResultFactory) {

@@ -21,10 +21,10 @@ import java.util.Map;
  */
 public class TestRequest implements Request
 {
-	private Log log = LogFactory.getLog(TestRequest.class);
+	private final Log log = LogFactory.getLog(TestRequest.class);
 
-	private Map<String,String> params = new HashMap<>();
-	private Map<Class<?>,Object> sessionScope = new HashMap<>();
+	private final Map<String,String> params = new HashMap<>();
+	private final Map<Class<?>,Object> sessionScope = new HashMap<>();
 
 	/**
 	 * Erstellt ein neues (leeres) Request-Objekt.
@@ -76,8 +76,7 @@ public class TestRequest implements Request
 	}
 
 	@Override
-	public InputStream getInputStream() throws IOException
-	{
+	public InputStream getInputStream() {
 		return null;
 	}
 

@@ -122,11 +122,11 @@ public class Ally {
 		this.description = "";
 		this.hp = "";
 		this.allytag = "[name]";
-		this.pname = "Pr&auml;sident";
+		this.pname = "Anführer";
 		this.founded = new Date();
 		this.tick = ContextMap.getContext().get(ContextCommon.class).getTick();
 		this.showastis = true;
-		this.showGtuBieter = 0;
+		this.showGtuBieter = 1;
 		this.showlrs = 1;
 		this.items = "";
 		this.rangDescriptors = new TreeSet<>();
@@ -292,15 +292,15 @@ public class Ally {
 	}
 
 	/**
-	 * Gibt den Namen des Praesidentenamts zurueck.
-	 * @return Der Name des Praesidentneamts
+	 * Gibt den Namen des Praesidentenamts / Anführeramts zurueck.
+	 * @return Der Name des Praesidentneamts / Anführeramts
 	 */
 	public String getPname() {
 		return pname;
 	}
 
 	/**
-	 * Setzt den Namen des Praesidentenamts.
+	 * Setzt den Namen des Praesidentenamts / Anführeramts.
 	 * @param pname Der neue Name des Amts
 	 */
 	public void setPname(String pname) {
@@ -308,16 +308,16 @@ public class Ally {
 	}
 
 	/**
-	 * Gibt den Praesidenten zurueck.
-	 * @return Der Praesident
+	 * Gibt den Praesidenten / Anführer zurueck.
+	 * @return Der Praesident / Anführer
 	 */
 	public User getPresident() {
 		return president;
 	}
 
 	/**
-	 * Setzt den Allianzpraesidenten.
-	 * @param president Der neue Praesident
+	 * Setzt den Allianzpraesidenten / Allianzanführer.
+	 * @param president Der neue Praesident / Anführer
 	 */
 	public void setPresident(User president) {
 		this.president = president;

@@ -54,7 +54,7 @@ public class HandleAllyLowMemberTest extends DBSingleTransactionTest
 	private Task task;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		this.sender = persist(new User("senderUser", "***", 0, "", new Cargo(), "testSender@localhost"));
 		ConfigValue configValue = new ConfigService().get(WellKnownConfigValue.ALLIANZAUFLOESUNG_PM_SENDER);
 		configValue.setValue(String.valueOf(sender.getId()));
@@ -77,10 +77,9 @@ public class HandleAllyLowMemberTest extends DBSingleTransactionTest
 
 	/**
 	 * Testet die Task
-	 * @throws Exception 
-	 */
+     */
 	@Test
-	public void gegebenEineAllianzUndEineAllyLowMemberTask_handleTask_sollteDieAllianzAufloesen() throws Exception {
+	public void gegebenEineAllianzUndEineAllyLowMemberTask_handleTask_sollteDieAllianzAufloesen() {
 		// setup
 
 		// run

@@ -25,8 +25,7 @@ public class LabelGenerator<V, T> implements CustomFieldGenerator<V>
 	}
 
 	@Override
-	public void generate(StringBuilder echo, V entity) throws IOException
-	{
+	public void generate(StringBuilder echo, V entity) {
 		String valueStr = serializedValueOf(entity);
 		echo.append("<tr>");
 		echo.append("<td colspan='2'>").append(label.trim().isEmpty() ? "" : label + ":").append("</td>").append("<td>").append(valueStr).append("</td></tr>\n");

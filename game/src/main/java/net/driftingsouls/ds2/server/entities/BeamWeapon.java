@@ -62,7 +62,7 @@ public class BeamWeapon extends Weapon
 	}
 	
 	private static class ShipTypeWrapper extends AbstractShipTypeDataWrapper {
-		private int size;
+		private final int size;
 
 		ShipTypeWrapper(ShipTypeData inner, int size) {
 			super(inner);

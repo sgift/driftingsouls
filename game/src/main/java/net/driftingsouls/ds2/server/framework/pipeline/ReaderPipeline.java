@@ -27,7 +27,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.reader.Reader;
  *
  */
 public class ReaderPipeline implements Pipeline {
-	private Class<? extends Reader> reader;
+	private final Class<? extends Reader> reader;
 	private String file;
 	
 	/**

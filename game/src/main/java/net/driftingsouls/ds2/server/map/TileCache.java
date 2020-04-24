@@ -63,8 +63,8 @@ public class TileCache
 		}
 	}
 
-	private Map<String,BufferedImage> imageCache = new HashMap<>();
-	private StarSystem system;
+	private final Map<String,BufferedImage> imageCache = new HashMap<>();
+	private final StarSystem system;
 
 	private TileCache(StarSystem system)
 	{

@@ -51,7 +51,7 @@ import java.util.Set;
 public class NavigationDefault implements SchiffPlugin {
 	private static final Log log = LogFactory.getLog(NavigationDefault.class);
 
-	private SchiffFlugService schiffFlugService;
+	private final SchiffFlugService schiffFlugService;
 
 	@Autowired
 	public NavigationDefault(SchiffFlugService schiffFlugService)

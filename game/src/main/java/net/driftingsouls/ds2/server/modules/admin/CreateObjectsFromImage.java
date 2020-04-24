@@ -61,7 +61,7 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 
 	private static class SystemImg
 	{
-		private String path;
+		private final String path;
 		private BufferedImage img;
 		private Set<Integer> erkannteFarben;
 
@@ -222,9 +222,9 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 
 	private static class UploadFieldGenerator implements  EditorForm.CustomFieldGenerator
 	{
-		private String label;
-		private String name;
-		private SystemImg img;
+		private final String label;
+		private final String name;
+		private final SystemImg img;
 
 		private UploadFieldGenerator(String label, String name, SystemImg img)
 		{
@@ -234,8 +234,7 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 		}
 
 		@Override
-		public void generate(StringBuilder echo) throws IOException
-		{
+		public void generate(StringBuilder echo) {
 			echo.append("<tr>");
 			echo.append("<td colspan='2'>").append(label).append("</td>");
 			echo.append("<td><input type=\"file\" name=\"").append(name).append("\" />");
@@ -258,8 +257,7 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 			this.color = color;
 		}
 
-		public void generate(StringBuilder echo) throws IOException
-		{
+		public void generate(StringBuilder echo) {
 			String hex = Integer.toHexString(color & 0xFFFFFF);
 			hex = StringUtils.leftPad(hex, 6, '0');
 			echo.append("<tr>");
@@ -322,8 +320,7 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 		}
 	}
 
-	private void clearSystem(StatusWriter echo, int systemid) throws IOException
-	{
+	private void clearSystem(StatusWriter echo, int systemid) {
 		Context context = ContextMap.getContext();
 		Session db = context.getDB();
 
@@ -343,8 +340,7 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 		UnitOfWork<Integer> euw = new EvictableUnitOfWork<Integer>(this.getClass().getName() + ": delete bases")
 		{
 			@Override
-			public void doWork(Integer baseId) throws Exception
-			{
+			public void doWork(Integer baseId) {
 				Session db = getDB();
 				Base base = (Base) db.get(Base.class, baseId);
 				Integer[] bebauung = base.getBebauung();

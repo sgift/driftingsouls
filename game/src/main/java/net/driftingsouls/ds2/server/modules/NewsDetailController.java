@@ -23,7 +23,7 @@ import java.io.IOException;
 @Module(name = "newsdetail")
 public class NewsDetailController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public NewsDetailController(TemplateViewResultFactory templateViewResultFactory)
@@ -35,8 +35,7 @@ public class NewsDetailController extends Controller
 	 * Zeigt den Newseintrag an.
 	 */
 	@Action(value = ActionType.DEFAULT, outputHandler = EmptyHeaderOutputHandler.class)
-	public TemplateEngine defaultAction(NewsEntry newsid) throws IOException
-	{
+	public TemplateEngine defaultAction(NewsEntry newsid) {
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 
 		if (newsid != null)

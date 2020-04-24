@@ -17,9 +17,9 @@ import java.util.Random;
  */
 public class ListBasedNameProducer implements NameProducer
 {
-	private Random rnd = new Random();
-	private List<String> namen = new ArrayList<>();
-	private boolean captialize;
+	private final Random rnd = new Random();
+	private final List<String> namen = new ArrayList<>();
+	private final boolean captialize;
 
 	public ListBasedNameProducer(URL filename, boolean capitalize) {
 		this.captialize = capitalize;

@@ -44,7 +44,7 @@ public class Waypoint {
 	/**
 	 * Der Typ des Wegpunktes.
 	 */
-	public Type type;
+	public final Type type;
 	/**
 	 * Die Richtung in die geflogen werden soll.
 	 * Die genaue Bedeutung ist vom Typ abhaengig.

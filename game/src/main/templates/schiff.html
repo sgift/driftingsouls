@@ -199,14 +199,14 @@
 					<label for="newname">Name:</label>
 					<input id="newname" name="newname" type="text" size="15" value="{ship.name}" maxlength="50" />
 					{!form_create_hidden rename, ship:$ship.id}
-					<input type="submit" value="rename" />
+					<input type="submit" value="umbenennen" />
 				</div>
 			</form>
 
 			{if ship.consignable}
 				<form action="./ds" method="post">
 					<div>
-						<label for="newowner">An User</label>
+						<label for="newowner">An Kolonist</label>
 						<input id="newowner" name="newowner" type="text" size="5" value="0" />
 						{!form_create_hidden consign, ship:$ship.id}
 						<input type="submit" value="&uuml;bergeben" />

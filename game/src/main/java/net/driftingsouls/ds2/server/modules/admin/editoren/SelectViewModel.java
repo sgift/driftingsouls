@@ -7,7 +7,7 @@ public class SelectViewModel extends InputViewModel
 {
 	public boolean disabled;
 	public String nullOption;
-	public Map<String,String> options = new LinkedHashMap<>();
+	public final Map<String,String> options = new LinkedHashMap<>();
 	public String selected;
 
 	public SelectViewModel(String name)

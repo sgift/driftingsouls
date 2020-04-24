@@ -45,7 +45,7 @@ public class Forschungszentrum {
 	private Base base;
 	private int type;
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="forschung", nullable=true)
+	@JoinColumn(name="forschung")
 	@ForeignKey(name="fz_fk_forschungen")
 	private Forschung forschung;
 	private int dauer;

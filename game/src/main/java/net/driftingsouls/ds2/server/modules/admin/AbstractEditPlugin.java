@@ -28,7 +28,7 @@ import java.util.List;
  */
 public abstract class AbstractEditPlugin<T> implements AdminPlugin
 {
-	private Class<T> clazz;
+	private final Class<T> clazz;
 
 	protected AbstractEditPlugin(Class<T> clazz)
 	{
@@ -36,8 +36,7 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 	}
 
 	@Override
-	public final void output(StringBuilder echo) throws IOException
-	{
+	public final void output(StringBuilder echo) {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 
@@ -68,7 +67,7 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 				reset(new DefaultStatusWriter(echo), entity);
 				echo.append("<p>Update abgeschlossen.</p>");
 			}
-			catch (IOException | RuntimeException e)
+			catch (RuntimeException e)
 			{
 				echo.append("<p>Fehler bei Reset: ").append(e.getMessage());
 			}
@@ -110,7 +109,7 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 
 	public static class DefaultStatusWriter implements StatusWriter
 	{
-		private StringBuilder echo;
+		private final StringBuilder echo;
 
 		public DefaultStatusWriter(StringBuilder echo)
 		{
@@ -127,8 +126,7 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 
 	protected abstract void update(StatusWriter writer, T entity) throws IOException;
 
-	protected void reset(StatusWriter writer, T entity) throws IOException
-	{
+	protected void reset(StatusWriter writer, T entity) {
 	}
 
 	protected abstract void edit(EditorForm form, T entity);

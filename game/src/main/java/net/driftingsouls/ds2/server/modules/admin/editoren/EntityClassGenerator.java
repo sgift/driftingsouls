@@ -18,7 +18,7 @@ public class EntityClassGenerator<E> implements CustomFieldGenerator<E>
 {
 	private final String label;
 	private final String name;
-	private boolean editierbar;
+	private final boolean editierbar;
 	private Class<? extends E> currentEntityClass;
 	private final List<Class<?>> options;
 
@@ -104,8 +104,7 @@ public class EntityClassGenerator<E> implements CustomFieldGenerator<E>
 		return displayName(entity.getClass());
 	}
 
-	private void editEntityBySelection(StringBuilder echo, String name, Class<? extends E> value) throws IOException
-	{
+	private void editEntityBySelection(StringBuilder echo, String name, Class<? extends E> value) {
 		Serializable selected = value.getName();
 		Map<Serializable,Object> selectionOptions = this.options.stream().collect(Collectors.toMap(Class::getName, this::displayName));
 
