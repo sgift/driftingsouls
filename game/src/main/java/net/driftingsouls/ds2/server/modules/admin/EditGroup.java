@@ -56,7 +56,7 @@ public class EditGroup implements AdminPlugin
 		int shiptypeId = context.getRequest().getParameterInt("shiptype");
 
 		// Update values?
-		boolean update = context.getRequest().getParameterString("change").equals("Aktualisieren");
+		boolean update = context.getRequest().getParameterString("change").equals("aktualisieren");
 		List<ShipType> shiptypes = Common.cast(db.createQuery("from ShipType").list());
 
 		echo.append("<form action=\"./ds\" method=\"post\">");
@@ -68,7 +68,7 @@ public class EditGroup implements AdminPlugin
 			echo.append("<option value=\"").append(shiptype.getId()).append("\" ").append(shiptype.getId() == shiptypeId ? "selected=\"selected\"" : "").append(">").append(shiptype.getNickname()).append("</option>");
 		}
 		echo.append("</select>");
-		echo.append("<input type=\"submit\" name=\"choose\" value=\"Ok\" />");
+		echo.append("<input type=\"submit\" name=\"choose\" value=\"ok\" />");
 		echo.append("</form>");
 		
 		if(update && shiptypeId != 0)
@@ -170,8 +170,8 @@ public class EditGroup implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderS\">x: </td><td><input type=\"text\" name=\"x\"></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">y: </td><td><input type=\"text\" name=\"y\"></td></tr>\n");
 			echo.append("<tr></tr>");
-			echo.append("<tr><td class=\"noBorderS\">Huelle: </td><td><input type=\"text\" name=\"hull\" value=\"").append(type.getHull()).append("\"></td><td class=\"noBorderS\">/ ").append(type.getHull()).append("</td></tr>\n");
-			echo.append("<tr><td class=\"noBorderS\">Ablative Panzerung: </td><td><input type=\"text\" name=\"ablativearmor\" value=\"").append(type.getAblativeArmor()).append("\"></td><td class=\"noBorderS\">/ ").append(type.getAblativeArmor()).append("</td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">Hülle: </td><td><input type=\"text\" name=\"hull\" value=\"").append(type.getHull()).append("\"></td><td class=\"noBorderS\">/ ").append(type.getHull()).append("</td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\">ablative Panzerung: </td><td><input type=\"text\" name=\"ablativearmor\" value=\"").append(type.getAblativeArmor()).append("\"></td><td class=\"noBorderS\">/ ").append(type.getAblativeArmor()).append("</td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Schilde: </td><td><input type=\"text\" name=\"shields\" value=\"").append(type.getShields()).append("\"></td><td class=\"noBorderS\">/ ").append(type.getShields()).append("</td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Crew: </td><td><input type=\"text\" name=\"crew\" value=\"").append(type.getCrew()).append("\"></td><td class=\"noBorderS\">/ ").append(type.getCrew()).append("</td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\">Energie: </td><td><input type=\"text\" name=\"energy\" value=\"").append(type.getEps()).append("\"></td><td class=\"noBorderS\">/ ").append(type.getEps()).append("</td></tr>\n");
@@ -192,7 +192,7 @@ public class EditGroup implements AdminPlugin
 				int uses = 0;
 				echo.append("<tr><td class=\"noBorderS\"><img src=\"").append(item.getPicture()).append("\" alt=\"\" />").append(item.getName()).append(": </td><td><input type=\"text\" name=\"i").append(item.getID()).append("\"></td><td><input type=\"text\" name=\"i").append(item.getID()).append("u\" value=\"").append(uses).append("\"></td></tr>");
 			}
-			echo.append("<tr><td class=\"noBorderS\"></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
+			echo.append("<tr><td class=\"noBorderS\"></td><td><input type=\"submit\" name=\"change\" value=\"aktualisieren\"></td></tr>\n");
 			echo.append("</table>");
 			echo.append("</form>\n");
 		}
