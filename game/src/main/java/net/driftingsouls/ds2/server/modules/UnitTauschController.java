@@ -147,12 +147,12 @@ public class UnitTauschController extends Controller
 				{
 					if (list.size() == 0)
 					{
-						throw new ValidierungException("Es wurde kein Schiff angegeben, zu dem die Flotte ausgewaehlt werden soll");
+						throw new ValidierungException("Es wurde kein Schiff angegeben, zu dem die Flotte ausgewählt werden soll.");
 					}
 					ShipTransportTarget handler = (ShipTransportTarget) list.remove(list.size() - 1);
 					if (handler.getFleet() == null)
 					{
-						throw new ValidierungException("Das angegebene Schiff befindet sich in keiner Flotte");
+						throw new ValidierungException("Das angegebene Schiff befindet sich in keiner Flotte.");
 					}
 
 					Session db = ContextMap.getContext().getDB();
@@ -375,14 +375,14 @@ public class UnitTauschController extends Controller
 		{
 			if ((ship == null) || (ship.getId() < 0))
 			{
-				throw new ValidierungException("Eines der angegebenen Schiffe existiert nicht");
+				throw new ValidierungException("Eines der angegebenen Schiffe existiert nicht.");
 			}
 
 			super.create(role, ship.getId());
 
 			if (ship.getBattle() != null)
 			{
-				throw new ValidierungException("Das Schiff (id:" + ship.getId() + ") ist in einen Kampf verwickelt");
+				throw new ValidierungException("Das Schiff (ID:" + ship.getId() + ") ist in einen Kampf verwickelt.");
 			}
 
 			if (role == ROLE_TARGET)
@@ -390,7 +390,7 @@ public class UnitTauschController extends Controller
 				User user = (User) ContextMap.getContext().getActiveUser();
 				if ((ship.getStatus().contains("disable_iff")) && (ship.getOwner() != user))
 				{
-					throw new ValidierungException("Zu dem angegebenen Schiff (id:" + ship.getId() + ") k&ouml;nnen sie keine Waren transportieren");
+					throw new ValidierungException("Zu dem angegebenen Schiff (ID:" + ship.getId() + ") können Sie keine Waren transportieren.");
 				}
 			}
 
@@ -398,7 +398,7 @@ public class UnitTauschController extends Controller
 
 			if (tmptype.hasFlag(ShipTypeFlag.KEIN_TRANSFER))
 			{
-				throw new ValidierungException("Sie k&ouml;nnen keine Einheiten zu oder von diesem Schiff (id:" + ship.getId() + ") transferieren");
+				throw new ValidierungException("Sie können keine Einheiten zu oder von diesem Schiff (ID:" + ship.getId() + ") transferieren.");
 			}
 
 			setOwner(ship.getOwner().getId());
@@ -494,7 +494,7 @@ public class UnitTauschController extends Controller
 
 			if (base == null)
 			{
-				throw new ValidierungException("Die angegebene Basis (id:" + baseid + ") existiert nicht");
+				throw new ValidierungException("Die angegebene Basis (ID:" + baseid + ") existiert nicht.");
 			}
 
 			setOwner(base.getOwner().getId());
@@ -561,7 +561,7 @@ public class UnitTauschController extends Controller
 	{
 		if ((from.size() == 0) || (to.size() == 0))
 		{
-			throw new ValidierungException("Sie muessen mindestens ein Quell- und ein Zielobjekt angeben");
+			throw new ValidierungException("Sie müssen mindestens ein Quell- und ein Zielobjekt angeben.");
 		}
 
 		/*
@@ -575,7 +575,7 @@ public class UnitTauschController extends Controller
 				{
 					if (aTo.getId() == afrom.getId())
 					{
-						throw new ValidierungException("Sie können keine Einheiten zu sich selbst transportieren");
+						throw new ValidierungException("Sie können keine Einheiten zu sich selbst transportieren.");
 					}
 				}
 			}
@@ -589,7 +589,7 @@ public class UnitTauschController extends Controller
 		Location toLoc = to.get(0).getLocation();
 		if (!fromLoc.sameSector(from.get(0).getSize(), toLoc, to.get(0).getSize()))
 		{
-			throw new ValidierungException("Die angegebenen Objekte befinden sich nicht im selben Sektor");
+			throw new ValidierungException("Die angegebenen Objekte befinden sich nicht im selben Sektor.");
 		}
 	}
 
@@ -602,7 +602,7 @@ public class UnitTauschController extends Controller
 		}
 		else
 		{
-			throw new ValidierungException("Ungültiges Transportziel", "./ds?module=ueber");
+			throw new ValidierungException("Ungültiges Transportziel.", "./ds?module=ueber");
 		}
 
 		validiereAlleTransportZieleImSelbenSektor(to);
@@ -617,7 +617,7 @@ public class UnitTauschController extends Controller
 		{
 			if (afrom.getOwner() != getUser().getId())
 			{
-				throw new ValidierungException("Das Schiff gehört ihnen nicht", Common.buildUrl("default", "module", "ueber"));
+				throw new ValidierungException("Das Schiff gehört Ihnen nicht.", Common.buildUrl("default", "module", "ueber"));
 			}
 		}
 	}
@@ -631,7 +631,7 @@ public class UnitTauschController extends Controller
 		}
 		else
 		{
-			throw new ValidierungException("Ungültige Transportquelle", "./ds?module=ueber");
+			throw new ValidierungException("Ungültige Transportquelle.", "./ds?module=ueber");
 		}
 
 		validiereAlleTransportZieleGehoerenDenSpieler(from);
@@ -647,7 +647,7 @@ public class UnitTauschController extends Controller
 		{
 			if (!toLoc.sameSector(to.get(0).getSize(), to.get(i).getLocation(), to.get(i).getSize()))
 			{
-				throw new ValidierungException("Die angegebenen Objekte befinden sich nicht im selben Sektor");
+				throw new ValidierungException("Die angegebenen Objekte befinden sich nicht im selben Sektor.");
 			}
 		}
 	}
@@ -681,7 +681,7 @@ public class UnitTauschController extends Controller
 			count = newfromc.getUnitCount(unittype);
 
 			out = true;
-			message.append(" - Nur [unit=").append(unittype.getId()).append("]").append(count).append("[/unit] vorhanden");
+			message.append(" - nur [unit=").append(unittype.getId()).append("]").append(count).append("[/unit] vorhanden");
 			if (count < 0)
 			{
 				count = 0;
@@ -699,7 +699,7 @@ public class UnitTauschController extends Controller
 			}
 
 			out = true;
-			message.append(" - Nur noch Platz für [unit=").append(unittype.getId()).append("]").append(count).append("[/unit] vorhanden");
+			message.append(" - nur noch Platz für [unit=").append(unittype.getId()).append("]").append(count).append("[/unit] vorhanden");
 		}
 
 		newtoc.addUnit(unittype, count);
@@ -873,7 +873,7 @@ public class UnitTauschController extends Controller
 						TransportTarget toTarget = to.get(j);
 						if ((toTarget.getOwner() != getUser().getId()) && (toTarget.getOwner() != 0))
 						{
-							addError("Das gehört dir nicht!");
+							addError("Das gehört Ihnen nicht!");
 
 							return new RedirectViewResult("default");
 						}
