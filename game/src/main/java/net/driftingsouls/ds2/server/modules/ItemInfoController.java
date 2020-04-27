@@ -151,7 +151,7 @@ public class ItemInfoController extends Controller
 		if (mods.getAblativeArmor() != 0)
 		{
 			colorize(effecttext, mods.getAblativeArmor());
-			effecttext.append("Ablative Panzerung ").append(mods.getAblativeArmor());
+			effecttext.append("ablative Panzerung ").append(mods.getAblativeArmor());
 			effecttext.append("</span><br />\n");
 		}
 
@@ -186,7 +186,7 @@ public class ItemInfoController extends Controller
 		if (mods.getMaxUnitSize() != 0)
 		{
 			colorize(effecttext, mods.getMaxUnitSize());
-			effecttext.append("Maximale Einheitengr&ouml;&szlig;e ").append(mods.getMaxUnitSize());
+			effecttext.append("maximale Einheitengr&ouml;&szlig;e ").append(mods.getMaxUnitSize());
 			effecttext.append("</span><br />\n");
 		}
 
@@ -214,7 +214,7 @@ public class ItemInfoController extends Controller
 		if (mods.getADocks() != 0)
 		{
 			colorize(effecttext, mods.getADocks());
-			effecttext.append("Externe Docks ").append(mods.getADocks());
+			effecttext.append("externe Docks ").append(mods.getADocks());
 			effecttext.append("</span><br />\n");
 		}
 
@@ -228,14 +228,14 @@ public class ItemInfoController extends Controller
 		if (mods.getHydro() != 0)
 		{
 			colorize(effecttext, mods.getHydro());
-			effecttext.append("Produziert <img src=\"").append(Cargo.getResourceImage(Resources.NAHRUNG)).append("\" alt=\"\" />").append(mods.getHydro());
+			effecttext.append("Produktion <img src=\"").append(Cargo.getResourceImage(Resources.NAHRUNG)).append("\" alt=\"\" />").append(mods.getHydro());
 			effecttext.append("</span><br />\n");
 		}
 
 		if (mods.getDeutFactor() != 0)
 		{
 			colorize(effecttext, mods.getDeutFactor());
-			effecttext.append("Sammelt <img src=\"").append(Cargo.getResourceImage(Resources.DEUTERIUM)).append("\" alt=\"\" />").append(mods.getDeutFactor());
+			effecttext.append("Deuteriumsammlung <img src=\"").append(Cargo.getResourceImage(Resources.DEUTERIUM)).append("\" alt=\"\" />").append(mods.getDeutFactor());
 			effecttext.append("</span><br />\n");
 		}
 
@@ -278,7 +278,7 @@ public class ItemInfoController extends Controller
 			wpntext.append("</span><br />[Hitze: ").append(weaponclass.getHitze()).append("]");
 			if( weaponclass.getMaxUeberhitzung() != 0 ) {
 				effecttext.append("<br />\n");
-				wpntext.append("[Max-Hitze: ").append(weaponclass.getMaxUeberhitzung()).append("]");
+				wpntext.append("[Max.-Hitze: ").append(weaponclass.getMaxUeberhitzung()).append("]");
 			}
 		}
 		if( wpntext.length() > 0 )
@@ -645,7 +645,7 @@ public class ItemInfoController extends Controller
 					}
 					if (ammo.getDestroyable() > 0)
 					{
-						data.append("<br />Durch Abwehrfeuer zerst&ouml;rbar\n");
+						data.append("<br />durch Abwehrfeuer zerst&ouml;rbar\n");
 					}
 
 					t.setVar("entry.name", "Daten",
@@ -672,7 +672,7 @@ public class ItemInfoController extends Controller
 					}
 					if (weapons.length() > 0)
 					{
-						t.setVar("entry.name", "Passende Waffen",
+						t.setVar("entry.name", "passende Waffen",
 								"entry.data", weapons);
 						t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 					}
