@@ -3,16 +3,16 @@
 <tr>
 	<td class="Border" style="width:36%">
 		{if ownside.secondrow.blocked}
-			<img style="vertical-align:middle" src="data/interface/ks/secondrow_blocked.png" alt="" title="Sie haben im Moment keine M&ouml;glichkeit in die zweite Reihe zu fliegen" />
+			<img style="vertical-align:middle" src="data/interface/ks/secondrow_blocked.png" alt="" title="Sie haben im Moment keine M&ouml;glichkeit, in die zweite Reihe zu fliegen." />
 		{else}
 			{if ownside.secondrow.stable}
-				<img style="vertical-align:middle" src="data/interface/ks/secondrow.png" alt="" title="Ihre zweite Reihe ist im Moment stabil" />
+				<img style="vertical-align:middle" src="data/interface/ks/secondrow.png" alt="" title="Ihre zweite Reihe ist im Moment stabil." />
 			{else}
-				<img style="vertical-align:middle" src="data/interface/ks/secondrow_unstable.png" alt="" title="Ihre zweite Reihe ist im Moment instabil, und kann daher vom Gegner &uuml;berrannt werden" />
+				<img style="vertical-align:middle" src="data/interface/ks/secondrow_unstable.png" alt="" title="Ihre zweite Reihe ist im Moment instabil, und kann daher vom Gegner &uuml;berrannt werden." />
 			{/endif}
 		{/endif}
 		<span style="color:green">
-			Eigene/Verb&uuml;ndete Schiffe&nbsp;
+			Eigene & verb&uuml;ndete Schiffe&nbsp;
 		</span>
 		<span style="color:white">
 			{if ownship.location.system}
@@ -27,12 +27,12 @@
 	</td>
 	<td class="Border" style="width:36%">
 		{if enemyside.secondrow.blocked}
-			<img style="vertical-align:middle" src="data/interface/ks/secondrow_blocked.png" alt="" title="Der Gegner hat im Moment keine M&ouml;glichkeit in die zweite Reihe zu fliegen" />
+			<img style="vertical-align:middle" src="data/interface/ks/secondrow_blocked.png" alt="" title="Der Gegner hat im Moment keine M&ouml;glichkeit, in die zweite Reihe zu fliegen." />
 		{else}
 			{if enemyside.secondrow.stable}
-				<img style="vertical-align:middle" src="data/interface/ks/secondrow.png" alt="" title="Die zweite Reihe ihres Gegners ist im Moment stabil" />
+				<img style="vertical-align:middle" src="data/interface/ks/secondrow.png" alt="" title="Die zweite Reihe Ihres Gegners ist im Moment stabil." />
 			{else}
-				<img style="vertical-align:middle" src="data/interface/ks/secondrow_unstable.png" alt="" title="Die zweite Reihe ihres Gegners ist im Moment instabil, und kann daher von ihnen &uuml;berrannt werden" />
+				<img style="vertical-align:middle" src="data/interface/ks/secondrow_unstable.png" alt="" title="Die zweite Reihe Ihres Gegners ist im Moment instabil, und kann daher von Ihnen &uuml;berrannt werden." />
 			{/endif}
 		{/endif}
 		<span style="color:red">
@@ -45,16 +45,16 @@
 		<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ownship.name} ({ownship.id})</a> (aktiv)
 		{if ownship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
 		{if ownship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
-		{if ownship.action.flucht}<img src="data/interface/ks/flucht.gif" alt="" title="flucht"/>{/endif}
+		{if ownship.action.flucht}<img src="data/interface/ks/flucht.gif" alt="" title="Flucht"/>{/endif}
 		{if ownship.action.fluchtnext}<img src="data/interface/ks/fluchtnext.png" alt="" title="flieht n&auml;chste Runde"/>{/endif}
 		{if ownship.action.shot}<img src="data/interface/ks/shot.gif" alt="" title="Waffen eingesetzt" />{/endif}
 		{if ownship.action.join}<img src="data/interface/ks/join.gif" alt="" title="tritt der Schacht bei" />{/endif}
-		{if ownship.action.secondrow}<img src="data/interface/ks/secondrow.png" alt="" title="Zweite Reihe" />{/endif}
+		{if ownship.action.secondrow}<img src="data/interface/ks/secondrow.png" alt="" title="zweite Reihe" />{/endif}
 		{if ownship.mangelnahrung}<img src="data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />{/endif}
 		{if ownship.mangelreaktor}<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}
 		{if ownship.alarmed}<div id="modul-schiffe" style="display: inline-block;"><div class="alarm {ownship.alarm}" style="display: inline-table;">&nbsp;</div></div>{/endif}
     {if ownship.landed}<img src="data/interface/schiffe/{ownship.owner.race}/icon_schiff.gif" alt="" title="gelandet"/>{/endif}
-    {if ownship.docked}<img src="data/interface/schiffe/{ownship.owner.race}/icon_container.gif" alt="" title="dedockt"/>{/endif}
+    {if ownship.docked}<img src="data/interface/schiffe/{ownship.owner.race}/icon_container.gif" alt="" title="angedockt"/>{/endif}
 		{if ownship.docked.name} auf {if ownship.docked.name}{ownship.docked.name}{/endif} ({ownship.docked.id}){/endif}
     {if ownship.docks}
           {if ownship.jdocks}
@@ -228,7 +228,7 @@
 						{/endif}
 
 						{if shipinfo.type.ablativeArmor}
-							+ Ablative:
+							+ ablative:
 							{if shipinfo.ablativeArmor.bad}<span style="color:#ff0000">{/endif}
 							{if shipinfo.ablativeArmor.normal}<span style="color:#ffff00">{/endif}
 							{if shipinfo.ablativeArmor.good}<span style="color:#00ff00">{/endif}
@@ -336,9 +336,9 @@
 		<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{enemyship.name} ({enemyship.id})</a> (Ziel)
 		{if enemyship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
 		{if enemyship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
-		{if enemyship.action.flucht}<img src="data/interface/ks/flucht.gif" alt="" title="flucht" />{/endif}
+		{if enemyship.action.flucht}<img src="data/interface/ks/flucht.gif" alt="" title="Flucht" />{/endif}
 		{if enemyship.action.join}<img src="data/interface/ks/join.gif" alt="" title="tritt der Schlacht bei" />{/endif}
-		{if enemyship.action.secondrow}<img src="data/interface/ks/secondrow.png" alt="" title="Zweite Reihe" />{/endif}
+		{if enemyship.action.secondrow}<img src="data/interface/ks/secondrow.png" alt="" title="zweite Reihe" />{/endif}
 		<br />
 		<a class="noborder tooltip" target="_blank"
 			onclick="ShiptypeBox.show({enemyship.type});return false;"
@@ -353,11 +353,11 @@
 	<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={enemyship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;{shiptypelist.side}shipgroup={shiptypelist.groupid}&amp;{shiptypelist.otherside}shipgroup={shiptypelist.otherside.id}&amp;weapon={global.weapon}">{shiptypelist.count} {shiptypelist.name}</a>
 	{if shiptypelist.destcount}&nbsp;<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{shiptypelist.destcount}{/endif}
 	{if shiptypelist.hitcount}&nbsp;<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{shiptypelist.hitcount}{/endif}
-	{if shiptypelist.fluchtcount}&nbsp;<img src="data/interface/ks/flucht.gif" alt="" title="flucht" />&nbsp;{shiptypelist.fluchtcount}{/endif}
+	{if shiptypelist.fluchtcount}&nbsp;<img src="data/interface/ks/flucht.gif" alt="" title="Flucht" />&nbsp;{shiptypelist.fluchtcount}{/endif}
 	{if shiptypelist.fluchtnextcount}<img src="data/interface/ks/fluchtnext.png" alt="" title="flieht n&auml;chste Runde" />&nbsp;{shiptypelist.fluchtnextcount}{/endif}
 	{if shiptypelist.shotcount}&nbsp;<img src="data/interface/ks/shot.gif" alt="" title="Waffen abgefeuert" />&nbsp;{shiptypelist.shotcount}{/endif}
 	{if shiptypelist.joincount}&nbsp;<img src="data/interface/ks/join.gif" alt="" title="tritt der Schlacht bei" />&nbsp;{shiptypelist.joincount}{/endif}
-	{if shiptypelist.secondrowcount}<img src="data/interface/ks/secondrow.png" alt="" title="Zweite Reihe" />&nbsp;{shiptypelist.secondrowcount}{/endif}
+	{if shiptypelist.secondrowcount}<img src="data/interface/ks/secondrow.png" alt="" title="zweite Reihe" />&nbsp;{shiptypelist.secondrowcount}{/endif}
 	{if shiptypelist.mangelnahrungcount}&nbsp;<img src="data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />&nbsp;{shiptypelist.mangelnahrungcount}{/endif}
 	{if shiptypelist.mangelreaktorcount}&nbsp;<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{shiptypelist.mangelreaktorcount}{/endif}
 	{if shiptypelist.alarmred}&nbsp;<div id="modul-schiffe" style="display: inline-block;"><div class="alarm red" style="display: inline-table;">&nbsp;</div>&nbsp;{shiptypelist.alarmred}</div>{/endif}
@@ -387,12 +387,12 @@
     {if ownside.secondrow.exists}
 			<td class="Border" style="vertical-align:top;width:12%"><div style="height:22px; overflow:auto; font-size:16px; font-weight: bold">Zweite Reihe
 				{if ownside.secondrow.blocked}
-					<img style="vertical-align:middle" src="data/interface/ks/secondrow_blocked.png" alt="" title="Sie haben im Moment keine M&ouml;glichkeit in die zweite Reihe zu fliegen" />
+					<img style="vertical-align:middle" src="data/interface/ks/secondrow_blocked.png" alt="" title="Sie haben im Moment keine M&ouml;glichkeit, in die zweite Reihe zu fliegen." />
 				{else}
 					{if ownside.secondrow.stable}
-						<img style="vertical-align:middle" src="data/interface/ks/secondrow.png" alt="" title="Ihre zweite Reihe ist im Moment stabil" />
+						<img style="vertical-align:middle" src="data/interface/ks/secondrow.png" alt="" title="Ihre zweite Reihe ist im Moment stabil." />
 					{else}
-						<img style="vertical-align:middle" src="data/interface/ks/secondrow_unstable.png" alt="" title="Ihre zweite Reihe ist im Moment instabil, und kann daher vom Gegner &uuml;berrannt werden" />
+						<img style="vertical-align:middle" src="data/interface/ks/secondrow_unstable.png" alt="" title="Ihre zweite Reihe ist im Moment instabil, und kann daher vom Gegner &uuml;berrannt werden." />
 					{/endif}
 				{/endif}
 			</div>
@@ -418,11 +418,11 @@
 							{if ship.docked}<img src="data/interface/schiffe/{ship.owner.race}/icon_container.gif" alt="" />{/endif}
               {if ship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
               {if ship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
-              {if ship.action.flucht}<img src="data/interface/ks/flucht.gif" alt="" title="flucht" />{/endif}
+              {if ship.action.flucht}<img src="data/interface/ks/flucht.gif" alt="" title="Flucht" />{/endif}
               {if ship.action.fluchtnext}<img src="data/interface/ks/fluchtnext.png" alt="" title="flieht n&auml;chste Runde" />{/endif}
               {if ship.action.shot}<img src="data/interface/ks/shot.gif" alt="" title="Waffen abgefeuert" />{/endif}
 							{if ship.action.join}<img src="data/interface/ks/join.gif" alt="" title="tritt der Schlacht bei" />{/endif}
-							{if ship.action.secondrow}<img src="data/interface/ks/secondrow.png" alt="" title="Zweite Reihe" />{/endif}
+							{if ship.action.secondrow}<img src="data/interface/ks/secondrow.png" alt="" title="zweite Reihe" />{/endif}
               {if ship.mangelnahrung}<img src="data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />{/endif}
 							{if ship.mangelreaktor}<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}
 							{if ship.alarmed}<div id="modul-schiffe" style="display: inline-block;"><div class="alarm {ship.alarm}" style="display: inline-table;">&nbsp;</div></div>{/endif}
@@ -463,7 +463,7 @@
               {if ship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
               {if ship.action.fluchtnext}<img src="data/interface/ks/fluchtnext.png" alt="" title="flieht n&auml;chste Runde" />{/endif}
 						  {if ship.action.shot}<img src="data/interface/ks/shot.gif" alt="" title="Waffen abgefeuert" />{/endif}
-			 				{if ship.action.secondrow}<img src="data/interface/ks/secondrow.png" alt="" title="Zweite Reihe" />{/endif}
+			 				{if ship.action.secondrow}<img src="data/interface/ks/secondrow.png" alt="" title="zweite Reihe" />{/endif}
               {if ship.mangelnahrung}<img src="data/interface/ks/mangelnahrung.gif" alt="" title="Nahrungsmangel" />{/endif}
 							{if ship.mangelreaktor}<img src="data/interface/ks/mangelreaktor.gif" alt="" title="Treibstoffmangel" />{/endif}
 							{if ship.alarmed}<div id="modul-schiffe" style="display: inline-block;"><div class="alarm {ship.alarm}" style="display: inline-table;">&nbsp;</div></div>{/endif}
@@ -543,12 +543,12 @@
 			{if enemyside.secondrow.exists}
 				<td class="Border" style="vertical-align:top;width:12%"><div style="height:22px; overflow:auto; font-size:16px; font-weight: bold">Zweite Reihe
 					{if enemyside.secondrow.blocked}
-						<img style="vertical-align:middle" src="data/interface/ks/secondrow_blocked.png" alt="" title="Der Gegner hat im Moment keine M&ouml;glichkeit in die zweite Reihe zu fliegen" />
+						<img style="vertical-align:middle" src="data/interface/ks/secondrow_blocked.png" alt="" title="Der Gegner hat im Moment keine M&ouml;glichkeit, in die zweite Reihe zu fliegen." />
 					{else}
 						{if enemyside.secondrow.stable}
-							<img style="vertical-align:middle" src="data/interface/ks/secondrow.png" alt="" title="Die zweite Reihe ihres Gegners ist im Moment stabil" />
+							<img style="vertical-align:middle" src="data/interface/ks/secondrow.png" alt="" title="Die zweite Reihe Ihres Gegners ist im Moment stabil." />
 						{else}
-							<img style="vertical-align:middle" src="data/interface/ks/secondrow_unstable.png" alt="" title="Die zweite Reihe ihres Gegners ist im Moment instabil, und kann daher von ihnen &uuml;berrannt werden" />
+							<img style="vertical-align:middle" src="data/interface/ks/secondrow_unstable.png" alt="" title="Die zweite Reihe Ihres Gegners ist im Moment instabil, und kann daher von ihnen &uuml;berrannt werden." />
 						{/endif}
 					{/endif}
 					</div>
@@ -597,7 +597,7 @@
 						<a class="forschinfo" href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;scan={global.scan}&amp;attack={ship.id}&amp;ksaction={global.ksaction}{global.logpagestr}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">{ship.name} ({ship.id})</a>{if ship.active}&nbsp;(Ziel){/endif}<br />
 						{if ship.action.hit}<img src="data/interface/ks/hit.gif" alt="" title="getroffen" />{/endif}
 						{if ship.action.destroyed}<img src="data/interface/ks/destroyed.gif" alt="" title="zerst&ouml;rt" />{/endif}
-						{if ship.action.secondrow}<img src="data/interface/ks/secondrow.png" alt="" title="Zweite Reihe" />{/endif}
+						{if ship.action.secondrow}<img src="data/interface/ks/secondrow.png" alt="" title="zweite Reihe" />{/endif}
 						<br />
 						<a class="noborder tooltip" target="_blank"
 							onclick="ShiptypeBox.show({ship.type});return false;"
@@ -646,16 +646,16 @@
 	{if user.commander}
 		<td class="BorderS" style="width:36%">&nbsp;</td>
 		{if battle.turn.own}
-			<td style="text-align:center;width:28%" class="BorderS"><a class="forschinfo" href="javascript:DS.ask('Wollen sie ihren Zug wirklich beenden?',DS.getUrl()+'?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ksaction=endturn&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}')">Zug beenden</a></td>
+			<td style="text-align:center;width:28%" class="BorderS"><a class="forschinfo" href="javascript:DS.ask('Wollen Sie Ihren Zug wirklich beenden?',DS.getUrl()+'?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ksaction=endturn&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}')">Zug beenden!</a></td>
 		{else}
-			<td style="text-align:center;width:28%" class="BorderS">Warte auf Gegner</td>
+			<td style="text-align:center;width:28%" class="BorderS">Warte auf Gegner.</td>
 		{/endif}
 	{else}
 		<td class="BorderS" style="text-align:center;width:36%">{battle.owncom.name}{if battle.owncom.ready}&nbsp;<img src="data/interface/ks/ready.gif" alt="" />{/endif}</td>
 		{if battle.turn.own}
-			<td style="text-align:center;width:28%" class="BorderS">Warte auf Kommandanten</td>
+			<td style="text-align:center;width:28%" class="BorderS">Warte auf Kommandanten.</td>
 		{else}
-			<td style="text-align:center;width:28%" class="BorderS">Warte auf Gegner</td>
+			<td style="text-align:center;width:28%" class="BorderS">Warte auf Gegner.</td>
 		{/endif}
 	{/endif}
 	<td class="BorderS" style="text-align:center;width:36%">{battle.enemycom.name}{if battle.enemycom.ready}&nbsp;<img src="data/interface/ks/ready.gif" alt="" />{/endif}</td>
