@@ -23,7 +23,7 @@
 					<img src="{ship.type.picture}" alt="{ship.type.name}" title="{ship.type.name}" style="border:0px; float:right; margin-right:5px; margin-left:15px;margin-bottom:10px" />
 				</a>
 				H&uuml;lle: <span style="color:{ship.hull.color}">{ship.hull}/{ship.type.hull}</span><br />
-				Ablative Panzerung: <span style="color:{ship.ablativearmor.color}">{ship.ablativearmor}/{ship.type.ablativearmor}</span><br />
+				ablative Panzerung: <span style="color:{ship.ablativearmor.color}">{ship.ablativearmor}/{ship.type.ablativearmor}</span><br />
 				Panzerung: {ship.panzerung}<br />
 				{if ship.type.shields}
 					Schilde: <span style="color:{ship.shields.color}">{ship.shields}/{ship.type.shields}</span><br />
@@ -191,12 +191,12 @@
 			</td>
 			<td valign="top" align="center" class="noBorderX">
 				<a class="forschinfo" href="{werftgui.urlbase}&amp;ws={ship.id}">Infos</a><br />
-				<a class="forschinfo" href="{werftgui.urlbase}&amp;ws={ship.id}&amp;werftact=repair">Reparieren</a><br />
+				<a class="forschinfo" href="{werftgui.urlbase}&amp;ws={ship.id}&amp;werftact=repair">Reparatur</a><br />
 				{if ship.own}
 					{if ship.rettungskapsel}
-						<a class="forschinfo" href="{werftgui.urlbase}&amp;ws={ship.id}&amp;werftact=reload">Aufladen</a><br />
+						<a class="forschinfo" href="{werftgui.urlbase}&amp;ws={ship.id}&amp;werftact=reload">Energieaufladung</a><br />
 					{/endif}
-					<a class="forschinfo" href="{werftgui.urlbase}&amp;ws={ship.id}&amp;werftact=dismantle">Demontieren</a><br />
+					<a class="forschinfo" href="{werftgui.urlbase}&amp;ws={ship.id}&amp;werftact=dismantle">Demontierung</a><br />
 				{/endif}
 				{if ship.type.modules}
 					<a class="forschinfo" href="{werftgui.urlbase}&amp;ws={ship.id}&amp;werftact=module">Module</a><br />
@@ -207,9 +207,9 @@
 		<br />
 	</div>
 	<br />
-	<a class="back" href="{werftgui.urlbase}">Zur&uuml;ck zur Werft&uuml;bersicht</a>
+	<a class="back" href="{werftgui.urlbase}">zur&uuml;ck zur Werft&uuml;bersicht</a>
 	{if ship.own}
-		 | {!link_to Zum Schiff, default, module:schiff, ship:$ship.id, css_class:back}
+		 | {!link_to zum Schiff, default, module:schiff, ship:$ship.id, css_class:back}
 	{/endif}
 	<br />
 {/endif}
@@ -227,10 +227,10 @@
 			</tr>
 			<tr>
 				<td class="noBorderX" style="width:32px"></td>
-				<td class="noBorderX" style="width:100px;text-align:right">Vorhanden</td>
-				<td class="noBorderX" style="width:50px;text-align:right">Sofort</td>
+				<td class="noBorderX" style="width:100px;text-align:right">vorhanden</td>
+				<td class="noBorderX" style="width:50px;text-align:right">sofort</td>
 				<td class="noBorderX" style="width:40px;text-align:center">oder</td>
-				<td class="noBorderX" style="width:40px;text-align:right">Pro Tick</td>
+				<td class="noBorderX" style="width:40px;text-align:right">pro Tick</td>
 			</tr>
 			<!-- BEGIN build.res.listitem -->
 				<tr>
@@ -273,7 +273,7 @@
 					{if build.instant.error}
 						<span class="error">{build.instant.error}</span><br />
 					{else}
-						<a class="ok" href="{werftgui.urlbase}&amp;build={build.id}&amp;item={build.item.id}&amp;conf=ok&amp;pertick=0">Bauen und sofort bezahlen</a><br />
+						<a class="ok" href="{werftgui.urlbase}&amp;build={build.id}&amp;item={build.item.id}&amp;conf=ok&amp;pertick=0">bauen und sofort bezahlen</a><br />
 					{/endif}
 				{else}
 					{if build.error}
@@ -379,7 +379,7 @@
 									{/endif}
 								{/endif}
 								{if buildship.flagschiff}
-									<span class="smallfont" style="color:#EECC44" title="Flagschiff">[FS]</span>
+									<span class="smallfont" style="color:#EECC44" title="Flaggschiff">[FS]</span>
 								{/endif}
 							</td>
 							<td class="noBorderX">
@@ -507,7 +507,7 @@
 					</table>
 				</div>
 			{else}
-				Keine im Bau befindlichen Schiffe vorhanden
+				Keine im Bau befindlichen Schiffe vorhanden.
 			{/endif}
 		{/endif}
 		{if werftgui.main.options}
@@ -589,7 +589,7 @@
 			{else}
 				{if ! werftgui.linkedwerft.list}
 					{if ! werftgui.komplexparts.list}
-						Keine Optionen verf&uuml;gbar
+						Keine Optionen verf&uuml;gbar.
 					{/endif}
 				{/endif}
 			{/endif}
