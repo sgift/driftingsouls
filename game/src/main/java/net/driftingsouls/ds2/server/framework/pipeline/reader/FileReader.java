@@ -60,6 +60,7 @@ public class FileReader implements Reader {
 		this.extensionMap.put("gif", "image/gif");
 		this.extensionMap.put("jpg", "image/jpg");
 		this.extensionMap.put("svg", "image/svg+xml");
+		this.extensionMap.put("mp3", "audio/mpeg");
 	}
 
 	private String guessMimeType( String extension ) {
