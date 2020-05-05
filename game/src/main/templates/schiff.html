@@ -182,7 +182,7 @@
 			{if ship.showalarm}
 				<form action="./ds" method="post">
 					<div>
-						<label for="alarm">Befehle:</label>
+						<label for="alarm">Alarmstufe:</label>
 						<select id="alarm" name="alarm">
 							<!-- BEGIN ship.alarms.listitem -->
 								<option {if alarm.selected}selected="selected"{/endif} value="{alarm.id}">{alarm.name}</option>
