@@ -21,6 +21,7 @@
 	<rules>
 		<!-- Grafiken -->
 
+		<!--
 		<match pattern="/data/(javascript|css)/v[a-fA-F0-9]*/.*\.(js|css)">
 			<execute-reader>
 				<reader class="net.driftingsouls.ds2.server.framework.pipeline.reader.FileReader" />
@@ -45,6 +46,7 @@
 				<file pattern="/.*/([^/]+)" file="$1" />
 			</execute-reader>
 		</match>
+		-->
 
 		<!--  Module -->
 

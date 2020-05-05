@@ -56,6 +56,10 @@ public class DefaultServletRequestFilter extends GenericFilterBean implements Fi
 		
 		HttpServletRequest httpRequest = (HttpServletRequest)req;
 		HttpServletResponse httpResponse = (HttpServletResponse)resp;
+
+		if(httpRequest.getRequestURL().indexOf("/data/") != -1) {
+			chain.doFilter(req, resp);
+		}
 				
 		Context context;
 		try 
