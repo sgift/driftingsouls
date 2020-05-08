@@ -2,6 +2,15 @@
 	@import url("./data/css/menu.css");
 </style>
 <ul id="menu">
+	<audio id="atmo_audio_part1" autoplay src="data/sounds/Atmo_Master_Part1.mp3" type="audio/mp3" onended="playPart2()"></audio>
+	<audio id="atmo_audio_part2" loop src="data/sounds/Atmo_Master_Part2.mp3" type="audio/mp3"></audio>
+	<script>
+		var part2 = document.getElementById("atmo_audio_part2");
+
+		function playPart2() {
+			part2.play();
+		}
+		</script>
 <li class="statusfield">
 	<a id="mailicon" href="./ds?module=comm&action=showInbox" target="main"><img src="./data/interface/menubar/mail.png" alt="neue Nachricht" title="Du hast neue Nachrichten erhalten" /></a>
 	<a id="comneticon" href="./ds?module=comnet" target="main"><img src="./data/interface/menubar/cn.png" alt="neuer Com-Net-Eintrag" title="neuer Com-Net-Eintrag" /></a>
@@ -428,7 +437,7 @@
 				<tr><td>Build</td><td id="build"></td></tr>
 				<tr><td>Commit</td><td id="commit"></td></tr>
 			</tbody>
-		</table> 
+		</table>
 		-->
 		<h3>Wichtige Informationen:</h3>
 		Alle Ankündigungen und Updates finden sich im Forum unter "Ankündigung", siehe <a href="http://ds.rnd-it.de/viewforum.php?f=8&sid=b3a03433ccfe523c46c29c464aa200ed">hier</a>.
