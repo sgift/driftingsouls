@@ -37,6 +37,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.map.TileCache;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.hibernate.Session;
 
 import javax.imageio.ImageIO;
@@ -197,7 +198,7 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 		form.custom(new UploadFieldGenerator("Bildatei", "imgPath", img));
 		if (loadError != null)
 		{
-			form.label("", "Fehler: " + loadError.getMessage());
+			form.label("", "Fehler: " + ExceptionUtils.getStackTrace(loadError));
 		}
 		else if (img == null)
 		{
