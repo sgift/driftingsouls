@@ -206,7 +206,7 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 		}
 		else if (img.getWidth() != sys.getWidth() || img.getHeight() != sys.getHeight())
 		{
-			form.label("", "Die Grafik passt nicht zum System. Die Größenangaben weichen von einander ab. Bitte verwende eine Grafik der Größe " + sys.getWidth() + "x" + sys.getHeight());
+			form.label("", "Die Grafik passt nicht zum System. Die Größenangaben weichen von einander ab. Bitte verwende eine Grafik der Größe " + sys.getWidth() + "x" + sys.getHeight() + " - Momentanes Bild ist: " + img.getWidth() + "x" + img.getHeight());
 		}
 		else
 		{
