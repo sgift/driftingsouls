@@ -43,6 +43,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.*;
 
 /**
@@ -62,8 +63,8 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 	private static class SystemImg
 	{
 		private final String path;
-		private BufferedImage img;
-		private Set<Integer> erkannteFarben;
+		private final BufferedImage img;
+		private final Set<Integer> erkannteFarben;
 
 		SystemImg(String path) throws IOException
 		{
@@ -162,11 +163,11 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 		{
 			if( "imgPath".equals(fileItem.getFieldName()) )
 			{
-				File img = File.createTempFile(getClass().getSimpleName(), "img");
+				Path img = Path.of(System.getProperty("java.io.tmpdir"), UUID.randomUUID().toString());
 				try
 				{
-					fileItem.write(img);
-					return new SystemImg(img.getAbsolutePath());
+					fileItem.write(img.toFile());
+					return new SystemImg(img.toAbsolutePath().toString());
 				}
 				catch (Exception e)
 				{
