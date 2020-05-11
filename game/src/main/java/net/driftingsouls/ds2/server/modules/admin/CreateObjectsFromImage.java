@@ -164,7 +164,7 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 		{
 			if( "imgPath".equals(fileItem.getFieldName()) )
 			{
-				Path img = Path.of(System.getProperty("java.io.tmpdir"), UUID.randomUUID().toString());
+				Path img = Path.of(System.getProperty("java.io.tmpdir"), UUID.randomUUID().toString() + ".png");
 				try
 				{
 					fileItem.write(img.toFile());
