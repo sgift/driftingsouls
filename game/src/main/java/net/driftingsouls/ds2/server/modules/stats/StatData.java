@@ -60,6 +60,7 @@ public class StatData implements Statistic {
 
 		echo.append("<tr><td align=\"left\">&nbsp;&nbsp;&nbsp;Spieler</td>\n");
 		echo.append("<td align=\"left\">").append(Common.ln((Long) einnahmen[1] - (Long) einnahmen[0])).append(" RE</td></tr>\n");
+		echo.append("<tr><td colspan=\"2\"><hr noshade=\"noshade\" size=\"1\" style=\"color:#cccccc\" /></td></tr>\n");
 
 		echo.append("<tr><td align=\"left\">Gesamtverm&ouml;gen aller Spieler:</td>\n");
 		BigInteger totalre = (BigInteger)db.createQuery("SELECT sum(konto) FROM User WHERE id > 0").uniqueResult();
