@@ -453,7 +453,7 @@ public class PlayerStarmap extends PublicStarmap
 	{
 		return this.sektorenMitRotemAlarm.contains(sektor);
 	}
-	@Override
+
 	public Set<Location> getSektorenMitRotemAlarm()
 	{
 		return this.sektorenMitRotemAlarm;
