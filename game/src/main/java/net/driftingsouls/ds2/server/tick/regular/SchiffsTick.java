@@ -238,6 +238,9 @@ public class SchiffsTick extends TickController {
 			shipd.setHeat(shipd.getHeat()-Math.min(shipd.getHeat(),70));
 		}
 
+		// produziere Nahrung
+		produziereNahrung(shipd, shiptd);
+
 		berechneNahrungsverbrauch(shipd, shiptd, feedingBases);
 
 		//Damage ships which don't have enough crew
@@ -296,6 +299,26 @@ public class SchiffsTick extends TickController {
 		this.slog("\tNeu: crew "+shipd.getCrew()+" e "+e+" nc "+shipd.getNahrungCargo()+" : <");
 		this.slog(shipd.getStatus());
 		this.log(">");
+	}
+
+	private void produziereNahrung(Ship shipd, ShipTypeData shiptd)
+	{
+		int hydro = shiptd.getHydro();
+		long nahrung = shipd.getNahrungCargo();
+		long speicher = shiptd.getNahrungCargo();
+		long rest = nahrung + hydro - speicher;
+
+		if ( rest>0){
+			//Nahrungsspeicher voll machen
+			shipd.setNahrungCargo(speicher);
+			shipd.addResource( Resources.NAHRUNG, rest );
+		}
+		else
+		{
+			shipd.setNahrungCargo(nahrung + hydro);
+		}
+
+
 	}
 
 	private int sammelDeuterium(Ship shipd, ShipTypeData shiptd, Cargo shipc, int e)

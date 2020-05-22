@@ -1057,10 +1057,10 @@ public class Ship implements Locatable,Transfering,Feeding {
 		ShipTypeData shiptype = this.getTypeData();
 		int scaledcrew = this.getScaledCrew();
 		int scaledunits = this.getScaledUnits();
-		int hydro = shiptype.getHydro();
+		//int hydro = shiptype.getHydro();
 		int dockedcrew = 0;
 		int dockedunits = 0;
-		int dockedhydro = 0;
+		//int dockedhydro = 0;
 
 		if( shiptype.getJDocks() > 0 || shiptype.getADocks() > 0 ) {
 			//Angehaengte Schiffe beruecksichtigen
@@ -1068,11 +1068,11 @@ public class Ship implements Locatable,Transfering,Feeding {
 			{
 				dockedcrew += dockedShip.getScaledCrew();
 				dockedunits += dockedShip.getScaledUnits();
-				dockedhydro += dockedShip.getTypeData().getHydro();
+				//dockedhydro += dockedShip.getTypeData().getHydro();
 			}
 		}
 
-		return (int)Math.ceil((scaledcrew+dockedcrew)/10.0)+scaledunits+dockedunits-hydro-dockedhydro;
+		return (int)Math.ceil((scaledcrew+dockedcrew)/10.0)+scaledunits+dockedunits;//-hydro-dockedhydro;
 	}
 
 	/**
