@@ -73,7 +73,7 @@ public class SchiffSprungService
 
 		if (schiff.getBattle() != null)
 		{
-			outputbuffer.append("Fehler: Sie k&ouml;nnen nicht mit einem Schiff springen, dass in einem Kampf ist.<br />\n");
+			outputbuffer.append("Fehler: Sie k&ouml;nnen nicht mit einem Schiff springen, das in einem Kampf ist.<br />\n");
 			return new SprungErgebnis(outputbuffer.toString(), false);
 		}
 
@@ -84,7 +84,7 @@ public class SchiffSprungService
 
 		if (node == null)
 		{
-			outputbuffer.append("Fehler: Der angegebene Sprungpunkt existiert nicht<br />\n");
+			outputbuffer.append("Fehler: Der angegebene Sprungpunkt existiert nicht.<br />\n");
 			return new SprungErgebnis(outputbuffer.toString(), false);
 		}
 
@@ -92,7 +92,7 @@ public class SchiffSprungService
 
 		if ((user.getId() > 0) && node.isGcpColonistBlock() && Rassen.get().rasse(user.getRace()).isMemberIn(0) && !user.hasFlag(UserFlag.NO_JUMPNODE_BLOCK))
 		{
-			outputbuffer.append("<span style=\"color:red\">Die GCP hat diesen Sprungpunkt f&uuml;r Kolonisten gesperrt</span><br />\n");
+			outputbuffer.append("<span style=\"color:red\">Die Administration hat diesen Sprungpunkt für Kolonisten gesperrt.</span><br />\n");
 			return new SprungErgebnis(outputbuffer.toString(), false);
 		}
 
@@ -103,7 +103,7 @@ public class SchiffSprungService
 
 		if (!shipLoc.sameSector(0, nodeLoc, 0))
 		{
-			outputbuffer.append("<span style=\"color:red\">Fehler: ").append(nodetypename).append(" befindet sich nicht im selben Sektor wie das Schiff</span><br />\n");
+			outputbuffer.append("<span style=\"color:red\">Fehler: ").append(nodetypename).append(" befindet sich nicht im selben Sektor wie das Schiff.</span><br />\n");
 			return new SprungErgebnis(outputbuffer.toString(), false);
 		}
 
@@ -138,25 +138,25 @@ public class SchiffSprungService
 				//Schiff ueberprfen
 				if (shiptype.isMilitary())
 				{
-					outputbuffer.append("<span style=\"color:red\">").append(ship.getName()).append(" (").append(ship.getId()).append("): Die GCP verwehrt ihrem Kriegsschiff den Einflug nach ").append(node.getName()).append("</span><br />\n");
+					outputbuffer.append("<span style=\"color:red\">").append(ship.getName()).append(" (").append(ship.getId()).append("): Die Administration verwehrt Ihrem Kriegsschiff den Einflug nach ").append(node.getName()).append("</span>.<br />\n");
 					return new SprungErgebnis(outputbuffer.toString(), false);
 				}
 
 				//Angedockte Schiffe ueberprfen
 				if (docked.stream().anyMatch(d -> d.getTypeData().isMilitary()))
 				{
-					outputbuffer.append("<span style=\"color:red\">").append(ship.getName()).append(" (").append(ship.getId()).append("): Die GCP verwehrt einem/mehreren ihrer angedockten Kriegsschiffe den Einflug nach ").append(node.getName()).append("</span><br />\n");
+					outputbuffer.append("<span style=\"color:red\">").append(ship.getName()).append(" (").append(ship.getId()).append("): Die Administration verwehrt einem/mehreren Ihrer angedockten Kriegsschiffe den Einflug nach ").append(node.getName()).append("</span>.<br />\n");
 					return new SprungErgebnis(outputbuffer.toString(), false);
 				}
 			}
 
 			if (ship.getEnergy() < 5)
 			{
-				outputbuffer.append("<span style=\"color:red\">").append(ship.getName()).append(" (").append(ship.getId()).append("): Zuwenig Energie zum Springen</span><br />\n");
+				outputbuffer.append("<span style=\"color:red\">").append(ship.getName()).append(" (").append(ship.getId()).append("): Zu wenig Energie zum Springen.</span><br />\n");
 				return new SprungErgebnis(outputbuffer.toString(), false);
 			}
 
-			outputbuffer.append(ship.getName()).append(" (").append(ship.getId()).append(") springt nach ").append(nodetarget).append("<br />\n");
+			outputbuffer.append(ship.getName()).append(" (").append(ship.getId()).append(") springt nach ").append(nodetarget).append(".<br />\n");
 			ship.setLocation(outLoc);
 			ship.setEnergy(ship.getEnergy() - 5);
 
@@ -200,7 +200,7 @@ public class SchiffSprungService
 
 		if (schiff.getBattle() != null)
 		{
-			outputbuffer.append("Fehler: Sie k&ouml;nnen nicht mit einem Schiff springen, dass in einem Kampf ist.<br />\n");
+			outputbuffer.append("Fehler: Sie können nicht mit einem Schiff springen, das in einem Kampf ist.<br />\n");
 			return new SprungErgebnis(outputbuffer.toString(), false);
 		}
 
@@ -220,7 +220,7 @@ public class SchiffSprungService
 
 		if (node == null)
 		{
-			outputbuffer.append("Fehler: Der angegebene Sprungpunkt existiert nicht<br />\n");
+			outputbuffer.append("Fehler: Der angegebene Sprungpunkt existiert nicht.<br />\n");
 			return new SprungErgebnis(outputbuffer.toString(), false);
 		}
 
@@ -272,14 +272,14 @@ public class SchiffSprungService
 				break;
 			}
 			default:
-				throw new IllegalArgumentException("Ungueltiger Zieltyp: "+target[0]);
+				throw new IllegalArgumentException("Ungültiger Zieltyp: "+target[0]);
 		}
 
 		// Einmalig das aktuelle Schiff ueberpruefen.
 		// Evt vorhandene Schiffe in einer Flotte werden spaeter separat gecheckt
 		if (node.getId() == schiff.getId())
 		{
-			outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen nicht mit dem ").append(nodetypename).append(" durch sich selbst springen</span><br />\n");
+			outputbuffer.append("<span style=\"color:red\">Sie können nicht mit dem ").append(nodetypename).append(" durch sich selbst springen.</span><br />\n");
 			return new SprungErgebnis(outputbuffer.toString(), false);
 		}
 
@@ -299,7 +299,7 @@ public class SchiffSprungService
 				if (((user.getAlly() != null) && (node.getOwner().getAlly() != user.getAlly())) ||
 						(user.getAlly() == null && (node.getOwner() != user)))
 				{
-					outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes ").append(nodetypename).append(" benutzen - default</span><br />\n");
+					outputbuffer.append("<span style=\"color:red\">Sie können kein fremdes ").append(nodetypename).append(" benutzen - default</span><br />\n");
 					return new SprungErgebnis(outputbuffer.toString(), false);
 				}
 				break;
@@ -307,7 +307,7 @@ public class SchiffSprungService
 			case "user":
 				if (Integer.parseInt(jmpnodeuser[1]) != user.getId())
 				{
-					outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes ").append(nodetypename).append(" benutzen - owner</span><br />\n");
+					outputbuffer.append("<span style=\"color:red\">Sie können kein fremdes ").append(nodetypename).append(" benutzen - owner</span><br />\n");
 					return new SprungErgebnis(outputbuffer.toString(), false);
 				}
 				break;
@@ -315,7 +315,7 @@ public class SchiffSprungService
 			case "ally":
 				if ((user.getAlly() == null) || (Integer.parseInt(jmpnodeuser[1]) != user.getAlly().getId()))
 				{
-					outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes ").append(nodetypename).append(" benutzen - ally</span><br />\n");
+					outputbuffer.append("<span style=\"color:red\">Sie können kein fremdes ").append(nodetypename).append(" benutzen - ally</span><br />\n");
 					return new SprungErgebnis(outputbuffer.toString(), false);
 				}
 				break;
@@ -324,12 +324,12 @@ public class SchiffSprungService
 				Integer[] userlist = Common.explodeToInteger(",", jmpnodeuser[1]);
 				if (!Common.inArray(user.getId(), userlist))
 				{
-					outputbuffer.append("<span style=\"color:red\">Sie k&ouml;nnen kein fremdes ").append(nodetypename).append(" benutzen - group</span><br />\n");
+					outputbuffer.append("<span style=\"color:red\">Sie können kein fremdes ").append(nodetypename).append(" benutzen - group</span><br />\n");
 					return new SprungErgebnis(outputbuffer.toString(), false);
 				}
 				break;
 			default:
-				throw new IllegalArgumentException("Ungueltiger Berechtigungstyp: "+jmpnodeuser[0]);
+				throw new IllegalArgumentException("Ungültiger Berechtigungstyp: "+jmpnodeuser[0]);
 		}
 
 		Location nodeLoc = new Location(node.getSystem(), node.getX(), node.getY());
@@ -338,7 +338,7 @@ public class SchiffSprungService
 
 		if (!shipLoc.sameSector(0, nodeLoc, 0))
 		{
-			outputbuffer.append("<span style=\"color:red\">Fehler: ").append(nodetypename).append(" befindet sich nicht im selben Sektor wie das Schiff</span><br />\n");
+			outputbuffer.append("<span style=\"color:red\">Fehler: ").append(nodetypename).append(" befindet sich nicht im selben Sektor wie das Schiff.</span><br />\n");
 			return new SprungErgebnis(outputbuffer.toString(), false);
 		}
 
@@ -371,11 +371,11 @@ public class SchiffSprungService
 
 			if (ship.getEnergy() < 5)
 			{
-				outputbuffer.append("<span style=\"color:red\">").append(ship.getName()).append(" (").append(ship.getId()).append("): Zuwenig Energie zum Springen</span><br />\n");
+				outputbuffer.append("<span style=\"color:red\">").append(ship.getName()).append(" (").append(ship.getId()).append("): Zu wenig Energie zum Springen.</span><br />\n");
 				return new SprungErgebnis(outputbuffer.toString(), false);
 			}
 
-			outputbuffer.append(ship.getName()).append(" (").append(ship.getId()).append(") springt nach ").append(nodetarget).append("<br />\n");
+			outputbuffer.append(ship.getName()).append(" (").append(ship.getId()).append(") springt nach ").append(nodetarget).append(".<br />\n");
 			ship.setLocation(outLoc);
 			ship.setEnergy(ship.getEnergy() - 5);
 
