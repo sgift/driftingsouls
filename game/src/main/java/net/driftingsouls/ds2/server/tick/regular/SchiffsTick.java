@@ -239,7 +239,7 @@ public class SchiffsTick extends TickController {
 		}
 
 		// produziere Nahrung
-		produziereNahrung(shipd, shiptd);
+		produziereNahrung(shipd, shiptd, shipc);
 
 		berechneNahrungsverbrauch(shipd, shiptd, feedingBases);
 
@@ -301,7 +301,7 @@ public class SchiffsTick extends TickController {
 		this.log(">");
 	}
 
-	private void produziereNahrung(Ship shipd, ShipTypeData shiptd)
+	private void produziereNahrung(Ship shipd, ShipTypeData shiptd, Cargo shipc)
 	{
 		int hydro = shiptd.getHydro();
 		long nahrung = shipd.getNahrungCargo();
@@ -311,7 +311,7 @@ public class SchiffsTick extends TickController {
 		if ( rest>0){
 			//Nahrungsspeicher voll machen
 			shipd.setNahrungCargo(speicher);
-			shipd.addResource( Resources.NAHRUNG, rest );
+			shipc.addResource( Resources.NAHRUNG, rest );
 		}
 		else
 		{
