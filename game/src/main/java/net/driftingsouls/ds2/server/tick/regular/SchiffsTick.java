@@ -313,7 +313,7 @@ public class SchiffsTick extends TickController {
 			shipd.setNahrungCargo(speicher);
 			if( Cargo.getResourceMass( Resources.NAHRUNG, rest ) > (shiptd.getCargo() - shipc.getMass()) )
 				{
-					rest = (int)( (shiptd.getCargo()-shipc.getMass())/(deutfactor*Cargo.getResourceMass( Resources.NAHRUNG, 1 )) );
+					rest = (int)( (shiptd.getCargo()-shipc.getMass())/(Cargo.getResourceMass( Resources.NAHRUNG, 1 )) );
 					this.slog("[maxcargo]");
 				}
 			shipc.addResource( Resources.NAHRUNG, rest );
