@@ -737,7 +737,7 @@ public class UnitTauschController extends Controller
 		{
 			out = true;
 			if( mode == 't' ) {
-				message.append(" - jetzt [unit=").append(unittype.getId()).append("]").append(newtoc.getUnitCount(unittype)).append("[/unit]auf ").append(Common._plaintitle(toUnit.getObjectName())).append(" vorhanden");
+				message.append(" - jetzt [unit=").append(unittype.getId()).append("]").append(newtoc.getUnitCount(unittype)).append("[/unit] auf ").append(Common._plaintitle(toUnit.getObjectName())).append(" vorhanden");
 			}
 			else {
 				message.append(" - jetzt [unit=").append(unittype.getId()).append("]").append(newtoc.getUnitCount(unittype)).append("[/unit] auf ").append(Common._plaintitle(fromUnit.getObjectName())).append(" vorhanden");
