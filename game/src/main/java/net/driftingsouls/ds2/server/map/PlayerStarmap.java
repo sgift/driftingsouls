@@ -22,7 +22,7 @@ import java.util.Set;
 /**
  * Eine Sicht auf eine bestimmte Sternenkarte.
  * Die Sicht ist fuer jeden Spieler anders und beruecksichtigt Schiffe, Rechte, etc.
- * 
+ *
  * @author Sebastian Gift
  */
 public class PlayerStarmap extends PublicStarmap
@@ -38,7 +38,7 @@ public class PlayerStarmap extends PublicStarmap
 
 	/**
 	 * Legt eine neue Sicht an.
-	 * 
+	 *
 	 * @param user Der Spieler fuer den die Sicht gelten soll.
 	 * @param system Die ID des zu Grunde liegenden Sternensystems.
 	 * @param ausschnitt Der gewaehlte Ausschnitt <code>[x, y, w, h]</code> oder <code>null</code>, falls kein Ausschnitt verwendet werden soll
@@ -151,7 +151,7 @@ public class PlayerStarmap extends PublicStarmap
 				}
 			}
 		}
-		
+
 		List<JumpNode> positionNodes = map.getNodeMap().get(location);
 		if(positionNodes != null && !positionNodes.isEmpty())
 		{
@@ -163,10 +163,10 @@ public class PlayerStarmap extends PublicStarmap
 				}
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	@Override
 	public SectorImage getSectorOverlayImage(Location location)
 	{
@@ -181,7 +181,7 @@ public class PlayerStarmap extends PublicStarmap
 		}
 		return new SectorImage("data/starmap/fleet/fleet"+shipImage+".png", 0, 0);
 	}
-	
+
 	private String getShipImage(Location location)
 	{
 		String imageName = "";
@@ -202,7 +202,7 @@ public class PlayerStarmap extends PublicStarmap
 				{
 					ownShips++;
 				}
-				else 
+				else
 				{
 					Ally shipAlly = shipOwner.getAlly();
 					Ally userAlly = user.getAlly();
@@ -213,18 +213,18 @@ public class PlayerStarmap extends PublicStarmap
 					else
 					{
 						boolean scannable = true;
-						
+
 						if(ship.getTypeData().hasFlag(ShipTypeFlag.SEHR_KLEIN) )
 						{
 							scannable = false;
 						}
-						
+
 						if( scannable && nebula != null &&
 								nebula.getType().getMinScanbareSchiffsgroesse() > ship.getTypeData().getSize() )
 						{
 							scannable = false;
 						}
-						
+
 						if( scannable && ship.isDocked() )
 						{
 							Ship mship = ship.getBaseShip();
@@ -233,7 +233,7 @@ public class PlayerStarmap extends PublicStarmap
 								scannable = false;
 							}
 						}
-						
+
 						if( !scannable )
 						{
 							unscannableEnemyShips++;
@@ -245,7 +245,7 @@ public class PlayerStarmap extends PublicStarmap
 					}
 				}
 			}
-			
+
 			if(isScannbar(location))
 			{
 				//Ships which are small etc. are shown in fields with own or allied ships
@@ -253,32 +253,32 @@ public class PlayerStarmap extends PublicStarmap
 				{
 					enemyShips += unscannableEnemyShips;
 				}
-				
+
 				if(ownShips > 0)
 				{
 					imageName += "_fo";
 				}
-	
+
 				if(alliedShips > 0)
 				{
 					imageName += "_fa";
 				}
-	
+
 				if(enemyShips > 0)
 				{
 					imageName += "_fe";
 				}
 			}
 		}
-		
+
 		if( imageName.isEmpty() )
 		{
 			return null;
 		}
-		
+
 		return imageName;
 	}
-	
+
 	private void buildScannableLocations(User user)
 	{
 		Map<Location, Nebel> nebulas = this.map.getNebulaMap();
@@ -290,7 +290,7 @@ public class PlayerStarmap extends PublicStarmap
 			List<Ship> ships = sectorShips.getValue();
 
 			Ship scanShip = findBestScanShip(user, ally, ships);
-			
+
 			//No ship found
 			if(scanShip == null)
 			{
@@ -306,7 +306,7 @@ public class PlayerStarmap extends PublicStarmap
 			if(nebulas.containsKey(position))
 			{
 				scanRange /= 2;
-				
+
 				Nebel nebula = nebulas.get(position);
 				if(!nebula.allowsScan())
 				{
@@ -321,9 +321,9 @@ public class PlayerStarmap extends PublicStarmap
 				{
 					Location loc = new Location(map.getSystem(), x, y);
 
-					if(!position.sameSector(scanRange, loc, 0)) 
+					if(!position.sameSector(scanRange, loc, 0))
 					{
-						continue;	
+						continue;
 					}
 
 					boolean ok = false;
@@ -452,5 +452,10 @@ public class PlayerStarmap extends PublicStarmap
 	public boolean isRoterAlarmImSektor(Location sektor)
 	{
 		return this.sektorenMitRotemAlarm.contains(sektor);
+	}
+
+	public Set<Location> getSektorenMitRotemAlarm()
+	{
+		return this.sektorenMitRotemAlarm;
 	}
 }
