@@ -311,14 +311,17 @@ public class SchiffsTick extends TickController {
 		if ( rest>0){
 			//Nahrungsspeicher voll machen
 			shipd.setNahrungCargo(speicher);
+			if( Cargo.getResourceMass( Resources.NAHRUNG, rest ) > (shiptd.getCargo() - shipc.getMass()) )
+				{
+					rest = (int)( (shiptd.getCargo()-shipc.getMass())/(deutfactor*Cargo.getResourceMass( Resources.NAHRUNG, 1 )) );
+					this.slog("[maxcargo]");
+				}
 			shipc.addResource( Resources.NAHRUNG, rest );
 		}
 		else
 		{
 			shipd.setNahrungCargo(nahrung + hydro);
 		}
-
-
 	}
 
 	private int sammelDeuterium(Ship shipd, ShipTypeData shiptd, Cargo shipc, int e)
