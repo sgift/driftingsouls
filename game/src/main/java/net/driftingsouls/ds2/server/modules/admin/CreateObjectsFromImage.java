@@ -75,7 +75,7 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 			this.img = ImageIO.read(file);
 			if (this.img == null)
 			{
-				throw new IOException("Das Bild wurde aus unbekannten Gruenden nicht geladen");
+				throw new IOException("Das Bild wurde aus unbekannten Gruenden nicht geladen: " + path);
 			}
 
 			this.erkannteFarben = new TreeSet<>();
