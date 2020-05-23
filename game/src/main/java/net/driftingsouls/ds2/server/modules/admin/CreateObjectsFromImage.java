@@ -380,7 +380,7 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 		Context context = ContextMap.getContext();
 		Request request = context.getRequest();
 
-		String objectType = request.getParameterString("color-" + color);
+		String objectType = request.getParameterString("color" + color);
         // Grafik fängt bei 0/0 an. Systemkoordinaten erst bei 1/1: Anpassung notwendig.
         Location loc = new Location(system, x+1, y+1);
 		if (objectType.startsWith("basetype_"))
