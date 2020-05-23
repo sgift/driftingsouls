@@ -156,7 +156,7 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 	{
 		Request request = ContextMap.getContext().getRequest();
 		String imgName = request.getParameterString("imgName");
-		if( imgName != null && !imgName.trim().isEmpty() && imgName.matches("[a-zA-Z0-9]+") )
+		if(imgName != null && !imgName.trim().isEmpty())
 		{
 			return new SystemImg(Path.of(System.getProperty("java.io.tmpdir"), imgName).toAbsolutePath().toString());
 		}
