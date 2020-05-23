@@ -158,7 +158,7 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 		String imgName = request.getParameterString("imgName");
 		if( imgName != null && !imgName.trim().isEmpty() && imgName.matches("[a-zA-Z0-9]+") )
 		{
-			return new SystemImg(new File(System.getProperty("java.io.tmpdir"), imgName).getAbsolutePath());
+			return new SystemImg(Path.of(System.getProperty("java.io.tmpdir"), imgName).toAbsolutePath().toString());
 		}
 		for (FileItem fileItem : request.getUploadedFiles())
 		{
