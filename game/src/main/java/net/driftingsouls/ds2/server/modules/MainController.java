@@ -35,7 +35,7 @@ import net.driftingsouls.ds2.server.services.ComNetService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.*;
 
 /**
  * Das Hauptframe von DS.
