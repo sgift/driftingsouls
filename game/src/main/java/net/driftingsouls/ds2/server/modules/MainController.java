@@ -145,7 +145,7 @@ public class MainController extends Controller {
 		return t;
 	}
 
-	private Boolean isUserInBattle(Session db, User user)
+	private Boolean isUserInBattle(org.hibernate.Session db, User user)
 	{
 		Set<User> commanderSet = new LinkedHashSet<>();
 		commanderSet.add(user);
