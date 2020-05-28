@@ -39,6 +39,7 @@ import org.hibernate.CacheMode;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
+import org.hibernate.Query;
 import org.hibernate.annotations.*;
 import javax.persistence.Entity;
 import javax.persistence.Table;
