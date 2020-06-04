@@ -20,6 +20,10 @@ img {
 	border:0px;
 	vertical-align:middle;
 }
+.blink {
+	animation: blink 1s;
+	animation-iteration-count: infinite;
+}
 
 /* Menueleiste */
 
@@ -332,4 +336,16 @@ img {
 
 #infobox #commits .feature .symbol {
 	color:green;
+}
+
+@keyframes blink {
+	0% {
+			opacity: 1;
+	}
+	50% {
+			opacity: 0;
+	}
+	100% {
+			opacity: 1;
+	}
 }

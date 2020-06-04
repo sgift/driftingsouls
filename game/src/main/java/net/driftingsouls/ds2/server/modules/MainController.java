@@ -33,9 +33,18 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.services.ComNetService;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.CacheMode;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
+import org.hibernate.Session;
+import org.hibernate.Query;
+import org.hibernate.annotations.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.io.IOException;
-import java.util.List;
+import java.util.*;
 
 /**
  * Das Hauptframe von DS.
@@ -123,7 +132,8 @@ public class MainController extends Controller {
 				"user.npc", user.hasFlag(UserFlag.ORDER_MENU),
 				"user.adminSichtbar", hasPermission(WellKnownAdminPermission.SICHTBAR),
 				"admin.showconsole", hasPermission(WellKnownAdminPermission.CONSOLE),
-				"user.notizen", user.getUserValue(WellKnownUserValue.TBLORDER_MAIN_NOTIZEN));
+				"user.notizen", user.getUserValue(WellKnownUserValue.TBLORDER_MAIN_NOTIZEN),
+				"user.battle", isUserInBattle(db, user));
 
 		t.setBlock("_MAIN", "bases.listitem", "bases.list");
 
@@ -142,5 +152,38 @@ public class MainController extends Controller {
 		}
 
 		return t;
+	}
+
+	private Boolean isUserInBattle(org.hibernate.Session db, User user)
+	{
+		Set<User> commanderSet = new LinkedHashSet<>();
+		commanderSet.add(user);
+		Boolean isInBattle = false;
+
+		String query = "from Battle " +
+				"where commander1 in (:commanders) or commander2 in (:commanders) ";
+
+		//hat der Benutzer eine ally, dann haeng das hier an
+		if (user.getAlly() != null)
+		{
+			query += " or ally1 = :ally or ally2 = :ally";
+		}
+		// ach haengen wir mal den quest kram dran
+		if (user.hasFlag(UserFlag.QUEST_BATTLES))
+		{
+			query += " or quest is not null";
+		}
+
+		Query battleQuery = db.createQuery(query)
+				.setParameterList("commanders", commanderSet);
+
+		if (user.getAlly() != null)
+		{
+			battleQuery = battleQuery.setInteger("ally", user.getAlly().getId());
+		}
+
+		isInBattle = battleQuery.list().size() > 0;
+
+		return isInBattle;
 	}
 }
