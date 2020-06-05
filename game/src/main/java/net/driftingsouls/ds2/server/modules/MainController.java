@@ -168,11 +168,6 @@ public class MainController extends Controller {
 		{
 			query += " or ally1 = :ally or ally2 = :ally";
 		}
-		// ach haengen wir mal den quest kram dran
-		if (user.hasFlag(UserFlag.QUEST_BATTLES))
-		{
-			query += " or quest is not null";
-		}
 
 		Query battleQuery = db.createQuery(query)
 				.setParameterList("commanders", commanderSet);
