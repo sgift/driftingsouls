@@ -21,7 +21,7 @@ img {
 	vertical-align:middle;
 }
 .blink {
-	animation: blink 1s;
+	animation: blink 2s;
 	animation-iteration-count: infinite;
 }
 
