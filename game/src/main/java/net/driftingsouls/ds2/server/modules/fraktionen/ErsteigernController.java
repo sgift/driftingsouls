@@ -136,6 +136,7 @@ public class ErsteigernController extends Controller
 
 			t.setVar(
 					"user.konto", Common.ln(user.getKonto()),
+					"user.faction.lp", Common.ln(user.getLoyalitaetspunkteTotalBeiNpc(factionuser)),
 					"global.faction", faction.getUser().getId(),
 					"global.faction.name", Common._title(factionuser.getName()));
 		}
