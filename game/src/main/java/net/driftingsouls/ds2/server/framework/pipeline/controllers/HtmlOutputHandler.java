@@ -27,17 +27,6 @@ import java.util.TreeSet;
 @Component
 public class HtmlOutputHandler extends OutputHandler
 {
-	private Version version;
-
-	/**
-	 * Injiziert die momentane DS-Version.
-	 * @param version Die DS-Version
-	 */
-	@Autowired
-	public void setVersion(Version version) {
-		this.version = version;
-	}
-
 	@Override
 	public void printHeader() throws IOException
 	{
@@ -55,19 +44,12 @@ public class HtmlOutputHandler extends OutputHandler
 		sb.append("<title>Drifting Souls 2</title>\n");
 		sb.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n");
 		sb.append("<meta http-equiv=\"X-UA-Compatible\" content=\"IE=9\">\n");
-		if( devMode )
-		{
-			appendDevModeCss(sb);
-		}
-		else
-		{
-			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"./data/css/v").append(version.getVersion()).append("/format.css\" />\n");
-		}
+		sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"./data/css/format.css\" />\n");
 		sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"./data/css/ui-darkness/00_jquery-ui-1.8.20.css\" />\n");
 		sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"./data/css/ui-darkness/10_jquery-ui.css\" />\n");
 
 		sb.append("<!--[if IE]>\n");
-		sb.append("<style type=\"text/css\">@import url(./data/css/v").append(version.getVersion()).append("/format_fuer_den_dummen_ie.css);</style>\n");
+		sb.append("<style type=\"text/css\">@import url(./data/css/format_fuer_den_dummen_ie.css);</style>\n");
 		sb.append("<![endif]-->\n");
 
 		if( this.getAttribute("header") != null ) {
@@ -85,7 +67,7 @@ public class HtmlOutputHandler extends OutputHandler
 		}
 		else
 		{
-			sb.append("<script src=\"./data/javascript/v").append(version.getVersion()).append("/ds.js\" type=\"text/javascript\"></script>\n");
+			sb.append("<script src=\"./data/javascript/ds.js\" type=\"text/javascript\"></script>\n");
 		}
 		sb.append("<div id=\"error-placeholder\"></div>\n");
 	}

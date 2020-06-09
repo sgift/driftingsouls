@@ -69,7 +69,7 @@ public class SchiffAjaxController extends Controller
 
 		if ((ship == null) || (ship.getId() < 0) || (ship.getOwner() != user))
 		{
-			throw new ValidierungException("Das angegebene Schiff existiert nicht");
+			throw new ValidierungException("Das angegebene Schiff existiert nicht.");
 		}
 
 		if (ship.getBattle() != null)
@@ -92,7 +92,7 @@ public class SchiffAjaxController extends Controller
 		User user = (User) getUser();
 		if (user.isNoob())
 		{
-			return ViewMessage.failure("Du kannst die Alarmstufe nicht ändern solange du unter GCP-Schutz stehst.");
+			return ViewMessage.failure("Du kannst die Alarmstufe nicht ändern solange Du unter Neuspieler-Schutz stehst.");
 		}
 
 		ShipTypeData shiptype = schiff.getTypeData();
@@ -152,7 +152,7 @@ public class SchiffAjaxController extends Controller
 		ShipTypeData shiptype = schiff.getTypeData();
 		if ((shiptype.getCost() == 0) || (schiff.getEngine() == 0))
 		{
-			return ViewMessage.failure("Das Schiff besitzt keinen Antrieb");
+			return ViewMessage.failure("Das Schiff besitzt keinen Antrieb.");
 		}
 
 		if (sprungpunktSchiff == null)

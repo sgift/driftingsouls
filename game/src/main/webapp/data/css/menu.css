@@ -32,7 +32,7 @@ img {
 	padding:0px 5px 0px 5px;
 	margin:0px;
 	height:30px;
-	background: url('./data/interface/border/centerbottom.gif') bottom right repeat-x;text-align:center;
+	background: url('../interface/border/centerbottom.gif') bottom right repeat-x;text-align:center;
 	width:100%;
 	position:absolute;
 	top:0px;
@@ -105,18 +105,18 @@ img {
 	margin:0px;
 	padding:0px;
 	padding-right:5px;
-	background: url('./data/interface/border/centerright.gif') top right no-repeat;
+	background: url('../interface/border/centerright.gif') top right no-repeat;
 }
 
 #menu dd.lastelement {
 	margin:0px;
 	padding:0px 18px 0px 0px;
-	background: url('./data/interface/border/border_bottomright.gif') bottom right no-repeat;
+	background: url('../interface/border/border_bottomright.gif') bottom right no-repeat;
 }
 
 #menu dd span, #menu dd > a {
 	display:block;
-	background:url("./data/interface/border/centerleft.gif") no-repeat left top;
+	background:url("../interface/border/centerleft.gif") no-repeat left top;
 	padding:5px 0px 0px 5px;
 	margin:0px;
 	text-align:center;
@@ -124,7 +124,7 @@ img {
 
 #menu dd.lastelement span {
 	display:block;
-	background:url("./data/interface/border/bottomleft.gif") no-repeat left bottom;
+	background:url("../interface/border/bottomleft.gif") no-repeat left bottom;
 	padding:18px 0px 0px 18px;
 	margin:0px;
 	text-align:center;

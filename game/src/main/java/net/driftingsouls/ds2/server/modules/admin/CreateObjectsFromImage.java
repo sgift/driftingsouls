@@ -37,12 +37,14 @@ import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.map.TileCache;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.hibernate.Session;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.*;
 
 /**
@@ -62,8 +64,8 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 	private static class SystemImg
 	{
 		private final String path;
-		private BufferedImage img;
-		private Set<Integer> erkannteFarben;
+		private final BufferedImage img;
+		private final Set<Integer> erkannteFarben;
 
 		SystemImg(String path) throws IOException
 		{
@@ -73,7 +75,7 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 			this.img = ImageIO.read(file);
 			if (this.img == null)
 			{
-				throw new IOException("Das Bild wurde aus unbekannten Gruenden nicht geladen");
+				throw new IOException("Das Bild wurde aus unbekannten Gruenden nicht geladen: " + path);
 			}
 
 			this.erkannteFarben = new TreeSet<>();
@@ -154,19 +156,19 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 	{
 		Request request = ContextMap.getContext().getRequest();
 		String imgName = request.getParameterString("imgName");
-		if( imgName != null && !imgName.trim().isEmpty() && imgName.matches("[a-zA-Z0-9]+") )
+		if(imgName != null && !imgName.trim().isEmpty())
 		{
-			return new SystemImg(new File(System.getProperty("java.io.tmpdir"), imgName).getAbsolutePath());
+			return new SystemImg(Path.of(System.getProperty("java.io.tmpdir"), imgName).toAbsolutePath().toString());
 		}
 		for (FileItem fileItem : request.getUploadedFiles())
 		{
 			if( "imgPath".equals(fileItem.getFieldName()) )
 			{
-				File img = File.createTempFile(getClass().getSimpleName(), "img");
+				Path img = Path.of(System.getProperty("java.io.tmpdir"), UUID.randomUUID().toString() + ".png");
 				try
 				{
-					fileItem.write(img);
-					return new SystemImg(img.getAbsolutePath());
+					fileItem.write(img.toFile());
+					return new SystemImg(img.toAbsolutePath().toString());
 				}
 				catch (Exception e)
 				{
@@ -196,7 +198,7 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 		form.custom(new UploadFieldGenerator("Bildatei", "imgPath", img));
 		if (loadError != null)
 		{
-			form.label("", "Fehler: " + loadError.getMessage());
+			form.label("", "Fehler: " + ExceptionUtils.getStackTrace(loadError));
 		}
 		else if (img == null)
 		{
@@ -204,7 +206,7 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 		}
 		else if (img.getWidth() != sys.getWidth() || img.getHeight() != sys.getHeight())
 		{
-			form.label("", "Die Grafik passt nicht zum System. Die Größenangaben weichen von einander ab. Bitte verwende eine Grafik der Größe " + img.getWidth() + "x" + img.getHeight());
+			form.label("", "Die Grafik passt nicht zum System. Die Größenangaben weichen von einander ab. Bitte verwende eine Grafik der Größe " + sys.getWidth() + "x" + sys.getHeight() + " - Momentanes Bild ist: " + img.getWidth() + "x" + img.getHeight());
 		}
 		else
 		{
