@@ -901,36 +901,36 @@ public class FleetMgntController extends Controller
 		//Reload main page
 		return new RedirectViewResult("default").withMessage("Bauauftrag erteilt");
 	}
-	
+
 	/**
 	 * Laedt Nahrung aus dem eigenen Cargo in den Nahrungsspeicher.
 	 */
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult fillFoodAction(ShipFleet fleet) {
 		validiereGueltigeFlotteVorhanden(fleet);
-		
+
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
-		
+
 		List<?> ships = db.createQuery("from Ship as s WHERE s.id>0 and s.owner=:owner and s.fleet=:fleet and s.battle is null")
 				.setEntity("owner", user)
 				.setEntity("fleet", fleet)
 				.list();
-		
+
 		StringBuilder message = new StringBuilder(100);
 		for (Object ship : ships) {
 			Ship s = (Ship) ship;
 			Cargo cargo = new Cargo(s.getCargo());
-			
+
 			long usenahrung = s.getTypeData().getNahrungCargo() - s.getNahrungCargo();
 			if(usenahrung > cargo.getResourceCount(Resources.NAHRUNG)) {
 				usenahrung = cargo.getResourceCount(Resources.NAHRUNG);
 			}
-			
+
 			s.setNahrungCargo(s.getNahrungCargo()+usenahrung);
 			cargo.substractResource(Resources.NAHRUNG, usenahrung);
 			s.setCargo(cargo);
-			
+
 			if(usenahrung > 0) {
 				message.append(s.getName()).append(" (").append(s.getId()).append(") - <span style=\"color:orange\">")
 					.append(usenahrung).append(" Nahrung transferiert</span><br />");
@@ -938,7 +938,7 @@ public class FleetMgntController extends Controller
 			s.setCargo(cargo);
 		}
 		return new RedirectViewResult("default").withMessage(message.append("Nahrung erfolgreich in den Nahrungsspeicher transferiert.").toString());
-	}	
+	}
 
 	/**
 	 * Teil eines Formatierungsstrings fuer Schiffsnamen.
@@ -1470,11 +1470,23 @@ public class FleetMgntController extends Controller
             if( shiptype.getDeutFactor() > 0)
             {
                 hasTanker = true;
-            }
+						}
+
+			String offi = null;
+
+			if (ship.getStatus().contains("offizier"))
+			{
+				Offizier offizier = ship.getOffizier();
+				if (offizier != null)
+				{
+					offi = " <a class=\"forschinfo\" href=\"" + Common.buildUrl("default", "module", "choff", "off", offizier.getID()) + "\"><img style=\"vertical-align:middle\" src=\"" + offizier.getPicture() + "\" alt=\"Rang " + offizier.getRang() + "\" /></a>";
+				}
+			}
 
 			t.setVar("ship.id", ship.getId(),
 					"ship.name", Common._plaintitle(ship.getName()),
 					"ship.type.name", shiptype.getNickname(),
+					"ship.offi", offi,
 					"ship.showbattle", ship.getBattle() != null ? ship.getBattle() : 0,
 					"ship.showwarning", !aloc.sameSector(0, loc, 0));
 
