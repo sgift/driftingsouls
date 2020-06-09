@@ -306,6 +306,14 @@ public class SchiffInfoController extends Controller
 
 			t.parse("shiptypeflags.list", "shiptypeflags.listitem", true);
 		}
+
+		if(ship.getSize() < ShipType.SMALL_SHIP_MAXSIZE)
+		{
+			t.setVar("shiptypeflag.name", "keine Reihenstabilit&auml;t",
+					"shiptypeflag.description", "Dieses Schiff leistet keinen Beitrag zur Reihenstabilit&auml;t. Es kann daher keinen Beitrag dazu leisten, die zweite Reihe in Schlachten zu stabilisieren.";
+
+			t.parse("shiptypeflags.list", "shiptypeflags.listitem", true);
+		}
 	}
 
 	private void zeigeWaffenlisteAn(TemplateEngine t, ShipType ship)
