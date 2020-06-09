@@ -154,14 +154,26 @@
 				<td class="show2">
 					{if battle.joinable}
 						{if battle.fixedjoin}
-							<a class="redborder" href="./ds?module=angriff&amp;battle={battle.id}&amp;addship={global.ship}"><img src="data/interface/schiffe/schiff_battle.gif" alt="teilnehmen" /></a>
+							<a class="redborder tooltip" href="./ds?module=angriff&amp;battle={battle.id}&amp;addship={global.ship}">
+								<img src="data/interface/schiffe/schiff_battle.gif" alt="teilnehmen" />
+								<span class="ttcontent">Schlacht mit allen Schiffen der Flotte beitreten.</span>
+							</a>
 						{else}
-							<a class="redborder" href="javascript:DS.ask('Wollen Sie wirklich auf Seiten der Kampfpartei namens {battle.side1} angreifen?',DS.getUrl()+'?module=angriff&amp;battle={battle.id}&amp;addship={global.ship}&amp;forcejoin=1')"><img src="data/interface/schiffe/schiff_battle_side1.gif" alt="teilnehmen auf Seite 1" /></a>
-							<a class="redborder" href="javascript:DS.ask('Wollen Sie wirklich auf Seiten der Kampfpartei namens {battle.side2} angreifen?',DS.getUrl()+'?module=angriff&amp;battle={battle.id}&amp;addship={global.ship}&amp;forcejoin=2')"><img src="data/interface/schiffe/schiff_battle_side2.gif" alt="teilnehmen auf Seite 2" /></a>
+							<a class="redborder tooltip" href="javascript:DS.ask('Wollen Sie wirklich auf Seiten der Kampfpartei namens {battle.side1} angreifen?',DS.getUrl()+'?module=angriff&amp;battle={battle.id}&amp;addship={global.ship}&amp;forcejoin=1')">
+								<img src="data/interface/schiffe/schiff_battle_side1.gif" alt="teilnehmen auf Seite 1" />
+								<span class="ttcontent">{battle.side1} im Kampf unterst&uuml;tzen und alle Schiffe der Flotte auf dieser Seite der Schlacht beitreten lassen.</span>
+							</a>
+							<a class="redborder tooltip" href="javascript:DS.ask('Wollen Sie wirklich auf Seiten der Kampfpartei namens {battle.side2} angreifen?',DS.getUrl()+'?module=angriff&amp;battle={battle.id}&amp;addship={global.ship}&amp;forcejoin=2')">
+								<img src="data/interface/schiffe/schiff_battle_side2.gif" alt="teilnehmen auf Seite 2" />
+								<span class="ttcontent">{battle.side2} im Kampf unterst&uuml;tzen und alle Schiffe der Flotte auf dieser Seite der Schlacht beitreten lassen.</span>
+							</a>
 						{/endif}
 					{/endif}
 					{if battle.viewable}
-						<a class="greenborder" href="./ds?module=angriff&amp;battle={battle.id}"><img src="data/interface/schiffe/schiff_battle_view.gif" alt="ansehen" /></a>
+						<a class="greenborder tooltip" href="./ds?module=angriff&amp;battle={battle.id}">
+							<img src="data/interface/schiffe/schiff_battle_view.gif" alt="ansehen" />
+							<span class="ttcontent">Schlacht ansehen, ohne ihr beizutreten.</span>
+						</a>
 					{/endif}
 				</td>
 			</tr>
