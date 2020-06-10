@@ -131,6 +131,7 @@ public class Nebel implements Locatable {
 		private final boolean emp;
 		private final int deutfaktor;
 		private final int minScanbareSchiffsgroesse;
+		private final String beschreibung;
 
 		Typ(int code, int minScansize, boolean emp, int deutfaktor, int minScanbareSchiffsgroesse, String beschreibung)
 		{
