@@ -100,50 +100,51 @@ public class Nebel implements Locatable {
 		/**
 		 * Normaler Deutnebel.
 		 */
-		MEDIUM_DEUT(0, 7, false, 0, 7),
+		MEDIUM_DEUT(0, 7, false, 0, 7,"Normaler Deutnebel. Hier kann durch Tanker Deuterium gewonnen werden."),
 		/**
 		 * Schwacher Deutnebel.
 		 */
-		LOW_DEUT(1, 5, false, -1, 5),
+		LOW_DEUT(1, 5, false, -1, 5,"Schwacher Deutnebel. Hier kann durch Tanker Deuterium gewonnen werden."),
 		/**
 		 * Dichter Deutnebel.
 		 */
-		STRONG_DEUT(2, 11, false, 1, 11),
+		STRONG_DEUT(2, 11, false, 1, 11,"Dichter Deutnebel. Hier kann durch Tanker Deuterium gewonnen werden."),
 		/**
 		 * Schwacher EMP-Nebel.
 		 */
-		LOW_EMP(3, Integer.MAX_VALUE, true, Integer.MIN_VALUE, 0),
+		LOW_EMP(3, Integer.MAX_VALUE, true, Integer.MIN_VALUE, 0,"Schwacher EMP-Nebel. Die Navigation funtioniert hier nur eingeschr&auml;nkt."),
 		/**
 		 * Normaler EMP-Nebel.
 		 */
-		MEDIUM_EMP(4, Integer.MAX_VALUE, true, Integer.MIN_VALUE, 0),
+		MEDIUM_EMP(4, Integer.MAX_VALUE, true, Integer.MIN_VALUE, 0,"Normaler EMP-Nebel. Die Navigation funtioniert hier nur eingeschr&auml;nkt."),
 		/**
 		 * Dichter EMP-Nebel.
 		 */
-		STRONG_EMP(5, Integer.MAX_VALUE, true, Integer.MIN_VALUE, 0),
+		STRONG_EMP(5, Integer.MAX_VALUE, true, Integer.MIN_VALUE, 0,"Dichter EMP-Nebel. Die Navigation funtioniert hier nur eingeschr&auml;nkt." ),
 		/**
 		 * Schadensnebel.
 		 */
-		DAMAGE(6, 7, false, Integer.MIN_VALUE, 9);
+		DAMAGE(6, 7, false, Integer.MIN_VALUE, 9, "Schadensnebel. Schiffe, die zum Tick hier stehen, erhalten Schaden, auch auf die Subsysteme.");
 
 		private final int code;
 		private final int minScansize;
 		private final boolean emp;
 		private final int deutfaktor;
 		private final int minScanbareSchiffsgroesse;
-		
-		Typ(int code, int minScansize, boolean emp, int deutfaktor, int minScanbareSchiffsgroesse)
+
+		Typ(int code, int minScansize, boolean emp, int deutfaktor, int minScanbareSchiffsgroesse, String beschreibung)
 		{
 			this.code = code;
 			this.minScansize = minScansize;
 			this.emp = emp;
 			this.deutfaktor = deutfaktor;
 			this.minScanbareSchiffsgroesse = minScanbareSchiffsgroesse;
+			this.beschreibung = beschreibung;
 		}
-		
+
 		/**
 		 * Erzeugt aus Typenids (Datenbank) enums.
-		 * 
+		 *
 		 * @param type Typenid.
 		 * @return Passendes enum.
 		 */
@@ -161,7 +162,15 @@ public class Nebel implements Locatable {
 				default: throw new IllegalArgumentException("There's no nebula with type:" + type);
 			}
 		}
-		
+
+		/**
+		 * @return Die Beschreibung des Nebels.
+		 */
+		public String getDescription()
+		{
+			return this.beschreibung;
+		}
+
 		/**
 		 * @return Der Typcode des Nebels.
 		 */
@@ -169,7 +178,7 @@ public class Nebel implements Locatable {
 		{
 			return this.code;
 		}
-		
+
 		/**
 		 * @return Die Groesse ab der ein Schiff sichtbar ist in dem Nebel.
 		 */
@@ -282,7 +291,7 @@ public class Nebel implements Locatable {
 	@Enumerated
 	@Column(nullable = false)
 	private Typ type;
-	
+
 	/**
 	 * Konstruktor.
 	 *
@@ -290,7 +299,7 @@ public class Nebel implements Locatable {
 	public Nebel() {
 		// EMPTY
 	}
-	
+
 	/**
 	 * Erstellt einen neuen Nebel.
 	 * @param loc Die Position des Nebels
@@ -300,7 +309,7 @@ public class Nebel implements Locatable {
 		this.loc = loc;
 		this.type = type;
 	}
-		
+
 	/**
 	 * Gibt das System des Nebels zurueck.
 	 * @return Das System
@@ -308,7 +317,7 @@ public class Nebel implements Locatable {
 	public int getSystem() {
 		return loc.getSystem();
 	}
-	
+
 	/**
 	 * Gibt den Typ des Nebels zurueck.
 	 * @return Der Typ
@@ -316,7 +325,7 @@ public class Nebel implements Locatable {
 	public Typ getType() {
 		return this.type;
 	}
-	
+
 	/**
 	 * Gibt die X-Koordinate zurueck.
 	 * @return Die X-Koordinate
@@ -324,7 +333,7 @@ public class Nebel implements Locatable {
 	public int getX() {
 		return loc.getX();
 	}
-	
+
 	/**
 	 * Gibt die Y-Koordinate zurueck.
 	 * @return Die Y-Koordinate
@@ -332,7 +341,7 @@ public class Nebel implements Locatable {
 	public int getY() {
 		return loc.getY();
 	}
-	
+
 	/**
 	 * Gibt die Position des Nebels zurueck.
 	 * @return Die Position
@@ -341,10 +350,10 @@ public class Nebel implements Locatable {
 	public Location getLocation() {
 		return loc.getLocation();
 	}
-	
+
 	/**
 	 * Gibt an, ob Schiffe in diesem Feld scannen duerfen.
-	 * 
+	 *
 	 * @return <code>true</code>, wenn sie scannen duerfen, sonst <code>false</code>.
 	 */
 	public boolean allowsScan()
@@ -355,7 +364,7 @@ public class Nebel implements Locatable {
 	/**
 	 * Gibt das Bild des Nebels zurueck (als Pfad).
 	 * Der Pfad ist relativ zum data-Verzeichnis.
-	 * 
+	 *
 	 * @return Das Bild des Nebels als Pfad.
 	 */
 	public String getImage()
