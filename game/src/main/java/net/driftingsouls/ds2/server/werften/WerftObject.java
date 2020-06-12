@@ -709,7 +709,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		else {
 			Cargo buildcosts = baubar.getCosts();
 
-			double factor = (ship.getHull()/(double)shiptype.getHull())*0.90d;
+			double factor = (ship.getHull()/(double)shiptype.getHull())*0.50d;
 			cost.addResource( Resources.URAN, (long)(factor*buildcosts.getResourceCount(Resources.URAN)) );
 			cost.addResource( Resources.KUNSTSTOFFE, (long)(factor*buildcosts.getResourceCount(Resources.KUNSTSTOFFE)) );
 			cost.addResource( Resources.TITAN, (long)(factor*buildcosts.getResourceCount(Resources.TITAN)) );
