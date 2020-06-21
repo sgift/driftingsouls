@@ -100,31 +100,31 @@ public class Nebel implements Locatable {
 		/**
 		 * Normaler Deutnebel.
 		 */
-		MEDIUM_DEUT(0, 7, false, 0, 7,"Normaler Deutnebel. Hier kann durch Tanker Deuterium gewonnen werden."),
+		MEDIUM_DEUT(0, 7, false, 0, 7,"normaler Deuteriumnebel"),
 		/**
 		 * Schwacher Deutnebel.
 		 */
-		LOW_DEUT(1, 5, false, -1, 5,"Schwacher Deutnebel. Hier kann durch Tanker Deuterium gewonnen werden."),
+		LOW_DEUT(1, 5, false, -1, 5,"schwacher Deuteriumnebel"),
 		/**
 		 * Dichter Deutnebel.
 		 */
-		STRONG_DEUT(2, 11, false, 1, 11,"Dichter Deutnebel. Hier kann durch Tanker Deuterium gewonnen werden."),
+		STRONG_DEUT(2, 11, false, 1, 11,"starker Deuteriumnebel"),
 		/**
 		 * Schwacher EMP-Nebel.
 		 */
-		LOW_EMP(3, Integer.MAX_VALUE, true, Integer.MIN_VALUE, 0,"Schwacher EMP-Nebel. Die Navigation funtioniert hier nur eingeschr&auml;nkt."),
+		LOW_EMP(3, Integer.MAX_VALUE, true, Integer.MIN_VALUE, 0,"schwacher EMP-Nebel"),
 		/**
 		 * Normaler EMP-Nebel.
 		 */
-		MEDIUM_EMP(4, Integer.MAX_VALUE, true, Integer.MIN_VALUE, 0,"Normaler EMP-Nebel. Die Navigation funtioniert hier nur eingeschr&auml;nkt."),
+		MEDIUM_EMP(4, Integer.MAX_VALUE, true, Integer.MIN_VALUE, 0,"normaler EMP-Nebel"),
 		/**
 		 * Dichter EMP-Nebel.
 		 */
-		STRONG_EMP(5, Integer.MAX_VALUE, true, Integer.MIN_VALUE, 0,"Dichter EMP-Nebel. Die Navigation funtioniert hier nur eingeschr&auml;nkt." ),
+		STRONG_EMP(5, Integer.MAX_VALUE, true, Integer.MIN_VALUE, 0,"dichter EMP-Nebel" ),
 		/**
 		 * Schadensnebel.
 		 */
-		DAMAGE(6, 7, false, Integer.MIN_VALUE, 9, "Schadensnebel. Schiffe, die zum Tick hier stehen, erhalten Schaden, auch auf die Subsysteme.");
+		DAMAGE(6, 7, false, Integer.MIN_VALUE, 9, "Schadensnebel");
 
 		private final int code;
 		private final int minScansize;
