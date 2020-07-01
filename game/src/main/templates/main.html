@@ -3,7 +3,7 @@
 </style>
 <ul id="menu">
 	{if user.battle}
-		<audio id="battle_audio" autoplay loop src="Haunt You_Extendet.mp3" type="audio/mp3"></audio>
+		<audio id="audio" name="battle_audio" autoplay loop src="Haunt You_Extendet.mp3" type="audio/mp3"></audio>
 		<!--<audio id="battle_audio_part2" loop src="data/sounds/MainLoopReaper.mp3" type="audio/mp3"></audio>
 		<script>
 			var part2 = document.getElementById("battle_audio_part2");
@@ -14,7 +14,7 @@
 		</script>
 		-->
 	{else}
-		<audio id="atmo_audio" autoplay loop src="data/sounds/Atmo_Master.mp3" type="audio/mp3"></audio>
+		<audio id="audio" name="atmo_audio" autoplay loop src="data/sounds/Atmo_Master.mp3" type="audio/mp3"></audio>
 		<!--<audio id="atmo_audio_part2" loop src="data/sounds/Atmo_Master_Part2.mp3" type="audio/mp3"></audio>
 		<script>
 			var part2 = document.getElementById("atmo_audio_part2");
@@ -377,6 +377,34 @@
 	{/endif}
 {/endif}
 <li class="actionfield">
+	<a href="#" onclick="document.getElementById('audio').play()">
+		<img id="play" src="./data/interface/menubar/play.png" alt="Play" title="Play">
+	</a>
+	<a href="#" onclick="document.getElementById('audio').pause()">
+		<img id="play" src="./data/interface/menubar/pause.png" alt="Pause" title="Pause">
+	</a>
+	<a href="#" onclick="document.getElementById('audio').volume=volumeLimit(document.getElementById('audio').volume+0.1,1)">
+		<img id="play" src="./data/interface/menubar/volup.png" alt="Volup" title="Lauter">
+	</a>
+	<a href="#" onclick="document.getElementById('audio').volume=volumeLimit(document.getElementById('audio').volume-0.1,0)">
+		<img id="play" src="./data/interface/menubar/voldown.png" alt="Voldown" title="Leiser">
+	</a>
+	<script>
+		function volumeLimit(volume){
+			if(volume>1)
+			{
+				return 1.0;
+			}
+			else if(volume<0)
+			{
+				return 0.0;
+			}
+			else
+			{
+				return volume;
+			}
+		}
+	</script>
 	<a href="#" onclick="boxOpen('#helpbox')">
 		<img id="helpicon" src="./data/interface/menubar/help.png" alt="Hilfe" title="Hilfe" />
 	</a>
