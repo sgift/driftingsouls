@@ -307,12 +307,27 @@ public class SensorsDefault implements SchiffPlugin {
 		else {
 			ownfleetcount = 0;
 		}
-
+		List<Ship> ownShipList = new ArrayList<>();
+		List<Ship> friendShipList = new ArrayList<>();
+		List<Ship> enemyShipList = new ArrayList<>();
 		for (Object ship1 : ships)
 		{
 			Ship aship = (Ship) ship1;
 			ShipTypeData ashiptype = aship.getTypeData();
 			ShipTypeData mastertype = aship.getBaseType();
+			if (aship.getOwner().getId() == user.getId()) //man selbst
+			{
+				ownShipList.add(aship);
+				friendShipList.add(aship); //man ist auch mit sich selbst befreundet und das macht es unten einfacher in der Berechnung
+			}
+			else if (user.getRelations().beziehungZu(aship.getOwner())== User.Relation.FRIEND) //Freunde
+			{
+				friendShipList.add(aship);
+			}
+			else //alles andere ist feindlich
+			{
+				enemyShipList.add(aship);
+			}
 
 			final String typeGroupID = aship.getType() + "_" + aship.getOwner().getId();
 
@@ -779,6 +794,16 @@ public class SensorsDefault implements SchiffPlugin {
 				t.clear_record();
 			}
 		}
+		t.setVar("global.owncount", ownShipList.size());
+		t.setVar("global.friendcount", friendShipList.size()-ownShipList.size());
+		t.setVar("global.enemycount", enemyShipList.size());
+		if(shiptype.hasFlag(ShipTypeFlag.SRS_AWAC) || shiptype.hasFlag(ShipTypeFlag.SRS_EXT_AWAC) )
+		{
+			t.setVar("global.own.stable", isSecondRowStable(ownShipList));
+			t.setVar("global.enemy.stable", isSecondRowStable(enemyShipList));
+			t.setVar("global.friend.stable", isSecondRowStable(friendShipList));
+		}
+
 	}
 
 	private void outputBases(Parameters caller, User user,
@@ -1015,5 +1040,43 @@ public class SensorsDefault implements SchiffPlugin {
 						"global.jumps.name",	(jumps>1 ? "Subraumspalten":"Subraumspalte"));
 		}
 	}
+
+	/**
+	 * Prueft, ob die zweite Reihe stabil ist. Beruecksichtigt wird auf Wunsch
+	 * auch eine Liste von Schiffen, welche der Schlacht noch nicht begetreten sind
+	 * (unter der Annahme, dass gemaess Flags die Schiffe in der ersten bzw zweiten
+	 * Reihe landen wuerden).
+	 * @param shiplist Die Schiffsliste deren zweite Reihe geprueft werden soll
+	 * @return <code>true</code>, falls die zweite Reihe unter den Bedingungen stabil ist
+	 */
+	public boolean isSecondRowStable( List<Ship> shiplist) {
+
+		double owncaps = 0;
+		double secondrowcaps = 0;
+        for (Ship aship : shiplist) {
+
+            ShipTypeData type = aship.getTypeData();
+
+            double size = type.getSize();
+            if (type.hasFlag(ShipTypeFlag.SECONDROW)) {
+                if (!aship.isDocked() && !aship.isLanded()) {
+                    secondrowcaps += size;
+                }
+            }
+            else
+            {
+                if (size > ShipType.SMALL_SHIP_MAXSIZE) {
+                    double countedSize = size;
+                    if (type.getCrew() > 0) {
+                        countedSize *= (aship.getCrew() / ((double) type.getCrew()));
+                    }
+                    owncaps += countedSize;
+                }
+            }
+        }
+
+        return Double.valueOf(secondrowcaps).intValue() == 0 || Double.valueOf(owncaps).intValue() >= Double.valueOf(secondrowcaps).intValue() * 2;
+
+		}
 
 }
