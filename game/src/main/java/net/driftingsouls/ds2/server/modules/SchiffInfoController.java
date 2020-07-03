@@ -310,7 +310,7 @@ public class SchiffInfoController extends Controller
 		if(ship.getSize() < ShipType.SMALL_SHIP_MAXSIZE)
 		{
 			t.setVar("shiptypeflag.name", "keine Reihenstabilit&auml;t",
-					"shiptypeflag.description", "Dieses Schiff leistet keinen Beitrag zur Reihenstabilit&auml;t. Es kann daher keinen Beitrag dazu leisten, die zweite Reihe in Schlachten zu stabilisieren.");
+					"shiptypeflag.description", "Dieses Schiff leistet keinen Beitrag, die zweite Reihe in Schlachten zu stabilisieren.");
 
 			t.parse("shiptypeflags.list", "shiptypeflags.listitem", true);
 		}
