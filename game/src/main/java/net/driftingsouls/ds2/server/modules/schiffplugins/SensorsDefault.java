@@ -318,6 +318,7 @@ public class SensorsDefault implements SchiffPlugin {
 			if (aship.getOwner().getId() == user.getId()) //man selbst
 			{
 				ownShipList.add(aship);
+				friendShipList.add(aship); //man ist auch mit sich selbst befreundet und das macht es unten einfacher in der Berechnung
 			}
 			else if (user.getRelations().beziehungZu(aship.getOwner())== User.Relation.FRIEND) //Freunde
 			{
@@ -794,13 +795,13 @@ public class SensorsDefault implements SchiffPlugin {
 			}
 		}
 		t.setVar("global.owncount", ownShipList.size());
-		t.setVar("global.friendcount", friendShipList.size());
+		t.setVar("global.friendcount", friendShipList.size()-ownShipList.size());
 		t.setVar("global.enemycount", enemyShipList.size());
 		if(shiptype.hasFlag(ShipTypeFlag.SRS_AWAC) || shiptype.hasFlag(ShipTypeFlag.SRS_EXT_AWAC) )
 		{
 			t.setVar("global.own.stable", isSecondRowStable(ownShipList));
 			t.setVar("global.enemy.stable", isSecondRowStable(enemyShipList));
-			t.setVar("global.friend.stable", isSecondRowStable(friendShipList.addAll(ownShipList)));
+			t.setVar("global.friend.stable", isSecondRowStable(friendShipList));
 		}
 
 	}
