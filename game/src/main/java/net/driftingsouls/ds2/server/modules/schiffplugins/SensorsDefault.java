@@ -315,11 +315,11 @@ public class SensorsDefault implements SchiffPlugin {
 			Ship aship = (Ship) ship1;
 			ShipTypeData ashiptype = aship.getTypeData();
 			ShipTypeData mastertype = aship.getBaseType();
-			if (aship.getOwner().getID() == user.getID()) //man selbst
+			if (aship.getOwner().getId() == user.getId()) //man selbst
 			{
 				ownShipList.add(aship);
 			}
-			else if (user.beziehungZu(aship.getOwner())== Relation.FRIEND) //Freunde
+			else if (user.getRelations().beziehungZu(aship.getOwner())== User.Relation.FRIEND) //Freunde
 			{
 				friendShipList.add(aship);
 			}
