@@ -155,7 +155,7 @@ public class NavigationDefault implements SchiffPlugin {
 
 			StarSystem system = (StarSystem) db.get(StarSystem.class, sys);
 			if(system == null) {
-				t.setVar("schiff.navigation.showmessage","Unbekanntes Sternensystem. Wende dich an einen Admin.");
+				t.setVar("schiff.navigation.showmessage","Unbekanntes Sternensystem! Wende Dich an einen Admin!");
 				log.error(String.format("ship: %s -- unknown system: %s", data.getId(), sys));
 			} else {
 				PlayerStarmap map = new PlayerStarmap(user, system, new int[]{x - 1, y - 1, 3, 3});
