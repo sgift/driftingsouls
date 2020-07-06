@@ -221,8 +221,21 @@ public class SensorsDefault implements SchiffPlugin {
 		}
 
 		List<?> ships;
+		List<?> shipsInBattle;
 		boolean firstentry = false;
 		Map<String,Long> types = new HashMap<>();
+
+		//Schiffe im Kampf auf diesem Feld fuer den Scanner mitladen
+		shipsInBattle = db.createQuery("from Ship s inner join fetch s.owner " +
+										"where s.id!= :id and s.id>0 and s.x= :x and s.y=:y and s.system= :sys and " +
+											"s.battle is not null and locate('l ',s.docked)=0 " +
+										"order by "+thisorder+",case when s.docked!='' then s.docked else s.id end, s.fleet")
+									.setInteger("id", ship.getId())
+									.setInteger("x", ship.getX())
+									.setInteger("y", ship.getY())
+									.setInteger("sys", ship.getSystem())
+									.setFlushMode(FlushMode.MANUAL)
+									.list();
 
 		// Soll nur ein bestimmter Schiffstyp angezeigt werden?
 		if( showOnly != 0 ) {
@@ -282,6 +295,7 @@ public class SensorsDefault implements SchiffPlugin {
 				.setInteger("sys", ship.getSystem())
 				.setFlushMode(FlushMode.MANUAL)
 				.list();
+
 		}
 
 		final long fleetlesscount = (Long)db.createQuery("SELECT count(*) FROM Ship WHERE id > 0 AND system=:system AND x=:x AND y=:y AND owner=:owner AND shiptype=:shiptype AND LOCATE('l ',docked) = 0 AND LOCATE('disable_iff',status) = 0 AND fleet is null")
@@ -310,6 +324,28 @@ public class SensorsDefault implements SchiffPlugin {
 		List<Ship> ownShipList = new ArrayList<>();
 		List<Ship> friendShipList = new ArrayList<>();
 		List<Ship> enemyShipList = new ArrayList<>();
+
+		//das Schiff selbst einfuegen. Das ist in der Liste ships nicht enthalten
+		ownShipList.add(ship);
+
+		//Schiffe im Kampf fuer den Scanner auswerten:
+		for (Object ship1 : shipsInBattle)
+		{
+			Ship aship = (Ship) ship1;
+			if (aship.getOwner().getId() == user.getId()) //man selbst
+			{
+				ownShipList.add(aship);
+				friendShipList.add(aship); //man ist auch mit sich selbst befreundet und das macht es unten einfacher in der Berechnung
+			}
+			else if (user.getRelations().beziehungZu(aship.getOwner())== User.Relation.FRIEND) //Freunde
+			{
+				friendShipList.add(aship);
+			}
+			else //alles andere ist feindlich
+			{
+				enemyShipList.add(aship);
+			}
+		}
 		for (Object ship1 : ships)
 		{
 			Ship aship = (Ship) ship1;
