@@ -327,6 +327,7 @@ public class SensorsDefault implements SchiffPlugin {
 
 		//das Schiff selbst einfuegen. Das ist in der Liste ships nicht enthalten
 		ownShipList.add(ship);
+		friendShipList.add(ship);
 
 		//Schiffe im Kampf fuer den Scanner auswerten:
 		for (Object ship1 : shipsInBattle)
