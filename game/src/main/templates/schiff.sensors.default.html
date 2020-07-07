@@ -7,7 +7,7 @@
 					<tr class="show">
 						<td>Sensoren</td>
 						{if global.goodscan}
-							<td><span style="font-weight:bold; color:#1aff05">F</span>:{global.owncount}
+							<td><span style="font-weight:bold; color:#1aff05" title="Anzahl eigener Schiffe im Sektor">F</span>:{global.owncount}
 							{if global.awac}
 								{if global.own.stable}
 									<td><img style="vertical-align:middle" src="data/interface/ks/secondrow.png" alt="" title="Ihre zweite Reihe w&auml;re im Moment stabil." /></td>
@@ -15,7 +15,7 @@
 									<td><img style="vertical-align:middle" src="data/interface/ks/secondrow_unstable.png" alt="" title="Ihre zweite Reihe w&auml;re im Moment instabil und k&ouml;nnte daher vom Gegner &uuml;berrannt werden." /></td>
 								{/endif}
 							{/endif}
-							<td><span style="font-weight:bold; color:#05eeff">F</span>:{global.friendcount}</td>
+							<td><span style="font-weight:bold; color:#05eeff" title="Anzahl befreundeter Schiffe im Sektor">F</span>:{global.friendcount}</td>
 							{if global.awac}
 								{if global.friend.stable}
 									<td><img style="vertical-align:middle" src="data/interface/ks/secondrow.png" alt="" title="Eine zweite Reihe mit gemeinsam mit Ihren Verbuuml;ndeten w&auml;re im Moment stabil." /></td>
@@ -23,7 +23,7 @@
 									<td><img style="vertical-align:middle" src="data/interface/ks/secondrow_unstable.png" alt="" title="Ihre zweite Reihe w&auml;re im Moment instabil und k&ouml;nnte daher vom Gegner &uuml;berrannt werden." /></td>
 								{/endif}
 							{/endif}
-							<td><span style="font-weight:bold; color:#ff0505">F</span>:{global.enemycount}</td>
+							<td><span style="font-weight:bold; color:#ff0505" title="Anzahl neutraler und feindlicher Schiffe im Sektor">F</span>:{global.enemycount}</td>
 							{if global.awac}
 								{if global.enemy.stable}
 									<td><img style="vertical-align:middle" src="data/interface/ks/secondrow.png" alt="" title="Die zweite Reihe aller feindlicher Schiffe w&auml;re im Moment stabil." /></td>
