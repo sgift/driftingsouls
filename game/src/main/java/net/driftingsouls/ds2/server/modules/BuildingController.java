@@ -318,8 +318,8 @@ public class BuildingController extends Controller
 		if( !conf.equals("ok") ) {
 			echo.append("<div align=\"center\">\n");
 			echo.append("<img align=\"middle\" src=\"./").append(building.getPictureForRace(user.getRace())).append("\" alt=\"\" /> ").append(Common._plaintitle(building.getName())).append("<br /><br />\n");
-			echo.append("Wollen Sie dieses Gebäude wirklich abreißen?<br /><br />\n");
-			echo.append("<a class=\"error\" href=\"").append(Common.buildUrl("demo", "col", base.getId(), "field", field, "conf", "ok")).append("\">abreißen</a><br /></div>");
+			echo.append("Wollen Sie dieses Gebäude wirklich demontieren?<br /><br />\n");
+			echo.append("<a class=\"error\" href=\"").append(Common.buildUrl("demo", "col", base.getId(), "field", field, "conf", "ok")).append("\">demontieren</a><br /></div>");
 			echo.append("</div>");
 
 			echo.append("<br />\n");
@@ -487,7 +487,7 @@ public class BuildingController extends Controller
 
 		if (building.getId() != Building.KOMMANDOZENTRALE)
 		{
-			echo.append("<a style=\"font-size:16px\" class=\"error\" href=\"").append(Common.buildUrl("demo", "col", base.getId(), "field", field)).append("\">abreißen</a><br />");
+			echo.append("<a style=\"font-size:16px\" class=\"error\" href=\"").append(Common.buildUrl("demo", "col", base.getId(), "field", field)).append("\">demontieren</a><br />");
 		}
 		else
 		{
