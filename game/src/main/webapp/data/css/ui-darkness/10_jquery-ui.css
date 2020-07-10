@@ -88,7 +88,7 @@
 }
 
 .ui-dialog .ui-dialog-titlebar-close span.ui-icon {
-	background: url('./data/interface/delete.gif') 0px 0px;
+	background: url('/data/interface/delete.gif') 0px 0px;
 	width:14px;
 	height:14px;
 	left:0;
