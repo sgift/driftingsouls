@@ -48,9 +48,8 @@ public interface AuthenticationManager {
 	 * @param user Der Account, in den der Admin eingeloggt werden soll
 	 * @param attach <code>true</code>, falls die Adminrechte an die neue Session "angeklebt" werden sollen
 	 * @return Der Account des eingeloggten Benutzers
-	 * @throws AuthenticationException Falls der Loginvorgang nicht moeglich ist
-	 */
-    BasicUser adminLogin(BasicUser user, boolean attach) throws AuthenticationException;
+     */
+    BasicUser adminLogin(BasicUser user, boolean attach);
 
 	/**
 	 * Authentifiziert die genutzte Session. Falls die Session ungueltig ist,

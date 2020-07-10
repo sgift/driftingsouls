@@ -8,16 +8,16 @@ import java.util.Map;
 @ViewModel
 public class JqGridColumnViewModel
 {
-	public String name;
+	public final String name;
 	public String index;
 	public Integer width;
 	public String align;
 	public boolean sortable;
-	public String formatter;
+	public final String formatter;
 	public boolean search;
 	public boolean editable;
 	public String edittype;
-	public Map<String,Object> editoptions = new HashMap<>();
+	public final Map<String,Object> editoptions = new HashMap<>();
 	public boolean key;
 	public boolean hidden;
 

@@ -56,13 +56,13 @@ public class Weapon {
 	@ElementCollection
 	@CollectionTable
 	@ForeignKey(name="weapon_munition_fk_weapon")
-	private Set<String> munition = new HashSet<>();
+	private final Set<String> munition = new HashSet<>();
 	private int singleshots = 1;
 	private boolean destroyable = false;
 	@ElementCollection
 	@CollectionTable
 	@ForeignKey(name="weapon_flags_fk_weapon")
-	private Set<Flags> flags = new HashSet<>();
+	private final Set<Flags> flags = new HashSet<>();
 
 	/**
 	 * Konstruktor.

@@ -14,7 +14,8 @@
 			</dl>
 		</div>
 		<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
-		{user.konto} RE
+		{user.konto} RE <br />
+		{user.faction.lp} LP
 	</span>
 </td>
 <td class="noBorder">&nbsp;</td>
@@ -43,7 +44,7 @@
 				<li>{!link_to Einsatz melden, aktionMelden, faction:$global.faction}</li>
 			{/endif}
 			{if faction.other}
-				<li>{!link_to Sonstiges, other, faction:$global.faction}</li>
+				<li>{!link_to Handelspostenliste, other, faction:$global.faction}</li>
 			{/endif}
 		</ul>
 	</div>
@@ -472,12 +473,12 @@
 			</dt>
 			{if kurse.waren.list}
 				<dd class="ankauf">
-					<h3>Kauft:</h3>
+					<h3>Ankauf von:</h3>
 					<!-- BEGIN kurse.waren.listitem -->
 						<div {if ware.inaktiv}class="inaktiv"{/endif}>
 							<a class="tooltip" href="./ds?module=iteminfo&amp;itemlist={ware.id}">
 								<img src="{ware.image}" />
-								{if ware.preis}{ware.preis} RE{else}Kein Bedarf{/endif}
+								{if ware.preis}{ware.preis} RE{else}kein Bedarf{/endif}
 								<span class="ttcontent ttitem" ds-item-id="{ware.id}">
 									<img src="{ware.image}" alt="{ware.plainname}" />{ware.plainname}
 								</span>
@@ -488,7 +489,7 @@
 			{/endif}
 			{if kurse.verkaufswaren.list}
 				<dd class="verkauf">
-					<h3>Verkauft:</h3>
+					<h3>Verkauf von:</h3>
 					<!-- BEGIN kurse.verkaufswaren.listitem -->
 						<div {if ware.inaktiv}class="inaktiv"{/endif}>
 							<a class="tooltip" href="./ds?module=iteminfo&amp;itemlist={ware.id}">

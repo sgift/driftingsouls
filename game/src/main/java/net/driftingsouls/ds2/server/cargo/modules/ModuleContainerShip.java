@@ -30,9 +30,9 @@ import java.util.List;
  *
  */
 public class ModuleContainerShip extends Module {
-	private int slot;
-	private long cargo;
-	private int shipid;
+	private final int slot;
+	private final long cargo;
+	private final int shipid;
 
 	protected ModuleContainerShip(int slot, String data) {
 		this.slot = slot;
@@ -70,7 +70,7 @@ public class ModuleContainerShip extends Module {
 	}
 
 	private static class ShipTypeDataCargoWrapper extends AbstractShipTypeDataWrapper {
-		private long cargo;
+		private final long cargo;
 
 		ShipTypeDataCargoWrapper(ShipTypeData inner, long cargo) {
 			super(inner);

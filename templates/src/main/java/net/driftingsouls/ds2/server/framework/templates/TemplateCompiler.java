@@ -377,22 +377,22 @@ public class TemplateCompiler {
 		/**
 		 * Der Name des Blocks.
 		 */
-		String name;
+        final String name;
 
 		/**
 		 * Der Inhalt des Blocks.
 		 */
-		String block;
+        final String block;
 
 		/**
 		 * Die im Block auftauchenden Variablen.
 		 */
-		List<String> varlist;
+        final List<String> varlist;
 
 		/**
 		 * Der Elternblock.
 		 */
-		String parent;
+        final String parent;
 
 		CompiledBlock(String name, String block, List<String> varlist, String parent) {
 			super();

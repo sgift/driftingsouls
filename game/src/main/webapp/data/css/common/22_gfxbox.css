@@ -6,22 +6,22 @@ div.gfxbox {
 	border-style: solid;
 	border-color: #26312a;
 
-	-webkit-border-image: url('./data/interface/border/border.gif') 18 19 18 19 repeat;
-	-moz-border-image: url('./data/interface/border/border.gif') 18 19 repeat;
-	-o-border-image: url('./data/interface/border/border.gif') 18 19 18 19 repeat;
-	-ms-border-image: url('./data/interface/border/border.gif') 18 19 18 19 repeat;
-	border-image: url('./data/interface/border/border.gif') 18 19 18 19 repeat;
+	-webkit-border-image: url('../interface/border/border.gif') 18 19 18 19 repeat;
+	-moz-border-image: url('../interface/border/border.gif') 18 19 repeat;
+	-o-border-image: url('../interface/border/border.gif') 18 19 18 19 repeat;
+	-ms-border-image: url('../interface/border/border.gif') 18 19 18 19 repeat;
+	border-image: url('../interface/border/border.gif') 18 19 18 19 repeat;
 
 	border-top-width:18px;
 	border-left-width:19px;
 	border-bottom-width:18px;
 	border-right-width:19px;
 	background-color:#0f1513;
-	background-image:url('./data/interface/border/border_background.gif');
+	background-image:url('../interface/border/border_background.gif');
 	background-clip:padding-box;
 
 	color: #C7C7C7;
-	font-family: arial,helvetica;
+	font-family: arial, helvetica, sans-serif;
     font-size: 14px;
 }
 

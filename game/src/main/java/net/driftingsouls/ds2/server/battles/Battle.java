@@ -84,7 +84,7 @@ public class Battle implements Locatable
 	private long lastaction;
 	private long lastturn;
 	private int flags;
-	@OneToOne(cascade = {})
+	@OneToOne()
 	@JoinColumn
 	@ForeignKey(name="battles_fk_schlachtlog")
 	private SchlachtLog schlachtLog;
@@ -103,20 +103,20 @@ public class Battle implements Locatable
 	private int enemySide;
 
 	@Transient
-	private List<BattleShip> ownShips = new ArrayList<>();
+	private final List<BattleShip> ownShips = new ArrayList<>();
 	@Transient
-	private List<BattleShip> enemyShips = new ArrayList<>();
+	private final List<BattleShip> enemyShips = new ArrayList<>();
 
 	@Transient
-	private List<List<Integer>> addCommanders = new ArrayList<>();
+	private final List<List<Integer>> addCommanders = new ArrayList<>();
 
 	@Transient
 	private boolean guest = false;
 
 	@Transient
-	private Map<Integer,Integer> ownShipTypeCount = new HashMap<>();
+	private final Map<Integer,Integer> ownShipTypeCount = new HashMap<>();
 	@Transient
-	private Map<Integer,Integer> enemyShipTypeCount = new HashMap<>();
+	private final Map<Integer,Integer> enemyShipTypeCount = new HashMap<>();
 
 	@Transient
 	private int activeSOwn = 0;
@@ -124,7 +124,7 @@ public class Battle implements Locatable
 	private int activeSEnemy = 0;
 
 	@Transient
-	private StringBuilder logoutputbuffer = new StringBuilder();
+	private final StringBuilder logoutputbuffer = new StringBuilder();
 
 	/**
 	 * Generiert eine Stringrepraesentation eines Schiffes, welche

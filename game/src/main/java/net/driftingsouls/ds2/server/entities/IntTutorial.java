@@ -55,7 +55,7 @@ public class IntTutorial {
 	@Column(nullable = false)
 	private String text;
 	@OneToMany(mappedBy = "benoetigteSeite")
-	private Set<IntTutorial> abhaengigeSeiten = new HashSet<>();
+	private final Set<IntTutorial> abhaengigeSeiten = new HashSet<>();
 	
 	/**
 	 * Konstruktor.

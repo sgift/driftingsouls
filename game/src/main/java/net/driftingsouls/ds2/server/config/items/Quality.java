@@ -28,8 +28,8 @@ public enum Quality
 	 */
 	ARTIFACT(4,"#DC143C");
 
-	private int id;
-	private String color;
+	private final int id;
+	private final String color;
 
 	Quality(int id, String color) {
 		this.id = id;

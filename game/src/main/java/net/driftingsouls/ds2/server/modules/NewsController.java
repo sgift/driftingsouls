@@ -25,7 +25,7 @@ import java.util.List;
 @Module(name="news")
 public class NewsController extends Controller
 {
-	private Logger log = Logger.getLogger(NewsController.class);
+	private final Logger log = Logger.getLogger(NewsController.class);
 
 	/**
 	 * Gibt den News RSS Feed aus.

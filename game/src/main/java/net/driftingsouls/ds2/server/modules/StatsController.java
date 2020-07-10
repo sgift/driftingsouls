@@ -66,9 +66,9 @@ public class StatsController extends Controller
 	public static final int MIN_USER_ID = 0;
 
 	private static class StatEntry {
-		Statistic stat;
-		String name;
-		int width;
+		final Statistic stat;
+		final String name;
+		final int width;
 
 		StatEntry( Statistic stat, String name, int width ) {
 			this.stat = stat;
@@ -76,8 +76,8 @@ public class StatsController extends Controller
 			this.width = width;
 		}
 	}
-	private Map<Integer,List<StatEntry>> statslist = new HashMap<>();
-	private Map<String,Integer> catlist = new LinkedHashMap<>();
+	private final Map<Integer,List<StatEntry>> statslist = new HashMap<>();
+	private final Map<String,Integer> catlist = new LinkedHashMap<>();
 
 	/**
 	 * Konstruktor.
@@ -87,19 +87,19 @@ public class StatsController extends Controller
 
 		setPageTitle("Statistik");
 
-		registerStat( "Spieler", new StatOwnCiv(), "Meine Zivilisation", 0 );
-		registerStat( "Spieler", new StatBiggestFleet(false), "Die größten Flotten", 60 );
-		registerStat( "Spieler", new StatBiggestTrader(false), "Die größten Handelsflotten", 60);
-		registerStat( "Spieler", new StatRichestUser(false), "Die reichsten Siedler", 60);
-		registerStat( "Spieler", new StatBiggestPopulation(false), "Die größten Völker", 30 );
-		registerStat( "Spieler", new StatBiggestAsteroid(), "Die größten Asteroiden", 100 );
-		registerStat( "Spieler", new StatGtuPrice(), "Die höchsten Gebote", 60 );
+		registerStat( "Spieler", new StatOwnCiv(), "meine Zivilisation", 0 );
+		registerStat( "Spieler", new StatBiggestFleet(false), "größte Flotten", 60 );
+		registerStat( "Spieler", new StatBiggestTrader(false), "größte Handelsflotten", 60);
+		registerStat( "Spieler", new StatRichestUser(false), "reichste Siedler", 60);
+		registerStat( "Spieler", new StatBiggestPopulation(false), "größte Völker", 30 );
+		registerStat( "Spieler", new StatBiggestAsteroid(), "größte Asteroiden", 100 );
+		registerStat( "Spieler", new StatGtuPrice(), "höchste Gebote", 60 );
 
-		registerStat( "Allianzen", new StatBiggestFleet(true), "Die größten Flotten", 60 );
-		registerStat( "Allianzen", new StatBiggestTrader(true), "Die größten Handelsflotten", 60);
-		registerStat( "Allianzen", new StatRichestUser(true), "Die reichsten Allianzen", 60);
-		registerStat( "Allianzen", new StatBiggestPopulation(true), "Die größten Völker", 30 );
-		registerStat( "Allianzen", new StatMemberCount(), "Die größten Allianzen", 30 );
+		registerStat( "Allianzen", new StatBiggestFleet(true), "größte Flotten", 60 );
+		registerStat( "Allianzen", new StatBiggestTrader(true), "größte Handelsflotten", 60);
+		registerStat( "Allianzen", new StatRichestUser(true), "reichste Allianzen", 60);
+		registerStat( "Allianzen", new StatBiggestPopulation(true), "größte Völker", 30 );
+		registerStat( "Allianzen", new StatMemberCount(), "größte Allianzen", 30 );
 
 		registerStat( "Sonstiges", new StatPopulationDensity(), "Siedlungsdichte", 0 );
 		registerStat( "Sonstiges", new StatShips(), "Schiffe", 0 );
@@ -108,9 +108,9 @@ public class StatsController extends Controller
 		registerStat( "Sonstiges", new StatWarenentwicklung(), "Warenentwicklung", 0 );
 		registerStat( "Sonstiges", new StatWaren(), "Waren", 0 );
 		registerStat( "Sonstiges", new StatEinheiten(), "Einheiten", 0);
-		registerStat( "Sonstiges", new StatData(), "Diverse Daten", 0 );
+		registerStat( "Sonstiges", new StatData(), "diverse Daten", 0 );
 
-		registerStat( "Eigene K&auml;mpfe", new StatOwnKampf(), "Eigene Kämpfe", 0 );
+		registerStat( "Eigene K&auml;mpfe", new StatOwnKampf(), "eigene Kämpfe", 0 );
 		registerStat( "Offiziere", new StatOwnOffiziere(), "Offiziere", 0 );
 		registerStat( "Spielerliste", new StatPlayerList(), "Spielerliste", 0 );
 	}
@@ -187,10 +187,9 @@ public class StatsController extends Controller
 	 * @param stat Die ID der Statistik in der ausgewaehlten Kategorie
 	 * @param show die ID der ausgeaehlten Kategorie
 	 * @return Die JSON-Daten zur Statistik
-	 * @throws IOException
 	 */
 	@Action(ActionType.AJAX)
-	public AjaxStatistic.DataViewModel ajaxAction(int stat, int show) throws IOException {
+	public AjaxStatistic.DataViewModel ajaxAction(int stat, int show) {
 		show = ermittleAnzuzeigendeStatistikkategorie(show);
 		if( this.statslist.get(show).size() <= stat ) {
 			stat = 1;

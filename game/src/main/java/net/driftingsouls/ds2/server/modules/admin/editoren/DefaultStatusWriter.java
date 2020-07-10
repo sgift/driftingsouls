@@ -2,7 +2,7 @@ package net.driftingsouls.ds2.server.modules.admin.editoren;
 
 class DefaultStatusWriter implements StatusWriter
 {
-	private StringBuilder echo;
+	private final StringBuilder echo;
 
 	public DefaultStatusWriter(StringBuilder echo)
 	{

@@ -132,13 +132,13 @@ public class MapController extends Controller
 			public boolean schiff;
 			public AllianzViewModel allianz;
 
-			public List<JumpNodeViewModel> sprungpunkte = new ArrayList<>();
+			public final List<JumpNodeViewModel> sprungpunkte = new ArrayList<>();
 		}
 
 		public int system;
 		public boolean adminSichtVerfuegbar;
 		public boolean systemkarteEditierbar;
-		public List<SystemViewModel> systeme = new ArrayList<>();
+		public final List<SystemViewModel> systeme = new ArrayList<>();
 	}
 
 	/**
@@ -370,7 +370,7 @@ public class MapController extends Controller
 
 		public SystemViewModel system;
 		public SizeViewModel size;
-		public List<LocationViewModel> locations = new ArrayList<>();
+		public final List<LocationViewModel> locations = new ArrayList<>();
 	}
 
 	/**
@@ -531,7 +531,7 @@ public class MapController extends Controller
 			public int id;
 			public int race;
 			public boolean eigener;
-			public List<ShipTypeViewModel> shiptypes = new ArrayList<>();
+			public final List<ShipTypeViewModel> shiptypes = new ArrayList<>();
 		}
 
 		public static class ShipTypeViewModel
@@ -540,7 +540,7 @@ public class MapController extends Controller
 			public String name;
 			public String picture;
 			public int size;
-			public List<ShipViewModel> ships = new ArrayList<>();
+			public final List<ShipViewModel> ships = new ArrayList<>();
 		}
 
 		public static class ShipViewModel
@@ -591,7 +591,7 @@ public class MapController extends Controller
 		{
 			public int id;
 			public boolean einsehbar;
-			public List<BattleSideViewModel> sides = new ArrayList<>();
+			public final List<BattleSideViewModel> sides = new ArrayList<>();
 		}
 
 		public static class BattleSideViewModel
@@ -602,10 +602,10 @@ public class MapController extends Controller
 
 		public int subraumspaltenCount;
 		public boolean roterAlarm;
-		public List<UserWithShips> users = new ArrayList<>();
-		public List<BaseViewModel> bases = new ArrayList<>();
-		public List<JumpNodeViewModel> jumpnodes = new ArrayList<>();
-		public List<BattleViewModel> battles = new ArrayList<>();
+		public final List<UserWithShips> users = new ArrayList<>();
+		public final List<BaseViewModel> bases = new ArrayList<>();
+		public final List<JumpNodeViewModel> jumpnodes = new ArrayList<>();
+		public final List<BattleViewModel> battles = new ArrayList<>();
 		public NebelViewModel nebel;
 	}
 

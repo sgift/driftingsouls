@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  *
  */
 public class IEDraftShip extends ItemEffect {
-	private Schiffsbauplan schiffsbauplan;
+	private final Schiffsbauplan schiffsbauplan;
 	
 	public IEDraftShip(Schiffsbauplan schiffsbauplan) {
 		super(ItemEffect.Type.DRAFT_SHIP, schiffsbauplan.isAllianzEffekt());

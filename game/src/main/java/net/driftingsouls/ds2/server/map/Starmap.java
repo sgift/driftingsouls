@@ -26,7 +26,7 @@ import java.util.Map;
  */
 class Starmap
 {
-	private int system;
+	private final int system;
 
 	private List<JumpNode> nodes;
 	private Map<Location, List<Ship>> shipMap;

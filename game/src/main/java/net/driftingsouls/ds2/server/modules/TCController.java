@@ -43,7 +43,7 @@ import java.util.List;
 @Module(name = "tc")
 public class TCController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public TCController(TemplateViewResultFactory templateViewResultFactory)

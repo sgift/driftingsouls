@@ -98,7 +98,7 @@ public class CrewtauschController extends Controller
 	 */
 	private static class ShipTarget implements Target
 	{
-		private Ship ship;
+		private final Ship ship;
 
 		ShipTarget(Ship ship)
 		{
@@ -153,7 +153,7 @@ public class CrewtauschController extends Controller
 	 */
 	private static class BaseTarget implements Target
 	{
-		private Base base;
+		private final Base base;
 
 		BaseTarget(Base base)
 		{
@@ -203,7 +203,7 @@ public class CrewtauschController extends Controller
 		}
 	}
 
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public CrewtauschController(TemplateViewResultFactory templateViewResultFactory)

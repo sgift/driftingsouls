@@ -29,7 +29,7 @@ public interface AjaxStatistic
 		}
 
 		public KeyViewModel key;
-		public List<DataEntryViewModel> data = new ArrayList<>();
+		public final List<DataEntryViewModel> data = new ArrayList<>();
 	}
 	/**
 	 * Liefert die Daten der Statistik als JSON-Response zurueck.

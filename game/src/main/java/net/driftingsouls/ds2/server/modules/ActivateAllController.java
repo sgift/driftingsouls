@@ -41,7 +41,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Module(name="activateall")
 public class ActivateAllController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public ActivateAllController(TemplateViewResultFactory templateViewResultFactory) {

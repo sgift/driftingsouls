@@ -20,7 +20,7 @@ import java.io.IOException;
  */
 public class HibernateSessionRequestFilter extends DSFilter
 {
-	private static Log log = LogFactory.getLog(HibernateSessionRequestFilter.class);
+	private static final Log log = LogFactory.getLog(HibernateSessionRequestFilter.class);
 
 	@Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException

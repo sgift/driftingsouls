@@ -63,9 +63,9 @@ import java.util.concurrent.ThreadLocalRandom;
 @Module(name = "kapern")
 public class KapernController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
-	private SchlachtErstellenService schlachtErstellenService;
-	private ConfigService configService;
+	private final TemplateViewResultFactory templateViewResultFactory;
+	private final SchlachtErstellenService schlachtErstellenService;
+	private final ConfigService configService;
 
 	@Autowired
 	public KapernController(TemplateViewResultFactory templateViewResultFactory,
@@ -83,24 +83,24 @@ public class KapernController extends Controller
 
 		if (eigenesSchiff == null || eigenesSchiff.getOwner().getId() != user.getId())
 		{
-			throw new ValidierungException("Das angegebene Schiff existiert nicht oder geh&ouml;rt nicht ihnen", Common.buildUrl("default", "module", "schiffe"));
+			throw new ValidierungException("Das angegebene Schiff existiert nicht oder geh&ouml;rt nicht Ihnen.", Common.buildUrl("default", "module", "schiffe"));
 		}
 
 		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", eigenesSchiff.getId());
 
 		if (user.isNoob())
 		{
-			throw new ValidierungException("Sie k&ouml;nnen weder kapern noch pl&uuml;ndern solange sie unter GCP-Schutz stehen<br />Hinweis: der GCP-Schutz kann unter Optionen vorzeitig beendet werden", errorurl);
+			throw new ValidierungException("Sie k&ouml;nnen weder kapern noch pl&uuml;ndern, solange Sie unter Neuspieler-Schutz stehen.<br />Hinweis: Der Neuspieler-Schutz kann unter den Account-Optionen vorzeitig beendet werden.", errorurl);
 		}
 
 		if ((eigenesSchiff.getEngine() == 0) || (eigenesSchiff.getWeapons() == 0))
 		{
-			throw new ValidierungException("Diese Schrottm&uuml;hle wird nichts kapern k&ouml;nnen", errorurl);
+			throw new ValidierungException("Diese Schrottm&uuml;hle wird nichts kapern k&ouml;nnen.", errorurl);
 		}
 
 		if (eigenesSchiff.getUnits().isEmpty())
 		{
-			throw new ValidierungException("Sie ben&ouml;tigen Einheiten um zu kapern", errorurl);
+			throw new ValidierungException("Sie ben&ouml;tigen Einheiten, um zu kapern", errorurl);
 		}
 
 		if (zielSchiff == null)
@@ -111,59 +111,59 @@ public class KapernController extends Controller
 		User taruser = zielSchiff.getOwner();
 		if (taruser.isNoob())
 		{
-			throw new ValidierungException("Der Kolonist steht unter GCP-Schutz", errorurl);
+			throw new ValidierungException("Der Kolonist steht unter Neuspieler-Schutz", errorurl);
 		}
 
 		if ((taruser.getVacationCount() != 0) && (taruser.getWait4VacationCount() == 0))
 		{
-			throw new ValidierungException("Sie k&ouml;nnen Schiffe dieses Spielers nicht kapern oder pl&uuml;ndern solange er sich im Vacation-Modus befindet", errorurl);
+			throw new ValidierungException("Sie k&ouml;nnen Schiffe dieses Spielers nicht kapern oder pl&uuml;ndern, solange er sich im Urlaubs-Modus befindet.", errorurl);
 		}
 
 		if (zielSchiff.getOwner().getId() == eigenesSchiff.getOwner().getId())
 		{
-			throw new ValidierungException("Sie k&ouml;nnen ihre eigenen Schiffe nicht kapern", errorurl);
+			throw new ValidierungException("Sie k&ouml;nnen Ihre eigenen Schiffe nicht kapern.", errorurl);
 		}
 
 		if (!eigenesSchiff.getLocation().sameSector(0, zielSchiff.getLocation(), 0))
 		{
-			throw new ValidierungException("Das Zielschiff befindet sich nicht im selben Sektor", errorurl);
+			throw new ValidierungException("Das Zielschiff befindet sich nicht im selben Sektor.", errorurl);
 		}
 
 		ShipTypeData dshipTypeData = zielSchiff.getTypeData();
 		if ((dshipTypeData.getCost() != 0) && (zielSchiff.getEngine() != 0) && (zielSchiff.getCrew() != 0 || !zielSchiff.getUnits().isEmpty()))
 		{
-			throw new ValidierungException("Das feindliche Schiff ist noch bewegungsf&auml;hig", errorurl);
+			throw new ValidierungException("Das feindliche Schiff ist noch bewegungsf&auml;hig.", errorurl);
 		}
 
 		// Wenn das Ziel ein Geschtz (10) ist....
 		if (!dshipTypeData.getShipClass().isKaperbar())
 		{
-			throw new ValidierungException("Sie k&ouml;nnen " + dshipTypeData.getShipClass().getPlural() + " weder kapern noch pl&uuml;ndern", errorurl);
+			throw new ValidierungException("Sie k&ouml;nnen " + dshipTypeData.getShipClass().getPlural() + " weder kapern noch pl&uuml;ndern.", errorurl);
 		}
 
 		if (zielSchiff.isDocked() || zielSchiff.isLanded())
 		{
 			if (zielSchiff.isLanded())
 			{
-				throw new ValidierungException("Sie k&ouml;nnen gelandete Schiffe weder kapern noch pl&uuml;ndern", errorurl);
+				throw new ValidierungException("Sie k&ouml;nnen gelandete Schiffe weder kapern noch pl&uuml;ndern.", errorurl);
 			}
 
 			Ship mship = zielSchiff.getBaseShip();
 			if ((mship.getEngine() != 0) && (mship.getCrew() != 0 || !mship.getUnits().isEmpty()))
 			{
-				throw new ValidierungException("Das Schiff, an das das feindliche Schiff angedockt hat, ist noch bewegungsf&auml;hig", errorurl);
+				throw new ValidierungException("Das Schiff, an das das feindliche Schiff angedockt hat, ist noch bewegungsf&auml;hig.", errorurl);
 			}
 		}
 
 		//In einem Kampf?
 		if ((eigenesSchiff.getBattle() != null) || (zielSchiff.getBattle() != null))
 		{
-			throw new ValidierungException("Eines der Schiffe ist zur Zeit in einen Kampf verwickelt", errorurl);
+			throw new ValidierungException("Eines der Schiffe ist zurzeit in einen Kampf verwickelt.", errorurl);
 		}
 
 		if (zielSchiff.getStatus().contains("disable_iff"))
 		{
-			throw new ValidierungException("Das Schiff besitzt keine IFF-Kennung und kann daher nicht gekapert/gepl&uuml;ndert werden", errorurl);
+			throw new ValidierungException("Das Schiff besitzt keine IFF-Kennung und kann daher nicht gekapert/gepl&uuml;ndert werden.", errorurl);
 		}
 	}
 
@@ -194,7 +194,7 @@ public class KapernController extends Controller
 
 		if (zielSchiff.getTypeData().hasFlag(ShipTypeFlag.NICHT_KAPERBAR))
 		{
-			throw new ValidierungException("Sie k&ouml;nnen dieses Schiff nicht kapern", errorurl);
+			throw new ValidierungException("Sie k&ouml;nnen dieses Schiff nicht kapern.", errorurl);
 		}
 
 		User targetUser = (User) getDB().get(User.class, zielSchiff.getOwner().getId());
@@ -234,7 +234,7 @@ public class KapernController extends Controller
 		{
 			if (zielSchiff.getTypeData().getCrew() == 0)
 			{
-				throw new ValidierungException("Dieses Schiff ist nicht kaperbar", errorurl);
+				throw new ValidierungException("Dieses Schiff ist nicht kaperbar.", errorurl);
 			}
 
 			if (zielSchiff.getTypeData().getShipClass() == ShipClasses.STATION)
@@ -245,7 +245,7 @@ public class KapernController extends Controller
 				}
 			}
 
-			msg.append("Die Einheiten der ").append(eigenesSchiff.getName()).append(" (").append(eigenesSchiff.getId()).append("), eine ").append(eigenesSchiff.getTypeData().getNickname()).append(", st&uuml;rmt die ").append(zielSchiff.getName()).append(" (").append(zielSchiff.getId()).append("), eine ").append(zielSchiff.getTypeData().getNickname()).append(", bei ").append(zielSchiff.getLocation().displayCoordinates(false)).append("\n\n");
+			msg.append("Die Einheiten der ").append(eigenesSchiff.getName()).append(" (").append(eigenesSchiff.getId()).append("), eine ").append(eigenesSchiff.getTypeData().getNickname()).append(", st&uuml;rmt die ").append(zielSchiff.getName()).append(" (").append(zielSchiff.getId()).append("), eine ").append(zielSchiff.getTypeData().getNickname()).append(", bei ").append(zielSchiff.getLocation().displayCoordinates(false)).append(".\n\n");
 
 			StringBuilder kapernLog = new StringBuilder();
 			ok = doFighting(kapernLog, eigenesSchiff, zielSchiff);
@@ -260,9 +260,9 @@ public class KapernController extends Controller
 		{
 			ok = true;
 
-			t.setVar("kapern.message", kapermessage + "Das Schiff wird widerstandslos &uuml;bernommen");
+			t.setVar("kapern.message", kapermessage + "Das Schiff wird widerstandslos &uuml;bernommen.");
 
-			msg.append("Das Schiff ").append(zielSchiff.getName()).append("(").append(zielSchiff.getId()).append("), eine ").append(zielSchiff.getTypeData().getNickname()).append(", wird bei ").append(zielSchiff.getLocation().displayCoordinates(false)).append(" an ").append(eigenesSchiff.getName()).append(" (").append(eigenesSchiff.getId()).append(") &uuml;bergeben\n");
+			msg.append("Das Schiff ").append(zielSchiff.getName()).append("(").append(zielSchiff.getId()).append("), eine ").append(zielSchiff.getTypeData().getNickname()).append(", wird bei ").append(zielSchiff.getLocation().displayCoordinates(false)).append(" an ").append(eigenesSchiff.getName()).append(" (").append(eigenesSchiff.getId()).append(") &uuml;bergeben.\n");
 		}
 
 		// Transmisson
@@ -287,7 +287,7 @@ public class KapernController extends Controller
 	{
 		String currentTime = Common.getIngameTime(ContextMap.getContext().get(ContextCommon.class).getTick());
 
-		targetShip.getHistory().addHistory("Gekapert am " + currentTime + " durch " + user.getName() + " (" + user.getId() + ")");
+		targetShip.getHistory().addHistory("Gekapert am " + currentTime + " durch " + user.getName() + " (" + user.getId() + ").");
 
 		targetShip.removeFromFleet();
 		targetShip.setOwner(user);
@@ -406,7 +406,7 @@ public class KapernController extends Controller
 						for (Entry<UnitType, Long> unit : ownunitlist.entrySet())
 						{
 							UnitType unittype = unit.getKey();
-							msg.append("Angreifer:\n").append(unit.getValue()).append(" ").append(unittype.getName()).append(" erschossen\n");
+							msg.append("Angreifer:\n").append(unit.getValue()).append(" ").append(unittype.getName()).append(" erschossen.\n");
 						}
 					}
 
@@ -415,7 +415,7 @@ public class KapernController extends Controller
 						for (Entry<UnitType, Long> unit : enemyunitlist.entrySet())
 						{
 							UnitType unittype = unit.getKey();
-							msg.append("Verteidiger:\n").append(unit.getValue()).append(" ").append(unittype.getName()).append(" gefallen\n");
+							msg.append("Verteidiger:\n").append(unit.getValue()).append(" ").append(unittype.getName()).append(" gefallen.\n");
 						}
 					}
 
@@ -436,7 +436,7 @@ public class KapernController extends Controller
 					for (Entry<UnitType, Long> unit : ownunitlist.entrySet())
 					{
 						UnitType unittype = unit.getKey();
-						msg.append("Angreifer:\n").append(unit.getValue()).append(" ").append(unittype.getName()).append(" erschossen\n");
+						msg.append("Angreifer:\n").append(unit.getValue()).append(" ").append(unittype.getName()).append(" erschossen.\n");
 					}
 				}
 
@@ -445,7 +445,7 @@ public class KapernController extends Controller
 					for (Entry<UnitType, Long> unit : enemyunitlist.entrySet())
 					{
 						UnitType unittype = unit.getKey();
-						msg.append("Verteidiger:\n").append(unit.getValue()).append(" ").append(unittype.getName()).append(" gefallen\n");
+						msg.append("Verteidiger:\n").append(unit.getValue()).append(" ").append(unittype.getName()).append(" gefallen.\n");
 					}
 				}
 
@@ -462,7 +462,7 @@ public class KapernController extends Controller
 			{
 				attoffizier.gainExperience(Offizier.Ability.COM, 5);
 			}
-			msg.append("Schiff wird widerstandslos &uuml;bernommen\n");
+			msg.append("Schiff wird widerstandslos &uuml;bernommen.\n");
 		}
 
 		ownUnits.addCargo(saveunits);
@@ -521,12 +521,12 @@ public class KapernController extends Controller
 			if (found)
 			{
 				User source = (User) getDB().get(User.class, -1);
-				PM.send(source, targetShip.getOwner().getId(), "Kaperversuch entdeckt", "Ihre Schiffe haben einen Kaperversuch bei " + targetShip.getLocation().displayCoordinates(false) + " vereitelt und den Gegner angegriffen");
+				PM.send(source, targetShip.getOwner().getId(), "Kaperversuch entdeckt", "Ihre Schiffe haben einen Kaperversuch bei " + targetShip.getLocation().displayCoordinates(false) + " vereitelt und den Gegner angegriffen.");
 
 				Battle battle = schlachtErstellenService.erstelle(targetShip.getOwner(), targetShip, ownShip, true);
 
 				t.setVar(
-						"kapern.message", "Ihr Kaperversuch wurde entdeckt und einige gegnerischen Schiffe haben das Feuer er&ouml;ffnet",
+						"kapern.message", "Ihr Kaperversuch wurde entdeckt und einige gegnerischen Schiffe haben das Feuer er&ouml;ffnet.",
 						"kapern.battle", battle.getId());
 
 				return false;

@@ -337,7 +337,7 @@ public class CreateObjects implements AdminPlugin {
 		} 
 	}
 
-	private void handleSystemXML(Context context, StringBuilder echo, int system) throws IOException {
+	private void handleSystemXML(Context context, StringBuilder echo, int system) {
 		org.hibernate.Session db = context.getDB();
 		
 		final String xmlpath = context.getRequest().getParameterString("xmlpath");
@@ -598,7 +598,7 @@ public class CreateObjects implements AdminPlugin {
 		}
 	}
 
-	private void createPlanet( org.hibernate.Session db, Location loc, BaseType klasse ) throws IOException {
+	private void createPlanet( org.hibernate.Session db, Location loc, BaseType klasse ) {
 		int height = klasse.getHeight();
 		int width = klasse.getWidth();
 
@@ -610,7 +610,7 @@ public class CreateObjects implements AdminPlugin {
 		db.persist(base);
 	}
 
-	private void handleJumpnode(Context context, StringBuilder echo, int system) throws IOException {
+	private void handleJumpnode(Context context, StringBuilder echo, int system) {
 		org.hibernate.Session db = context.getDB();
 		
 		final int minX = context.getRequest().getParameterInt("minX");
@@ -644,7 +644,7 @@ public class CreateObjects implements AdminPlugin {
 		}
 	}
 
-	private void handleBase(Context context, StringBuilder echo, int system) throws IOException {
+	private void handleBase(Context context, StringBuilder echo, int system) {
 		org.hibernate.Session db = context.getDB();
 		
 		final int anzahl = context.getRequest().getParameterInt("anzahl");

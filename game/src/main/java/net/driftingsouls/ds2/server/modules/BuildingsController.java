@@ -46,7 +46,7 @@ import java.util.Iterator;
 @Module(name = "buildings")
 public class BuildingsController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public BuildingsController(TemplateViewResultFactory templateViewResultFactory)

@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public class JsServiceGenerator
 {
 
-	private static Set<Class<?>> detectedViewModels = new HashSet<>();
+	private static final Set<Class<?>> detectedViewModels = new HashSet<>();
 
 	public static void main(String[] args) throws IOException
 	{

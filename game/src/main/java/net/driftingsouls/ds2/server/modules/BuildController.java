@@ -50,7 +50,7 @@ import java.util.Map;
 @Module(name = "build")
 public class BuildController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public BuildController(TemplateViewResultFactory templateViewResultFactory)

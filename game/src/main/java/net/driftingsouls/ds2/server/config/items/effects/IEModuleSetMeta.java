@@ -32,8 +32,8 @@ import java.util.Map;
  *
  */
 public class IEModuleSetMeta extends ItemEffect {
-	private String name;
-	private Map<Integer,SchiffstypModifikation> combos = new HashMap<>();
+	private final String name;
+	private final Map<Integer,SchiffstypModifikation> combos = new HashMap<>();
 	
 	public IEModuleSetMeta(String name, Map<Integer,SchiffstypModifikation> combos) {
 		super(ItemEffect.Type.MODULE_SET_META);

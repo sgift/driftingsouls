@@ -53,7 +53,7 @@ import java.util.TreeSet;
 @Module(name = "schiffinfo")
 public class SchiffInfoController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public SchiffInfoController(TemplateViewResultFactory templateViewResultFactory)
@@ -220,7 +220,7 @@ public class SchiffInfoController extends Controller
 				}
 				catch (NoSuchSlotException e)
 				{
-					moduletooltip.append("<span style='color:red'>UNGUELTIGER SLOTTYP ");
+					moduletooltip.append("<span style='color:red'>UNGÜLTIGER SLOT-TYP ");
 					moduletooltip.append(amodule[1]);
 					moduletooltip.append("</span><br />");
 				}
@@ -306,6 +306,14 @@ public class SchiffInfoController extends Controller
 
 			t.parse("shiptypeflags.list", "shiptypeflags.listitem", true);
 		}
+
+		if(ship.getSize() < ShipType.SMALL_SHIP_MAXSIZE)
+		{
+			t.setVar("shiptypeflag.name", "keine Reihenstabilit&auml;t",
+					"shiptypeflag.description", "Dieses Schiff leistet keinen Beitrag, die zweite Reihe in Schlachten zu stabilisieren.");
+
+			t.parse("shiptypeflags.list", "shiptypeflags.listitem", true);
+		}
 	}
 
 	private void zeigeWaffenlisteAn(TemplateEngine t, ShipType ship)
@@ -337,10 +345,10 @@ public class SchiffInfoController extends Controller
 
 			StringBuilder descrip = new StringBuilder(100);
 			descrip.append("<span style=\\'font-size:12px\\'>");
-
-			descrip.append("AP-Kosten: ");
-			descrip.append(weapon.getApCost());
-			descrip.append("<br />");
+			//AP-Kosten-Anzeige auskommentiert
+			//descrip.append("AP-Kosten: ");
+			//descrip.append(weapon.getApCost());
+			//descrip.append("<br />");
 			descrip.append("Energie-Kosten: ");
 			descrip.append(Common.ln(weapon.getECost()));
 			descrip.append("<br />");
@@ -356,7 +364,7 @@ public class SchiffInfoController extends Controller
 			descrip.append(maxheat.get(weaponname));
 			descrip.append("<br />");
 
-			descrip.append("Schaden (H/S/Sub): ");
+			descrip.append("Schaden (H/S/Sub.): ");
 			if (!weapon.getMunitionstypen().isEmpty())
 			{
 				descrip.append("Munition<br />");
@@ -371,7 +379,7 @@ public class SchiffInfoController extends Controller
 				descrip.append("<br />");
 			}
 
-			descrip.append("Trefferws (C/J/Torp): ");
+			descrip.append("TWS (GKS/J&B/Torp.): ");
 			if (!weapon.getMunitionstypen().isEmpty())
 			{
 				descrip.append("Munition<br />");
@@ -388,25 +396,25 @@ public class SchiffInfoController extends Controller
 
 			if (weapon.getAreaDamage() != 0)
 			{
-				descrip.append("Areadamage: ");
+				descrip.append("Umgebungsschaden: ");
 				descrip.append(weapon.getAreaDamage());
 				descrip.append("<br />");
 			}
 			if (weapon.getDestroyable())
 			{
-				descrip.append("Durch Abwehrfeuer zerst&ouml;rbar<br />");
+				descrip.append("durch Abwehrfeuer zerst&ouml;rbar<br />");
 			}
 			if (weapon.hasFlag(Weapon.Flags.DESTROY_AFTER))
 			{
-				descrip.append("Beim Angriff zerst&ouml;rt<br />");
+				descrip.append("nach Angriff zerst&ouml;rt<br />");
 			}
 			if (weapon.hasFlag(Weapon.Flags.LONG_RANGE))
 			{
-				descrip.append("Gro&szlig;e Reichweite<br />");
+				descrip.append("gro&szlig;e Reichweite<br />");
 			}
 			if (weapon.hasFlag(Weapon.Flags.VERY_LONG_RANGE))
 			{
-				descrip.append("Sehr gro&szlig;e Reichweite<br />");
+				descrip.append("sehr gro&szlig;e Reichweite<br />");
 			}
 
 			descrip.append("</span>");

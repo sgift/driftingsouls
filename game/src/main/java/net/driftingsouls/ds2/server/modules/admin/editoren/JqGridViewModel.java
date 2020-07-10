@@ -12,8 +12,8 @@ public class JqGridViewModel
 	public String url;
 	public String datatype = "JSON";
 	public String mtype = "GET";
-	public List<String> colNames = new ArrayList<>();
-	public List<JqGridColumnViewModel> colModel = new ArrayList<>();
+	public final List<String> colNames = new ArrayList<>();
+	public final List<JqGridColumnViewModel> colModel = new ArrayList<>();
 	public String pager;
 	public int rowNum = 20;
 	public List<Integer> rowList = new ArrayList<>();

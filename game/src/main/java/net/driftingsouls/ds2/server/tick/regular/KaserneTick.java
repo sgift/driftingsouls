@@ -61,8 +61,7 @@ public class KaserneTick extends TickController {
 		new EvictableUnitOfWork<Integer>("Kasernen Tick")
 		{
 			@Override
-			public void doWork(Integer object) throws Exception
-			{
+			public void doWork(Integer object) {
 				org.hibernate.Session db = getDB();
 				Kaserne kaserne = (Kaserne)db.get(Kaserne.class, object);
 				Base base = kaserne.getBase();

@@ -29,8 +29,8 @@ import java.util.List;
  *
  */
 public class ModuleShipPicture extends Module {
-	private int slot;
-	private String picture;
+	private final int slot;
+	private final String picture;
 
 	protected ModuleShipPicture( int slot, String data ) {
 		this.slot = slot;
@@ -65,7 +65,7 @@ public class ModuleShipPicture extends Module {
 	}
 
 	private static class ShipTypeDataPictureWrapper extends AbstractShipTypeDataWrapper {
-		private String picture;
+		private final String picture;
 
 		ShipTypeDataPictureWrapper(ShipTypeData inner, String picture) {
 			super(inner);

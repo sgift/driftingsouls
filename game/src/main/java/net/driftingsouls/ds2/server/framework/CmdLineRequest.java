@@ -38,9 +38,9 @@ import java.util.Map;
  *
  */
 public class CmdLineRequest implements Request {
-	private Log log = LogFactory.getLog(CmdLineRequest.class);
+	private final Log log = LogFactory.getLog(CmdLineRequest.class);
 	
-	private Map<String,String> params = new HashMap<>();
+	private final Map<String,String> params = new HashMap<>();
 	
 	/**
 	 * Erstellt ein neues Request-Objekt.
@@ -82,7 +82,7 @@ public class CmdLineRequest implements Request {
 	}
 
 	@Override
-	public InputStream getInputStream() throws IOException {
+	public InputStream getInputStream() {
 		return null;
 	}
 

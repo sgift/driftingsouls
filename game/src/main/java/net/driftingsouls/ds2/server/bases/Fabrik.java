@@ -56,15 +56,15 @@ public class Fabrik extends DefaultBuilding
     @ContextInstance(ContextInstance.Scope.REQUEST)
 	public static class ContextVars
 	{
-        List<Integer> buildingidlist = new ArrayList<>();
-		Set<FactoryEntry> owneritemsbase = new HashSet<>();
-		Map<Integer, Cargo> stats = new HashMap<>();
-		Map<Integer, Cargo> productionstats = new HashMap<>();
-		Map<Integer, Cargo> consumptionstats = new HashMap<>();
-		Map<Integer, BigDecimal> usedcapacity = new HashMap<>();
-        List<Integer> modified = new ArrayList<>();
-        List<Integer> prodmodified = new ArrayList<>();
-        List<Integer> conmodified = new ArrayList<>();
+        final List<Integer> buildingidlist = new ArrayList<>();
+		final Set<FactoryEntry> owneritemsbase = new HashSet<>();
+		final Map<Integer, Cargo> stats = new HashMap<>();
+		final Map<Integer, Cargo> productionstats = new HashMap<>();
+		final Map<Integer, Cargo> consumptionstats = new HashMap<>();
+		final Map<Integer, BigDecimal> usedcapacity = new HashMap<>();
+        final List<Integer> modified = new ArrayList<>();
+        final List<Integer> prodmodified = new ArrayList<>();
+        final List<Integer> conmodified = new ArrayList<>();
         boolean init = false;
 
 		/**
@@ -159,8 +159,8 @@ public class Fabrik extends DefaultBuilding
 		{
 			vars.usedcapacity.put(buildingid, BigDecimal.valueOf(-1));
 
-			log.warn("Basis " + base.getId() + " verfuegt ueber keinen Fabrik-Eintrag, obwohl es eine Fabrik hat");
-			return "Basis " + base.getId() + " verfuegt ueber keinen Fabrik-Eintrag, obwohl es eine Fabrik hat";
+			log.warn("Basis " + base.getId() + " verfügt über keinen Fabrik-Eintrag, obwohl es eine Fabrik hat.");
+			return "Basis " + base.getId() + " verfügt über keinen Fabrik-Eintrag, obwohl es eine Fabrik hat.";
 		}
 
 		Factory.Task[] plist = wf.getProduces();
@@ -181,7 +181,7 @@ public class Fabrik extends DefaultBuilding
 			if ((count > 0) && !thisitemslist.contains(entry))
 			{
 				ok = false;
-				wfreason.append("Es existieren nicht die n&ouml;tigen Baupl&auml;ne f&uuml;r ").append(entry.getName()).append("\n");
+				wfreason.append("Es existieren nicht die nötigen Baupläne für ").append(entry.getName()).append("\n");
 				break;
 			}
 		}
@@ -219,7 +219,7 @@ public class Fabrik extends DefaultBuilding
 		else
 		{
 			String basename = base.getName();
-			wfreason.insert(0, "[b]" + basename + "[/b] - Die Arbeiten in der Fabrik zeitweise eingestellt.\nGrund:\n");
+			wfreason.insert(0, "[b]" + basename + "[/b] - Die Arbeiten in der Fabrik sind zeitweise eingestellt.\nGrund:\n");
 		}
 
 		if (!vars.usedcapacity.containsKey(buildingid) || (vars.usedcapacity.get(buildingid).doubleValue() <= 0))
@@ -497,7 +497,7 @@ public class Fabrik extends DefaultBuilding
 
 		if (wf == null)
 		{
-			echo.append("<div style=\"color:red\">FEHLER: Diese Fabrik besitzt keinen Eintrag<br /></div>\n");
+			echo.append("<div style=\"color:red\">FEHLER: Diese Fabrik besitzt keinen Eintrag.<br /></div>\n");
 			return echo.toString();
 		}
 		/*
@@ -555,7 +555,7 @@ public class Fabrik extends DefaultBuilding
 
 			if (entry == null)
 			{
-				echo.append("<span style=\"color:red\">Fehler: Der angegebene Bauplan existiert nicht</span>\n");
+				echo.append("<span style=\"color:red\">Fehler: Der angegebene Bauplan existiert nicht.</span>\n");
 				return echo.toString();
 			}
 
@@ -604,12 +604,12 @@ public class Fabrik extends DefaultBuilding
 
 					wf.setProduces(producelist.toArray(new Factory.Task[0]));
 
-					echo.append(Math.abs(count)).append(" ").append(entry.getName()).append(" wurden ").append((count >= 0 ? "hinzugef&uuml;gt" : "abgezogen")).append("<br /><br />");
+					echo.append(Math.abs(count)).append(" ").append(entry.getName()).append(" wurden ").append((count >= 0 ? "hinzugefügt" : "abgezogen")).append("<br /><br />");
 				}
 			}
 			else
 			{
-				echo.append("Sie haben nicht alle ben&ouml;tigten Forschungen f&uuml;r ").append(entry.getName()).append("<br /><br />");
+				echo.append("Sie haben nicht alle benötigten Forschungen für ").append(entry.getName()).append("<br /><br />");
 			}
 		}
 
@@ -636,7 +636,7 @@ public class Fabrik extends DefaultBuilding
 
 				if (!itemslist.contains(entry))
 				{
-					echo.append("WARNUNG: Ungueltiges Item >").append(entry.getId()).append("< (count: ").append(ammoCount).append(") in der Produktionsliste entdeckt<br />\n");
+					echo.append("WARNUNG: Ungültiges Item >").append(entry.getId()).append("< (count: ").append(ammoCount).append(") in der Produktionsliste entdeckt.<br />\n");
 					continue;
 				}
 

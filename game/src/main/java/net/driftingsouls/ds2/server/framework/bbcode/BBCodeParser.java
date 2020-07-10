@@ -54,8 +54,8 @@ public class BBCodeParser {
 	private static final Log log = LogFactory.getLog(BBCodeParser.class);
 	private static BBCodeParser instance = null;
 	
-	private Map<String,BBCodeFunction> replaceFunctions = new HashMap<>();
-	private Map<String,HashSet<Integer>> tags = new HashMap<>();
+	private final Map<String,BBCodeFunction> replaceFunctions = new HashMap<>();
+	private final Map<String,HashSet<Integer>> tags = new HashMap<>();
 
 	private BBCodeParser() {
 		try {

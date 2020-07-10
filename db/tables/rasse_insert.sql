@@ -2,18 +2,14 @@ insert into rasse (id, name, head_id, playable, playableext, schiffsKlassenNamen
 insert into rasse (id, name, head_id, playable, memberIn_id, personenNamenGenerator, description, playableext, schiffsKlassenNamenGenerator, schiffsNamenGenerator) VALUES (1, 'Terraner', null, true, 0, 'ENGLISCH', '[align=left]
 Terraner sind Menschen.
 Sie stammen ursprünglich von der Erde, zu der aber keine Verbindung mehr besteht.
-[list][*]Bauen kostengünstige aber weniger effiziente Schiffe
-[*]Setzen primär auf Deuterium als Energiequelle (Billig &amp; weniger Effizient)
-[/list]
+Weitere Informationen finden sich [url=https://drifting-souls.fandom.com/de/wiki/Terraner]hier[/url].
 [/align]', false, 'TERRANISCH', 'STAEDTE');
 insert into rasse (id, name, head_id, playable, memberIn_id, personenNamenGenerator, description, playableext, schiffsKlassenNamenGenerator, schiffsNamenGenerator) VALUES (2, 'Vasudaner', null, true, 0, 'AEGYPTISCH', '[align=left]
-Hochentwickelte Spezies.
-Ihr Heimatplanet ist Vasuda Prime, ein sehr heisser Planet.
-Er wurde im ersten shivanischen Krieg angegriffen und dadurch fast unbewohnbar.
+Vasudaner sind wie die Terraner eine hochentwickelte Spezies.
+Ihr Heimatplanet war Vasuda Prime, ein sehr unwirtlicher Wüstenplanet.
+Er wurde im Großen Krieg von den Shivanern angegriffen und dadurch fast unbewohnbar.
 Die Vasudaner haben eine sehr alte Kultur mit mehreren hochentwickelten Sprachen und Nationen.
-[list][*]Teure aber effizente Schiffe
-[*]Antimaterie ist ihre bevorzugte Energiequelle (Teuer &amp; Effizient)
-[/list]
+Weitere Informationen finden sich [url=https://drifting-souls.fandom.com/de/wiki/Vasudaner]hier[/url].
 [/align]', false, 'VASUDANISCH', 'AEGYPTISCHE_NAMEN');
 insert into rasse (id, name, head_id, playable, playableext) VALUES (3, 'Shivaner', null, false, false);
 insert into rasse (id, name, head_id, playable, playableext) VALUES (4, 'Uralte', null, false, false);

@@ -28,7 +28,7 @@ import java.io.Writer;
  *
  */
 public final class StringBufferWriter extends Writer {
-	private StringBuffer buffer;
+	private final StringBuffer buffer;
 	
 	/**
 	 * Konstruktor.

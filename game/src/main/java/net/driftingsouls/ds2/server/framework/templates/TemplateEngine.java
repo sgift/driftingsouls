@@ -45,9 +45,9 @@ public class TemplateEngine implements ViewResult
 {
 	private static final Log log = LogFactory.getLog(TemplateEngine.class);
 
-	private Map<String,Template> file = new HashMap<>();
+	private final Map<String,Template> file = new HashMap<>();
 
-	private Map<String,Object> varvals = new HashMap<>();
+	private final Map<String,Object> varvals = new HashMap<>();
 
 	/*
 	 *  whether every set_var-call should be recorded and every changed var should 
@@ -56,15 +56,15 @@ public class TemplateEngine implements ViewResult
 	private boolean record = false;
 	
 	// the list of all recorded values
-	private Set<String> recordvars = new HashSet<>();
+	private final Set<String> recordvars = new HashSet<>();
 	
-	private Map<String,String> blocks = new HashMap<>();
-	private Map<String,String[]> registeredBlocks = new HashMap<>();
-	private Map<String,TemplateBlock> registeredBlockObj = new HashMap<>();
+	private final Map<String,String> blocks = new HashMap<>();
+	private final Map<String,String[]> registeredBlocks = new HashMap<>();
+	private final Map<String,TemplateBlock> registeredBlockObj = new HashMap<>();
 	
-	private Map<String,String> varNameMap = new HashMap<>();
-	private String masterTemplateId;
-	private TemplateLoader templateLoader;
+	private final Map<String,String> varNameMap = new HashMap<>();
+	private final String masterTemplateId;
+	private final TemplateLoader templateLoader;
 
 	/**
 	 * Konstruktor.

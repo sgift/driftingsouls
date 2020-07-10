@@ -30,10 +30,10 @@ import java.util.Map;
  */
 public class Markov implements NameProducer
 {
-	private float[][][] table;
+	private final float[][][] table;
 	private int a;
 	private int b;
-	private Map<Integer,Integer> charMap;
+	private final Map<Integer,Integer> charMap;
 
 	/**
 	 * Konstruktor.

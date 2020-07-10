@@ -14,8 +14,8 @@ class ConditionalFormElementCreator<E> implements FormElementCreator<E>
 {
 	private static class ConditionalCustomFieldGenerator<E> implements CustomFieldGenerator<E>
 	{
-		private Function<E,Boolean> condition;
-		private CustomFieldGenerator<E> inner;
+		private final Function<E,Boolean> condition;
+		private final CustomFieldGenerator<E> inner;
 
 		private <T extends CustomFieldGenerator<E>> ConditionalCustomFieldGenerator(T inner, Function<E, Boolean> condition)
 		{
@@ -58,11 +58,11 @@ class ConditionalFormElementCreator<E> implements FormElementCreator<E>
 		}
 	}
 
-	private Class<?> plugin;
-	private Function<Object, String> idGenerator;
-	private FormElementCreator<E> inner;
-	private Function<E,Boolean> condition;
-	private EditorMode editorMode;
+	private final Class<?> plugin;
+	private final Function<Object, String> idGenerator;
+	private final FormElementCreator<E> inner;
+	private final Function<E,Boolean> condition;
+	private final EditorMode editorMode;
 
 	ConditionalFormElementCreator(Class<?> plugin, Function<Object,String> idGenerator, FormElementCreator<E> inner, Function<E, Boolean> condition, EditorMode editorMode)
 	{

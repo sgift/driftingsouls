@@ -58,7 +58,7 @@ import java.util.stream.Collectors;
 @Module(name = "iteminfo")
 public class ItemInfoController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public ItemInfoController(TemplateViewResultFactory templateViewResultFactory)
@@ -151,7 +151,7 @@ public class ItemInfoController extends Controller
 		if (mods.getAblativeArmor() != 0)
 		{
 			colorize(effecttext, mods.getAblativeArmor());
-			effecttext.append("Ablative Panzerung ").append(mods.getAblativeArmor());
+			effecttext.append("ablative Panzerung ").append(mods.getAblativeArmor());
 			effecttext.append("</span><br />\n");
 		}
 
@@ -186,7 +186,7 @@ public class ItemInfoController extends Controller
 		if (mods.getMaxUnitSize() != 0)
 		{
 			colorize(effecttext, mods.getMaxUnitSize());
-			effecttext.append("Maximale Einheitengr&ouml;&szlig;e ").append(mods.getMaxUnitSize());
+			effecttext.append("maximale Einheitengr&ouml;&szlig;e ").append(mods.getMaxUnitSize());
 			effecttext.append("</span><br />\n");
 		}
 
@@ -207,14 +207,14 @@ public class ItemInfoController extends Controller
 		if (mods.getJDocks() != 0)
 		{
 			colorize(effecttext, mods.getJDocks());
-			effecttext.append("J&auml;gerdocks ").append(mods.getJDocks());
+			effecttext.append("Hangarkapazität ").append(mods.getJDocks());
 			effecttext.append("</span><br />\n");
 		}
 
 		if (mods.getADocks() != 0)
 		{
 			colorize(effecttext, mods.getADocks());
-			effecttext.append("Externe Docks ").append(mods.getADocks());
+			effecttext.append("externe Docks ").append(mods.getADocks());
 			effecttext.append("</span><br />\n");
 		}
 
@@ -228,14 +228,14 @@ public class ItemInfoController extends Controller
 		if (mods.getHydro() != 0)
 		{
 			colorize(effecttext, mods.getHydro());
-			effecttext.append("Produziert <img src=\"").append(Cargo.getResourceImage(Resources.NAHRUNG)).append("\" alt=\"\" />").append(mods.getHydro());
+			effecttext.append("Produktion <img src=\"").append(Cargo.getResourceImage(Resources.NAHRUNG)).append("\" alt=\"\" />").append(mods.getHydro());
 			effecttext.append("</span><br />\n");
 		}
 
 		if (mods.getDeutFactor() != 0)
 		{
 			colorize(effecttext, mods.getDeutFactor());
-			effecttext.append("Sammelt <img src=\"").append(Cargo.getResourceImage(Resources.DEUTERIUM)).append("\" alt=\"\" />").append(mods.getDeutFactor());
+			effecttext.append("Deuteriumsammlung <img src=\"").append(Cargo.getResourceImage(Resources.DEUTERIUM)).append("\" alt=\"\" />").append(mods.getDeutFactor());
 			effecttext.append("</span><br />\n");
 		}
 
@@ -278,7 +278,7 @@ public class ItemInfoController extends Controller
 			wpntext.append("</span><br />[Hitze: ").append(weaponclass.getHitze()).append("]");
 			if( weaponclass.getMaxUeberhitzung() != 0 ) {
 				effecttext.append("<br />\n");
-				wpntext.append("[Max-Hitze: ").append(weaponclass.getMaxUeberhitzung()).append("]");
+				wpntext.append("[Max.-Hitze: ").append(weaponclass.getMaxUeberhitzung()).append("]");
 			}
 		}
 		if( wpntext.length() > 0 )
@@ -471,7 +471,7 @@ public class ItemInfoController extends Controller
 
 				if (effect.isFlagschiff())
 				{
-					t.setVar("entry.name", "Flagschiff",
+					t.setVar("entry.name", "Flaggschiff",
 							"entry.data", "ja");
 					t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 				}
@@ -524,7 +524,7 @@ public class ItemInfoController extends Controller
 					}
 					catch (NoSuchSlotException e)
 					{
-						targetslots.append("Ungueltiger Slot '").append(aslot).append("'");
+						targetslots.append("Ungültiger Slot '").append(aslot).append("'");
 					}
 				}
 
@@ -605,7 +605,7 @@ public class ItemInfoController extends Controller
 				if (ammo == null)
 				{
 					t.setVar("entry.name", "Munition",
-							"entry.data", "Es liegen keine genaueren Daten zur Munition vor");
+							"entry.data", "Es liegen keine genaueren Daten zur Munition vor.");
 
 					t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 				}
@@ -633,8 +633,8 @@ public class ItemInfoController extends Controller
 						data.append(ammo.getSubDamage()).append(" Subsystemschaden<br />\n");
 						data.append(ammo.getSubWS()).append("% Subsystem-Trefferwahrscheinlichkeit<br />\n");
 					}
-					data.append(ammo.getSmallTrefferWS()).append("% Trefferwahrscheinlichkeit gegen J&auml;ger<br />\n");
-					data.append(ammo.getTrefferWS()).append("% Trefferwahrscheinlichkeit gegen Capitals\n");
+					data.append(ammo.getSmallTrefferWS()).append("% Trefferwahrscheinlichkeit gegen Bomber/Jäger<br />\n");
+					data.append(ammo.getTrefferWS()).append("% Trefferwahrscheinlichkeit gegen Großkampfschiffe\n");
 					if (ammo.getTorpTrefferWS() != 0)
 					{
 						data.append("<br />").append(ammo.getTorpTrefferWS()).append("% Trefferwahrscheinlichkeit gegen Torpedos\n");
@@ -645,7 +645,7 @@ public class ItemInfoController extends Controller
 					}
 					if (ammo.getDestroyable() > 0)
 					{
-						data.append("<br />Durch Abwehrfeuer zerst&ouml;rbar\n");
+						data.append("<br />durch Abwehrfeuer zerst&ouml;rbar\n");
 					}
 
 					t.setVar("entry.name", "Daten",
@@ -672,7 +672,7 @@ public class ItemInfoController extends Controller
 					}
 					if (weapons.length() > 0)
 					{
-						t.setVar("entry.name", "Passende Waffen",
+						t.setVar("entry.name", "passende Waffen",
 								"entry.data", weapons);
 						t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 					}
@@ -852,7 +852,7 @@ public class ItemInfoController extends Controller
 	@ViewModel
 	public static class AjaxViewModel
 	{
-		public List<ItemViewModel> items = new ArrayList<>();
+		public final List<ItemViewModel> items = new ArrayList<>();
 	}
 
 	/**

@@ -24,13 +24,13 @@ import org.hibernate.Session;
  */
 class Field
 {
-	private List<Ship> ships;
-	private List<Base> bases;
-	private List<JumpNode> nodes;
-	private List<Battle> battles;
-	private List<Jump> subraumspalten;
-	private Nebel nebula;
-	private Location position;
+	private final List<Ship> ships;
+	private final List<Base> bases;
+	private final List<JumpNode> nodes;
+	private final List<Battle> battles;
+	private final List<Jump> subraumspalten;
+	private final Nebel nebula;
+	private final Location position;
 
 	Field(Session db, Location position)
 	{

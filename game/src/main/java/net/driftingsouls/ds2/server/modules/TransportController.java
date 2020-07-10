@@ -58,8 +58,8 @@ public class TransportController extends Controller
 {
 	private static class MultiTarget
 	{
-		private String name;
-		private String targetlist;
+		private final String name;
+		private final String targetlist;
 
 		MultiTarget(String name, String targetlist)
 		{
@@ -525,8 +525,8 @@ public class TransportController extends Controller
 		}
 	}
 
-	private Map<String, TransportFactory> wayhandler;
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final Map<String, TransportFactory> wayhandler;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public TransportController(TemplateViewResultFactory templateViewResultFactory)

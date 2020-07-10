@@ -51,7 +51,7 @@ import java.util.Set;
 public class NavigationDefault implements SchiffPlugin {
 	private static final Log log = LogFactory.getLog(NavigationDefault.class);
 
-	private SchiffFlugService schiffFlugService;
+	private final SchiffFlugService schiffFlugService;
 
 	@Autowired
 	public NavigationDefault(SchiffFlugService schiffFlugService)
@@ -155,7 +155,7 @@ public class NavigationDefault implements SchiffPlugin {
 
 			StarSystem system = (StarSystem) db.get(StarSystem.class, sys);
 			if(system == null) {
-				t.setVar("schiff.navigation.showmessage","Unbekanntes Sternensystem. Wende dich an einen Admin.");
+				t.setVar("schiff.navigation.showmessage","Unbekanntes Sternensystem! Wende Dich an einen Admin!");
 				log.error(String.format("ship: %s -- unknown system: %s", data.getId(), sys));
 			} else {
 				PlayerStarmap map = new PlayerStarmap(user, system, new int[]{x - 1, y - 1, 3, 3});
@@ -172,7 +172,7 @@ public class NavigationDefault implements SchiffPlugin {
 					}
 				}
 
-				Set<Location> alertStatus = Ship.getAlertStatus(user, locs);
+				Set<Location> alertStatus = map.getSektorenMitRotemAlarm();
 
 				boolean newrow;
 

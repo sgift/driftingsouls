@@ -39,7 +39,7 @@ import java.util.List;
 @Module(name="bbcodeview")
 public class BBCodeViewController extends Controller
 {
-	private static List<String> codes = new ArrayList<>();
+	private static final List<String> codes = new ArrayList<>();
 	static {
 		codes.add("[url]http://www.dieGew&uuml;nschteSeite.de[/url]<br />");
 		codes.add("[url=http://www.dieGew&uuml;nschteSeite.de]Eine Beschreibung[/url<br />");

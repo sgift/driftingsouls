@@ -55,7 +55,7 @@ import java.util.List;
 @Module(name = "forschinfo")
 public class ForschinfoController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public ForschinfoController(TemplateViewResultFactory templateViewResultFactory)

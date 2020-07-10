@@ -75,7 +75,7 @@ public class Forschung {
 		NEVER("Unsichtbar");
 
 
-		private String description;
+		private final String description;
 
 		Visibility(String description) {
 			this.description = description;
@@ -127,7 +127,7 @@ public class Forschung {
 	@Column(nullable = false)
 	private Visibility visibility;
 	@Column(nullable = false)
-	private String flags;
+	private final String flags;
 	private int specializationCosts;
 
 	/**

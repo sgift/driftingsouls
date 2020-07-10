@@ -11,8 +11,8 @@ import java.lang.reflect.Method;
  */
 class InterceptingActionMethodInvocation implements MethodInvocation
 {
-	private ActionMethodInterceptor interceptor;
-	private MethodInvocation inner;
+	private final ActionMethodInterceptor interceptor;
+	private final MethodInvocation inner;
 
 
 	InterceptingActionMethodInvocation(ActionMethodInterceptor interceptor, MethodInvocation inner)

@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
  *
  */
 public class Weapons implements Iterable<Weapon> {
-	private static Weapons instance = new Weapons();
+	private static final Weapons instance = new Weapons();
 	
 	private Weapons() {
 		// EMPTY

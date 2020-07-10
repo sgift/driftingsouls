@@ -32,7 +32,7 @@ import java.util.function.Function;
  */
 public class ObjectLabelGenerator
 {
-	private  Map<Class<?>, Function<Object,String>> specialLabelGenerators = new HashMap<>();
+	private final Map<Class<?>, Function<Object,String>> specialLabelGenerators = new HashMap<>();
 
 	public ObjectLabelGenerator()
 	{

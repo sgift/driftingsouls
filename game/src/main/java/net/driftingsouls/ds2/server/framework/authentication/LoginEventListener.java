@@ -34,7 +34,6 @@ public interface LoginEventListener {
 	 * der Login einem Account zugeordet wurde, aber bevor die Session
 	 * angelegt ist.
 	 * @param user Der Useraccount
-	 * @throws AuthenticationException Falls die Authentifizierung fehlschlagen soll
-	 */
-    void onLogin(BasicUser user) throws AuthenticationException;
+     */
+    void onLogin(BasicUser user);
 }

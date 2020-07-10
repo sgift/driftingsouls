@@ -40,8 +40,7 @@ import java.io.IOException;
 public class EditUserPermissions implements AdminPlugin
 {
 	@Override
-	public void output(StringBuilder echo) throws IOException
-	{
+	public void output(StringBuilder echo) {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 

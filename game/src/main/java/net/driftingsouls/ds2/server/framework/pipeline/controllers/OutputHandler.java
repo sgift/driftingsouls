@@ -13,8 +13,8 @@ import java.util.Map;
  */
 public abstract class OutputHandler
 {
-	private Context context;
-	private Map<String,Object> attributes = new HashMap<>();
+	private final Context context;
+	private final Map<String,Object> attributes = new HashMap<>();
 
 	/**
 	 * Konstruktor.

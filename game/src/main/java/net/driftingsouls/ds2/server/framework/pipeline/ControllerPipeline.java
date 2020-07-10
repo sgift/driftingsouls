@@ -30,7 +30,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
  *
  */
 public class ControllerPipeline implements Pipeline {
-	private Class<? extends Controller> generator;
+	private final Class<? extends Controller> generator;
 
 	/**
 	 * Konstruktor.

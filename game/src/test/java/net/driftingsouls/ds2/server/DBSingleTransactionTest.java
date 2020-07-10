@@ -33,8 +33,7 @@ public class DBSingleTransactionTest
 	}
 
 	@After
-	public void stoppeTransaktion() throws Exception
-	{
+	public void stoppeTransaktion() {
 		getEM().getTransaction().rollback();
 		getEM().clear();
 	}

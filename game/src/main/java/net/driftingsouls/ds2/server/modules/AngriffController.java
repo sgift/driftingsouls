@@ -69,8 +69,8 @@ public class AngriffController extends Controller
 	private final Map<String,Class<? extends BasicKSAction>> actions = new HashMap<>();
 	private final Map<String,Class<? extends BasicKSMenuAction>> menuActions = new HashMap<>();
 
-	private TemplateViewResultFactory templateViewResultFactory;
-	private SchlachtErstellenService schlachtErstellenService;
+	private final TemplateViewResultFactory templateViewResultFactory;
+	private final SchlachtErstellenService schlachtErstellenService;
 
 	@Autowired
 	public AngriffController(ConfigService configService,

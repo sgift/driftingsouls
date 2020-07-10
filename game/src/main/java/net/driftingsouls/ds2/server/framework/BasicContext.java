@@ -48,10 +48,10 @@ public class BasicContext implements Context
 	private Request request;
 	private Response response;
 	private BasicUser activeUser = null;
-	private List<Error> errorList = new ArrayList<>();
-	private Map<Class<?>, Object> contextSingletons = new HashMap<>();
+	private final List<Error> errorList = new ArrayList<>();
+	private final Map<Class<?>, Object> contextSingletons = new HashMap<>();
 	private final Map<Class<?>, Map<String, Object>> variables = new HashMap<>();
-	private List<ContextListener> listener = new ArrayList<>();
+	private final List<ContextListener> listener = new ArrayList<>();
 	private PermissionResolver permissionResolver;
 	private ApplicationContext applicationContext;
 

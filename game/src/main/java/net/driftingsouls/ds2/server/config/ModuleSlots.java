@@ -36,7 +36,7 @@ import java.util.List;
  */
 public class ModuleSlots implements Iterable<ModuleSlot> {
 	private static final Log log = LogFactory.getLog(ModuleSlots.class);
-	private static ModuleSlots moduleList = new ModuleSlots();
+	private static final ModuleSlots moduleList = new ModuleSlots();
 	
 	private ModuleSlots() {
 		// EMPTY

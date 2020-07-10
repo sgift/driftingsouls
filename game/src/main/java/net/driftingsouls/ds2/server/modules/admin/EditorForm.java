@@ -17,9 +17,9 @@ import java.util.*;
  */
 class EditorForm implements AutoCloseable
 {
-	private StringBuilder echo;
-	private Class<? extends AdminPlugin> plugin;
-	private List<CustomFieldGenerator> fields = new ArrayList<>();
+	private final StringBuilder echo;
+	private final Class<? extends AdminPlugin> plugin;
+	private final List<CustomFieldGenerator> fields = new ArrayList<>();
 
 	EditorForm(Class<? extends AdminPlugin> plugin, StringBuilder echo)
 	{
@@ -36,9 +36,8 @@ class EditorForm implements AutoCloseable
 		/**
 		 * Generiert den HTML-Code fuer das Eingabefeld.
 		 * @param echo Der Writer in den der HTML-Code geschrieben werden soll
-		 * @throws IOException Bei I/O-Fehlern
 		 */
-        void generate(StringBuilder echo) throws IOException;
+        void generate(StringBuilder echo);
 	}
 
 	/**
@@ -55,9 +54,9 @@ class EditorForm implements AutoCloseable
 
 	public class DynamicContentFieldGenerator implements CustomFieldGenerator
 	{
-		private String label;
-		private String name;
-		private String value;
+		private final String label;
+		private final String name;
+		private final String value;
 		private boolean withRemove;
 
 		DynamicContentFieldGenerator(String label, String name, String value)
@@ -260,21 +259,14 @@ class EditorForm implements AutoCloseable
 	@Override
 	public void close()
 	{
-		try
+		for (CustomFieldGenerator field : fields)
 		{
-			for (CustomFieldGenerator field : fields)
-			{
-				field.generate(echo);
-			}
+			field.generate(echo);
+		}
 
-			echo.append("<tr><td colspan='2'></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
-			echo.append("</table>");
-			echo.append("</form>\n");
-			echo.append("</div>");
-		}
-		catch (IOException e)
-		{
-			throw new IllegalStateException(e);
-		}
+		echo.append("<tr><td colspan='2'></td><td><input type=\"submit\" name=\"change\" value=\"Aktualisieren\"></td></tr>\n");
+		echo.append("</table>");
+		echo.append("</form>\n");
+		echo.append("</div>");
 	}
 }

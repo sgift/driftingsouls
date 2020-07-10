@@ -35,7 +35,7 @@ public class WellKnownUserValue<T>
 	public static final WellKnownUserValue<Boolean> GAMEPLAY_USER_HANDEL_PM = new WellKnownUserValue<>(Boolean.class, "GAMEPLAY/user/handel_pm", "true");
 	
 	
-	private Class<T> type;
+	private final Class<T> type;
 	private final String name;
 	private final String defaultValue;
 

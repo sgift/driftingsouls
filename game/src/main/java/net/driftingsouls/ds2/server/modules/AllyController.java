@@ -61,9 +61,9 @@ public class AllyController extends Controller
 {
 	private static final Log log = LogFactory.getLog(AllyController.class);
 
-	private AllianzService allianzService;
-	private TemplateViewResultFactory templateViewResultFactory;
-	private AllyPostenService allyPostenService;
+	private final AllianzService allianzService;
+	private final TemplateViewResultFactory templateViewResultFactory;
+	private final AllyPostenService allyPostenService;
 	private Ally ally = null;
 
 	@Autowired
@@ -94,7 +94,7 @@ public class AllyController extends Controller
 				addPageMenuEntry("Einstellungen", Common.buildUrl("showAllySettings"));
 				addPageMenuEntry("Posten", Common.buildUrl("showPosten"));
 			}
-			addPageMenuEntry("Kaempfe", Common.buildUrl("showBattles"));
+			addPageMenuEntry("Kämpfe", Common.buildUrl("showBattles"));
 			addPageMenuEntry("Allianzen auflisten", Common.buildUrl("default", "module", "allylist"));
 			addPageMenuEntry("Austreten", Common.buildUrl("part"));
 		}
@@ -196,7 +196,7 @@ public class AllyController extends Controller
 
 		if ((confuser1 == null) || (confuser2 == null))
 		{
-			return new RedirectViewResult("showCreateAlly").withMessage("<span style=\"color:red\">Einer der angegebenen Unterstützer ist versucht bereits in einer anderen Allianz Mitglied zu werden</span>\n");
+			return new RedirectViewResult("showCreateAlly").withMessage("<span style=\"color:red\">Einer der angegebenen Unterstützer versucht bereits, in einer anderen Allianz Mitglied zu werden.</span>\n");
 		}
 
 		String mastertaskid = taskmanager.addTask(
@@ -209,10 +209,10 @@ public class AllyController extends Controller
 				Taskmanager.Types.ALLY_FOUND_CONFIRM, 21,
 				mastertaskid, Integer.toString(confuser2.getId()), "");
 
-		PM.send(user, confuser1.getId(), "Allianzgr&uuml;ndung", "[automatische Nachricht]\nIch habe vor die Allianz " + name + " zu gr&uuml;nden. Da zwei Spieler dieses vorhaben unterst&uuml;tzen m&uuml;ssen habe ich mich an dich gewendet.\nAchtung: Durch die Unterst&uuml;tzung wirst du automatisch Mitglied!\n\n[_intrnlConfTask=" + conf1taskid + "]Willst du die Allianzgr&uuml;ndung unterst&uuml;tzen?[/_intrnlConfTask]", PM.FLAGS_IMPORTANT);
-		PM.send(user, confuser2.getId(), "Allianzgr&uuml;ndung", "[automatische Nachricht]\nIch habe vor die Allianz " + name + " zu gr&uuml;nden. Da zwei Spieler dieses vorhaben unterst&uuml;tzen m&uuml;ssen habe ich mich an dich gewendet.\nAchtung: Durch die Unterst&uuml;tzung wirst du automatisch Mitglied!\n\n[_intrnlConfTask=" + conf2taskid + "]Willst du die Allianzgr&uuml;ndung unterst&uuml;tzen?[/_intrnlConfTask]", PM.FLAGS_IMPORTANT);
+		PM.send(user, confuser1.getId(), "Allianzgründung", "[automatische Nachricht]\nIch habe vor die Allianz " + name + " zu gründen. Da zwei Spieler dieses Vorhaben unterstützen müssen, habe ich mich an Dich gewendet.\nAchtung: Durch die Unterstützung wirst Du automatisch Mitglied!\n\n[_intrnlConfTask=" + conf1taskid + "]Willst Du die Allianzgründung unterstützen?[/_intrnlConfTask]", PM.FLAGS_IMPORTANT);
+		PM.send(user, confuser2.getId(), "Allianzgründung", "[automatische Nachricht]\nIch habe vor die Allianz " + name + " zu gründen. Da zwei Spieler dieses Vorhaben unterstützen müssen, habe ich mich an Dich gewendet.\nAchtung: Durch die Unterstützung wirst Du automatisch Mitglied!\n\n[_intrnlConfTask=" + conf2taskid + "]Willst Du die Allianzgründung unterstützen?[/_intrnlConfTask]", PM.FLAGS_IMPORTANT);
 
-		return new RedirectViewResult("defaultNoAlly").withMessage("Die beiden angegebenen Spieler wurden via PM benachrichtigt. Sollten sich beide zur Unterst&uuml;tzung entschlossen haben, wird die Allianz augenblicklich gegr&uuml;ndet. Du wirst au&szlig;erdem via PM benachrichtigt.");
+		return new RedirectViewResult("defaultNoAlly").withMessage("Die beiden angegebenen Spieler wurden via PM benachrichtigt. Sollten sich beide zur Unterstützung entschlossen haben, wird die Allianz augenblicklich gegründet. Du wirst dann außerdem via PM benachrichtigt.");
 	}
 
 	/**
@@ -230,17 +230,17 @@ public class AllyController extends Controller
 
 		if (user.getAlly() != null)
 		{
-			return new RedirectViewResult("defaultNoAlly").withMessage("Sie sind bereits in einer Allianz. Sie müssen diese erst verlassen um in eine andere Allianz eintreten zu können!");
+			return new RedirectViewResult("defaultNoAlly").withMessage("Sie sind bereits in einer Allianz. Sie müssen diese erst verlassen, um in eine andere Allianz eintreten zu können!");
 		}
 
 		if (zielAllianz == null)
 		{
-			return new RedirectViewResult("defaultNoAlly").withMessage("Die angegebene Allianz existiert nicht");
+			return new RedirectViewResult("defaultNoAlly").withMessage("Die angegebene Allianz existiert nicht.");
 		}
 
 		if (allianzService.isUserAnAllianzgruendungBeteiligt(user))
 		{
-			return new RedirectViewResult("defaultNoAlly").withMessage("Es gibt eine oder mehrere Anfragen an sie zwecks Unterstützung einer Allianzgründung. Sie m&uuml;ssen diese Anfragen erst bearbeiten bevor sie einer Allianz beitreten können.");
+			return new RedirectViewResult("defaultNoAlly").withMessage("Es gibt eine oder mehrere Anfragen an Sie zwecks Unterstützung einer Allianzgründung. Sie müssen diese Anfragen erst bearbeiten, bevor Sie einer Allianz beitreten können.");
 		}
 
 		Session db = getDB();
@@ -250,7 +250,7 @@ public class AllyController extends Controller
 				.uniqueResult();
 		if (battlesAgainstAlly > 0)
 		{
-			return new RedirectViewResult("defaultNoAlly").withMessage("Sie können keiner Allianz beitreten gegen die Sie kämpfen.");
+			return new RedirectViewResult("defaultNoAlly").withMessage("Sie können keiner Allianz beitreten, gegen die Sie kämpfen.");
 		}
 
 		Taskmanager taskmanager = Taskmanager.getInstance();
@@ -258,7 +258,7 @@ public class AllyController extends Controller
 		Task[] tasks = taskmanager.getTasksByData(Taskmanager.Types.ALLY_NEW_MEMBER, "*", Integer.toString(user.getId()), "*");
 		if (tasks.length > 0)
 		{
-			return new RedirectViewResult("defaultNoAlly").withMessage("Fehler: Sie haben bereits einen Aufnahmeantrag bei einer Allianz gestellt");
+			return new RedirectViewResult("defaultNoAlly").withMessage("Fehler: Sie haben bereits einen Aufnahmeantrag bei einer Allianz gestellt.");
 		}
 
 		if (!conf.equals("ok"))
@@ -266,7 +266,7 @@ public class AllyController extends Controller
 			TemplateEngine t = templateViewResultFactory.createFor(this);
 			setDefaultTemplateVars(t);
 			t.setVar("show", show);
-			t.setVar("ally.statusmessage", "Wollen sie der Allianz &gt;" + Common._title(zielAllianz.getName()) + "&lt; wirklich beitreten?",
+			t.setVar("ally.statusmessage", "Wollen Sie der Allianz &gt;" + Common._title(zielAllianz.getName()) + "&lt; wirklich beitreten?",
 					"ally.statusmessage.ask.url1", "&amp;action=join&amp;join=" + zielAllianz.getId() + "&amp;conf=ok",
 					"ally.statusmessage.ask.url2", "");
 
@@ -279,10 +279,10 @@ public class AllyController extends Controller
 		for (User supermember : supermembers)
 		{
 			PM.send(user, supermember.getId(),
-					"Aufnahmeantrag", "[Automatische Nachricht]\nHiermit beantrage ich die Aufnahme in die Allianz.\n\n[_intrnlConfTask=" + taskid + "]Wollen sie dem Aufnahmeantrag zustimmen?[/_intrnlConfTask]", PM.FLAGS_IMPORTANT);
+					"Aufnahmeantrag", "[Automatische Nachricht]\nHiermit beantrage ich die Aufnahme in die Allianz.\n\n[_intrnlConfTask=" + taskid + "]Wollen Sie dem Aufnahmeantrag zustimmen?[/_intrnlConfTask]", PM.FLAGS_IMPORTANT);
 		}
 
-		return new RedirectViewResult("defaultNoAlly").withMessage("Der Aufnahmeantrag wurde weitergeleitet. Die Bearbeitung kann jedoch abhängig von der Allianz längere Zeit in anspruch nehmen. Sollten sie aufgenommen werden, wird automatisch eine PM an sie gesendet.");
+		return new RedirectViewResult("defaultNoAlly").withMessage("Der Aufnahmeantrag wurde weitergeleitet. Die Bearbeitung kann jedoch abhängig von der jeweiligen Allianzführung längere Zeit in Anspruch nehmen. Sollten Sie aufgenommen werden, wird automatisch eine PM an Sie gesendet.");
 	}
 
 	/**
@@ -297,7 +297,7 @@ public class AllyController extends Controller
 
 		if (this.ally.getPresident().getId() != user.getId() || !user.isNPC())
 		{
-			return new RedirectViewResult("showPosten").withMessage("Fehler: Nur der Präsident einer NPC-Allianz kann diese Aktion durchführen");
+			return new RedirectViewResult("showPosten").withMessage("Fehler: Nur der Anführer einer NPC-Allianz kann diese Aktion durchführen.");
 		}
 
 		AllyRangDescriptor rang = findeAllianzRangMitNummer(rangnr);
@@ -345,7 +345,7 @@ public class AllyController extends Controller
 
 		if (this.ally.getPresident().getId() != user.getId() || !user.isNPC())
 		{
-			return new RedirectViewResult("showPosten").withMessage("Fehler: Nur der Präsident einer NPC-Allianz kann diese Aktion durchführen");
+			return new RedirectViewResult("showPosten").withMessage("Fehler: Nur der Anführer einer NPC-Allianz kann diese Aktion durchführen.");
 		}
 
 		if (rangname.length() == 0 || rangnr < 0)
@@ -385,7 +385,7 @@ public class AllyController extends Controller
 			}
 		}
 
-		return new RedirectViewResult("showRaenge").withMessage("Der Rang " + rangname + " wurde erstellt und zugewiesen");
+		return new RedirectViewResult("showRaenge").withMessage("Der Rang " + rangname + " wurde erstellt und zugewiesen.");
 	}
 
 	/**
@@ -401,17 +401,17 @@ public class AllyController extends Controller
 
 		if (this.ally.getPresident().getId() != user.getId())
 		{
-			return new RedirectViewResult("showPosten").withMessage("Fehler: Nur der Präsident der Allianz kann diese Aktion durchführen");
+			return new RedirectViewResult("showPosten").withMessage("Fehler: Nur der Anführer der Allianz kann diese Aktion durchführen.");
 		}
 
 		if (posten == null || posten.getAlly() != this.ally)
 		{
-			return new RedirectViewResult("showPosten").withMessage("Fehler: Der angegebene Posten ist ungueltig");
+			return new RedirectViewResult("showPosten").withMessage("Fehler: Der angegebene Posten ist ungültig.");
 		}
 
 		allyPostenService.loesche(posten);
 
-		return new RedirectViewResult("showPosten").withMessage("Posten gelöscht");
+		return new RedirectViewResult("showPosten").withMessage("Posten gelöscht.");
 	}
 
 	/**
@@ -427,22 +427,22 @@ public class AllyController extends Controller
 
 		if (this.ally.getPresident().getId() != user.getId())
 		{
-			return new RedirectViewResult("showPosten").withMessage("Fehler: Nur der Präsident der Allianz kann diese Aktion durchführen");
+			return new RedirectViewResult("showPosten").withMessage("Fehler: Nur der Anführer der Allianz kann diese Aktion durchführen.");
 		}
 
 		if (formuser == null || formuser.getAlly() == null || formuser.getAlly() != this.ally)
 		{
-			return new RedirectViewResult("showPosten").withMessage("Fehler: Sie müssen den Posten jemandem zuweisen");
+			return new RedirectViewResult("showPosten").withMessage("Fehler: Sie müssen den Posten jemandem zuweisen.");
 		}
 
 		if (formuser.getAllyPosten() != null)
 		{
-			return new RedirectViewResult("showPosten").withMessage("Fehler: Jedem Mitglied darf maximal ein Posten zugewiesen werden");
+			return new RedirectViewResult("showPosten").withMessage("Fehler: Jedem Mitglied darf maximal ein Posten zugewiesen werden.");
 		}
 
 		if (posten == null || posten.getAlly() != this.ally)
 		{
-			return new RedirectViewResult("showPosten").withMessage("Fehler: Der angegebene Posten ist ungültig");
+			return new RedirectViewResult("showPosten").withMessage("Fehler: Der angegebene Posten ist ungültig.");
 		}
 
 		if (posten.getUser() != null)
@@ -451,7 +451,7 @@ public class AllyController extends Controller
 		}
 		formuser.setAllyPosten(posten);
 
-		return new RedirectViewResult("showPosten").withMessage("Änderungen gespeichert");
+		return new RedirectViewResult("showPosten").withMessage("Änderungen gespeichert.");
 	}
 
 	/**
@@ -467,17 +467,17 @@ public class AllyController extends Controller
 
 		if (this.ally.getPresident().getId() != user.getId())
 		{
-			return new RedirectViewResult("showPosten").withMessage("Fehler: Nur der Präsident der Allianz kann diese Aktion durchführen");
+			return new RedirectViewResult("showPosten").withMessage("Fehler: Nur der Anführer der Allianz kann diese Aktion durchführen.");
 		}
 
 		if (name.length() == 0)
 		{
-			return new RedirectViewResult("showPosten").withMessage("Fehler: Sie müssen dem Posten einen Namen geben");
+			return new RedirectViewResult("showPosten").withMessage("Fehler: Sie müssen dem Posten einen Namen geben.");
 		}
 
 		if (formuser.getAllyPosten() != null)
 		{
-			return new RedirectViewResult("showPosten").withMessage("Fehler: Jedem Mitglied darf maximal ein Posten zugewiesen werden");
+			return new RedirectViewResult("showPosten").withMessage("Fehler: Jedem Mitglied darf maximal ein Posten zugewiesen werden.");
 		}
 
 		int postencount = allyPostenService.getAnzahlPostenDerAllianz(ally);
@@ -485,13 +485,13 @@ public class AllyController extends Controller
 
 		if (maxposten <= postencount)
 		{
-			return new RedirectViewResult("showPosten").withMessage("Fehler: Sie haben bereits die maximale Anzahl an Posten erreicht");
+			return new RedirectViewResult("showPosten").withMessage("Fehler: Sie haben bereits die maximale Anzahl an Posten erreicht.");
 		}
 
 		AllyPosten posten = allyPostenService.erstelle(this.ally, name);
 		formuser.setAllyPosten(posten);
 
-		return new RedirectViewResult("showPosten").withMessage("Der Posten " + Common._plaintitle(name) + " wurde erstellt und zugewiesen");
+		return new RedirectViewResult("showPosten").withMessage("Der Posten " + Common._plaintitle(name) + " wurde erstellt und zugewiesen.");
 	}
 
 	/**
@@ -510,7 +510,7 @@ public class AllyController extends Controller
 
 		if (this.ally.getPresident().getId() != user.getId())
 		{
-			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Nur der Pr&auml;sident der Allianz kann diese Aktion durchführen");
+			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Nur der Anführer der Allianz kann diese Aktion durchführen.");
 		}
 
 		int count = ((Number) db.createQuery("select count(*) from ComNetChannel where allyOwner=:owner")
@@ -519,12 +519,12 @@ public class AllyController extends Controller
 
 		if (count >= 2)
 		{
-			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Ihre Allianz besitzt bereits zwei Frequenzen");
+			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Ihre Allianz besitzt bereits zwei Frequenzen.");
 		}
 
 		if (name.length() == 0)
 		{
-			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Sie haben keinen Namen für die Frequenz eingegeben");
+			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Sie haben keinen Namen für die Frequenz eingegeben.");
 		}
 
 		ComNetChannel channel = new ComNetChannel(name);
@@ -557,7 +557,7 @@ public class AllyController extends Controller
 		}
 		db.persist(channel);
 
-		return new RedirectViewResult("showAllySettings").withMessage("Frequenz " + Common._title(name) + " hinzugefügt");
+		return new RedirectViewResult("showAllySettings").withMessage("Frequenz " + Common._title(name) + " hinzugefügt.");
 	}
 
 	/**
@@ -576,17 +576,17 @@ public class AllyController extends Controller
 
 		if (this.ally.getPresident().getId() != user.getId())
 		{
-			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Nur der Präsident der Allianz kann diese Aktion durchführen");
+			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Nur der Anführer der Allianz kann diese Aktion durchführen.");
 		}
 
 		if ((channel == null) || (channel.getAllyOwner() != this.ally))
 		{
-			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Diese Frequenz gehört nicht ihrer Allianz");
+			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Diese Frequenz gehört nicht Ihrer Allianz.");
 		}
 
 		if (name.length() == 0)
 		{
-			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Sie haben keinen Namen für die Frequenz eingegeben");
+			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Sie haben keinen Namen für die Frequenz eingegeben.");
 		}
 
 		channel.setName(name);
@@ -640,12 +640,12 @@ public class AllyController extends Controller
 
 		if (this.ally.getPresident().getId() != user.getId())
 		{
-			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Nur der Präsident der Allianz kann diese Aktion durchführen");
+			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Nur der Anführer der Allianz kann diese Aktion durchführen.");
 		}
 
 		if ((channel == null) || (channel.getAllyOwner() != this.ally))
 		{
-			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Diese Frequenz gehört nicht ihrer Allianz");
+			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Diese Frequenz gehört nicht Ihrer Allianz.");
 		}
 
 		if (!conf.equals("ok"))
@@ -653,7 +653,7 @@ public class AllyController extends Controller
 			TemplateEngine t = templateViewResultFactory.createFor(this);
 			setDefaultTemplateVars(t);
 			t.setVar("show", show);
-			t.setVar("ally.statusmessage", "Wollen sie die Frequenz \"" + Common._title(channel.getName()) + "\" wirklich l&ouml;schen?",
+			t.setVar("ally.statusmessage", "Wollen Sie die Frequenz \"" + Common._title(channel.getName()) + "\" wirklich löschen?",
 					"ally.statusmessage.ask.url1", "&amp;action=deleteChannel&amp;channel=" + channel.getId() + "&amp;conf=ok&amp;show=" + show,
 					"ally.statusmessage.ask.url2", "&amp;show=" + show);
 			return t;
@@ -669,7 +669,7 @@ public class AllyController extends Controller
 
 		db.delete(channel);
 
-		return new RedirectViewResult("showAllySettings").withMessage("Die Frequenz wurde gelöscht");
+		return new RedirectViewResult("showAllySettings").withMessage("Die Frequenz wurde gelöscht.");
 	}
 
 	private static final int MAX_UPLOAD_SIZE = 307200;
@@ -685,7 +685,7 @@ public class AllyController extends Controller
 
 		if (this.ally.getPresident().getId() != user.getId())
 		{
-			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Nur der Präsident der Allianz kann diese Aktion durchführen");
+			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Nur der Anführer der Allianz kann diese Aktion durchführen.");
 		}
 
 		List<FileItem> list = getContext().getRequest().getUploadedFiles();
@@ -696,7 +696,7 @@ public class AllyController extends Controller
 
 		if (list.get(0).getSize() > MAX_UPLOAD_SIZE)
 		{
-			return new RedirectViewResult("showAllySettings").withMessage("Das Logo ist leider zu groß. Bitte w&auml;hle eine Datei mit maximal 300kB Größe<br />");
+			return new RedirectViewResult("showAllySettings").withMessage("Das Logo ist leider zu groß. Bitte wählen Sie eine Datei mit höchstens 300 kB Größe.<br />");
 		}
 
 		String message;
@@ -705,11 +705,11 @@ public class AllyController extends Controller
 		{
 			File uploadedFile = new File(uploaddir + this.ally.getId() + ".gif");
 			list.get(0).write(uploadedFile);
-			message = "Das neue Logo wurde auf dem Server gespeichert<br />";
+			message = "Das neue Logo wurde auf dem Server gespeichert.<br />";
 		}
 		catch (Exception e)
 		{
-			message = "Offenbar ging beim Upload etwas schief (Ist die Datei evt. zu groß?)<br />";
+			message = "Offenbar ging beim Upload etwas schief (ist die Datei evtl. zu groß?).<br />";
 			log.warn("", e);
 		}
 
@@ -735,7 +735,7 @@ public class AllyController extends Controller
 
 		if (this.ally.getPresident().getId() != user.getId())
 		{
-			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Nur der Präsident der Allianz kann diese Aktion durchführen");
+			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Nur der Anführer der Allianz kann diese Aktion durchführen.");
 		}
 
 		// Wurde der [name]-Tag vergessen?
@@ -746,12 +746,12 @@ public class AllyController extends Controller
 
 		if (name.length() == 0)
 		{
-			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Sie müssen einen Allianznamen angeben");
+			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Sie müssen einen Allianznamen angeben.");
 		}
 
 		if (praesi.length() == 0)
 		{
-			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Sie müssen dem Präsidentenamt einen Namen geben");
+			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Sie müssen dem Anführeramt einen Namen geben.");
 		}
 
 		this.ally.setName(name);
@@ -790,7 +790,7 @@ public class AllyController extends Controller
 
 		if (this.ally.getPresident().getId() == user.getId())
 		{
-			return new RedirectViewResult("default").withMessage("<span style=\"color:red\">Sie können erst austreten, wenn ein anderer Präsident bestimmt wurde");
+			return new RedirectViewResult("default").withMessage("<span style=\"color:red\">Sie können erst austreten, wenn ein anderer Anführer bestimmt wurde.");
 		}
 
 		if (!conf.equals("ok"))
@@ -798,7 +798,7 @@ public class AllyController extends Controller
 			TemplateEngine t = templateViewResultFactory.createFor(this);
 			setDefaultTemplateVars(t);
 			t.setVar("show", show);
-			t.setVar("ally.statusmessage", "Wollen sie wirklich aus der Allianz austreten?",
+			t.setVar("ally.statusmessage", "Wollen Sie wirklich aus der Allianz austreten?",
 					"ally.statusmessage.ask.url1", "&amp;action=part&amp;conf=ok&amp;show=" + show,
 					"ally.statusmessage.ask.url2", "&amp;show=" + show);
 			return t;
@@ -825,7 +825,7 @@ public class AllyController extends Controller
 
 		if (this.ally.getPresident().getId() != user.getId())
 		{
-			return new RedirectViewResult("default").withMessage("Fehler: Nur der Präsident der Allianz kann diese Aktion durchf&uuml;hren");
+			return new RedirectViewResult("default").withMessage("Fehler: Nur der Anführer der Allianz kann diese Aktion durchführen.");
 		}
 
 		if (!conf.equals("ok"))
@@ -833,7 +833,7 @@ public class AllyController extends Controller
 			TemplateEngine t = templateViewResultFactory.createFor(this);
 			setDefaultTemplateVars(t);
 			t.setVar("show", show);
-			t.setVar("ally.statusmessage", "Wollen sie die Allianz wirklich aufl&ouml;sen?",
+			t.setVar("ally.statusmessage", "Wollen Sie die Allianz wirklich auflösen?",
 					"ally.statusmessage.ask.url1", "&amp;action=kill&amp;conf=ok&amp;show=" + show,
 					"ally.statusmessage.ask.url2", "&amp;show=" + show);
 
@@ -841,12 +841,12 @@ public class AllyController extends Controller
 		}
 		else
 		{
-			PM.sendToAlly(user, this.ally, "Allianz aufgel&ouml;st", "Die Allianz wurde mit sofortiger Wirkung aufgel&ouml;st");
+			PM.sendToAlly(user, this.ally, "Allianz aufgelöst", "Die Allianz wurde mit sofortiger Wirkung aufgelöst.");
 
 			allianzService.loeschen(this.ally);
 			this.ally = null;
 
-			return new RedirectViewResult("defaultNoAlly").withMessage("Die Allianz wurde aufgelöst");
+			return new RedirectViewResult("defaultNoAlly").withMessage("Die Allianz wurde aufgelöst.");
 		}
 	}
 
@@ -862,19 +862,19 @@ public class AllyController extends Controller
 
 		if (this.ally.getPresident() != user)
 		{
-			return new RedirectViewResult("showMembers").withMessage("Fehler: Nur der Präsident der Allianz kann diese Aktion durchführen");
+			return new RedirectViewResult("showMembers").withMessage("Fehler: Nur der Anführer der Allianz kann diese Aktion durchführen.");
 		}
 
 		User presnuser = (User) getContext().getDB().get(User.class, presn);
 		if (presnuser.getAlly() != this.ally)
 		{
-			return new RedirectViewResult("showMembers").withMessage("Dieser Spieler ist nicht Mitglied ihrer Allianz");
+			return new RedirectViewResult("showMembers").withMessage("Dieser Spieler ist nicht Mitglied Ihrer Allianz.");
 		}
 
 		this.ally.setPresident(presnuser);
-		PM.send(this.ally.getPresident(), presnuser.getId(), "Zum Pr&auml;sidenten ernannt", "Ich habe dich zum Präsidenten der Allianz ernannt");
+		PM.send(this.ally.getPresident(), presnuser.getId(), "Zum Anführer ernannt", "Ich habe dich zum Präsidenten der Allianz ernannt.");
 
-		return new RedirectViewResult("showMembers").withMessage(presnuser.getProfileLink() + " zum Präsidenten ernannt");
+		return new RedirectViewResult("showMembers").withMessage(presnuser.getProfileLink() + " zum Anführer ernannt");
 	}
 
 	/**
@@ -889,25 +889,25 @@ public class AllyController extends Controller
 
 		if (this.ally.getPresident().getId() != user.getId())
 		{
-			return new RedirectViewResult("showMembers").withMessage("Fehler: Nur der Präsident der Allianz kann diese Aktion durchführen");
+			return new RedirectViewResult("showMembers").withMessage("Fehler: Nur der Anführer der Allianz kann diese Aktion durchführen.");
 		}
 
 		if (kick == user.getId())
 		{
-			return new RedirectViewResult("showMembers").withMessage("Sie können sich nicht selber aus der Allianz werfen");
+			return new RedirectViewResult("showMembers").withMessage("Sie können sich nicht selber aus der Allianz werfen.");
 		}
 
 		User kickuser = (User) getContext().getDB().get(User.class, kick);
 		if (!this.ally.equals(kickuser.getAlly()))
 		{
-			return new RedirectViewResult("showMembers").withMessage("Dieser Spieler ist nicht Mitglied ihrer Allianz");
+			return new RedirectViewResult("showMembers").withMessage("Dieser Spieler ist nicht Mitglied Ihrer Allianz.");
 		}
 
 		this.allianzService.entferneMitglied(ally, kickuser);
 
 		PM.send(this.ally.getPresident(), kickuser.getId(), "Aus der Allianz geworfen", "Ich habe dich aus der Allianz geworfen.");
 
-		return new RedirectViewResult("showMembers").withMessage(Common._title(kickuser.getName()) + " aus der Allianz geworfen");
+		return new RedirectViewResult("showMembers").withMessage(Common._title(kickuser.getName()) + " aus der Allianz geworfen.");
 	}
 
 	/**
@@ -956,7 +956,7 @@ public class AllyController extends Controller
 
 		if (Common.time() - user.getSignup() < 60 * 60 * 24 * 3)
 		{
-			t.setVar("ally.message", "Sie m&uuml;ssen seit mindestens 3 Tage dabei sein um eine Allianz gr&uuml;nden zu k&ouml;nnen");
+			t.setVar("ally.message", "Sie müssen seit mindestens 3 Tage dabei sein, um eine Allianz gründen zu können.");
 		}
 		else
 		{
@@ -1434,7 +1434,7 @@ public class AllyController extends Controller
 				}
 				else
 				{
-					inakt_status = "<span style=\\'color:#FF2222\\'>bald gel&ouml;scht</span>";
+					inakt_status = "<span style=\\'color:#FF2222\\'>bald gelöscht</span>";
 				}
 
 				t.setVar("show.members.inaktstatus", inakt_status);

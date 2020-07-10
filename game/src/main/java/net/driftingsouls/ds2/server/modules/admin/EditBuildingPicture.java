@@ -41,8 +41,7 @@ public class EditBuildingPicture extends AbstractEditPlugin<Building> implements
 	}
 
 	@Override
-	protected void reset(StatusWriter writer, Building building) throws IOException
-	{
+	protected void reset(StatusWriter writer, Building building) {
 		for( Rasse rasse : Rassen.get() )
 		{
 			if( isResetted("rasse"+rasse.getId()) )

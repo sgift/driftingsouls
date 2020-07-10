@@ -63,7 +63,7 @@ public class TechListeController extends Controller
 	@ViewModel
 	public static class TechListeViewModel
 	{
-		public List<RasseViewModel> auswaehlbareRassen = new ArrayList<>();
+		public final List<RasseViewModel> auswaehlbareRassen = new ArrayList<>();
 		public String rassenName;
 		public List<ForschungViewModel> erforscht = new ArrayList<>();
 		public List<ForschungViewModel> erforschbar = new ArrayList<>();
@@ -87,8 +87,8 @@ public class TechListeController extends Controller
 		public int dauer;
 		public Integer verbleibendeDauer;
 		public int spezialisierungspunkte;
-		public List<ResourceEntryViewModel> kosten = new ArrayList<>();
-		public List<BenoetigteForschungViewModel> benoetigteForschungen = new ArrayList<>();
+		public final List<ResourceEntryViewModel> kosten = new ArrayList<>();
+		public final List<BenoetigteForschungViewModel> benoetigteForschungen = new ArrayList<>();
 	}
 
 	@Action(ActionType.AJAX)

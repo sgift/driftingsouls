@@ -54,7 +54,7 @@ import java.util.Map;
 @Module(name = "colonize")
 public class ColonizeController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public ColonizeController(TemplateViewResultFactory templateViewResultFactory)

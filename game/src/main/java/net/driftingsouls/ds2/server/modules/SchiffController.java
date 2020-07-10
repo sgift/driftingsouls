@@ -85,10 +85,10 @@ import java.util.stream.Collectors;
 @net.driftingsouls.ds2.server.framework.pipeline.Module(name = "schiff")
 public class SchiffController extends Controller
 {
-	private Log log = LogFactory.getLog(SchiffController.class);
-	private TemplateViewResultFactory templateViewResultFactory;
-	private SchiffSprungService schiffSprungService;
-	private HandelspostenService handelspostenService;
+	private final Log log = LogFactory.getLog(SchiffController.class);
+	private final TemplateViewResultFactory templateViewResultFactory;
+	private final SchiffSprungService schiffSprungService;
+	private final HandelspostenService handelspostenService;
 
 	@Autowired
 	public SchiffController(TemplateViewResultFactory templateViewResultFactory,
@@ -133,7 +133,7 @@ public class SchiffController extends Controller
 
 		if (ship.getBattle() != null)
 		{
-			throw new ValidierungException("Das Schiff ist in einen Kampf verwickelt (hier klicken um zu diesem zu gelangen)!", Common.buildUrl("default", "module", "angriff", "battle", ship.getBattle().getId(), "ship", ship.getId()));
+			throw new ValidierungException("Das Schiff ist in einen Kampf verwickelt (hier klicken, um zu diesem zu gelangen)!", Common.buildUrl("default", "module", "angriff", "battle", ship.getBattle().getId(), "ship", ship.getId()));
 		}
 	}
 
@@ -205,7 +205,7 @@ public class SchiffController extends Controller
 		{
 			ship.setAlarm(alarm);
 
-			message = "Alarmstufe erfolgreich geändert<br />";
+			message = "Alarmstufe erfolgreich geändert.<br />";
 		}
 
 		ship.recalculateShipStatus();
@@ -230,13 +230,13 @@ public class SchiffController extends Controller
 		User newowner = User.lookupByIdentifier(newownerID);
 		if (newowner == null)
 		{
-			return new RedirectViewResult("default").withMessage("<span style=\"color:red\">Der Spieler existiert nicht</span><br />");
+			return new RedirectViewResult("default").withMessage("<span style=\"color:red\">Der Spieler existiert nicht.</span><br />");
 		}
 
 		if (conf == 0)
 		{
-			String text = "<span style=\"color:white\">Wollen sie das Schiff " + Common._plaintitle(ship.getName()) + " (" + ship.getId() + ") wirklich an " + newowner.getProfileLink() + " &uuml;bergeben?</span><br />";
-			text += "<a class=\"ok\" href=\"" + Common.buildUrl("consign", "ship", ship.getId(), "conf", 1, "newowner", newowner.getId()) + "\">&Uuml;bergeben</a></span><br />";
+			String text = "<span style=\"color:white\">Wollen Sie das Schiff " + Common._plaintitle(ship.getName()) + " (" + ship.getId() + ") wirklich an " + newowner.getProfileLink() + " &uuml;bergeben?</span><br />";
+			text += "<a class=\"ok\" href=\"" + Common.buildUrl("consign", "ship", ship.getId(), "conf", 1, "newowner", newowner.getId()) + "\">&Uuml;bergeben!</a></span><br />";
 
 			return new RedirectViewResult("default").withMessage(text);
 		}
@@ -254,7 +254,7 @@ public class SchiffController extends Controller
 			TemplateEngine t = templateViewResultFactory.createFor(this);
 
 			ShipTypeData shiptype = ship.getTypeData();
-			String msg = "Ich habe dir die [ship="+ship.getId()+"]" + ship.getName() + "[/ship], ein Schiff der " + shiptype.getNickname() + "-Klasse, &uuml;bergeben\nSie steht bei " + ship.getLocation().displayCoordinates(false);
+			String msg = "Ich habe Dir die [ship="+ship.getId()+"]" + ship.getName() + "[/ship], ein Schiff der " + shiptype.getNickname() + "-Klasse, &uuml;bergeben\nSie steht bei " + ship.getLocation().displayCoordinates(false);
 			PM.send(user, newowner.getId(), "Schiff &uuml;bergeben", msg);
 
 			String consMessage = Ship.MESSAGE.getMessage();
@@ -298,14 +298,14 @@ public class SchiffController extends Controller
 		if (conf == 0)
 		{
 			String text = "<span style=\"color:white\">Wollen sie Selbstzerst&ouml;rung des Schiffes " + Common._plaintitle(ship.getName()) + " (" + ship.getId() + ") wirklich ausführen?</span><br />\n";
-			text += "<a class=\"error\" href=\"" + Common.buildUrl("destroy", "ship", ship.getId(), "conf", 1) + "\">Selbstzerstörung</a></span><br />";
+			text += "<a class=\"error\" href=\"" + Common.buildUrl("destroy", "ship", ship.getId(), "conf", 1) + "\">Selbstzerstörung starten!</a></span><br />";
 			return new RedirectViewResult("default").withMessage(text);
 		}
 
 		ship.destroy();
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
-		t.setVar("ship.message", "<span style=\"color:white\">Das Schiff hat sich selbstzerst&ouml;rt</span><br />");
+		t.setVar("ship.message", "<span style=\"color:white\">Das Schiff hat sich selbst zerst&ouml;rt.</span><br />");
 		return t;
 	}
 
@@ -373,7 +373,7 @@ public class SchiffController extends Controller
 
 		ship.setName(newname);
 
-		return new RedirectViewResult("default").withMessage("Name zu " + Common._plaintitle(newname) + " geändert<br />");
+		return new RedirectViewResult("default").withMessage("Name zu " + Common._plaintitle(newname) + " geändert.<br />");
 	}
 
 	/**
@@ -429,7 +429,7 @@ public class SchiffController extends Controller
 
 		if (shipIdList.equals(""))
 		{
-			return new RedirectViewResult("default").withMessage("Es wurden keine Schiffe angegeben");
+			return new RedirectViewResult("default").withMessage("Es wurden keine Schiffe angegeben.");
 		}
 
 		int[] shipidlist = Common.explodeToInt("|", shipIdList);
@@ -439,7 +439,7 @@ public class SchiffController extends Controller
 			Ship aship = (Ship) getDB().get(Ship.class, shipidlist[i]);
 			if (aship == null)
 			{
-				addError("Eines der angegebenen Schiffe existiert nicht");
+				addError("Eines der angegebenen Schiffe existiert nicht.");
 				return new RedirectViewResult("default");
 			}
 			shiplist[i] = aship;
@@ -462,7 +462,7 @@ public class SchiffController extends Controller
 
 		if (shipIdList.equals(""))
 		{
-			return new RedirectViewResult("default").withMessage("Es wurden keine Schiffe angegeben");
+			return new RedirectViewResult("default").withMessage("Es wurden keine Schiffe angegeben.");
 		}
 
 		int[] shipidlist = Common.explodeToInt("|", shipIdList);
@@ -472,7 +472,7 @@ public class SchiffController extends Controller
 			Ship aship = (Ship) getDB().get(Ship.class, shipidlist[i]);
 			if (aship == null)
 			{
-				addError("Eines der angegebenen Schiffe existiert nicht");
+				addError("Eines der angegebenen Schiffe existiert nicht.");
 				return new RedirectViewResult("default");
 			}
 			shiplist[i] = aship;
@@ -497,7 +497,7 @@ public class SchiffController extends Controller
 
 		if (shipIdList.equals(""))
 		{
-			return new RedirectViewResult("default").withMessage("Es wurden keine Schiffe angegeben");
+			return new RedirectViewResult("default").withMessage("Es wurden keine Schiffe angegeben.");
 		}
 
 		int[] shipidlist = Common.explodeToInt("|", shipIdList);
@@ -512,7 +512,7 @@ public class SchiffController extends Controller
 
 			if (docked.getOwner() != user)
 			{
-				addError("Eines der Schiffe gehoert nicht ihnen");
+				addError("Eines der Schiffe gehoert nicht Ihnen.");
 				return new RedirectViewResult("default");
 			}
 
@@ -527,7 +527,7 @@ public class SchiffController extends Controller
 			Ship aship = (Ship) getDB().get(Ship.class, shipidlist[i]);
 			if (aship == null)
 			{
-				addError("Eines der angegebenen Schiffe existiert nicht");
+				addError("Eines der angegebenen Schiffe existiert nicht.");
 				return new RedirectViewResult("default");
 			}
 			shiplist[i] = aship;
@@ -550,7 +550,7 @@ public class SchiffController extends Controller
 
 		if (shipIdList.equals(""))
 		{
-			return new RedirectViewResult("default").withMessage("Es wurden keine Schiffe angegeben");
+			return new RedirectViewResult("default").withMessage("Es wurden keine Schiffe angegeben.");
 		}
 
 		int[] shipidlist = Common.explodeToInt("|", shipIdList);
@@ -560,7 +560,7 @@ public class SchiffController extends Controller
 			Ship aship = (Ship) getDB().get(Ship.class, shipidlist[i]);
 			if (aship == null)
 			{
-				addError("Eines der angegebenen Schiffe existiert nicht");
+				addError("Eines der angegebenen Schiffe existiert nicht.");
 				return new RedirectViewResult("default");
 			}
 			shiplist[i] = aship;
@@ -605,17 +605,17 @@ public class SchiffController extends Controller
 
 			if (fleet == null)
 			{
-				return new RedirectViewResult("default").withMessage("<span style=\"color:red\">Sie müssen erst eine Flotte erstellen</span><br />");
+				return new RedirectViewResult("default").withMessage("<span style=\"color:red\">Sie müssen erst eine Flotte erstellen.</span><br />");
 			}
 
 			if (!ship.getLocation().sameSector(0, fleetship.getLocation(), 0) || (fleetship.getOwner() != user))
 			{
-				message = "<span style=\"color:red\">Beitritt zur Flotte &quot;" + Common._plaintitle(fleet.getName()) + "&quot; nicht möglich</span><br />";
+				message = "<span style=\"color:red\">Beitritt zur Flotte &quot;" + Common._plaintitle(fleet.getName()) + "&quot; nicht möglich.</span><br />";
 			}
 			else
 			{
 				ship.setFleet(fleet);
-				message = "<span style=\"color:green\">Flotte &quot;" + Common._plaintitle(fleet.getName()) + "&quot; beigetreten</span><br />";
+				message = "<span style=\"color:green\">Das Schiff ist der Flotte &quot;" + Common._plaintitle(fleet.getName()) + "&quot; beigetreten.</span><br />";
 			}
 		}
 
@@ -705,8 +705,8 @@ public class SchiffController extends Controller
 		mo.put("getRm", "<img align='middle' src='data/interface/energie.gif' alt='' />Reaktor ");
 		mo.put("getCargo", "<img align='middle' src='data/interface/leer.gif' alt='' />Cargo ");
 		mo.put("getEps", "<img align='middle' src='data/interface/energie.gif' alt='' />Energiespeicher ");
-		mo.put("getHull", "<img align='middle' src='data/interface/schiffe/panzerplatte.png' alt='' />H&uuml;lle ");
-		mo.put("getShields", "Shields ");
+		mo.put("getHull", "<img align='middle' src='data/interface/schiffe/panzerplatte.png' alt='' />Hülle ");
+		mo.put("getShields", "Schilde ");
 		mo.put("getCost", "Flugkosten ");
 		mo.put("getHeat", "&Uuml;berhitzung ");
 		mo.put("getPanzerung", "<img align='middle' src='data/interface/schiffe/panzerplatte.png' alt='' />Panzerung ");
@@ -716,9 +716,9 @@ public class SchiffController extends Controller
 		mo.put("getSensorRange", "<img align='middle' src='data/interface/schiffe/sensorrange.png' alt='' />Sensorreichweite ");
 		mo.put("getDeutFactor", "Tanker: <img align='middle' src='" + Cargo.getResourceImage(Resources.DEUTERIUM) + "' alt='' />");
 		mo.put("getReCost", "Wartungskosten ");
-		mo.put("getADocks", "Externe Docks ");
-		mo.put("getJDocks", "J&auml;gerdocks ");
-		mo.put("getAblativeArmor", "Ablative Panzerung ");
+		mo.put("getADocks", "externe Docks ");
+		mo.put("getJDocks", "Hangarkapazität ");
+		mo.put("getAblativeArmor", "ablative Panzerung ");
 		mo.put("getSize", "Gr&ouml;&szlig;e ");
 
 		moduleOutputList.putAll(mo);
@@ -746,7 +746,7 @@ public class SchiffController extends Controller
 
 		if (ship.getBattle() != null)
 		{
-			throw new ValidierungException("Das Schiff ist in einen Kampf verwickelt (hier klicken um zu diesem zu gelangen)!", Common.buildUrl("default", "module", "angriff", "battle", ship.getBattle().getId(), "ship", ship.getId()));
+			throw new ValidierungException("Das Schiff ist in einen Kampf verwickelt (hier klicken, um zu diesem zu gelangen)!", Common.buildUrl("default", "module", "angriff", "battle", ship.getBattle().getId(), "ship", ship.getId()));
 		}
 
 		ship.recalculateShipStatus();

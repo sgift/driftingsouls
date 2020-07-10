@@ -49,9 +49,9 @@ public class StatWarenentwicklung implements Statistic, AjaxStatistic
 {
 	public static class WareViewModel
 	{
-		private String label;
-		private int key;
-		private String picture;
+		private final String label;
+		private final int key;
+		private final String picture;
 
 		private WareViewModel(int key, String label, String picture)
 		{

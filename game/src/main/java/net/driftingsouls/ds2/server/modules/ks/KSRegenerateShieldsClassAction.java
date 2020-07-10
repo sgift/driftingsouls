@@ -29,7 +29,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
  *
  */
 public class KSRegenerateShieldsClassAction extends KSRegenerateShieldsAllAction {
-	private ShipClasses shieldclass;
+	private final ShipClasses shieldclass;
 	
 	/**
 	 * Konstruktor.

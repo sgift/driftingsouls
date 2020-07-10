@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class Handelsposten implements SchiffPlugin
 {
-	private HandelspostenService handelspostenService;
+	private final HandelspostenService handelspostenService;
 
 	@Autowired
 	public Handelsposten(HandelspostenService handelspostenService)

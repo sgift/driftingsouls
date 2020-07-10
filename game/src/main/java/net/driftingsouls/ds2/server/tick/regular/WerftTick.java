@@ -67,8 +67,7 @@ public class WerftTick extends TickController
 		new EvictableUnitOfWork<Integer>("Werft Tick")
 		{
 			@Override
-			public void doWork(Integer werftId) throws Exception
-			{
+			public void doWork(Integer werftId) {
 				org.hibernate.Session db = getDB();
 				WerftObject werft = (WerftObject) db.get(WerftObject.class, werftId);
 

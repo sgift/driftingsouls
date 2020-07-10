@@ -23,9 +23,9 @@ import static org.junit.Assert.*;
 
 public class SchlachtErstellenServiceTest extends DBSingleTransactionTest
 {
-	private List<Ship> ships1 = new ArrayList<>();
-	private List<Ship> ships2 = new ArrayList<>();
-	private List<Ship> ships3 = new ArrayList<>();
+	private final List<Ship> ships1 = new ArrayList<>();
+	private final List<Ship> ships2 = new ArrayList<>();
+	private final List<Ship> ships3 = new ArrayList<>();
 	private User user1;
 	private User user2;
 	private User user3;

@@ -44,7 +44,7 @@ import java.io.Writer;
 @Module(name = "werft")
 public class WerftController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public WerftController(TemplateViewResultFactory templateViewResultFactory)
@@ -60,7 +60,7 @@ public class WerftController extends Controller
 
 		if ((ship == null) || (ship.getId() < 0) || (ship.getOwner() != user))
 		{
-			throw new ValidierungException("Das angegebene Schiff existiert nicht oder geh&ouml;rt nicht ihnen");
+			throw new ValidierungException("Das angegebene Schiff existiert nicht oder gehört nicht Ihnen.");
 		}
 	}
 
@@ -117,7 +117,7 @@ public class WerftController extends Controller
 			echo.append("<span class=\"smallfont\">\n");
 			if (linkedbase == -1)
 			{
-				echo.append("<span style=\"color:green\">Werft abgekoppelt</span><br />\n");
+				echo.append("<span style=\"color:green\">Werft abgekoppelt.</span><br />\n");
 				werft.resetLink();
 			}
 			else
@@ -127,12 +127,12 @@ public class WerftController extends Controller
                 if ((base == null) || (base.getOwner() != ship.getOwner()) ||
                         !base.getLocation().sameSector(base.getSize(), ship.getLocation(), 0))
                 {
-                    echo.append("<span style=\"color:red\">Sie k&ouml;nnen die Werft nicht an diese Basis koppeln!</span><br />\n");
+                    echo.append("<span style=\"color:red\">Sie können die Werft nicht an diese Basis koppeln!</span><br />\n");
                 }
                 else
                 {
                     werft.setLink(base);
-                    echo.append("<span style=\"color:green\">Werft an den Asteroiden ").append(Common._plaintitle(base.getName())).append(" gekoppelt</span><br />\n");
+                    echo.append("<span style=\"color:green\">Werft an den Asteroiden ").append(Common._plaintitle(base.getName())).append(" gekoppelt.</span><br />\n");
                 }
 			}
 			echo.append("</span><br />\n");
@@ -141,6 +141,6 @@ public class WerftController extends Controller
 		WerftGUI werftgui = new WerftGUI(getContext(), templateViewResultFactory.createEmpty());
 		echo.append(werftgui.execute(werft));
 
-		echo.append("<br /><a class=\"back\" href=\"").append(Common.buildUrl("default", "module", "schiff", "ship", ship.getId())).append("\">Zur&uuml;ck zum Schiff</a><br />\n");
+		echo.append("<br /><a class=\"back\" href=\"").append(Common.buildUrl("default", "module", "schiff", "ship", ship.getId())).append("\">zurück zum Schiff</a><br />\n");
 	}
 }

@@ -104,8 +104,7 @@ public class PlayerStatistics implements AdminPlugin {
 		echo.append("</div>");
 	}
 
-	private String getJsValue(String label, String query) throws IOException
-	{
+	private String getJsValue(String label, String query) {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 
@@ -115,8 +114,7 @@ public class PlayerStatistics implements AdminPlugin {
 		return "['"+label+"',"+count+"]";
 	}
 
-	private void addValue(StringBuilder echo, String label, String query) throws IOException
-	{
+	private void addValue(StringBuilder echo, String label, String query) {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 

@@ -64,7 +64,7 @@ public class SchiffeController extends Controller
 {
 	private static final Log log = LogFactory.getLog(SchiffeController.class);
 
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
 	public SchiffeController(TemplateViewResultFactory templateViewResultFactory)

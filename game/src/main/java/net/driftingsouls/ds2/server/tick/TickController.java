@@ -51,10 +51,10 @@ public abstract class TickController implements ApplicationContextAware
 	 */
 	public static final String STDOUT = "java://STDOUT";
 
-	private long exectime;
+	private final long exectime;
 
-	private Map<String,Writer> logTargets;
-	private Session db;
+	private final Map<String,Writer> logTargets;
+	private final Session db;
 	private Context context;
 	/**
 	 * Erstellt eine neue Instanz.

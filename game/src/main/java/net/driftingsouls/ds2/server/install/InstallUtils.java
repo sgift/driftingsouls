@@ -151,8 +151,7 @@ public final class InstallUtils
 		LOG.info(name);
 		new EvictableUnitOfWork<T>(name) {
 			@Override
-			public void doWork(T object) throws Exception
-			{
+			public void doWork(T object) {
 				job.accept(object);
 			}
 		}
@@ -164,8 +163,7 @@ public final class InstallUtils
 		LOG.info(name);
 		new SingleUnitOfWork(name) {
 			@Override
-			public void doWork() throws Exception
-			{
+			public void doWork() {
 				job.run();
 			}
 		}.setErrorReporter((uow, fo, e) -> LOG.error("Fehler bei "+uow.getName(), e)).execute();

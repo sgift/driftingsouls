@@ -9,12 +9,10 @@ import java.io.IOException;
 public class EmptyHeaderFooterOutputHandler extends HtmlOutputHandler
 {
 	@Override
-	public void printHeader() throws IOException
-	{
+	public void printHeader() {
 	}
 
 	@Override
-	public void printFooter() throws IOException
-	{
+	public void printFooter() {
 	}
 }

@@ -50,8 +50,7 @@ final class ReaderExecuter implements Executer
 	}
 
 	@Override
-	public Pipeline execute(Context context) throws Exception
-	{
+	public Pipeline execute(Context context) {
 		String file = this.file;
 		if( pattern != null ) {
 			file = pattern.matcher(context.getRequest().getPath()).replaceFirst(file);

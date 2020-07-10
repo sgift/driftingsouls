@@ -40,8 +40,8 @@ public class Factory {
 	 *
 	 */
 	public static class Task {
-		private int id;
-		private int count;
+		private final int id;
+		private final int count;
 		
 		protected Task(String task) {
 			

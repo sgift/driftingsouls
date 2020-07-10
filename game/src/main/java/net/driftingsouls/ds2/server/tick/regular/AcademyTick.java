@@ -80,8 +80,7 @@ public class AcademyTick extends TickController {
 		new EvictableUnitOfWork<Integer>("Academy Tick")
 		{
 			@Override
-			public void doWork(Integer accId) throws Exception
-			{
+			public void doWork(Integer accId) {
 				org.hibernate.Session db = getDB();
 				Academy acc = (Academy)db.get(Academy.class, accId);
 

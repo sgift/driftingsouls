@@ -16,9 +16,9 @@ import java.util.Objects;
  */
 public class SchiffBauinformationen implements Comparable<SchiffBauinformationen>
 {
-	private ShipBaubar baudaten;
-	private BauinformationenQuelle quelle;
-	private ResourceID item;
+	private final ShipBaubar baudaten;
+	private final BauinformationenQuelle quelle;
+	private final ResourceID item;
 
 	SchiffBauinformationen(ShipBaubar baudaten, BauinformationenQuelle quelle, ResourceID item)
 	{

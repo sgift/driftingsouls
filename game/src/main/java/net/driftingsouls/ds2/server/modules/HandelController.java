@@ -52,8 +52,8 @@ import java.util.Map;
 @Module(name = "handel")
 public class HandelController extends Controller
 {
-	private TemplateViewResultFactory templateViewResultFactory;
-	private ConfigService configService;
+	private final TemplateViewResultFactory templateViewResultFactory;
+	private final ConfigService configService;
 
 	@Autowired
 	public HandelController(TemplateViewResultFactory templateViewResultFactory, ConfigService configService)

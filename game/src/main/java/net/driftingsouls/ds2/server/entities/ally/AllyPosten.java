@@ -51,7 +51,7 @@ public class AllyPosten {
 	@Column(nullable = false)
 	private String name;
 	
-	@OneToOne(mappedBy="allyposten",optional=true,fetch=FetchType.LAZY)
+	@OneToOne(mappedBy="allyposten", fetch=FetchType.LAZY)
 	private User user;
 	
 	@Version

@@ -49,7 +49,7 @@ public class PlayerLoginSuper implements AdminPlugin {
 	}
 	
 	@Override
-	public void output(StringBuilder echo) throws IOException {
+	public void output(StringBuilder echo) {
 		Context context = ContextMap.getContext();
 
 		int user = context.getRequest().getParameterInt("user");
@@ -87,15 +87,9 @@ public class PlayerLoginSuper implements AdminPlugin {
 				echo.append("<span style=\"color:red\">Der angegebene Benutzer hat mehr Rechte als du. Login abgelehnt.</span>");
 				return;
 			}
-			
-			try {
-				this.authManager.adminLogin(userObj, usesessid != 0);
-				
-				echo.append("<a class=\"ok\" target=\"_blank\" href=\"./ds?module=main\">Zum Account</a>\n");
-			}
-			catch( AuthenticationException e ) {
-				echo.append("<span style=\"color:red\">").append(e.getMessage()).append("</span>");
-			}
+
+			this.authManager.adminLogin(userObj, usesessid != 0);
+			echo.append("<a class=\"ok\" target=\"_blank\" href=\"./ds?module=main\">Zum Account</a>\n");
 		}
 	}
 

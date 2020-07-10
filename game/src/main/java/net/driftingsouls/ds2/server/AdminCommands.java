@@ -71,7 +71,7 @@ import java.util.stream.Collectors;
  *
  */
 public class AdminCommands {
-	private Map<String,Class<? extends Command>> cmds = new HashMap<>();
+	private final Map<String,Class<? extends Command>> cmds = new HashMap<>();
 
 	/**
 	 * Konstruktor.
@@ -151,8 +151,8 @@ public class AdminCommands {
 	@ViewModel
 	public static class AdminCommandResultViewModel
 	{
-		public String message;
-		public boolean success;
+		public final String message;
+		public final boolean success;
 
 		public AdminCommandResultViewModel(String message, boolean success)
 		{
@@ -1445,8 +1445,7 @@ public class AdminCommands {
 			new EvictableUnitOfWork<Integer>("AdminCommand: RecalculateShipModules") {
 
 				@Override
-				public void doWork(Integer object) throws Exception
-				{
+				public void doWork(Integer object) {
 					Ship ship = (Ship)getDB().get(Ship.class, object);
 					ship.recalculateModules();
 					count.incrementAndGet();

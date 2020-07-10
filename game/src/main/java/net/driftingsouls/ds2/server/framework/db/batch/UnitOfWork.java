@@ -47,8 +47,8 @@ public abstract class UnitOfWork<T>
 
 	private final String name;
 	private int flushSize = 50;
-	private org.hibernate.Session db;
-	private List<T> unsuccessfulWork;
+	private final org.hibernate.Session db;
+	private final List<T> unsuccessfulWork;
 	private UnitOfWorkErrorReporter<T> errorReporter;
 	
 	/**

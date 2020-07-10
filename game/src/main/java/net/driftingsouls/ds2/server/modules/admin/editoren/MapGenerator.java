@@ -50,8 +50,7 @@ public class MapGenerator<E, KT,VT, V extends Map<KT,VT>> implements CustomField
 	}
 
 	@Override
-	public void generate(StringBuilder echo, E entity) throws IOException
-	{
+	public void generate(StringBuilder echo, E entity) {
 		V valueCollection = getter.apply(entity);
 
 		echo.append("<tr>");

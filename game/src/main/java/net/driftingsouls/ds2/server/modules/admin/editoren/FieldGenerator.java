@@ -242,8 +242,7 @@ public class FieldGenerator<E, T> implements CustomFieldGenerator<E>
 		return result;
 	}
 
-	private void editEntityBySelection(StringBuilder echo, String name, Class<?> type, Object value, E entity) throws IOException
-	{
+	private void editEntityBySelection(StringBuilder echo, String name, Class<?> type, Object value, E entity) {
 		Serializable selected = selectedValueIdentifier(type, value);
 
 		HtmlUtils.select(echo, name, readOnly.apply(entity), this.selectionOptions, selected);

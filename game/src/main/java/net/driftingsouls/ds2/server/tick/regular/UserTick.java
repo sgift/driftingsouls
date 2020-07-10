@@ -64,8 +64,7 @@ public class UserTick extends TickController
 		{
 
 			@Override
-			public void doWork(Integer userID) throws Exception
-			{
+			public void doWork(Integer userID) {
 				Session db = getDB();
 				
 				User user = (User)db.get(User.class, userID);

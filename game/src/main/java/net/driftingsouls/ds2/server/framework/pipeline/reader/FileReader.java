@@ -43,7 +43,7 @@ import java.util.Map;
 public class FileReader implements Reader {
 	private static final Log log = LogFactory.getLog(FileReader.class);
 
-	private Map<String,String> extensionMap;
+	private final Map<String,String> extensionMap;
 
 	/**
 	 * Konstruktor.
@@ -60,6 +60,7 @@ public class FileReader implements Reader {
 		this.extensionMap.put("gif", "image/gif");
 		this.extensionMap.put("jpg", "image/jpg");
 		this.extensionMap.put("svg", "image/svg+xml");
+		this.extensionMap.put("mp3", "audio/mpeg");
 	}
 
 	private String guessMimeType( String extension ) {

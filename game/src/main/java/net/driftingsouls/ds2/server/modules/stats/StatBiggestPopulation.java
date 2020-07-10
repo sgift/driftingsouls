@@ -36,7 +36,7 @@ import net.driftingsouls.ds2.server.modules.StatsController;
  *
  */
 public class StatBiggestPopulation extends AbstractStatistic implements Statistic {
-	private boolean allys;
+	private final boolean allys;
 
 	/**
 	 * Konstruktor.

@@ -318,7 +318,7 @@ public class Common {
 		return new Date().getTime() / 1000;
 	}
 	
-	private static String[] months = {
+	private static final String[] months = {
 		"Januar",
 		"Februar",
 		"März",
@@ -333,7 +333,7 @@ public class Common {
 		"Dezember"
 	};
 	
-	private static String[] days = {
+	private static final String[] days = {
 		"Sonntag",
 		"Montag",
 		"Dienstag",
@@ -601,7 +601,7 @@ public class Common {
 		return false;
 	}
 	
-	private static Pattern specialChar = Pattern.compile("&([A-Za-z]{0,4}\\w{2,3};|#[0-9]{2,3};)");
+	private static final Pattern specialChar = Pattern.compile("&([A-Za-z]{0,4}\\w{2,3};|#[0-9]{2,3};)");
 	
 	/**
 	 * Wandelt einen Text in gueltigen HTML-Code um.<br>
@@ -916,7 +916,7 @@ public class Common {
 		return text.toString();
 	}
 	
-	private static int[] monthLengths = {31,28,31,30,31,30,31,31,30,31,30,31};
+	private static final int[] monthLengths = {31,28,31,30,31,30,31,31,30,31,30,31};
 	
 	/**
 	 * Konvertiert einen Tick in die Ingamezeitrechnung.
