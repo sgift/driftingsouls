@@ -203,8 +203,7 @@ public class TradeController extends Controller
 			//Benachrichtigung fuer HP-Besitzer schreiben
 			if(ship.getOwner().getId()!=tradepost.getOwner().getId())
 			{
-				PM pm;
-				pm.send(tradepost.getOwner(), tradepost.getOwner(), "Warenverkauf an "+tradepost.getName(), pmText);
+				PM.send(tradepost.getOwner(), tradepost.getOwner().getId(), "Warenverkauf an "+tradepost.getName(), pmText);
 			}
 			tradepost.getOwner()
 					.transferMoneyFrom(user.getId(), totalRE,
@@ -369,8 +368,7 @@ public class TradeController extends Controller
 			//Benachrichtigung fuer HP-Besitzer schreiben
 			if(ship.getOwner().getId()!=tradepost.getOwner().getId())
 			{
-				PM pm;
-				pm.send(tradepost.getOwner(), tradepost.getOwner(), "Warenankauf an "+tradepost.getName(), pmText);
+				PM.send(tradepost.getOwner(), tradepost.getOwner().getId(), "Warenankauf an "+tradepost.getName(), pmText);
 			}
 
 
