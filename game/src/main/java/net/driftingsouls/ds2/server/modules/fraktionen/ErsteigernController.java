@@ -26,6 +26,7 @@ import net.driftingsouls.ds2.server.cargo.*;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.StarSystem;
+import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.*;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.*;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeInfo;
@@ -668,6 +669,7 @@ public class ErsteigernController extends Controller
 		t.setVar(
 				"posten.name", tradepost.getName(),
 				"kurse.waren.list", "",
+				"kurse.verkaufswaren.list", "",
 				"posten.owner.name", Common._title(tradepost.getOwner().getName()),
 				"posten.owner.id", tradepost.getOwner().getId(),
 				"posten.location", tradepost.getLocation().displayCoordinates(false));
@@ -682,16 +684,15 @@ public class ErsteigernController extends Controller
 			ResourceLimit limit = ResourceLimit.fuerSchiffUndItem(tradepost, res.getId());
 
 			// Kaufen wir diese Ware vom Spieler?
-			if (limit != null && !limit.willBuy(tradepost.getOwner(), user))
+			if (limit == null || !limit.willBuy(tradepost.getOwner(), user))
 			{
 				continue;
 			}
 
-			boolean sellable = limit == null || tradepost.getCargo().getResourceCount(res.getId()) < limit.getLimit();
+			boolean sellable = tradepost.getCargo().getResourceCount(res.getId()) < limit.getLimit();
 
 			t.setVar("ware.image", res.getImage(),
 					"ware.preis", (res.getCount1() / 1000d > 0.05 ? Common.ln(res.getCount1() / 1000d) : ""),
-					"ware.name", res.getName(),
 					"ware.plainname", res.getPlainName(),
 					"ware.id", res.getId(),
 					"ware.inaktiv", full || !sellable);
@@ -699,31 +700,22 @@ public class ErsteigernController extends Controller
 			t.parse("kurse.waren.list", "kurse.waren.listitem", true);
 		}
 
-		ResourceList buyList = tradepost.getCargo().getResourceList();
-		for(ResourceEntry resource: buyList) {
-			SellLimit limit = SellLimit.fuerSchiffUndItem(tradepost, resource.getId());
-			if( limit == null )
+		List<SellLimit> sellLimits = SellLimit.getSellLimitsForShip(tradepost);
+		for(SellLimit limit: sellLimits) {
+			if(limit.getPrice() <= 0 || !limit.willSell(tradepost.getOwner(), user))
 			{
 				continue;
 			}
-			if( limit.getPrice() <= 0 )
-			{
-				continue;
-			}
-			if(!limit.willSell(tradepost.getOwner(), user))
-            {
-                continue;
-            }
 
-			boolean buyable = tradepost.getCargo().getResourceCount(resource.getId()) - limit.getLimit() > 0;
+			boolean buyable = (tradepost.getCargo().getResourceCount(limit.getResourceId()) - limit.getLimit()) > 0;
+			Item resource = (Item)db.get(Item.class, limit.getResourceId().getItemID());
 
 			t.setVar(
-					"ware.image", resource.getImage(),
-					"ware.preis", Common.ln(limit.getPrice()),
-					"ware.name", resource.getName(),
-					"ware.plainname", resource.getPlainName(),
-					"ware.id", resource.getId(),
-					"ware.inaktiv", !buyable);
+				"ware.image", resource.getPicture(),
+				"ware.preis", Common.ln(limit.getPrice()),
+				"ware.plainname", resource.getName(),
+				"ware.id", resource.getID(),
+				"ware.inaktiv", !buyable);
 
 			t.parse("kurse.verkaufswaren.list", "kurse.verkaufswaren.listitem", true);
 		}
