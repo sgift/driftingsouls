@@ -221,8 +221,21 @@ public class SensorsDefault implements SchiffPlugin {
 		}
 
 		List<?> ships;
+		List<?> shipsInBattle;
 		boolean firstentry = false;
 		Map<String,Long> types = new HashMap<>();
+
+		//Schiffe im Kampf auf diesem Feld fuer den Scanner mitladen
+		shipsInBattle = db.createQuery("from Ship s inner join fetch s.owner " +
+										"where s.id!= :id and s.id>0 and s.x= :x and s.y=:y and s.system= :sys and " +
+											"s.battle is not null and locate('l ',s.docked)=0 " +
+										"order by "+thisorder+",case when s.docked!='' then s.docked else s.id end, s.fleet")
+									.setInteger("id", ship.getId())
+									.setInteger("x", ship.getX())
+									.setInteger("y", ship.getY())
+									.setInteger("sys", ship.getSystem())
+									.setFlushMode(FlushMode.MANUAL)
+									.list();
 
 		// Soll nur ein bestimmter Schiffstyp angezeigt werden?
 		if( showOnly != 0 ) {
@@ -282,6 +295,7 @@ public class SensorsDefault implements SchiffPlugin {
 				.setInteger("sys", ship.getSystem())
 				.setFlushMode(FlushMode.MANUAL)
 				.list();
+
 		}
 
 		final long fleetlesscount = (Long)db.createQuery("SELECT count(*) FROM Ship WHERE id > 0 AND system=:system AND x=:x AND y=:y AND owner=:owner AND shiptype=:shiptype AND LOCATE('l ',docked) = 0 AND LOCATE('disable_iff',status) = 0 AND fleet is null")
@@ -307,12 +321,50 @@ public class SensorsDefault implements SchiffPlugin {
 		else {
 			ownfleetcount = 0;
 		}
+		List<Ship> ownShipList = new ArrayList<>();
+		List<Ship> friendShipList = new ArrayList<>();
+		List<Ship> enemyShipList = new ArrayList<>();
 
+		//das Schiff selbst einfuegen. Das ist in der Liste ships nicht enthalten
+		ownShipList.add(ship);
+		friendShipList.add(ship);
+
+		//Schiffe im Kampf fuer den Scanner auswerten:
+		for (Object ship1 : shipsInBattle)
+		{
+			Ship aship = (Ship) ship1;
+			if (aship.getOwner().getId() == user.getId()) //man selbst
+			{
+				ownShipList.add(aship);
+				friendShipList.add(aship); //man ist auch mit sich selbst befreundet und das macht es unten einfacher in der Berechnung
+			}
+			else if (user.getRelations().beziehungZu(aship.getOwner())== User.Relation.FRIEND) //Freunde
+			{
+				friendShipList.add(aship);
+			}
+			else //alles andere ist feindlich
+			{
+				enemyShipList.add(aship);
+			}
+		}
 		for (Object ship1 : ships)
 		{
 			Ship aship = (Ship) ship1;
 			ShipTypeData ashiptype = aship.getTypeData();
 			ShipTypeData mastertype = aship.getBaseType();
+			if (aship.getOwner().getId() == user.getId()) //man selbst
+			{
+				ownShipList.add(aship);
+				friendShipList.add(aship); //man ist auch mit sich selbst befreundet und das macht es unten einfacher in der Berechnung
+			}
+			else if (user.getRelations().beziehungZu(aship.getOwner())== User.Relation.FRIEND) //Freunde
+			{
+				friendShipList.add(aship);
+			}
+			else //alles andere ist feindlich
+			{
+				enemyShipList.add(aship);
+			}
 
 			final String typeGroupID = aship.getType() + "_" + aship.getOwner().getId();
 
@@ -779,6 +831,16 @@ public class SensorsDefault implements SchiffPlugin {
 				t.clear_record();
 			}
 		}
+		t.setVar("global.owncount", ownShipList.size());
+		t.setVar("global.friendcount", friendShipList.size()-ownShipList.size());
+		t.setVar("global.enemycount", enemyShipList.size());
+		if(shiptype.hasFlag(ShipTypeFlag.SRS_AWAC) || shiptype.hasFlag(ShipTypeFlag.SRS_EXT_AWAC) )
+		{
+			t.setVar("global.own.stable", isSecondRowStable(ownShipList));
+			t.setVar("global.enemy.stable", isSecondRowStable(enemyShipList));
+			t.setVar("global.friend.stable", isSecondRowStable(friendShipList));
+		}
+
 	}
 
 	private void outputBases(Parameters caller, User user,
@@ -1015,5 +1077,43 @@ public class SensorsDefault implements SchiffPlugin {
 						"global.jumps.name",	(jumps>1 ? "Subraumspalten":"Subraumspalte"));
 		}
 	}
+
+	/**
+	 * Prueft, ob die zweite Reihe stabil ist. Beruecksichtigt wird auf Wunsch
+	 * auch eine Liste von Schiffen, welche der Schlacht noch nicht begetreten sind
+	 * (unter der Annahme, dass gemaess Flags die Schiffe in der ersten bzw zweiten
+	 * Reihe landen wuerden).
+	 * @param shiplist Die Schiffsliste deren zweite Reihe geprueft werden soll
+	 * @return <code>true</code>, falls die zweite Reihe unter den Bedingungen stabil ist
+	 */
+	public boolean isSecondRowStable( List<Ship> shiplist) {
+
+		double owncaps = 0;
+		double secondrowcaps = 0;
+        for (Ship aship : shiplist) {
+
+            ShipTypeData type = aship.getTypeData();
+
+            double size = type.getSize();
+            if (type.hasFlag(ShipTypeFlag.SECONDROW)) {
+                if (!aship.isDocked() && !aship.isLanded()) {
+                    secondrowcaps += size;
+                }
+            }
+            else
+            {
+                if (size > ShipType.SMALL_SHIP_MAXSIZE) {
+                    double countedSize = size;
+                    if (type.getCrew() > 0) {
+                        countedSize *= (aship.getCrew() / ((double) type.getCrew()));
+                    }
+                    owncaps += countedSize;
+                }
+            }
+        }
+
+        return Double.valueOf(secondrowcaps).intValue() == 0 || Double.valueOf(owncaps).intValue() >= Double.valueOf(secondrowcaps).intValue() * 2;
+
+		}
 
 }

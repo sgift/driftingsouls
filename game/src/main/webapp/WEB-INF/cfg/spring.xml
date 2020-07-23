@@ -29,7 +29,7 @@
 	</bean>
 	<bean id="regularTickCronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
 		<property name="jobDetail" ref="regularTickJob" />
-		<property name="cronExpression" value="0 0 0,4,12,16,18,20,22 * * ?" />
+		<property name="cronExpression" value="0 0 0,8,12,16,18,20,22 * * ?" />
 		<!--<property name="cronExpression" value="0 0 0,4 * * ?" />-->
 	</bean>
 	<bean id="rareTickCronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
