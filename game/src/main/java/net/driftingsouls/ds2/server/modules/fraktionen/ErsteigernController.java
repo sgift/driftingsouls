@@ -700,7 +700,7 @@ public class ErsteigernController extends Controller
 			t.parse("kurse.waren.list", "kurse.waren.listitem", true);
 		}
 
-		ResourceList buyList = tradepost.getCargo().getResourceList();
+		ResourceList buyList = Resources.getResourceList().getResourceList();
 		for(ResourceEntry resource: buyList) {
 			SellLimit limit = SellLimit.fuerSchiffUndItem(tradepost, resource.getId());
 			if( limit == null )
