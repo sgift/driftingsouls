@@ -180,7 +180,7 @@ public class TradeController extends Controller
 				price = amountToBuy * limit.getPrice();
 			}
 			log.info("Verkaufe " + amountToBuy + "x " + resource.getId() + " fuer gesamt " + price);
-			pmText.append(amountToBuy).append("x ").append(resource.getName()).append(" für ").append(price).append(" RE\n");
+			pmText.append("[resource=").append(resource.getId()).append("|0|0]").append(amountToBuy).append("[/resource] für ").append(price).append(" RE\n");
 			totalRE = totalRE.add(BigInteger.valueOf(price));
 
 			if (amountToBuy <= 0)
@@ -301,7 +301,7 @@ public class TradeController extends Controller
 					tmp = limit;
 
 					message.append("[resource=").append(res.getId()).append("]").append(nichtVerkauft).append("[/resource] nicht verkauft - Es besteht kein Interesse mehr an dieser Ware\n");
-					pmText.append(nichtVerkauft).append("x ").append(res.getName()).append(" konnten nicht gekauft werden, da die Ankaufgrenze überschritten werden würde\n");
+					pmText.append("[resource=").append(res.getId()).append("]").append(nichtVerkauft).append("[/resource] konnten nicht gekauft werden, da die Ankaufgrenze überschritten werden würde\n");
 				}
 
 				//Nicht mehr ankaufen als Platz da ist
@@ -311,7 +311,7 @@ public class TradeController extends Controller
 					tmp = freeSpace / resourceMass;
 
 					message.append("[resource=").append(res.getId()).append("]").append(nichtVerkauft).append("[/resource] nicht verkauft - Alle Lager sind voll\n");
-					pmText.append(nichtVerkauft).append("x ").append(res.getName()).append(" konnten nicht gekauft werden, da das Lager voll war\n");
+					pmText.append("[resource=").append(res.getId()).append("]").append(nichtVerkauft).append("[/resource] konnten nicht gekauft werden, da das Lager voll war\n");
 				}
 
 				BigDecimal get = BigDecimal.valueOf(tmp).multiply(BigDecimal.valueOf(res.getCount1() / 1000d));
@@ -329,7 +329,7 @@ public class TradeController extends Controller
 								.divide(BigInteger.valueOf(res.getCount1())).longValue();
 
 						message.append("[resource=").append(res.getId()).append("]").append(tmp - maximum).append("[/resource] nicht verkauft - Ihr Handelspartner ist pleite\n");
-						pmText.append(tmp - maximum).append("x ").append(res.getName()).append(" konnten nicht gekauft werden, da du zu wenig Geld hattest\n");
+						pmText.append("[resource=").append(res.getId()).append("]").append(tmp - maximum).append("[/resource] konnten nicht gekauft werden, da du zu wenig Geld hattest\n");
 
 						tmp = maximum;
 					}
@@ -343,7 +343,7 @@ public class TradeController extends Controller
 				get = BigDecimal.valueOf(tmp).multiply(BigDecimal.valueOf(res.getCount1() / 1000d));
 
 				message.append("[resource=").append(res.getId()).append("]").append(tmp).append("[/resource] für ").append(Common.ln(get)).append(" RE verkauft\n");
-				pmText.append(tmp).append("x ").append(res.getName()).append(" für ").append(Common.ln(get)).append(" RE\n");
+				pmText.append("[resource=").append(res.getId()).append("]").append(tmp).append("[/resource] für ").append(Common.ln(get)).append(" RE\n");
 
 				totalRE = totalRE.add(get.toBigInteger());
 				changed = true;
