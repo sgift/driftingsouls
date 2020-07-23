@@ -682,12 +682,12 @@ public class ErsteigernController extends Controller
 			ResourceLimit limit = ResourceLimit.fuerSchiffUndItem(tradepost, res.getId());
 
 			// Kaufen wir diese Ware vom Spieler?
-			if (limit != null && !limit.willBuy(tradepost.getOwner(), user))
+			if (limit == null || !limit.willBuy(tradepost.getOwner(), user))
 			{
 				continue;
 			}
 
-			boolean sellable = limit == null || tradepost.getCargo().getResourceCount(res.getId()) < limit.getLimit();
+			boolean sellable = tradepost.getCargo().getResourceCount(res.getId()) < limit.getLimit();
 
 			t.setVar("ware.image", res.getImage(),
 					"ware.preis", (res.getCount1() / 1000d > 0.05 ? Common.ln(res.getCount1() / 1000d) : ""),
