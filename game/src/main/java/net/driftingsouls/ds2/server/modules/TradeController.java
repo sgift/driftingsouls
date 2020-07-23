@@ -180,7 +180,7 @@ public class TradeController extends Controller
 				price = amountToBuy * limit.getPrice();
 			}
 			log.info("Verkaufe " + amountToBuy + "x " + resource.getId() + " fuer gesamt " + price);
-			pmText.append("[resource=").append(resource.getId()).append("|0|0]").append(amountToBuy).append("[/resource] für ").append(price).append(" RE\n");
+			pmText.append("[resource=").append(resource.getId()).append("]").append(amountToBuy).append("[/resource] für ").append(price).append(" RE\n");
 			totalRE = totalRE.add(BigInteger.valueOf(price));
 
 			if (amountToBuy <= 0)
