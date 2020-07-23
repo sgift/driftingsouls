@@ -668,6 +668,7 @@ public class ErsteigernController extends Controller
 		t.setVar(
 				"posten.name", tradepost.getName(),
 				"kurse.waren.list", "",
+				"kurse.verkaufswaren.list", "",
 				"posten.owner.name", Common._title(tradepost.getOwner().getName()),
 				"posten.owner.id", tradepost.getOwner().getId(),
 				"posten.location", tradepost.getLocation().displayCoordinates(false));
