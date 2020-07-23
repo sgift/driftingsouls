@@ -33,6 +33,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.persistence.Version;
+import java.util.List;
 
 /**
  * A sell limit for a single resource.
@@ -186,6 +187,16 @@ public class SellLimit {
         int rank = buyer.getRank(seller).getRank();
         return rank >= this.minRank;
     }
+
+    public static List<SellLimit> getSellLimitsForShip(Ship ship) {
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		@SuppressWarnings("unchecked")
+		List<SellLimit> limits = db.createQuery("from SellLimit where ship=:ship")
+			.setEntity("ship", ship)
+			.list();
+
+		return limits;
+	}
 
 	/**
 	 * Laedt ein einzelnes Limit fuer ein bestimmtes Schiff und ein bestimmtes Item.
