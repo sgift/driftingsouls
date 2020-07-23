@@ -636,6 +636,8 @@ public class ErsteigernController extends Controller
 						"order by s.system,s.x+s.y")
 				.list());
 
+		// All items can in theory be sold by a station -> preinit since it's pretty costly to do this each time
+		ResourceList buyCandidateList = Resources.getResourceList().getResourceList();
 		for (Ship tradepost : postenList)
 		{
 			if (!tradepost.isTradepostVisible(user, relationlist))
@@ -648,12 +650,12 @@ public class ErsteigernController extends Controller
 				continue;
 			}
 
-			outputHandelspostenKurse(t, db, user, tradepost);
+			outputHandelspostenKurse(t, db, user, tradepost, buyCandidateList);
 		}
 		return t;
 	}
 
-	private void outputHandelspostenKurse(TemplateEngine t, org.hibernate.Session db, User user, Ship tradepost)
+	private void outputHandelspostenKurse(TemplateEngine t, org.hibernate.Session db, User user, Ship tradepost, ResourceList buyList)
 	{
 		GtuWarenKurse kurse = (GtuWarenKurse) db.get(GtuWarenKurse.class, "p" + tradepost.getId());
 		if (kurse == null && tradepost.getOwner().getRace() == Faction.GTU_RASSE)
@@ -700,7 +702,6 @@ public class ErsteigernController extends Controller
 			t.parse("kurse.waren.list", "kurse.waren.listitem", true);
 		}
 
-		ResourceList buyList = Resources.getResourceList().getResourceList();
 		for(ResourceEntry resource: buyList) {
 			SellLimit limit = SellLimit.fuerSchiffUndItem(tradepost, resource.getId());
 			if( limit == null )
