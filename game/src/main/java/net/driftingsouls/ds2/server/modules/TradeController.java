@@ -124,7 +124,7 @@ public class TradeController extends Controller
 		User user = (User) getUser();
 		BigInteger moneyOfBuyer = user.getKonto();
 		BigInteger totalRE = BigInteger.ZERO;
-		String pmText = ship.getOwner().getName()+" kauft: \n";
+		StringBuilder pmText = new StringBuilder(ship.getOwner().getName() + " kauft: \n");
 
 		log.info("Warenkauf an HP " + tradepost.getId() + " durch Schiff " + ship.getId() + " [User: " + user.getId() + "]");
 
@@ -180,7 +180,7 @@ public class TradeController extends Controller
 				price = amountToBuy * limit.getPrice();
 			}
 			log.info("Verkaufe " + amountToBuy + "x " + resource.getId() + " fuer gesamt " + price);
-			pmText += amountToBuy+"x "+resource.getName()+" für "+price+" RE\n";
+			pmText.append(amountToBuy).append("x ").append(resource.getName()).append(" fÃ¼r ").append(price).append(" RE\n");
 			totalRE = totalRE.add(BigInteger.valueOf(price));
 
 			if (amountToBuy <= 0)
@@ -203,7 +203,7 @@ public class TradeController extends Controller
 			//Benachrichtigung fuer HP-Besitzer schreiben
 			if(ship.getOwner().getId()!=tradepost.getOwner().getId())
 			{
-				PM.send(tradepost.getOwner(), tradepost.getOwner().getId(), "Warenverkauf an "+tradepost.getName(), pmText);
+				PM.send(tradepost.getOwner(), tradepost.getOwner().getId(), "Warenverkauf an "+tradepost.getName(), pmText.toString());
 			}
 			tradepost.getOwner()
 					.transferMoneyFrom(user.getId(), totalRE,
@@ -224,7 +224,7 @@ public class TradeController extends Controller
 	{
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
-		String pmText = ship.getOwner().getName()+" verkauft:\n ";
+		StringBuilder pmText = new StringBuilder(ship.getOwner().getName() + " verkauft:\n ");
 
 		validiereSchiff(ship);
 		validiereHandelsposten(ship, tradepost);
@@ -301,7 +301,7 @@ public class TradeController extends Controller
 					tmp = limit;
 
 					message.append("[resource=").append(res.getId()).append("]").append(nichtVerkauft).append("[/resource] nicht verkauft - Es besteht kein Interesse mehr an dieser Ware\n");
-					pmText += nichtVerkauft+"x "+ res.getName()+" konnten nicht gekauft werden, da die Ankaufgrenze überschritten würde\n";
+					pmText.append(nichtVerkauft).append("x ").append(res.getName()).append(" konnten nicht gekauft werden, da die Ankaufgrenze Ã¼berschritten werden wÃ¼rde\n");
 				}
 
 				//Nicht mehr ankaufen als Platz da ist
@@ -311,7 +311,7 @@ public class TradeController extends Controller
 					tmp = freeSpace / resourceMass;
 
 					message.append("[resource=").append(res.getId()).append("]").append(nichtVerkauft).append("[/resource] nicht verkauft - Alle Lager sind voll\n");
-					pmText += nichtVerkauft+"x "+ res.getName()+" konnten nicht gekauft werden, da das Lager voll war\n";
+					pmText.append(nichtVerkauft).append("x ").append(res.getName()).append(" konnten nicht gekauft werden, da das Lager voll war\n");
 				}
 
 				BigDecimal get = BigDecimal.valueOf(tmp).multiply(BigDecimal.valueOf(res.getCount1() / 1000d));
@@ -329,7 +329,7 @@ public class TradeController extends Controller
 								.divide(BigInteger.valueOf(res.getCount1())).longValue();
 
 						message.append("[resource=").append(res.getId()).append("]").append(tmp - maximum).append("[/resource] nicht verkauft - Ihr Handelspartner ist pleite\n");
-						pmText += (tmp - maximum)+"x "+ res.getName()+" konnten nicht gekauft werden, da du zu wenig Geld hattest\n";
+						pmText.append(tmp - maximum).append("x ").append(res.getName()).append(" konnten nicht gekauft werden, da du zu wenig Geld hattest\n");
 
 						tmp = maximum;
 					}
@@ -343,7 +343,7 @@ public class TradeController extends Controller
 				get = BigDecimal.valueOf(tmp).multiply(BigDecimal.valueOf(res.getCount1() / 1000d));
 
 				message.append("[resource=").append(res.getId()).append("]").append(tmp).append("[/resource] fÃ¼r ").append(Common.ln(get)).append(" RE verkauft\n");
-				pmText += tmp+"x "+ res.getName()+" für "+Common.ln(get)+" RE\n";
+				pmText.append(tmp).append("x ").append(res.getName()).append(" fÃ¼r ").append(Common.ln(get)).append(" RE\n");
 
 				totalRE = totalRE.add(get.toBigInteger());
 				changed = true;
@@ -368,7 +368,7 @@ public class TradeController extends Controller
 			//Benachrichtigung fuer HP-Besitzer schreiben
 			if(ship.getOwner().getId()!=tradepost.getOwner().getId())
 			{
-				PM.send(tradepost.getOwner(), tradepost.getOwner().getId(), "Warenankauf an "+tradepost.getName(), pmText);
+				PM.send(tradepost.getOwner(), tradepost.getOwner().getId(), "Warenankauf an "+tradepost.getName(), pmText.toString());
 			}
 
 
