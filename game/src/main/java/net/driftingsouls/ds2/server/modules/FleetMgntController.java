@@ -75,7 +75,7 @@ public class FleetMgntController extends Controller
 			}
 			else
 			{
-				throw new ValidierungException("Die angegebene Flotte ist ungueltig");
+				throw new ValidierungException("Die angegebene Flotte ist ungültig.");
 			}
 		}
 
@@ -86,7 +86,7 @@ public class FleetMgntController extends Controller
 	{
 		if (fleet == null)
 		{
-			throw new ValidierungException("Die angegebene Flotte existiert nicht");
+			throw new ValidierungException("Die angegebene Flotte existiert nicht.");
 		}
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
@@ -97,7 +97,7 @@ public class FleetMgntController extends Controller
 
 		if (user.getId() != owner.getId())
 		{
-			throw new ValidierungException("Diese Flotte geh&ouml;rt einem anderen Spieler");
+			throw new ValidierungException("Diese Flotte gehört einem anderen Spieler.");
 		}
 
 		// Falls sich doch ein Schiff eines anderen Spielers eingeschlichen hat
@@ -135,7 +135,7 @@ public class FleetMgntController extends Controller
 
 		if ((count < 1) || (shipcount < count))
 		{
-			t.setVar("fleetmgnt.message", "Es gibt nicht genug Schiffe im Sektor");
+			t.setVar("fleetmgnt.message", "Es gibt nicht genug Schiffe im Sektor.");
 			return t;
 		}
 
@@ -160,7 +160,7 @@ public class FleetMgntController extends Controller
 
 		if ((shiplistStr.length() == 0) || (shiplist.length == 0))
 		{
-			t.setVar("fleetmgnt.message", "Sie haben keine Schiffe angegeben");
+			t.setVar("fleetmgnt.message", "Sie haben keine Schiffe angegeben.");
 			return t;
 		}
 
@@ -173,7 +173,7 @@ public class FleetMgntController extends Controller
 
 		if (nonEmpty)
 		{
-			t.setVar("fleetmgnt.message", "Alle Schiffe m&uuml;ssen ihrem Kommando unterstehen");
+			t.setVar("fleetmgnt.message", "Alle Schiffe müssen Ihrem Kommando unterstehen.");
 		}
 		else
 		{
@@ -199,7 +199,7 @@ public class FleetMgntController extends Controller
 
 		if (shiplist.length() == 0)
 		{
-			throw new ValidierungException("Sie haben keine Schiffe angegeben");
+			throw new ValidierungException("Sie haben keine Schiffe angegeben.");
 		}
 
 		if (shiplist.charAt(0) != 'g')
@@ -207,7 +207,7 @@ public class FleetMgntController extends Controller
 			shiplistInt = Common.explodeToInteger("|", shiplist);
 			if (shiplistInt.length == 0)
 			{
-				throw new ValidierungException("Sie haben keine Schiffe angegeben");
+				throw new ValidierungException("Sie haben keine Schiffe angegeben.");
 			}
 
 			boolean nonEmpty = db.createQuery("from Ship where id in (:shipIds) and (owner!=:user or id < 0)")
@@ -216,7 +216,7 @@ public class FleetMgntController extends Controller
 					.iterate().hasNext();
 			if (nonEmpty)
 			{
-				throw new ValidierungException("Alle Schiffe müssen ihrem Kommando unterstehen");
+				throw new ValidierungException("Alle Schiffe müssen Ihrem Kommando unterstehen.");
 			}
 		}
 		else
@@ -228,7 +228,7 @@ public class FleetMgntController extends Controller
 			Ship sectorShip = (Ship) db.get(Ship.class, sector);
 			if ((sectorShip == null) || (sectorShip.getOwner() != user) || (sectorShip.getId() < 0))
 			{
-				throw new ValidierungException("Das Schiff untersteht nicht ihrem Kommando");
+				throw new ValidierungException("Das Schiff untersteht nicht Ihrem Kommando.");
 			}
 
 			List<?> ships = db.createQuery("from Ship where id>0 and owner=:owner and system=:sys and x=:x and y=:y and shiptype=:type and docked='' order by fleet.id,id asc")
@@ -268,11 +268,11 @@ public class FleetMgntController extends Controller
 				s.setFleet(fleet);
 			}
 
-			return new RedirectViewResult("default").setParameter("fleet", fleet).withMessage("Flotte " + Common._plaintitle(fleetname) + " erstellt");
+			return new RedirectViewResult("default").setParameter("fleet", fleet).withMessage("Flotte " + Common._plaintitle(fleetname) + " erstellt.");
 		}
 		else
 		{
-			return new RedirectViewResult("create").withMessage("Sie müssen einen Namen angeben");
+			return new RedirectViewResult("create").withMessage("Sie müssen einen Namen angeben.");
 		}
 	}
 
@@ -293,7 +293,7 @@ public class FleetMgntController extends Controller
 
 		if ((sectorShip == null) || (sectorShip.getId() < 0) || (sectorShip.getOwner() != user))
 		{
-			t.setVar("fleetmgnt.message", "Das angegebene Schiff existiert oder gehoert ihnen nicht");
+			t.setVar("fleetmgnt.message", "Das angegebene Schiff existiert oder gehört Ihnen nicht.");
 			return t;
 		}
 
@@ -308,7 +308,7 @@ public class FleetMgntController extends Controller
 
 		if ((count < 1) || (shipcount < count))
 		{
-			t.setVar("fleetmgnt.message", "Es gibt nicht genug Schiffe im Sektor");
+			t.setVar("fleetmgnt.message", "Es gibt nicht genug Schiffe im Sektor.");
 			return t;
 		}
 
@@ -335,7 +335,7 @@ public class FleetMgntController extends Controller
 
 		if (shiplist.isEmpty())
 		{
-			t.setVar("fleetmgnt.message", "Es gibt nicht genug Schiffe im Sektor");
+			t.setVar("fleetmgnt.message", "Es gibt nicht genug Schiffe im Sektor.");
 			return t;
 		}
 
@@ -347,7 +347,7 @@ public class FleetMgntController extends Controller
 		int shipid = ermittleIdEinesGeeignetenSchiffsDerFlotte(fleet);
 
 		t.setVar("jscript.reloadmain.ship", shipid);
-		t.setVar("fleetmgnt.message", count + " Schiffe der Flotte hinzugef&uuml;gt",
+		t.setVar("fleetmgnt.message", count + " Schiffe der Flotte hinzugefügt.",
 				"jscript.reloadmain", 1);
 
 		return t;
@@ -387,11 +387,11 @@ public class FleetMgntController extends Controller
 		{
 			fleet.setName(fleetname);
 
-			return new RedirectViewResult("default").withMessage("Flotte " + Common._plaintitle(fleetname) + " umbenannt");
+			return new RedirectViewResult("default").withMessage("Flotte " + Common._plaintitle(fleetname) + " umbenannt.");
 		}
 		else
 		{
-			return new RedirectViewResult("rename").withMessage("Sie müssen einen Namen angeben");
+			return new RedirectViewResult("rename").withMessage("Sie müssen einen Namen angeben.");
 		}
 	}
 
@@ -433,7 +433,7 @@ public class FleetMgntController extends Controller
 
 		t.setVar("fleet.id", fleet.getId());
 		t.setVar("jscript.reloadmain.ship", shipid);
-		t.setVar("fleetmgnt.message", "Die Flotte '" + fleet.getName() + "' wurde aufgel&ouml;st",
+		t.setVar("fleetmgnt.message", "Die Flotte '" + fleet.getName() + "' wurde aufgelöst.",
 				"jscript.reloadmain", 1);
 
 		return t;
@@ -484,7 +484,7 @@ public class FleetMgntController extends Controller
 		}
 		else
 		{
-			return new RedirectViewResult("newowner").withMessage("Der angegebene Spieler existiert nicht");
+			return new RedirectViewResult("newowner").withMessage("Der angegebene Spieler existiert nicht.");
 		}
 	}
 
@@ -516,24 +516,24 @@ public class FleetMgntController extends Controller
 
 				if (coords != null)
 				{
-					PM.send(user, newowner.getId(), "Flotte &uuml;bergeben", "Ich habe dir die Flotte " + Common._plaintitle(fleet.getName()) + " &uuml;bergeben. Sie steht bei " + coords.getLocation().displayCoordinates(false));
-					t.setVar("fleetmgnt.message", ShipFleet.MESSAGE.getMessage() + "Die Flotte wurde &uuml;bergeben");
+					PM.send(user, newowner.getId(), "Flotte übergeben", "Ich habe Dir die Flotte " + Common._plaintitle(fleet.getName()) + " übergeben. Sie steht bei " + coords.getLocation().displayCoordinates(false));
+					t.setVar("fleetmgnt.message", ShipFleet.MESSAGE.getMessage() + "Die Flotte wurde übergeben.");
 				}
 				else
 				{
-					t.setVar("fleetmgnt.message", ShipFleet.MESSAGE.getMessage() + "Flotten&uuml;bergabe gescheitert");
+					t.setVar("fleetmgnt.message", ShipFleet.MESSAGE.getMessage() + "Flottenübergabe gescheitert.");
 				}
 
 				return t;
 			}
 			else
 			{
-				return new RedirectViewResult("newowner").withMessage(ShipFleet.MESSAGE.getMessage() + "Flottenübergabe gescheitert");
+				return new RedirectViewResult("newowner").withMessage(ShipFleet.MESSAGE.getMessage() + "Flottenübergabe gescheitert.");
 			}
 		}
 		else
 		{
-			return new RedirectViewResult("newowner").withMessage("Der angegebene Spieler existiert nicht");
+			return new RedirectViewResult("newowner").withMessage("Der angegebene Spieler existiert nicht.");
 		}
 	}
 
@@ -577,7 +577,7 @@ public class FleetMgntController extends Controller
 			s.setEnergy(s.getEnergy() - shup);
 		}
 
-		return new RedirectViewResult("default").withMessage(message + " Die Schilde wurden aufgeladen");
+		return new RedirectViewResult("default").withMessage(message + " Die Schilde wurden aufgeladen.");
 	}
 
 	/**
@@ -711,7 +711,7 @@ public class FleetMgntController extends Controller
 
 		fleet.undockContainers();
 
-		return new RedirectViewResult("default").withMessage("Alle gedockten Schiffe wurden gestartet");
+		return new RedirectViewResult("default").withMessage("Alle gedockten Schiffe wurden gestartet.");
 	}
 
 	/**
@@ -726,7 +726,7 @@ public class FleetMgntController extends Controller
 
 		fleet.collectContainers(user);
 
-		return new RedirectViewResult("default").withMessage("Container wurden aufgesammelt");
+		return new RedirectViewResult("default").withMessage("Container wurden aufgesammelt.");
 	}
 
 	/**
@@ -741,7 +741,7 @@ public class FleetMgntController extends Controller
 
 		fleet.collectGeschuetze(user);
 
-		return new RedirectViewResult("default").withMessage("Geschütze wurden aufgesammelt");
+		return new RedirectViewResult("default").withMessage("Geschütze wurden aufgesammelt.");
 	}
 
 	/**
@@ -754,7 +754,7 @@ public class FleetMgntController extends Controller
 
 		fleet.startFighters();
 
-		return new RedirectViewResult("default").withMessage("Alle Jäger sind gestartet");
+		return new RedirectViewResult("default").withMessage("Alle Jäger/Bomber sind gestartet.");
 	}
 
 	/**
@@ -769,7 +769,7 @@ public class FleetMgntController extends Controller
 
 		fleet.collectFightersByType(user, jaegertype);
 
-		return new RedirectViewResult("default").withMessage("Jäger wurden aufgesammelt");
+		return new RedirectViewResult("default").withMessage("Jäger/Bomber wurden aufgesammelt.");
 	}
 
 	/**
@@ -799,7 +799,7 @@ public class FleetMgntController extends Controller
 
 		fleet.joinFleet(targetFleet);
 
-		return new RedirectViewResult("default").withMessage("Alle Schiffe der Flotte '" + Common._plaintitle(targetFleet.getName()) + "' sind beigetreten");
+		return new RedirectViewResult("default").withMessage("Alle Schiffe der Flotte '" + Common._plaintitle(targetFleet.getName()) + "' sind beigetreten.");
 	}
 
 	/**
@@ -814,7 +814,7 @@ public class FleetMgntController extends Controller
 
 		fleet.setAlarm(alarm);
 
-		return new RedirectViewResult("default").withMessage("Die Alarmstufe wurde geändert");
+		return new RedirectViewResult("default").withMessage("Die Alarmstufe wurde geändert.");
 	}
 
 	/**
@@ -900,7 +900,7 @@ public class FleetMgntController extends Controller
 		}
 
 		//Reload main page
-		return new RedirectViewResult("default").withMessage("Bauauftrag erteilt");
+		return new RedirectViewResult("default").withMessage("Bauauftrag erteilt!");
 	}
 
 	/**
@@ -1129,7 +1129,7 @@ public class FleetMgntController extends Controller
 			ship.setName(generateNextShipName(nameParts));
 		}
 
-		return new RedirectViewResult("default").withMessage("Die Namen wurden geändert");
+		return new RedirectViewResult("default").withMessage("Die Namen wurden geändert.");
 	}
 
 	/**
