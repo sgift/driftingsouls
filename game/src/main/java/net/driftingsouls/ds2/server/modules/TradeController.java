@@ -281,19 +281,14 @@ public class TradeController extends Controller
 				//Wir wollen eventuell nur bis zu einem Limit ankaufen
 				ResourceLimit resourceLimit = ResourceLimit.fuerSchiffUndItem(tradepost, res.getId());
 
-				long limit = Long.MAX_VALUE;
-				if (resourceLimit != null)
-				{
-					//Do we want to buy this resource from this player?
-					if (!resourceLimit.willBuy(tradepost.getOwner(), user))
-					{
-						continue;
-					}
-
-					limit = resourceLimit.getLimit();
-					//Bereits gelagerte Bestaende abziehen
-					limit -= tradepost.getCargo().getResourceCount(res.getId());
+				//Do we want to buy this resource from this player?
+				if(resourceLimit == null || !resourceLimit.willBuy(tradepost.getOwner(), user)) {
+					continue;
 				}
+
+				long limit = resourceLimit.getLimit();
+				//Bereits gelagerte Bestaende abziehen
+				limit -= tradepost.getCargo().getResourceCount(res.getId());
 
 				if (tmp > limit)
 				{
@@ -433,7 +428,7 @@ public class TradeController extends Controller
 				ResourceLimit limit = ResourceLimit.fuerSchiffUndItem(tradepost, res.getId());
 
 				// Kaufen wir diese Ware vom Spieler?
-				if (limit != null && !limit.willBuy(tradepost.getOwner(), user))
+				if (limit == null || !limit.willBuy(tradepost.getOwner(), user))
 				{
 					continue;
 				}
