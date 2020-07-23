@@ -276,7 +276,7 @@ function BuildingUi(base, tileId) {
 				'{{/building.active}}'+
 				'{{/building.deakable}}'+
 				'{{^building.kommandozentrale}}'+
-				'<li><a class="error" id="demoBuilding" href="#">abreissen</a></li>'+
+				'<li><a class="error" id="demoBuilding" href="#">demontieren</a></li>'+
 				'{{/building.kommandozentrale}}'+
 				'{{#building.kommandozentrale}}'+
 				'<li><a class="error" id="demoBuilding" href="{{URL}}?module=building&action=demo&col={{col}}&field={{field}}&conf=ok">Asteroid aufgeben</a></li>'+
@@ -325,10 +325,10 @@ function BuildingUi(base, tileId) {
 			var tmpl = '<div class="head">'+
 				'<img src="./{{building.picture}}" alt="" /> {{building.name}}'+
 				'</div>'+
-				'<div class="message">Wollen sie dieses Gebäude wirklich abreissen?</div>'+
+				'<div class="message">Wollen sie dieses Gebäude wirklich demontieren?</div>'+
 				'<ul class="confirm">'+
 				'<li><a id="cancelDemo" href="#">abbrechen</a></li>'+
-				'<li><a class="error" id="okDemo" href="#">abreissen</a></li>'+
+				'<li><a class="error" id="okDemo" href="#">demontieren</a></li>'+
 				'</ul>';
 
 			var out = DS.render(tmpl, model);
