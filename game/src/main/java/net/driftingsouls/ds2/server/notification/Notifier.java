@@ -48,7 +48,7 @@ public class Notifier {
 		//html-Tags entfernen
 		output.replaceAll("\\<. *?>","");
 		//BB Code entfernen
-		output.replaceAll("\[\/?(?i)(b|i|u|color|url|img|email|size|list|font|youtube|ship|map|base|resource|userprofile|align|mark|\*){1}=?[^\]]*\]","");
+		output.replaceAll("\\[\\/?(?i)(b|i|u|color|url|img|email|size|list|font|youtube|ship|map|base|resource|userprofile|align|mark|\\*){1}=?[^\\]]*\\]","");
 		//&-Symbol entfernen, das ist in URLs leider nicht erlaubt
 		output.replace("&"," und ");
 
