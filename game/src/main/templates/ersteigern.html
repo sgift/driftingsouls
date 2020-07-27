@@ -480,7 +480,7 @@
 								<img src="{ware.image}" />
 								{if ware.preis}{ware.preis} RE{else}kein Bedarf{/endif}
 								<span class="ttcontent ttitem" ds-item-id="{ware.id}">
-									<img src="{ware.image}" alt="{ware.plainname}" />{ware.plainname}
+									{if !ware.inaktiv}Kauft noch {ware.sellamount}x {/endif}<img src="{ware.image}" alt="{ware.plainname}" />{ware.plainname}
 								</span>
 							</a>
 						</div>
@@ -496,7 +496,7 @@
 								<img src="{ware.image}" />
 								{ware.preis} RE
 								<span class="ttcontent ttitem" ds-item-id="{ware.id}">
-									<img src="{ware.image}" alt="{ware.plainname}" />{ware.plainname}
+									{if !ware.inaktiv}Verkauft noch {ware.buyamount}x {/endif}<img src="{ware.image}" alt="{ware.plainname}" />{ware.plainname}
 								</span>
 							</a>
 						</div>

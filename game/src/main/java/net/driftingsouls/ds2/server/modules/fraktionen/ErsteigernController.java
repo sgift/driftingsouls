@@ -690,12 +690,14 @@ public class ErsteigernController extends Controller
 			}
 
 			boolean sellable = tradepost.getCargo().getResourceCount(res.getId()) < limit.getLimit();
+			long sellamount = limit.getLimit()-tradepost.getCargo().getResourceCount(res.getId());
 
 			t.setVar("ware.image", res.getImage(),
 					"ware.preis", (res.getCount1() / 1000d > 0.05 ? Common.ln(res.getCount1() / 1000d) : ""),
 					"ware.plainname", res.getPlainName(),
 					"ware.id", res.getId(),
-					"ware.inaktiv", full || !sellable);
+					"ware.inaktiv", full || !sellable,
+					"ware.sellamount", sellamount);
 
 			t.parse("kurse.waren.list", "kurse.waren.listitem", true);
 		}
@@ -709,13 +711,15 @@ public class ErsteigernController extends Controller
 
 			boolean buyable = (tradepost.getCargo().getResourceCount(limit.getResourceId()) - limit.getLimit()) > 0;
 			Item resource = (Item)db.get(Item.class, limit.getResourceId().getItemID());
+			long buyamount = tradepost.getCargo().getResourceCount(limit.getResourceId())-limit.getLimit();
 
 			t.setVar(
 				"ware.image", resource.getPicture(),
 				"ware.preis", Common.ln(limit.getPrice()),
 				"ware.plainname", resource.getName(),
 				"ware.id", resource.getID(),
-				"ware.inaktiv", !buyable);
+				"ware.inaktiv", !buyable,
+				"ware.buyamount", buyamount);
 
 			t.parse("kurse.verkaufswaren.list", "kurse.verkaufswaren.listitem", true);
 		}
