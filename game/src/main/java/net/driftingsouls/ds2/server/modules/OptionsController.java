@@ -207,6 +207,10 @@ public class OptionsController extends Controller
 	 * @param schiffsKlassenNamenGenerator Der zu verwendende {@link net.driftingsouls.ds2.server.namegenerator.SchiffsKlassenNamenGenerator}
 	 * @param schiffsNamenGenerator Der zu verwendende {@link net.driftingsouls.ds2.server.namegenerator.SchiffsNamenGenerator}
 	 * @param apikey Der ApiKey fuer die Push-Benachrichtigungen
+	 * @param auktion_pm Angabe, ob fuer neue Auktionen PMs verschickt werden sollen
+	 * @param handel_pm Angabe, ob fuer neue Handelsinserate PMs verschickt werden sollen
+	 * @param sounds_mute Einstellungen, ob Sounds gemutet werden sollen
+	 * @param sounds_volume Lautstaerke fuer die Sounds
 	 */
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult changeXtraAction(int shipgroupmulti, int inttutorial, int scriptdebug, boolean scriptdebugstatus, boolean battle_pm, boolean research_pm, boolean ship_build_pm, boolean base_down_pm, boolean officer_build_pm, boolean unit_build_pm, User.Relation defrelation,
