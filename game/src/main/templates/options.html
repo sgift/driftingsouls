@@ -173,6 +173,14 @@
 			<td><input name="apikey" type="text" size="30" value="{user.apikey}" /></td>
 		</tr>
 		<tr>
+			<td>Sounds ausschalten:</td>
+			<td><input name="sounds_mute" type="checkbox" value="0" {if user.soundsmute}checked="checked"{/endif} /></td>
+	</tr>
+	<tr>
+		<td>Lautst&auml;rke:</td>
+		<td><input name="sounds_volume" type="range" value="{user.soundsvolume}" min="0" max="100" step="5"/></td>
+</tr>
+		<tr>
 			<td colspan="2" align="center"><br />
 				{!form_create_hidden changeXtra}
 				<input type="submit" value="speichern" />

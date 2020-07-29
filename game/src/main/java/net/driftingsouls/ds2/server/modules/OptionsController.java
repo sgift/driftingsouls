@@ -215,7 +215,9 @@ public class OptionsController extends Controller
 											   SchiffsNamenGenerator schiffsNamenGenerator,
 											   String apikey,
 											   boolean auktion_pm,
-											   boolean handel_pm)
+												 boolean handel_pm,
+												 boolean sounds_mute,
+												 int sounds_volume)
 	{
 		User user = (User) getUser();
 
@@ -292,8 +294,10 @@ public class OptionsController extends Controller
         user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_OFFICER_BUILD_PM, officer_build_pm);
         user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_UNIT_BUILD_PM, unit_build_pm);
         user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_AUKTION_PM,auktion_pm);
-        user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_HANDEL_PM,handel_pm);
-        
+				user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_HANDEL_PM,handel_pm);
+				user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_SOUNDS_MUTE,sounds_mute);
+				user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_SOUNDS_VOLUME,sounds_volume);
+
 
 		return new RedirectViewResult("xtra").withMessage(changemsg);
 	}
@@ -416,8 +420,10 @@ public class OptionsController extends Controller
                 "user.unitbuildpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_UNIT_BUILD_PM),
 				"user.apikey", user.getUserValue(WellKnownUserValue.APIKEY),
 				"user.handelpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_HANDEL_PM),
-				"user.auktionpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_AUKTION_PM));
-		
+				"user.auktionpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_AUKTION_PM),
+				"user.soundsmute", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_SOUNDS_MUTE),
+				"user.soundsvolume", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_SOUNDS_VOLUME));
+
 		t.setBlock("_OPTIONS", "personenNamenGenerator.listitem", "personenNamenGenerator.list");
 		for (PersonenNamenGenerator png : PersonenNamenGenerator.values())
 		{
