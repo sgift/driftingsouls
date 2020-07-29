@@ -691,10 +691,7 @@ public class ErsteigernController extends Controller
 
 			boolean sellable = tradepost.getCargo().getResourceCount(res.getId()) < limit.getLimit();
 			long sellamount = Long.MAX_VALUE;
-			if(limit != null)
-			{
-				sellamount = limit.getLimit()-tradepost.getCargo().getResourceCount(res.getId());
-			}
+			sellamount = limit.getLimit()-tradepost.getCargo().getResourceCount(res.getId());
 
 			t.setVar("ware.image", res.getImage(),
 					"ware.preis", (res.getCount1() / 1000d > 0.05 ? Common.ln(res.getCount1() / 1000d) : ""),
