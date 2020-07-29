@@ -33,8 +33,10 @@ public class WellKnownUserValue<T>
 	public static final WellKnownUserValue<String> APIKEY = new WellKnownUserValue<>(String.class, "APIKEY","");
 	public static final WellKnownUserValue<Boolean> GAMEPLAY_USER_AUKTION_PM = new WellKnownUserValue<>(Boolean.class, "GAMEPLAY/user/auktion_pm", "true");
 	public static final WellKnownUserValue<Boolean> GAMEPLAY_USER_HANDEL_PM = new WellKnownUserValue<>(Boolean.class, "GAMEPLAY/user/handel_pm", "true");
-	
-	
+	public static final WellKnownUserValue<Boolean> GAMEPLAY_USER_SOUNDS_MUTE = new WellKnownUserValue<>(Boolean.class, "GAMEPLAY/user/sounds_mute", "true");
+	public static final WellKnownUserValue<Integer> GAMEPLAY_USER_SOUNDS_VOLUME = new WellKnownUserValue<>(Integer.class, "GAMEPLAY/user/sounfs_volume", "50");
+
+
 	private final Class<T> type;
 	private final String name;
 	private final String defaultValue;

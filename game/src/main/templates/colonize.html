@@ -1,7 +1,9 @@
 {if colonize.message}
 	{colonize.message}
 {else}
-	<audio id="welcome_audio" autoplay src="data/sounds/AsteroidenBesiedeln.mp3" type="audio/mp3"></audio>
+{if !user.sounds.mute}
+	<audio id="welcome_audio" volume="{user.sounds.volume}" autoplay src="data/sounds/AsteroidenBesiedeln.mp3" type="audio/mp3"></audio>
+{/endif}
 	<div class="gfxbox" style="width:540px">
 		Leite Kolonisierung ein<br /><br />
 		Waren verf&uuml;gbar:<br />

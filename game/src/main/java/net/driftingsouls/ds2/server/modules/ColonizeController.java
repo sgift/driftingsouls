@@ -163,7 +163,9 @@ public class ColonizeController extends Controller
 		{
 			t.setVar("res.image", res.getImage(),
 					"res.name", res.getName(),
-					"res.cargo", res.getCargo1());
+					"res.cargo", res.getCargo1(),
+					"user.sounds.mute", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_SOUNDS_MUTE),
+					"user.sounds.volume", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_SOUNDS_VOLUME));
 			t.parse("res.list", "res.listitem", true);
 		}
 
