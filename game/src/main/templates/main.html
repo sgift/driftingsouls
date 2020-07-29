@@ -3,10 +3,18 @@
 </style>
 <ul id="menu">
 	{if user.battle}
-		<audio id="audio" name="battle_audio" volume="{user.sound.volume}" {if !user.sounds.mute}autoplay{/endif} loop src="data/sounds/Haunt You_Extendet.mp3" type="audio/mp3"></audio>
+		<audio id="audio" name="battle_audio" autoplay loop src="data/sounds/Haunt You_Extendet.mp3" type="audio/mp3"></audio>
 	{else}
-		<audio id="audio" name="atmo_audio" volume="{user.sound.volume}" {if !user.sounds.mute}autoplay{/endif} loop src="data/sounds/Atmo_Master.mp3" type="audio/mp3"></audio>
+		<audio id="audio" name="atmo_audio" autoplay loop src="data/sounds/Atmo_Master.mp3" type="audio/mp3"></audio>
 	{/endif}
+	<script>
+		var audio = document.getElementById("audio");
+		audio.volume = {user.sound.volume};
+		if ({user.sound.mute})
+		{
+			audio.pause();
+		}
+	</script>
 <li class="statusfield">
 	<a id="mailicon" href="./ds?module=comm&action=showInbox" target="main"><img class="blink" src="./data/interface/menubar/mail.png" alt="neue Nachricht" title="Du hast neue Nachrichten erhalten" /></a>
 	<a id="comneticon" href="./ds?module=comnet" target="main"><img class="blink" src="./data/interface/menubar/cn.png" alt="neuer Com-Net-Eintrag" title="neuer Com-Net-Eintrag" /></a>

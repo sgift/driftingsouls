@@ -178,8 +178,16 @@
 	</tr>
 	<tr>
 		<td>Lautst&auml;rke:</td>
-		<td><input name="sounds_volume" type="range" value="{user.soundsvolume}" min="0" max="100" step="5"/></td>
-</tr>
+		<td><input name="sounds_volume" id="volume_regler" type="range" value="{user.soundsvolume}" min="0" max="100" step="10" oninput="changeVolume()"/></td>
+	</tr>
+	<script>
+		function changeVolume()
+		{
+			var audio = document.getElementById("audio");
+			var volume = document.getElementById("volume_regler").value;
+			audio.volume = volume;
+		}
+	</script>
 		<tr>
 			<td colspan="2" align="center"><br />
 				{!form_create_hidden changeXtra}
