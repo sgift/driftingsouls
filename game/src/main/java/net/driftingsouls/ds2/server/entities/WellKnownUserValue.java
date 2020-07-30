@@ -35,7 +35,7 @@ public class WellKnownUserValue<T>
 	public static final WellKnownUserValue<Boolean> GAMEPLAY_USER_HANDEL_PM = new WellKnownUserValue<>(Boolean.class, "GAMEPLAY/user/handel_pm", "true");
 	public static final WellKnownUserValue<Boolean> GAMEPLAY_USER_SOUNDS_MUTE = new WellKnownUserValue<>(Boolean.class, "GAMEPLAY/user/sounds_mute", "true");
 	public static final WellKnownUserValue<Integer> GAMEPLAY_USER_SOUNDS_VOLUME = new WellKnownUserValue<>(Integer.class, "GAMEPLAY/user/sounfs_volume", "50");
-
+	public static final WellKnownUserValue<Boolean> GAMEPLAY_USER_HANDELSPOSTEN_PM = new WellKnownUserValue<>(Boolean.class, "GAMEPLAY/user/handelsposten_pm", "true");
 
 	private final Class<T> type;
 	private final String name;

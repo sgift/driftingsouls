@@ -211,6 +211,7 @@ public class OptionsController extends Controller
 	 * @param handel_pm Angabe, ob fuer neue Handelsinserate PMs verschickt werden sollen
 	 * @param sounds_mute Einstellungen, ob Sounds gemutet werden sollen
 	 * @param sounds_volume Lautstaerke fuer die Sounds
+	 * @param handelsposten_pm Angabe, ob fuer Transaktionen am HP PMs verschickt werden sollen
 	 */
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult changeXtraAction(int shipgroupmulti, int inttutorial, int scriptdebug, boolean scriptdebugstatus, boolean battle_pm, boolean research_pm, boolean ship_build_pm, boolean base_down_pm, boolean officer_build_pm, boolean unit_build_pm, User.Relation defrelation,
@@ -221,7 +222,8 @@ public class OptionsController extends Controller
 											   boolean auktion_pm,
 												 boolean handel_pm,
 												 boolean sounds_mute,
-												 int sounds_volume)
+												 int sounds_volume,
+												 boolean handelsposten_pm)
 	{
 		User user = (User) getUser();
 
@@ -301,7 +303,7 @@ public class OptionsController extends Controller
 				user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_HANDEL_PM,handel_pm);
 				user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_SOUNDS_MUTE,sounds_mute);
 				user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_SOUNDS_VOLUME,sounds_volume);
-
+				user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_HANDELSPOSTEN_PM,handelsposten_pm);
 
 		return new RedirectViewResult("xtra").withMessage(changemsg);
 	}
@@ -426,7 +428,8 @@ public class OptionsController extends Controller
 				"user.handelpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_HANDEL_PM),
 				"user.auktionpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_AUKTION_PM),
 				"user.soundsmute", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_SOUNDS_MUTE),
-				"user.soundsvolume", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_SOUNDS_VOLUME));
+				"user.soundsvolume", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_SOUNDS_VOLUME),
+				"user.handelspostenpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_HANDELSPOSTEN_PM));
 
 		t.setBlock("_OPTIONS", "personenNamenGenerator.listitem", "personenNamenGenerator.list");
 		for (PersonenNamenGenerator png : PersonenNamenGenerator.values())

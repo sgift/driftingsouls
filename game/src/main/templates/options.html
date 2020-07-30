@@ -167,7 +167,11 @@
         <tr>
             <td>Mitteilung bei neuen Handelsinseraten:</td>
             <td><input name="handel_pm" type="checkbox" value="1" {if user.handelpm}checked="checked"{/endif} /></td>
-        </tr>
+				</tr>
+				<tr>
+					<td>Mitteilung bei Transaktionen am Handelsposten:</td>
+					<td><input name="handelsposten_pm" type="checkbox" value="1" {if user.handelspostenpm}checked="checked"{/endif} /></td>
+			</tr>
         <tr>
 			<td>NotifyMyDevice-API-Schlüssel:</td>
 			<td><input name="apikey" type="text" size="30" value="{user.apikey}" /></td>
