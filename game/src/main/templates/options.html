@@ -183,9 +183,9 @@
 	<script>
 		function changeVolume()
 		{
-			var audio = document.getElementById("audio");
+			var audio = window.parent.document.getElementById("audio");
 			var volume = document.getElementById("volume_regler").value;
-			audio.volume = volume;
+			audio.volume = volume/100.0;
 		}
 	</script>
 		<tr>
