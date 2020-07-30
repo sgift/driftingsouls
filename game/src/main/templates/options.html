@@ -174,13 +174,22 @@
 		</tr>
 		<tr>
 			<td>Sounds ausschalten:</td>
-			<td><input name="sounds_mute" type="checkbox" value="1" {if user.soundsmute}checked="checked"{/endif} /></td>
+			<td><input name="sounds_mute" type="checkbox" value="1" {if user.soundsmute}checked="checked"{/endif} onchange="handleChange(this)"/></td>
 	</tr>
 	<tr>
 		<td>Lautst&auml;rke:</td>
 		<td><input name="sounds_volume" id="volume_regler" type="range" value="{user.soundsvolume}" min="0" max="100" step="10" oninput="changeVolume()"/></td>
 	</tr>
 	<script>
+		function handleChange(checkbox)
+		{
+			if(checkbox.checked == true){
+        window.parent.document.getElementById("audio").pause();
+    	}else{
+        window.parent.document.getElementById("audio").play();
+    }
+		}
+
 		function changeVolume()
 		{
 			var audio = window.parent.document.getElementById("audio");
