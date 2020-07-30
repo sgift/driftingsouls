@@ -133,7 +133,9 @@ public class MainController extends Controller {
 				"user.adminSichtbar", hasPermission(WellKnownAdminPermission.SICHTBAR),
 				"admin.showconsole", hasPermission(WellKnownAdminPermission.CONSOLE),
 				"user.notizen", user.getUserValue(WellKnownUserValue.TBLORDER_MAIN_NOTIZEN),
-				"user.battle", isUserInBattle(db, user));
+				"user.battle", isUserInBattle(db, user),
+				"user.sound.mute", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_SOUNDS_MUTE),
+				"user.sound.volume", (double)(user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_SOUNDS_VOLUME) / 100.0));//Skalierung auf 0.0-1.0
 
 		t.setBlock("_MAIN", "bases.listitem", "bases.list");
 

@@ -167,11 +167,40 @@
         <tr>
             <td>Mitteilung bei neuen Handelsinseraten:</td>
             <td><input name="handel_pm" type="checkbox" value="1" {if user.handelpm}checked="checked"{/endif} /></td>
-        </tr>
+				</tr>
+				<tr>
+					<td>Mitteilung bei Transaktionen am Handelsposten:</td>
+					<td><input name="handelsposten_pm" type="checkbox" value="1" {if user.handelspostenpm}checked="checked"{/endif} /></td>
+			</tr>
         <tr>
 			<td>NotifyMyDevice-API-Schlüssel:</td>
 			<td><input name="apikey" type="text" size="30" value="{user.apikey}" /></td>
 		</tr>
+		<tr>
+			<td>Sounds ausschalten:</td>
+			<td><input name="sounds_mute" type="checkbox" value="1" {if user.soundsmute}checked="checked"{/endif} onchange="handleChange(this)"/></td>
+	</tr>
+	<tr>
+		<td>Lautst&auml;rke:</td>
+		<td><input name="sounds_volume" id="volume_regler" type="range" value="{user.soundsvolume}" min="0" max="100" step="10" oninput="changeVolume()"/></td>
+	</tr>
+	<script>
+		function handleChange(checkbox)
+		{
+			if(checkbox.checked == true){
+        window.parent.document.getElementById("audio").pause();
+    	}else{
+        window.parent.document.getElementById("audio").play();
+    }
+		}
+
+		function changeVolume()
+		{
+			var audio = window.parent.document.getElementById("audio");
+			var volume = document.getElementById("volume_regler").value;
+			audio.volume = volume/100.0;
+		}
+	</script>
 		<tr>
 			<td colspan="2" align="center"><br />
 				{!form_create_hidden changeXtra}

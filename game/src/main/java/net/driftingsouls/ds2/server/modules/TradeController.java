@@ -28,6 +28,7 @@ import net.driftingsouls.ds2.server.entities.ResourceLimit;
 import net.driftingsouls.ds2.server.entities.SellLimit;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
+import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.entities.statistik.StatVerkaeufe;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
@@ -201,7 +202,7 @@ public class TradeController extends Controller
 		if (totalRE.compareTo(BigInteger.ZERO) > 0)
 		{
 			//Benachrichtigung fuer HP-Besitzer schreiben
-			if(ship.getOwner().getId()!=tradepost.getOwner().getId())
+			if(ship.getOwner().getId()!=tradepost.getOwner().getId() && user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_HANDELSPOSTEN_PM))
 			{
 				PM.send(tradepost.getOwner(), tradepost.getOwner().getId(), "Warenverkauf an "+tradepost.getName(), pmText.toString());
 			}
@@ -361,7 +362,7 @@ public class TradeController extends Controller
 
 			ship.recalculateShipStatus();
 			//Benachrichtigung fuer HP-Besitzer schreiben
-			if(ship.getOwner().getId()!=tradepost.getOwner().getId())
+			if(ship.getOwner().getId()!=tradepost.getOwner().getId() && user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_HANDELSPOSTEN_PM))
 			{
 				PM.send(tradepost.getOwner(), tradepost.getOwner().getId(), "Warenankauf an "+tradepost.getName(), pmText.toString());
 			}
