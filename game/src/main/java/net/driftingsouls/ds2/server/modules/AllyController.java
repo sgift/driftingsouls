@@ -134,11 +134,10 @@ public class AllyController extends Controller
 	 * die notwendigen Tasks und benachrichtigt die Unterstuetzer der Gruendung.
 	 *  @param name Der Name der neuen Allianz
 	 * @param confuser1 Die User-ID des ersten Unterstuetzers
-	 * @param confuser2 Die User-ID des zweiten Unterstuetzers
 	 * @param show Die Aktion die nach der Durchfuehrung angezeigt werden soll
 	 */
 	@Action(ActionType.DEFAULT)
-	public RedirectViewResult foundAction(String name, User confuser1, User confuser2, String show)
+	public RedirectViewResult foundAction(String name, User confuser1, String show)
 	{
 		User user = (User) getUser();
 
@@ -155,15 +154,10 @@ public class AllyController extends Controller
 			return new RedirectViewResult("defaultNoAlly").withMessage("Fehler: Sie haben bereits einen Aufnahmeantrag bei einer Allianz gestellt");
 		}
 
-		if (confuser1 == confuser2)
-		{
-			return new RedirectViewResult("showCreateAlly").withMessage("<span style=\"color:red\">Einer der angegebenen Unterstützer ist ungültig</span>\n");
-		}
 
-		if ((confuser1 == null) || (confuser1.getAlly() != null) ||
-				(confuser2 == null) || (confuser2.getAlly() != null))
+		if ((confuser1 == null) || (confuser1.getAlly() != null))
 		{
-			return new RedirectViewResult("showCreateAlly").withMessage("<span style=\"color:red\">Einer der angegebenen Unterstützer ist ungültig</span>\n");
+			return new RedirectViewResult("showCreateAlly").withMessage("<span style=\"color:red\">Der angegebene Unterstützer ist ungültig</span>\n");
 		}
 
 		if (allianzService.isUserAnAllianzgruendungBeteiligt(confuser1))
@@ -180,39 +174,21 @@ public class AllyController extends Controller
 			}
 		}
 
-		if (allianzService.isUserAnAllianzgruendungBeteiligt(confuser2))
+		if ((confuser1 == null))
 		{
-			confuser2 = null;
-		}
-		else
-		{
-			tasks = taskmanager.getTasksByData(Taskmanager.Types.ALLY_NEW_MEMBER, "*",
-					Integer.toString(confuser2.getId()), "*");
-			if (tasks.length > 0)
-			{
-				confuser2 = null;
-			}
-		}
-
-		if ((confuser1 == null) || (confuser2 == null))
-		{
-			return new RedirectViewResult("showCreateAlly").withMessage("<span style=\"color:red\">Einer der angegebenen Unterstützer versucht bereits, in einer anderen Allianz Mitglied zu werden.</span>\n");
+			return new RedirectViewResult("showCreateAlly").withMessage("<span style=\"color:red\">Der angegebene Unterstützer versucht bereits in einer anderen Allianz Mitglied zu werden.</span>\n");
 		}
 
 		String mastertaskid = taskmanager.addTask(
 				Taskmanager.Types.ALLY_FOUND, 21,
-				"2", name, user.getId() + "," + confuser1.getId() + "," + confuser2.getId());
+				"2", name, user.getId() + "," + confuser1.getId() );
 		String conf1taskid = taskmanager.addTask(
 				Taskmanager.Types.ALLY_FOUND_CONFIRM, 21,
 				mastertaskid, Integer.toString(confuser1.getId()), "");
-		String conf2taskid = taskmanager.addTask(
-				Taskmanager.Types.ALLY_FOUND_CONFIRM, 21,
-				mastertaskid, Integer.toString(confuser2.getId()), "");
 
-		PM.send(user, confuser1.getId(), "Allianzgründung", "[automatische Nachricht]\nIch habe vor die Allianz " + name + " zu gründen. Da zwei Spieler dieses Vorhaben unterstützen müssen, habe ich mich an Dich gewendet.\nAchtung: Durch die Unterstützung wirst Du automatisch Mitglied!\n\n[_intrnlConfTask=" + conf1taskid + "]Willst Du die Allianzgründung unterstützen?[/_intrnlConfTask]", PM.FLAGS_IMPORTANT);
-		PM.send(user, confuser2.getId(), "Allianzgründung", "[automatische Nachricht]\nIch habe vor die Allianz " + name + " zu gründen. Da zwei Spieler dieses Vorhaben unterstützen müssen, habe ich mich an Dich gewendet.\nAchtung: Durch die Unterstützung wirst Du automatisch Mitglied!\n\n[_intrnlConfTask=" + conf2taskid + "]Willst Du die Allianzgründung unterstützen?[/_intrnlConfTask]", PM.FLAGS_IMPORTANT);
+		PM.send(user, confuser1.getId(), "Allianzgründung", "[automatische Nachricht]\nIch habe vor die Allianz " + name + " zu gründen. Da mindestens ein Spieler dieses Vorhaben unterstützen muss, habe ich mich an Dich gewendet.\nAchtung: Durch die Unterstützung wirst Du automatisch Mitglied!\n\n[_intrnlConfTask=" + conf1taskid + "]Willst Du die Allianzgründung unterstützen?[/_intrnlConfTask]", PM.FLAGS_IMPORTANT);
 
-		return new RedirectViewResult("defaultNoAlly").withMessage("Die beiden angegebenen Spieler wurden via PM benachrichtigt. Sollten sich beide zur Unterstützung entschlossen haben, wird die Allianz augenblicklich gegründet. Du wirst dann außerdem via PM benachrichtigt.");
+		return new RedirectViewResult("defaultNoAlly").withMessage("Der angegebene Spieler wurden via PM benachrichtigt. Sollten er sich zur Unterstützung entschlossen haben, wird die Allianz augenblicklich gegründet. Du wirst dann außerdem via PM benachrichtigt.");
 	}
 
 	/**
