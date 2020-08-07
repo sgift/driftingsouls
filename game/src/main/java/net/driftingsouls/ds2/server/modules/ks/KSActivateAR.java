@@ -21,9 +21,10 @@ package net.driftingsouls.ds2.server.modules.ks;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Alarmstufe;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 import java.io.IOException;
-import java.util.Map;
 
 /**
  * Aktiviert bei einem Schiff in der Schlacht den roten Alarm.
@@ -34,8 +35,9 @@ public class KSActivateAR extends BasicKSMenuAction
     @Override
     public Result validate(Battle battle) {
 
-        Map<String,Integer> weaponlist = battle.getOwnShip().getTypeData().getWeapons();
-        if(battle.getOwnShip().getShip().getAlarm() != Alarmstufe.RED && weaponlist != null)
+        ShipTypeData shiptype = battle.getOwnShip().getShip().getTypeData();
+
+        if(battle.getOwnShip().getShip().getAlarm() != Alarmstufe.RED && (shiptype.getShipClass() != ShipClasses.GESCHUETZ) && shiptype.isMilitary())
         {
             return Result.OK;
         }
