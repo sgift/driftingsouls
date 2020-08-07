@@ -461,7 +461,7 @@ public class ErsteigernController extends Controller
 
 		PM.send(factionUser, tmp.getId(), "RE überwiesen bekommen", user.getNickname()
 				+ " hat Dir soeben " + Common.ln(count) + " RE überwiesen.");
-		PM.send(factionUser, user.getId(), "RE-Überweisung durchgefürt",
+		PM.send(factionUser, user.getId(), "RE-Überweisung durchgeführt",
 				"Du hast " + tmp.getNickname() + " soeben " + Common.ln(count)
 						+ " RE überwiesen.");
 
