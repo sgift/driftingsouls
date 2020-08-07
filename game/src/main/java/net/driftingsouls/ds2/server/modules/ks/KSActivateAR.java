@@ -23,6 +23,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Alarmstufe;
 
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * Aktiviert bei einem Schiff in der Schlacht den roten Alarm.
@@ -32,7 +33,9 @@ public class KSActivateAR extends BasicKSMenuAction
 {
     @Override
     public Result validate(Battle battle) {
-        if(battle.getOwnShip().getShip().getAlarm() != Alarmstufe.RED)
+
+        Map<String,Integer> weaponlist = battle.getOwnShip().getTypeData().getWeapons();
+        if(battle.getOwnShip().getShip().getAlarm() != Alarmstufe.RED && weaponlist != null)
         {
             return Result.OK;
         }
