@@ -97,7 +97,7 @@ public class ErsteigernController extends Controller
 			}
 			else
 			{
-				throw new ValidierungException("Keine Fraktion will mit Ihnen zu handeln, solange die Beziehungen feindlich sind.");
+				throw new ValidierungException("Keine Fraktion will mit Ihnen handeln, solange die Beziehungen feindlich sind.");
 			}
 		}
 
@@ -459,9 +459,9 @@ public class ErsteigernController extends Controller
 				+ Common.getIngameTime(ticks));
 		User factionUser = factionObj.getUser();
 
-		PM.send(factionUser, tmp.getId(), "RE überwiesen", user.getNickname()
+		PM.send(factionUser, tmp.getId(), "RE überwiesen bekommen", user.getNickname()
 				+ " hat Dir soeben " + Common.ln(count) + " RE überwiesen.");
-		PM.send(factionUser, user.getId(), "RE überwiesen an " + tmp.getNickname(),
+		PM.send(factionUser, user.getId(), "RE-Überweisung durchgefürt",
 				"Du hast " + tmp.getNickname() + " soeben " + Common.ln(count)
 						+ " RE überwiesen.");
 
