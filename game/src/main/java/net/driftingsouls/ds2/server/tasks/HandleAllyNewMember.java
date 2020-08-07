@@ -32,10 +32,10 @@ import java.util.List;
 /**
  * TASK_ALLY_NEW_MEMBER
  * 		Einer Allianz beitreten (Aufnahmeantrag).
- * 
+ *
  * 	- data1 -> die ID der Allianz
  *  - data2 -> die ID des Spielers, der den Antrag gestellt hat
- *  - data3 -> unbenutzt  
+ *  - data3 -> unbenutzt
  *
  *  @author Christopher Jung
  */
@@ -43,7 +43,7 @@ import java.util.List;
 public class HandleAllyNewMember implements TaskHandler {
 
 	@Override
-	public void handleEvent(Task task, String event) {	
+	public void handleEvent(Task task, String event) {
 		Context context = ContextMap.getContext();
 		User user = (User)context.getActiveUser();
 
@@ -82,7 +82,7 @@ public class HandleAllyNewMember implements TaskHandler {
 				PM.send(user, player.getId(), "Aufnahmeantrag", "[Automatische Nachricht]\nDu wurdest in die Allianz >" + ally.getName() + "< aufgenommen\n\nHerzlichen Gr&uuml;ckwunsch!");
 
 				// Check, ob wir eine TM_TASK_LOW_MEMBER entfernen muessen
-				if (membercount == 3)
+				if (membercount == 2)
 				{
 					Task[] tasks = Taskmanager.getInstance().getTasksByData(Taskmanager.Types.ALLY_LOW_MEMBER, Integer.toString(ally.getId()), "*", "*");
 					for (Task task1 : tasks)
@@ -104,7 +104,7 @@ public class HandleAllyNewMember implements TaskHandler {
 				break;
 			}
 		}
-		
+
 		Taskmanager.getInstance().removeTask( task.getTaskID() );
 	}
 
