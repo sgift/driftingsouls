@@ -83,7 +83,7 @@
 		<div class="smallfont">
 			<br />
 		</div>
-		
+
 		<table cellspacing="2" cellpadding="2">
  		<tr>
  			<td><span style="font-weight:bold">{ally.pname}:</span></td>
@@ -101,7 +101,7 @@
  				</tr>
  			<!-- END ally.posten.listitem -->
  		{/endif}
- 		
+
  		{if ally.addmembers.list}
  			<tr>
  				<td valign="top">Weitere Mitglieder:</td>
@@ -122,7 +122,7 @@
 		{else}
 			<div class="gfxbox" style="width:440px">
 		{/endif}
-		
+
 		<table class="noBorderX" width="100%">
 		<tr>
 			<td {if user.president}colspan="3"{/endif} class="noBorderX">
@@ -233,7 +233,7 @@
 			<br />
 			<br />
 		</div>
-		
+
 		<script type="text/javascript">
 		<!--
 			function channelSelectChanged(type,id) {
@@ -257,7 +257,7 @@
 			}
 		-->
 		</script>
-		
+
 		<table class="noBorder">
 		<tr>
 			<!-- BEGIN show.einstellungen.channels.listitem -->
@@ -265,7 +265,7 @@
 					<div class="gfxbox" style="width:360px">
 						<div align="center">
 							{show.einstellungen.channels.index}. Com-Net-Frequenz -
-							{if show.einstellungen.channels.id} 
+							{if show.einstellungen.channels.id}
 								{!link_to löschen, deleteChannel, css_class:error, channel:$show.einstellungen.channels.id}
 							{/endif}
 						</div>
@@ -290,7 +290,7 @@
 							<tr>
 								<td class="noBorderX" style="vertical-align:top">Lesen:</td>
 								<td class="noBorderX">
-									<select id="channelSelectRead{show.einstellungen.channels.id}" name="read" size="1" onchange="channelSelectChanged('read','{show.einstellungen.channels.id}')"  style="width:180px">	
+									<select id="channelSelectRead{show.einstellungen.channels.id}" name="read" size="1" onchange="channelSelectChanged('read','{show.einstellungen.channels.id}')"  style="width:180px">
 										{if show.einstellungen.channels.readall}
 											<option selected="selected" value="all">Alle</option>
 											<option value="ally">Allianz</option>
@@ -424,7 +424,7 @@
 						<select size="1" name="user">
 							<!-- BEGIN show.posten.addposten.userlist.listitem -->
 								<option value="{show.posten.addposten.userlist.id}">{show.posten.addposten.userlist.name}</option>
-							<!-- END show.posten.addposten.userlist.listitem -->			
+							<!-- END show.posten.addposten.userlist.listitem -->
 						</select>
 					</td>
 					<td class="noBorderX">
@@ -611,7 +611,7 @@
 			<br />
 		</div>
 	{/endif}
-	
+
 	{if show.create}
 		<div class="gfxbox" style="width:490px">
 			<form action="./ds" method="post">
@@ -624,15 +624,11 @@
 				<td class="noBorderX"><input name="name" type="text" size="20" maxlength="60" value="" /></td>
 			</tr>
 			<tr>
-				<td class="noBorderX" colspan="2">Du benötigst zwei Spieler, die die Allianzgründung unterstützen. Diese werden automatisch Mitglied der Allianz!</td>
+				<td class="noBorderX" colspan="2">Du benötigst einen Spieler, der die Allianzgründung unterstützt. Dieser wird automatisch Mitglied der Allianz!</td>
 			</tr>
 			<tr>
-				<td class="noBorderX">1. Unterstützer:</td>
+				<td class="noBorderX">Unterstützer:</td>
 				<td class="noBorderX"><input name="confuser1" type="text" size="20" value="ID" /></td>
-			</tr>
-			<tr>
-				<td class="noBorderX">2. Unterstützer:</td>
-				<td class="noBorderX"><input name="confuser2" type="text" size="20" value="ID" /></td>
 			</tr>
 			<tr>
 				<td colspan="2" align="center" class="noBorderX">
@@ -659,5 +655,5 @@
 			</tr>
 		<!-- END show.join.allylist.listitem -->
 		</table>
-	{/endif}	
+	{/endif}
 {/endif}
