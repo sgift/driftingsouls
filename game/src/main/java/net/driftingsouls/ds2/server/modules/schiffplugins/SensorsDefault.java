@@ -1091,12 +1091,14 @@ public class SensorsDefault implements SchiffPlugin {
 
             ShipTypeData type = aship.getTypeData();
 
-            double size = type.getSize();
-            if (aship.getEinstellungen().gotoSecondrow()) {
-                if (!aship.isDocked() && !aship.isLanded()) {
-                    secondrowcaps += size;
-                }
-            }
+						double size = type.getSize();
+
+						if (aship.getBaseType().hasFlag(ShipTypeFlag.SECONDROW) && aship.getEinstellungen().gotoSecondrow()) {
+							if (!aship.isDocked() && !aship.isLanded())
+							{
+								secondrowcaps += size;
+							}
+						}
             else
             {
                 if (size > ShipType.SMALL_SHIP_MAXSIZE) {
