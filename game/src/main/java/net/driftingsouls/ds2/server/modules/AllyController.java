@@ -186,7 +186,7 @@ public class AllyController extends Controller
 				Taskmanager.Types.ALLY_FOUND_CONFIRM, 21,
 				mastertaskid, Integer.toString(confuser1.getId()), "");
 
-		PM.send(user, confuser1.getId(), "Allianzgründung", "[automatische Nachricht]\nIch habe vor die Allianz " + name + " zu gründen. Da mindestens ein Spieler dieses Vorhaben unterstützen muss, habe ich mich an Dich gewendet.\nAchtung: Durch die Unterstützung wirst Du automatisch Mitglied!\n\n[_intrnlConfTask=" + conf1taskid + "]Willst Du die Allianzgründung unterstützen?[/_intrnlConfTask]", PM.FLAGS_IMPORTANT);
+		PM.send(user, confuser1.getId(), "Allianzgründung", "[automatische Nachricht]\nIch habe vor, die Allianz " + name + " zu gründen. Da mindestens ein Spieler dieses Vorhaben unterstützen muss, habe ich mich an Dich gewendet.\nAchtung: Durch die Unterstützung wirst Du automatisch Mitglied der neuen Allianz!\n\n[_intrnlConfTask=" + conf1taskid + "]Willst Du die Allianzgründung unterstützen?[/_intrnlConfTask]", PM.FLAGS_IMPORTANT);
 
 		return new RedirectViewResult("defaultNoAlly").withMessage("Der angegebene Spieler wurden via PM benachrichtigt. Sollten er sich zur Unterstützung entschlossen haben, wird die Allianz augenblicklich gegründet. Du wirst dann außerdem via PM benachrichtigt.");
 	}
