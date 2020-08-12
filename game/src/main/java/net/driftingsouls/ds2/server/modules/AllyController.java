@@ -181,7 +181,7 @@ public class AllyController extends Controller
 
 		String mastertaskid = taskmanager.addTask(
 				Taskmanager.Types.ALLY_FOUND, 21,
-				"2", name, user.getId() + "," + confuser1.getId() );
+				"1", name, user.getId() + "," + confuser1.getId() );
 		String conf1taskid = taskmanager.addTask(
 				Taskmanager.Types.ALLY_FOUND_CONFIRM, 21,
 				mastertaskid, Integer.toString(confuser1.getId()), "");
