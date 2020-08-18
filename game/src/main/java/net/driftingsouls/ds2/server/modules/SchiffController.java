@@ -254,11 +254,11 @@ public class SchiffController extends Controller
 			TemplateEngine t = templateViewResultFactory.createFor(this);
 
 			ShipTypeData shiptype = ship.getTypeData();
-			String msg = "Ich habe Dir die [ship="+ship.getId()+"]" + ship.getName() + "[/ship], ein Schiff der " + shiptype.getNickname() + "-Klasse, &uuml;bergeben\nSie steht bei " + ship.getLocation().displayCoordinates(false);
-			PM.send(user, newowner.getId(), "Schiff &uuml;bergeben", msg);
+			String msg = "Ich habe Dir die [ship="+ship.getId()+"]" + ship.getName() + "[/ship], ein Schiff der " + shiptype.getNickname() + "-Klasse, übergeben\nSie steht bei " + ship.getLocation().displayCoordinates(false);
+			PM.send(user, newowner.getId(), "Schiff übergeben", msg);
 
 			String consMessage = Ship.MESSAGE.getMessage();
-			t.setVar("ship.message", (!consMessage.equals("") ? consMessage + "<br />" : "") + "<span style=\"color:green\">Das Schiff wurde erfolgreich an " + newowner.getProfileLink() + " &uuml;bergeben</span><br />");
+			t.setVar("ship.message", (!consMessage.equals("") ? consMessage + "<br />" : "") + "<span style=\"color:green\">Das Schiff wurde erfolgreich an " + newowner.getProfileLink() + " übergeben</span><br />");
 
 			if (fleet != null)
 			{
@@ -297,7 +297,7 @@ public class SchiffController extends Controller
 
 		if (conf == 0)
 		{
-			String text = "<span style=\"color:white\">Wollen sie Selbstzerst&ouml;rung des Schiffes " + Common._plaintitle(ship.getName()) + " (" + ship.getId() + ") wirklich ausführen?</span><br />\n";
+			String text = "<span style=\"color:white\">Wollen Sie die Selbstzerstörung des Schiffes " + Common._plaintitle(ship.getName()) + " (" + ship.getId() + ") wirklich ausführen?</span><br />\n";
 			text += "<a class=\"error\" href=\"" + Common.buildUrl("destroy", "ship", ship.getId(), "conf", 1) + "\">Selbstzerstörung starten!</a></span><br />";
 			return new RedirectViewResult("default").withMessage(text);
 		}
@@ -305,7 +305,7 @@ public class SchiffController extends Controller
 		ship.destroy();
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
-		t.setVar("ship.message", "<span style=\"color:white\">Das Schiff hat sich selbst zerst&ouml;rt.</span><br />");
+		t.setVar("ship.message", "<span style=\"color:white\">Das Schiff hat sich selbst zerstört.</span><br />");
 		return t;
 	}
 
@@ -512,7 +512,7 @@ public class SchiffController extends Controller
 
 			if (docked.getOwner() != user)
 			{
-				addError("Eines der Schiffe gehoert nicht Ihnen.");
+				addError("Eines der Schiffe gehört nicht Ihnen.");
 				return new RedirectViewResult("default");
 			}
 

@@ -31,12 +31,12 @@ import org.springframework.stereotype.Service;
 
 /**
  * TASK_ALLY_LOW_MEMBER
- * 		Eine Allianz hat weniger als 3 Mitglieder (Praesi eingerechnet) und ist daher von der Aufloesung bedroht.
- * 
+ * 		Eine Allianz hat weniger als 2 Mitglieder (Praesi eingerechnet) und ist daher von der Aufloesung bedroht.
+ *
  * 	- data1 -> die ID der betroffenen Allianz
  *  - data2 -> unbenutzt
  *  - data3 -> unbenutzt
- *   
+ *
  *  @author Christopher Jung
  */
 @Service
@@ -50,24 +50,24 @@ public class HandleAllyLowMember implements TaskHandler {
 	}
 
 	@Override
-	public void handleEvent(Task task, String event) {	
+	public void handleEvent(Task task, String event) {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 		if( event.equals("tick_timeout") ) {
 			int allyid = Integer.parseInt(task.getData1());
-			
+
 			Ally ally = (Ally)db.get(Ally.class, allyid);
 			if( ally == null ) {
 				Taskmanager.getInstance().removeTask( task.getTaskID() );
-				return;	
+				return;
 			}
-			
+
 			User source = (User)db.get(User.class, new ConfigService().getValue(WellKnownConfigValue.ALLIANZAUFLOESUNG_PM_SENDER));
-			
-			PM.sendToAlly(source, ally, "Allianzauflösung", "[Automatische Nachricht]\n\nDeine Allianz wurde mit sofortiger Wirkung aufgel&ouml;st. Der Grund ist Spielermangel. Grunds&auml;tzlich m&uuml;ssen Allianzen mindestens 3 Mitglieder haben um bestehen zu k&ouml;nnen. Da deine Allianz in der vorgegebenen Zeit dieses Ziel nicht erreichen konnte war die Aufl&ouml;sung unumg&auml;nglich.");
+
+			PM.sendToAlly(source, ally, "Allianzauflösung", "[Automatische Nachricht]\n\nDeine Allianz wurde mit sofortiger Wirkung aufgel&ouml;st. Der Grund ist Spielermangel. Grunds&auml;tzlich m&uuml;ssen Allianzen mindestens 2 Mitglieder haben um bestehen zu k&ouml;nnen. Da deine Allianz in der vorgegebenen Zeit dieses Ziel nicht erreichen konnte war die Aufl&ouml;sung unumg&auml;nglich.");
 
 			allianzService.loeschen(ally);
-			
+
 			Taskmanager.getInstance().removeTask( task.getTaskID() );
 		}
 	}

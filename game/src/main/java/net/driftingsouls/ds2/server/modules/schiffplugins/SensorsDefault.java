@@ -1079,10 +1079,7 @@ public class SensorsDefault implements SchiffPlugin {
 	}
 
 	/**
-	 * Prueft, ob die zweite Reihe stabil ist. Beruecksichtigt wird auf Wunsch
-	 * auch eine Liste von Schiffen, welche der Schlacht noch nicht begetreten sind
-	 * (unter der Annahme, dass gemaess Flags die Schiffe in der ersten bzw zweiten
-	 * Reihe landen wuerden).
+	 * Prueft, ob die zweite Reihe stabil ist. B
 	 * @param shiplist Die Schiffsliste deren zweite Reihe geprueft werden soll
 	 * @return <code>true</code>, falls die zweite Reihe unter den Bedingungen stabil ist
 	 */
@@ -1094,12 +1091,14 @@ public class SensorsDefault implements SchiffPlugin {
 
             ShipTypeData type = aship.getTypeData();
 
-            double size = type.getSize();
-            if (type.hasFlag(ShipTypeFlag.SECONDROW)) {
-                if (!aship.isDocked() && !aship.isLanded()) {
-                    secondrowcaps += size;
-                }
-            }
+						double size = type.getSize();
+
+						if (aship.getBaseType().hasFlag(ShipTypeFlag.SECONDROW) && aship.getEinstellungen().gotoSecondrow()) {
+							if (!aship.isDocked() && !aship.isLanded())
+							{
+								secondrowcaps += size;
+							}
+						}
             else
             {
                 if (size > ShipType.SMALL_SHIP_MAXSIZE) {

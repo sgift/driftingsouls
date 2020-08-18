@@ -59,7 +59,7 @@ public class KSNewCommanderAction extends BasicKSAction {
 		User com = (User)context.getDB().get(User.class, newcom);
 
 		if( user.getId() == com.getId() ) {
-			battle.logme( "Sie k&ouml;nnen die Leitung der Schlacht nicht an sich selbst &uuml;bertragen\n" );
+			battle.logme( "Sie können die Leitung der Schlacht nicht an sich selbst übertragen\n" );
 			return Result.ERROR;
 		}
 
@@ -77,19 +77,19 @@ public class KSNewCommanderAction extends BasicKSAction {
 				}
 			}
 			if( !found ) {
-				battle.logme( "Sie k&ouml;nnen diesem Spieler nicht die Leitung der Schlacht &uuml;bertragen!\n" );
+				battle.logme( "Sie können diesem Spieler nicht die Leitung der Schlacht übertragen!\n" );
 				return Result.ERROR;
 			}
 		}
 
 		if( (com.getVacationCount() != 0) && (com.getWait4VacationCount() == 0) ) {
-			battle.logme( "Der Spieler befindet sich im Vacation-Modus!\n" );
+			battle.logme( "Der Spieler befindet sich im Urlaubsmodus!\n" );
 			return Result.ERROR;
 		}
 
-		PM.send(user, com.getId(), "Schlacht &uuml;bergeben", "Ich habe dir die Leitung der Schlacht bei "+battle.getLocation().displayCoordinates(false)+" &uuml;bergeben.");
+		PM.send(user, com.getId(), "Schlacht übergeben", "Ich habe Dir die Leitung der Schlacht bei "+battle.getLocation().displayCoordinates(false)+" übergeben.");
 
-		battle.log(new SchlachtLogAktion(battle.getOwnSide(), "[userprofile="+com.getId()+",profile_alog]"+Common._titleNoFormat(com.getName())+"[/userprofile] kommandiert nun die Truppen"));
+		battle.log(new SchlachtLogAktion(battle.getOwnSide(), "[userprofile="+com.getId()+",profile_alog]"+Common._titleNoFormat(com.getName())+"[/userprofile] kommandiert nun die Truppen."));
 
 		battle.setCommander(battle.getOwnSide(), com);
 

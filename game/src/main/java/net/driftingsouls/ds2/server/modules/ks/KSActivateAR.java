@@ -21,6 +21,8 @@ package net.driftingsouls.ds2.server.modules.ks;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.ships.Alarmstufe;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 import java.io.IOException;
 
@@ -32,7 +34,10 @@ public class KSActivateAR extends BasicKSMenuAction
 {
     @Override
     public Result validate(Battle battle) {
-        if(battle.getOwnShip().getShip().getAlarm() != Alarmstufe.RED)
+
+        ShipTypeData shiptype = battle.getOwnShip().getShip().getTypeData();
+
+        if(battle.getOwnShip().getShip().getAlarm() != Alarmstufe.RED && (shiptype.getShipClass() != ShipClasses.GESCHUETZ) && shiptype.isMilitary())
         {
             return Result.OK;
         }

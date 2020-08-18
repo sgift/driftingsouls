@@ -128,7 +128,7 @@ public class PlayerDelete implements AdminPlugin
 			if( ally.getPresident().getId() > 0 )
 			{
 				count = ally.getMemberCount() - 1;
-				if( count < 3 )
+				if( count < 2 )
 				{
 					Taskmanager.getInstance().addTask(Taskmanager.Types.ALLY_LOW_MEMBER, 21,
 							Integer.toString(ally.getId()), "", "");

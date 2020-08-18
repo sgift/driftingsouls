@@ -50,7 +50,6 @@ public class HandleAllyLowMemberTest extends DBSingleTransactionTest
 	private AllyPosten posten;
 	private User user1;
 	private User user2;
-	private User user3;
 	private Task task;
 
 	@Before
@@ -67,9 +66,6 @@ public class HandleAllyLowMemberTest extends DBSingleTransactionTest
 
 		this.user2 = persist(new User("testUser2", "***", 0, "", new Cargo(), "test2@localhost"));
 		ally.addUser(user2);
-		this.user3 = persist(new User("testUser3", "***", 0, "", new Cargo(), "test3@localhost"));
-		ally.addUser(user3);
-		this.user3.setAllyPosten(posten);
 
 		this.task = persist(new Task(Taskmanager.Types.ALLY_LOW_MEMBER));
 		this.task.setData1(String.valueOf(this.ally.getId()));
@@ -89,7 +85,7 @@ public class HandleAllyLowMemberTest extends DBSingleTransactionTest
 		assertThat(getEM().contains(ally), is(false));
 		assertThat(getEM().contains(posten), is(false));
 
-		for( User user : Arrays.asList(user1, user2, user3) )
+		for( User user : Arrays.asList(user1, user2) )
 		{
 			assertThat(user, not(nullValue()));
 			assertThat(user.getAlly(), nullValue());
@@ -97,7 +93,7 @@ public class HandleAllyLowMemberTest extends DBSingleTransactionTest
 		}
 
 		List<PM> pms = Common.cast(getDB().createCriteria(PM.class).list());
-		assertThat(pms.size(), is(3));
+		assertThat(pms.size(), is(2));
 		for (PM pm : pms)
 		{
 			assertThat(pm.getTitle(), is("Allianzauflösung"));
