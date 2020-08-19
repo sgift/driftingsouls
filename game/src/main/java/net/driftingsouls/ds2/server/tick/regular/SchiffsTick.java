@@ -826,7 +826,7 @@ public class SchiffsTick extends TickController {
 		BigInteger gesamtkosten = schiffsReKosten.getGesamtkosten();
 		if(auser.getKonto().compareTo(gesamtkosten.multiply(BigInteger.valueOf(8))) < 0)
 		{
-			PM.send(auser, auser.getId(), "Kontostand kritisch", auser.getPlainname() + ", dein Kontostand ist sehr niedrig. In weniger als einem Tag werden deine RE-Reserven nicht mehr ausreichen um die Ausgaben zu decken. Crews, die keinen Sold erhalten werden meutern und mit ihren Schiffen desertieren. Ein Besuch beim n&auml;chsten GTU-Handelsposten ist ratsam. Sollten deine Schiffe &uuml;bergelaufen sein oder du es nicht mehr zum Handelsposten schaffen, setze einen Hilferuf im Com-Net Channel 'Notfrequenz' ab. Vielleicht hilft dir ein Spieler.");
+			PM.send(auser, auser.getId(), "Kontostand kritisch", auser.getPlainname() + ", Dein Kontostand ist sehr niedrig. In weniger als einem Tag werden Deine RE-Reserven nicht mehr ausreichen, um die Besatzungsausgaben Deiner Raumschiffe und -stationen zu decken. Besatzungen, die keinen Sold erhalten, werden meutern und mit ihren Schiffen desertieren. Ein Besuch beim nächsten GTU-Handelsposten ist ratsam, dort kannst Du Rohstoffe verkaufen und erhältst neue Finanzmittel. Sollten deine Schiffe übergelaufen sein oder Du es nicht mehr zum Handelsposten schaffen, setze einen Hilferuf im Com-Net-Kanal 'Notfrequenz' ab. Vielleicht hilft Dir ein Spieler.");
 		}
 		if(auser.getKonto().compareTo(gesamtkosten) >= 0)
 		{
