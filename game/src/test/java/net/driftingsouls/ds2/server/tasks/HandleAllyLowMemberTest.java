@@ -66,6 +66,7 @@ public class HandleAllyLowMemberTest extends DBSingleTransactionTest
 
 		this.user2 = persist(new User("testUser2", "***", 0, "", new Cargo(), "test2@localhost"));
 		ally.addUser(user2);
+		this.user2.setAllyPosten(posten);
 
 		this.task = persist(new Task(Taskmanager.Types.ALLY_LOW_MEMBER));
 		this.task.setData1(String.valueOf(this.ally.getId()));

@@ -276,6 +276,7 @@ public class NPCOrderTick extends TickController {
 		SchiffHinzufuegenService schiffHinzufuegenService = new SchiffHinzufuegenService();
 		Ship ship = schiffHinzufuegenService.erstelle(user, shipd, loc, "[hide]NPC-Order[/hide]");
 		ship.setCargo(cargo);
+		ship.setNahrungCargo(shipd.getNahrungCargo());
 
 		this.log("Schiff "+ship.getId()+" erzeugt");
 		return ship;
