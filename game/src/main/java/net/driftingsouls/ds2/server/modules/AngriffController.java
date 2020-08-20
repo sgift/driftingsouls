@@ -73,9 +73,9 @@ public class AngriffController extends Controller
 	private final SchlachtErstellenService schlachtErstellenService;
 
 	@Autowired
-	public AngriffController(ConfigService configService,
-			TemplateViewResultFactory templateViewResultFactory,
-			SchlachtErstellenService schlachtErstellenService) {
+	public AngriffController(final ConfigService configService,
+			final TemplateViewResultFactory templateViewResultFactory,
+			final SchlachtErstellenService schlachtErstellenService) {
 		this.templateViewResultFactory = templateViewResultFactory;
 		this.schlachtErstellenService = schlachtErstellenService;
 
@@ -135,13 +135,13 @@ public class AngriffController extends Controller
 		return true;
 	}
 
-	private void showInfo(TemplateEngine t, String tag, BattleShip ship, boolean enemy, String jscriptid, boolean show) {
+	private void showInfo(final TemplateEngine t, final String tag, final BattleShip ship, final boolean enemy, final String jscriptid, final boolean show) {
 		if( ship == null ) {
 			addError("FATAL ERROR: Kein gueltiges Schiff vorhanden");
 			return;
 		}
 
-		ShipTypeData shipType = ship.getTypeData();
+		final ShipTypeData shipType = ship.getTypeData();
 
 		t.start_record();
 		t.setVar(	"shipinfo.jscriptid",		jscriptid,
@@ -292,7 +292,7 @@ public class AngriffController extends Controller
 		}
 
 		// Offiziere
-		Offizier offizier = ship.getShip().getOffizier();
+		final Offizier offizier = ship.getShip().getOffizier();
 		if( offizier != null ) {
 			t.setVar(	"offizier.rang",	offizier.getRang(),
 						"offizier.id",		offizier.getID(),
@@ -301,11 +301,11 @@ public class AngriffController extends Controller
 
 		if( !enemy ) {
 			// Waffen
-			Map<String,Integer> weapons = shipType.getWeapons();
-			Map<String,Integer> heat = ship.getWeaponHeat();
-			Map<String,Integer> maxheat = shipType.getMaxHeat();
+			final Map<String,Integer> weapons = shipType.getWeapons();
+			final Map<String,Integer> heat = ship.getWeaponHeat();
+			final Map<String,Integer> maxheat = shipType.getMaxHeat();
 
-			for( String weaponName : weapons.keySet() ) {
+			for( final String weaponName : weapons.keySet() ) {
 				t.setVar(	"shipinfo.weapon.name",		Weapons.get().weapon(weaponName).getName(),
 							"shipinfo.weapon.heat",     heat.getOrDefault(weaponName, 0),
 							"shipinfo.weapon.maxheat",	maxheat.get(weaponName) );
@@ -314,13 +314,13 @@ public class AngriffController extends Controller
 			}
 
 			// Munition
-			Cargo mycargo = ship.getCargo();
+			final Cargo mycargo = ship.getCargo();
 
 			t.setVar("shipinfo.ammo.list","");
-			List<ItemCargoEntry<Munition>> itemlist = mycargo.getItemsOfType(Munition.class);
-            for (ItemCargoEntry<Munition> item : itemlist) {
+			final List<ItemCargoEntry<Munition>> itemlist = mycargo.getItemsOfType(Munition.class);
+            for (final ItemCargoEntry<Munition> item : itemlist) {
                 if (item.getCount() > 0) {
-					Munition itemobject = item.getItem();
+					final Munition itemobject = item.getItem();
 
                     t.setVar("ammo.image", itemobject.getPicture(),
                             "ammo.name", itemobject.getName(),
@@ -337,7 +337,7 @@ public class AngriffController extends Controller
 			}*/
 
 			// Einheiten
-			UnitCargo unitcargo = ship.getUnits();
+			final UnitCargo unitcargo = ship.getUnits();
 
 			unitcargo.echoUnitList(t, "shipinfo.units.list", "shipinfo.units.listitem");
 		}
@@ -347,24 +347,24 @@ public class AngriffController extends Controller
 		t.clear_record();
 	}
 
-	private boolean showMenu(TemplateEngine t, Battle battle, StringBuilder action ) throws IOException {
-		User user = (User)this.getUser();
+	private boolean showMenu(final TemplateEngine t, final Battle battle, final StringBuilder action ) throws IOException {
+		final User user = (User)this.getUser();
 
-		BattleShip ownShip = battle.getOwnShip();
-		BattleShip enemyShip = battle.getEnemyShip();
+		final BattleShip ownShip = battle.getOwnShip();
+		final BattleShip enemyShip = battle.getEnemyShip();
 
 		// TODO: evt sollte das hier in ne eigene Action ausgelagert werden?
 		if( battle.getOwnLog(true).length() == 0 ) {
 			if( battle.isCommander(user,battle.getOwnSide()) ) {
 				if( battle.getTakeCommand(battle.getOwnSide()) != 0 ) {
-					User auser = (User)getContext().getDB().get(User.class, battle.getTakeCommand(battle.getOwnSide()));
+					final User auser = (User)getContext().getDB().get(User.class, battle.getTakeCommand(battle.getOwnSide()));
 
 					t.setVar(	"battle.takecommand.ask",	1,
 								"battle.takecommand.id",	battle.getTakeCommand(battle.getOwnSide()),
 								"battle.takecommand.name",	"<span style=\"color:#000050\">"+auser.getProfileLink(Common._titleNoFormat(auser.getName()))+"</span>");
 				}
 				else if( battle.isReady(battle.getOwnSide()) ) {
-					KSMenuHistoryAction historyobj = new KSMenuHistoryAction();
+					final KSMenuHistoryAction historyobj = new KSMenuHistoryAction();
 
 					historyobj.setController(this);
 
@@ -391,10 +391,10 @@ public class AngriffController extends Controller
 
 					if( menuActions.containsKey(action.toString()) ) {
 						try {
-							BasicKSMenuAction actionobj = menuActions.get(action.toString()).getDeclaredConstructor().newInstance();
+							final BasicKSMenuAction actionobj = menuActions.get(action.toString()).getDeclaredConstructor().newInstance();
 							actionobj.setController(this);
 
-							BasicKSAction.Result result = actionobj.execute(t, battle);
+							final BasicKSAction.Result result = actionobj.execute(t, battle);
 							if( result == BasicKSAction.Result.HALT ) {
 								return false;
 							}
@@ -402,7 +402,7 @@ public class AngriffController extends Controller
 								action.setLength(0);
 							}
 						}
-						catch( Exception e ) {
+						catch( final Exception e ) {
 							addError("Kann Menue nicht aufrufen: "+e);
 							log.error("Darstellung des KS-Menues "+action+" fehlgeschlagen", e);
 
@@ -412,13 +412,13 @@ public class AngriffController extends Controller
 				}
 			}
 			else {
-				KSMenuHistoryAction historyobj = new KSMenuHistoryAction();
+				final KSMenuHistoryAction historyobj = new KSMenuHistoryAction();
 
 				historyobj.setController(this);
 
 				if( (battle.getAlly(battle.getOwnSide()) != 0) && (battle.getTakeCommand(battle.getOwnSide()) == 0) &&
 					(user.getAlly() != null) && (battle.getAlly(battle.getOwnSide()) == user.getAlly().getId()) ) {
-					User auser = battle.getCommander(battle.getOwnSide());
+					final User auser = battle.getCommander(battle.getOwnSide());
 					if( auser.getInactivity() >= 0 ) {
 						historyobj.showTakeCommand(true);
 					}
@@ -439,11 +439,11 @@ public class AngriffController extends Controller
 		}
 
 		if( battle.getOwnLog(true).length() > 0 ) {
-			BBCodeParser bbcodeparser = BBCodeParser.getNewInstance();
+			final BBCodeParser bbcodeparser = BBCodeParser.getNewInstance();
 			try {
 				bbcodeparser.registerHandler( "tooltip", 2, "<a class=\"aloglink tooltip\" href=\"#\">$1<span class='ttcontent'>$2</span></a>" );
 			}
-			catch( Exception e ) {
+			catch( final Exception e ) {
 				log.warn("Registrierung des BBCode-Handlers tooltip gescheitert", e);
 			}
 
@@ -497,15 +497,15 @@ public class AngriffController extends Controller
 			@UrlParam(name="addship") int addShipID,
 			@UrlParam(name="attack") int enemyShipID,
 			String ksaction,
-			@UrlParam(name="battle") int battleID,
+			@UrlParam(name="battle") final int battleID,
 			int forcejoin,
 			String scan,
-			String ownshipgroup,
-			String enemyshipgroup,
-			String weapon) throws IOException {
-		User user = (User)getUser();
-		TemplateEngine t = templateViewResultFactory.createFor(this);
-		org.hibernate.Session db = getDB();
+			final String ownshipgroup,
+			final String enemyshipgroup,
+			final String weapon) throws IOException {
+		final User user = (User)getUser();
+		final TemplateEngine t = templateViewResultFactory.createFor(this);
+		final org.hibernate.Session db = getDB();
 
 		if( ownShipID < 0 ) {
 			ownShipID = 0;
@@ -536,7 +536,7 @@ public class AngriffController extends Controller
 			try {
 				battle = schlachtErstellenService.erstelle(user, ownShipID, enemyShipID);
 			}
-			catch( IllegalArgumentException e ) {
+			catch( final IllegalArgumentException e ) {
 				throw new ValidierungException(e.getMessage());
 			}
 			battleCreated = true;
@@ -546,7 +546,7 @@ public class AngriffController extends Controller
 		}
 
 		if( forcejoin != 0 ) {
-			Ship jship = (Ship)db.get(Ship.class, addShipID);
+			final Ship jship = (Ship)db.get(Ship.class, addShipID);
 			if( (jship == null) || (jship.getId() < 0) || (jship.getOwner() != user) ) {
 				forcejoin = 0;
 			}
@@ -579,7 +579,7 @@ public class AngriffController extends Controller
 
 		if( (ksaction.length() > 0) && actions.containsKey(ksaction) ) {
 			try {
-				BasicKSAction actionobj = actions.get(ksaction).getDeclaredConstructor().newInstance();
+				final BasicKSAction actionobj = actions.get(ksaction).getDeclaredConstructor().newInstance();
 				actionobj.setController(this);
 
 				if( actionobj.execute(t, battle) == BasicKSAction.Result.HALT ) {
@@ -589,7 +589,7 @@ public class AngriffController extends Controller
 				ksaction = "";
 				t.setVar("global.ksaction","");
 			}
-			catch( Exception e ) {
+			catch( final Exception e ) {
 				addError("Kann Aktion nicht ausfuehren: "+e);
 				log.error("Ausfuehrung der KS-Aktion "+ksaction+" fehlgeschlagen", e);
 				int curOwnShipID = -1;
@@ -597,14 +597,14 @@ public class AngriffController extends Controller
 				try {
 					curOwnShipID = battle.getOwnShip().getId();
 				}
-				catch( IndexOutOfBoundsException e2 ) {
+				catch( final IndexOutOfBoundsException e2 ) {
 					// EMPTY
 				}
 
 				try {
 					curEnemyShipID = battle.getEnemyShip().getId();
 				}
-				catch( IndexOutOfBoundsException e2 ) {
+				catch( final IndexOutOfBoundsException e2 ) {
 					// EMPTY
 				}
 
@@ -612,19 +612,19 @@ public class AngriffController extends Controller
 			}
 		}
 
-		BattleShip enemyShip = battle.getEnemyShip();
-		ShipTypeData enemyShipType = enemyShip.getTypeData();
-		BattleShip ownShip = battle.getOwnShip();
-		ShipTypeData ownShipType = ownShip.getTypeData();
+		final BattleShip enemyShip = battle.getEnemyShip();
+		final ShipTypeData enemyShipType = enemyShip.getTypeData();
+		final BattleShip ownShip = battle.getOwnShip();
+		final ShipTypeData ownShipType = ownShip.getTypeData();
 
-		User oUser = ownShip.getOwner();
-    User eUser = enemyShip.getOwner();
+		final User oUser = ownShip.getOwner();
+    final User eUser = enemyShip.getOwner();
     if(ownShip.getShip().isDocked() || ownShip.getShip().isLanded())
 				{
-          int shipid = ownShip.getShip().getBaseShip().getId();
-          List<BattleShip> ownShipsTemp = battle.getOwnShips();
+          final int shipid = ownShip.getShip().getBaseShip().getId();
+          final List<BattleShip> ownShipsTemp = battle.getOwnShips();
 
-                    for (BattleShip ownShip1 : ownShipsTemp) {
+                    for (final BattleShip ownShip1 : ownShipsTemp) {
                         if (ownShip1.getId() == shipid) {
                             t.setVar("ownship.docked.name", ownShip1.getName(),
                                     "ownship.docked.id", shipid,
@@ -692,10 +692,10 @@ public class AngriffController extends Controller
           "enemyship.action.secondrow",	enemyShip.isSecondRow(),
           "user.race", oUser.getRace()  );
 
-		Nebel.Typ nebula = Nebel.getNebula(ownShip.getShip().getLocation());
+		final Nebel.Typ nebula = Nebel.getNebula(ownShip.getShip().getLocation());
 		if( nebula == null || nebula.allowsScan() )
 		{
-			Location loc = ownShip.getShip().getLocation();
+			final Location loc = ownShip.getShip().getLocation();
 			t.setVar("ownship.location.x", loc.getX(),
 					"ownship.location.y", loc.getY(),
 					"ownship.location.system", loc.getSystem());
@@ -741,7 +741,7 @@ public class AngriffController extends Controller
 
 		-----------------------------------------------------------*/
 
-		StringBuilder actionBuilder = new StringBuilder(ksaction);
+		final StringBuilder actionBuilder = new StringBuilder(ksaction);
 		if( !this.showMenu( t, battle, actionBuilder ) ) {
 			return null;
 		}
@@ -780,11 +780,11 @@ public class AngriffController extends Controller
 		int ownGroupCount = 0;
 		int enemyGroupCount = 0;
 
-		for( Integer stCount : battle.getShipTypeCount(battle.getOwnSide()).values() ) {
+		for( final Integer stCount : battle.getShipTypeCount(battle.getOwnSide()).values() ) {
 			ownGroupCount += stCount / SHIPGROUPSIZE;
 		}
 
-		for( Integer stCount : battle.getShipTypeCount(battle.getEnemySide()).values() ) {
+		for( final Integer stCount : battle.getShipTypeCount(battle.getEnemySide()).values() ) {
 			enemyGroupCount += stCount / SHIPGROUPSIZE;
 		}
 
@@ -794,7 +794,7 @@ public class AngriffController extends Controller
 
 		boolean showgroups = true; // (ownGroupCount >= 1) || (battle.getOwnShips().size() >= 10);
 		if( showgroups && (battle.getOwnShipGroup().length() > 0) ) {
-			String[] tmp = StringUtils.split(battle.getOwnShipGroup(), ':');
+			final String[] tmp = StringUtils.split(battle.getOwnShipGroup(), ':');
 			grouptype = Integer.parseInt(tmp[0]);
 			groupoffset = Integer.parseInt(tmp[1]);
 
@@ -819,9 +819,9 @@ public class AngriffController extends Controller
 			boolean firstEntry = true;
 			boolean secondrowDock = false;
 
-			List<BattleShip> ownShips = battle.getOwnShips();
+			final List<BattleShip> ownShips = battle.getOwnShips();
 			for( int i=0; i < ownShips.size(); i++ ) {
-				BattleShip aship = ownShips.get(i);
+				final BattleShip aship = ownShips.get(i);
 
 				t.start_record();
 
@@ -848,7 +848,7 @@ public class AngriffController extends Controller
 					}
 				}
 
-				ShipTypeData aShipType = aship.getTypeData();
+				final ShipTypeData aShipType = aship.getTypeData();
 				pos++;
 
 				// Energiestatus anzeigen, wenn der User kein Gast ist
@@ -869,9 +869,9 @@ public class AngriffController extends Controller
 				// Ist das Schiff gedockt?
 				if(aship.getShip().isDocked() || aship.getShip().isLanded())
 				{
-					int shipid = aship.getShip().getBaseShip().getId();
+					final int shipid = aship.getShip().getBaseShip().getId();
 
-                    for (BattleShip ownShip1 : ownShips) {
+                    for (final BattleShip ownShip1 : ownShips) {
                         if (ownShip1.getId() == shipid) {
                             t.setVar("ship.docked.name", ownShip1.getName(),
                                     "ship.docked.id", shipid,
@@ -883,7 +883,7 @@ public class AngriffController extends Controller
 										}
 				}
 
-				User aUser = aship.getOwner();
+				final User aUser = aship.getOwner();
 
 				t.setVar(	"ship.id",				aship.getId(),
 							"ship.name",			aship.getName(),
@@ -904,15 +904,15 @@ public class AngriffController extends Controller
 							"ship.action.shot", 	!battle.isGuest() && aship.hasFlag(BattleShipFlag.SHOT),
               "ship.mangelnahrung",       !battle.isGuest() && (aship.getShip().getStatus().contains("mangel_nahrung")),
               "ship.mangelreaktor",       !battle.isGuest() && (aship.getShip().getStatus().contains("mangel_reaktor")),
-              "ship.jdocks", 			aShipType.getJDocks(),
+              "ship.jdocks", 			!battle.isGuest()?aShipType.getJDocks():0,
               "ship.adocks", 			aShipType.getADocks(),
-              "ship.docks", 			aShipType.getADocks()+aShipType.getJDocks(),
+              "ship.docks", 			aShipType.getADocks()+(!battle.isGuest()?aShipType.getJDocks():0),
               "ship.adocks.docked",       aship.getShip().getDockedCount(),
-              "ship.jdocks.docked",       aship.getShip().getLandedCount(),
+              "ship.jdocks.docked",       !battle.isGuest()?aship.getShip().getLandedCount():0,
               "ship.action.joinflucht",   true,
 							"ship.action.frontrow",     false,
-							"ship.alarm",     aship.getShip().getAlarm().name().toLowerCase(),
-							"ship.alarmed",     aship.getShip().getAlarm().getCode() > 0 );
+							"ship.alarm",     !battle.isGuest()?aship.getShip().getAlarm().name().toLowerCase():"",
+							"ship.alarmed",     !battle.isGuest()?(aship.getShip().getAlarm().getCode() > 0):0 );
 
 
 				if( !firstEntry && showgroups && ((pos >= battle.getOwnShipTypeCount(grouptype)) || (pos == groupoffset+SHIPGROUPSIZE)) ) {
@@ -940,11 +940,11 @@ public class AngriffController extends Controller
 		else {
 			boolean firstEntry = true;
 
-			Map<String,GroupEntry> groupdata = new HashMap<>();
-			Map<Integer,Integer> shiptypegroupcount = new HashMap<>();
+			final Map<String,GroupEntry> groupdata = new HashMap<>();
+			final Map<Integer,Integer> shiptypegroupcount = new HashMap<>();
 
-			List<BattleShip> ownShips = battle.getOwnShips();
-            for (BattleShip aship : ownShips)
+			final List<BattleShip> ownShips = battle.getOwnShips();
+            for (final BattleShip aship : ownShips)
             {
                 if(!(aship.hasFlag(BattleShipFlag.JOIN)||aship.hasFlag(BattleShipFlag.FLUCHT))){
                   continue;
@@ -1010,9 +1010,9 @@ public class AngriffController extends Controller
                 }
             }
 
-			Map<Integer,Integer> shipTypes = battle.getShipTypeCount(battle.getOwnSide());
-			for( Map.Entry<Integer, Integer> entry : shipTypes.entrySet() ) {
-				int stid = entry.getKey();
+			final Map<Integer,Integer> shipTypes = battle.getShipTypeCount(battle.getOwnSide());
+			for( final Map.Entry<Integer, Integer> entry : shipTypes.entrySet() ) {
+				final int stid = entry.getKey();
 
 				if( entry.getValue() <= 0 ) {
 					continue;
@@ -1033,9 +1033,9 @@ public class AngriffController extends Controller
 
 					final String key = stid+":"+i;
 
-					ShipTypeData shiptype = Ship.getShipType(stid);
-          GroupEntry data = groupdata.get(key);
-          User aUser = ownShips.get(0).getOwner();
+					final ShipTypeData shiptype = Ship.getShipType(stid);
+          final GroupEntry data = groupdata.get(key);
+          final User aUser = ownShips.get(0).getOwner();
 					t.setVar(	"shiptypelist.count",		count,
 								"shiptypelist.name",		shiptype.getNickname(),
 								"shiptypelist.groupid",		key,
@@ -1048,21 +1048,21 @@ public class AngriffController extends Controller
 								"shiptypelist.hitcount",	data.hitcount,
 								"shiptypelist.fluchtcount",	data.fluchtcount,
 								"shiptypelist.joincount",	data.joincount,
-								"shiptypelist.shotcount",	data.shotcount,
+								"shiptypelist.shotcount",	!battle.isGuest()?data.shotcount:0,
 								"shiptypelist.fluchtnextcount",	0,
 								"shiptypelist.secondrowcount",	data.srcount,
 								"shiptypelist.secondrowstatus",	count-data.srcount,
-								"shiptypelist.mangelnahrungcount",	data.mangelnahrungcount,
-                "shiptypelist.mangelreaktorcount",	data.mangelreaktorcount,
-                "shiptypelist.landedcount", data.landedcount,
+								"shiptypelist.mangelnahrungcount",	!battle.isGuest()?data.mangelnahrungcount:0,
+                "shiptypelist.mangelreaktorcount",	!battle.isGuest()?data.mangelreaktorcount:0,
+                "shiptypelist.landedcount", !battle.isGuest()?data.landedcount:0,
                 "shiptypelist.dockedcount", data.dockedcount,
-                "shiptypelist.haslandedcount",  data.haslandedcount,
+                "shiptypelist.haslandedcount",  !battle.isGuest()?data.haslandedcount:0,
                 "shiptypelist.hasdockedcount",  data.hasdockedcount,
                 "shiptypelist.adockcount",  data.adockcount,
-                "shiptypelist.jdockcount",  data.jdockcount,
+                "shiptypelist.jdockcount",  !battle.isGuest()?data.jdockcount:0,
 								"shiptypelist.owner.race", 	aUser.getRace(),
-								"shiptypelist.alarmred",   data.alarmred,
-								"shiptypelist.alarmyellow",   data.alarmyellow );
+								"shiptypelist.alarmred",   !battle.isGuest()?data.alarmred:0,
+								"shiptypelist.alarmyellow",   !battle.isGuest()?data.alarmyellow:0 );
 
 					if( firstEntry ) {
 						firstEntry = false;
@@ -1087,9 +1087,9 @@ public class AngriffController extends Controller
 			energy = "";
 			boolean firstEntry = true;
 
-			List<BattleShip> ownShips = battle.getOwnShips();
+			final List<BattleShip> ownShips = battle.getOwnShips();
 			for( int i=0; i < ownShips.size(); i++ ) {
-				BattleShip aship = ownShips.get(i);
+				final BattleShip aship = ownShips.get(i);
 
 				t.start_record();
 
@@ -1120,7 +1120,7 @@ public class AngriffController extends Controller
 					}
 				}
 
-				ShipTypeData aShipType = aship.getTypeData();
+				final ShipTypeData aShipType = aship.getTypeData();
 				pos++;
 
 				// Energiestatus anzeigen, wenn der User kein Gast ist
@@ -1141,9 +1141,9 @@ public class AngriffController extends Controller
 				// Ist das Schiff gedockt?
 				if(aship.getShip().isDocked() || aship.getShip().isLanded())
 				{
-					int shipid = aship.getShip().getBaseShip().getId();
+					final int shipid = aship.getShip().getBaseShip().getId();
 
-                    for (BattleShip ownShip1 : ownShips) {
+                    for (final BattleShip ownShip1 : ownShips) {
                         if (ownShip1.getId() == shipid) {
                             t.setVar("ship.docked.name", ownShip1.getName(),
                                     "ship.docked.id", shipid,
@@ -1155,7 +1155,7 @@ public class AngriffController extends Controller
 										}
 				}
 
-				User aUser = aship.getOwner();
+				final User aUser = aship.getOwner();
 
 				t.setVar(	"ship.id",				aship.getId(),
 							"ship.name",			aship.getName(),
@@ -1176,15 +1176,15 @@ public class AngriffController extends Controller
               "ship.mangelnahrung",       !battle.isGuest() && (aship.getShip().getStatus().contains("mangel_nahrung")),
               "ship.mangelreaktor",       !battle.isGuest() && (aship.getShip().getStatus().contains("mangel_reaktor")),
               "ship.owner.race", 			aUser.getRace(),
-              "ship.jdocks", 			aShipType.getJDocks(),
+              "ship.jdocks", 			!battle.isGuest()?aShipType.getJDocks():0,
               "ship.adocks", 			aShipType.getADocks(),
-              "ship.docks", 			aShipType.getADocks()+aShipType.getJDocks(),
+              "ship.docks", 			aShipType.getADocks()+(!battle.isGuest()?aShipType.getJDocks():0),
               "ship.adocks.docked",       aship.getShip().getDockedCount(),
-              "ship.jdocks.docked",       aship.getShip().getLandedCount(),
+              "ship.jdocks.docked",       !battle.isGuest()? aship.getShip().getLandedCount():0,
               "ship.action.joinflucht",   false,
               "ship.action.frontrow",     false,
-							"ship.alarm",     aship.getShip().getAlarm().name().toLowerCase(),
-							"ship.alarmed",      aship.getShip().getAlarm().getCode() > 0  );
+							"ship.alarm",     !battle.isGuest()?aship.getShip().getAlarm().name().toLowerCase():"",
+							"ship.alarmed",      !battle.isGuest()?(aship.getShip().getAlarm().getCode() > 0):0  );
 
 
 				if( !firstEntry && showgroups && ((pos >= battle.getOwnShipTypeCount(grouptype)) || (pos == groupoffset+SHIPGROUPSIZE)) ) {
@@ -1212,11 +1212,11 @@ public class AngriffController extends Controller
 		else {
 			boolean firstEntry = true;
 
-			Map<String,GroupEntry> groupdata = new HashMap<>();
-			Map<Integer,Integer> shiptypegroupcount = new HashMap<>();
+			final Map<String,GroupEntry> groupdata = new HashMap<>();
+			final Map<Integer,Integer> shiptypegroupcount = new HashMap<>();
 
-			List<BattleShip> ownShips = battle.getOwnShips();
-            for (BattleShip aship : ownShips)
+			final List<BattleShip> ownShips = battle.getOwnShips();
+            for (final BattleShip aship : ownShips)
             {
 								if(!aship.isSecondRow()) {
 									continue;
@@ -1289,9 +1289,9 @@ public class AngriffController extends Controller
                 }
             }
 
-			Map<Integer,Integer> shipTypes = battle.getShipTypeCount(battle.getOwnSide());
-			for( Map.Entry<Integer, Integer> entry : shipTypes.entrySet() ) {
-				int stid = entry.getKey();
+			final Map<Integer,Integer> shipTypes = battle.getShipTypeCount(battle.getOwnSide());
+			for( final Map.Entry<Integer, Integer> entry : shipTypes.entrySet() ) {
+				final int stid = entry.getKey();
 
 				if( entry.getValue() <= 0 ) {
 					continue;
@@ -1310,9 +1310,9 @@ public class AngriffController extends Controller
 
 					final String key = stid+":"+i;
 
-					ShipTypeData shiptype = Ship.getShipType(stid);
-          GroupEntry data = groupdata.get(key);
-          User aUser = ownShips.get(0).getOwner();
+					final ShipTypeData shiptype = Ship.getShipType(stid);
+          final GroupEntry data = groupdata.get(key);
+          final User aUser = ownShips.get(0).getOwner();
 					t.setVar(	"shiptypelist.count",		count,
 								"shiptypelist.name",		shiptype.getNickname(),
 								"shiptypelist.groupid",		key,
@@ -1325,21 +1325,21 @@ public class AngriffController extends Controller
 								"shiptypelist.hitcount",	data.hitcount,
 								"shiptypelist.fluchtcount",	0,
 								"shiptypelist.joincount",	0,
-								"shiptypelist.shotcount",	data.shotcount,
+								"shiptypelist.shotcount",	!battle.isGuest()?data.shotcount:0,
 								"shiptypelist.fluchtnextcount",	data.fluchtnextcount,
 								"shiptypelist.secondrowcount",	data.srcount,
 								"shiptypelist.secondrowstatus",	count-data.srcount,
-								"shiptypelist.mangelnahrungcount",	data.mangelnahrungcount,
-                "shiptypelist.mangelreaktorcount",	data.mangelreaktorcount,
-                "shiptypelist.landedcount", data.landedcount,
+								"shiptypelist.mangelnahrungcount",	!battle.isGuest()?data.mangelnahrungcount:0,
+                "shiptypelist.mangelreaktorcount",	!battle.isGuest()?data.mangelreaktorcount:0,
+                "shiptypelist.landedcount", !battle.isGuest()?data.landedcount:0,
                 "shiptypelist.dockedcount", data.dockedcount,
-                "shiptypelist.haslandedcount",  data.haslandedcount,
+                "shiptypelist.haslandedcount",  !battle.isGuest()?data.haslandedcount:0,
                 "shiptypelist.hasdockedcount",  data.hasdockedcount,
                 "shiptypelist.adockcount",  data.adockcount,
-                "shiptypelist.jdockcount",  data.jdockcount,
+                "shiptypelist.jdockcount",  !battle.isGuest()?data.jdockcount:0,
                 "shiptypelist.owner.race", 				aUser.getRace() ,
-								"shiptypelist.alarmred",   data.alarmred,
-								"shiptypelist.alarmyellow",   data.alarmyellow );
+								"shiptypelist.alarmred",   !battle.isGuest()?data.alarmred:0,
+								"shiptypelist.alarmyellow",   !battle.isGuest()?data.alarmyellow:0 );
 
 					if( firstEntry ) {
 						firstEntry = false;
@@ -1364,9 +1364,9 @@ public class AngriffController extends Controller
 			energy = "";
 			boolean firstEntry = true;
 
-			List<BattleShip> ownShips = battle.getOwnShips();
+			final List<BattleShip> ownShips = battle.getOwnShips();
 			for( int i=0; i < ownShips.size(); i++ ) {
-				BattleShip aship = ownShips.get(i);
+				final BattleShip aship = ownShips.get(i);
 
 				t.start_record();
 
@@ -1383,7 +1383,7 @@ public class AngriffController extends Controller
           continue;
 				}
 				if( aship.getShip().isLanded()||aship.getShip().isDocked() ){
-					BattleShip baseShip = aship.getBaseShip();
+					final BattleShip baseShip = aship.getBaseShip();
 					if (baseShip != null){
 						if(baseShip.hasFlag(BattleShipFlag.SECONDROW)){
 							continue;
@@ -1401,7 +1401,7 @@ public class AngriffController extends Controller
 					}
 				}
 
-				ShipTypeData aShipType = aship.getTypeData();
+				final ShipTypeData aShipType = aship.getTypeData();
 				pos++;
 
 				// Energiestatus anzeigen, wenn der User kein Gast ist
@@ -1422,9 +1422,9 @@ public class AngriffController extends Controller
 				// Ist das Schiff gedockt?
 				if(aship.getShip().isDocked() || aship.getShip().isLanded())
 				{
-					int shipid = aship.getShip().getBaseShip().getId();
+					final int shipid = aship.getShip().getBaseShip().getId();
 
-                    for (BattleShip ownShip1 : ownShips) {
+                    for (final BattleShip ownShip1 : ownShips) {
                         if (ownShip1.getId() == shipid) {
                             t.setVar("ship.docked.name", ownShip1.getName(),
                                     "ship.docked.id", shipid,
@@ -1436,7 +1436,7 @@ public class AngriffController extends Controller
                     }
 				}
 
-				User aUser = aship.getOwner();
+				final User aUser = aship.getOwner();
 
 				t.setVar(	"ship.id",				aship.getId(),
 							"ship.name",			aship.getName(),
@@ -1457,15 +1457,15 @@ public class AngriffController extends Controller
               "ship.mangelnahrung",       !battle.isGuest() && (aship.getShip().getStatus().contains("mangel_nahrung")),
               "ship.mangelreaktor",       !battle.isGuest() && (aship.getShip().getStatus().contains("mangel_reaktor")),
               "ship.owner.race", 			aUser.getRace(),
-              "ship.jdocks", 			aShipType.getJDocks(),
+              "ship.jdocks", 			!battle.isGuest()?aShipType.getJDocks():0,
               "ship.adocks", 			aShipType.getADocks(),
-              "ship.docks", 			aShipType.getADocks()+aShipType.getJDocks(),
+              "ship.docks", 			aShipType.getADocks()+(!battle.isGuest()?aShipType.getJDocks():0),
               "ship.adocks.docked",       aship.getShip().getDockedCount(),
-              "ship.jdocks.docked",       aship.getShip().getLandedCount(),
+              "ship.jdocks.docked",       !battle.isGuest()?aship.getShip().getLandedCount():0,
               "ship.action.joinflucht",   false,
               "ship.action.frontrow",     true,
-							"ship.alarm",     aship.getShip().getAlarm().name().toLowerCase(),
-							"ship.alarmed",      aship.getShip().getAlarm().getCode() > 0  );
+							"ship.alarm",     !battle.isGuest()?aship.getShip().getAlarm().name().toLowerCase():"",
+							"ship.alarmed",      !battle.isGuest()?(aship.getShip().getAlarm().getCode() > 0):0  );
 
 
 				if( !firstEntry && showgroups && ((pos >= battle.getOwnShipTypeCount(grouptype)) || (pos == groupoffset+SHIPGROUPSIZE)) ) {
@@ -1493,17 +1493,17 @@ public class AngriffController extends Controller
 		else {
 			boolean firstEntry = true;
 
-			Map<String,GroupEntry> groupdata = new HashMap<>();
-			Map<Integer,Integer> shiptypegroupcount = new HashMap<>();
+			final Map<String,GroupEntry> groupdata = new HashMap<>();
+			final Map<Integer,Integer> shiptypegroupcount = new HashMap<>();
 
-			List<BattleShip> ownShips = battle.getOwnShips();
-            for (BattleShip aship : ownShips)
+			final List<BattleShip> ownShips = battle.getOwnShips();
+            for (final BattleShip aship : ownShips)
             {
                 if(aship.hasFlag(BattleShipFlag.FLUCHT) || aship.hasFlag(BattleShipFlag.JOIN) || aship.isSecondRow()  ){
                   continue;
 								}
 								if( aship.getShip().isLanded()||aship.getShip().isDocked() ){
-									BattleShip baseShip = aship.getBaseShip();
+									final BattleShip baseShip = aship.getBaseShip();
 									if (baseShip != null){
 										if(baseShip.hasFlag(BattleShipFlag.SECONDROW)){
 											continue;
@@ -1574,9 +1574,9 @@ public class AngriffController extends Controller
                 }
             }
 
-			Map<Integer,Integer> shipTypes = battle.getShipTypeCount(battle.getOwnSide());
-			for( Map.Entry<Integer, Integer> entry : shipTypes.entrySet() ) {
-				int stid = entry.getKey();
+			final Map<Integer,Integer> shipTypes = battle.getShipTypeCount(battle.getOwnSide());
+			for( final Map.Entry<Integer, Integer> entry : shipTypes.entrySet() ) {
+				final int stid = entry.getKey();
 
 				if( entry.getValue() <= 0 ) {
 					continue;
@@ -1597,9 +1597,9 @@ public class AngriffController extends Controller
 
 					final String key = stid+":"+i;
 
-					ShipTypeData shiptype = Ship.getShipType(stid);
-          GroupEntry data = groupdata.get(key);
-          User aUser = ownShips.get(0).getOwner();
+					final ShipTypeData shiptype = Ship.getShipType(stid);
+          final GroupEntry data = groupdata.get(key);
+          final User aUser = ownShips.get(0).getOwner();
 					t.setVar(	"shiptypelist.count",		count,
 								"shiptypelist.name",		shiptype.getNickname(),
 								"shiptypelist.groupid",		key,
@@ -1616,17 +1616,17 @@ public class AngriffController extends Controller
 								"shiptypelist.fluchtnextcount",	data.fluchtnextcount,
 								"shiptypelist.secondrowcount",	0,
 								"shiptypelist.secondrowstatus",	count-data.srcount,
-								"shiptypelist.mangelnahrungcount",	data.mangelnahrungcount,
-                "shiptypelist.mangelreaktorcount",	data.mangelreaktorcount,
-                "shiptypelist.landedcount", data.landedcount,
+								"shiptypelist.mangelnahrungcount",	!battle.isGuest()?data.mangelnahrungcount:0,
+                "shiptypelist.mangelreaktorcount",	!battle.isGuest()?data.mangelreaktorcount:0,
+                "shiptypelist.landedcount", !battle.isGuest()?data.landedcount:0,
                 "shiptypelist.dockedcount", data.dockedcount,
-                "shiptypelist.haslandedcount",  data.haslandedcount,
+                "shiptypelist.haslandedcount",  !battle.isGuest()?data.haslandedcount:0,
                 "shiptypelist.hasdockedcount",  data.hasdockedcount,
                 "shiptypelist.adockcount",  data.adockcount,
-                "shiptypelist.jdockcount",  data.jdockcount,
+                "shiptypelist.jdockcount",  !battle.isGuest()?data.jdockcount:0,
                 "shiptypelist.owner.race", 	aUser.getRace() ,
-								"shiptypelist.alarmred",   data.alarmred,
-								"shiptypelist.alarmyellow",   data.alarmyellow );
+								"shiptypelist.alarmred",   !battle.isGuest()?data.alarmred:0,
+								"shiptypelist.alarmyellow",   !battle.isGuest()?data.alarmyellow:0 );
 
 					if( firstEntry ) {
 						firstEntry = false;
@@ -1662,7 +1662,7 @@ public class AngriffController extends Controller
 
 		showgroups = true; //(enemyGroupCount >= 2) || (battle.getEnemyShips().size() >= 10); Gruppieren erzwingen, damit keine leeren Spalten im KS entstehen
 		if( showgroups && (battle.getEnemyShipGroup().length() > 0) ) {
-			String[] tmp = StringUtils.split(battle.getEnemyShipGroup(), ':');
+			final String[] tmp = StringUtils.split(battle.getEnemyShipGroup(), ':');
 			grouptype = Integer.parseInt(tmp[0]);
 			groupoffset = Integer.parseInt(tmp[1]);
 
@@ -1683,9 +1683,9 @@ public class AngriffController extends Controller
 			int pos = groupoffset;
 			boolean firstEntry = true;
 
-			List<BattleShip> enemyShips = battle.getEnemyShips();
+			final List<BattleShip> enemyShips = battle.getEnemyShips();
 			for( int i=0; i < enemyShips.size(); i++ ) {
-				BattleShip aship = enemyShips.get(i);
+				final BattleShip aship = enemyShips.get(i);
 
 				t.start_record();
 
@@ -1714,15 +1714,15 @@ public class AngriffController extends Controller
 					}
 				}
 
-				ShipTypeData aShipType = aship.getTypeData();
+				final ShipTypeData aShipType = aship.getTypeData();
 
 				pos++;
 
 				// Ist das Schiff gedockt?
 				if( aship.getShip().isDocked() ) {
-					int shipid = aship.getShip().getBaseShip().getId();
+					final int shipid = aship.getShip().getBaseShip().getId();
 
-                    for (BattleShip enemyShip1 : enemyShips) {
+                    for (final BattleShip enemyShip1 : enemyShips) {
                         if (enemyShip1.getId() == shipid) {
                             t.setVar("ship.docked.name", enemyShip1.getName());
 
@@ -1731,7 +1731,7 @@ public class AngriffController extends Controller
                     }
 				}
 
-				User aUser = aship.getOwner();
+				final User aUser = aship.getOwner();
 
 				t.setVar(	"ship.id",				aship.getId(),
 							"ship.name",			aship.getName(),
@@ -1778,12 +1778,12 @@ public class AngriffController extends Controller
 		else {
 			boolean firstEntry = true;
 
-			Map<String,GroupEntry> groupdata = new HashMap<>();
+			final Map<String,GroupEntry> groupdata = new HashMap<>();
 
-			Map<Integer,Integer> shiptypegroupcount = new HashMap<>();
+			final Map<Integer,Integer> shiptypegroupcount = new HashMap<>();
 
-			List<BattleShip> enemyShips = battle.getEnemyShips();
-            for (BattleShip aship : enemyShips) {
+			final List<BattleShip> enemyShips = battle.getEnemyShips();
+            for (final BattleShip aship : enemyShips) {
                 if (aship.getShip().isLanded()) {
                     continue;
                 }
@@ -1816,9 +1816,9 @@ public class AngriffController extends Controller
                 }
             }
 
-			Map<Integer,Integer> shipTypes = battle.getShipTypeCount(battle.getEnemySide());
-			for( Map.Entry<Integer, Integer> entry: shipTypes.entrySet() ) {
-				int stid = entry.getKey();
+			final Map<Integer,Integer> shipTypes = battle.getShipTypeCount(battle.getEnemySide());
+			for( final Map.Entry<Integer, Integer> entry: shipTypes.entrySet() ) {
+				final int stid = entry.getKey();
 				if( entry.getValue() <= 0 ) {
 					continue;
 				}
@@ -1836,9 +1836,9 @@ public class AngriffController extends Controller
 					}
 
 					final String key = stid+":"+i;
-					ShipTypeData shiptype = Ship.getShipType(stid);
+					final ShipTypeData shiptype = Ship.getShipType(stid);
 
-					GroupEntry data = groupdata.get(key);
+					final GroupEntry data = groupdata.get(key);
 
 					t.setVar(	"shiptypelist.count",		count,
 								"shiptypelist.name",		shiptype.getNickname(),
@@ -1879,9 +1879,9 @@ public class AngriffController extends Controller
 			int pos = groupoffset;
 			boolean firstEntry = true;
 
-			List<BattleShip> enemyShips = battle.getEnemyShips();
+			final List<BattleShip> enemyShips = battle.getEnemyShips();
 			for( int i=0; i < enemyShips.size(); i++ ) {
-				BattleShip aship = enemyShips.get(i);
+				final BattleShip aship = enemyShips.get(i);
 
 				t.start_record();
 
@@ -1915,15 +1915,15 @@ public class AngriffController extends Controller
 					}
 				}
 
-				ShipTypeData aShipType = aship.getTypeData();
+				final ShipTypeData aShipType = aship.getTypeData();
 
 				pos++;
 
 				// Ist das Schiff gedockt?
 				if( aship.getShip().isDocked() ) {
-					int shipid = aship.getShip().getBaseShip().getId();
+					final int shipid = aship.getShip().getBaseShip().getId();
 
-                    for (BattleShip enemyShip1 : enemyShips) {
+                    for (final BattleShip enemyShip1 : enemyShips) {
                         if (enemyShip1.getId() == shipid) {
                             t.setVar("ship.docked.name", enemyShip1.getName());
 
@@ -1932,7 +1932,7 @@ public class AngriffController extends Controller
                     }
 				}
 
-				User aUser = aship.getOwner();
+				final User aUser = aship.getOwner();
 
 				t.setVar(	"ship.id",				aship.getId(),
 							"ship.name",			aship.getName(),
@@ -1979,12 +1979,12 @@ public class AngriffController extends Controller
 		else {
 			boolean firstEntry = true;
 
-			Map<String,GroupEntry> groupdata = new HashMap<>();
+			final Map<String,GroupEntry> groupdata = new HashMap<>();
 
-			Map<Integer,Integer> shiptypegroupcount = new HashMap<>();
+			final Map<Integer,Integer> shiptypegroupcount = new HashMap<>();
 
-			List<BattleShip> enemyShips = battle.getEnemyShips();
-            for (BattleShip aship : enemyShips) {
+			final List<BattleShip> enemyShips = battle.getEnemyShips();
+            for (final BattleShip aship : enemyShips) {
                 if (aship.getShip().isLanded()) {
                     continue;
                 }
@@ -2021,9 +2021,9 @@ public class AngriffController extends Controller
                 }
             }
 
-			Map<Integer,Integer> shipTypes = battle.getShipTypeCount(battle.getEnemySide());
-			for( Map.Entry<Integer, Integer> entry: shipTypes.entrySet() ) {
-				int stid = entry.getKey();
+			final Map<Integer,Integer> shipTypes = battle.getShipTypeCount(battle.getEnemySide());
+			for( final Map.Entry<Integer, Integer> entry: shipTypes.entrySet() ) {
+				final int stid = entry.getKey();
 				if( entry.getValue() <= 0 ) {
 					continue;
 				}
@@ -2041,9 +2041,9 @@ public class AngriffController extends Controller
 					}
 
 					final String key = stid+":"+i;
-					ShipTypeData shiptype = Ship.getShipType(stid);
+					final ShipTypeData shiptype = Ship.getShipType(stid);
 
-					GroupEntry data = groupdata.get(key);
+					final GroupEntry data = groupdata.get(key);
 
 					t.setVar(	"shiptypelist.count",		count,
 								"shiptypelist.name",		shiptype.getNickname(),
@@ -2084,9 +2084,9 @@ public class AngriffController extends Controller
 			int pos = groupoffset;
 			boolean firstEntry = true;
 
-			List<BattleShip> enemyShips = battle.getEnemyShips();
+			final List<BattleShip> enemyShips = battle.getEnemyShips();
 			for( int i=0; i < enemyShips.size(); i++ ) {
-				BattleShip aship = enemyShips.get(i);
+				final BattleShip aship = enemyShips.get(i);
 
 				t.start_record();
 
@@ -2116,15 +2116,15 @@ public class AngriffController extends Controller
 					}
 				}
 
-				ShipTypeData aShipType = aship.getTypeData();
+				final ShipTypeData aShipType = aship.getTypeData();
 
 				pos++;
 
 				// Ist das Schiff gedockt?
 				if( aship.getShip().isDocked() ) {
-					int shipid = aship.getShip().getBaseShip().getId();
+					final int shipid = aship.getShip().getBaseShip().getId();
 
-                    for (BattleShip enemyShip1 : enemyShips) {
+                    for (final BattleShip enemyShip1 : enemyShips) {
                         if (enemyShip1.getId() == shipid) {
                             t.setVar("ship.docked.name", enemyShip1.getName());
 
@@ -2133,7 +2133,7 @@ public class AngriffController extends Controller
                     }
 				}
 
-				User aUser = aship.getOwner();
+				final User aUser = aship.getOwner();
 
 				t.setVar(	"ship.id",				aship.getId(),
 							"ship.name",			aship.getName(),
@@ -2180,12 +2180,12 @@ public class AngriffController extends Controller
 		else {
 			boolean firstEntry = true;
 
-			Map<String,GroupEntry> groupdata = new HashMap<>();
+			final Map<String,GroupEntry> groupdata = new HashMap<>();
 
-			Map<Integer,Integer> shiptypegroupcount = new HashMap<>();
+			final Map<Integer,Integer> shiptypegroupcount = new HashMap<>();
 
-			List<BattleShip> enemyShips = battle.getEnemyShips();
-            for (BattleShip aship : enemyShips) {
+			final List<BattleShip> enemyShips = battle.getEnemyShips();
+            for (final BattleShip aship : enemyShips) {
                 if (aship.getShip().isLanded()) {
                     continue;
                 }
@@ -2225,9 +2225,9 @@ public class AngriffController extends Controller
                 }
             }
 
-			Map<Integer,Integer> shipTypes = battle.getShipTypeCount(battle.getEnemySide());
-			for( Map.Entry<Integer, Integer> entry: shipTypes.entrySet() ) {
-				int stid = entry.getKey();
+			final Map<Integer,Integer> shipTypes = battle.getShipTypeCount(battle.getEnemySide());
+			for( final Map.Entry<Integer, Integer> entry: shipTypes.entrySet() ) {
+				final int stid = entry.getKey();
 				if( entry.getValue() <= 0 ) {
 					continue;
 				}
@@ -2245,9 +2245,9 @@ public class AngriffController extends Controller
 					}
 
 					final String key = stid+":"+i;
-					ShipTypeData shiptype = Ship.getShipType(stid);
+					final ShipTypeData shiptype = Ship.getShipType(stid);
 
-					GroupEntry data = groupdata.get(key);
+					final GroupEntry data = groupdata.get(key);
 
 					t.setVar(	"shiptypelist.count",		count,
 								"shiptypelist.name",		shiptype.getNickname(),
@@ -2283,7 +2283,7 @@ public class AngriffController extends Controller
 		*/
 
 		if( !battle.isCommander(user,battle.getOwnSide()) ) {
-			User auser = battle.getCommander(battle.getOwnSide());
+			final User auser = battle.getCommander(battle.getOwnSide());
 			t.setVar(	"user.commander",		0,
 						"battle.owncom.name",	auser.getProfileLink(),
 						"battle.owncom.ready",	battle.isReady(battle.getOwnSide()) );
@@ -2295,8 +2295,8 @@ public class AngriffController extends Controller
 			t.setVar("battle.turn.own",1);
 		}
 
-		int enemySide = battle.getOwnSide() == 1 ? 0 : 1;
-		User auser = battle.getCommander(enemySide);
+		final int enemySide = battle.getOwnSide() == 1 ? 0 : 1;
+		final User auser = battle.getCommander(enemySide);
 		t.setVar(	"battle.enemycom.name",		auser.getProfileLink(),
 					"battle.enemycom.ready",	battle.isReady(battle.getEnemySide()) );
 
