@@ -28,7 +28,7 @@ Braunschweig
 Chemnitz
 Aachen
 Kiel
-Halle (Saale)
+Halle an der Saale
 Magdeburg
 Krefeld
 Freiburg im Breisgau
@@ -1044,3 +1044,1073 @@ Gerasdorf bei Wien
 St. Andrä
 Seekirchen am Wallersee
 Ebreichsdorf
+Stadtroda
+Bad Salzdetfurth
+Alfeld
+Hildesheim
+Pößneck
+Warszawa
+Kraków
+Lodsch
+Breslau
+Poznań
+Gdańsk
+Szczecin
+Bydgoszcz
+Lublin
+Katowice
+Sao Paulo
+Rio de Janeiro
+Salvador da Bahia
+Brasília
+Fortaleza
+Belo Horizonte
+Manaus
+Curitiba
+Recife
+Porto Alegre
+Toljatti
+Kairo
+Alexandria
+Sues
+al-Mansura
+Assiut
+Port-au-Prince
+Carrefour
+Delmas
+Soltau
+Frankfurt an der Oder
+Emden
+Helgoland
+Bergen auf Rügen
+Pétion-Ville
+Croix-des-Bouquets
+Jérémie
+Niamey
+Maradi
+Zinder
+Tahoua
+Agadez
+Arlit
+Birni-N’Konni
+Dogondoutchi
+San Antonio
+Garapan
+Mandalay
+Naypyidaw
+Taunggyi
+Managua
+León
+Tipitapa
+Masaya
+Chinandega
+Windhoek
+Rundu
+Keetmanshoop
+Lüderitz
+Khorixas
+Karasburg
+Nkurenkuru
+Ajeltake
+Namorik
+Mejit
+Naucalpan de Juárez
+Nezahualcóyotl
+Acapulco de Juárez
+Querétaro
+Mexiko-Stadt
+Ecatepec de Morelos
+Guadalajara
+Puebla
+Tokio
+Osaka
+Yokohama
+Fukuoka
+Niigata
+Kurashiki
+Pietermaritzburg
+Sebokeng
+Klerksdorp
+eMalahleni
+Rustenburg
+KwaGuqa
+Lilongwe
+Blantyre
+Mzuzu
+Weißwasser
+Aarhus
+Odense
+Kopenhagen
+Vejle
+Peking
+Shanghai
+Hongkong
+Chongqing
+Shenyang
+Tianjin
+Guangzhou
+Xi’an
+Hangzhou
+Harbin
+Cluj-Napoca
+Craiova
+Oradea
+Arad
+Vaslui
+Valea lui Mihai
+Pol-e Chomri
+Maimana
+Scheberghan
+Taloqan
+Aldosa
+Meritxell
+Escaldes-Engordany
+Sydney
+Melbourne
+Brisbane
+Adelaide
+Gold Coast
+Warrnambool
+Devonport
+Teheran
+Täbris
+Isfahan
+Karadsch
+Schahriyar
+Qaem-Schahr
+Torbat-e Heydariyeh
+Bandar Anzali
+Bafatá
+Canchungo
+Bubaque
+Narayanganj
+Rajshahi
+Tangail
+Pok Fu Lam
+Sai Kung
+Hang Tau-Kam Tsin
+Mumbai
+Delhi
+Kolkata
+Jaipur
+Pimpri-Chinchwad
+Visakhapatnam
+Manatuto
+Dili
+Lospalos
+Bobonaro
+Arendal
+Brekstad
+Drammen
+Oslo
+Bergen
+Fredrikstad
+Trondheim
+Lillehammer
+Babylon
+Pasargadae
+Merw
+Quezon City
+Bacoor
+Mabalacat
+Santa Maria
+Tanza
+Lubao
+Malasiqui
+Arayat
+Floridablanca
+Bayambang
+Akraberg
+Argir
+Tórshavn
+Klaksvík
+Hoyvík
+Abidjan
+Man
+Yamoussoukro
+San-Pédro
+Danané
+Ferkessédougou
+Akoupé
+Tallinn
+Tartu
+Narva
+Pärnu
+Kohtla-Järve
+Viljandi
+Kuressaare
+Rakvere
+Maardu
+Casablanca
+Fès
+Marrakesch
+Oujda
+Tétouan
+Khémisset
+Ksar-el-Kebir
+Juba
+Wau
+Malakal
+Yei
+Hithadhoo
+Kulhudhuffushi
+Hulhumalé
+Alifushi
+Half Tree Hollow
+Georgetown
+Two Boats Village
+Edinburgh of the Seven Seas
+Helsinki
+Espoo
+Tampere
+Vantaa
+Jyväskylä
+Kuopio
+Lappeenranta
+Hämeenlinna
+Riihimäki
+Kurikka
+Kolonia
+Ulithi
+Nomwin
+Saint Paul’s
+Tabernacle
+Cayon
+Barrouallie
+Layou
+Chateaubelair
+Port Elizabeth
+Biabou
+Kailua
+Kapolei
+Birkirkara
+Qormi
+Marsaskala
+Paola
+Cospicua
+Luqa
+Skopje
+Kumanovo
+Struga
+Gevgelija
+Kriva Palanka
+Vilnius
+Marijampolė
+Klaipėda
+Jonava
+Ignalina
+al-Chartum Bahri
+Bur Sudan
+al-Ubayyid
+Wad Madani
+an-Nahud
+ad-Damir
+Atbara
+Kaduqli
+Mogadischu
+Hargeysa
+Burao
+Boosaaso
+Beledweyne
+Berbera
+Baidoa
+Qardho
+Ljubljana
+Maribor
+Kamnik
+Slovenska Bistrica
+Radovljica
+Jesenice
+Trbovlje
+Bamako
+Sikasso
+Koutiala
+Ségou
+Kayes
+Gao
+Port Louis
+Vacoas-Phoenix
+Beau Bassin-Rose Hill
+Curepipe
+Quatre Bornes
+Triolet
+Saint-Antoine
+Bambous
+Anse Boileau
+Cascade
+Takamaka
+Seoul
+Busan
+Incheon
+Daegu
+Daejeon
+Gwangju
+Hwaseong
+Wonju
+Gimpo
+Jinju
+Gwangyang
+Harare
+Bulawayo
+Chitungwiza
+Mutare
+Epworth
+Chinhoyi
+Riga
+Daugavpils
+Jelgava
+Tukums
+Rom
+Mailand
+Neapel
+Turin
+Palermo
+Genua
+Bologna
+Florenz
+Venedig
+Messina
+Brescia
+Parma
+Rimini
+Salerno
+Ferrara
+Giugliano in Campania
+Pescara
+Vicenza
+Bozen
+Barletta
+Brindisi
+Busto Arsizio
+Marsala
+Koror
+Hatohobei
+Mandeville
+Portmore
+Half Way Tree
+Savanna-la-Mar
+Saint Ann’s Bay
+Old Harbour
+Santa Cruz
+Runaway Bay
+Annotto Bay
+Sofia
+Plowdiw
+Burgas
+Stara Sagora
+Pasardschik
+Jambol
+Sarajevo
+Banja Luka
+Tuzla
+Zenica
+Bijeljina
+Konjic
+Lukavac
+Karatschi
+Lahore
+Faisalabad
+Rawalpindi
+Gujranwala
+Hyderabad
+Santa Cruz de la Sierra
+El Alto
+Cochabamba
+La Paz
+Quillacollo
+Montero
+Lissabon
+Porto
+Vila Nova de Gaia
+Amadora
+Braga
+Funchal
+Agualva-Cacém
+Barreiro
+Rio Tinto
+Queluz
+Rio de Mouro
+Alverca do Ribatejo
+Arrentela
+Póvoa de Santa Iria
+Montijo
+Gaborone
+Francistown
+Mahalapye
+Ramotswa
+Tshabong
+Honiara
+Auki
+Kirakira
+Buala
+Tulagi
+Betio
+Bikenibeu
+Tabwakea
+Bairiki
+Buariki
+Vientiane
+Luang Prabang
+Huay Xay
+Kinshasa
+Lubumbashi
+Mbuji-Mayi
+Kananga
+Kisangani
+Bukavu
+Kikwit
+Ruhengeri
+Byumba
+Bugarama
+Gitarama
+Rwamagana
+Kayonza
+Serravalle
+Borgo Maggiore
+San Marino
+Domagnano
+Fiorentino
+Acquaviva
+Faetano
+Chiesanuova
+Montegiardino
+Prizren
+Mitrovica
+Vushtrria
+Dragash
+Dschalib asch-Schuyuch
+as-Salimiyya
+Hawalli
+Dschanub Chitan
+al-Farwaniyya
+Subbah as-Salim
+al-Kuwait
+Zagreb
+Split
+Rijeka
+Osijek
+Slavonski Brod
+Velika Gorica
+Neu-Taipeh
+Taichung
+Kaohsiung
+Taipeh
+Changhua
+Lima
+Arequipa
+Trujillo
+Chiclayo
+Piura
+Cusco
+Huancayo
+Lusaka
+Chingola
+Livingstone
+Chipata
+Trindade
+Santana
+Guadalupe
+Santo Amaro
+Santo António
+Apia
+Vaitele
+Stockholm
+Göteborg
+Malmö
+Uppsala
+Sollentuna och Upplands Väsby
+Linköping
+Norrköping
+Lund
+Helsingborg
+Gustavsberg och Hemmesta
+Björlanda och Torslanda
+Ängelholm och Vejbystrand
+Sandviken
+Schymkent
+Qaraghandy
+Qysylorda
+Qostanai
+Türkistan
+Kökschetau
+Aqsu
+Talghar
+Riad
+Dschidda
+Mekka
+Medina
+Dammam
+Ta'if
+Zürich
+Genf
+Basel
+Bern
+Lausanne
+Winterthur
+Luzern
+St. Gallen
+Lugano
+Köniz
+La Chaux-de-Fonds
+Rapperswil-Jona
+Wädenswil
+Bellinzona
+Santiago de Chile
+Valparaíso
+La Serena
+Rancagua
+Temuco
+Chillán
+Arican
+San Pedro de la Paz
+Valdivia
+Toronto
+Montreal
+Vancouver
+Calgary
+Edmonton
+Winnipeg
+Québec
+Sherbrooke
+Thunder Bay
+Trois-Rivières
+Saint-Jean-sur-Richelieu
+Fort McMurray
+Sault Ste. Marie
+Medicine Hat
+Saint-Hyacinthe
+Puerto Limón
+Alajuela
+Puntarenas
+San Isidro de El General
+Praia
+Mindelo
+Pedra Badejo
+Assomada
+Tarrafal
+Beograd
+Novi Sad
+Smederevo
+Valjevo
+Moroni
+Koni Djodjo
+Tsémbehou
+Pikine
+Dakar
+Guédiawaye
+Kaolack
+Jaxaay-Parcelles-Niakoul Rap
+Diaobé-Kabendou
+Vélingara
+Dahra
+Kédougou
+Waterloo
+Koidu
+Port Loko
+Pujehun
+Bujumbura
+Rumonge
+Kayanza
+Cibitoke
+Makamba
+Bogotá
+Barranquilla
+Cartagena
+Bucaramanga
+Valledupar
+Sanaa
+Taizz
+al-Hudaida
+Zindschibar
+al-Mukalla
+Bischkek
+Dschalalabat
+Balyktschy
+Ösgön
+Isfana
+Asunción
+Ciudad del Este
+San Lorenzo
+Fernando de la Mora
+Mariano Roque Alonso
+Minga Guazú
+Doctor Juan Eulogio Estigarribia
+Piribebuy
+Santa Rita
+Salto del Guairá
+Mount Hagen
+Goroka
+Daru
+Popondetta
+Kundiawa
+Finschhafen
+Kikori
+Ialibu
+Havanna
+Santiago de Cuba
+Camagüey
+Holguín
+Guantánamo
+Santa Clara
+Las Tunas
+Contramaestre
+Consolación del Sur
+San Cristóbal
+Jagüey Grande
+San José de las Lajas
+Sagua la Grande
+Ouagadougou
+Bobo-Dioulasso
+Koudougou
+Banfora
+Ouahigouya
+Kaya
+Fada N’Gourma
+Dédougou
+Garango
+Thimphu
+Paro
+Wangdue Phodrang
+Porto-Novo
+Godomey
+Cotonou
+Malanville
+Nikki
+Agpro-Missérété
+Bembéréké
+Dassa
+Copargo
+Panama-Stadt
+San Miguelito
+La Chorrera
+Santiago de Veraguas
+Penonomé
+Volcán
+Brazzaville
+Pointe-Noire
+Dolisie
+Owando
+Zarqa
+al-Dschubaiha
+Wadi as-Sir
+ar-Rusaifa
+Aqaba
+Buenos Aires
+La Matanza
+Córdoba
+Rosario
+Lomas de Zamora
+La Plata
+Tres de Febrero
+Malvinas Argentinas
+San Miguel de Tucumán
+Berat
+Ura Vajgurore
+Bulqiza
+Peshkopia
+Algier
+Oran
+Ech Cheliff
+Sidi bel Abbès
+Reykjavík
+Kópavogur
+Akureyri
+Akranes
+Seltjarnarnes
+Saint John’s
+Piggotts
+Luanda
+Lubango
+Saurimo
+Luena
+Waku-Kungo
+M'banza-Kongo
+Bocoio
+Maquela do Zombo
+Cambulo
+Porto Amboim
+Catabola
+Ebebiyín
+Mongomo
+Niefang
+Ciudad de la Paz
+Antwerpen
+Gent
+Charleroi
+Lüttich
+Brüssel
+Schaarbeek
+Anderlecht
+Sint-Jans-Molenbeek
+Hasselt
+Sint-Lambrechts-Woluwe
+Jette
+Braine-l’Alleud
+Ottignies-Louvain-la-Neuve
+Bilzen
+Houthalen-Helchteren
+Jerewan
+Wanadsor
+Wagharschapat
+Tscharenzawan
+Idschewan
+Ararat
+Palm Beach
+Paardenbaai
+Solito
+Pos Chikito
+Savaneta
+Pjöngjang
+Namp’o
+Haeju
+Kimch’aek
+Aardenburg
+Reimerswaal
+Bergen op Zoom
+Utrecht
+Vught
+Oosterhout
+Nijkerk
+Monnickendam
+Eindhoven
+Benin-Stadt
+Kaduna
+Ogbomosho
+Ijebu-Ode
+Calabar
+Arubo
+Orro
+Yangor
+Kathmandu
+Pokhara
+Budhanilkantha
+Madhyapur Thimi
+Tulsipur
+Lowther
+Manapouri
+Owhango
+Owaka
+Pahiatua
+as-Sib
+Bawschar
+Salala
+New Amsterdam
+Ituni
+Jakarta
+Bandung
+Yogyakarta
+Bandar Lampung
+Maputo
+Mocuba
+Nacala
+Città del Vaticano
+Ai Khanoum
+Mes Aynak
+Menouthis
+Assuan
+Sakkara
+Tanis
+Byllis
+Scampa
+Ksar Chetaoua
+Tebaga-Clausura
+Teischebani
+Bizone
+Philippopolis
+Cenabum Aureliani
+Rotomagus
+Sodom
+Gomorra
+Podgorica
+Herceg Novi
+Bijelo Polje
+Nassau
+Clarence Town
+Belmopan
+Orange Walk Town
+San Ignacio
+Quba
+Zaqatala
+Qazax
+Bridgetown
+Bathsheba
+Manama
+al-Muharraq
+Dschidhafs
+Sitra
+Tegucigalpa
+San Pedro Sula
+Comayagua
+Santa Rosa de Copán
+Catacamas
+Trujillo
+Sonaguera
+Roatán
+Bagdad
+Nadschaf
+Sulaimaniya
+Falludscha
+Samarra
+Kufa
+Mixco
+Quetzaltenango
+Santa Lucía Cotzumalguapa
+Santa Cruz del Quiché
+Flores
+Adama
+Addis Ababa
+Jimma
+Soddo
+Libreville
+Franceville
+Brikama
+Bakau
+Nema Kunku
+Lamin
+Conakry
+Nzérékoré
+Kankan
+Siguiri
+Kissidougou
+Mamou
+Batumi
+Rustawi
+Accra
+Sekondi
+Cape Coast
+Tema
+Yendi
+Dublin
+Cork
+Galway
+Limerick
+Waterford
+Drogheda
+Letterkenny
+Ballina
+Castlebar
+Tullamore
+Jerusalem
+Tel Aviv-Jaffa
+Haifa
+Rischon LeZion
+Be’er Scheva
+Cholon
+Nazareth
+Hod haScharon
+Umm al-Fahm
+Naharija
+Baqa-Dschatt
+Gouyave
+Grenville
+Sauteurs
+Hillsborough
+Belmont
+Ulaanbaatar
+Erdenet
+Sihanoukville
+Battambang
+Kratie
+Maseru
+Thaba-Tseka
+Bánovce nad Bebravou
+Bratislava
+Galanta
+Kysucké Nové Mesto
+Skalica
+Sabinov
+Turzovka
+Doha
+adh-Dhachira
+al-Wakra
+Tyros
+Beirut
+Tripoli
+Jounieh
+Nairobi
+Mombasa
+Nakuru
+Ruiru
+Eldoret
+Kisumu
+Kikuyu
+Abovce
+Bodovce
+Ganta
+Kakata
+Tubmanburg
+Barclayville
+Bopolu
+Misrata
+Tripolis
+Adschdabiya
+Sirte
+Douala
+Yaoundé
+Maroua
+Kumba
+Kiffa
+Rosso
+Atar
+Hama
+Latakia
+Deir ez-Zor
+Afrin
+Tiraspol
+Soroca
+Leova
+Suva
+Nasinu
+Labasa
+Tavua
+Levuka
+Nieuw-Amsterdam
+Groningen
+Brownsweg
+Nieuw-Nickerie
+Onverwacht
+Domburg
+Manzini
+Mbabane
+Lobamba
+Tabankulu
+Keren
+Massaua
+Baylul
+Ylöjärvi
+Uusikaupunki
+Raseborg
+San Salvador
+Soyapango
+San Miguel
+Santa Ana
+Tonacatepeque
+Izalco
+Quito
+Guayaquil
+Portoviejo
+Loja
+Esmeraldas
+Montecristi
+Puerto Francisco de Orellana
+Jipijapa
+Subang Jaya
+Malakka
+Butterworth
+Antananarivo
+Antalaha
+Colombo
+Moratuwa
+Badulla
+Castries
+Bexon
+Vieux Fort
+La Clery
+Morne du Don
+Grande Rivière
+Yatta
+Ramallah
+Dorra
+Loyada
+Santo Domingo
+Santiago de los Caballeros
+Higüey
+San Cristóbal
+La Romana
+San Juan de la Maguana
+Roseau
+Portsmouth
+Soufrière
+Vieille Case
+Norak
+Kahama
+Sansibar-Stadt
+Babati
+Bangkok
+Pattaya
+Khon Kaen
+Nakhon Si Thammarat
+Dapaong
+Kara
+Bafilo
+Nukuʻalofa
+Pangai
+Chaguanas
+San Fernando
+Point Fortín
+Tacarigua
+St. Joseph
+N’Djamena
+Sarh
+Bojanov
+Choltice
+Drahany
+Frymburk
+Krucemburk
+Kralice na Hané
+Prag
+Lukov
+Nové Dvory
+Pozlovice
+Radostín nad Oslavou
+Zdislava
+Kladno
+Tunis
+Bizerte
+Ariana
+Ben Arous
+Ankara
+Adana
+Erzurum
+Osmaniye
+Akova
+Prastio
+Serdar
+Gazojak
+Funafuti
+Tokelau
+Asau
+Meang
+Kampala
+Nansana
+Kiew
+Charkiw
+Odessa
+Sewastopol
+Saporischschja
+Budapest
+Debrecen
+Kecskemét
+Dunaharaszti
+Montevideo
+Ciudad de la Costa
+Tacuarembó
+Maldonado
+Minas
+Toshkent
+Namangan
+Kattaqoʻrgʻon
+Maracaibo
+Caracas
+Valencia
+Maturín
+Maracay
+Dubai
+Abu Dhabi
+Dibba al-Fudschaira
+Nha Trang
+Tuy Hòa
+Minsk
+Baryssau
+Wizebsk
+Schlobin
+Ad-Dakhla
+Smara
+Boujdour
+Bangui
+Mobaye
+Bambari
+Nikosia
+Paphos
+Kyrenia
+Kythrea
