@@ -106,7 +106,7 @@ public class PortalController extends Controller
 					String subject = "Neues Passwort fuer Drifting Souls 2";
 
 					String message = "Hallo {username},\n" +
-							"Du hast ein neues Password angefordert. Dein neues Password lautet \"{password}\" und wurde verschlüsselt gespeichert. Wenn es verloren geht, musst Du Dir über die \"Passwort vergessen?\"-Funktion der Login-Seite ein neues erstellen lassen.\n" +
+							"Du hast ein neues Passwort angefordert. Dein neues Passwort lautet \"{password}\" und wurde verschlüsselt gespeichert. Wenn es verloren geht, musst Du Dir über die \"Passwort vergessen?\"-Funktion der Login-Seite ein neues erstellen lassen.\n" +
 							"Bitte beachte, dass Dein Passwort nicht an andere Nutzer weiter gegeben werden darf.\n" +
 							"Das Admin-Team wünscht weiterhin einen angenehmen Aufenthalt in Drifting Souls 2\n" +
 							"Gruß Guzman\n" +
@@ -427,7 +427,7 @@ public class PortalController extends Controller
 		//Willkommens-PM versenden
 		User source = (User) db.get(User.class, configService.getValue(WellKnownConfigValue.REGISTER_PM_SENDER));
 		PM.send(source, newid, "Willkommen bei Drifting Souls 2",
-				"[font=arial]Herzlich willkommen bei Drifting Souls 2.\n" +
+				"[font=arial]Herzlich willkommen bei Drifting Souls 2!\n" +
 						"Diese PM wird automatisch an alle neuen Spieler versandt, um\n" +
 						"ihnen Hilfsquellen für den nicht immer einfachen Einstieg zu\n" +
 						"nennen.\n" +
@@ -454,10 +454,10 @@ public class PortalController extends Controller
 	private void versendeRegistrierungsEmail(String username, String email, String password)
 	{
 		String message = "Hallo {username},\n" +
-				"du hast dich als \"{username}\" angemeldet. Dein Passwort lautet \"{password}\" (ohne \\\"\\\"). Im Spiel heisst du noch Kolonist. Dies sowie das Passwort kannst du aber unter \"Optionen\" aendern.\n" +
+				"Du hast Dich als \"{username}\" angemeldet. Dein Passwort lautet \"{password}\" (ohne \\\"\\\"). Im Spiel heißt du noch Kolonist. Dies sowie das Passwort kannst Du aber unter \"Optionen\" ändern.\n" +
 				"\n" +
-				"Das Admin-Team wuenscht einen angenehmen Aufenthalt in DS\n" +
-				"Gruss Guzman\n" +
+				"Das Admin-Team wünscht einen angenehmen Aufenthalt in DS2!\n" +
+				"Gruß Guzman\n" +
 				"Admin\n" +
 				"{date} Serverzeit";
 		message = message.replace("{username}", username);
@@ -618,7 +618,7 @@ public class PortalController extends Controller
 
 	/**
 	 * Loggt einen Spieler ein. Falls keine Daten angegeben wurden,
-	 * wird die GUI zum einloggen angezeigt.
+	 * wird die GUI zum Einloggen angezeigt.
 	 *
 	 * @param username Der Benutzername
 	 * @param password Das Passwort
@@ -689,7 +689,7 @@ public class PortalController extends Controller
 	}
 
 	/**
-	 * Ermoeglicht das Absenden einer Anfrage zur Deaktivierung des Vac-Modus.
+	 * Ermoeglicht das Absenden einer Anfrage zur Deaktivierung des VAC-Modus.
 	 *
 	 * @param username Der Benutzername
 	 * @param pw Das Passwort
