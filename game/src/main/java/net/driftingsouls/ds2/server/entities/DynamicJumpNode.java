@@ -22,11 +22,13 @@ package net.driftingsouls.ds2.server.entities;
 import net.driftingsouls.ds2.server.config.DynamicJumpNodeConfig;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.map.TileCache;
 import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 
 /**
  * Repraesentiert einen aktiven Dynamischen Sprungpunkt.
@@ -141,19 +143,19 @@ public class DynamicJumpNode {
         // Bewege Eingang
         if (config.getMaxDistanceToInitialStart() > 0) {
             StarSystem system = (StarSystem) db.get(StarSystem.class, jumpnode.getSystem());
-            movePosition(system, config.getInitialStart().getX(), config.getInitialStart().getY(), config.getMaxDistanceToInitialStart(), jumpnode::setX, jumpnode::setY);
+            movePosition(system, config.getInitialStart().getX(), config.getInitialStart().getY(), config.getMaxDistanceToInitialStart(), jumpnode::setX, jumpnode::setY, true);
         }
 
         // Bewege Ausgang
         if (config.getMaxDistanceToInitialTarget() > 0) {
             StarSystem system = (StarSystem) db.get(StarSystem.class, jumpnode.getSystemOut());
-            movePosition(system, config.getInitialTarget().getX(), config.getInitialTarget().getY(), config.getMaxDistanceToInitialTarget(), jumpnode::setXOut, jumpnode::setYOut);
+            movePosition(system, config.getInitialTarget().getX(), config.getInitialTarget().getY(), config.getMaxDistanceToInitialTarget(), jumpnode::setXOut, jumpnode::setYOut, false);
         }
 
         this.setRemainingTicksUntilMove(initialTicksUntilMove);
     }
 
-    private void movePosition(StarSystem system, int startX, int startY, int maxDistance, Consumer<Integer> xSetter, Consumer<Integer> ySetter) {
+    private void movePosition(StarSystem system, int startX, int startY, int maxDistance, IntConsumer xSetter, IntConsumer ySetter, boolean resetTileCache) {
         int rnd = ThreadLocalRandom.current().nextInt(2 * maxDistance + 1);
         int newX = startX + rnd - maxDistance;
         rnd = ThreadLocalRandom.current().nextInt(2 * maxDistance +1);
@@ -173,5 +175,10 @@ public class DynamicJumpNode {
 
         xSetter.accept(newX);
         ySetter.accept(newY);
+
+        // Force a tile cache reset, so we don't get shadow images of old JN positions
+        if(resetTileCache) {
+            TileCache.forSystem(system).resetCache();
+        }
     }
 }
