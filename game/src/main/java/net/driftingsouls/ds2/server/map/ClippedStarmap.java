@@ -124,7 +124,7 @@ public class ClippedStarmap extends Starmap
 		// sich komplett im Ausschnitt befinden.
 		// TODO: Die Menge der Schiffe laesst sich sicherlich noch weiter eingrenzen
 		List<Ship> shipList = Common.cast(db.createQuery("select s from Ship as s left join s.modules m" +
-				" where s.system=:sys and s.docked not like 'l %' and " +
+				" where s.system=:sys and s.shiptype.shipClass!=:shipClass and s.docked not like 'l %' and " +
 				"((s.x between :minx-s.shiptype.sensorRange and :maxx+s.shiptype.sensorRange) or" +
 				"(s.x between :minx-m.sensorRange and :maxx+m.sensorRange)) and " +
 				"((s.y between :miny-s.shiptype.sensorRange and :maxy+s.shiptype.sensorRange) or" +
@@ -134,6 +134,7 @@ public class ClippedStarmap extends Starmap
 				.setInteger("maxx", this.ausschnitt[0]+this.ausschnitt[2])
 				.setInteger("miny", this.ausschnitt[1])
 				.setInteger("maxy", this.ausschnitt[1]+this.ausschnitt[3])
+				.setParameter("shipClass", ShipClasses.FELSBROCKEN)
 				.list());
 
 		return this.buildLocatableMap(shipList);
