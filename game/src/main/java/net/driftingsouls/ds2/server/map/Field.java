@@ -12,6 +12,7 @@ import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
 
 import org.hibernate.Session;
 
@@ -19,7 +20,7 @@ import org.hibernate.Session;
  * Ein Feld auf einer Sternenkarte.
  * Das Feld wird intern von diversen Sichten verwendet, um
  * auf die enthaltenen Objekte zuzugreifen.
- * 
+ *
  * @author Drifting-Souls Team
  */
 class Field
@@ -31,13 +32,21 @@ class Field
 	private final List<Jump> subraumspalten;
 	private final Nebel nebula;
 	private final Location position;
+	private final List<Ship> brocken;
 
 	Field(Session db, Location position)
 	{
-		ships = Common.cast(db.createQuery("from Ship where system=:system and x=:x and y=:y")
+		ships = Common.cast(db.createQuery("from Ship where system=:system and x=:x and y=:y and shiptype.shipClass !=:shipClasses)")
 							  .setParameter("system", position.getSystem())
 							  .setParameter("x", position.getX())
-							  .setParameter("y", position.getY())
+								.setParameter("y", position.getY())
+								.setParameter("shipClasses", ShipClasses.FELSBROCKEN)
+								.list());
+		brocken = Common.cast(db.createQuery("from Ship where system=:system and x=:x and y=:y and shiptype.shipClass =:shipClasses)")
+							  .setParameter("system", position.getSystem())
+							  .setParameter("x", position.getX())
+								.setParameter("y", position.getY())
+								.setParameter("shipClasses", ShipClasses.FELSBROCKEN)
 							  .list());
 		bases = Common.cast(db.createQuery("from Base where system=:system and x=:x and y=:y")
 				  .setParameter("system", position.getSystem())
@@ -65,27 +74,32 @@ class Field
 
 		this.position = position;
 	}
-	
+
 	boolean isNebula()
 	{
 		return nebula != null;
 	}
-	
+
 	Nebel getNebula()
 	{
 		return this.nebula;
 	}
-	
+
 	List<Ship> getShips()
 	{
 		return Collections.unmodifiableList(ships);
 	}
-	
+
+	List<Ship> getBrocken()
+	{
+		return Collections.unmodifiableList(brocken);
+	}
+
 	List<Base> getBases()
 	{
 		return Collections.unmodifiableList(bases);
 	}
-	
+
 	List<JumpNode> getNodes()
 	{
 		return Collections.unmodifiableList(nodes);
@@ -105,14 +119,14 @@ class Field
 	{
 		return this.position;
 	}
-	
+
 	boolean isScannableInLrs(Ship ship)
 	{
 		if(!isNebula())
 		{
 			return true;
 		}
-		
+
 		Nebel.Typ type = nebula.getType();
 		return type.getMinScansize() <= ship.getTypeData().getSize();
 	}

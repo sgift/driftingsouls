@@ -36,6 +36,12 @@ public interface FieldView
 	List<JumpNode> getJumpNodes();
 
 	/**
+	 * Gibt alle Brocken zurueck.
+	 * @return Die Brocken
+	 */
+	List<Ship> getBrocken();
+
+	/**
 	 * Gibt alle sichtbaren Subraumspalten zurueck.
 	 * @return Die Subraumspalten
 	 */

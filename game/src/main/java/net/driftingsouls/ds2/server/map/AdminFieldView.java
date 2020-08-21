@@ -43,6 +43,12 @@ public class AdminFieldView implements FieldView
 	{
 		return this.field.getBases();
 	}
+	@Override
+	public List<Ship> getBrocken()
+	{
+		return this.field.getBrocken();
+	}
+
 
 	@Override
 	public Map<User, Map<ShipType, List<Ship>>> getShips()
