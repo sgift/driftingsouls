@@ -9,6 +9,7 @@ import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,7 +22,7 @@ import java.util.Map;
  * Eine Systemkarte.
  * Die Karte wird intern von den diversen Sichten verwendet, um
  * auf die im System enthaltenen Objekte zuzugreifen.
- * 
+ *
  * @author Sebastian Gift
  */
 class Starmap
@@ -34,17 +35,18 @@ class Starmap
 	private Map<Location, List<JumpNode>> nodeMap;
 	private Map<Location, List<Base>> baseMap;
 	private Map<Location, List<Battle>> battleMap;
+	private Map<Location, List<Ship>> brockenMap;
 
 	Starmap(int system)
 	{
 		this.system = system;
 	}
-	
+
 	boolean isNebula(Location location)
 	{
 		return getNebulaMap().containsKey(location);
 	}
-	
+
 	/**
 	 * @return Die Nummer des Sternensystems
 	 */
@@ -52,7 +54,7 @@ class Starmap
 	{
 		return this.system;
 	}
-	
+
 	/**
 	 * @return Die JumpNodes im System.
 	 */
@@ -61,7 +63,7 @@ class Starmap
 		loadNodes();
 		return Collections.unmodifiableCollection(this.nodes);
 	}
-	
+
 	/**
 	 * @return Die Liste der Schiffe im System, sortiert nach Sektoren.
 	 */
@@ -70,14 +72,32 @@ class Starmap
 		if( this.shipMap == null ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			List<Ship> ships = Common.cast(db
-					.createQuery("from Ship where system=:system")
+					.createQuery("from Ship where system=:system and shiptype.shipClass!=:shipClasses ")
 					.setInteger("system", this.system)
+					.setParameter("shipClasses", ShipClasses.FELSBROCKEN)
 					.list());
 			this.shipMap = buildLocatableMap(ships);
 		}
 		return Collections.unmodifiableMap(this.shipMap);
 	}
-	
+
+		/**
+	 * @return Die Liste der Schiffe im System, sortiert nach Sektoren.
+	 */
+	Map<Location, List<Ship>> getBrockenMap()
+	{
+		if( this.brockenMap == null ) {
+			org.hibernate.Session db = ContextMap.getContext().getDB();
+			List<Ship> brocken = Common.cast(db
+					.createQuery("from Ship where system=:system and shiptype.shipClass=:shipClasses")
+					.setInteger("system", this.system)
+					.setParameter("shipClasses", ShipClasses.FELSBROCKEN)
+					.list());
+			this.brockenMap = buildLocatableMap(brocken);
+		}
+		return Collections.unmodifiableMap(this.brockenMap);
+	}
+
 	/**
 	 * @return Die Liste der Basen im System, sortiert nach Sektoren.
 	 */
@@ -111,7 +131,7 @@ class Starmap
 		}
 		return Collections.unmodifiableMap(this.battleMap);
 	}
-	
+
 	/**
 	 * @return Die Liste der Jumpnodes im System, sortiert nach Sektoren.
 	 */
@@ -164,7 +184,7 @@ class Starmap
 
 		return nebulaMap;
 	}
-	
+
 	protected <T extends Locatable> Map<Location, List<T>> buildLocatableMap(List<T> nodes)
 	{
 		Map<Location, List<T>> nodeMap = new HashMap<>();
@@ -181,9 +201,9 @@ class Starmap
 			nodeMap.get(position).add(node);
 		}
 
-		return nodeMap;		
+		return nodeMap;
 	}
-	
+
 	protected Map<Location, List<Base>> buildBaseMap(List<Base> bases)
 	{
 		Map<Location, List<Base>> baseMap = new HashMap<>();
@@ -206,7 +226,7 @@ class Starmap
 						Location loc = new Location(position.getSystem(), x, y);
 
 						if( !position.sameSector( 0, loc, base.getSize() ) ) {
-							continue;	
+							continue;
 						}
 
 						if(!baseMap.containsKey(loc))
@@ -224,6 +244,6 @@ class Starmap
 			}
 		}
 
-		return baseMap;		
+		return baseMap;
 	}
 }

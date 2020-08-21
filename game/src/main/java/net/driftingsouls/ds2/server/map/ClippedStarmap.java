@@ -25,6 +25,9 @@ import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
+import net.driftingsouls.ds2.server.ships.ShipType;
+
 import org.hibernate.Session;
 
 import java.util.Collection;
@@ -45,6 +48,7 @@ public class ClippedStarmap extends Starmap
 	private final Starmap inner;
 	private final int[] ausschnitt;
 	private final Map<Location, List<Ship>> clippedShipMap;
+	private final Map<Location, List<Ship>> clippedBrockenMap;
 	private final Map<Location, Nebel> clippedNebulaMap;
 	private final Map<Location, List<Base>> clippedBaseMap;
 	private final Session db;
@@ -63,6 +67,7 @@ public class ClippedStarmap extends Starmap
 		this.clippedShipMap = this.buildClippedShipMap();
 		this.clippedNebulaMap = this.buildClippedNebulaMap();
 		this.clippedBaseMap = this.buildClippedBaseMap();
+		this.clippedBrockenMap = this.buildClippedBrockenMap();
 	}
 
 	@Override
@@ -87,6 +92,12 @@ public class ClippedStarmap extends Starmap
 	Map<Location, List<Ship>> getShipMap()
 	{
 		return Collections.unmodifiableMap(this.clippedShipMap);
+	}
+
+	@Override
+	Map<Location, List<Ship>> getBrockenMap()
+	{
+		return Collections.unmodifiableMap(this.clippedBrockenMap);
 	}
 
 	@Override
@@ -126,6 +137,27 @@ public class ClippedStarmap extends Starmap
 				.list());
 
 		return this.buildLocatableMap(shipList);
+	}
+
+	private Map<Location, List<Ship>> buildClippedBrockenMap()
+	{
+		// Nur solche Brocken laden, deren LRS potentiell in den Ausschnitt hinein ragen oder die
+		// sich komplett im Ausschnitt befinden.
+		List<Ship> brockenList = Common.cast(db.createQuery("select s from Ship as s left join s.modules m" +
+				" where s.system=:sys and shiptype.shipClass=:shipClass" +
+				"((s.x between :minx-s.shiptype.sensorRange and :maxx+s.shiptype.sensorRange) or" +
+				"(s.x between :minx-m.sensorRange and :maxx+m.sensorRange)) and " +
+				"((s.y between :miny-s.shiptype.sensorRange and :maxy+s.shiptype.sensorRange) or" +
+				"(s.x between :miny-m.sensorRange and :maxy+m.sensorRange))")
+				.setInteger("sys", this.inner.getSystem())
+				.setInteger("minx", this.ausschnitt[0])
+				.setInteger("maxx", this.ausschnitt[0]+this.ausschnitt[2])
+				.setInteger("miny", this.ausschnitt[1])
+				.setInteger("maxy", this.ausschnitt[1]+this.ausschnitt[3])
+				.setParameter("shipClass", ShipClasses.FELSBROCKEN)
+				.list());
+
+		return this.buildLocatableMap(brockenList);
 	}
 
 	private Map<Location, Nebel> buildClippedNebulaMap()
