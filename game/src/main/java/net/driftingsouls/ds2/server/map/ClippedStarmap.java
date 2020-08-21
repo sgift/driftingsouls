@@ -144,7 +144,7 @@ public class ClippedStarmap extends Starmap
 		// Nur solche Brocken laden, deren LRS potentiell in den Ausschnitt hinein ragen oder die
 		// sich komplett im Ausschnitt befinden.
 		List<Ship> brockenList = Common.cast(db.createQuery("select s from Ship as s left join s.modules m" +
-				" where s.system=:sys and shiptype.shipClass=:shipClass" +
+				" where s.system=:sys and s.shiptype.shipClass=:shipClass" +
 				"((s.x between :minx-s.shiptype.sensorRange and :maxx+s.shiptype.sensorRange) or" +
 				"(s.x between :minx-m.sensorRange and :maxx+m.sensorRange)) and " +
 				"((s.y between :miny-s.shiptype.sensorRange and :maxy+s.shiptype.sensorRange) or" +
