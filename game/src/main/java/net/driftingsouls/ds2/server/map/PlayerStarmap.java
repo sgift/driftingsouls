@@ -165,7 +165,7 @@ public class PlayerStarmap extends PublicStarmap
 		}
 
 		List<Ship> positionBrocken = map.getBrockenMap().get(location);
-		if(positionNodes != null && !positionBrocken.isEmpty())
+		if(positionBrocken != null && !positionBrocken.isEmpty())
 		{
 			return new SectorImage("data/starmap/base/brocken.png", 0, 0);
 		}
