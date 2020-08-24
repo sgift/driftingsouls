@@ -245,5 +245,7 @@ public class TileCache
 				LOG.warn("Konnte Tile "+file.getName()+" nicht loeschen");
 			}
 		}
+
+		imageCache.clear();
 	}
 }

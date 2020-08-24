@@ -80,7 +80,7 @@ public class NpcController extends Controller
 
 		if (!user.hasFlag(UserFlag.ORDER_MENU))
 		{
-			throw new ValidierungException("Nur NPCs können dieses Script nutzen", Common.buildUrl("default", "module", "ueber"));
+			throw new ValidierungException("Nur NPCs können dieses Script nutzen.", Common.buildUrl("default", "module", "ueber"));
 		}
 
 		if (Rassen.get().rasse(user.getRace()).isHead(user))
@@ -146,7 +146,7 @@ public class NpcController extends Controller
 
 		if (!this.shop)
 		{
-			throw new ValidierungException("Sie verfügen über keinen Shop und können daher diese Seite nicht aufrufen");
+			throw new ValidierungException("Sie verfügen über keinen Shop und können daher diese Seite nicht aufrufen.");
 		}
 
 		ShopMenuViewModel result = new ShopMenuViewModel();
@@ -240,22 +240,22 @@ public class NpcController extends Controller
 
 		if (edituser == null)
 		{
-			return ViewMessage.failure("Der angegebene Spieler existiert nicht");
+			return ViewMessage.failure("Der angegebene Spieler existiert nicht.");
 		}
 
 		if (medal == null)
 		{
-			return ViewMessage.failure("Der angegebene Orden ist nicht vorhanden");
+			return ViewMessage.failure("Der angegebene Orden ist nicht vorhanden.");
 		}
 
 		if (medal.isAdminOnly())
 		{
-			return ViewMessage.failure("Diesen Orden kännen sie nicht verleihen");
+			return ViewMessage.failure("Diesen Orden kännen sie nicht verleihen.");
 		}
 
 		if (reason.length() == 0)
 		{
-			return ViewMessage.failure("Sie müssen einen Grund angeben");
+			return ViewMessage.failure("Sie müssen einen Grund angeben.");
 		}
 
 		Set<Medal> medallist = edituser.getMedals();
@@ -269,12 +269,12 @@ public class NpcController extends Controller
 							user.getName() + "[/userprofile] verliehen Aufgrund der " + reason);
 
 		PM.send(user, edituser.getId(), "Orden '" + medal.getName() + "' verliehen",
-			   "Ich habe dir den Orden [medal]" + medal.getId() + "[/medal]" +
+			   "Ich habe Dir den Orden [medal]" + medal.getId() + "[/medal]" +
 			   " verliehen Aufgrund deiner " + reason);
 
 		return ViewMessage.success("Dem Spieler wurde der Orden '" +
 								   medal.getName() +
-								   "' verliehen");
+								   "' verliehen.");
 	}
 
 	/**
@@ -292,12 +292,12 @@ public class NpcController extends Controller
 
 		if (edituser == null)
 		{
-			return ViewMessage.failure("Der angegebene Spieler existiert nicht");
+			return ViewMessage.failure("Der angegebene Spieler existiert nicht.");
 		}
 
 		if (rank < 0)
 		{
-			return ViewMessage.failure("Sie können diesen Spieler nicht soweit degradieren");
+			return ViewMessage.failure("Sie können diesen Spieler nicht so weit degradieren.");
 		}
 
 		edituser.setRank(user, rank);
@@ -311,7 +311,7 @@ public class NpcController extends Controller
 		User edituser = User.lookupByIdentifier(edituserID);
 		if (edituser == null)
 		{
-			return ViewMessage.failure("Der Spieler existiert nicht");
+			return ViewMessage.failure("Der Spieler existiert nicht.");
 		}
 
 		Loyalitaetspunkte lp = null;
@@ -326,7 +326,7 @@ public class NpcController extends Controller
 
 		if (lp == null)
 		{
-			return ViewMessage.failure("Der LP-Eintrag wurde nicht gefunden");
+			return ViewMessage.failure("Der LP-Eintrag wurde nicht gefunden.");
 		}
 
 		org.hibernate.Session db = getDB();
@@ -334,7 +334,7 @@ public class NpcController extends Controller
 		db.delete(lp);
 		edituser.getLoyalitaetspunkte().remove(lp);
 
-		return ViewMessage.success("Eintrag gelöscht");
+		return ViewMessage.success("Eintrag gelöscht!");
 	}
 
 	/**
@@ -355,12 +355,12 @@ public class NpcController extends Controller
 		User edituser = User.lookupByIdentifier(edituserID);
 		if (edituser == null)
 		{
-			return ViewMessage.failure("Benutzer nicht gefunden");
+			return ViewMessage.failure("Benutzer nicht gefunden.");
 		}
 
 		if (punkte == 0 || grund.isEmpty())
 		{
-			return ViewMessage.failure("Sie muessen den Grund und die Anzahl der Punkte angeben");
+			return ViewMessage.failure("Sie müssen den Grund und die Anzahl der Punkte angeben.");
 		}
 
 		org.hibernate.Session db = getDB();
@@ -394,10 +394,10 @@ public class NpcController extends Controller
 	{
 		if (meldung == null)
 		{
-			return ViewMessage.error("Die angegebene Meldung konnte nicht gefunden werden");
+			return ViewMessage.error("Die angegebene Meldung konnte nicht gefunden werden.");
 		}
 		meldung.setBearbeitetAm(new Date());
-		return ViewMessage.success("Die Meldung wurde als bearbeitet markiert");
+		return ViewMessage.success("Die Meldung wurde als bearbeitet markiert.");
 	}
 
 	@ViewModel
@@ -540,7 +540,7 @@ public class NpcController extends Controller
 		if (lieferposition.isEmpty())
 		{
 			user.setNpcOrderLocation(null);
-			return ViewMessage.success("Lieferkoordinaten zurückgesetzt");
+			return ViewMessage.success("Lieferkoordinaten zurückgesetzt.");
 		}
 
 		Location loc = Location.fromString(lieferposition);
@@ -549,10 +549,10 @@ public class NpcController extends Controller
 		{
 			user.setNpcOrderLocation(loc.asString());
 
-			return ViewMessage.success("Neue Lieferkoordinaten gespeichert");
+			return ViewMessage.success("Neue Lieferkoordinaten gespeichert.");
 		}
 
-		return ViewMessage.failure("Keine Lieferung nach " + loc.asString() + " möglich");
+		return ViewMessage.failure("Keine Lieferung nach " + loc.asString() + " möglich.");
 	}
 
 
@@ -611,17 +611,17 @@ public class NpcController extends Controller
 		{
 			if (user.getNpcPunkte() < costs)
 			{
-				return ViewMessage.failure("Nicht genug Kommandopunkte");
+				return ViewMessage.failure("Nicht genug Kommandopunkte!");
 			}
 
 			orderList.forEach(db::persist);
 
 			user.setNpcPunkte(user.getNpcPunkte() - costs);
 
-			return ViewMessage.success(orderList.size() + " Schiff(e) zugeteilt - wird/werden in 1 Tick(s) eintreffen");
+			return ViewMessage.success(orderList.size() + " Schiff(e) zugeteilt - wird/werden in 1 Tick(s) eintreffen.");
 		}
 
-		return ViewMessage.failure("Sorry, aber umsonst bekommst du hier nichts...");
+		return ViewMessage.failure("Sorry, aber umsonst bekommst Du hier nichts...");
 	}
 
 	/**
@@ -645,7 +645,7 @@ public class NpcController extends Controller
 
 		if( order == null )
 		{
-			return ViewMessage.failure("Es gibt keinen solchen Offizier");
+			return ViewMessage.failure("Es gibt keinen solchen Offizier.");
 		}
 
 		costs = count * order.getCost();
@@ -653,7 +653,7 @@ public class NpcController extends Controller
 		{
 			if (user.getNpcPunkte() < costs)
 			{
-				return ViewMessage.failure("Nicht genug Kommandopunkte");
+				return ViewMessage.failure("Nicht genug Kommandopunkte!");
 			}
 			for (int i = 0; i < count; i++)
 			{
@@ -663,10 +663,10 @@ public class NpcController extends Controller
 			}
 
 			user.setNpcPunkte(user.getNpcPunkte() - costs);
-			return ViewMessage.success("Offizier(e) zugeteilt - wird/werden in 1 Tick(s) eintreffen");
+			return ViewMessage.success("Offizier(e) zugeteilt - wird/werden in 1 Tick(s) eintreffen.");
 		}
 
-		return ViewMessage.failure("Sorry, aber umsonst bekommst du hier nichts...");
+		return ViewMessage.failure("Sorry, aber umsonst bekommst Du hier nichts...");
 	}
 
 	@ViewModel
