@@ -97,6 +97,18 @@
 				</li>
 			</ul>
 		</div>
+		<div ui-if="sektor.brocken.length>0">
+			<ul class='bases'>
+				<li ng-repeat="brocken in sektor.brocken">
+					<img ng-src='{{brocken.image}}' />
+					<div class='name'>
+						<span>{{brocken.name}}</span>
+					</div>
+					<div class='typ'>{{brocken.typ}}</div>
+					<div class='owner' ng-bind-html-unsafe="brocken.username"></div>
+				</li>
+			</ul>
+		</div>
 		<div ui-if="sektor.battles.length>0">
 			<ul class='battles'>
 				<li ng-repeat="battle in sektor.battles">

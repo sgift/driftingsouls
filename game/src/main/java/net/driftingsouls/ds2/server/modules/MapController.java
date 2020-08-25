@@ -604,6 +604,7 @@ public class MapController extends Controller
 		public boolean roterAlarm;
 		public final List<UserWithShips> users = new ArrayList<>();
 		public final List<BaseViewModel> bases = new ArrayList<>();
+		public final List<BaseViewModel> brocken = new ArrayList<>();
 		public final List<JumpNodeViewModel> jumpnodes = new ArrayList<>();
 		public final List<BattleViewModel> battles = new ArrayList<>();
 		public NebelViewModel nebel;
@@ -654,6 +655,19 @@ public class MapController extends Controller
 			baseObj.eigene = base.getOwner().getId() == user.getId();
 
 			json.bases.add(baseObj);
+		}
+		for (Ship brocken : field.getBrocken())
+		{
+			SectorViewModel.BaseViewModel brockenObj = new SectorViewModel.BaseViewModel();
+			brockenObj.id = brocken.getId();
+			brockenObj.name = brocken.getName();
+			brockenObj.username = Common._title(brocken.getOwner().getName());
+			brockenObj.image = brocken.getTypeData().getPicture(); //getKlasse().getLargeImage();
+			brockenObj.klasse = brocken.getTypeData().getTypeId();	//getKlasse().getId();
+			brockenObj.typ = brocken.getTypeData().getNickname();  //getKlasse().getName();
+			brockenObj.eigene = brocken.getOwner().getId() == user.getId();
+
+			json.bases.add(brockenObj);
 		}
 
 		for (JumpNode jumpNode : field.getJumpNodes())
