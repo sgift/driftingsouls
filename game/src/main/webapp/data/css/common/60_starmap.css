@@ -142,6 +142,7 @@
 }
 
 #starmapSectorPopup .bases,
+#starmapSectorPopup .brocken,
 #starmapSectorPopup .jumpnodes,
 #starmapSectorPopup .battles,
 #starmapSectorPopup .subraumspalten{
@@ -152,6 +153,7 @@
 }
 
 #starmapSectorPopup .bases img,
+#starmapSectorPopup .brocken img,
 #starmapSectorPopup .jumpnodes img,
 #starmapSectorPopup .subraumspalten img{
 	margin-right:auto;
@@ -161,7 +163,8 @@
 	display:block;
 }
 
-#starmapSectorPopup .bases .typ {
+#starmapSectorPopup .bases .typ,
+#starmapSectorPopup .brocken .typ{
 	font-size:80%;
 	line-height:1.5
 }
@@ -193,6 +196,7 @@
 }
 
 #starmapSectorPopup .bases li,
+#starmapSectorPopup .brocken li,
 #starmapSectorPopup .jumpnodes li {
 	float:left;
 	padding-right:20px;
