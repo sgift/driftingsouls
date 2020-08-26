@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
  * Eine Sicht auf ein bestimmtes Sternenkartenfeld.
  * Die Sicht geht davon aus, dass der Spieler das Feld sehen darf.
  * Es findet aus Performancegruenden keine(!) Abfrage ab, um das sicherzustellen.
- * 
+ *
  * @author Drifting-Souls Team
  */
 public class PlayerFieldView implements FieldView
@@ -42,7 +42,7 @@ public class PlayerFieldView implements FieldView
 
     /**
 	 * Legt eine neue Sicht an.
-	 * 
+	 *
 	 * @param db Ein aktives Hibernate Sessionobjekt.
 	 * @param user Der Spieler fuer den die Sicht gelten soll.
 	 * @param position Der gesuchte Sektor.
@@ -57,7 +57,7 @@ public class PlayerFieldView implements FieldView
         this.location = position;
 		this.inScanRange = this.isInScanRange();
 	}
-	
+
 	/**
 	 * Gibt die Liste aller Basen in dem Feld zurueck.
 	 * @return Die Basenliste
@@ -80,18 +80,18 @@ public class PlayerFieldView implements FieldView
 				bases.add(base);
 			}
 		}
-        
+
 		boolean nebula = !shipInSector && this.field.isNebula() && !this.field.getNebula().allowsScan();
 		if( nebula )
 		{
 			nebula = bases.isEmpty();
 		}
-		
+
 		if( !nebula && this.inScanRange )
 		{
 			bases.addAll(this.field.getBases().stream().filter(base -> !bases.contains(base)).collect(Collectors.toList()));
 		}
-		
+
 		return bases;
 	}
 
@@ -133,7 +133,7 @@ public class PlayerFieldView implements FieldView
 
         return true;
 	}
-	
+
 	/**
 	 * @return Die Schiffe, die der Spieler sehen kann.
 	 */
@@ -152,7 +152,7 @@ public class PlayerFieldView implements FieldView
 		{
 			return ships;
 		}
-		
+
 		Ally ally = this.user.getAlly();
 		Relations relations = this.user.getRelations();
 		for (Ship viewableShip : field.getShips())
@@ -223,7 +223,7 @@ public class PlayerFieldView implements FieldView
 
 			ships.get(owner).get(type).add(viewableShip);
 		}
-		
+
 		return ships;
 	}
 
@@ -251,6 +251,16 @@ public class PlayerFieldView implements FieldView
 			return new ArrayList<>();
 		}
 		return this.field.getBattles();
+	}
+
+	@Override
+	public List<Ship> getBrocken()
+	{
+		if( !this.inScanRange )
+		{
+			return new ArrayList<>();
+		}
+		return this.field.getBrocken();
 	}
 
 	@Override
@@ -292,14 +302,14 @@ public class PlayerFieldView implements FieldView
         {
             return true;
         }
-        
+
         Ally userAlly = user.getAlly();
         Ally ownerAlly = owner.getAlly();
         if( userAlly != null && ownerAlly != null && userAlly.getId() == ownerAlly.getId())
         {
             return true;
         }
-        
+
         Relations relations = user.getRelations();
 		return relations.isOnly(owner, Relation.FRIEND);
 	}

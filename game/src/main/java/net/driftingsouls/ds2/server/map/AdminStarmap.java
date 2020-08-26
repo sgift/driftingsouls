@@ -65,6 +65,13 @@ public class AdminStarmap extends PublicStarmap
 			return new SectorImage("data/starmap/jumpnode/jumpnode.png", 0, 0);
 		}
 
+		List<Ship> positionBrocken = map.getBrockenMap().get(location);
+		if(positionBrocken != null && !positionBrocken.isEmpty())
+		{
+			return new SectorImage("data/starmap/base/brocken.png", 0, 0);
+		}
+
+
 		return null;
 	}
 
@@ -144,7 +151,8 @@ public class AdminStarmap extends PublicStarmap
 	public boolean isHasSectorContent(Location position)
 	{
 		List<Base> bases = map.getBaseMap().get(position);
-		return bases != null && !bases.isEmpty() || this.getShipImage(position) != null;
+		List<Ship> brocken = map.getBrockenMap().get(position);
+		return bases != null && !bases.isEmpty() || this.getShipImage(position) != null || brocken != null && !brocken.isEmpty();
 	}
 
 	@Override

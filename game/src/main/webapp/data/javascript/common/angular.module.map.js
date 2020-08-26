@@ -61,6 +61,7 @@
 					sektor.nebel = result.nebel;
 					sektor.jumpnodes = result.jumpnodes;
 					sektor.bases = result.bases;
+					sektor.brocken = result.brocken;
 					sektor.battles = result.battles;
 					sektor.users = result.users;
 					sektor.subraumspaltenCount = result.subraumspaltenCount;

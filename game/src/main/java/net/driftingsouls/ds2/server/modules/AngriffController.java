@@ -904,15 +904,15 @@ public class AngriffController extends Controller
 							"ship.action.shot", 	!battle.isGuest() && aship.hasFlag(BattleShipFlag.SHOT),
               "ship.mangelnahrung",       !battle.isGuest() && (aship.getShip().getStatus().contains("mangel_nahrung")),
               "ship.mangelreaktor",       !battle.isGuest() && (aship.getShip().getStatus().contains("mangel_reaktor")),
-              "ship.jdocks", 			aShipType.getJDocks(),
+              "ship.jdocks", 			!battle.isGuest()?aShipType.getJDocks():0,
               "ship.adocks", 			aShipType.getADocks(),
-              "ship.docks", 			aShipType.getADocks()+aShipType.getJDocks(),
+              "ship.docks", 			aShipType.getADocks()+(!battle.isGuest()?aShipType.getJDocks():0),
               "ship.adocks.docked",       aship.getShip().getDockedCount(),
-              "ship.jdocks.docked",       aship.getShip().getLandedCount(),
+              "ship.jdocks.docked",       !battle.isGuest()?aship.getShip().getLandedCount():0,
               "ship.action.joinflucht",   true,
 							"ship.action.frontrow",     false,
-							"ship.alarm",     aship.getShip().getAlarm().name().toLowerCase(),
-							"ship.alarmed",     aship.getShip().getAlarm().getCode() > 0 );
+							"ship.alarm",     !battle.isGuest()?aship.getShip().getAlarm().name().toLowerCase():"",
+							"ship.alarmed",     !battle.isGuest()?(aship.getShip().getAlarm().getCode() > 0):0 );
 
 
 				if( !firstEntry && showgroups && ((pos >= battle.getOwnShipTypeCount(grouptype)) || (pos == groupoffset+SHIPGROUPSIZE)) ) {
@@ -1048,21 +1048,21 @@ public class AngriffController extends Controller
 								"shiptypelist.hitcount",	data.hitcount,
 								"shiptypelist.fluchtcount",	data.fluchtcount,
 								"shiptypelist.joincount",	data.joincount,
-								"shiptypelist.shotcount",	data.shotcount,
+								"shiptypelist.shotcount",	!battle.isGuest()?data.shotcount:0,
 								"shiptypelist.fluchtnextcount",	0,
 								"shiptypelist.secondrowcount",	data.srcount,
 								"shiptypelist.secondrowstatus",	count-data.srcount,
-								"shiptypelist.mangelnahrungcount",	data.mangelnahrungcount,
-                "shiptypelist.mangelreaktorcount",	data.mangelreaktorcount,
-                "shiptypelist.landedcount", data.landedcount,
+								"shiptypelist.mangelnahrungcount",	!battle.isGuest()?data.mangelnahrungcount:0,
+                "shiptypelist.mangelreaktorcount",	!battle.isGuest()?data.mangelreaktorcount:0,
+                "shiptypelist.landedcount", !battle.isGuest()?data.landedcount:0,
                 "shiptypelist.dockedcount", data.dockedcount,
-                "shiptypelist.haslandedcount",  data.haslandedcount,
+                "shiptypelist.haslandedcount",  !battle.isGuest()?data.haslandedcount:0,
                 "shiptypelist.hasdockedcount",  data.hasdockedcount,
                 "shiptypelist.adockcount",  data.adockcount,
-                "shiptypelist.jdockcount",  data.jdockcount,
+                "shiptypelist.jdockcount",  !battle.isGuest()?data.jdockcount:0,
 								"shiptypelist.owner.race", 	aUser.getRace(),
-								"shiptypelist.alarmred",   data.alarmred,
-								"shiptypelist.alarmyellow",   data.alarmyellow );
+								"shiptypelist.alarmred",   !battle.isGuest()?data.alarmred:0,
+								"shiptypelist.alarmyellow",   !battle.isGuest()?data.alarmyellow:0 );
 
 					if( firstEntry ) {
 						firstEntry = false;
@@ -1176,15 +1176,15 @@ public class AngriffController extends Controller
               "ship.mangelnahrung",       !battle.isGuest() && (aship.getShip().getStatus().contains("mangel_nahrung")),
               "ship.mangelreaktor",       !battle.isGuest() && (aship.getShip().getStatus().contains("mangel_reaktor")),
               "ship.owner.race", 			aUser.getRace(),
-              "ship.jdocks", 			aShipType.getJDocks(),
+              "ship.jdocks", 			!battle.isGuest()?aShipType.getJDocks():0,
               "ship.adocks", 			aShipType.getADocks(),
-              "ship.docks", 			aShipType.getADocks()+aShipType.getJDocks(),
+              "ship.docks", 			aShipType.getADocks()+(!battle.isGuest()?aShipType.getJDocks():0),
               "ship.adocks.docked",       aship.getShip().getDockedCount(),
-              "ship.jdocks.docked",       aship.getShip().getLandedCount(),
+              "ship.jdocks.docked",       !battle.isGuest()? aship.getShip().getLandedCount():0,
               "ship.action.joinflucht",   false,
               "ship.action.frontrow",     false,
-							"ship.alarm",     aship.getShip().getAlarm().name().toLowerCase(),
-							"ship.alarmed",      aship.getShip().getAlarm().getCode() > 0  );
+							"ship.alarm",     !battle.isGuest()?aship.getShip().getAlarm().name().toLowerCase():"",
+							"ship.alarmed",      !battle.isGuest()?(aship.getShip().getAlarm().getCode() > 0):0  );
 
 
 				if( !firstEntry && showgroups && ((pos >= battle.getOwnShipTypeCount(grouptype)) || (pos == groupoffset+SHIPGROUPSIZE)) ) {
@@ -1325,21 +1325,21 @@ public class AngriffController extends Controller
 								"shiptypelist.hitcount",	data.hitcount,
 								"shiptypelist.fluchtcount",	0,
 								"shiptypelist.joincount",	0,
-								"shiptypelist.shotcount",	data.shotcount,
+								"shiptypelist.shotcount",	!battle.isGuest()?data.shotcount:0,
 								"shiptypelist.fluchtnextcount",	data.fluchtnextcount,
 								"shiptypelist.secondrowcount",	data.srcount,
 								"shiptypelist.secondrowstatus",	count-data.srcount,
-								"shiptypelist.mangelnahrungcount",	data.mangelnahrungcount,
-                "shiptypelist.mangelreaktorcount",	data.mangelreaktorcount,
-                "shiptypelist.landedcount", data.landedcount,
+								"shiptypelist.mangelnahrungcount",	!battle.isGuest()?data.mangelnahrungcount:0,
+                "shiptypelist.mangelreaktorcount",	!battle.isGuest()?data.mangelreaktorcount:0,
+                "shiptypelist.landedcount", !battle.isGuest()?data.landedcount:0,
                 "shiptypelist.dockedcount", data.dockedcount,
-                "shiptypelist.haslandedcount",  data.haslandedcount,
+                "shiptypelist.haslandedcount",  !battle.isGuest()?data.haslandedcount:0,
                 "shiptypelist.hasdockedcount",  data.hasdockedcount,
                 "shiptypelist.adockcount",  data.adockcount,
-                "shiptypelist.jdockcount",  data.jdockcount,
+                "shiptypelist.jdockcount",  !battle.isGuest()?data.jdockcount:0,
                 "shiptypelist.owner.race", 				aUser.getRace() ,
-								"shiptypelist.alarmred",   data.alarmred,
-								"shiptypelist.alarmyellow",   data.alarmyellow );
+								"shiptypelist.alarmred",   !battle.isGuest()?data.alarmred:0,
+								"shiptypelist.alarmyellow",   !battle.isGuest()?data.alarmyellow:0 );
 
 					if( firstEntry ) {
 						firstEntry = false;
@@ -1457,15 +1457,15 @@ public class AngriffController extends Controller
               "ship.mangelnahrung",       !battle.isGuest() && (aship.getShip().getStatus().contains("mangel_nahrung")),
               "ship.mangelreaktor",       !battle.isGuest() && (aship.getShip().getStatus().contains("mangel_reaktor")),
               "ship.owner.race", 			aUser.getRace(),
-              "ship.jdocks", 			aShipType.getJDocks(),
+              "ship.jdocks", 			!battle.isGuest()?aShipType.getJDocks():0,
               "ship.adocks", 			aShipType.getADocks(),
-              "ship.docks", 			aShipType.getADocks()+aShipType.getJDocks(),
+              "ship.docks", 			aShipType.getADocks()+(!battle.isGuest()?aShipType.getJDocks():0),
               "ship.adocks.docked",       aship.getShip().getDockedCount(),
-              "ship.jdocks.docked",       aship.getShip().getLandedCount(),
+              "ship.jdocks.docked",       !battle.isGuest()?aship.getShip().getLandedCount():0,
               "ship.action.joinflucht",   false,
               "ship.action.frontrow",     true,
-							"ship.alarm",     aship.getShip().getAlarm().name().toLowerCase(),
-							"ship.alarmed",      aship.getShip().getAlarm().getCode() > 0  );
+							"ship.alarm",     !battle.isGuest()?aship.getShip().getAlarm().name().toLowerCase():"",
+							"ship.alarmed",      !battle.isGuest()?(aship.getShip().getAlarm().getCode() > 0):0  );
 
 
 				if( !firstEntry && showgroups && ((pos >= battle.getOwnShipTypeCount(grouptype)) || (pos == groupoffset+SHIPGROUPSIZE)) ) {
@@ -1616,17 +1616,17 @@ public class AngriffController extends Controller
 								"shiptypelist.fluchtnextcount",	data.fluchtnextcount,
 								"shiptypelist.secondrowcount",	0,
 								"shiptypelist.secondrowstatus",	count-data.srcount,
-								"shiptypelist.mangelnahrungcount",	data.mangelnahrungcount,
-                "shiptypelist.mangelreaktorcount",	data.mangelreaktorcount,
-                "shiptypelist.landedcount", data.landedcount,
+								"shiptypelist.mangelnahrungcount",	!battle.isGuest()?data.mangelnahrungcount:0,
+                "shiptypelist.mangelreaktorcount",	!battle.isGuest()?data.mangelreaktorcount:0,
+                "shiptypelist.landedcount", !battle.isGuest()?data.landedcount:0,
                 "shiptypelist.dockedcount", data.dockedcount,
-                "shiptypelist.haslandedcount",  data.haslandedcount,
+                "shiptypelist.haslandedcount",  !battle.isGuest()?data.haslandedcount:0,
                 "shiptypelist.hasdockedcount",  data.hasdockedcount,
                 "shiptypelist.adockcount",  data.adockcount,
-                "shiptypelist.jdockcount",  data.jdockcount,
+                "shiptypelist.jdockcount",  !battle.isGuest()?data.jdockcount:0,
                 "shiptypelist.owner.race", 	aUser.getRace() ,
-								"shiptypelist.alarmred",   data.alarmred,
-								"shiptypelist.alarmyellow",   data.alarmyellow );
+								"shiptypelist.alarmred",   !battle.isGuest()?data.alarmred:0,
+								"shiptypelist.alarmyellow",   !battle.isGuest()?data.alarmyellow:0 );
 
 					if( firstEntry ) {
 						firstEntry = false;

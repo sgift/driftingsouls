@@ -164,6 +164,12 @@ public class PlayerStarmap extends PublicStarmap
 			}
 		}
 
+		List<Ship> positionBrocken = map.getBrockenMap().get(location);
+		if(positionBrocken != null && !positionBrocken.isEmpty())
+		{
+			return new SectorImage("data/starmap/base/brocken.png", 0, 0);
+		}
+
 		return null;
 	}
 
@@ -433,7 +439,8 @@ public class PlayerStarmap extends PublicStarmap
 		}
 
 		List<JumpNode> nodes = map.getNodeMap().get(position);
-		return nodes != null && !nodes.isEmpty() || this.getShipImage(position) != null;
+		List<Ship> brocken = map.getBrockenMap().get(position);
+		return nodes != null && !nodes.isEmpty() || this.getShipImage(position) != null || brocken != null && !brocken.isEmpty();
 	}
 
 	@Override
