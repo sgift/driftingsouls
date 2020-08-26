@@ -151,7 +151,8 @@ public class AdminStarmap extends PublicStarmap
 	public boolean isHasSectorContent(Location position)
 	{
 		List<Base> bases = map.getBaseMap().get(position);
-		return bases != null && !bases.isEmpty() || this.getShipImage(position) != null;
+		List<Ship> brocken = map.getBrockenMap().get(position);
+		return bases != null && !bases.isEmpty() || this.getShipImage(position) != null || brocken != null && !brocken.isEmpty();
 	}
 
 	@Override

@@ -439,7 +439,8 @@ public class PlayerStarmap extends PublicStarmap
 		}
 
 		List<JumpNode> nodes = map.getNodeMap().get(position);
-		return nodes != null && !nodes.isEmpty() || this.getShipImage(position) != null;
+		List<Ship> brocken = map.getBrockenMap().get(position);
+		return nodes != null && !nodes.isEmpty() || this.getShipImage(position) != null || brocken != null && !brocken.isEmpty();
 	}
 
 	@Override
