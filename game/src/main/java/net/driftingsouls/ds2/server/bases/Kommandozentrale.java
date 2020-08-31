@@ -155,7 +155,7 @@ public class Kommandozentrale extends DefaultBuilding {
 			int defaultDropZone = new ConfigService().getValue(WellKnownConfigValue.GTU_DEFAULT_DROPZONE);
 			if(oldUser.getGtuDropZone() != defaultDropZone)
 			{
-				PM.send(nullUser, oldUser.getId(), "GTU Dropzone ge&auml;ndert.", "Sie haben ihren letzten Asteroiden in System "+ oldUser.getGtuDropZone() +" aufgegeben. Ihre GTU Dropzone wurde auf System "+ defaultDropZone +" gesetzt.");
+				PM.send(nullUser, oldUser.getId(), "GTU Dropzone geändert.", "Sie haben Ihren letzten Asteroiden in System "+ oldUser.getGtuDropZone() +" aufgegeben. Ihre GTU-Dropzone wurde auf System "+ defaultDropZone +" gesetzt.");
 				oldUser.setGtuDropZone(defaultDropZone);
 			}
 		}
@@ -388,10 +388,10 @@ public class Kommandozentrale extends DefaultBuilding {
 				ally.setItems(allyitems.save());
 				base.setCargo(cargo);
 
-				String msg = "Ich habe das Item \""+item.getName()+"\" der Allianz zur Verf&uuml;gung gestellt.";
+				String msg = "Ich habe das Item \""+item.getName()+"\" der Allianz zur Verfügung gestellt.";
 				PM.sendToAlly(user, ally, "Item &uuml;berstellt", msg);
 
-				message.append("Das Item wurde an die Allianz &uuml;bergeben<br /><br />\n");
+				message.append("Das Item wurde an die Allianz übergeben<br /><br />\n");
 			}
 		}
 
