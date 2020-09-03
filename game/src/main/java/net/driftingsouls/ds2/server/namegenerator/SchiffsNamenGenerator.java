@@ -45,6 +45,31 @@ public enum SchiffsNamenGenerator
 			}
 		}
 	},
+	VASU("Vasudanische Namen") {
+		private final NameProducer nameProducer = NameProducerManager.INSTANCE.getListBasedNameProducer(SchiffsNamenGenerator.class.getResource("altvasudanische_namen.txt"), false);
+
+		@Override
+		public String generiere(ShipTypeData schiffsTyp)
+		{
+			ShipClasses schiffsKlasse = schiffsTyp.getShipClass();
+			switch(schiffsKlasse) {
+				case UNBEKANNT:
+				case EMTPY:
+					return "";
+				case CONTAINER:
+					return generiereContainerNamen();
+				case SCHROTT:
+					return "Weltraumschrott";
+				case RETTUNGSKAPSEL:
+					return "Rettungskapsel";
+				case FELSBROCKEN:
+					return "Felsbrocken";
+				default:
+					return StringUtils.capitalize(nameProducer.generateNext());
+
+			}
+		}
+	},
 	AEGYPTISCHE_NAMEN("Ägyptische Namen") {
 		private final NameProducer markov = NameProducerManager.INSTANCE.getMarkovNameProducer(PersonenNamenGenerator.class.getResource("aegyptische_nachnamen.txt"));
 
