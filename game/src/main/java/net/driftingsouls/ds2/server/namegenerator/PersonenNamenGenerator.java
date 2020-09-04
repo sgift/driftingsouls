@@ -50,6 +50,25 @@ public enum PersonenNamenGenerator
 		}
 	},
 	/**
+	 * (Alt)Aegyptische Namen.
+	 */
+	VASU("Vasudanisch")
+	{
+		private final NameProducer markov = NameProducerManager.INSTANCE.getMarkovNameProducer(PersonenNamenGenerator.class.getResource("altvasudanische_namen.txt"));
+
+		@Override
+		public String generiere()
+		{
+			String name = markov.generateNext();
+
+			name = Character.toUpperCase(name.charAt(0)) + name.substring(1);
+
+			name = upperAfterStrings(name, "-", "'", " ");
+
+			return name;
+		}
+	},
+	/**
 	 * Englische Namen (Vor- und Nachname).
 	 */
 	ENGLISCH("Englisch")
