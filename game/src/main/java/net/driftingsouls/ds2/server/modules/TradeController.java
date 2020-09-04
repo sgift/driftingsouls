@@ -75,7 +75,7 @@ public class TradeController extends Controller
 	{
 		if ((ship == null) || (ship.getId() < 0) || (ship.getOwner() != getUser()))
 		{
-			throw new ValidierungException("Fehler: Das angegebene Schiff existiert nicht oder geh&ouml;rt nicht ihnen", Common.buildUrl("default", "module", "schiffe"));
+			throw new ValidierungException("Fehler: Das angegebene Schiff existiert nicht oder gehört nicht Ihnen", Common.buildUrl("default", "module", "schiffe"));
 		}
 	}
 
@@ -208,7 +208,7 @@ public class TradeController extends Controller
 			}
 			tradepost.getOwner()
 					.transferMoneyFrom(user.getId(), totalRE,
-							"Warenverkauf an"+tradepost.getName()+" bei " + tradepost.getLocation().displayCoordinates(false),
+							"Warenverkauf an "+tradepost.getName()+" bei " + tradepost.getLocation().displayCoordinates(false),
 							false, UserMoneyTransfer.Transfer.SEMIAUTO);
 		}
 		return new RedirectViewResult("default");
@@ -306,7 +306,7 @@ public class TradeController extends Controller
 					long nichtVerkauft = tmp - freeSpace / resourceMass;
 					tmp = freeSpace / resourceMass;
 
-					message.append("[resource=").append(res.getId()).append("]").append(nichtVerkauft).append("[/resource] nicht verkauft - Alle Lager sind voll\n");
+					message.append("[resource=").append(res.getId()).append("]").append(nichtVerkauft).append("[/resource] nicht verkauft - alle Lager sind voll\n");
 					pmText.append("[resource=").append(res.getId()).append("]").append(nichtVerkauft).append("[/resource] konnten nicht gekauft werden, da das Lager voll war\n");
 				}
 
@@ -325,7 +325,7 @@ public class TradeController extends Controller
 								.divide(BigInteger.valueOf(res.getCount1())).longValue();
 
 						message.append("[resource=").append(res.getId()).append("]").append(tmp - maximum).append("[/resource] nicht verkauft - Ihr Handelspartner ist pleite\n");
-						pmText.append("[resource=").append(res.getId()).append("]").append(tmp - maximum).append("[/resource] konnten nicht gekauft werden, da du zu wenig Geld hattest\n");
+						pmText.append("[resource=").append(res.getId()).append("]").append(tmp - maximum).append("[/resource] konnten nicht gekauft werden, da Sie zu wenig Geld hatten\n");
 
 						tmp = maximum;
 					}
@@ -457,7 +457,7 @@ public class TradeController extends Controller
 		{
 
 			t.setVar("is.full", true,
-					"res.msg", "Dieser Handelsposten ist voll. Bitte beehre uns zu einem späteren Zeitpunkt erneut.");
+					"res.msg", "Dieser Handelsposten ist voll. Bitte beehren Sie uns zu einem späteren Zeitpunkt erneut.");
 		}
 
 		t.setBlock("_TRADE", "resbuy.listitem", "resbuy.list");
