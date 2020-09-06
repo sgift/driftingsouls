@@ -385,7 +385,7 @@ public class PortalController extends Controller
 
 		int ticks = getContext().get(ContextCommon.class).getTick();
 
-		String history = "Kolonistenlizenz erworben am " + Common.getIngameTime(ticks) + " [" + Common.date("d.m.Y H:i:s") + "]";
+		String history = "Kolonistenlizenz erworben am " + Common.getIngameTime(ticks) + " [" + Common.date("d.m.Y H:i:s") + " Uhr]";
 
 		User newuser = new User(username, enc_pw, race, history, new Cargo(), email);
 
@@ -454,7 +454,7 @@ public class PortalController extends Controller
 	private void versendeRegistrierungsEmail(String username, String email, String password)
 	{
 		String message = "Hallo {username},\n" +
-				"Du hast Dich als \"{username}\" angemeldet. Dein Passwort lautet \"{password}\" (ohne \\\"\\\"). Im Spiel heißt du noch Kolonist. Dies sowie das Passwort kannst Du aber unter \"Optionen\" ändern.\n" +
+				"Du hast Dich als \"{username}\" angemeldet. Dein Passwort lautet \"{password}\" (ohne \\\"\\\"). Im Spiel heißt Du noch Kolonist. Dies sowie das Passwort kannst Du aber unter \"Optionen\" ändern.\n" +
 				"\n" +
 				"Das Admin-Team wünscht einen angenehmen Aufenthalt in DS2!\n" +
 				"Gruß Guzman\n" +
