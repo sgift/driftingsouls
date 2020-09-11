@@ -58,13 +58,23 @@ public class NebulaTest {
         Assert.assertEquals(0, ship.getShields());
         Assert.assertEquals(0, ship.getAblativeArmor());
         Assert.assertEquals(94, ship.getHull());
-        Assert.assertTrue("Comm should have been damaged", ship.getComm() < 100);
-        Assert.assertTrue("Engine should have been damaged", ship.getEngine() < 100);
-        Assert.assertTrue("Sensors should have been damaged", ship.getSensors() < 100);
-        Assert.assertTrue("Weapons should have been damaged", ship.getWeapons() < 100);
         Assert.assertTrue("Too much damage to comm", ship.getComm() > 70);
         Assert.assertTrue("Too much damage to engine", ship.getEngine() > 70);
         Assert.assertTrue("Too much damage to sensors", ship.getSensors() > 70);
         Assert.assertTrue("Too much damage to weapons", ship.getWeapons() > 70);
+
+
+        Mockito.when(type.getShields()).thenReturn(0);
+        Mockito.when(type.getAblativeArmor()).thenReturn(1000);
+        Mockito.when(type.getHull()).thenReturn(100);
+
+        ship.setShields(0);
+        ship.setAblativeArmor(1000);
+        ship.setHull(100);
+        Nebel.Typ.DAMAGE.damageShip(ship, config);
+
+        Assert.assertEquals(0, ship.getShields());
+        Assert.assertEquals(850, ship.getAblativeArmor());
+        Assert.assertEquals(100, ship.getHull());
     }
 }

@@ -346,7 +346,10 @@ public class Nebel implements Locatable {
 				return;
 			}
 
-			double shieldOverflowFactor = (double)shieldOverflow / (double)shieldDamage;
+			double shieldOverflowFactor = 1.0d;
+			if(shipType.getShields() != 0) {
+				shieldOverflowFactor = (double)shieldOverflow / (double)shieldDamage;
+			}
 			int ablativeDamage = (int)Math.floor(shipType.getAblativeArmor() * ablativeDamageFactor * shieldOverflowFactor);
 			int ablativeRemaining = ship.getAblativeArmor() - ablativeDamage;
 			int ablativeOverflow = 0;
@@ -367,7 +370,10 @@ public class Nebel implements Locatable {
 				return;
 			}
 
-			double ablativeOverflowFactor = (double)ablativeOverflow / (double)ablativeDamage;
+			double ablativeOverflowFactor = 1.0d;
+			if(shipType.getAblativeArmor() != 0) {
+				ablativeOverflowFactor = (double)ablativeOverflow / (double)ablativeDamage;
+			}
 			int hullDamage = (int)Math.floor(shipType.getHull() * hullDamageFactor * ablativeOverflowFactor);
 			int hullRemaining = ship.getHull() - hullDamage;
 			if(hullRemaining <= 0) {
