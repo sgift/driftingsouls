@@ -109,7 +109,7 @@ public class RTCTick extends TickController {
 
 				if (loc == null)
 				{
-					system = (StarSystem) db.get(StarSystem.class, 2);
+					system = (StarSystem) db.get(StarSystem.class, 605);
 
 					loc = system.getDropZone();
 				}
