@@ -202,7 +202,7 @@ public class TradeController extends Controller
 		if (totalRE.compareTo(BigInteger.ZERO) > 0)
 		{
 			//Benachrichtigung fuer HP-Besitzer schreiben
-			if(ship.getOwner().getId()!=tradepost.getOwner().getId() && user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_HANDELSPOSTEN_PM))
+			if(ship.getOwner().getId()!=tradepost.getOwner().getId() && tradepost.getOwner().getUserValue(WellKnownUserValue.GAMEPLAY_USER_HANDELSPOSTEN_PM))
 			{
 				PM.send(tradepost.getOwner(), tradepost.getOwner().getId(), "Warenverkauf an "+tradepost.getName(), pmText.toString());
 			}
