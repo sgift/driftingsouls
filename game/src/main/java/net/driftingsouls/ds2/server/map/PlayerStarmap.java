@@ -164,10 +164,13 @@ public class PlayerStarmap extends PublicStarmap
 			}
 		}
 
-		List<Ship> positionBrocken = map.getBrockenMap().get(location);
-		if(positionBrocken != null && !positionBrocken.isEmpty())
+		if(!map.isNebula(location))
 		{
-			return new SectorImage("data/starmap/base/brocken.png", 0, 0);
+			List<Ship> positionBrocken = map.getBrockenMap().get(location);
+			if(positionBrocken != null && !positionBrocken.isEmpty())
+			{
+				return new SectorImage("data/starmap/base/brocken.png", 0, 0);
+			}
 		}
 
 		return null;
