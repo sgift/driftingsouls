@@ -25,7 +25,7 @@ import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import java.math.BigDecimal;
 
 /**
@@ -43,7 +43,7 @@ public class EditFactoryEntry implements EntityEditor<FactoryEntry>
 	}
 
 	@Override
-	public void configureFor(@Nonnull EditorForm8<FactoryEntry> form)
+	public void configureFor(@NonNull EditorForm8<FactoryEntry> form)
 	{
 		form.allowAdd();
 		form.field("Name", String.class, FactoryEntry::getName, FactoryEntry::setName);

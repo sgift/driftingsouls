@@ -227,7 +227,6 @@ public class WerftObjectTest extends DBSingleTransactionTest
 		assertThat(komplex, nullValue());
 	}
 
-	@SuppressWarnings("ConstantConditions")
 	@Test
 	public void gegebenEineWerftMitZuBauendenSchiffenUndEineGueltigePosition_getBuildQueueEntry_sollteDasPassendeZuBauendeSchiffZurueckgeben()
 	{

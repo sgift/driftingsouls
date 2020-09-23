@@ -11,7 +11,7 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import org.hibernate.Session;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -27,7 +27,7 @@ public class EditFraktionsAngebot implements EntityEditor<FraktionsAngebot>
 	}
 
 	@Override
-	public void configureFor(@Nonnull EditorForm8<FraktionsAngebot> form)
+	public void configureFor(@NonNull EditorForm8<FraktionsAngebot> form)
 	{
 		form.allowAdd();
 		form.allowDelete();

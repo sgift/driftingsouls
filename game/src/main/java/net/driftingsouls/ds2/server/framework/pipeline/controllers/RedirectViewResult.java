@@ -1,7 +1,7 @@
 package net.driftingsouls.ds2.server.framework.pipeline.controllers;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,7 +18,7 @@ public final class RedirectViewResult
 	 * Konstruktor.
 	 * @param targetAction Der Name der Action zu der weitergeleitet werden soll
 	 */
-	public RedirectViewResult(@Nonnull String targetAction)
+	public RedirectViewResult(@NonNull String targetAction)
 	{
 		this.targetAction = targetAction;
 	}
@@ -27,7 +27,7 @@ public final class RedirectViewResult
 	 * Gibt den Namen der Zielaction zurueck, zu der weitergeleitet werden soll.
 	 * @return Der Name der Action
 	 */
-	public @Nonnull String getTargetAction()
+	public @NonNull String getTargetAction()
 	{
 		return targetAction;
 	}
@@ -38,7 +38,7 @@ public final class RedirectViewResult
 	 * @param value Der Wert des Parameters
 	 * @return Die aktuelle Instanz
 	 */
-	public @Nonnull RedirectViewResult setParameter(@Nonnull String key, Object value)
+	public @NonNull RedirectViewResult setParameter(@NonNull String key, Object value)
 	{
 		this.parameters.put(key, value);
 		return this;
@@ -49,7 +49,7 @@ public final class RedirectViewResult
 	 * @param message Der Text
 	 * @return Die aktuelle Instanz
 	 */
-	public @Nonnull RedirectViewResult withMessage(String message)
+	public @NonNull RedirectViewResult withMessage(String message)
 	{
 		this.message = message;
 		return this;
@@ -59,7 +59,7 @@ public final class RedirectViewResult
 	 * Gibt alle gesetzten Parameter zurueck.
 	 * @return Die Parameter
 	 */
-	public @Nonnull Map<String, Object> getParameters()
+	public @NonNull Map<String, Object> getParameters()
 	{
 		return parameters;
 	}

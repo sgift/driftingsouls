@@ -2,7 +2,7 @@ package net.driftingsouls.ds2.server.ships;
 
 import org.apache.commons.lang3.StringUtils;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import java.util.EnumSet;
 import java.util.Optional;
 
@@ -176,7 +176,7 @@ public enum ShipTypeFlag
 	 * @throws IllegalArgumentException Falls die ID unbekannt ist
 	 * @see #getFlag()
 	 */
-	public static Optional<ShipTypeFlag> byFlag(@Nonnull String flag) throws IllegalArgumentException
+	public static Optional<ShipTypeFlag> byFlag(@NonNull String flag) throws IllegalArgumentException
 	{
 		for (ShipTypeFlag shipTypeFlag : values())
 		{
@@ -196,7 +196,7 @@ public enum ShipTypeFlag
 	 * @return Die Enum-Objekte
 	 * @throws java.lang.IllegalArgumentException Falls die ID eines Flags unbekannt ist
 	 */
-	public static @Nonnull EnumSet<ShipTypeFlag> parseFlags(String flagString) throws IllegalArgumentException
+	public static @NonNull EnumSet<ShipTypeFlag> parseFlags(String flagString) throws IllegalArgumentException
 	{
 		EnumSet<ShipTypeFlag> flagSet = EnumSet.noneOf(ShipTypeFlag.class);
 

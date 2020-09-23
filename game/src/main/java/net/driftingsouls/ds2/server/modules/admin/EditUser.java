@@ -29,7 +29,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -49,7 +49,7 @@ public class EditUser implements EntityEditor<User>
 	}
 
 	@Override
-	public void configureFor(@Nonnull EditorForm8<User> form)
+	public void configureFor(@NonNull EditorForm8<User> form)
 	{
 		form.allowUpdate((u) -> u.getAccessLevel() <= ContextMap.getContext().getActiveUser().getAccessLevel());
 

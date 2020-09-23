@@ -28,7 +28,7 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.Ship_;
 import net.driftingsouls.ds2.server.ships.ShipType;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 
 /**
  * Aktualisierungstool fuer die Werte eines Schiffes.
@@ -45,7 +45,7 @@ public class EditShip implements EntityEditor<Ship>
 	}
 
 	@Override
-	public void configureFor(@Nonnull EditorForm8<Ship> form)
+	public void configureFor(@NonNull EditorForm8<Ship> form)
 	{
 		form.field("Name", String.class, Ship::getName, Ship::setName);
 		form.field("Besitzer", User.class, Ship::getOwner, Ship::setOwner).dbColumn(Ship_.owner);

@@ -5,7 +5,7 @@ import net.driftingsouls.ds2.server.config.ModuleSlot;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 
 @AdminMenuEntry(category = "Schiffe", name = "Modulslot", permission = WellKnownAdminPermission.EDIT_MODULE_SLOT)
 public class EditModuleSlot implements EntityEditor<ModuleSlot>
@@ -18,7 +18,7 @@ public class EditModuleSlot implements EntityEditor<ModuleSlot>
 	}
 
 	@Override
-	public void configureFor(@Nonnull EditorForm8<ModuleSlot> form)
+	public void configureFor(@NonNull EditorForm8<ModuleSlot> form)
 	{
 		form.allowAdd();
 		form.ifAdding().field("Slot-ID", String.class, ModuleSlot::getSlotType, ModuleSlot::setSlotType);

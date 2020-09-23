@@ -24,7 +24,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -378,7 +378,7 @@ public class ShipType implements ShipTypeData {
 	}
 
 	@Override
-	public boolean hasFlag(@Nonnull ShipTypeFlag flag)
+	public boolean hasFlag(@NonNull ShipTypeFlag flag)
 	{
 		return getFlags().contains(flag);
 	}

@@ -8,7 +8,7 @@ import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 
 @AdminMenuEntry(category = "Sonstiges", name = "ComNet Kanal", permission = WellKnownAdminPermission.EDIT_COMNET_CHANNEL)
 public class EditComNetChannel implements EntityEditor<ComNetChannel>
@@ -20,7 +20,7 @@ public class EditComNetChannel implements EntityEditor<ComNetChannel>
 	}
 
 	@Override
-	public void configureFor(@Nonnull EditorForm8<ComNetChannel> form)
+	public void configureFor(@NonNull EditorForm8<ComNetChannel> form)
 	{
 		form.field("Name", String.class, ComNetChannel::getName, ComNetChannel::setName);
 		form.field("Allianz (Besitzer)", Ally.class, ComNetChannel::getAllyOwner, ComNetChannel::setAllyOwner).withNullOption("[Kein Besitzer]").dbColumn(ComNetChannel_.allyOwner);

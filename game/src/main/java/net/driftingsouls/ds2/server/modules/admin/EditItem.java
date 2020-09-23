@@ -49,7 +49,7 @@ import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import org.hibernate.Session;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -70,7 +70,7 @@ public class EditItem implements EntityEditor<Item>
 	}
 
 	@Override
-	public void configureFor(@Nonnull EditorForm8<Item> form)
+	public void configureFor(@NonNull EditorForm8<Item> form)
 	{
 		form.allowAdd();
 

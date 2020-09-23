@@ -11,7 +11,7 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import java.util.List;
 
 @AdminMenuEntry(category = "Spieler", name = "Fraktions-GUI", permission = WellKnownAdminPermission.EDIT_FRAKTIONS_GUI_EINTRAG)
@@ -24,7 +24,7 @@ public class EditFraktionsGuiEintrag implements EntityEditor<FraktionsGuiEintrag
 	}
 
 	@Override
-	public void configureFor(@Nonnull EditorForm8<FraktionsGuiEintrag> form)
+	public void configureFor(@NonNull EditorForm8<FraktionsGuiEintrag> form)
 	{
 		form.allowAdd();
 		form.allowDelete();

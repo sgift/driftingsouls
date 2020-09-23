@@ -6,7 +6,7 @@ import net.driftingsouls.ds2.server.map.TileCache;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 
 @AdminMenuEntry(category = "Systeme", name="Sprungpunkt", permission = WellKnownAdminPermission.EDIT_JUMPNODE)
 public class EditJumpNode implements EntityEditor<JumpNode>
@@ -18,7 +18,7 @@ public class EditJumpNode implements EntityEditor<JumpNode>
 	}
 
 	@Override
-	public void configureFor(@Nonnull EditorForm8<JumpNode> form)
+	public void configureFor(@NonNull EditorForm8<JumpNode> form)
 	{
 		form.allowAdd();
 		form.allowDelete();

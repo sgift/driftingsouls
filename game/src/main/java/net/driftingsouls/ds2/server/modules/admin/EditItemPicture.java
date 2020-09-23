@@ -23,7 +23,7 @@ import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 
 /**
  * Aktualisierungstool fuer Itemgrafiken.
@@ -40,7 +40,7 @@ public class EditItemPicture implements EntityEditor<Item>
 	}
 
 	@Override
-	public void configureFor(@Nonnull EditorForm8<Item> form)
+	public void configureFor(@NonNull EditorForm8<Item> form)
 	{
 		form.label("Name", Item::getName);
 		form.dynamicContentField("Bild", Item::getPicture, Item::setPicture);

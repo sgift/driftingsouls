@@ -26,7 +26,7 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import net.driftingsouls.ds2.server.ships.ShipType;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 
 /**
  * Aktualisierungstool fuer die Systeme.
@@ -42,7 +42,7 @@ public class EditOrderableShip implements EntityEditor<OrderableShip>
 	}
 
 	@Override
-	public void configureFor(@Nonnull EditorForm8<OrderableShip> form)
+	public void configureFor(@NonNull EditorForm8<OrderableShip> form)
 	{
 		form.allowAdd();
 		form.allowDelete();

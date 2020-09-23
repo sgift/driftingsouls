@@ -23,7 +23,7 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import net.driftingsouls.ds2.server.units.UnitType;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 
 /**
  * Aktualisierungstool fuer Einheitengrafiken.
@@ -40,7 +40,7 @@ public class EditUnitPicture implements EntityEditor<UnitType>
 	}
 
 	@Override
-	public void configureFor(@Nonnull EditorForm8<UnitType> form)
+	public void configureFor(@NonNull EditorForm8<UnitType> form)
 	{
 		form.label("Name", UnitType::getName);
 		form.dynamicContentField("Bild", UnitType::getPicture, UnitType::setPicture);

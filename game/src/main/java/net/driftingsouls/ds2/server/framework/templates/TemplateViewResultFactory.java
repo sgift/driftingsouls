@@ -5,7 +5,7 @@ import net.driftingsouls.ds2.server.framework.Version;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 
 @Component
 public class TemplateViewResultFactory
@@ -68,7 +68,7 @@ public class TemplateViewResultFactory
 	 * @param controller Der Controller
 	 * @return Die Templateinstanz
 	 */
-	public TemplateEngine createFor(@Nonnull Object controller)
+	public TemplateEngine createFor(@NonNull Object controller)
 	{
 		TemplateEngine engine = createTemplateEngine(MASTERTEMPLATE);
 		setzeTemplateViaControllerNamen(engine, controller);
@@ -81,7 +81,7 @@ public class TemplateViewResultFactory
 	 * @param templateName Der Controller
 	 * @return Die Templateinstanz
 	 */
-	public TemplateEngine createForTemplate(@Nonnull String templateName)
+	public TemplateEngine createForTemplate(@NonNull String templateName)
 	{
 		TemplateEngine engine = createTemplateEngine(MASTERTEMPLATE);
 		setTemplate(engine, templateName);

@@ -1,6 +1,6 @@
 package net.driftingsouls.ds2.server.framework.db.batch;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import java.util.List;
 
 /**
@@ -20,5 +20,5 @@ public interface UnitOfWorkErrorReporter<T>
 	 * @param failedObjects Die Fehlgeschlagenen Objekte
 	 * @param error Die Fehlermeldung
 	 */
-    void report(@Nonnull UnitOfWork<T> unitOfWork, @Nonnull List<T> failedObjects, @Nonnull Throwable error);
+    void report(@NonNull UnitOfWork<T> unitOfWork, @NonNull List<T> failedObjects, @NonNull Throwable error);
 }

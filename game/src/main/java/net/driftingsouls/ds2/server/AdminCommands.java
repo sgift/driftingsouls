@@ -51,6 +51,8 @@ import org.apache.log4j.Logger;
 import org.hibernate.Cache;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -204,7 +206,7 @@ public class AdminCommands {
 	}
 
 	protected interface Command {
-		String execute(Context context, String[] command) throws CommandFailedException;
+		String execute(Context context, String[] command);
 		List<String> autoComplete(String[] command);
 	}
     
@@ -244,6 +246,8 @@ public class AdminCommands {
         }
     }
 
+    @Component
+	@Lazy
 	protected static class TickCommand implements Command {
 		@Autowired
 		private TickAdminCommand tickAdminCommand;

@@ -18,84 +18,49 @@
  */
 package net.driftingsouls.ds2.server;
 
-import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.tick.RareTick;
+import net.driftingsouls.ds2.server.tick.RegularTick;
 import net.driftingsouls.ds2.server.tick.TickController;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.quartz.JobDataMap;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.springframework.beans.factory.annotation.Required;
-import org.springframework.scheduling.quartz.CronTriggerFactoryBean;
+import net.driftingsouls.ds2.server.tick.TickPartExecutor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Implementiert Admin-Kommandos rund um das Ticksystem.
  * @author Christopher Jung
  *
  */
+@Component
+@Lazy
 public class TickAdminCommand
 {
-	private static final Log log = LogFactory.getLog(TickAdminCommand.class);
-	
-	private CronTriggerFactoryBean regularTick;
-	private CronTriggerFactoryBean rareTick;
-	private Scheduler scheduler;
-	
-	/**
-	 * Injiziert den Quartz-Trigger fuer den normalen DS-Tick.
-	 * @param regularTick Der Trigger
-	 */
-	@Required
-	public void setRegularTickCronTrigger(CronTriggerFactoryBean regularTick) {
+	private final RegularTick regularTick;
+	private final RareTick rareTick;
+
+	private static final ExecutorService tickExecutor = Executors.newSingleThreadExecutor();
+
+	@Autowired
+	public TickAdminCommand(RegularTick regularTick, RareTick rareTick) {
 		this.regularTick = regularTick;
-	}
-	
-	/**
-	 * Injiziert den Quartz-Trigger fuer den seltenen DS-Tick.
-	 * @param rareTick Der Trigger
-	 */
-	@Required
-	public void setRareTickCronTrigger(CronTriggerFactoryBean rareTick) {
 		this.rareTick = rareTick;
-	}
-	
-	/**
-	 * Injiziert den Quartz-Scheduler zum Ausfuehren von Quartz-Jobs.
-	 * @param bean Der Scheduler
-	 */
-	@Required
-	public void setScheduler(Scheduler bean) {
-		this.scheduler = bean;
 	}
 	
 	/**
 	 * Fuehrt den normalen DS-Tick aus.
 	 */
 	public void runRegularTick() {
-		try
-		{
-			log.info("RegularTick wird manuell gestartet");
-			scheduler.triggerJob(this.regularTick.getObject().getJobKey());
-		}
-		catch( SchedulerException e )
-		{
-			log.error("Konnte regulartick nicht ausfuehren", e);
-		}
+		regularTick.execute();
 	}
 	
 	/**
 	 * Fuehrt den seltenen DS-Tick aus.
 	 */
 	public void runRareTick() {
-		try
-		{
-			log.info("RareTick wird manuell gestartet");
-			scheduler.triggerJob(this.rareTick.getObject().getJobKey());
-		}
-		catch( SchedulerException e )
-		{
-			log.error("Konnte raretick nicht ausfuehren", e);
-		}
+		rareTick.execute();
 	}
 	
 	/**
@@ -103,18 +68,8 @@ public class TickAdminCommand
 	 * @param tickPart der auszufuehrende Teiltick
 	 */
 	public void runRegularTick(Class<? extends TickController> tickPart) {
-		try
-		{
-			JobDataMap map = new JobDataMap();
-			map.put("onlyTick", tickPart);
-			
-			log.info("RegularTick '"+tickPart+"' wird manuell gestartet");
-			scheduler.triggerJob(this.regularTick.getObject().getJobKey(), map);
-		}
-		catch( SchedulerException e )
-		{
-			log.error("Konnte regulartick nicht ausfuehren", e);
-		}
+		TickPartExecutor tickPartExecutor = new TickPartExecutor(tickPart, "tick");
+		tickExecutor.submit(tickPartExecutor::execute);
 	}
 	
 	/**
@@ -122,19 +77,7 @@ public class TickAdminCommand
 	 * @param tickPart der auszufuehrende Teiltick
 	 */
 	public void runRareTick(Class<? extends TickController> tickPart) {
-		try
-		{
-			ContextMap.getContext().autowireBean(tickPart);
-
-			JobDataMap map = new JobDataMap();
-			map.put("onlyTick", tickPart);
-			
-			log.info("RareTick '"+tickPart+"' wird manuell gestartet");
-			scheduler.triggerJob(this.rareTick.getObject().getJobKey(), map);
-		}
-		catch( SchedulerException e )
-		{
-			log.error("Konnte raretick nicht ausfuehren", e);
-		}
+		TickPartExecutor tickPartExecutor = new TickPartExecutor(tickPart, "tick");
+		tickExecutor.submit(tickPartExecutor::execute);
 	}
 }

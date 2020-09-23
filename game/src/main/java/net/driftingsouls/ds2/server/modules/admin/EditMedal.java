@@ -5,7 +5,7 @@ import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 
 @AdminMenuEntry(category = "Spieler", name = "Orden", permission = WellKnownAdminPermission.EDIT_MEDAL)
 public class EditMedal implements EntityEditor<Medal>
@@ -17,7 +17,7 @@ public class EditMedal implements EntityEditor<Medal>
 	}
 
 	@Override
-	public void configureFor(@Nonnull EditorForm8<Medal> form)
+	public void configureFor(@NonNull EditorForm8<Medal> form)
 	{
 		form.allowAdd();
 		form.field("Name", String.class, Medal::getName, Medal::setName);

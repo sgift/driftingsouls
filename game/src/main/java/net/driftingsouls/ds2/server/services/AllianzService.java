@@ -16,7 +16,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,7 +27,7 @@ import java.util.Set;
 @Service
 public class AllianzService
 {
-	public void loeschen(@Nonnull Ally allianz)
+	public void loeschen(@NonNull Ally allianz)
 	{
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
@@ -102,7 +102,7 @@ public class AllianzService
 	 * @param allianz Die Allianz
 	 * @param mitglied Der Spieler
 	 */
-	public void entferneMitglied(@Nonnull Ally allianz, User mitglied)
+	public void entferneMitglied(@NonNull Ally allianz, User mitglied)
 	{
 
 		final Context context = ContextMap.getContext();
@@ -137,7 +137,7 @@ public class AllianzService
 	 *
 	 * @param allianz Die Allianz
 	 */
-	public void pruefeAufZuWenigMitglieder(@Nonnull Ally allianz)
+	public void pruefeAufZuWenigMitglieder(@NonNull Ally allianz)
 	{
 		final org.hibernate.Session db = ContextMap.getContext().getDB();
 
@@ -169,7 +169,7 @@ public class AllianzService
 	 * @param user Der User
 	 * @return <code>true</code> falls dem so ist
 	 */
-	public boolean isUserAnAllianzgruendungBeteiligt(@Nonnull User user)
+	public boolean isUserAnAllianzgruendungBeteiligt(@NonNull User user)
 	{
 		Taskmanager taskmanager = Taskmanager.getInstance();
 
@@ -198,7 +198,7 @@ public class AllianzService
 	 * @param allianz Die Allianz
 	 * @return Die Liste der User
 	 */
-	public List<User> getAllianzfuehrung(@Nonnull Ally allianz)
+	public List<User> getAllianzfuehrung(@NonNull Ally allianz)
 	{
 		Session db = ContextMap.getContext().getDB();
 		List<?> userList = db

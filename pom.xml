@@ -11,7 +11,7 @@
     <properties>
         <hibernate.version>4.1.12.Final</hibernate.version>
         <imageio.version>1.4.0</imageio.version>
-        <spring.version>4.3.29.RELEASE</spring.version>
+        <spring.version>5.2.9.RELEASE</spring.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.release>11</maven.compiler.release>
@@ -162,17 +162,11 @@
                 <artifactId>spring-tx</artifactId>
                 <version>${spring.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.quartz-scheduler</groupId>
-                <artifactId>quartz</artifactId>
-                <version>2.3.2</version>
-            </dependency>
 
-            <!-- don't use 0.9.11 - buggy module declaration, doesn't compile with jdk9 -->
             <dependency>
-                <groupId>org.reflections</groupId>
-                <artifactId>reflections</artifactId>
-                <version>0.9.9-RC1</version>
+                <groupId>io.github.classgraph</groupId>
+                <artifactId>classgraph</artifactId>
+                <version>4.8.90</version>
             </dependency>
 
             <dependency>

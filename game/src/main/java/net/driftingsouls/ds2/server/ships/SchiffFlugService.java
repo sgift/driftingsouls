@@ -15,7 +15,7 @@ import net.driftingsouls.ds2.server.services.SchlachtErstellenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -452,7 +452,7 @@ public class SchiffFlugService
 		private final FlugStatus status;
 		private final String messages;
 
-		public FlugErgebnis(FlugStatus status, @Nonnull String messages)
+		public FlugErgebnis(FlugStatus status, @NonNull String messages)
 		{
 			this.status = status;
 			this.messages = messages;
@@ -471,7 +471,7 @@ public class SchiffFlugService
 		 * Die Statusmeldungen der Flugbewegung.
 		 * @return Die Statusmeldungen
 		 */
-		public @Nonnull String getMeldungen()
+		public @NonNull String getMeldungen()
 		{
 			return messages;
 		}

@@ -1,6 +1,6 @@
 package net.driftingsouls.ds2.server.battles;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -58,7 +58,7 @@ public abstract class SchlachtLogEintrag implements Comparable<SchlachtLogEintra
 	}
 
 	@Override
-	public int compareTo(@Nonnull SchlachtLogEintrag o)
+	public int compareTo(@NonNull SchlachtLogEintrag o)
 	{
 		int diff = this.zeitpunkt.compareTo(o.zeitpunkt);
 		if( diff != 0 )

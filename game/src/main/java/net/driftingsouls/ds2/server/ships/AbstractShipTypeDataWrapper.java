@@ -18,7 +18,7 @@
  */
 package net.driftingsouls.ds2.server.ships;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import java.math.BigInteger;
 import java.util.Map;
 
@@ -251,7 +251,7 @@ public abstract class AbstractShipTypeDataWrapper implements ShipTypeData {
 	}
 
 	@Override
-	public boolean hasFlag(@Nonnull ShipTypeFlag flag)
+	public boolean hasFlag(@NonNull ShipTypeFlag flag)
 	{
 		return inner.hasFlag(flag);
 	}

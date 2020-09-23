@@ -23,7 +23,7 @@ import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 
 /**
  * Aktualisierungstool fuer Forschungsgrafiken.
@@ -40,7 +40,7 @@ public class EditResearchPicture implements EntityEditor<Forschung>
 	}
 
 	@Override
-	public void configureFor(@Nonnull EditorForm8<Forschung> form)
+	public void configureFor(@NonNull EditorForm8<Forschung> form)
 	{
 		form.label("Name", Forschung::getName);
 		form.dynamicContentField("Bild", Forschung::getImage, Forschung::setImage);

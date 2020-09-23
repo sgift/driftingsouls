@@ -13,7 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,7 +31,7 @@ public class SchiffSprungService
 		private final String meldungen;
 		private final boolean erfolgreich;
 
-		public SprungErgebnis(@Nonnull String meldungen, boolean erfolgreich)
+		public SprungErgebnis(@NonNull String meldungen, boolean erfolgreich)
 		{
 			this.meldungen = meldungen;
 			this.erfolgreich = erfolgreich;
@@ -41,7 +41,7 @@ public class SchiffSprungService
 		 * Gibt alle Meldungen des Sprungs zurueck.
 		 * @return Die Meldungen
 		 */
-		public @Nonnull String getMeldungen()
+		public @NonNull String getMeldungen()
 		{
 			return meldungen;
 		}

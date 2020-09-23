@@ -23,25 +23,35 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.tick.rare.RestTick;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 /**
  * Der seltene Tick.
  * @author Christopher Jung
  *
  */
+@Component
+@Lazy
 public class RareTick extends AbstractTickExecutor
 {
 	private static final Log log = LogFactory.getLog(RareTick.class);
 	
 	@Override
+	@Scheduled(cron = "0 0 3 * * *")
 	protected void executeTicks()
 	{
 		try
 		{
-			File lockFile = new File(Configuration.getLogPath()+"/raretick.lock");
-			lockFile.createNewFile();
+			File lockFile = new File(Configuration.getLogPath()+"/regulartick.lock");
+			if(!lockFile.createNewFile()) {
+				log.error("Konnte LockFile nicht anlegen -> Tick abgebrochen");
+			}
 			try
 			{
 				publishStatus("berechne Sonstiges");
@@ -49,9 +59,10 @@ public class RareTick extends AbstractTickExecutor
 			}
 			finally
 			{
-				if( !lockFile.delete() )
-				{
-					log.warn("Konnte Lockdatei "+lockFile+" nicht loeschen");
+				try {
+					Files.delete(lockFile.toPath());
+				} catch(IOException ex) {
+					log.error("Unable to delete lockFile", ex);
 				}
 			}
 			

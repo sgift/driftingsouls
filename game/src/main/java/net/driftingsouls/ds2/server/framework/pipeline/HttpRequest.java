@@ -26,7 +26,7 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -116,9 +116,9 @@ public class HttpRequest implements Request {
 		}
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
-	public String[] getParameterValues(@Nonnull String parameter)
+	public String[] getParameterValues(@NonNull String parameter)
 	{
 		String[] values = this.parameters.get(parameter);
 		if( values == null )

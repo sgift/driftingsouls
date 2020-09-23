@@ -6,7 +6,7 @@ import net.driftingsouls.ds2.server.entities.Weapon;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -21,7 +21,7 @@ public class EditWeapon implements EntityEditor<Weapon>
 	}
 
 	@Override
-	public void configureFor(@Nonnull EditorForm8<Weapon> form)
+	public void configureFor(@NonNull EditorForm8<Weapon> form)
 	{
 		form.allowAdd();
 		form.ifAdding().field("Id", String.class, Weapon::getId, Weapon::setId);

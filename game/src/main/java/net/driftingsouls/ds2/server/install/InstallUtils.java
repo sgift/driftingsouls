@@ -1,5 +1,6 @@
 package net.driftingsouls.ds2.server.install;
 
+import net.driftingsouls.ds2.server.framework.AppConfig;
 import net.driftingsouls.ds2.server.framework.BasicContext;
 import net.driftingsouls.ds2.server.framework.CmdLineRequest;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -15,9 +16,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.context.internal.ManagedSessionContext;
-import org.quartz.impl.StdScheduler;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -173,11 +172,9 @@ public final class InstallUtils
 	{
 		try
 		{
-			ApplicationContext springContext = new FileSystemXmlApplicationContext("game/src/main/webapp/WEB-INF/cfg/spring.xml");
-
-			// Ticks provisorisch deaktivieren
-			StdScheduler quartzSchedulerFactory = (StdScheduler) springContext.getBean("quartzSchedulerFactory");
-			quartzSchedulerFactory.shutdown();
+			AnnotationConfigApplicationContext springContext = new AnnotationConfigApplicationContext();
+			springContext.register(AppConfig.class);
+			springContext.refresh();
 
 			BasicContext context = new BasicContext(new CmdLineRequest(new String[0]), new SimpleResponse(), new EmptyPermissionResolver(), springContext);
 			try
@@ -199,7 +196,7 @@ public final class InstallUtils
 
 	public static void mitContextUndSession(Consumer<Context> handler)
 	{
-		mitHibernateSession((session) -> mitContext(handler));
+		mitHibernateSession(session -> mitContext(handler));
 	}
 
 	public static void mitHibernateSession(Consumer<Session> handler)

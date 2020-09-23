@@ -1,5 +1,6 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
+import io.github.classgraph.AnnotationInfo;
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.entities.GuiHelpText;
 import net.driftingsouls.ds2.server.framework.AnnotationUtils;
@@ -9,11 +10,13 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toMap;
 
 @AdminMenuEntry(category = "Sonstiges", name = "Hilfetext", permission = WellKnownAdminPermission.EDIT_GUI_HELP_TEXT)
 public class EditGuiHelpText implements EntityEditor<GuiHelpText>
@@ -25,7 +28,7 @@ public class EditGuiHelpText implements EntityEditor<GuiHelpText>
 	}
 
 	@Override
-	public void configureFor(@Nonnull EditorForm8<GuiHelpText> form)
+	public void configureFor(@NonNull EditorForm8<GuiHelpText> form)
 	{
 		form.allowAdd();
 		form.allowDelete();
@@ -39,9 +42,14 @@ public class EditGuiHelpText implements EntityEditor<GuiHelpText>
 	{
 		List<GuiHelpText> list = Common.cast(ContextMap.getContext().getDB().createCriteria(GuiHelpText.class).list());
 		Set<String> modulesWithHelp = list.stream().map(GuiHelpText::getPage).collect(Collectors.toSet());
-		return AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(Module.class).stream()
-				.map((cls) -> cls.getAnnotation(Module.class).name())
-				.filter((s) -> !modulesWithHelp.contains(s))
-				.collect(Collectors.toMap((s) -> s, (s) -> s));
+		try(var scanResult = AnnotationUtils.INSTANCE.scanDsClasses()) {
+			return scanResult.getClassesWithAnnotation(Module.class.getName()).stream()
+				.map(classInfo -> classInfo.getAnnotationInfo(Module.class.getName()))
+				.map(AnnotationInfo::getParameterValues)
+				.map(parameterValues -> parameterValues.getValue("name"))
+				.map(Object::toString)
+				.filter(s -> !modulesWithHelp.contains(s))
+				.collect(toMap(s -> s, s -> s));
+		}
 	}
 }

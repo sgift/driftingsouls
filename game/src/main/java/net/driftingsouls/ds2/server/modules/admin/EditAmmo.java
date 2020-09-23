@@ -23,7 +23,7 @@ import net.driftingsouls.ds2.server.entities.Munitionsdefinition;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 
 /**
  * Adminpanel zum Bearbeiten der Munitionswerte.
@@ -40,7 +40,7 @@ public class EditAmmo implements EntityEditor<Munitionsdefinition>
 	}
 
 	@Override
-	public void configureFor(@Nonnull EditorForm8<Munitionsdefinition> form)
+	public void configureFor(@NonNull EditorForm8<Munitionsdefinition> form)
 	{
 		form.allowAdd();
 		form.field("Name", String.class, Munitionsdefinition::getName, Munitionsdefinition::setName);

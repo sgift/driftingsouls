@@ -27,7 +27,7 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import net.driftingsouls.ds2.server.ships.ShipType;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 
 /**
  * Aktualisierungstool fuer die Kosten von Schiffstypen.
@@ -42,7 +42,7 @@ public class EditShipCosts implements EntityEditor<ShipBaubar>
 	}
 
 	@Override
-	public void configureFor(@Nonnull EditorForm8<ShipBaubar> form)
+	public void configureFor(@NonNull EditorForm8<ShipBaubar> form)
 	{
 		form.allowAdd();
 		form.allowDelete();

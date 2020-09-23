@@ -9,15 +9,15 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 
 public class SchiffHinzufuegenService
 {
-	public @Nonnull Ship erstelle(@Nonnull User auser, @Nonnull ShipType shiptype, @Nonnull Location loc) {
+	public @NonNull Ship erstelle(@NonNull User auser, @NonNull ShipType shiptype, @NonNull Location loc) {
 		return erstelle(auser, shiptype, loc, "");
 	}
 
-	public @Nonnull Ship erstelle(@Nonnull User auser, @Nonnull ShipType shiptype, @Nonnull Location loc, @Nonnull String historiendaten) {
+	public @NonNull Ship erstelle(@NonNull User auser, @NonNull ShipType shiptype, @NonNull Location loc, @NonNull String historiendaten) {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 

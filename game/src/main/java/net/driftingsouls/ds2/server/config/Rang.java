@@ -18,7 +18,7 @@
  */
 package net.driftingsouls.ds2.server.config;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -116,7 +116,7 @@ public class Rang implements Comparable<Rang>
 	}
 
 	@Override
-	public int compareTo(@Nonnull Rang o)
+	public int compareTo(@NonNull Rang o)
 	{
 		return this.id - o.id;
 	}

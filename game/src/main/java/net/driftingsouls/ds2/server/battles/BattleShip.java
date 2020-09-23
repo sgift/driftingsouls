@@ -33,7 +33,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -256,7 +256,7 @@ public class BattleShip {
 	 * @param flag Das Flag
 	 * @return <code>true</code>, falls dem so ist
 	 */
-	public boolean hasFlag(@Nonnull BattleShipFlag flag)
+	public boolean hasFlag(@NonNull BattleShipFlag flag)
 	{
 		return (this.action & flag.getBit()) != 0;
 	}
@@ -265,7 +265,7 @@ public class BattleShip {
 	 * Fuegt das angegebene Flag zum Schiff hinzu.
 	 * @param flag das Flag
 	 */
-	public void addFlag(@Nonnull BattleShipFlag flag)
+	public void addFlag(@NonNull BattleShipFlag flag)
 	{
 		this.action |= flag.getBit();
 	}
@@ -274,7 +274,7 @@ public class BattleShip {
 	 * Entfernt das angegebene Flag vom Schiff.
 	 * @param flag das Flag
 	 */
-	public void removeFlag(@Nonnull BattleShipFlag flag)
+	public void removeFlag(@NonNull BattleShipFlag flag)
 	{
 		if( hasFlag(flag) )
 		{

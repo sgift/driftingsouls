@@ -18,6 +18,10 @@
  */
 package net.driftingsouls.ds2.server.framework.pipeline.configuration;
 
+import io.github.classgraph.AnnotationInfo;
+import io.github.classgraph.AnnotationParameterValueList;
+import io.github.classgraph.ClassInfo;
+import io.github.classgraph.ClassInfoList;
 import net.driftingsouls.ds2.server.framework.AnnotationUtils;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
@@ -35,7 +39,6 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -65,21 +68,24 @@ public class PipelineConfig {
 	}
 
 	private void scanForModules() {
-		SortedSet<Class<?>> entityClasses = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(Module.class);
-		for( Class<?> cls : entityClasses )
-		{
-			Module modConfig = cls.getAnnotation(Module.class);
-			if( modConfig.defaultModule() )
+		try(var scanResult = AnnotationUtils.INSTANCE.scanDsClasses()) {
+			for(ClassInfo cls : scanResult.getClassesWithAnnotation(Module.class.getName()))
 			{
-				if( this.defaultModule != null )
+				AnnotationInfo annotationInfo = cls.getAnnotationInfo(Module.class.getName());
+				AnnotationParameterValueList paramVals = annotationInfo.getParameterValues();
+
+				if((boolean)paramVals.getValue("defaultModule"))
 				{
-					log.error("Multiple Default-Modules detected: "+this.defaultModule.getClass().getName()+" and "+cls);
+					if( this.defaultModule != null )
+					{
+						log.error("Multiple Default-Modules detected: "+this.defaultModule.getClass().getName()+" and "+cls);
+					}
+					this.defaultModule = new ModuleSetting(cls.getClass());
 				}
-				this.defaultModule = new ModuleSetting(cls);
-			}
-			else
-			{
-				this.modules.put(modConfig.name(), new ModuleSetting(cls));
+				else
+				{
+					this.modules.put((String)paramVals.getValue("name"), new ModuleSetting(cls.getClass()));
+				}
 			}
 		}
 	}

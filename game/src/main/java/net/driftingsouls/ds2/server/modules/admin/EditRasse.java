@@ -9,7 +9,7 @@ import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
 import net.driftingsouls.ds2.server.namegenerator.SchiffsKlassenNamenGenerator;
 import net.driftingsouls.ds2.server.namegenerator.SchiffsNamenGenerator;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 
 @AdminMenuEntry(category = "Spieler", name = "Rasse", permission = WellKnownAdminPermission.EDIT_RASSE)
 public class EditRasse implements EntityEditor<Rasse>
@@ -21,7 +21,7 @@ public class EditRasse implements EntityEditor<Rasse>
 	}
 
 	@Override
-	public void configureFor(@Nonnull EditorForm8<Rasse> form)
+	public void configureFor(@NonNull EditorForm8<Rasse> form)
 	{
 		form.field("Name", String.class, Rasse::getName, Rasse::setName);
 		form.field("Gehört zu", Rasse.class, Rasse::getMemberIn, Rasse::setMemberIn).withNullOption("[Keine]");

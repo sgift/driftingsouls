@@ -9,7 +9,7 @@ import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 
 /**
  * Editiert die Werte von Cores.
@@ -26,7 +26,7 @@ public class EditCore implements EntityEditor<Core>
 	}
 
 	@Override
-	public void configureFor(@Nonnull EditorForm8<Core> form)
+	public void configureFor(@NonNull EditorForm8<Core> form)
 	{
 		form.allowAdd();
 		form.entityClass("Implementierung", DefaultCore.class);

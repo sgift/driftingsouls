@@ -25,7 +25,7 @@ import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeTyp
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 
 /**
  * Aktualisierungstool fuer die Maximalwerte der Asteroiden Ausbauten.
@@ -41,7 +41,7 @@ public class EditUpgradeMaxValue implements EntityEditor<UpgradeMaxValues>
     }
 
     @Override
-    public void configureFor(@Nonnull EditorForm8<UpgradeMaxValues> form)
+    public void configureFor(@NonNull EditorForm8<UpgradeMaxValues> form)
     {
         form.allowAdd();
         form.allowDelete();

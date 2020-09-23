@@ -46,8 +46,6 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.*;
 import org.hibernate.annotations.Cache;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.persistence.CascadeType;
 import javax.persistence.*;
 import javax.persistence.Entity;
@@ -813,7 +811,7 @@ public class User extends BasicUser {
 	 * @param forschungen Die Forschungen
 	 * @return <code>true</code>, falls alle Forschungen erforscht wurden
 	 */
-	public boolean hasResearched( @Nonnull Collection<Forschung> forschungen )
+	public boolean hasResearched(Collection<Forschung> forschungen )
 	{
 		return forschungen.stream().allMatch(this::hasResearched);
 	}
@@ -826,7 +824,7 @@ public class User extends BasicUser {
 	 * @param research Die zu pruefende Forschung
 	 * @return <code>true</code>, falls die Forschung erforscht wurde
 	 */
-	public boolean hasResearched( @Nullable Forschung research )
+	public boolean hasResearched(Forschung research )
 	{
 		return research == null || this.forschungen.contains(research);
 	}

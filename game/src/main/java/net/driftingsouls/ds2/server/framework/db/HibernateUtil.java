@@ -1,5 +1,7 @@
 package net.driftingsouls.ds2.server.framework.db;
 
+import io.github.classgraph.ClassInfo;
+import io.github.classgraph.ClassInfoList;
 import net.driftingsouls.ds2.server.framework.AnnotationUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.LogManager;
@@ -32,7 +34,6 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.SortedMap;
-import java.util.SortedSet;
 import java.util.TreeMap;
 
 /**
@@ -110,8 +111,12 @@ public class HibernateUtil
 		configuration.addSqlFunction("bit_or", new SQLFunctionTemplate(IntegerType.INSTANCE, "?1 | ?2"));
 
 		//Find all annotated classes and add to configuration
-		SortedSet<Class<?>> entityClasses = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(javax.persistence.Entity.class);
-		entityClasses.forEach(configuration::addAnnotatedClass);
+		try(var scanResult = AnnotationUtils.INSTANCE.scanDsClasses()) {
+			var entityClasses = scanResult.getClassesWithAnnotation(javax.persistence.Entity.class.getName());
+			entityClasses.stream()
+				.map(ClassInfo::loadClass)
+				.forEach(configuration::addAnnotatedClass);
+		}
 
 		// Create the SessionFactory from hibernate.xml
 		HibernateUtil.configuration = configuration;

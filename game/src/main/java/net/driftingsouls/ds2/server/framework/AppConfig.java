@@ -3,14 +3,15 @@ package net.driftingsouls.ds2.server.framework;
 import org.hibernate.Session;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import javax.persistence.EntityManager;
 
-@org.springframework.context.annotation.Configuration
+@Configuration
 @ComponentScan(basePackages = "net.driftingsouls.ds2.server")
-@ImportResource( { "/WEB-INF/cfg/spring.xml" } )
+@EnableScheduling
 public class AppConfig
 {
 	@Bean(destroyMethod = "")

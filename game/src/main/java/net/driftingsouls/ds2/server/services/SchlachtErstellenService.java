@@ -22,7 +22,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import java.util.*;
 
 @Service
@@ -53,7 +53,7 @@ public class SchlachtErstellenService
 	 * @return Die Schlacht, falls sie erfolgreich erstellt werden konnte
 	 * @throws java.lang.IllegalArgumentException Falls mit den uebergebenen Parametern keine Schlacht erstellt werden kann
 	 */
-	public Battle erstelle(@Nonnull User user, @Nonnull Ship ownShip, @Nonnull Ship enemyShip, final boolean startOwn ) throws IllegalArgumentException {
+	public Battle erstelle(@NonNull User user, @NonNull Ship ownShip, @NonNull Ship enemyShip, final boolean startOwn ) throws IllegalArgumentException {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 

@@ -18,7 +18,7 @@
  */
 package net.driftingsouls.ds2.server.ships;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import java.math.BigInteger;
 import java.util.EnumSet;
 import java.util.Map;
@@ -100,7 +100,7 @@ public interface ShipTypeData extends Cloneable {
 	 * @param flag Das ShipType-Flag
 	 * @return <code>true</code>, falls das Flag gesetzt ist
 	 */
-    boolean hasFlag(@Nonnull ShipTypeFlag flag);
+    boolean hasFlag(@NonNull ShipTypeFlag flag);
 
 	/**
 	 * Gibt zurueck, ab wievielen Schiffen in der Anzeige Gruppen gebildet werden sollen.

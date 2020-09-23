@@ -7,8 +7,8 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.hibernate.Session;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import java.util.List;
 
 /**
@@ -31,7 +31,7 @@ public class FraktionsGuiEintragService
 	 * @param user Der Benutzer
 	 * @return Die GUI-Daten oder <code>null</code>
 	 */
-	public @Nullable FraktionsGuiEintrag findeNachUser(@Nonnull User user)
+	public @Nullable FraktionsGuiEintrag findeNachUser(@NonNull User user)
 	{
 		Session db = ContextMap.getContext().getDB();
 		return (FraktionsGuiEintrag)db.createQuery("from FraktionsGuiEintrag where user=:user")

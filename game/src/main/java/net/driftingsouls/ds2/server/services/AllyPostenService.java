@@ -6,7 +6,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.hibernate.Session;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 
 /**
  * Service fuer Allianzposten.
@@ -22,7 +22,7 @@ public class AllyPostenService
 	 * @param ally Die Allianz
 	 * @return Die momentane Anzahl an eingerichteten Posten
 	 */
-	public int getAnzahlPostenDerAllianz(@Nonnull Ally ally)
+	public int getAnzahlPostenDerAllianz(@NonNull Ally ally)
 	{
 		return ally.getPosten().size();
 	}
@@ -33,7 +33,7 @@ public class AllyPostenService
 	 * @param allianz Die Allianz
 	 * @return Die maximale Anzahl an Posten
 	 */
-	public int getMaxPostenDerAllianz(@Nonnull Ally allianz)
+	public int getMaxPostenDerAllianz(@NonNull Ally allianz)
 	{
 		long membercount = allianz.getMemberCount();
 
@@ -49,7 +49,7 @@ public class AllyPostenService
 	 * Loescht den angegebenen Allianzposten.
 	 * @param posten Der Posten
 	 */
-	public void loesche(@Nonnull AllyPosten posten)
+	public void loesche(@NonNull AllyPosten posten)
 	{
 		Session db = ContextMap.getContext().getDB();
 
@@ -67,7 +67,7 @@ public class AllyPostenService
 	 * @param name Der Name des neuen Postens
 	 * @return Der neue Posten
 	 */
-	public @Nonnull AllyPosten erstelle(@Nonnull Ally allianz, @Nonnull String name) {
+	public @NonNull AllyPosten erstelle(@NonNull Ally allianz, @NonNull String name) {
 		Session db = ContextMap.getContext().getDB();
 
 		AllyPosten posten = new AllyPosten(allianz, name);

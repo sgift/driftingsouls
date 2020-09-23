@@ -5,7 +5,7 @@ import net.driftingsouls.ds2.server.config.Rang;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 
 @AdminMenuEntry(category = "Spieler", name = "Rang", permission = WellKnownAdminPermission.EDIT_RANG)
 public class EditRang implements EntityEditor<Rang>
@@ -17,7 +17,7 @@ public class EditRang implements EntityEditor<Rang>
 	}
 
 	@Override
-	public void configureFor(@Nonnull EditorForm8<Rang> form)
+	public void configureFor(@NonNull EditorForm8<Rang> form)
 	{
 		form.allowAdd();
 

@@ -20,7 +20,7 @@ package net.driftingsouls.ds2.server.ships;
 
 import org.hibernate.annotations.ForeignKey;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import javax.persistence.*;
 import java.math.BigInteger;
 import java.util.*;
@@ -1174,7 +1174,7 @@ public class SchiffstypModifikation
 		}
 
 		@Override
-		public boolean hasFlag(@Nonnull ShipTypeFlag flag)
+		public boolean hasFlag(@NonNull ShipTypeFlag flag)
 		{
 			return getFlags().contains(flag);
 		}

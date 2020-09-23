@@ -7,7 +7,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.utils.StringToTypeConverter;
 import org.hibernate.Session;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import javax.persistence.Entity;
 import javax.persistence.metamodel.SingularAttribute;
 import java.io.IOException;
@@ -208,7 +208,7 @@ public class FieldGenerator<E, T> implements CustomFieldGenerator<E>
 	}
 
 	@SuppressWarnings("unchecked")
-	private void applyEntityAsRequestValue(@Nonnull E entity, @Nonnull String val)
+	private void applyEntityAsRequestValue(@NonNull E entity, @NonNull String val)
 	{
 		if( val.isEmpty() )
 		{

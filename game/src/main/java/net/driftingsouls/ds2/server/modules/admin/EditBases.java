@@ -29,7 +29,7 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +48,7 @@ public class EditBases implements EntityEditor<Base>
 	}
 
 	@Override
-	public void configureFor(@Nonnull EditorForm8<Base> form)
+	public void configureFor(@NonNull EditorForm8<Base> form)
 	{
 		form.field("Name", String.class, Base::getName, Base::setName);
 		form.field("Besitzer", User.class, Base::getOwner, Base::setOwner).dbColumn(Base_.owner);

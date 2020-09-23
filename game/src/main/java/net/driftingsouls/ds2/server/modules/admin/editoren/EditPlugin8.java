@@ -15,7 +15,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import javax.persistence.Entity;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -402,12 +402,12 @@ public class EditPlugin8<T> implements AdminPlugin
 		echo.append("</div>");
 	}
 
-	protected final @Nonnull Session getDB()
+	protected final @NonNull Session getDB()
 	{
 		return ContextMap.getContext().getDB();
 	}
 
-	protected final @Nonnull javax.persistence.EntityManager getEM()
+	protected final @NonNull javax.persistence.EntityManager getEM()
 	{
 		return ContextMap.getContext().getEM();
 	}
@@ -416,7 +416,7 @@ public class EditPlugin8<T> implements AdminPlugin
 		// TODO
 	}
 
-	protected boolean isUpdatePossible(@Nonnull T entity)
+	protected boolean isUpdatePossible(@NonNull T entity)
 	{
 		return true;
 	}
@@ -602,7 +602,7 @@ public class EditPlugin8<T> implements AdminPlugin
 		return entityQuery;
 	}
 
-	protected void configureFor(@Nonnull EditorForm8<T> form)
+	protected void configureFor(@NonNull EditorForm8<T> form)
 	{
 		this.entityEditor.configureFor(form);
 	}

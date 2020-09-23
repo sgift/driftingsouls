@@ -3,7 +3,7 @@ package net.driftingsouls.ds2.server.modules.admin.editoren;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import org.apache.commons.fileupload.FileItem;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -20,9 +20,9 @@ class RowRequestAdapter implements Request
 		this.parameters = parameters;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
-	public String[] getParameterValues(@Nonnull String parameter)
+	public String[] getParameterValues(@NonNull String parameter)
 	{
 		return parameters.containsKey(parameter) ?
 				new String[] {parameters.get(parameter)} :

@@ -5,7 +5,7 @@ import net.driftingsouls.ds2.server.namegenerator.SchiffsKlassenNamenGenerator;
 import net.driftingsouls.ds2.server.namegenerator.SchiffsNamenGenerator;
 import org.hibernate.annotations.ForeignKey;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -75,7 +75,7 @@ public class Rasse
 	 * @param rasse die Rasse, in der die Mitgliedschaft geprueft werden soll
 	 * @return <code>true</code>, falls die Rasse Mitglied ist
 	 */
-	public boolean isMemberIn(@Nonnull Rasse rasse)
+	public boolean isMemberIn(@NonNull Rasse rasse)
 	{
 		return isMemberIn(rasse.getId());
 	}
@@ -125,7 +125,7 @@ public class Rasse
 	 * @param user Der Spielers
 	 * @return <code>true</code>, falls der Spieler ein Kopf der Rasse ist
 	 */
-	public boolean isHead(@Nonnull User user)
+	public boolean isHead(@NonNull User user)
 	{
 		return head != null && head == user;
 	}
@@ -220,7 +220,7 @@ public class Rasse
 	 *
 	 * @return Der Namensgenerator
 	 */
-	public @Nonnull PersonenNamenGenerator getPersonenNamenGenerator()
+	public @NonNull PersonenNamenGenerator getPersonenNamenGenerator()
 	{
 		if (personenNamenGenerator == null && (memberIn != null))
 		{
@@ -237,7 +237,7 @@ public class Rasse
 	 *
 	 * @param personenNamenGenerator Der Namensgenerator oder <code>null</code>
 	 */
-	public void setPersonenNamenGenerator(@Nonnull PersonenNamenGenerator personenNamenGenerator)
+	public void setPersonenNamenGenerator(@NonNull PersonenNamenGenerator personenNamenGenerator)
 	{
 		this.personenNamenGenerator = personenNamenGenerator;
 	}
@@ -247,7 +247,7 @@ public class Rasse
 	 *
 	 * @return Der Namensgenerator
 	 */
-	public @Nonnull SchiffsKlassenNamenGenerator getSchiffsKlassenNamenGenerator()
+	public @NonNull SchiffsKlassenNamenGenerator getSchiffsKlassenNamenGenerator()
 	{
 		if (schiffsKlassenNamenGenerator == null && (memberIn != null))
 		{
@@ -264,7 +264,7 @@ public class Rasse
 	 *
 	 * @param schiffsKlassenNamenGenerator Der Namensgenerator
 	 */
-	public void setSchiffsKlassenNamenGenerator(@Nonnull SchiffsKlassenNamenGenerator schiffsKlassenNamenGenerator)
+	public void setSchiffsKlassenNamenGenerator(@NonNull SchiffsKlassenNamenGenerator schiffsKlassenNamenGenerator)
 	{
 		this.schiffsKlassenNamenGenerator = schiffsKlassenNamenGenerator;
 	}
@@ -274,7 +274,7 @@ public class Rasse
 	 *
 	 * @return Der Namensgenerator
 	 */
-	public @Nonnull SchiffsNamenGenerator getSchiffsNamenGenerator()
+	public @NonNull SchiffsNamenGenerator getSchiffsNamenGenerator()
 	{
 		if (schiffsNamenGenerator == null && (memberIn != null))
 		{
@@ -291,7 +291,7 @@ public class Rasse
 	 *
 	 * @param schiffsNamenGenerator Der Namensgenerator
 	 */
-	public void setSchiffsNamenGenerator(@Nonnull SchiffsNamenGenerator schiffsNamenGenerator)
+	public void setSchiffsNamenGenerator(@NonNull SchiffsNamenGenerator schiffsNamenGenerator)
 	{
 		this.schiffsNamenGenerator = schiffsNamenGenerator;
 	}

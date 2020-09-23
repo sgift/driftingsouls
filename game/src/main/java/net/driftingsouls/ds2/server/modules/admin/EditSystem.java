@@ -35,7 +35,7 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import net.driftingsouls.ds2.server.ships.Ship;
 import org.hibernate.Session;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import java.io.Serializable;
 
 /**
@@ -52,7 +52,7 @@ public class EditSystem implements EntityEditor<StarSystem>
 	}
 
 	@Override
-	public void configureFor(@Nonnull EditorForm8<StarSystem> form)
+	public void configureFor(@NonNull EditorForm8<StarSystem> form)
 	{
 		form.allowAdd();
 		form.allowDelete();

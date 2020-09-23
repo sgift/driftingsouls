@@ -48,8 +48,8 @@ import org.hibernate.Session;
 import org.hibernate.annotations.ForeignKey;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import javax.persistence.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -108,7 +108,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * Gibt die aktuell zum Bau vorgesehenen Bauschlangeneintraege zurueck.
 	 * @return Die Liste der zum Bauvorgesehenen Bauschlangeneintraege
 	 */
-	public @Nonnull WerftQueueEntry[] getScheduledQueueEntries() {
+	public @NonNull WerftQueueEntry[] getScheduledQueueEntries() {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		List<?> list = db.createQuery("from WerftQueueEntry where werft=:werft and scheduled=true order by position")
 			.setInteger("werft", this.getWerftID())
@@ -156,7 +156,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * @param searched Der Bauauftrag
 	 * @return Die Zeit in Ticks bis zur Fertigstellung
 	 */
-	public int getTicksTillFinished(@Nonnull WerftQueueEntry searched) {
+	public int getTicksTillFinished(@NonNull WerftQueueEntry searched) {
 		List<WerftQueueEntry> entries = new ArrayList<>(getBuildQueue());
 
 		int slots = this.getWerftSlots();
@@ -454,7 +454,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * @param slot Modulslot, aus dem das Modul ausgebaut werden soll
 	 *
 	 */
-	public void removeModule( @Nonnull Ship ship, int slot ) {
+	public void removeModule( @NonNull Ship ship, int slot ) {
 		if(this.type == WerftTyp.EINWEG)
 		{
 			MESSAGE.get().append("Diese Werft ist vollständig auf ihr einziges Bauprojekt konzentriert.");
@@ -555,7 +555,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * @param itemid Die ID des einzubauenden Item-Moduls
 	 *
 	 */
-	public void addModule( @Nonnull Ship ship, int slot, int itemid ) {
+	public void addModule( @NonNull Ship ship, int slot, int itemid ) {
 		if(this.isEinwegWerft())
 		{
 			MESSAGE.get().append("Diese Werft ist vollständig auf ihr einziges Bauprojekt konzentriert.");
@@ -666,7 +666,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 *
 	 * @return Cargo mit den Resourcen
 	 */
-	public @Nonnull Cargo getDismantleCargo( @Nonnull Ship ship ) {
+	public @NonNull Cargo getDismantleCargo( @NonNull Ship ship ) {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
 		ShipTypeData shiptype = ship.getTypeData();
@@ -767,7 +767,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * @param ships Schiffe, die demontiert werden sollten.
 	 * @return Anzahl der Schiffe, die wirklich demontiert wurde.
 	 */
-	public int dismantleShips(@Nonnull Collection<Ship> ships)
+	public int dismantleShips(@NonNull Collection<Ship> ships)
 	{
 		int dismantledShips = 0;
 		for(Ship ship: ships)
@@ -790,7 +790,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * @param testonly Soll nur geprueft (true) oder wirklich demontiert werden (false)?
 	 * @return true, wenn kein Fehler aufgetreten ist
 	 */
-	public boolean dismantleShip(@Nonnull Ship ship, boolean testonly) {
+	public boolean dismantleShip(@NonNull Ship ship, boolean testonly) {
 		if(this.isEinwegWerft())
 		{
 			MESSAGE.get().append("Diese Werft ist vollständig auf ihr einziges Bauprojekt konzentriert.");
@@ -928,7 +928,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 *
 	 * @return Die Reparaturkosten
 	 */
-	public @Nonnull RepairCosts getRepairCosts( @Nonnull Ship ship )
+	public @NonNull RepairCosts getRepairCosts( @NonNull Ship ship )
 	{
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
@@ -1089,7 +1089,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 *
 	 * @return Die Aufladungskosten
 	 */
-	public @Nonnull ReloadCosts getReloadCosts( @Nonnull Ship ship )
+	public @NonNull ReloadCosts getReloadCosts( @NonNull Ship ship )
 	{
 		ShipTypeData shiptype = ship.getTypeData();
 		ReloadCosts reloadCosts = new ReloadCosts();
@@ -1110,7 +1110,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 *
 	 * @return true, wenn kein Fehler aufgetreten ist
 	 */
-	public boolean reloadShip(@Nonnull Ship ship, boolean testonly) {
+	public boolean reloadShip(@NonNull Ship ship, boolean testonly) {
 		if(!ship.getLocation().sameSector(0, this.getLocation(), this.getSize()))
 		{
 			MESSAGE.get().append("Diese Werft befindet sich nicht an der gleichen Position wie das Schiff.");
@@ -1164,7 +1164,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 *
 	 * @return true, wenn kein Fehler aufgetreten ist
 	 */
-	public boolean repairShip(@Nonnull Ship ship, boolean testonly) {
+	public boolean repairShip(@NonNull Ship ship, boolean testonly) {
 		if(!ship.getLocation().sameSector(0, this.getLocation(), this.getSize()))
 		{
 			MESSAGE.get().append("Diese Werft befindet sich nicht an der gleichen Position wie das Schiff.");
@@ -1235,7 +1235,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * 			'_item' => array( ('local' | 'ally'), $resourceid) oder '_item' => false
 	 * 			zur Bestimmung ob und wenn ja welcher Bauplan benoetigt wird zum bauen
 	 */
-	public @Nonnull List<SchiffBauinformationen> getBuildShipList() {
+	public @NonNull List<SchiffBauinformationen> getBuildShipList() {
 		List<SchiffBauinformationen> result = new ArrayList<>();
 
 		Context context = ContextMap.getContext();
@@ -1427,7 +1427,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * @param testonly Soll nur getestet (true) oder wirklich gebaut (false) werden?
 	 * @return true, wenn kein Fehler aufgetreten ist
 	 */
-	public boolean buildShip( @Nonnull SchiffBauinformationen build, boolean costsPerTick, boolean testonly ) {
+	public boolean buildShip( @NonNull SchiffBauinformationen build, boolean costsPerTick, boolean testonly ) {
 		StringBuilder output = MESSAGE.get();
 
 		if( this.type == WerftTyp.EINWEG )
@@ -1548,7 +1548,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * in sortierter Reihenfolge (Position in der Bauschlange) zurueck.
 	 * @return Die Bauschlange
 	 */
-	public @Nonnull List<WerftQueueEntry> getBuildQueue() {
+	public @NonNull List<WerftQueueEntry> getBuildQueue() {
 		return this.queue.stream().sorted(Comparator.comparingInt(WerftQueueEntry::getPosition)).collect(Collectors.toList());
 	}
 
@@ -1556,7 +1556,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * Bricht das Bauvorhaben ab.
 	 * @param entry Das Bauvorhaben
 	 */
-	public void cancelBuild(@Nonnull WerftQueueEntry entry) {
+	public void cancelBuild(@NonNull WerftQueueEntry entry) {
 		if(this.type == WerftTyp.EINWEG)
 		{
 			MESSAGE.get().append("Diese Werft ist vollständig auf ihr einziges Bauprojekt konzentriert. Es kann nicht abgebrochen werden.");
@@ -1592,7 +1592,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * @param entry1 Der erste Eintrag
 	 * @param entry2 Der zweite Eintrag
 	 */
-	public void swapQueueEntries(@Nonnull WerftQueueEntry entry1, @Nonnull WerftQueueEntry entry2) {
+	public void swapQueueEntries(@NonNull WerftQueueEntry entry1, @NonNull WerftQueueEntry entry2) {
 		ShipType type = entry1.getBuildShipType();
 		entry1.setBuildShipType(entry2.getBuildShipType());
 		entry2.setBuildShipType(type);
@@ -1643,7 +1643,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	}
 
 	@Override
-	public @Nonnull Location getLocation() {
+	public @NonNull Location getLocation() {
 		return new Location(getSystem(), getX(), getY());
 	}
 
@@ -1728,7 +1728,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * @param linkedWerft Der Werftkomplex
 	 * @throws IllegalStateException Falls sich die Werft bereits in einem Komplex befindet
 	 */
-	public void addToKomplex(@Nonnull WerftKomplex linkedWerft) throws IllegalStateException {
+	public void addToKomplex(@NonNull WerftKomplex linkedWerft) throws IllegalStateException {
 		if( !this.isLinkableWerft() ) {
 			throw new RuntimeException("Diese Werft kann sich mit keiner anderen Werft zusammenschliessen");
 		}
@@ -1755,7 +1755,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * Erstellt einen neuen Werftkomplex zwischen dieser Werft und der angegebenen Werft.
 	 * @param werft Die Werft mit der ein Komplex gebildet werden soll
 	 */
-	public void createKomplexWithWerft(@Nonnull WerftObject werft) {
+	public void createKomplexWithWerft(@NonNull WerftObject werft) {
 		if( !werft.isLinkableWerft() ) {
 			throw new IllegalArgumentException("Die Zielwerft kann sich mit keiner anderen Werft zusammenschliessen");
 		}

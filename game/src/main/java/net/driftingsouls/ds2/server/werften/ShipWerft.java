@@ -35,7 +35,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import org.hibernate.annotations.ForeignKey;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -425,7 +425,7 @@ public class ShipWerft extends WerftObject {
 	}
 
 	@Override
-	public boolean repairShip(@Nonnull Ship ship, boolean testonly) {
+	public boolean repairShip(@NonNull Ship ship, boolean testonly) {
 		boolean result = super.repairShip(ship, testonly);
 
 		this.ship.recalculateShipStatus();
@@ -433,7 +433,7 @@ public class ShipWerft extends WerftObject {
 	}
 
 	@Override
-	public boolean reloadShip(@Nonnull Ship ship, boolean testonly) {
+	public boolean reloadShip(@NonNull Ship ship, boolean testonly) {
 		boolean result = super.reloadShip(ship, testonly);
 
 		this.ship.recalculateShipStatus();
@@ -448,14 +448,14 @@ public class ShipWerft extends WerftObject {
 	}
 
 	@Override
-	public void addModule(@Nonnull Ship ship, int slot, int item ) {
+	public void addModule(@NonNull Ship ship, int slot, int item ) {
 		super.addModule( ship, slot, item );
 
 		this.ship.recalculateShipStatus();
 	}
 
 	@Override
-	public boolean dismantleShip(@Nonnull Ship ship, boolean testonly) {
+	public boolean dismantleShip(@NonNull Ship ship, boolean testonly) {
 		boolean result = super.dismantleShip(ship, testonly);
 
 		this.ship.recalculateShipStatus();
@@ -525,7 +525,7 @@ public class ShipWerft extends WerftObject {
 	}
 
 	@Override
-	public void addToKomplex(@Nonnull WerftKomplex linkedWerft) {
+	public void addToKomplex(@NonNull WerftKomplex linkedWerft) {
 		super.addToKomplex(linkedWerft);
 
 		// Falls notwendig den Link auf die Basis entfernen - in einem Komplex darf eine Basis
@@ -554,7 +554,7 @@ public class ShipWerft extends WerftObject {
 	}
 
 	@Override
-	public void createKomplexWithWerft(@Nonnull WerftObject werft) {
+	public void createKomplexWithWerft(@NonNull WerftObject werft) {
 		super.createKomplexWithWerft(werft);
 
 		// Falls notwendig den Link auf die Basis entfernen - in einem Komplex darf eine Basis

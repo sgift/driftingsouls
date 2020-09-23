@@ -26,7 +26,7 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import java.util.List;
 
 /**
@@ -57,7 +57,7 @@ public class EditShiptypePicture implements EntityEditor<ShipType>
 	}
 
 	@Override
-	public void configureFor(@Nonnull EditorForm8<ShipType> form)
+	public void configureFor(@NonNull EditorForm8<ShipType> form)
 	{
 		form.label("Name", ShipType::getNickname);
 		form.dynamicContentField("Bild", ShipType::getPicture, ShipType::setPicture);

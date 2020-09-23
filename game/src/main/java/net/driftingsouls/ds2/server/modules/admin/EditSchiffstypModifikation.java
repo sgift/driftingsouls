@@ -13,7 +13,7 @@ import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +28,7 @@ public class EditSchiffstypModifikation implements EntityEditor<SchiffstypModifi
 	}
 
 	@Override
-	public void configureFor(@Nonnull EditorForm8<SchiffstypModifikation> form)
+	public void configureFor(@NonNull EditorForm8<SchiffstypModifikation> form)
 	{
 		form.allowAdd();
 		form.field("Name", String.class, SchiffstypModifikation::getNickname, SchiffstypModifikation::setNickname);

@@ -1,6 +1,6 @@
 package net.driftingsouls.ds2.server.modules.admin.editoren;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 
 /**
  * Interface fuer Entity-Editoren des Adminsystems.
@@ -9,5 +9,5 @@ import javax.annotation.Nonnull;
 public interface EntityEditor<E>
 {
 	Class<E> getEntityType();
-	void configureFor(@Nonnull EditorForm8<E> form);
+	void configureFor(@NonNull EditorForm8<E> form);
 }

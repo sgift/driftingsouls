@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import io.github.classgraph.ClassInfo;
+import io.github.classgraph.ClassInfoList;
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.framework.AnnotationUtils;
 import net.driftingsouls.ds2.server.framework.ViewModel;
@@ -37,11 +39,10 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.JqGridViewModel;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.NavigableMap;
@@ -49,7 +50,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Der Admin.
@@ -61,12 +63,18 @@ public class AdminController extends Controller
 {
 	private static final Logger LOG = LogManager.getLogger(AdminController.class);
 
-	private static final List<Class<?>> plugins = new ArrayList<>();
+	private static final List<Class<?>> plugins;
 
 	static
 	{
-		SortedSet<Class<?>> entityClasses = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(AdminMenuEntry.class);
-		plugins.addAll(entityClasses.stream().filter(cls -> AdminPlugin.class.isAssignableFrom(cls) || EntityEditor.class.isAssignableFrom(cls)).collect(Collectors.toList()));
+		try(var scanResult = AnnotationUtils.INSTANCE.scanDsClasses()) {
+			var classInfos = scanResult.getClassesWithAnnotation(AdminMenuEntry.class.getName());
+			plugins = classInfos.stream()
+				.filter(classInfo -> classInfo.implementsInterface(AdminPlugin.class.getName()) ||
+					classInfo.implementsInterface(EntityEditor.class.getName()))
+				.map(ClassInfo::loadClass)
+				.collect(toList());
+		}
 	}
 
 	private static class MenuCategory implements Comparable<MenuCategory>
@@ -80,7 +88,7 @@ public class AdminController extends Controller
 		}
 
 		@Override
-		public int compareTo(@Nonnull MenuCategory o)
+		public int compareTo(@NonNull MenuCategory o)
 		{
 			return name.compareTo(o.name);
 		}
@@ -104,7 +112,7 @@ public class AdminController extends Controller
 
 		public boolean containsNamedPlugin(String namedPlugin)
 		{
-			return this.actions.stream().anyMatch((a) -> a.cls.getName().equals(namedPlugin));
+			return this.actions.stream().anyMatch(a -> a.cls.getName().equals(namedPlugin));
 		}
 
 		@Override
@@ -125,7 +133,7 @@ public class AdminController extends Controller
 		}
 
 		@Override
-		public int compareTo(@Nonnull MenuEntry o)
+		public int compareTo(@NonNull MenuEntry o)
 		{
 			return name.compareTo(o.name);
 		}

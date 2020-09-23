@@ -6,7 +6,7 @@ import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 
 @AdminMenuEntry(category = "Systeme", name="Felsbrocken-System", permission = WellKnownAdminPermission.EDIT_CONFIG_FELSBROCKEN_SYSTEM)
 public class EditConfigFelsbrockenSystem implements EntityEditor<ConfigFelsbrockenSystem>
@@ -18,7 +18,7 @@ public class EditConfigFelsbrockenSystem implements EntityEditor<ConfigFelsbrock
 	}
 
 	@Override
-	public void configureFor(@Nonnull EditorForm8<ConfigFelsbrockenSystem> form)
+	public void configureFor(@NonNull EditorForm8<ConfigFelsbrockenSystem> form)
 	{
 		form.allowAdd();
 		form.allowDelete();

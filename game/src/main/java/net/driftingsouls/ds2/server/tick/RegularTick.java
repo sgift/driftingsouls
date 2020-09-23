@@ -23,19 +23,27 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.tick.regular.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 /**
  * Der normale Tick.
  * @author Christopher Jung
  *
  */
+@Component
+@Lazy
 public class RegularTick extends AbstractTickExecutor
 {
 	private static final Log log = LogFactory.getLog(RegularTick.class);
 	
 	@Override
+	@Scheduled(cron = "0 0 0,8,12,16,18,20,22 * * *")
 	protected void executeTicks()
 	{
 		log("Starte regular tick.");
@@ -43,7 +51,9 @@ public class RegularTick extends AbstractTickExecutor
 		try
 		{
 			File lockFile = new File(Configuration.getLogPath()+"/regulartick.lock");
-			lockFile.createNewFile();
+			if(!lockFile.createNewFile()) {
+				log.error("Konnte LockFile nicht anlegen -> Tick abgebrochen");
+			}
 
 			try
 			{
@@ -95,9 +105,10 @@ public class RegularTick extends AbstractTickExecutor
 				execTick(TicksperreAufhebenTick.class, false);
 				log("Accounts frei");
 
-				if( !lockFile.delete() )
-				{
-					log.warn("Konnte Lockdatei "+lockFile+" nicht loeschen");
+				try {
+					Files.delete(lockFile.toPath());
+				} catch(IOException ex) {
+					log.error("Unable to delete lockFile", ex);
 				}
 			}
 			

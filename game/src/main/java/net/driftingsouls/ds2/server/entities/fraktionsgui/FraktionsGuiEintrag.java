@@ -3,7 +3,7 @@ package net.driftingsouls.ds2.server.entities.fraktionsgui;
 import net.driftingsouls.ds2.server.entities.User;
 import org.hibernate.annotations.ForeignKey;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import javax.persistence.CollectionTable;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -151,7 +151,7 @@ public class FraktionsGuiEintrag
 	 * Gibt die erste Seite zurueck, die in der Gui angezeigt werden soll.
 	 * @return Die erste Seite
 	 */
-	public @Nonnull Seite getErsteSeite()
+	public @NonNull Seite getErsteSeite()
 	{
 		for (Seite seite : Seite.values())
 		{

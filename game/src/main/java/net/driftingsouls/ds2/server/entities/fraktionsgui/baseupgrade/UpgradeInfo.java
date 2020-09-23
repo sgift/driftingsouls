@@ -21,7 +21,7 @@ package net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade;
 import net.driftingsouls.ds2.server.bases.BaseType;
 import org.hibernate.annotations.ForeignKey;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -223,7 +223,7 @@ public class UpgradeInfo implements Comparable<UpgradeInfo> {
     }
 
 	@Override
-	public int compareTo(@Nonnull UpgradeInfo o)
+	public int compareTo(@NonNull UpgradeInfo o)
 	{
 		int diff = this.upgradetype.compareTo(o.getUpgradeType());
 		if( diff != 0 )

@@ -5,7 +5,7 @@ import net.driftingsouls.ds2.server.entities.NewsEntry;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 
 @AdminMenuEntry(category = "Portal", name="News", permission = WellKnownAdminPermission.EDIT_NEWS_ENTRY)
 public class EditNewsEntry implements EntityEditor<NewsEntry>
@@ -17,7 +17,7 @@ public class EditNewsEntry implements EntityEditor<NewsEntry>
 	}
 
 	@Override
-	public void configureFor(@Nonnull EditorForm8<NewsEntry> form)
+	public void configureFor(@NonNull EditorForm8<NewsEntry> form)
 	{
 		form.allowAdd();
 		form.allowDelete();

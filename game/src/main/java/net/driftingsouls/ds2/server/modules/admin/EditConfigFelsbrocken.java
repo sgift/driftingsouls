@@ -8,7 +8,7 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import net.driftingsouls.ds2.server.ships.ShipType;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 
 @AdminMenuEntry(category = "Systeme", name="Felsbrocken-Layout", permission = WellKnownAdminPermission.EDIT_CONFIG_FELSBROCKEN)
 public class EditConfigFelsbrocken implements EntityEditor<ConfigFelsbrocken>
@@ -20,7 +20,7 @@ public class EditConfigFelsbrocken implements EntityEditor<ConfigFelsbrocken>
 	}
 
 	@Override
-	public void configureFor(@Nonnull EditorForm8<ConfigFelsbrocken> form)
+	public void configureFor(@NonNull EditorForm8<ConfigFelsbrocken> form)
 	{
 		form.allowAdd();
 		form.allowDelete();

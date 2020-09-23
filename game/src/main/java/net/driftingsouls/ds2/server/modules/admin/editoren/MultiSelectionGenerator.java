@@ -6,7 +6,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.utils.StringToTypeConverter;
 import org.hibernate.Session;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import javax.persistence.Entity;
 import java.io.IOException;
 import java.io.Serializable;
@@ -121,7 +121,7 @@ public class MultiSelectionGenerator<E, T> implements CustomFieldGenerator<E>
 	}
 
 	@SuppressWarnings("unchecked")
-	private T convertToEntity(@Nonnull String val)
+	private T convertToEntity(@NonNull String val)
 	{
 		if( val.isEmpty() )
 		{

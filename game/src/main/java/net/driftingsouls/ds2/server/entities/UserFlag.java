@@ -2,7 +2,7 @@ package net.driftingsouls.ds2.server.entities;
 
 import org.apache.commons.lang3.StringUtils;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import java.util.EnumSet;
 import java.util.Optional;
 
@@ -104,7 +104,7 @@ public enum UserFlag
 	 * @throws IllegalArgumentException Falls die ID unbekannt ist
 	 * @see #getFlag()
 	 */
-	public static Optional<UserFlag> byFlag(@Nonnull String flag) throws IllegalArgumentException
+	public static Optional<UserFlag> byFlag(@NonNull String flag) throws IllegalArgumentException
 	{
 		for (UserFlag userFlag : values())
 		{
@@ -124,7 +124,7 @@ public enum UserFlag
 	 * @return Die Enum-Objekte
 	 * @throws java.lang.IllegalArgumentException Falls die ID eines Flags unbekannt ist
 	 */
-	public static @Nonnull EnumSet<UserFlag> parseFlags(@Nonnull String flagString) throws IllegalArgumentException
+	public static @NonNull EnumSet<UserFlag> parseFlags(@NonNull String flagString) throws IllegalArgumentException
 	{
 		EnumSet<UserFlag> flagSet = EnumSet.noneOf(UserFlag.class);
 

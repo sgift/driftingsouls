@@ -5,7 +5,7 @@ import net.driftingsouls.ds2.server.entities.IntTutorial;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 
 @AdminMenuEntry(category = "Sonstiges", name="Tutorial", permission = WellKnownAdminPermission.EDIT_INT_TUTORIAL)
 public class EditIntTutorial implements EntityEditor<IntTutorial>
@@ -17,7 +17,7 @@ public class EditIntTutorial implements EntityEditor<IntTutorial>
 	}
 
 	@Override
-	public void configureFor(@Nonnull EditorForm8<IntTutorial> form)
+	public void configureFor(@NonNull EditorForm8<IntTutorial> form)
 	{
 		form.allowAdd();
 		form.allowDelete();

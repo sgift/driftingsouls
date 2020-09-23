@@ -18,7 +18,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.stream.Collectors;
 
 public class JsServiceGenerator
@@ -42,10 +41,11 @@ public class JsServiceGenerator
 			writer.writeLine("(function() {").indent(1);
 			writer.writeLine("var angularModule = angular.module('ds.service.ajax', ['ds.service.ds']);");
 
-			SortedSet<Class<?>> ctrlClasses = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(Module.class);
-			for (Class<?> ctrlClass : ctrlClasses)
-			{
-				writeJsForController(writer, new ControllerAnalyser(ctrlClass));
+			try(var scanResult = AnnotationUtils.INSTANCE.scanDsClasses()) {
+				var classInfos = scanResult.getClassesWithAnnotation(Module.class.getName());
+				for(var clazz: classInfos.loadClasses()) {
+					writeJsForController(writer, new ControllerAnalyser(clazz));
+				}
 			}
 
 			writeViewModelDeclarations(writer);

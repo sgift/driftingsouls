@@ -23,7 +23,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -86,9 +86,9 @@ public class CmdLineRequest implements Request {
 		return null;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
-	public String[] getParameterValues(@Nonnull String parameter)
+	public String[] getParameterValues(@NonNull String parameter)
 	{
 		String val = params.get(parameter);
 		if( val == null )

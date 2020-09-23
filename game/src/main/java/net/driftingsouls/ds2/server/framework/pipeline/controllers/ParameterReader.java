@@ -1,5 +1,8 @@
 package net.driftingsouls.ds2.server.framework.pipeline.controllers;
 
+import io.github.classgraph.AnnotationClassRef;
+import io.github.classgraph.AnnotationInfo;
+import io.github.classgraph.ClassInfo;
 import net.driftingsouls.ds2.server.framework.AnnotationUtils;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -18,7 +21,6 @@ import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.SortedSet;
 
 /**
  * Klasse zum Parsen und Konvertieren von Requestparametern.
@@ -27,35 +29,36 @@ public class ParameterReader
 {
 	private static final Logger LOG = LogManager.getLogger(ParameterReader.class);
 
-	private static final Map<Class<?>, UrlParamKonverter> konverter = new HashMap<>();
+	private static final Map<Class<?>, UrlParamKonverter<?>> konverter = new HashMap<>();
 
 	static
 	{
-		SortedSet<Class<?>> klassenNamen = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(UrlParamKonverterFuer.class);
-		for (Class<?> cls : klassenNamen)
-		{
-			try
+		try(var scanResult = AnnotationUtils.INSTANCE.scanDsClasses()) {
+			//Classes need the UrlParamKonverterFuer annotation and need to implement UrlParamKonverter
+			var urlParamKonverterInfo = scanResult.getClassInfo(UrlParamKonverter.class.getName());
+			var classInfo = scanResult.getClassesWithAnnotation(UrlParamKonverterFuer.class.getName())
+				.getAssignableTo(urlParamKonverterInfo);
+			for (ClassInfo cls : classInfo)
 			{
-				if (!UrlParamKonverter.class.isAssignableFrom(cls))
+				try
 				{
-					LOG.warn("Konverterklasse " + cls.getName() + " implementiert nicht das korrekte Interface");
-					continue;
+					AnnotationInfo annotationInfo = cls.getAnnotationInfo(UrlParamKonverterFuer.class.getName());
+					konverter.put(((AnnotationClassRef)annotationInfo.getParameterValues().getValue("value")).loadClass(), cls.loadClass(UrlParamKonverter.class).getDeclaredConstructor().newInstance());
 				}
-				UrlParamKonverterFuer annotation = cls.getAnnotation(UrlParamKonverterFuer.class);
-				konverter.put(annotation.value(), cls.asSubclass(UrlParamKonverter.class).getDeclaredConstructor().newInstance());
-			}
-			catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e)
-			{
-				LOG.warn("Konnte Konverterklasse " + cls.getName() + " nicht instantiieren", e);
+				catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e)
+				{
+					LOG.warn("Konnte Konverterklasse " + cls.getName() + " nicht instantiieren", e);
+				}
 			}
 		}
 
 	}
 
-	private Request request;
-	private String subParameter;
+	private final Request request;
 	private final Map<String, Object> parameter = new HashMap<>();
-	private org.hibernate.Session session;
+	private final org.hibernate.Session session;
+
+	private String subParameter;
 
 	public ParameterReader(Request request, Session session)
 	{
@@ -163,7 +166,7 @@ public class ParameterReader
 	 * @return Ein Objekt vom angegebenen Typ das den Wert des Parameters enthaelt
 	 * @throws IllegalArgumentException Falls der angegebene Typ nicht unterstuetzt wird
 	 */
-	public Object readParameterAsType(String paramName, Type typeDescription) throws IllegalArgumentException
+	public Object readParameterAsType(String paramName, Type typeDescription)
 	{
 		Class<?> type = extractClass(typeDescription);
 
@@ -292,11 +295,11 @@ public class ParameterReader
 	{
 		if (typeDescription instanceof Class)
 		{
-			return (Class) typeDescription;
+			return (Class<?>) typeDescription;
 		}
 		if (typeDescription instanceof ParameterizedType)
 		{
-			return (Class) ((ParameterizedType) typeDescription).getRawType();
+			return (Class<?>) ((ParameterizedType) typeDescription).getRawType();
 		}
 		throw new IllegalArgumentException("Kann Klasse fuer Typ " + typeDescription + " nicht ermitteln");
 	}

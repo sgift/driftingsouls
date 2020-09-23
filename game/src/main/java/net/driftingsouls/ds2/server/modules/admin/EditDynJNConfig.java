@@ -24,7 +24,7 @@ import net.driftingsouls.ds2.server.config.DynamicJumpNodeConfig;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 
 /**
  * Aktualisierungstool fuer die Konfiguration der dynamischen JNs.
@@ -40,7 +40,7 @@ public class EditDynJNConfig implements EntityEditor<DynamicJumpNodeConfig>
 	}
 
 	@Override
-	public void configureFor(@Nonnull EditorForm8<DynamicJumpNodeConfig> form)
+	public void configureFor(@NonNull EditorForm8<DynamicJumpNodeConfig> form)
 	{
         form.allowAdd();
         form.allowDelete();

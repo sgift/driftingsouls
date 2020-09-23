@@ -21,7 +21,7 @@ package net.driftingsouls.ds2.server.entities;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import org.hibernate.annotations.ForeignKey;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import javax.persistence.CollectionTable;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorValue;
@@ -321,7 +321,7 @@ public class Weapon {
 	 * Gibt die benoetigten Munitionstypen zurueck. Falls keine Munition verwendet wird, so wird ein leeres Set zurueckgegeben.
 	 * @return Die benoetigten Munitionstypen
 	 */
-	public @Nonnull Set<String> getMunitionstypen() {
+	public @NonNull Set<String> getMunitionstypen() {
 		return new HashSet<>(this.munition);
 	}
 
@@ -329,7 +329,7 @@ public class Weapon {
 	 * Setzt die benoetigten Munitionstypen. Falls keine Munition verwendet wird, so wird leeres Set erwartet.
 	 * @param munition Die benoetigten Munitionstypen
 	 */
-	public void setMunitionstypen(@Nonnull Set<String> munition)
+	public void setMunitionstypen(@NonNull Set<String> munition)
 	{
 		this.munition.clear();
 		this.munition.addAll(munition);
