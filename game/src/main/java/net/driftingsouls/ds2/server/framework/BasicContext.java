@@ -67,7 +67,7 @@ public class BasicContext implements Context
 	 */
 	public BasicContext(Request request, Response response, PermissionResolver presolver, ApplicationContext applicationContext)
 	{
-		if( applicationContext == null || applicationContext.getAutowireCapableBeanFactory() == null )
+		if( applicationContext == null)
 		{
 			throw new IllegalArgumentException("Es wurde kein oder keine gueltiger ApplicationContext uebergeben");
 		}

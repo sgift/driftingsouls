@@ -70,7 +70,11 @@ public abstract class TickController implements ApplicationContextAware
 	public void setApplicationContext(@NotNull ApplicationContext applicationContext)
 	{
 		Context baseContext = ContextMap.getContext();
-		this.context = new TickContext(db, baseContext.getRequest(), baseContext.getResponse(), applicationContext);
+		if(baseContext != null) {
+			this.context = new TickContext(db, baseContext.getRequest(), baseContext.getResponse(), applicationContext);
+		} else {
+			this.context = new TickContext(db, null, null, applicationContext);
+		}
 	}
 
 	/**
