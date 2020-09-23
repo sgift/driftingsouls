@@ -80,7 +80,7 @@ public class PipelineConfig {
 					{
 						log.error("Multiple Default-Modules detected: "+this.defaultModule.getClass().getName()+" and "+cls);
 					}
-					this.defaultModule = new ModuleSetting(cls.getClass());
+					this.defaultModule = new ModuleSetting(cls.loadClass());
 				}
 				else
 				{
