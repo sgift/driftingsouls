@@ -104,14 +104,15 @@ public class RTCTick extends TickController {
 				long price = entry.getPreis();
 				int dropzone = winner.getGtuDropZone();
 				StarSystem system = (StarSystem) db.get(StarSystem.class, dropzone);
+				if(system == null) {
+					PM.send(gtuuser, winner.getId(), "Unbekannte Dropzone", "Dein als Dropzone gewähltes System existiert nicht oder hat keine Dropzone (mehr). Wähle bitte ein anderes. Im nächsten Tick wird erneut versucht dir dein ersteigertes Objekt zuzustellen.");
+					continue;
+				}
 
 				Location loc = system.getDropZone();
-
-				if (loc == null)
-				{
-					system = (StarSystem) db.get(StarSystem.class, 605);
-
-					loc = system.getDropZone();
+				if(loc == null) {
+					PM.send(gtuuser, winner.getId(), "Unbekannte Dropzone", "Dein als Dropzone gewähltes System existiert nicht oder hat keine Dropzone (mehr). Wähle bitte ein anderes. Im nächsten Tick wird erneut versucht dir dein ersteigertes Objekt zuzustellen.");
+					continue;
 				}
 
 				int gtucost = 100;
