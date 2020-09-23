@@ -202,6 +202,26 @@ public class WellKnownConfigValue<T> implements ConfigValueDescriptor<T>
 	 */
 	public static final ConfigValueDescriptor<String> ACCEPT_AGB_MESSAGE = new WellKnownConfigValue<>(String.class, "agb_accept_message", "Die AGB müssen akzeptiert werden zur Registrierung", "Text, wenn die Checkbox AGB akzeptieren nicht angehakt wurde");
 
+	/**
+	 * Schaden an Schilden durch Schadensnebel (Prozent der maximalen Schilde)
+	 */
+	public static final ConfigValueDescriptor<Integer> NEBULA_DAMAGE_SHIELD = new WellKnownConfigValue<>(Integer.class, "nebula_damage_shield", "10", "Prozent an Schaden der an Schilden durch Einflug in einen Schadensnebel verursacht wird");
+
+	/**
+	 * Schaden an ablativer Panzerung durch Schadensnebel (Prozent der maximalen Panzerung)
+	 */
+	public static final ConfigValueDescriptor<Integer> NEBULA_DAMAGE_ABLATIVE = new WellKnownConfigValue<>(Integer.class, "nebula_damage_ablative", "15", "Prozent an Schaden der an ablativer Panzerung durch Einflug in einen Schadensnebel verursacht wird");
+
+	/**
+	 * Schaden an Hülle durch Schadensnebel (Prozent der maximalen Hülle)
+	 */
+	public static final ConfigValueDescriptor<Integer> NEBULA_DAMAGE_HULL = new WellKnownConfigValue<>(Integer.class, "nebula_damage_hull", "20", "Prozent an Schaden der an Hüllen durch Einflug in einen Schadensnebel verursacht wird");
+
+	/**
+	 * Maximaler Schaden an den Subsystemen durch Schadensnebel (Prozent)
+	 */
+	public static final ConfigValueDescriptor<Integer> NEBULA_DAMAGE_SUBSYSTEM = new WellKnownConfigValue<>(Integer.class, "nebula_damage_subsystem", "30", "Prozent an Schaden der maximal an Subsystemen durch Einflug in einen Schadensnebel verursacht wird");
+
 	private final String name;
 	private final String description;
 	private final String defaultValue;

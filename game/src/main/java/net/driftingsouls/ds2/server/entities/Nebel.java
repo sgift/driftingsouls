@@ -21,8 +21,12 @@ package net.driftingsouls.ds2.server.entities;
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.MutableLocation;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.Ships;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
@@ -35,10 +39,12 @@ import javax.persistence.Entity;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.IntConsumer;
+import java.util.stream.Collectors;
 
 /**
  * Ein Nebel.
@@ -67,29 +73,27 @@ public class Nebel implements Locatable {
 		// mehrfach durchgefuehrt. Daher wird in der Session vermerkt, welche
 		// Positionen bereits geprueft wurden
 
-		Map<Location,Boolean> map = (Map<Location,Boolean>)context.getVariable(Ships.class, "getNebula(Location)#Nebel");
-		if( map == null ) {
-			map = new HashMap<>();
-			context.putVariable(Ships.class, "getNebula(Location)#Nebel", map);
+		Set<Location> emptySpace = (Set<Location>)context.getVariable(Ships.class, "getNebula(Location)#EmptySpace");
+		if( emptySpace == null ) {
+			emptySpace = new HashSet<>();
+			context.putVariable(Ships.class, "getNebula(Location)#EmptySpace", emptySpace);
 		}
-		if( !map.containsKey(loc) ) {
+		if(!emptySpace.contains(loc) ) {
 			Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(loc));
 			if( nebel == null ) {
-				map.put(loc, Boolean.FALSE);
+				emptySpace.add(loc);
 				return null;
 			}
 
-			map.put(loc, Boolean.TRUE);
 			return nebel.getType();
 		}
 
-		Boolean val = map.get(loc);
-		if(val) {
-			Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(loc));
-			return nebel.getType();
+		if(emptySpace.contains(loc)) {
+			return null;
 		}
 
-		return null;
+		Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(loc));
+		return nebel.getType();
 	}
 
 	/**
@@ -238,17 +242,17 @@ public class Nebel implements Locatable {
 		 * @return Die Liste
 		 * @see #isEmp()
 		 */
-		public static List<Typ> getEmpNebel()
+		public static Set<Typ> getEmpNebula()
 		{
-			List<Typ> result = new ArrayList<>();
-			for( Typ typ : values() )
-			{
-				if( typ.isEmp() )
-				{
-					result.add(typ);
-				}
-			}
-			return result;
+			return Arrays.stream(values())
+				.filter(Typ::isEmp)
+				.collect(Collectors.toCollection(HashSet::new));
+		}
+
+		public static Set<Typ> getDamageNebula() {
+			Set<Typ> nebula = new HashSet<>();
+			nebula.add(DAMAGE);
+			return nebula;
 		}
 
 		/**
@@ -283,6 +287,114 @@ public class Nebel implements Locatable {
 		public String getImage()
 		{
 			return "data/starmap/fog"+this.ordinal()+"/fog"+this.ordinal()+".png";
+		}
+
+		/**
+		 * Damage the ship according to the nebula type.
+		 *
+		 * @param ship The ship to be damaged.
+		 */
+		public void damageShip(Ship ship, ConfigService config) {
+			// Currently only damage nebula do damage and we only have one type of damage nebula
+			// so no different effects
+			if(this != DAMAGE) {
+				return;
+			}
+
+			double shieldDamageFactor = config.getValue(WellKnownConfigValue.NEBULA_DAMAGE_SHIELD)/100.d;
+			double ablativeDamageFactor = config.getValue(WellKnownConfigValue.NEBULA_DAMAGE_ABLATIVE)/100.d;
+			double hullDamageFactor = config.getValue(WellKnownConfigValue.NEBULA_DAMAGE_HULL)/100.d;
+			double subsystemDamageFactor = config.getValue(WellKnownConfigValue.NEBULA_DAMAGE_SUBSYSTEM)/100.d;
+
+			damageInternal(ship, 1.0d, shieldDamageFactor, ablativeDamageFactor, hullDamageFactor, subsystemDamageFactor);
+		}
+
+		/**
+		 * Damage a ship for flying into a damage nebula.
+		 *
+		 * @param ship Ship to damage
+		 * @param globalDamageFactor Dampens initial damage to this ship (needed for docked ships, which should not take more damage than their carrier)
+		 */
+		private void damageInternal(Ship ship, double globalDamageFactor, double shieldDamageFactor, double ablativeDamageFactor, double hullDamageFactor, double subsystemDamageFactor) {
+			/*
+			Damage is applied according to the following formula ("ship type" always includes modules here):
+			- Find the maximum shield of this ship type
+			- Remove damage from shields
+			- If ships shields are at zero find how much damage remains and apply it as percentage on the next level,
+			e.g. We want to damage the shields for 1000, but only 900 shields remain, so we calculate the armor damage
+			(according to the armor formula) and then only remove 10% (the remainder from shields)
+
+			When shields are down externally attached ships (e.g. containers) start taking damage.
+			 */
+
+			double modifiedShieldDamageFactor = shieldDamageFactor * globalDamageFactor;
+
+			ShipTypeData shipType = ship.getTypeData();
+			int shieldDamage = (int)Math.floor(shipType.getShields() * modifiedShieldDamageFactor);
+			int shieldsRemaining = ship.getShields() - shieldDamage;
+			//Damage we wanted to do, but couldn't cause there wasn't enough shield strength left
+			int shieldOverflow = 0;
+			if(shieldsRemaining < 0) {
+				shieldOverflow = Math.abs(shieldsRemaining);
+				shieldsRemaining = 0;
+			}
+
+			ship.setShields(shieldsRemaining);
+
+			//No damage left after shields
+			if(shieldOverflow == 0 && shipType.getShields() != 0) {
+				return;
+			}
+
+			double shieldOverflowFactor = 1.0d;
+			if(shipType.getShields() != 0) {
+				shieldOverflowFactor = (double)shieldOverflow / (double)shieldDamage;
+			}
+			int ablativeDamage = (int)Math.floor(shipType.getAblativeArmor() * ablativeDamageFactor * shieldOverflowFactor);
+			int ablativeRemaining = ship.getAblativeArmor() - ablativeDamage;
+			int ablativeOverflow = 0;
+			if(ablativeRemaining < 0) {
+				ablativeOverflow = Math.abs(ablativeRemaining);
+				ablativeRemaining = 0;
+			}
+
+			ship.setAblativeArmor(ablativeRemaining);
+
+			// No more shields left to save them -> also damage docked ships
+			for (Ship dockedShip : ship.getDockedShips()) {
+				damageInternal(dockedShip, shieldOverflowFactor, shieldDamageFactor, ablativeDamageFactor, hullDamageFactor, subsystemDamageFactor);
+			}
+
+			//No damage left after ablative armor
+			if(ablativeOverflow == 0 && shipType.getAblativeArmor() != 0) {
+				return;
+			}
+
+			double ablativeOverflowFactor = 1.0d;
+			if(shipType.getAblativeArmor() != 0) {
+				ablativeOverflowFactor = (double)ablativeOverflow / (double)ablativeDamage;
+			}
+			int hullDamage = (int)Math.floor(shipType.getHull() * hullDamageFactor * ablativeOverflowFactor);
+			int hullRemaining = ship.getHull() - hullDamage;
+			if(hullRemaining <= 0) {
+				ship.destroy();
+				return;
+			} else {
+				ship.setHull(hullRemaining);
+			}
+
+			//Damage each subsystem individually, so you don't get very good or bad results based on one roll
+			damageSubsystem(subsystemDamageFactor, ship.getComm(), ship::setComm);
+			damageSubsystem(subsystemDamageFactor, ship.getEngine(), ship::setEngine);
+			damageSubsystem(subsystemDamageFactor, ship.getSensors(), ship::setSensors);
+			damageSubsystem(subsystemDamageFactor, ship.getWeapons(), ship::setWeapons);
+		}
+
+		private void damageSubsystem(double subsystemDamageFactor, int subsystemBefore, IntConsumer subsystem) {
+			double modifiedSubsystemDamageFactor = ThreadLocalRandom.current().nextDouble() * subsystemDamageFactor;
+			int subsystemDamage = (int)Math.floor(100 * modifiedSubsystemDamageFactor);
+			int subsystemRemaining = Math.max(0, subsystemBefore - subsystemDamage);
+			subsystem.accept(subsystemRemaining);
 		}
 	}
 

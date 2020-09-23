@@ -229,21 +229,21 @@ public class HandleUpgradeJob implements TaskHandler
 	{
 		User faction = (User)db.get(User.class, factionId);
 
-		String message = "Sehr geehrter "+order.getUser().getName()+",\n\n"+
-			"gerne führen wir den von ihnen beauftragten Ausbau des Asteroids '"+order.getBase().getName()+"' ("+order.getBase().getId()+") durch. Bitte stellen sie die folgenden Dinge sicher: [list]\n";
+		String message = "Sehr geehrter/geehrte/geehrtes "+order.getUser().getName()+",\n\n"+
+			"gerne führen wir den von Ihnen beauftragten Ausbau des Asteroids '"+order.getBase().getName()+"' ("+order.getBase().getId()+") durch. Bitte stellen Sie die folgenden Dinge sicher: [list]\n";
 		if( !order.getPayed() ) {
 			if( order.getBar() ) {
-				message += "[*] Es müssen sich mindestens "+order.getPrice()+" RE auf dem angegebenen Colonizer oder der Basis befinden.\n";
+				message += "[*] Es müssen sich mindestens "+order.getPrice()+" RE auf dem angegebenen Bergbauschiff oder der Basis befinden.\n";
 			}
 			else {
-				message += "[*] Sie müssen mindestens "+order.getPrice()+" RE auf ihrem Konto haben.\n";
+				message += "[*] Sie müssen mindestens "+order.getPrice()+" RE auf Ihrem Konto haben.\n";
 			}
 		}
 		message += "[*] Es müssen [resource=i"+ITEM_BBS+"|0|0]"+order.getMiningExplosive()+"[/resource] "+
 			"und [resource="+Resources.ERZ.toString()+"]"+order.getOre()+"[/resource] auf dem Asteroiden vorhanden sein.\n";
 
 		message += "[/list]\n";
-		message += "Bitte erfüllen sie die genannten Bedingungen zeitnah, da andernfalls ihre Bestellung storniert werden muss.\n\n";
+		message += "Bitte erfüllen Sie die genannten Bedingungen zeitnah, da andernfalls Ihre Bestellung storniert werden muss.\n\n";
 		message += "Mit freundlichen Grüßen\n";
 		message += faction.getPlainname();
 
@@ -254,10 +254,10 @@ public class HandleUpgradeJob implements TaskHandler
 	{
 		User faction = (User)db.get(User.class, factionId);
 
-		String message = "Sehr geehrter "+order.getUser().getName()+",\n\n"+
-			"der von ihnen bestellte Ausbau des Asteroids '"+order.getBase().getName()+"' ("+order.getBase().getId()+") ist nun abgeschlossen. " +
-					"Wir hoffen, dass sie mit der herausragenden Qualität von "+faction.getPlainname()+" Asteroidenerweiterungen zufrieden sind. \n";
-		message += "Wir würden uns freuen, wenn wir sie in Zukunft erneut als Kunden begrüßen dürften.\n\n";
+		String message = "Sehr geehrter/geehrte/geehrtes "+order.getUser().getName()+",\n\n"+
+			"der von Ihnen bestellte Ausbau des Asteroids '"+order.getBase().getName()+"' ("+order.getBase().getId()+") ist nun abgeschlossen. " +
+					"Wir hoffen, dass Sie mit der herausragenden Qualität der '"+faction.getPlainname()+"'-Asteroidenerweiterungen zufrieden sind. \n";
+		message += "Wir würden uns freuen, wenn wir Sie in Zukunft erneut als Kunden begrüßen dürften.\n\n";
 		message += "Mit freundlichen Grüßen\n";
 		message += faction.getPlainname();
 
@@ -268,11 +268,11 @@ public class HandleUpgradeJob implements TaskHandler
 	{
 		User faction = (User)db.get(User.class, factionId);
 
-		String message = "Sehr geehrter "+order.getUser().getName()+",\n\n"+
-			"der von ihnen bestellte Ausbau des Asteroids '"+order.getBase().getName()+"' ("+order.getBase().getId()+") ist nun abgeschlossen. " +
-					"Aufgrund ihres erreichten Feldermaximums ist es nicht m&ouml;glich Ihnen den Asteroiden zur&uuml;ckzugeben.\n";
-		message += "Der Asteroid wurde von "+ faction.getPlainname() +" aufgegeben und kann jederzeit von Ihnen besiedelt werden.\n";
-		message += "Wir würden uns freuen, wenn wir sie in Zukunft erneut als Kunden begrüßen dürften.\n\n";
+		String message = "Sehr geehrter/geehrte/geehrtes "+order.getUser().getName()+",\n\n"+
+			"der von Ihnen bestellte Ausbau des Asteroids '"+order.getBase().getName()+"' ("+order.getBase().getId()+") ist nun abgeschlossen. " +
+					"Aufgrund Ihres zwischenzeitlich erreichten Feldermaximums ist es nicht möglich, Ihnen den Asteroiden zuückzugeben.\n";
+		message += "Der Asteroid wurde von "+ faction.getPlainname() +" aufgegeben und kann jederzeit von Ihnen erneut besiedelt werden.\n";
+		message += "Wir würden uns freuen, wenn wir Sie in Zukunft erneut als Kunden begrüßen dürften.\n\n";
 		message += "Mit freundlichen Grüßen\n";
 		message += faction.getPlainname();
 
