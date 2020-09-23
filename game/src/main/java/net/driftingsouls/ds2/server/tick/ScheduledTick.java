@@ -23,10 +23,10 @@ import net.driftingsouls.ds2.server.framework.CmdLineRequest;
 import net.driftingsouls.ds2.server.framework.EmptyPermissionResolver;
 import net.driftingsouls.ds2.server.framework.SimpleResponse;
 import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
+import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.SchedulerException;
-import org.quartz.StatefulJob;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
@@ -39,18 +39,19 @@ import java.lang.reflect.InvocationTargetException;
  * @author Christopher Jung
  *
  */
-public class ScheduledTick extends QuartzJobBean implements StatefulJob
+@DisallowConcurrentExecution
+public class ScheduledTick extends QuartzJobBean
 {
-	private String tick;
+	private String tickExecutorClazz;
 
 	/**
 	 * Injiziert den auszufuehrenden Tick (als Klassennamen).
 	 *
 	 * @param tick Der Klassenname des auszufuehrenden Ticks
 	 */
-	public void setTickExecuter(String tick)
+	public void setTickExecutorClazz(String tick)
 	{
-		this.tick = tick;
+		this.tickExecutorClazz = tick;
 	}
 
 	@Override
@@ -66,11 +67,11 @@ public class ScheduledTick extends QuartzJobBean implements StatefulJob
 				request.setParameter("only", ((Class<?>)context.getMergedJobDataMap().get("onlyTick")).getName());
 			}
 
-			Class<? extends AbstractTickExecuter> cls = Class
-				.forName(tick)
-				.asSubclass(AbstractTickExecuter.class);
+			Class<? extends AbstractTickExecutor> cls = Class
+				.forName(tickExecutorClazz)
+				.asSubclass(AbstractTickExecutor.class);
 
-			AbstractTickExecuter tick = cls.getDeclaredConstructor().newInstance();
+			AbstractTickExecutor tick = cls.getDeclaredConstructor().newInstance();
 			basicContext.autowireBean(tick);
 			tick.addLogTarget(TickController.STDOUT, false);
 			tick.execute();

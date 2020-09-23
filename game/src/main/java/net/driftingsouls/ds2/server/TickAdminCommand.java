@@ -75,7 +75,7 @@ public class TickAdminCommand
 		try
 		{
 			log.info("RegularTick wird manuell gestartet");
-			scheduler.triggerJob(this.regularTick.getObject().getJobName(), this.regularTick.getObject().getJobGroup());
+			scheduler.triggerJob(this.regularTick.getObject().getJobKey());
 		}
 		catch( SchedulerException e )
 		{
@@ -90,7 +90,7 @@ public class TickAdminCommand
 		try
 		{
 			log.info("RareTick wird manuell gestartet");
-			scheduler.triggerJob(this.rareTick.getObject().getJobName(), this.rareTick.getObject().getJobGroup());
+			scheduler.triggerJob(this.rareTick.getObject().getJobKey());
 		}
 		catch( SchedulerException e )
 		{
@@ -109,7 +109,7 @@ public class TickAdminCommand
 			map.put("onlyTick", tickPart);
 			
 			log.info("RegularTick '"+tickPart+"' wird manuell gestartet");
-			scheduler.triggerJob(this.regularTick.getObject().getJobName(), this.regularTick.getObject().getJobGroup(), map);
+			scheduler.triggerJob(this.regularTick.getObject().getJobKey(), map);
 		}
 		catch( SchedulerException e )
 		{
@@ -129,12 +129,12 @@ public class TickAdminCommand
 			JobDataMap map = new JobDataMap();
 			map.put("onlyTick", tickPart);
 			
-			log.info("RegularTick '"+tickPart+"' wird manuell gestartet");
-			scheduler.triggerJob(this.regularTick.getObject().getJobName(), this.regularTick.getObject().getJobGroup(), map);
+			log.info("RareTick '"+tickPart+"' wird manuell gestartet");
+			scheduler.triggerJob(this.rareTick.getObject().getJobKey(), map);
 		}
 		catch( SchedulerException e )
 		{
-			log.error("Konnte regulartick nicht ausfuehren", e);
+			log.error("Konnte raretick nicht ausfuehren", e);
 		}
 	}
 }

@@ -31,7 +31,7 @@ import java.io.File;
  * @author Christopher Jung
  *
  */
-public class RegularTick extends AbstractTickExecuter
+public class RegularTick extends AbstractTickExecutor
 {
 	private static final Log log = LogFactory.getLog(RegularTick.class);
 	

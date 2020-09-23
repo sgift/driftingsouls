@@ -37,16 +37,16 @@ import java.util.Map;
  * @author Christopher Jung
  *
  */
-public abstract class AbstractTickExecuter extends TickController
+public abstract class AbstractTickExecutor extends TickController
 {
-	private static final Log log = LogFactory.getLog(AbstractTickExecuter.class);
+	private static final Log log = LogFactory.getLog(AbstractTickExecutor.class);
 
 	private String loxpath;
 
 	private String name = "";
 	private String status = null;
 	private final Map<Class<? extends TickController>, Long> tickTimes = new LinkedHashMap<>();
-	public AbstractTickExecuter()
+	public AbstractTickExecutor()
 	{
 		this.loxpath = Configuration.getLogPath();
 	}

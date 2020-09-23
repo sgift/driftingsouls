@@ -31,7 +31,7 @@ import java.io.File;
  * @author Christopher Jung
  *
  */
-public class RareTick extends AbstractTickExecuter
+public class RareTick extends AbstractTickExecutor
 {
 	private static final Log log = LogFactory.getLog(RareTick.class);
 	
