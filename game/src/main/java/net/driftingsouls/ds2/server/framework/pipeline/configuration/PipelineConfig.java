@@ -72,9 +72,9 @@ public class PipelineConfig {
 			for(ClassInfo cls : scanResult.getClassesWithAnnotation(Module.class.getName()))
 			{
 				AnnotationInfo annotationInfo = cls.getAnnotationInfo(Module.class.getName());
-				AnnotationParameterValueList paramVals = annotationInfo.getParameterValues();
+				AnnotationParameterValueList paramValues = annotationInfo.getParameterValues();
 
-				if((boolean)paramVals.getValue("defaultModule"))
+				if((boolean)paramValues.getValue("defaultModule"))
 				{
 					if( this.defaultModule != null )
 					{
@@ -84,7 +84,7 @@ public class PipelineConfig {
 				}
 				else
 				{
-					this.modules.put((String)paramVals.getValue("name"), new ModuleSetting(cls.getClass()));
+					this.modules.put((String)paramValues.getValue("name"), new ModuleSetting(cls.loadClass()));
 				}
 			}
 		}
