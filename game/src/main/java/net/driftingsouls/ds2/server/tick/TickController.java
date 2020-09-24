@@ -53,7 +53,7 @@ public abstract class TickController implements ApplicationContextAware
 	private final long exectime;
 
 	private final Map<String,Writer> logTargets;
-	private final Session db;
+	private Session db;
 	private Context context;
 	/**
 	 * Erstellt eine neue Instanz.
@@ -62,12 +62,13 @@ public abstract class TickController implements ApplicationContextAware
 	{
 		logTargets = new HashMap<>();
 		exectime = System.currentTimeMillis();
-		db = HibernateUtil.getSessionFactory().openSession();
+
 	}
 
 	@Override
 	public void setApplicationContext(@NotNull ApplicationContext applicationContext)
 	{
+		this.db = HibernateUtil.getSessionFactory().openSession();
 		this.context = new TickContext(db, null, null, applicationContext);
 	}
 
