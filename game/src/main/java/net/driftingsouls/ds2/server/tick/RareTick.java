@@ -41,9 +41,14 @@ import java.nio.file.Files;
 public class RareTick extends AbstractTickExecutor
 {
 	private static final Log log = LogFactory.getLog(RareTick.class);
-	
+
 	@Override
 	@Scheduled(cron = "0 0 3 * * *")
+	public void execute() {
+		super.execute();
+	}
+	
+	@Override
 	protected void executeTicks()
 	{
 		try

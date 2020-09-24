@@ -41,9 +41,14 @@ import java.nio.file.Files;
 public class RegularTick extends AbstractTickExecutor
 {
 	private static final Log log = LogFactory.getLog(RegularTick.class);
-	
+
 	@Override
 	@Scheduled(cron = "0 0 0,8,12,16,18,20,22 * * *")
+	public void execute() {
+		super.execute();
+	}
+	
+	@Override
 	protected void executeTicks()
 	{
 		log("Starte regular tick.");
