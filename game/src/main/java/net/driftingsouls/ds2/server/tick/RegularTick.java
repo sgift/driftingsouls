@@ -37,7 +37,6 @@ import java.nio.file.Files;
  *
  */
 @Component
-@Lazy
 public class RegularTick extends AbstractTickExecutor
 {
 	private static final Log log = LogFactory.getLog(RegularTick.class);
