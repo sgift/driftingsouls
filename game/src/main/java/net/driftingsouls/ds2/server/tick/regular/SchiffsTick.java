@@ -888,32 +888,7 @@ public class SchiffsTick extends TickController {
 				Ship ship = (Ship)db.get(Ship.class, shipId);
 
 				log("* "+ship.getId());
-				int[] sub = new int[] {ship.getEngine(),ship.getWeapons(),ship.getComm(),ship.getSensors()};
-
-				for( int i=0; i < sub.length; i++ )
-				{
-					sub[i] -= 10;
-					if( sub[i] < 0 )
-					{
-						sub[i] = 0;
-					}
-				}
-
-				int hull = ship.getHull();
-				if( hull > 1 )
-				{
-					hull -= (int)(hull*0.05d);
-					if( hull < 1 )
-					{
-						hull = 1;
-					}
-				}
-
-				ship.setEngine(sub[0]);
-				ship.setWeapons(sub[1]);
-				ship.setComm(sub[2]);
-				ship.setSensors(sub[3]);
-				ship.setHull(hull);
+				Nebel.Typ.DAMAGE.damageShip(ship, new ConfigService(), db);
 			}
 		}
 		.executeFor(ships);

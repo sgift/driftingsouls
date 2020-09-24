@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
+import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.MutableLocation;
@@ -28,6 +29,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.Ships;
+import org.hibernate.Session;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -295,16 +297,20 @@ public class Nebel implements Locatable {
 		 * @param ship The ship to be damaged.
 		 */
 		public void damageShip(Ship ship, ConfigService config) {
+			damageShip(ship, config, ContextMap.getContext().getDB());
+		}
+
+		public void damageShip(Ship ship, ConfigService config, Session db) {
 			// Currently only damage nebula do damage and we only have one type of damage nebula
 			// so no different effects
 			if(this != DAMAGE) {
 				return;
 			}
 
-			double shieldDamageFactor = config.getValue(WellKnownConfigValue.NEBULA_DAMAGE_SHIELD)/100.d;
-			double ablativeDamageFactor = config.getValue(WellKnownConfigValue.NEBULA_DAMAGE_ABLATIVE)/100.d;
-			double hullDamageFactor = config.getValue(WellKnownConfigValue.NEBULA_DAMAGE_HULL)/100.d;
-			double subsystemDamageFactor = config.getValue(WellKnownConfigValue.NEBULA_DAMAGE_SUBSYSTEM)/100.d;
+			double shieldDamageFactor = config.getValue(db, WellKnownConfigValue.NEBULA_DAMAGE_SHIELD)/100.d;
+			double ablativeDamageFactor = config.getValue(db, WellKnownConfigValue.NEBULA_DAMAGE_ABLATIVE)/100.d;
+			double hullDamageFactor = config.getValue(db, WellKnownConfigValue.NEBULA_DAMAGE_HULL)/100.d;
+			double subsystemDamageFactor = config.getValue(db, WellKnownConfigValue.NEBULA_DAMAGE_SUBSYSTEM)/100.d;
 
 			damageInternal(ship, 1.0d, shieldDamageFactor, ablativeDamageFactor, hullDamageFactor, subsystemDamageFactor);
 		}
