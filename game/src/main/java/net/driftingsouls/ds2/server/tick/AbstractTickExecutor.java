@@ -180,20 +180,6 @@ public abstract class AbstractTickExecutor extends TickController
 	 */
 	@Override
 	protected final void tick() {
-		if (getContext().getRequest().getParameterString("only").length() > 0) {
-
-			try {
-				execTick(Class.forName(getContext().getRequest().getParameterString("only"))
-						.asSubclass(TickController.class), true);
-			} catch (Exception e) {
-				log.error("Ausfuehrung des Ticks "
-						+ getContext().getRequest().getParameterString("only")
-						+ " fehlgeschlagen: " + e);
-				e.printStackTrace();
-			}
-			return;
-		}
-
 		Session db = getDB();
 		Transaction transaction = db.beginTransaction();
 		int ticknr = configService.getValue(db, WellKnownConfigValue.TICKS) + 1;
