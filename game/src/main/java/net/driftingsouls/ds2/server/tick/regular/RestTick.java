@@ -318,7 +318,7 @@ public class RestTick extends TickController {
 		try
 		{
 			User owner = (User)db.get(User.class, -1);
-			String currentTime = Common.getIngameTime(getContext().get(ContextCommon.class).getTick());
+			String currentTime = Common.getIngameTime(new ConfigService().getValue(getDB(), WellKnownConfigValue.TICKS));
 
 			this.log("");
 			this.log("Fuege Felsbrocken ein");
@@ -480,7 +480,7 @@ public class RestTick extends TickController {
 				.executeUpdate();
 
 			this.log("Erhoehe Tickzahl");
-			ConfigValue value = new ConfigService().get(WellKnownConfigValue.TICKS);
+			ConfigValue value = new ConfigService().get(db, WellKnownConfigValue.TICKS);
 			int ticks = Integer.parseInt(value.getValue()) + 1;
 			value.setValue(Integer.toString(ticks));
 			transaction.commit();

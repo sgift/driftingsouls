@@ -20,7 +20,6 @@ package net.driftingsouls.ds2.server.tick;
 
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -69,12 +68,7 @@ public abstract class TickController implements ApplicationContextAware
 	@Override
 	public void setApplicationContext(@NotNull ApplicationContext applicationContext)
 	{
-		Context baseContext = ContextMap.getContext();
-		if(baseContext != null) {
-			this.context = new TickContext(db, baseContext.getRequest(), baseContext.getResponse(), applicationContext);
-		} else {
-			this.context = new TickContext(db, null, null, applicationContext);
-		}
+		this.context = new TickContext(db, null, null, applicationContext);
 	}
 
 	/**

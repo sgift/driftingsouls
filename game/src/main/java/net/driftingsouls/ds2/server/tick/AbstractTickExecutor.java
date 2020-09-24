@@ -19,12 +19,15 @@
 package net.driftingsouls.ds2.server.tick;
 
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,6 +49,9 @@ public abstract class AbstractTickExecutor extends TickController
 	private String name = "";
 	private String status = null;
 	private final Map<Class<? extends TickController>, Long> tickTimes = new LinkedHashMap<>();
+	@Autowired
+	private ConfigService configService;
+
 	public AbstractTickExecutor()
 	{
 		this.loxpath = Configuration.getLogPath();
@@ -106,8 +112,7 @@ public abstract class AbstractTickExecutor extends TickController
 		}
 		catch( Exception e )
 		{
-			// Alle Exceptions hier fangen und lediglich ausgeben
-			e.printStackTrace();
+			log.error("Tick failed", e);
 		}
 
 		this.tickTimes.put(tickname, System.currentTimeMillis()-start);
@@ -155,7 +160,7 @@ public abstract class AbstractTickExecutor extends TickController
 
 			this.status = status;
 		} catch (IOException e) {
-			System.err.println("Tickstatus konnte nicht publiziert werden: " + e);
+			log.error("Tickstatus konnte nicht publiziert werden: " + e);
 		}
 	}
 
@@ -181,7 +186,7 @@ public abstract class AbstractTickExecutor extends TickController
 				execTick(Class.forName(getContext().getRequest().getParameterString("only"))
 						.asSubclass(TickController.class), true);
 			} catch (Exception e) {
-				System.err.println("Ausfuehrung des Ticks " 
+				log.error("Ausfuehrung des Ticks "
 						+ getContext().getRequest().getParameterString("only")
 						+ " fehlgeschlagen: " + e);
 				e.printStackTrace();
@@ -191,13 +196,14 @@ public abstract class AbstractTickExecutor extends TickController
 
 		Session db = getDB();
 		Transaction transaction = db.beginTransaction();
-		int ticknr = getContext().get(ContextCommon.class).getTick() + 1;
+		int ticknr = configService.getValue(db, WellKnownConfigValue.TICKS) + 1;
 		transaction.commit();
 
-		if (!new File(loxpath + "/" + ticknr).isDirectory()) {
-			boolean result = new File(loxpath + "/" + ticknr).mkdir();
+		File tickLogFolder = new File(loxpath, Integer.toString(ticknr));
+		if (!tickLogFolder.isDirectory()) {
+			boolean result = tickLogFolder.mkdir();
 			if (!result) {
-				log.error("Kann Verzeichnis '" + loxpath + "/" + ticknr + "' nicht anlegen");
+				log.error("Kann Verzeichnis '" + tickLogFolder + "' nicht anlegen");
 			}
 		}
 
@@ -215,7 +221,7 @@ public abstract class AbstractTickExecutor extends TickController
 			removeLogTarget(Configuration.getLogPath() + "ticktime.log");
 			removeLogTarget(Configuration.getLogPath() + "tix.log");
 		} catch (Exception e) {
-			System.err.println("Fehler bei der Ticknachbereitung: " + e);
+			log.error("Fehler bei der Ticknachbereitung: " + e);
 		}
 	}
 

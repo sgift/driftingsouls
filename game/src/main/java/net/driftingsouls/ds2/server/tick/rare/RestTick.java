@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.tick.rare;
 
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
@@ -34,6 +35,7 @@ import net.driftingsouls.ds2.server.entities.statistik.StatCargo;
 import net.driftingsouls.ds2.server.entities.statistik.StatItemLocations;
 import net.driftingsouls.ds2.server.entities.statistik.StatUserCargo;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipModules;
@@ -67,7 +69,7 @@ public class RestTick extends TickController {
 	@Override
 	protected void prepare()
 	{
-		this.tick = ContextMap.getContext().get(ContextCommon.class).getTick();
+		this.tick = new ConfigService().getValue(getDB(), WellKnownConfigValue.TICKS);
 	}
 
 	@Override

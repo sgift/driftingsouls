@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.tick.regular;
 
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.comm.PM;
@@ -34,6 +35,7 @@ import net.driftingsouls.ds2.server.entities.fraktionsgui.VersteigerungResource;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.VersteigerungSchiff;
 import net.driftingsouls.ds2.server.entities.statistik.StatGtu;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.tick.TickController;
@@ -59,7 +61,7 @@ public class RTCTick extends TickController {
 
 	@Override
 	protected void prepare() {
-		this.ticks = getContext().get(ContextCommon.class).getTick();
+		this.ticks = new ConfigService().getValue(getDB(), WellKnownConfigValue.TICKS);
 		this.ticks++;
 
 		this.currentTime = Common.getIngameTime(ticks);
