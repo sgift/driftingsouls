@@ -88,12 +88,7 @@ public class Nebel implements Locatable {
 			return nebel.getType();
 		}
 
-		if(emptySpace.contains(loc)) {
-			return null;
-		}
-
-		Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(loc));
-		return nebel.getType();
+		return null;
 	}
 
 	/**
