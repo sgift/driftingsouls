@@ -53,14 +53,14 @@ public class TickAdminCommand
 	 * Fuehrt den normalen DS-Tick aus.
 	 */
 	public void runRegularTick() {
-		regularTick.execute();
+		tickExecutor.submit(regularTick::execute);
 	}
 	
 	/**
 	 * Fuehrt den seltenen DS-Tick aus.
 	 */
 	public void runRareTick() {
-		rareTick.execute();
+		tickExecutor.submit(rareTick::execute);
 	}
 	
 	/**
