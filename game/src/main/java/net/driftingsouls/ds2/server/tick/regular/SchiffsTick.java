@@ -93,9 +93,9 @@ public class SchiffsTick extends TickController {
 	protected void prepare()
 	{
 		esources = new LinkedHashMap<>();
-		esources.put("a", Resources.ANTIMATERIE);
 		esources.put("d", Resources.DEUTERIUM);
 		esources.put("u", Resources.URAN);
+		esources.put("a", Resources.ANTIMATERIE);
 	}
 
 	/**
@@ -416,7 +416,7 @@ public class SchiffsTick extends TickController {
 			int maxenergie = rm;
 
 			// Reihenfolge muss identisch zu this.esources sein!
-			int[] reactres = new int[] {shiptd.getRa(), shiptd.getRd(), shiptd.getRu()};
+			int[] reactres = new int[] {shiptd.getRd(), shiptd.getRu(),shiptd.getRa()};
 			int index = 0;
 
 			for( String resshort : this.esources.keySet() ) {
