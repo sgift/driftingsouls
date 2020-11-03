@@ -23,7 +23,6 @@ import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
-import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.*;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -33,7 +32,14 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
-import net.driftingsouls.ds2.server.services.SchlachtErstellenService;
+import net.driftingsouls.ds2.server.services.BattleService;
+import net.driftingsouls.ds2.server.services.FleetMgmtService;
+import net.driftingsouls.ds2.server.services.LocationService;
+import net.driftingsouls.ds2.server.services.PmService;
+import net.driftingsouls.ds2.server.services.ShipService;
+import net.driftingsouls.ds2.server.services.ShipActionService;
+import net.driftingsouls.ds2.server.services.ShipyardService;
+import net.driftingsouls.ds2.server.services.UserService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -43,9 +49,10 @@ import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo.Crew;
 import net.driftingsouls.ds2.server.units.UnitType;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
-import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
@@ -64,17 +71,34 @@ import java.util.concurrent.ThreadLocalRandom;
 public class KapernController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
-	private final SchlachtErstellenService schlachtErstellenService;
+	private final BattleService battleService;
 	private final ConfigService configService;
+	private final ShipService shipService;
+	private final PmService pmService;
+	private final UserService userService;
+	private final LocationService locationService;
+	private final FleetMgmtService fleetMgmtService;
+	private final ShipyardService shipyardService;
+	private final ShipActionService shipActionService;
+
+	@PersistenceContext
+	private EntityManager em;
 
 	@Autowired
 	public KapernController(TemplateViewResultFactory templateViewResultFactory,
-			SchlachtErstellenService schlachtErstellenService,
-			ConfigService configService)
+		BattleService battleService,
+		ConfigService configService, ShipService shipService, PmService pmService, UserService userService, LocationService locationService, FleetMgmtService fleetMgmtService, ShipyardService shipyardService, ShipActionService shipActionService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
-		this.schlachtErstellenService = schlachtErstellenService;
+		this.battleService = battleService;
 		this.configService = configService;
+		this.shipService = shipService;
+		this.pmService = pmService;
+		this.userService = userService;
+		this.locationService = locationService;
+		this.fleetMgmtService = fleetMgmtService;
+		this.shipyardService = shipyardService;
+		this.shipActionService = shipActionService;
 	}
 
 	private void validiereEigenesUndZielschiff(Ship eigenesSchiff, Ship zielSchiff)
@@ -88,7 +112,7 @@ public class KapernController extends Controller
 
 		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", eigenesSchiff.getId());
 
-		if (user.isNoob())
+		if (userService.isNoob(user))
 		{
 			throw new ValidierungException("Sie k&ouml;nnen weder kapern noch pl&uuml;ndern, solange Sie unter Neuspieler-Schutz stehen.<br />Hinweis: Der Neuspieler-Schutz kann unter den Account-Optionen vorzeitig beendet werden.", errorurl);
 		}
@@ -98,7 +122,7 @@ public class KapernController extends Controller
 			throw new ValidierungException("Diese Schrottm&uuml;hle wird nichts kapern k&ouml;nnen.", errorurl);
 		}
 
-		if (eigenesSchiff.getUnits().isEmpty())
+		if (eigenesSchiff.getUnitCargo().isEmpty())
 		{
 			throw new ValidierungException("Sie ben&ouml;tigen Einheiten, um zu kapern", errorurl);
 		}
@@ -109,7 +133,7 @@ public class KapernController extends Controller
 		}
 
 		User taruser = zielSchiff.getOwner();
-		if (taruser.isNoob())
+		if (userService.isNoob(taruser))
 		{
 			throw new ValidierungException("Der Kolonist steht unter Neuspieler-Schutz", errorurl);
 		}
@@ -130,7 +154,7 @@ public class KapernController extends Controller
 		}
 
 		ShipTypeData dshipTypeData = zielSchiff.getTypeData();
-		if ((dshipTypeData.getCost() != 0) && (zielSchiff.getEngine() != 0) && (zielSchiff.getCrew() != 0 || !zielSchiff.getUnits().isEmpty()))
+		if ((dshipTypeData.getCost() != 0) && (zielSchiff.getEngine() != 0) && (zielSchiff.getCrew() != 0 || !zielSchiff.getUnitCargo().isEmpty()))
 		{
 			throw new ValidierungException("Das feindliche Schiff ist noch bewegungsf&auml;hig.", errorurl);
 		}
@@ -148,8 +172,8 @@ public class KapernController extends Controller
 				throw new ValidierungException("Sie k&ouml;nnen gelandete Schiffe weder kapern noch pl&uuml;ndern.", errorurl);
 			}
 
-			Ship mship = zielSchiff.getBaseShip();
-			if ((mship.getEngine() != 0) && (mship.getCrew() != 0 || !mship.getUnits().isEmpty()))
+			Ship mship = shipService.getBaseShip(zielSchiff);
+			if ((mship.getEngine() != 0) && (mship.getCrew() != 0 || !mship.getUnitCargo().isEmpty()))
 			{
 				throw new ValidierungException("Das Schiff, an das das feindliche Schiff angedockt hat, ist noch bewegungsf&auml;hig.", errorurl);
 			}
@@ -176,7 +200,6 @@ public class KapernController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine erobernAction(@UrlParam(name = "ship") Ship eigenesSchiff, @UrlParam(name = "tar") Ship zielSchiff)
 	{
-		org.hibernate.Session db = ContextMap.getContext().getDB();
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) this.getUser();
 
@@ -197,7 +220,7 @@ public class KapernController extends Controller
 			throw new ValidierungException("Sie k&ouml;nnen dieses Schiff nicht kapern.", errorurl);
 		}
 
-		User targetUser = (User) getDB().get(User.class, zielSchiff.getOwner().getId());
+		User targetUser = em.find(User.class, zielSchiff.getOwner().getId());
 
 		String kapermessage = "<div align=\"center\">Die Einheiten st&uuml;rmen die " + zielSchiff.getName() + ".</div><br />";
 		StringBuilder msg = new StringBuilder();
@@ -216,13 +239,13 @@ public class KapernController extends Controller
 				user.addBounty(shipBounty);
 				//Make it public that there's a new bounty on a player, so others can go to hunt
 				int bountyChannel = configService.getValue(WellKnownConfigValue.BOUNTY_CHANNEL);
-				ComNetChannel channel = (ComNetChannel) db.get(ComNetChannel.class, bountyChannel);
+				ComNetChannel channel = em.find(ComNetChannel.class, bountyChannel);
 				if( channel != null )
 				{
 					ComNetEntry entry = new ComNetEntry(user, channel);
 					entry.setHead("Kopfgeld");
 					entry.setText("Gesuchter: " + user.getNickname() + "[BR]Wegen: Diebstahl von Schiffen[BR]Betrag: " + shipBounty);
-					db.persist(entry);
+					em.persist(entry);
 				}
 			}
 		}
@@ -230,7 +253,7 @@ public class KapernController extends Controller
 		boolean ok;
 
 		// Falls Crew auf dem Zielschiff vorhanden ist
-		if (zielSchiff.getCrew() != 0 || !zielSchiff.getUnits().isEmpty())
+		if (zielSchiff.getCrew() != 0 || !zielSchiff.getUnitCargo().isEmpty())
 		{
 			if (zielSchiff.getTypeData().getCrew() == 0)
 			{
@@ -239,13 +262,13 @@ public class KapernController extends Controller
 
 			if (zielSchiff.getTypeData().getShipClass() == ShipClasses.STATION)
 			{
-				if (!checkAlliedShipsReaction(db, t, targetUser, eigenesSchiff, zielSchiff))
+				if (!checkAlliedShipsReaction(t, targetUser, eigenesSchiff, zielSchiff))
 				{
 					return t;
 				}
 			}
 
-			msg.append("Die Einheiten der ").append(eigenesSchiff.getName()).append(" (").append(eigenesSchiff.getId()).append("), eine ").append(eigenesSchiff.getTypeData().getNickname()).append(", st&uuml;rmt die ").append(zielSchiff.getName()).append(" (").append(zielSchiff.getId()).append("), eine ").append(zielSchiff.getTypeData().getNickname()).append(", bei ").append(zielSchiff.getLocation().displayCoordinates(false)).append(".\n\n");
+			msg.append("Die Einheiten der ").append(eigenesSchiff.getName()).append(" (").append(eigenesSchiff.getId()).append("), eine ").append(eigenesSchiff.getTypeData().getNickname()).append(", st&uuml;rmt die ").append(zielSchiff.getName()).append(" (").append(zielSchiff.getId()).append("), eine ").append(zielSchiff.getTypeData().getNickname()).append(", bei ").append(locationService.displayCoordinates(zielSchiff.getLocation(), false)).append(".\n\n");
 
 			StringBuilder kapernLog = new StringBuilder();
 			ok = doFighting(kapernLog, eigenesSchiff, zielSchiff);
@@ -262,11 +285,11 @@ public class KapernController extends Controller
 
 			t.setVar("kapern.message", kapermessage + "Das Schiff wird widerstandslos &uuml;bernommen.");
 
-			msg.append("Das Schiff ").append(zielSchiff.getName()).append("(").append(zielSchiff.getId()).append("), eine ").append(zielSchiff.getTypeData().getNickname()).append(", wird bei ").append(zielSchiff.getLocation().displayCoordinates(false)).append(" an ").append(eigenesSchiff.getName()).append(" (").append(eigenesSchiff.getId()).append(") &uuml;bergeben.\n");
+			msg.append("Das Schiff ").append(zielSchiff.getName()).append("(").append(zielSchiff.getId()).append("), eine ").append(zielSchiff.getTypeData().getNickname()).append(", wird bei ").append(locationService.displayCoordinates(zielSchiff.getLocation(), false)).append(" an ").append(eigenesSchiff.getName()).append(" (").append(eigenesSchiff.getId()).append(") &uuml;bergeben.\n");
 		}
 
 		// Transmisson
-		PM.send(user, targetUser.getId(), "Kaperversuch", msg.toString());
+		pmService.send(user, targetUser.getId(), "Kaperversuch", msg.toString());
 
 		// Wurde das Schiff gekapert?
 		if (ok)
@@ -274,31 +297,31 @@ public class KapernController extends Controller
 			// Evt unbekannte Items bekannt machen
 			processUnknownItems(user, zielSchiff);
 
-			transferShipToNewOwner(db, user, zielSchiff);
+			transferShipToNewOwner(user, zielSchiff);
 		}
 
-		eigenesSchiff.recalculateShipStatus();
-		zielSchiff.recalculateShipStatus();
+		shipActionService.recalculateShipStatus(eigenesSchiff);
+		shipActionService.recalculateShipStatus(zielSchiff);
 
 		return t;
 	}
 
-	private void transferShipToNewOwner(Session db, User user, Ship targetShip)
+	private void transferShipToNewOwner(User user, Ship targetShip)
 	{
 		String currentTime = Common.getIngameTime(ContextMap.getContext().get(ContextCommon.class).getTick());
 
 		targetShip.getHistory().addHistory("Gekapert am " + currentTime + " durch " + user.getName() + " (" + user.getId() + ").");
 
-		targetShip.removeFromFleet();
+		fleetMgmtService.removeShip(targetShip.getFleet(), targetShip);
 		targetShip.setOwner(user);
 
-		List<Ship> docked = Common.cast(db.createQuery("from Ship where id>0 and docked in (:docked,:landed)")
-				.setString("docked", Integer.toString(targetShip.getId()))
-				.setString("landed", "l " + targetShip.getId())
-				.list());
+		List<Ship> docked = em.createQuery("from Ship where id>0 and docked in (:docked,:landed)", Ship.class)
+				.setParameter("docked", Integer.toString(targetShip.getId()))
+				.setParameter("landed", "l " + targetShip.getId())
+				.getResultList();
 		for (Ship dockShip : docked)
 		{
-			dockShip.removeFromFleet();
+			fleetMgmtService.removeShip(dockShip.getFleet(), dockShip);
 			dockShip.setOwner(user);
 
 			for (Offizier offi : dockShip.getOffiziere())
@@ -307,13 +330,13 @@ public class KapernController extends Controller
 			}
 			if (dockShip.getTypeData().getWerft() != 0)
 			{
-				ShipWerft werft = (ShipWerft) db.createQuery("from ShipWerft where ship=:ship")
-						.setEntity("ship", dockShip)
-						.uniqueResult();
+				ShipWerft werft = em.createQuery("from ShipWerft where ship=:ship", ShipWerft.class)
+						.setParameter("ship", dockShip)
+						.getSingleResult();
 
 				if (werft.getKomplex() != null)
 				{
-					werft.removeFromKomplex();
+					shipyardService.removeFromKomplex(werft);
 				}
 				werft.setLink(null);
 			}
@@ -326,13 +349,13 @@ public class KapernController extends Controller
 		}
 		if (targetShip.getTypeData().getWerft() != 0)
 		{
-			ShipWerft werft = (ShipWerft) db.createQuery("from ShipWerft where ship=:ship")
-					.setEntity("ship", targetShip)
-					.uniqueResult();
+			ShipWerft werft = em.createQuery("from ShipWerft where ship=:ship", ShipWerft.class)
+					.setParameter("ship", targetShip)
+					.getSingleResult();
 
 			if (werft.getKomplex() != null)
 			{
-				werft.removeFromKomplex();
+				shipyardService.removeFromKomplex(werft);
 			}
 			werft.setLink(null);
 		}
@@ -342,7 +365,7 @@ public class KapernController extends Controller
 	{
 		Cargo cargo = targetShip.getCargo();
 
-		List<ItemCargoEntry<Item>> itemlist = cargo.getItems();
+		List<ItemCargoEntry<Item>> itemlist = cargo.getItemEntries();
 		for (ItemCargoEntry<Item> item : itemlist)
 		{
 			Item itemobject = item.getItem();
@@ -358,8 +381,8 @@ public class KapernController extends Controller
 		boolean ok = false;
 
 		Crew dcrew = new UnitCargo.Crew(targetShip.getCrew());
-		UnitCargo ownUnits = ownShip.getUnits();
-		UnitCargo enemyUnits = targetShip.getUnits();
+		UnitCargo ownUnits = ownShip.getUnitCargo();
+		UnitCargo enemyUnits = targetShip.getUnitCargo();
 
 		UnitCargo saveunits = ownUnits.trimToMaxSize(targetShip.getTypeData().getMaxUnitSize());
 
@@ -467,15 +490,15 @@ public class KapernController extends Controller
 
 		ownUnits.addCargo(saveunits);
 
-		ownShip.setUnits(ownUnits);
+		ownShip.setUnitCargo(ownUnits);
 
-		targetShip.setUnits(enemyUnits);
+		targetShip.setUnitCargo(enemyUnits);
 		targetShip.setCrew(dcrew.getValue());
 		return ok;
 	}
 
-	private boolean checkAlliedShipsReaction(org.hibernate.Session db, TemplateEngine t,
-											 User targetUser, Ship ownShip, Ship targetShip)
+	private boolean checkAlliedShipsReaction(TemplateEngine t,
+		User targetUser, Ship ownShip, Ship targetShip)
 	{
 		List<User> ownerlist = new ArrayList<>();
 		if (targetUser.getAlly() != null)
@@ -488,13 +511,12 @@ public class KapernController extends Controller
 		}
 
 		int shipcount = 0;
-		List<Ship> shiplist = Common.cast(
-				db.createQuery("from Ship where x=:x and y=:y and system=:system and owner in (:ownerlist) and id>0 and battle is null")
-						.setInteger("x", targetShip.getX())
-						.setInteger("y", targetShip.getY())
-						.setInteger("system", targetShip.getSystem())
-						.setParameterList("ownerlist", ownerlist)
-						.list());
+		List<Ship> shiplist = em.createQuery("from Ship where x=:x and y=:y and system=:system and owner in :ownerlist and id>0 and battle is null", Ship.class)
+						.setParameter("x", targetShip.getX())
+						.setParameter("y", targetShip.getY())
+						.setParameter("system", targetShip.getSystem())
+						.setParameter("ownerlist", ownerlist)
+						.getResultList();
 		for (Ship ship : shiplist)
 		{
 			if (ship.getTypeData().isMilitary() && ship.getCrew() > 0)
@@ -520,10 +542,10 @@ public class KapernController extends Controller
 			}
 			if (found)
 			{
-				User source = (User) getDB().get(User.class, -1);
-				PM.send(source, targetShip.getOwner().getId(), "Kaperversuch entdeckt", "Ihre Schiffe haben einen Kaperversuch bei " + targetShip.getLocation().displayCoordinates(false) + " vereitelt und den Gegner angegriffen.");
+				User source = em.find(User.class, -1);
+				pmService.send(source, targetShip.getOwner().getId(), "Kaperversuch entdeckt", "Ihre Schiffe haben einen Kaperversuch bei " + locationService.displayCoordinates(targetShip.getLocation(), false) + " vereitelt und den Gegner angegriffen.");
 
-				Battle battle = schlachtErstellenService.erstelle(targetShip.getOwner(), targetShip, ownShip, true);
+				Battle battle = battleService.erstelle(targetShip.getOwner(), targetShip, ownShip, true);
 
 				t.setVar(
 						"kapern.message", "Ihr Kaperversuch wurde entdeckt und einige gegnerischen Schiffe haben das Feuer er&ouml;ffnet.",
@@ -558,7 +580,7 @@ public class KapernController extends Controller
 
 		if ((zielSchiff.getTypeData().getCost() != 0) && (zielSchiff.getEngine() != 0))
 		{
-			if (zielSchiff.getCrew() == 0 && zielSchiff.getUnits().isEmpty())
+			if (zielSchiff.getCrew() == 0 && zielSchiff.getUnitCargo().isEmpty())
 			{
 				t.setVar("targetship.status", "verlassen",
 						"menu.showpluendern", 1,

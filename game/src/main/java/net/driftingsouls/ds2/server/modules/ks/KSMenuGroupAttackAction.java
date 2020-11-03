@@ -28,8 +28,12 @@ import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.services.BattleService;
+import net.driftingsouls.ds2.server.services.UserService;
+import net.driftingsouls.ds2.server.services.UserValueService;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -40,6 +44,7 @@ import java.util.Map;
  * Das Auswahlmenue fuer den Feuermodus und die abzufeuernde Waffe.
  *
  */
+@Component
 public class KSMenuGroupAttackAction extends BasicKSMenuAction {
 	private static final Map<String,String> ATTMODES = new HashMap<>();
 	private static final Map<String,String> NEXTATTMODES = new HashMap<>();
@@ -57,7 +62,14 @@ public class KSMenuGroupAttackAction extends BasicKSMenuAction {
 		NEXTATTMODES.put("alphastrike_max", "strafe_max");
 		NEXTATTMODES.put("strafe_max", "single");
 	}
-	
+
+	private final UserValueService userValueService;
+
+	public KSMenuGroupAttackAction(BattleService battleService, UserValueService userValueService) {
+		super(battleService, null);
+		this.userValueService = userValueService;
+	}
+
 	@Override
 	public Result validate(Battle battle) {
 		BattleShip ownShip = battle.getOwnShip();
@@ -67,21 +79,9 @@ public class KSMenuGroupAttackAction extends BasicKSMenuAction {
 			return Result.ERROR;
 		}
 		
-		/*
-		if( (enemyShip.getAction() & Battle.BS_JOIN) != 0 ) {
-			return Result.ERROR;
-		}
-		*/
-		
 		if( enemyShip.hasFlag(BattleShipFlag.DESTROYED) ) {
 			return Result.ERROR;
 		}
-		
-		/*
-		if( (ownShip.getDocked().length() > 0) && ownShip.getDocked().charAt(0) == 'l' ) {
-			return Result.ERROR;
-		}
-		*/
 		
 		if( ownShip.hasFlag(BattleShipFlag.FLUCHT) ) {
 			return Result.ERROR;
@@ -123,7 +123,7 @@ public class KSMenuGroupAttackAction extends BasicKSMenuAction {
 		
 		if( attmode.length() == 0 ) {
 			User user = (User)context.getActiveUser();
-			attmode = userattmode = user.getUserValue(WellKnownUserValue.TBLORDER_KS_ATTACKMODE);
+			attmode = userattmode = userValueService.getUserValue(user, WellKnownUserValue.TBLORDER_KS_ATTACKMODE);
 		}
 		
 		if( !ATTMODES.containsKey(attmode) ) {
@@ -132,7 +132,7 @@ public class KSMenuGroupAttackAction extends BasicKSMenuAction {
 		
 		if( !attmode.equals(userattmode) ) {
 			User user = (User)context.getActiveUser();
-			user.setUserValue(WellKnownUserValue.TBLORDER_KS_ATTACKMODE, attmode);
+			userValueService.setUserValue(user, WellKnownUserValue.TBLORDER_KS_ATTACKMODE, attmode);
 		}
 		
 		return attmode;
@@ -151,17 +151,17 @@ public class KSMenuGroupAttackAction extends BasicKSMenuAction {
 		BattleShip enemyShip = battle.getEnemyShip();
 		
 		if( ownShip.hasFlag(BattleShipFlag.BLOCK_WEAPONS) ) {
-			battle.logme( "Sie k&ouml;nnen in dieser Runde keine Waffen mehr abfeuern\n" );
+			getBattleService().logme(battle,"Sie k&ouml;nnen in dieser Runde keine Waffen mehr abfeuern\n" );
 			return Result.ERROR;
 		}
 		
 		if( ownShip.hasFlag(BattleShipFlag.DISABLE_WEAPONS) ) {
-			battle.logme( "Das Schiff kann seine Waffen in diesem Kampf nicht mehr abfeuern\n" );
+			getBattleService().logme(battle, "Das Schiff kann seine Waffen in diesem Kampf nicht mehr abfeuern\n" );
 			return Result.ERROR;
 		}
 		
 		if( this.validate(battle) != Result.OK ) {
-			battle.logme( "Validation failed\n" );
+			getBattleService().logme(battle, "Validation failed\n" );
 			return Result.ERROR;
 		}
 		

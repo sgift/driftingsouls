@@ -91,9 +91,6 @@ public class RegularTick extends AbstractTickExecutor
 		
 				publishStatus("berechne GTU");
 				execTick(RTCTick.class, false);
-
-                publishStatus("berechne automatisches Feuern");
-                execTick(AutofireTick.class, false);
 		
 				publishStatus("berechne Schlachten");
 				execTick(BattleTick.class, false);

@@ -18,16 +18,16 @@
  */
 package net.driftingsouls.ds2.server.tick;
 
-import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,7 +40,7 @@ import java.util.Map;
  * @author Christopher Jung
  *
  */
-public abstract class AbstractTickExecutor extends TickController
+public abstract class AbstractTickExecutor extends TickController implements ApplicationContextAware
 {
 	private static final Log log = LogFactory.getLog(AbstractTickExecutor.class);
 
@@ -51,10 +51,16 @@ public abstract class AbstractTickExecutor extends TickController
 	private final Map<Class<? extends TickController>, Long> tickTimes = new LinkedHashMap<>();
 	@Autowired
 	private ConfigService configService;
+	private ApplicationContext applicationContext;
 
 	public AbstractTickExecutor()
 	{
 		this.loxpath = Configuration.getLogPath();
+	}
+
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
 	}
 
 	/**
@@ -96,7 +102,7 @@ public abstract class AbstractTickExecutor extends TickController
 		long start = System.currentTimeMillis();
 		try
 		{
-			TickController tick = this.getContext().getBean(tickname, null);
+			TickController tick = applicationContext.getBean(tickname);
 
 			if( !useSTDOUT )
 			{
@@ -179,11 +185,9 @@ public abstract class AbstractTickExecutor extends TickController
 	 * Vor- und Nachbereitung der Tickausfuehrung.
 	 */
 	@Override
-	protected final void tick() {
-		Session db = getDB();
-		Transaction transaction = db.beginTransaction();
-		int ticknr = configService.getValue(db, WellKnownConfigValue.TICKS) + 1;
-		transaction.commit();
+	@Transactional
+	protected void tick() {
+		int ticknr = configService.getValue(WellKnownConfigValue.TICKS) + 1;
 
 		File tickLogFolder = new File(loxpath, Integer.toString(ticknr));
 		if (!tickLogFolder.isDirectory()) {
@@ -215,7 +219,7 @@ public abstract class AbstractTickExecutor extends TickController
 	 * Sendet die Tickstatistik, d.h. Daten ueber die Ausfuehrungsgeschwindigkeit
 	 * einzelner Tickteile an die Administratoren.
 	 */
-	public final void mailTickStatistics()
+	public void mailTickStatistics()
 	{
 		StringBuilder stats = new StringBuilder();
 		stats.append("Tick: ").append(this.getClass().getName()).append("\n\n");

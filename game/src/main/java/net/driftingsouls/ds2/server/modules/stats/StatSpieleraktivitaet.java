@@ -20,10 +20,14 @@ package net.driftingsouls.ds2.server.modules.stats;
 
 import com.google.gson.Gson;
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.entities.statistik.StatAktiveSpieler;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.StatsController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -36,11 +40,19 @@ import java.util.List;
  * @author Christopher Jung
  *
  */
+@Component
 public class StatSpieleraktivitaet implements Statistic {
+
+	private final ConfigService configService;
+
 	// ca 2 Monate anzeigen
 	private static final int ANZAHL_TICKS = 7*7*8;
 	// 2 Tage Abstand zum aktuellen Tick um keine direkten Rueckschluesse auf laufende "Aktionen" zu erlauben
 	private static final int TICK_ABSTAND = 7*2;
+
+	public StatSpieleraktivitaet(ConfigService configService) {
+		this.configService = configService;
+	}
 
 	@Override
 	public void show(StatsController contr, int size) throws IOException {
@@ -49,7 +61,7 @@ public class StatSpieleraktivitaet implements Statistic {
 
 		Writer echo = context.getResponse().getWriter();
 
-		int curTick = context.get(ContextCommon.class).getTick();
+		int curTick = configService.getValue(WellKnownConfigValue.TICKS);
 
 		List<List<Integer>> statistiken = new ArrayList<>();
 		for( int i=0; i < 6; i++ ) {
@@ -58,13 +70,12 @@ public class StatSpieleraktivitaet implements Statistic {
 		List<List<Integer>> ticks = new ArrayList<>();
 
 		int counter = 0;
-		List<?> result = db.createQuery("from StatAktiveSpieler WHERE tick>=:mintick and tick<=:maxtick ORDER BY tick ASC")
-				.setInteger("mintick", curTick-ANZAHL_TICKS-TICK_ABSTAND)
-				.setInteger("maxtick", curTick-TICK_ABSTAND)
+		List<StatAktiveSpieler> result = db.createQuery("from StatAktiveSpieler WHERE tick>=:mintick and tick<=:maxtick ORDER BY tick ASC", StatAktiveSpieler.class)
+				.setParameter("mintick", curTick-ANZAHL_TICKS-TICK_ABSTAND)
+				.setParameter("maxtick", curTick-TICK_ABSTAND)
 				.list();
-		for (Object o : result)
+		for (StatAktiveSpieler sas: result)
 		{
-			StatAktiveSpieler sas = (StatAktiveSpieler)o;
 			statistiken.get(0).add(sas.getSehrAktiv());
 			statistiken.get(1).add(sas.getAktiv());
 			statistiken.get(2).add(sas.getTeilweiseAktiv());

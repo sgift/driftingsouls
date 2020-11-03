@@ -138,10 +138,6 @@ public class WellKnownConfigValue<T> implements ConfigValueDescriptor<T>
 	 */
 	public static final ConfigValueDescriptor<Boolean> NOOB_PROTECTION = new WellKnownConfigValue<>(Boolean.class, "noob_protection", "true", "Ist der Noob-Schutz fuer neue Spieler aktiviert?");
 	/**
-	 * Sind Cheats im Kampfsystem erlaubt?
-	 */
-	public static final ConfigValueDescriptor<Boolean> ENABLE_CHEATS = new WellKnownConfigValue<>(Boolean.class, "enable_cheats", "false", "Sind Cheats im Kampfsystem erlaubt?");
-	/**
 	 * Die ID des NPCs, der die Begruessungs-PMs bei der Registrierung versendet.
 	 */
 	public static final ConfigValueDescriptor<Integer> REGISTER_PM_SENDER = new WellKnownConfigValue<>(Integer.class, "register_pm_sender", "-16", "Absender der Begruessungs-PMs");

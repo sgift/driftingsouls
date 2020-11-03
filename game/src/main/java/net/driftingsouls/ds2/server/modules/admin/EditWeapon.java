@@ -7,11 +7,14 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 
 @AdminMenuEntry(category = "Schiffe", name = "Waffe", permission = WellKnownAdminPermission.EDIT_WEAPON)
+@Component
 public class EditWeapon implements EntityEditor<Weapon>
 {
 	@Override
@@ -41,7 +44,7 @@ public class EditWeapon implements EntityEditor<Weapon>
 		form.field("Subsystemschaden", Integer.class, Weapon::getSubDamage, Weapon::setSubDamage);
 		form.field("Umgebungsschaden", Integer.class, Weapon::getAreaDamage, Weapon::setAreaDamage);
 		form.multiSelection("Flags", Weapon.Flags.class, Weapon::getFlags, Weapon::setFlags);
-		form.field("Munitionstypen", String.class, (w) -> String.join(",", w.getMunitionstypen()), (w, s) -> {
+		form.field("Munitionstypen", String.class, w -> String.join(",", w.getMunitionstypen()), (w, s) -> {
 			if(s == null || s.trim().isEmpty()) {
 				w.setMunitionstypen(Collections.emptySet());
 				return;

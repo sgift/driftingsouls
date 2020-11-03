@@ -31,6 +31,7 @@ import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.entities.statistik.StatVerkaeufe;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
@@ -40,13 +41,19 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.services.CargoService;
+import net.driftingsouls.ds2.server.services.HandelspostenService;
+import net.driftingsouls.ds2.server.services.LocationService;
+import net.driftingsouls.ds2.server.services.PmService;
+import net.driftingsouls.ds2.server.services.ShipActionService;
+import net.driftingsouls.ds2.server.services.UserService;
+import net.driftingsouls.ds2.server.services.UserValueService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
-import org.springframework.beans.factory.annotation.Autowired;
-import net.driftingsouls.ds2.server.comm.PM;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Map;
@@ -61,14 +68,33 @@ public class TradeController extends Controller
 {
 	private static final Log log = LogFactory.getLog(TradeController.class);
 
-	private final TemplateViewResultFactory templateViewResultFactory;
 
-	@Autowired
-	public TradeController(TemplateViewResultFactory templateViewResultFactory)
+	@PersistenceContext
+	private EntityManager em;
+
+	private final TemplateViewResultFactory templateViewResultFactory;
+	private final PmService pmService;
+	private final HandelspostenService tradingPostService;
+	private final BBCodeParser bbCodeParser;
+	private final UserValueService userValueService;
+	private final LocationService locationService;
+	private final UserService userService;
+	private final CargoService cargoService;
+	private final ShipActionService shipActionService;
+
+	public TradeController(TemplateViewResultFactory templateViewResultFactory, PmService pmService, HandelspostenService tradingPostService, BBCodeParser bbCodeParser, UserValueService userValueService, LocationService locationService, UserService userService, CargoService cargoService, ShipActionService shipActionService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.pmService = pmService;
+		this.bbCodeParser = bbCodeParser;
+		this.userValueService = userValueService;
+		this.locationService = locationService;
+		this.userService = userService;
+		this.cargoService = cargoService;
+		this.shipActionService = shipActionService;
 
 		setPageTitle("Handelsposten");
+		this.tradingPostService = tradingPostService;
 	}
 
 	private void validiereSchiff(Ship ship)
@@ -87,19 +113,19 @@ public class TradeController extends Controller
 		}
 
 		User user = (User) getUser();
-		if (!handelsposten.isTradepostVisible(user, user.getRelations()))
+		if (!tradingPostService.isTradepostVisible(handelsposten, user))
 		{
 			throw new ValidierungException("Fehler: Dieser Handelsposten handelt nicht mit Ihnen. Für die Aufnahme von Handelsbeziehungen setzen Sie sich mit dem Eigner in Verbindung.", Common.buildUrl("default", "module", "schiff", "ship", handelndesSchiff.getId()));
 		}
 	}
 
-	private GtuWarenKurse ermittleWarenKurseFuerHandelsposten(Session db, Ship handelndesSchiff, Ship handelsposten)
+	private GtuWarenKurse ermittleWarenKurseFuerHandelsposten(Ship handelndesSchiff, Ship handelsposten)
 	{
-		GtuWarenKurse kurse = (GtuWarenKurse) db.get(GtuWarenKurse.class, "p" + handelsposten.getId());
+		GtuWarenKurse kurse = em.find(GtuWarenKurse.class, "p" + handelsposten.getId());
 
 		if (kurse == null && handelsposten.getOwner().getRace() == Faction.GTU_RASSE)
 		{
-			kurse = (GtuWarenKurse) db.get(GtuWarenKurse.class, "tradepost");
+			kurse = em.find(GtuWarenKurse.class, "tradepost");
 		}
 		if (kurse == null)
 		{
@@ -166,7 +192,7 @@ public class TradeController extends Controller
 
 			long resourceMass = Cargo.getResourceMass(resource.getId(), 1);
 			long neededSpace = amountToBuy * resourceMass;
-			long freeSpaceOnShip = ship.getMaxCargo() - ship.getCargo().getMass();
+			long freeSpaceOnShip = ship.getMaxCargo() - cargoService.getMass(ship.getCargo());
 
 			if (neededSpace > freeSpaceOnShip)
 			{
@@ -196,19 +222,19 @@ public class TradeController extends Controller
 
 		}
 
-		ship.recalculateShipStatus();
-		tradepost.recalculateShipStatus();
+		shipActionService.recalculateShipStatus(ship);
+		shipActionService.recalculateShipStatus(tradepost);
 
 		if (totalRE.compareTo(BigInteger.ZERO) > 0)
 		{
 			//Benachrichtigung fuer HP-Besitzer schreiben
-			if(ship.getOwner().getId()!=tradepost.getOwner().getId() && tradepost.getOwner().getUserValue(WellKnownUserValue.GAMEPLAY_USER_HANDELSPOSTEN_PM))
+			if(ship.getOwner().getId()!=tradepost.getOwner().getId() && userValueService.getUserValue(tradepost.getOwner(), WellKnownUserValue.GAMEPLAY_USER_HANDELSPOSTEN_PM))
 			{
-				PM.send(tradepost.getOwner(), tradepost.getOwner().getId(), "Warenverkauf an "+tradepost.getName(), pmText.toString());
+				pmService.send(tradepost.getOwner(), tradepost.getOwner().getId(), "Warenverkauf an "+tradepost.getName(), pmText.toString());
 			}
 			tradepost.getOwner()
 					.transferMoneyFrom(user.getId(), totalRE,
-							"Warenverkauf an "+tradepost.getName()+" bei " + tradepost.getLocation().displayCoordinates(false),
+							"Warenverkauf an "+tradepost.getName()+" bei " + locationService.displayCoordinates(tradepost.getLocation(), false),
 							false, UserMoneyTransfer.Transfer.SEMIAUTO);
 		}
 		return new RedirectViewResult("default");
@@ -223,31 +249,30 @@ public class TradeController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult sellAction(@UrlParam(name = "#to") Map<String, Long> toMap, Ship tradepost, Ship ship)
 	{
-		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 		StringBuilder pmText = new StringBuilder(ship.getOwner().getName() + " verkauft:\n ");
 
 		validiereSchiff(ship);
 		validiereHandelsposten(ship, tradepost);
 
-		GtuWarenKurse kurse = ermittleWarenKurseFuerHandelsposten(db, ship, tradepost);
+		GtuWarenKurse kurse = ermittleWarenKurseFuerHandelsposten(ship, tradepost);
 
 		int MIN_TICKS_TO_SURVIVE = 7;
 		Cargo shipCargo = ship.getCargo();
 
 		int tick = getContext().get(ContextCommon.class).getTick();
 
-		StatVerkaeufe stats = (StatVerkaeufe) db.createQuery("from StatVerkaeufe where tick=:tick and place=:place and system=:sys")
-				.setInteger("tick", tick)
-				.setString("place", kurse.getPlace())
-				.setInteger("sys", tradepost.getSystem())
-				.uniqueResult();
+		StatVerkaeufe stats = em.createQuery("from StatVerkaeufe where tick=:tick and place=:place and system=:sys", StatVerkaeufe.class)
+				.setParameter("tick", tick)
+				.setParameter("place", kurse.getPlace())
+				.setParameter("sys", tradepost.getSystem())
+				.getSingleResult();
 
 		Cargo statsCargo;
 		if (stats == null)
 		{
 			stats = new StatVerkaeufe(tick, tradepost.getSystem(), kurse.getPlace());
-			db.persist(stats);
+			em.persist(stats);
 		}
 
 		statsCargo = stats.getStats();
@@ -263,8 +288,8 @@ public class TradeController extends Controller
 		kurseCargo.setOption(Cargo.Option.SHOWMASS, false);
 
 		ResourceList reslist = kurseCargo.getResourceList();
-		long freeSpace = tradepost.getTypeData().getCargo() - tradepost.getCargo().getMass();
-		long reconsumption = -1 * tradepost.getOwner().getReBalance();
+		long freeSpace = tradepost.getTypeData().getCargo() - cargoService.getMass(tradepost.getCargo());
+		long reconsumption = -1 * userService.getReBalance(tradepost.getOwner());
 		BigInteger konto = tradepost.getOwner().getKonto();
 		for (ResourceEntry res : reslist)
 		{
@@ -360,16 +385,17 @@ public class TradeController extends Controller
 			tradepost.setCargo(tpcargo);
 			ship.setCargo(shipCargo);
 
-			ship.recalculateShipStatus();
+			shipActionService.recalculateShipStatus(ship);
 			//Benachrichtigung fuer HP-Besitzer schreiben
-			if(ship.getOwner().getId()!=tradepost.getOwner().getId() && user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_HANDELSPOSTEN_PM))
+			var sendTradePostMessages = userValueService.getUserValue(user, WellKnownUserValue.GAMEPLAY_USER_HANDELSPOSTEN_PM);
+			if(ship.getOwner().getId()!=tradepost.getOwner().getId() && Boolean.TRUE.equals(sendTradePostMessages))
 			{
-				PM.send(tradepost.getOwner(), tradepost.getOwner().getId(), "Warenankauf an "+tradepost.getName(), pmText.toString());
+				pmService.send(tradepost.getOwner(), tradepost.getOwner().getId(), "Warenankauf an "+tradepost.getName(), pmText.toString());
 			}
 
 
 			user.transferMoneyFrom(tradepost.getOwner().getId(), totalRE,
-					"Warenankauf an "+tradepost.getName()+" bei " + tradepost.getLocation().displayCoordinates(false), false,
+					"Warenankauf an "+tradepost.getName()+" bei " + locationService.displayCoordinates(tradepost.getLocation(), false), false,
 					UserMoneyTransfer.Transfer.SEMIAUTO);
 		}
 
@@ -378,7 +404,7 @@ public class TradeController extends Controller
 
 	private boolean isFull(Ship handelsposten)
 	{
-		return handelsposten.getTypeData().getCargo() <= handelsposten.getCargo().getMass();
+		return handelsposten.getTypeData().getCargo() <= cargoService.getMass(handelsposten.getCargo());
 	}
 
 	/**
@@ -391,16 +417,15 @@ public class TradeController extends Controller
 	public TemplateEngine defaultAction(Ship tradepost, Ship ship, RedirectViewResult redirect)
 	{
 		TemplateEngine t = templateViewResultFactory.createFor(this);
-		org.hibernate.Session db = getDB();
 
 		validiereSchiff(ship);
 		validiereHandelsposten(ship, tradepost);
 
-		GtuWarenKurse kurse = ermittleWarenKurseFuerHandelsposten(db, ship, tradepost);
+		GtuWarenKurse kurse = ermittleWarenKurseFuerHandelsposten(ship, tradepost);
 
 		if( redirect != null )
 		{
-			t.setVar("trade.message", Common._text(redirect.getMessage()));
+			t.setVar("trade.message", Common._text(bbCodeParser, redirect.getMessage()));
 		}
 
 		t.setVar("global.shipid", ship.getId());

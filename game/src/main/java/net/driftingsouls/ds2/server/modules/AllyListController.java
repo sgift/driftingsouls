@@ -25,6 +25,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.entities.ally.AllyPosten;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
@@ -33,8 +34,11 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.RedirectViewR
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 
 /**
@@ -46,11 +50,18 @@ import java.util.List;
 public class AllyListController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
+	private final UserService userService;
+	private final BBCodeParser bbCodeParser;
+
+	@PersistenceContext
+	private EntityManager em;
 
 	@Autowired
-	public AllyListController(TemplateViewResultFactory templateViewResultFactory)
+	public AllyListController(TemplateViewResultFactory templateViewResultFactory, UserService userService, BBCodeParser bbCodeParser)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.userService = userService;
+		this.bbCodeParser = bbCodeParser;
 
 		setPageTitle("Allianzliste");
 	}
@@ -100,7 +111,7 @@ public class AllyListController extends Controller
 
 		List<User> allymembers = ally.getMembers();
 		for( User allymember : allymembers ) {
-			user.setRelation(allymember.getId(), relation);
+			userService.setRelation(user, allymember, relation);
 		}
 
 		return new RedirectViewResult("details").withMessage("Beziehungsstatus geändert");
@@ -139,7 +150,7 @@ public class AllyListController extends Controller
 		for( User auser : users ) {
 			List<User> allymembers = ally.getMembers();
 			for( User allymember : allymembers ) {
-				auser.setRelation(allymember.getId(), relation);
+				userService.setRelation(auser, allymember, relation);
 			}
 		}
 			
@@ -163,7 +174,7 @@ public class AllyListController extends Controller
 
 		if( user.getAlly() != null )
 		{
-			t.setVar("user.ally.name", Common._title(user.getAlly().getName()),
+			t.setVar("user.ally.name", Common._title(bbCodeParser, user.getAlly().getName()),
 					"user.ally.president", (user.getId() == user.getAlly().getPresident().getId()));
 		}
 
@@ -184,11 +195,11 @@ public class AllyListController extends Controller
 		User presi = ally.getPresident();
 	
 		t.setVar(	"ally",					ally,
-					"ally.name",			Common._title(ally.getName()),
-					"ally.description",		Common._text(ally.getDescription()),
+					"ally.name",			Common._title(bbCodeParser, ally.getName()),
+					"ally.description",		Common._text(bbCodeParser, ally.getDescription()),
 					"ally.items.list",		"",
 					"ally.pname",			Common._plaintitle(ally.getPname()),
-					"ally.president.name",	Common._title(presi.getName()),
+					"ally.president.name",	Common._title(bbCodeParser, presi.getName()),
 					"ally.minister.list",	"",
 					"ally.addmembers.list",	"" );
 	
@@ -214,28 +225,26 @@ public class AllyListController extends Controller
 
 			t.setVar("ally.minister.posten", Common._plaintitle(aposten.getName()),
 					"ally.minister.id", aposten.getUser().getId(),
-					"ally.minister.name", Common._title(aposten.getUser().getName()));
+					"ally.minister.name", Common._title(bbCodeParser, aposten.getUser().getName()));
 
 			t.parse("ally.minister.list", "ally.minister.listitem", true);
 		}
 	
 		// Weitere Mitglieder ausgeben
-		List<?> allymembers = getDB().createQuery("from User " +
+		List<User> allianceMembers = em.createQuery("from User " +
 				"where ally= :ally and " +
 						"id!= :presidentId and " +
-						"allyposten is null")
-			.setEntity("ally", ally)
-			.setInteger("presidentId", ally.getPresident().getId())
-			.list();
-		if( allymembers.size() > 0 ) {
+						"allyposten is null", User.class)
+			.setParameter("ally", ally)
+			.setParameter("presidentId", ally.getPresident().getId())
+			.getResultList();
+		if(!allianceMembers.isEmpty()) {
 			t.setBlock( "_ALLYLIST", "ally.addmembers.listitem", "ally.addmembers.list" );
 
-			for (Object allymember1 : allymembers)
+			for (User allianceMember: allianceMembers)
 			{
-				User allymember = (User) allymember1;
-
-				t.setVar("ally.addmembers.name", Common._title(allymember.getName()),
-						"ally.addmembers.id", allymember.getId());
+				t.setVar("ally.addmembers.name", Common._title(bbCodeParser, allianceMember.getName()),
+						"ally.addmembers.id", allianceMember.getId());
 
 				t.parse("ally.addmembers.list", "ally.addmembers.listitem", true);
 			}
@@ -256,18 +265,16 @@ public class AllyListController extends Controller
 		User user = (User)getUser();
 		if( user.getAlly() != null )
 		{
-			t.setVar("user.ally.name", Common._title(user.getAlly().getName()),
+			t.setVar("user.ally.name", Common._title(bbCodeParser, user.getAlly().getName()),
 					"user.ally.president", (user.getId() == user.getAlly().getPresident().getId()));
 		}
 		
 		t.setBlock( "_ALLYLIST", "allylist.ally.listitem", "allylist.ally.list" );
 	
-		List<?> allies = getDB().createQuery("from Ally order by founded").list();
-		for (Object ally1 : allies)
+		List<Ally> allies = em.createQuery("from Ally order by founded", Ally.class).getResultList();
+		for (Ally ally: allies)
 		{
-			Ally ally = (Ally) ally1;
-
-			String name = "<a class=\"forschinfo\" href=\"" + Common.buildUrl("details", "details", ally.getId()) + "\">" + Common._title(ally.getName()) + "</a>";
+			String name = "<a class=\"forschinfo\" href=\"" + Common.buildUrl("details", "details", ally.getId()) + "\">" + Common._title(bbCodeParser, ally.getName()) + "</a>";
 
 			if (ally.getHp().length() > 0)
 			{

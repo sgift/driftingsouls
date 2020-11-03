@@ -31,10 +31,15 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.services.LocationService;
+import net.driftingsouls.ds2.server.services.ShipService;
+import net.driftingsouls.ds2.server.services.ShipActionService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 
 /**
@@ -47,10 +52,19 @@ import java.util.List;
 public class DeutAllController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
+	private final ShipService shipService;
+	private final LocationService locationService;
+	private final ShipActionService shipActionService;
+
+	@PersistenceContext
+	private EntityManager em;
 
 	@Autowired
-	public DeutAllController(TemplateViewResultFactory templateViewResultFactory) {
+	public DeutAllController(TemplateViewResultFactory templateViewResultFactory, ShipService shipService, LocationService locationService, ShipActionService shipActionService) {
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.shipService = shipService;
+		this.locationService = locationService;
+		this.shipActionService = shipActionService;
 
 		setPageTitle("Deut. sammeln");
 	}
@@ -62,22 +76,20 @@ public class DeutAllController extends Controller
 	public TemplateEngine defaultAction() {
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User)getUser();
-		org.hibernate.Session db = getDB();
 
 		Location lastcoords = null;
 
 		t.setBlock("_DEUTALL", "ships.listitem", "ships.list");
 
-		List<?> ships = db.createQuery("select s from Ship as s left join s.modules m " +
+		List<Ship> ships = em.createQuery("select s from Ship as s left join s.modules m " +
 				"where s.id>0 and s.owner=:user and (s.shiptype.deutFactor>0 or m.deutFactor>0) " +
-				"order by s.system,s.x,s.y")
-				.setEntity("user", user)
-				.list();
+				"order by s.system,s.x,s.y", Ship.class)
+				.setParameter("user", user)
+				.getResultList();
 
-		for (Object ship1 : ships)
+		for (Ship ship: ships)
 		{
 			t.start_record();
-			Ship ship = (Ship) ship1;
 
 			ShipTypeData shiptype = ship.getTypeData();
 			if (shiptype.getDeutFactor() == 0)
@@ -88,7 +100,7 @@ public class DeutAllController extends Controller
 			if ((lastcoords == null) || !lastcoords.sameSector(0, ship.getLocation(), 0))
 			{
 				t.setVar("ship.newcoords", 1,
-						"ship.location", ship.getLocation().displayCoordinates(false),
+						"ship.location", locationService.displayCoordinates(ship.getLocation(),false),
 						"ship.newcoords.break", lastcoords != null);
 
 				lastcoords = ship.getLocation();
@@ -109,11 +121,11 @@ public class DeutAllController extends Controller
 			}
 			else
 			{
-				Nebel nebel = (Nebel) db.get(Nebel.class, new MutableLocation(ship));
+				Nebel nebel = em.find(Nebel.class, new MutableLocation(ship));
 
 				if ((nebel != null) && nebel.getType().isDeuteriumNebel())
 				{
-					long saugdeut = ship.sammelDeuterium(nebel, -1);
+					long saugdeut = shipService.sammelDeuterium(ship, nebel, -1);
 					if (saugdeut <= 0)
 					{
 						t.setVar("ship.message", "Es konnte kein weiteres Deuterium gesammelt werden",
@@ -121,6 +133,7 @@ public class DeutAllController extends Controller
 					}
 					else
 					{
+						shipActionService.recalculateShipStatus(ship);
 						t.setVar("ship.saugdeut", saugdeut,
 								"deuterium.image", Cargo.getResourceImage(Resources.DEUTERIUM));
 					}

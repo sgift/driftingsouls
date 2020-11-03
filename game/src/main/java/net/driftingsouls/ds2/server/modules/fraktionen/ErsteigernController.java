@@ -23,7 +23,6 @@ import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.*;
-import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.items.Item;
@@ -36,29 +35,39 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.ContextInstance;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.services.CargoService;
+import net.driftingsouls.ds2.server.services.ConsignService;
 import net.driftingsouls.ds2.server.services.FraktionsGuiEintragService;
+import net.driftingsouls.ds2.server.services.HandelspostenService;
+import net.driftingsouls.ds2.server.services.LocationService;
+import net.driftingsouls.ds2.server.services.PmService;
+import net.driftingsouls.ds2.server.services.ShipService;
+import net.driftingsouls.ds2.server.services.UserService;
+import net.driftingsouls.ds2.server.services.UserValueService;
 import net.driftingsouls.ds2.server.ships.JumpNodeRouter;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
-import net.driftingsouls.ds2.server.tasks.Taskmanager;
+import net.driftingsouls.ds2.server.tasks.TaskManager;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.text.StringEscapeUtils;
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.hibernate.criterion.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.*;
 
 /**
  * Zeigt die Fraktionsseiten an.
@@ -71,15 +80,39 @@ public class ErsteigernController extends Controller
 	private final TemplateViewResultFactory templateViewResultFactory;
 	private final ConfigService configService;
 	private final FraktionsGuiEintragService fraktionsGuiEintragService;
+	private final HandelspostenService tradingPostService;
+	private final UserService userService;
+	private final PmService pmService;
+	private final BBCodeParser bbCodeParser;
+	private final UserValueService userValueService;
+	private final LocationService locationService;
+	private final ConsignService consignService;
+	private final ShipService shipService;
+	private final CargoService cargoService;
+	private final TaskManager taskManager;
+
+	@PersistenceContext
+	private EntityManager em;
 
 	@Autowired
 	public ErsteigernController(TemplateViewResultFactory templateViewResultFactory,
-			ConfigService configService,
-			FraktionsGuiEintragService fraktionsGuiEintragService)
+		ConfigService configService,
+		FraktionsGuiEintragService fraktionsGuiEintragService,
+		HandelspostenService tradingPostService, UserService userService, PmService pmService, BBCodeParser bbCodeParser, UserValueService userValueService, LocationService locationService, ConsignService consignService, ShipService shipService, CargoService cargoService, TaskManager taskManager)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
 		this.configService = configService;
 		this.fraktionsGuiEintragService = fraktionsGuiEintragService;
+		this.tradingPostService = tradingPostService;
+		this.userService = userService;
+		this.pmService = pmService;
+		this.bbCodeParser = bbCodeParser;
+		this.userValueService = userValueService;
+		this.locationService = locationService;
+		this.consignService = consignService;
+		this.shipService = shipService;
+		this.cargoService = cargoService;
+		this.taskManager = taskManager;
 
 		setPageTitle("Fraktionen");
 	}
@@ -127,7 +160,7 @@ public class ErsteigernController extends Controller
 			for (FraktionsGuiEintrag eintrag : fraktionen)
 			{
 				t.setVar(
-						"item.faction.name", Common._title(eintrag.getUser().getName()),
+						"item.faction.name", Common._title(bbCodeParser, eintrag.getUser().getName()),
 						"item.faction.id", eintrag.getUser().getId());
 
 				t.parse("global.factionmenu.list", "global.factionmenu.listitem", true);
@@ -139,7 +172,7 @@ public class ErsteigernController extends Controller
 					"user.konto", Common.ln(user.getKonto()),
 					"user.faction.lp", Common.ln(user.getLoyalitaetspunkteTotalBeiNpc(factionuser)),
 					"global.faction", faction.getUser().getId(),
-					"global.faction.name", Common._title(factionuser.getName()));
+					"global.faction.name", Common._title(bbCodeParser, factionuser.getName()));
 		}
 	}
 
@@ -154,8 +187,8 @@ public class ErsteigernController extends Controller
 	private boolean istHandelErlaubt(User user, FraktionsGuiEintrag faction)
 	{
 		User factionUser = faction.getUser();
-		return user.getRelation(factionUser) != User.Relation.ENEMY
-				&& factionUser.getRelation(user) != User.Relation.ENEMY;
+		return userService.getRelation(user, factionUser) != User.Relation.ENEMY
+				&& userService.getRelation(factionUser, user) != User.Relation.ENEMY;
 	}
 
 	private FraktionsGuiEintrag ermittleStandardFraktionFuerSpieler(User user)
@@ -170,8 +203,8 @@ public class ErsteigernController extends Controller
 		}
 		for (FraktionsGuiEintrag eintrag : fraktionen)
 		{
-			if ((user.getRelation(eintrag.getUser()) != User.Relation.ENEMY)
-					&& (eintrag.getUser().getRelation(user) != User.Relation.ENEMY))
+			if ((userService.getRelation(user, eintrag.getUser()) != User.Relation.ENEMY)
+					&& (userService.getRelation(eintrag.getUser(), user) != User.Relation.ENEMY))
 			{
 				return eintrag;
 			}
@@ -290,7 +323,7 @@ public class ErsteigernController extends Controller
 					"entry.width", entrywidth,
 					"entry.height", entrywidth,
 					"entry.count", entrycount,
-					"bid.player", Common._title(bietername),
+					"bid.player", Common._title(bbCodeParser, bietername),
 					"bid.player.id", bieter.getId(),
 					"bid.price", cost,
 					"bid.id", entry.getId());
@@ -316,7 +349,7 @@ public class ErsteigernController extends Controller
 					User bieter = entry.getBieter();
 					User factionUser = factionObj.getUser();
 
-					PM.send(factionUser, entry.getBieter().getId(),
+					pmService.send(factionUser, entry.getBieter().getId(),
 							"Bei Versteigerung überboten",
 							"Sie wurden bei der Versteigerung um '"
 									+ entryname
@@ -425,7 +458,7 @@ public class ErsteigernController extends Controller
 			return new RedirectViewResult("default");
 		}
 
-		User tmp = User.lookupByIdentifier(to);
+		User tmp = userService.lookupByIdentifier(to);
 		if (tmp == null)
 		{
 			addError("Der angegebene Spieler konnte nicht gefunden werden.");
@@ -446,7 +479,7 @@ public class ErsteigernController extends Controller
 					"show.ueberweisen", 1,
 					"ueberweisen.betrag", Common.ln(count),
 					"ueberweisen.betrag.plain", count,
-					"ueberweisen.to.name", Common._title(tmp.getName()),
+					"ueberweisen.to.name", Common._title(bbCodeParser, tmp.getName()),
 					"ueberweisen.to", tmp.getId(),
 					"ueberweisen.token", token.getToken());
 
@@ -459,9 +492,9 @@ public class ErsteigernController extends Controller
 				+ Common.getIngameTime(ticks));
 		User factionUser = factionObj.getUser();
 
-		PM.send(factionUser, tmp.getId(), "RE überwiesen bekommen", user.getNickname()
+		pmService.send(factionUser, tmp.getId(), "RE überwiesen bekommen", user.getNickname()
 				+ " hat Dir soeben " + Common.ln(count) + " RE überwiesen.");
-		PM.send(factionUser, user.getId(), "RE-Überweisung durchgeführt",
+		pmService.send(factionUser, user.getId(), "RE-Überweisung durchgeführt",
 				"Du hast " + tmp.getNickname() + " soeben " + Common.ln(count)
 						+ " RE überwiesen.");
 
@@ -488,7 +521,7 @@ public class ErsteigernController extends Controller
 
 		if ((type >= 0) && (type < 3))
 		{
-			user.setUserValue(WellKnownUserValue.TBLORDER_FACTIONS_KONTO_MAXTYPE, type);
+			userValueService.setUserValue(user, WellKnownUserValue.TBLORDER_FACTIONS_KONTO_MAXTYPE, type);
 		}
 		return new RedirectViewResult("bank");
 	}
@@ -509,7 +542,6 @@ public class ErsteigernController extends Controller
 		}
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
-		org.hibernate.Session db = getDB();
 		User user = (User) this.getUser();
 
 		erstelleMenue(t, factionObj);
@@ -518,7 +550,7 @@ public class ErsteigernController extends Controller
 		t.setVar("show.bank", 1);
 
 		// Auwahl max. Transaktionstyp in der Kontoanzeige generieren
-		int transtype = user.getUserValue(WellKnownUserValue.TBLORDER_FACTIONS_KONTO_MAXTYPE);
+		int transtype = userValueService.getUserValue(user, WellKnownUserValue.TBLORDER_FACTIONS_KONTO_MAXTYPE);
 
 		String newtypetext;
 		switch (transtype - 1 % 3)
@@ -540,16 +572,16 @@ public class ErsteigernController extends Controller
 		// Kontobewegungen anzeigen
 		t.setBlock("_UEBER", "moneytransfer.listitem", "moneytransfer.list");
 
-		List<?> transferList = db
-				.createQuery(
+		List<UserMoneyTransfer> transferList = em
+			.createQuery(
 						"from UserMoneyTransfer umt "
-								+ "where umt.type<= :transtype and (umt.from= :user or umt.to= :user) order by umt.time desc")
-				.setInteger("transtype", transtype).setEntity("user", user).setMaxResults(40)
-				.list();
-		for (Object aTransferList : transferList)
+								+ "where umt.type<= :transtype and (umt.from= :user or umt.to= :user) order by umt.time desc", UserMoneyTransfer.class)
+			.setParameter("transtype", transtype)
+			.setParameter("user", user)
+			.setMaxResults(40)
+			.getResultList();
+		for (UserMoneyTransfer entry: transferList)
 		{
-			UserMoneyTransfer entry = (UserMoneyTransfer) aTransferList;
-
 			User player;
 
 			if (user.equals(entry.getFrom()))
@@ -584,7 +616,7 @@ public class ErsteigernController extends Controller
 			}
 
 			t.setVar("moneytransfer.time", Common.date("j.n.Y H:i", entry.getTime()),
-					"moneytransfer.from", from, "moneytransfer.player", Common._title(player
+					"moneytransfer.from", from, "moneytransfer.player", Common._title(bbCodeParser, player
 					.getName()), "moneytransfer.player.id", player.getId(),
 					"moneytransfer.count", Common.ln(count), "moneytransfer.reason", entry
 					.getText());
@@ -614,11 +646,7 @@ public class ErsteigernController extends Controller
 		erstelleMenue(t, factionObj);
 		t.setVar("show.message", redirect != null ? redirect.getMessage() : null);
 
-		org.hibernate.Session db = getDB();
 		User user = (User) this.getUser();
-
-		User.Relations relationlist;
-		relationlist = user.getRelations();
 
 		t.setVar("show.other", 1);
 
@@ -627,39 +655,38 @@ public class ErsteigernController extends Controller
 		t.setBlock("kurse.listitem", "kurse.waren.listitem", "kurse.waren.list");
 		t.setBlock("kurse.listitem", "kurse.verkaufswaren.listitem", "kurse.verkaufswaren.list");
 
-		outputAstiKurse(t, db);
+		outputAstiKurse(t);
 
-		List<Ship> postenList = Common.cast(db
-				.createQuery("select s from Ship s left join s.modules sm " +
+		List<Ship> tradingPosts = em.createQuery("select s from Ship s left join s.modules sm " +
 						"where s.id>0 and locate('tradepost',s.status)!=0 or " +
 						"s.shiptype.flags like '%tradepost%' or " +
 						"sm.flags like '%tradepost%' " +
-						"order by s.system,s.x+s.y")
-				.list());
+						"order by s.system,s.x+s.y", Ship.class)
+				.getResultList();
 
-		for (Ship tradepost : postenList)
+		var visibleTradingPosts = tradingPosts.stream()
+			.filter(tradingPost -> tradingPostService.isTradepostVisible(tradingPost, user))
+			.filter(tradingPost -> isSystemVisible(tradingPost.getSystem(), user))
+			.collect(toList());
+
+		for (Ship tradingPost: visibleTradingPosts)
 		{
-			if (!tradepost.isTradepostVisible(user, relationlist))
-			{
-				continue;
-			}
-			StarSystem sys = (StarSystem) db.get(StarSystem.class, tradepost.getSystem());
-			if (!sys.isVisibleFor(user))
-			{
-				continue;
-			}
-
-			outputHandelspostenKurse(t, db, user, tradepost);
+			outputHandelspostenKurse(t, user, tradingPost);
 		}
 		return t;
 	}
 
-	private void outputHandelspostenKurse(TemplateEngine t, org.hibernate.Session db, User user, Ship tradepost)
+	private boolean isSystemVisible(int systemId, User user) {
+		StarSystem sys = em.find(StarSystem.class, systemId);
+		return sys.isVisibleFor(user);
+	}
+
+	private void outputHandelspostenKurse(TemplateEngine t, User user, Ship tradepost)
 	{
-		GtuWarenKurse kurse = (GtuWarenKurse) db.get(GtuWarenKurse.class, "p" + tradepost.getId());
+		GtuWarenKurse kurse = em.find(GtuWarenKurse.class, "p" + tradepost.getId());
 		if (kurse == null && tradepost.getOwner().getRace() == Faction.GTU_RASSE)
 		{
-			kurse = (GtuWarenKurse) db.get(GtuWarenKurse.class, "tradepost");
+			kurse = em.find(GtuWarenKurse.class, "tradepost");
 		}
 		if (kurse == null || kurse.getKurse().isEmpty())
 		{
@@ -670,11 +697,11 @@ public class ErsteigernController extends Controller
 				"posten.name", tradepost.getName(),
 				"kurse.waren.list", "",
 				"kurse.verkaufswaren.list", "",
-				"posten.owner.name", Common._title(tradepost.getOwner().getName()),
+				"posten.owner.name", Common._title(bbCodeParser, tradepost.getOwner().getName()),
 				"posten.owner.id", tradepost.getOwner().getId(),
-				"posten.location", tradepost.getLocation().displayCoordinates(false));
+				"posten.location", locationService.displayCoordinates(tradepost.getLocation(), false));
 
-		boolean full = tradepost.getTypeData().getCargo() <= tradepost.getCargo().getMass();
+		boolean full = tradepost.getTypeData().getCargo() <= cargoService.getMass(tradepost.getCargo());
 
 		Cargo kurseCargo = new Cargo(kurse.getKurse());
 		kurseCargo.setOption(Cargo.Option.SHOWMASS, false);
@@ -690,8 +717,7 @@ public class ErsteigernController extends Controller
 			}
 
 			boolean sellable = tradepost.getCargo().getResourceCount(res.getId()) < limit.getLimit();
-			long sellamount = Long.MAX_VALUE;
-			sellamount = limit.getLimit()-tradepost.getCargo().getResourceCount(res.getId());
+			long sellamount = limit.getLimit()-tradepost.getCargo().getResourceCount(res.getId());
 
 			t.setVar("ware.image", res.getImage(),
 					"ware.preis", (res.getCount1() / 1000d > 0.05 ? Common.ln(res.getCount1() / 1000d) : ""),
@@ -711,7 +737,7 @@ public class ErsteigernController extends Controller
 			}
 
 			boolean buyable = (tradepost.getCargo().getResourceCount(limit.getResourceId()) - limit.getLimit()) > 0;
-			Item resource = (Item)db.get(Item.class, limit.getResourceId().getItemID());
+			Item resource = em.find(Item.class, limit.getResourceId().getItemID());
 			long buyamount = tradepost.getCargo().getResourceCount(limit.getResourceId())-limit.getLimit();
 
 			t.setVar(
@@ -727,9 +753,9 @@ public class ErsteigernController extends Controller
 		t.parse("kurse.list", "kurse.listitem", true);
 	}
 
-	private void outputAstiKurse(TemplateEngine t, org.hibernate.Session db)
+	private void outputAstiKurse(TemplateEngine t)
 	{
-		GtuWarenKurse asti = (GtuWarenKurse) db.get(GtuWarenKurse.class, "asti");
+		GtuWarenKurse asti = em.find(GtuWarenKurse.class, "asti");
 		Cargo kurseCargo = new Cargo(asti.getKurse());
 		kurseCargo.setOption(Cargo.Option.SHOWMASS, false);
 		t.setVar(
@@ -769,7 +795,6 @@ public class ErsteigernController extends Controller
 		}
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
-		org.hibernate.Session db = getDB();
 		erstelleMenue(t, factionObj);
 
 		t.setVar("show.message", redirect != null ? redirect.getMessage() : null);
@@ -781,16 +806,14 @@ public class ErsteigernController extends Controller
 		t.setVar("none", "");
 
 		int count = 0;
-		List<?> angebote = db.createQuery("from FraktionsAngebot where faction=:faction")
-				.setEntity("faction", factionObj.getUser())
-				.list();
-		for (Object anAngebote : angebote)
+		List<FraktionsAngebot> angebote = em.createQuery("from FraktionsAngebot where faction=:faction", FraktionsAngebot.class)
+				.setParameter("faction", factionObj.getUser())
+				.getResultList();
+		for (FraktionsAngebot offer: angebote)
 		{
-			FraktionsAngebot offer = (FraktionsAngebot) anAngebote;
-
 			count++;
-			t.setVar("angebot.title", Common._title(offer.getTitle()), "angebot.image", offer
-					.getImage(), "angebot.description", Common._text(offer.getDescription()),
+			t.setVar("angebot.title", Common._title(bbCodeParser, offer.getTitle()), "angebot.image", offer
+					.getImage(), "angebot.description", Common._text(bbCodeParser, offer.getDescription()),
 					"angebot.linebreak", (count % 3 == 0 ? "1" : ""));
 
 			t.parse("angebote.list", "angebote.item", true);
@@ -812,7 +835,6 @@ public class ErsteigernController extends Controller
 	public Object versteigerungAction(User faction, RedirectViewResult redirect)
 	{
 		TemplateEngine t = templateViewResultFactory.createFor(this);
-		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 
 		FraktionsGuiEintrag factionObj = ermittleFraktion(faction);
@@ -831,16 +853,15 @@ public class ErsteigernController extends Controller
 		 * Laufende Handelsvereinbarungen anzeigen (nur solche, die man schon selbst erfuellt hat im
 		 * Moment)
 		 */
-		handelsvereinbarungenAnzeigen(t, db, user);
+		handelsvereinbarungenAnzeigen(t, user);
 
 		/*
 		 * Einzelversteigerungen
 		 */
 
-		List<?> versteigerungen = db.createQuery("from Versteigerung order by id desc").list();
-		for (Object aVersteigerungen : versteigerungen)
+		List<Versteigerung> versteigerungen = em.createQuery("from Versteigerung order by id desc", Versteigerung.class).getResultList();
+		for (Versteigerung entry: versteigerungen)
 		{
-			Versteigerung entry = (Versteigerung) aVersteigerungen;
 			User bieter = entry.getBieter();
 
 			String objectname = entry.getObjectName();
@@ -875,7 +896,7 @@ public class ErsteigernController extends Controller
 			if (hasPermission(WellKnownPermission.FRAKTIONEN_ANBIETERNAME) && (entry.getOwner() != factionObj.getUser())
 					&& (entry.getOwner() != user))
 			{
-				ownername = Common._title(entry.getOwner().getName());
+				ownername = Common._title(bbCodeParser, entry.getOwner().getName());
 			}
 
 			int ticks = getContext().get(ContextCommon.class).getTick();
@@ -884,7 +905,7 @@ public class ErsteigernController extends Controller
 					"entry.type.name", entryname,
 					"entry.type.image", entry.getObjectPicture(),
 					"entry.preis", Common.ln(entry.getPreis()),
-					"entry.bieter", Common._title(bietername),
+					"entry.bieter", Common._title(bbCodeParser, bietername),
 					"entry.bieter.id", entry.getBieter().getId(),
 					"entry.dauer", entry.getTick() - ticks,
 					"entry.aukid", entry.getId(),
@@ -903,23 +924,22 @@ public class ErsteigernController extends Controller
 		t.setBlock("_ERSTEIGERN", "gtu.dropzones.listitem", "gtu.dropzones.list");
 
 
-		dropZoneAuswahlAnzeigen(t, db, user);
+		dropZoneAuswahlAnzeigen(t, user);
 		return t;
 	}
 
-	private void handelsvereinbarungenAnzeigen(TemplateEngine t, Session db, User user)
+	private void handelsvereinbarungenAnzeigen(TemplateEngine t, User user)
 	{
 		t.setBlock("_ERSTEIGERN", "gtuzwischenlager.listitem", "gtuzwischenlager.list");
 
 		Set<Ship> gzlliste = new HashSet<>();
 
-		List<?> entries = db.createQuery("from GtuZwischenlager where user1= :user or user2= :user")
-				.setEntity("user", user).list();
+		List<GtuZwischenlager> entries = em.createQuery("from GtuZwischenlager where user1= :user or user2= :user", GtuZwischenlager.class)
+				.setParameter("user", user)
+			.getResultList();
 
-		for (Object entry1 : entries)
+		for (GtuZwischenlager aentry: entries)
 		{
-			GtuZwischenlager aentry = (GtuZwischenlager) entry1;
-
 			Cargo owncargoneed = aentry.getCargo1Need();
 			if (aentry.getUser2() == user)
 			{
@@ -935,17 +955,17 @@ public class ErsteigernController extends Controller
 		for (Ship aposten : gzlliste)
 		{
 			t.setVar("gtuzwischenlager.name", Common._plaintitle(aposten.getName()),
-					"gtuzwischenlager.location", aposten.getLocation().displayCoordinates(true),
-					"gtuzwischenlager.location.url", aposten.getLocation().urlFragment());
+					"gtuzwischenlager.location", locationService.displayCoordinates(aposten.getLocation(), true),
+					"gtuzwischenlager.location.url", locationService.urlFragment(aposten.getLocation()));
 
 			t.parse("gtuzwischenlager.list", "gtuzwischenlager.listitem", true);
 		}
 	}
 
-	private void dropZoneAuswahlAnzeigen(TemplateEngine t, Session db, User user)
+	private void dropZoneAuswahlAnzeigen(TemplateEngine t, User user)
 	{
 		List<StarSystem> dropZones = ermittleMoeglicheDropZones();
-		StarSystem aktuelleDropZone = (StarSystem) db.get(StarSystem.class, user.getGtuDropZone());
+		StarSystem aktuelleDropZone = em.find(StarSystem.class, user.getGtuDropZone());
 		if (!dropZones.contains(aktuelleDropZone))
 		{
 			dropZones.add(aktuelleDropZone);
@@ -963,17 +983,16 @@ public class ErsteigernController extends Controller
 
 	public List<StarSystem> ermittleMoeglicheDropZones()
 	{
-		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 
 		List<StarSystem> result = new ArrayList<>();
 
 		int defaultDropZone = configService.getValue(WellKnownConfigValue.GTU_DEFAULT_DROPZONE);
 
-		List<?> systems = db.createCriteria(StarSystem.class).addOrder(Order.asc("id")).list();
-		for (Object system1 : systems)
+		List<StarSystem> systems = em.createQuery("from StarSystem order by id asc", StarSystem.class)
+			.getResultList();
+		for (StarSystem system : systems)
 		{
-			StarSystem system = (StarSystem) system1;
 			if (system.getDropZone() != null && (user.getAstiSystems().contains(system.getID()) || system.getID() == defaultDropZone))
 			{
 				result.add(system);
@@ -1001,7 +1020,7 @@ public class ErsteigernController extends Controller
 		erstelleMenue(t, factionObj);
 
 		t.setVar("show.message", redirect != null ? redirect.getMessage() : null);
-		t.setVar("show.general", 1, "global.faction.text", Common._text(factionObj.getText()));
+		t.setVar("show.general", 1, "global.faction.text", Common._text(bbCodeParser, factionObj.getText()));
 
 		return t;
 	}
@@ -1012,17 +1031,16 @@ public class ErsteigernController extends Controller
 	 * @param faction Die ID der anzuzeigenden Fraktion
 	 * @param sourcesystem Das Ausgangssystem
 	 * @param ganymedeid Die ID der zu transportierenden Ganymede
-	 * @param targetsystem Die ID des Zielsystems
+	 * @param targetSystem Die ID des Zielsystems
 	 * @param targetx Die Ziel-X-Koordinate
 	 * @param targety Die Ziel-Y-Koordinate
 	 * @param transport Sofert der Wert <code>1</code>, wird der Transportauftrag
 	 * bestaetigt und abgespeichert
 	 */
 	@Action(ActionType.DEFAULT)
-	public Object shopOrderGanymedeSummaryAction(User faction, int sourcesystem, int ganymedeid, int targetsystem, int targetx, int targety, int transport)
+	public Object shopOrderGanymedeSummaryAction(User faction, int sourcesystem, int ganymedeid, int targetSystem, int targetx, int targety, int transport)
 	{
 		User user = (User) getUser();
-		org.hibernate.Session db = getDB();
 
 		FraktionsGuiEintrag factionObj = ermittleFraktion(faction);
 
@@ -1037,18 +1055,17 @@ public class ErsteigernController extends Controller
 			return new RedirectViewResult("default");
 		}
 
-		FactionShopEntry shopentry = (FactionShopEntry) db
-				.createQuery("from FactionShopEntry where faction=:faction and type=2")
-				.setEntity("faction", factionObj.getUser())
+		FactionShopEntry shopEntry = em.createQuery("from FactionShopEntry where faction=:faction and type=2", FactionShopEntry.class)
+				.setParameter("faction", factionObj.getUser())
 				.setMaxResults(1)
-				.uniqueResult();
+				.getSingleResult();
 
-		if (shopentry == null)
+		if (shopEntry == null)
 		{
 			return new RedirectViewResult("default");
 		}
 
-		Ship gany = (Ship) db.get(Ship.class, ganymedeid);
+		Ship gany = em.find(Ship.class, ganymedeid);
 
 		if (gany == null ||
 				gany.getOwner().getId() != user.getId() ||
@@ -1062,12 +1079,11 @@ public class ErsteigernController extends Controller
 					.setParameter("ganymedeid", 0);
 		}
 
-		FactionShopOrder sameorder = (FactionShopOrder) db
-				.createQuery("from FactionShopOrder where user=:user and addData like :pattern and status < 4")
+		FactionShopOrder sameOrder = em.createQuery("from FactionShopOrder where user=:user and addData like :pattern and status < 4", FactionShopOrder.class)
 				.setParameter("user", user)
 				.setParameter("pattern", gany.getId() + "@%")
-				.uniqueResult();
-		if (sameorder != null)
+				.getSingleResult();
+		if (sameOrder != null)
 		{
 			addError("Es existiert bereits ein Transport-Auftrag für diese Ganymede.");
 			return new RedirectViewResult("shopOrderGanymede")
@@ -1075,8 +1091,8 @@ public class ErsteigernController extends Controller
 					.setParameter("ganymedeid", 0);
 		}
 
-		StarSystem system = (StarSystem) db.get(StarSystem.class, targetsystem);
-		if (system.isVisibleFor(user))
+		StarSystem system = em.find(StarSystem.class, targetSystem);
+		if (!system.isVisibleFor(user))
 		{
 			addError("Die angegebene Zielsystem konnte nicht lokalisiert werden.");
 
@@ -1096,13 +1112,12 @@ public class ErsteigernController extends Controller
 
 		// Weg finden und Preis ausrechnen
 		Map<Integer, List<JumpNode>> jumpnodes = new HashMap<>();
-		List<?> jnList = db.createQuery("from JumpNode where hidden=false and (systemOut!=:source or system=:source)")
-				.setInteger("source", sourcesystem)
-				.list();
+		List<JumpNode> jnList = em.createQuery("from JumpNode where hidden=false and (systemOut!=:source or system=:source)", JumpNode.class)
+				.setParameter("source", sourcesystem)
+				.getResultList();
 
-		for (Object obj : jnList)
+		for (JumpNode jn: jnList)
 		{
-			JumpNode jn = (JumpNode) obj;
 			if (!jumpnodes.containsKey(jn.getSystem()))
 			{
 				jumpnodes.put(jn.getSystem(), new ArrayList<>());
@@ -1115,7 +1130,7 @@ public class ErsteigernController extends Controller
 
 		long totalcost = 0;
 		JumpNodeRouter.Result shortestpath = new JumpNodeRouter(jumpnodes)
-				.locateShortestJNPath(sourcesystem, gany.getX(), gany.getY(), targetsystem, targetx, targety);
+				.locateShortestJNPath(sourcesystem, gany.getX(), gany.getY(), targetSystem, targetx, targety);
 		if (shortestpath == null)
 		{
 			transport = 0;
@@ -1124,11 +1139,10 @@ public class ErsteigernController extends Controller
 		else
 		{
 			Map<String, Long> costindex = new HashMap<>();
-			List<FactionShopEntry> entries = Common.cast(db
-					.createQuery("from FactionShopEntry where faction=:faction and type=:type")
+			List<FactionShopEntry> entries = em.createQuery("from FactionShopEntry where faction=:faction and type=:type", FactionShopEntry.class)
 					.setParameter("faction", factionObj.getUser())
 					.setParameter("type", FactionShopEntry.Type.TRANSPORT)
-					.list());
+					.getResultList();
 			for (FactionShopEntry entry : entries)
 			{
 				costindex.put(entry.getResource(), entry.getPrice());
@@ -1180,7 +1194,7 @@ public class ErsteigernController extends Controller
 					"source.system", sourcesystem,
 					"source.x", gany.getX(),
 					"source.y", gany.getY(),
-					"target.system", targetsystem,
+					"target.system", targetSystem,
 					"target.x", targetx,
 					"target.y", targety);
 		}
@@ -1200,9 +1214,9 @@ public class ErsteigernController extends Controller
 				waypoints.append(jn.getSystemOut()).append(":").append(jn.getXOut()).append("/").append(jn.getYOut()).append(" ");
 				waypoints.append("[ID: ").append(jn.getId()).append("]\n");
 			}
-			waypoints.append("Ziel: ").append(targetsystem).append(":").append(targetx).append("/").append(targety).append("\n");
+			waypoints.append("Ziel: ").append(targetSystem).append(":").append(targetx).append("/").append(targety).append("\n");
 
-			PM.send(user, factionObj.getUser().getId(), "[auto] Shop-Bestellung [Ganymede]",
+			pmService.send(user, factionObj.getUser().getId(), "[auto] Shop-Bestellung [Ganymede]",
 					"Besteller: [userprofile=" + user.getId() + "]" + user.getName() + " ("
 							+ user.getId() + ")[/userprofile]\nObjekt: " + gany.getName()
 							+ " (" + gany.getId() + ")\nPreis: " + Common.ln(totalcost)
@@ -1210,20 +1224,19 @@ public class ErsteigernController extends Controller
 							+ "\n\n[b][u]Pfad[/u][/b]:\n" + waypoints);
 
 			String adddataStr = gany.getId() + "@" + sourcesystem + ":" + gany.getX()
-					+ "/" + gany.getY() + "->" + targetsystem + ":" + targetx + "/" + targety;
+					+ "/" + gany.getY() + "->" + targetSystem + ":" + targetx + "/" + targety;
 
 
-			FactionShopOrder newOrder = new FactionShopOrder(shopentry, user);
+			FactionShopOrder newOrder = new FactionShopOrder(shopEntry, user);
 			newOrder.setPrice(totalcost);
 			newOrder.setAddData(adddataStr);
-			db.persist(newOrder);
+			em.persist(newOrder);
 
-			Taskmanager taskmanager = Taskmanager.getInstance();
-			taskmanager.addTask(Taskmanager.Types.GANY_TRANSPORT, 1, Integer.toString(newOrder.getId()), "", "");
+			taskManager.addTask(TaskManager.Types.GANY_TRANSPORT, 1, Integer.toString(newOrder.getId()), "", "");
 
 			String message = "Bestellung über 1 Ganymede-Transport des Objekts "
 					+ gany.getId() + " von " + sourcesystem + ":" + gany.getX() + "/"
-					+ gany.getY() + " nach " + targetsystem + ":" + targetx + "/" + targety
+					+ gany.getY() + " nach " + targetSystem + ":" + targetx + "/" + targety
 					+ " für " + Common.ln(totalcost)
 					+ " erhalten und vom System bestätigt.<br />Einen angenehmen Tag noch!";
 
@@ -1246,7 +1259,6 @@ public class ErsteigernController extends Controller
 	public Object shopOrderGanymedeAction(User faction, int sourcesystem, int ganymedeid, int targetsystem, int targetx, int targety)
 	{
 		User user = (User) getUser();
-		org.hibernate.Session db = getDB();
 
 		FraktionsGuiEintrag factionObj = ermittleFraktion(faction);
 
@@ -1261,11 +1273,10 @@ public class ErsteigernController extends Controller
 			return new RedirectViewResult("default");
 		}
 
-		FactionShopEntry entry = (FactionShopEntry) db
-				.createQuery("from FactionShopEntry where faction=:faction and type=2")
-				.setEntity("faction", factionObj.getUser())
+		FactionShopEntry entry = em.createQuery("from FactionShopEntry where faction=:faction and type=2", FactionShopEntry.class)
+				.setParameter("faction", factionObj.getUser())
 				.setMaxResults(1)
-				.uniqueResult();
+				.getSingleResult();
 
 		if (entry == null)
 		{
@@ -1295,12 +1306,11 @@ public class ErsteigernController extends Controller
 		// Liste aller bereits mit einem Transport-Auftrag ausgestatteten Ganys generieren
 		Set<Integer> blockedganylist = new HashSet<>();
 
-		List<FactionShopOrder> orderList = Common.cast(db
-				.createQuery("from FactionShopOrder fso " +
-						"where fso.user=:user and fso.status<4 and fso.shopEntry.type=:type")
-				.setEntity("user", user)
+		List<FactionShopOrder> orderList = em.createQuery("from FactionShopOrder fso " +
+						"where fso.user=:user and fso.status<4 and fso.shopEntry.type=:type", FactionShopOrder.class)
+				.setParameter("user", user)
 				.setParameter("type", FactionShopEntry.Type.TRANSPORT)
-				.list());
+				.getResultList();
 		for (FactionShopOrder order : orderList)
 		{
 			String[] tmp = StringUtils.split(order.getAddData(), "@");
@@ -1310,24 +1320,23 @@ public class ErsteigernController extends Controller
 		}
 
 		String blockedganysql = "";
-		if (blockedganylist.size() > 0)
+		if (!blockedganylist.isEmpty())
 		{
-			blockedganysql = "AND id not in (:ganylist)";
+			blockedganysql = "AND id not in :ganylist";
 		}
 
-		ShipType ganyType = (ShipType) db.get(ShipType.class, ShopGanyTransportEntry.SHIPTYPE_GANYMEDE);
+		ShipType ganyType = em.find(ShipType.class, ShopGanyTransportEntry.SHIPTYPE_GANYMEDE);
 
 		boolean first = true;
-		Query query = db
-				.createQuery("select distinct system from Ship where shiptype=:ganyType and owner=:user " + blockedganysql)
-				.setEntity("ganyType", ganyType)
-				.setEntity("user", user);
-		if (blockedganylist.size() > 0)
+		TypedQuery<Integer> query = em
+				.createQuery("select distinct system from Ship where shiptype=:ganyType and owner=:user " + blockedganysql, Integer.class)
+				.setParameter("ganyType", ganyType)
+				.setParameter("user", user);
+		if (!blockedganylist.isEmpty())
 		{
-			query.setParameterList("ganylist", blockedganylist);
+			query.setParameter("ganylist", blockedganylist);
 		}
-		List<Integer> ganySystems = Common.cast(query
-				.list());
+		List<Integer> ganySystems = query.getResultList();
 		for (Integer asystem : ganySystems)
 		{
 			if (sourcesystem == asystem)
@@ -1339,7 +1348,7 @@ public class ErsteigernController extends Controller
 			{
 				t.setVar("sourcesystem.selected", 0);
 			}
-			StarSystem system = (StarSystem) db.get(StarSystem.class, asystem);
+			StarSystem system = em.find(StarSystem.class, asystem);
 			t.setVar("sourcesystem.id", asystem, "sourcesystem.name", system.getName());
 
 			t.parse("ganytrans.sourcesystem.list", "ganytrans.sourcesystem.listitem", true);
@@ -1356,12 +1365,11 @@ public class ErsteigernController extends Controller
 
 		// Moegliche Ganymedes ausgeben
 		first = true;
-		List<Ship> ships = Common.cast(db
-				.createQuery("from Ship where shiptype=:ganyType and owner=:user and system=:sys order by x+y")
-				.setEntity("ganyType", ganyType)
-				.setEntity("user", user)
-				.setInteger("sys", sourcesystem)
-				.list());
+		List<Ship> ships = em.createQuery("from Ship where shiptype=:ganyType and owner=:user and system=:sys order by x+y", Ship.class)
+				.setParameter("ganyType", ganyType)
+				.setParameter("user", user)
+				.setParameter("sys", sourcesystem)
+				.getResultList();
 		for (Ship agany : ships)
 		{
 			if (blockedganylist.contains(agany.getId()))
@@ -1384,7 +1392,7 @@ public class ErsteigernController extends Controller
 			t.parse("ganytrans.ganymedes.list", "ganytrans.ganymedes.listitem", true);
 		}
 
-		List<StarSystem> systems = Common.cast(db.createQuery("from StarSystem").list());
+		List<StarSystem> systems = em.createQuery("from StarSystem", StarSystem.class).getResultList();
 
 		// Zielsysteme ausgeben
 		first = true;
@@ -1426,7 +1434,6 @@ public class ErsteigernController extends Controller
 	@Action(ActionType.DEFAULT)
 	public Object shopOrderAction(User faction, FactionShopEntry shopentry, int ordercount, int ordersys, int orderx, int ordery)
 	{
-		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 
 		FraktionsGuiEintrag factionObj = ermittleFraktion(faction);
@@ -1472,7 +1479,8 @@ public class ErsteigernController extends Controller
 
 		if (shopentry.getType() == FactionShopEntry.Type.SHIP)
 		{ // Schiff
-			entry = new ShopShipEntry(shopentry);
+			int typeId = Integer.parseInt(shopentry.getResource());
+			entry = new ShopShipEntry(shipService.getShipType(typeId), shopentry);
 		}
 		else if (shopentry.getType() == FactionShopEntry.Type.ITEM)
 		{ // Cargo
@@ -1515,7 +1523,7 @@ public class ErsteigernController extends Controller
 			order.setLpKosten(ordercount * entry.getLpKosten());
 			order.setAddData(ordersys + ":" + orderx + "/" + ordery);
 
-			db.persist(order);
+			em.persist(order);
 
 			String bestellId = "#" + entry.getType() + entry.getResource() + "XX";
 
@@ -1523,7 +1531,7 @@ public class ErsteigernController extends Controller
 			{
 				Loyalitaetspunkte lp = new Loyalitaetspunkte(user, factionUser, "Bestellung " + bestellId, (int) (-ordercount * entry.getLpKosten()));
 				user.getLoyalitaetspunkte().add(lp);
-				db.persist(lp);
+				em.persist(lp);
 			}
 
 			if (entry.getPrice() > 0)
@@ -1533,7 +1541,7 @@ public class ErsteigernController extends Controller
 								+ ordercount);
 			}
 
-			PM.send(user, factionObj.getUser().getId(), "[auto] Shop-Bestellung", "Besteller: [userprofile="
+			pmService.send(user, factionObj.getUser().getId(), "[auto] Shop-Bestellung", "Besteller: [userprofile="
 					+ user.getId() + "]" + user.getName() + " (" + user.getId()
 					+ ")[/userprofile]\nObjekt: " + entry.getName() + "\nMenge: " + ordercount
 					+ "\nLieferkoordinaten: " + ordersys + ":" + orderx + "/" + ordery
@@ -1564,7 +1572,6 @@ public class ErsteigernController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult shopEntryCreate(User faction, String entryType, String entryTypeId, int entryCost, int entryLpKosten)
 	{
-		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 
 		FraktionsGuiEintrag factionObj = ermittleFraktion(faction);
@@ -1585,7 +1592,7 @@ public class ErsteigernController extends Controller
 					{
 						return new RedirectViewResult("shop").withMessage("<span style=\"color:red\">Format ungültig.</span>");
 					}
-					ShipType st = (ShipType) db.get(ShipType.class, Integer.parseInt(entryTypeId));
+					ShipType st = em.find(ShipType.class, Integer.parseInt(entryTypeId));
 					if (st == null)
 					{
 						return new RedirectViewResult("shop").withMessage("<span style=\"color:red\">Kein bekannter Schiffstyp.</span>");
@@ -1612,7 +1619,7 @@ public class ErsteigernController extends Controller
 			entry.setPrice(entryCost);
 			entry.setLpKosten(entryLpKosten);
 
-			db.persist(entry);
+			em.persist(entry);
 		}
 
 		return new RedirectViewResult("shop");
@@ -1632,7 +1639,6 @@ public class ErsteigernController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult shopChangeEntryAction(User faction, String operation, FactionShopEntry shopentry, int availability, int entryRang, long entryPrice, long entryLpKosten)
 	{
-		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 
 		FraktionsGuiEintrag factionObj = ermittleFraktion(faction);
@@ -1658,7 +1664,7 @@ public class ErsteigernController extends Controller
 					return new RedirectViewResult("shop");
 				}
 
-				db.delete(shopentry);
+				em.remove(shopentry);
 
 				return new RedirectViewResult("shop").withMessage("Eintrag gelöscht.");
 			}
@@ -1755,7 +1761,7 @@ public class ErsteigernController extends Controller
 	private static final int ITEM_BBS = 182;
 
 	/**
-	 * Zeigt die GUI für den Asti-Asubau an.
+	 * Zeigt die GUI für den Asti-Ausbau an.
 	 *
 	 * @param faction Die ID der anzuzeigenden Fraktion
 	 * @param base Die ID des auszubauenden Asteroiden
@@ -1773,7 +1779,6 @@ public class ErsteigernController extends Controller
 										   String order,
 										   RedirectViewResult redirect)
 	{
-		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 
 		FraktionsGuiEintrag factionObj = ermittleFraktion(faction);
@@ -1814,9 +1819,9 @@ public class ErsteigernController extends Controller
 
 			// Alle Werte wurden übergeben, nur noch testen ob sie akzeptabel sind
 			// Für jeden Asti darf maximal ein Auftrag in der DB sein
-			UpgradeJob auftrag = (UpgradeJob) db.createQuery("from UpgradeJob where base=:base")
+			UpgradeJob auftrag = em.createQuery("from UpgradeJob where base=:base", UpgradeJob.class)
 					.setParameter("base", base)
-					.uniqueResult();
+					.getSingleResult();
 
 			if (auftrag != null)
 			{
@@ -1852,18 +1857,17 @@ public class ErsteigernController extends Controller
 			}
 
 			// Den Besitzer des Colonizers ändern
-			if (colonizer.consign(factionUser, false))
+			if (consignService.consign(colonizer, factionUser, false))
 			{
 				addError("Das Kolonieschiff konnte nicht übergeben werden.");
 				return new RedirectViewResult("default");
 			}
 
 			// Auftrag speichern
-			db.persist(auftrag);
+			em.persist(auftrag);
 
 			// Erstelle einen neuen Task für den Auftrag
-			Taskmanager taskmanager = Taskmanager.getInstance();
-			taskmanager.addTask(Taskmanager.Types.UPGRADE_JOB, 1,
+			taskManager.addTask(TaskManager.Types.UPGRADE_JOB, 1,
 					Integer.toString(auftrag.getId()), "0", Integer.toString(factionObj.getUser().getId()));
 
 			return new RedirectViewResult("default").withMessage("Ihr Auftrag wurde an den zuständigen Sachbearbeiter weitergeleitet. Die Baumaßnahmen werden in kürze beginnen.");
@@ -1921,21 +1925,20 @@ public class ErsteigernController extends Controller
 				ITEM_BBS)), "bbs.image", Cargo.getResourceImage(new ItemID(ITEM_BBS)));
 
 		// Hole die Colos des ausgewaehlten Astis
-		List<Ship> colonizers = Common.cast(db
-				.createQuery(
+		List<Ship> colonizers = em.createQuery(
 						"from Ship where shiptype.flags like :colonizer and "
-								+ "owner=:user and system=:baseSystem and x=:baseX AND y=:baseY order by id")
-				.setString("colonizer", ShipTypeFlag.COLONIZER.getFlag())
+								+ "owner=:user and system=:baseSystem and x=:baseX AND y=:baseY order by id", Ship.class)
+				.setParameter("colonizer", ShipTypeFlag.COLONIZER.getFlag())
 				.setParameter("user", user)
-				.setInteger("baseSystem", selectedBase.getSystem())
-				.setInteger("baseX", selectedBase.getX())
-				.setInteger("baseY", selectedBase.getY())
-				.list());
+				.setParameter("baseSystem", selectedBase.getSystem())
+				.setParameter("baseX", selectedBase.getX())
+				.setParameter("baseY", selectedBase.getY())
+				.getResultList();
 
 		User factionUser = factionObj.getUser();
 		for (Ship acolonizer : colonizers)
 		{
-			if (acolonizer.consign(factionUser, true))
+			if (consignService.consign(acolonizer, factionUser, true))
 			{
 				continue;
 			}
@@ -1946,7 +1949,7 @@ public class ErsteigernController extends Controller
 
 		// Setze die ausbau-mods, finde heraus welche bereits angewendet wurden und Typ des Astis
         for(UpgradeType upgradeType : UpgradeType.values()) {
-			List<UpgradeInfo> possibleMods = selectedBase.getKlasse().getUpgradeInfos().stream().filter(u -> u.getUpgradeType() == upgradeType).sorted().collect(Collectors.toList());
+			List<UpgradeInfo> possibleMods = selectedBase.getKlasse().getUpgradeInfos().stream().filter(u -> u.getUpgradeType() == upgradeType).sorted().collect(toList());
 			if (possibleMods.isEmpty())
 			{
 				continue;
@@ -1986,7 +1989,6 @@ public class ErsteigernController extends Controller
 	@Action(ActionType.DEFAULT)
 	public Object shopAction(User faction, RedirectViewResult redirect)
 	{
-		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 
 		FraktionsGuiEintrag factionObj = ermittleFraktion(faction);
@@ -2009,19 +2011,19 @@ public class ErsteigernController extends Controller
 
 		if (factionObj.getUser() != user)
 		{
-			eigeneBestellungenImShopAnzeigen(db, user, factionObj, t);
+			eigeneBestellungenImShopAnzeigen(user, factionObj, t);
 		}
 		else
 		{
-			alleBestellungenImShopAnzeigen(db, factionObj, t);
+			alleBestellungenImShopAnzeigen(factionObj, t);
 		}
 
 		// Zuerst alle Ganymed-Transportdaten auslesen
 
-		List<?> ganyEntryList = db.createQuery(
-				"from FactionShopEntry where faction= :faction and type=2")
-				.setEntity("faction", factionObj.getUser())
-				.list();
+		List<FactionShopEntry> ganyEntryList = em.createQuery(
+				"from FactionShopEntry where faction= :faction and type=2", FactionShopEntry.class)
+				.setParameter("faction", factionObj.getUser())
+				.getResultList();
 
 		FactionShopEntry[] ganytransport = new FactionShopEntry[ganyEntryList.size()];
 		int i = 0;
@@ -2053,9 +2055,10 @@ public class ErsteigernController extends Controller
 		}
 
 		// Nun den normalen Shop ausgeben
-		List<?> shopentryList = db.createQuery(
-				"from FactionShopEntry where faction = :faction and type!=2 order by minRank asc, price asc")
-				.setEntity("faction", factionObj.getUser()).list();
+		List<FactionShopEntry> shopentryList = em.createQuery(
+				"from FactionShopEntry where faction = :faction and type!=2 order by minRank asc, price asc", FactionShopEntry.class)
+			.setParameter("faction", factionObj.getUser())
+			.getResultList();
 		for (Object aShopentryList : shopentryList)
 		{
 			FactionShopEntry shopentry = (FactionShopEntry) aShopentryList;
@@ -2063,7 +2066,8 @@ public class ErsteigernController extends Controller
 			ShopEntry shopEntryObj = null;
 			if (shopentry.getType() == FactionShopEntry.Type.SHIP)
 			{
-				shopEntryObj = new ShopShipEntry(shopentry);
+				int typeId = Integer.parseInt(shopentry.getResource());
+				shopEntryObj = new ShopShipEntry(shipService.getShipType(typeId), shopentry);
 			}
 			else if (shopentry.getType() == FactionShopEntry.Type.ITEM)
 			{
@@ -2081,7 +2085,7 @@ public class ErsteigernController extends Controller
 					"entry.price", shopEntryObj.getPriceAsText(),
 					"entry.lpkosten", shopEntryObj.getLpKosten() > 0 ? Common.ln(shopEntryObj.getLpKosten()) : "",
 					"entry.showamountinput", shopEntryObj.showAmountInput(),
-					"entry.npcrang", factionUser.getOwnGrantableRank(shopentry.getMinRank()),
+					"entry.npcrang", userService.getOwnGrantableRank(factionUser, shopentry.getMinRank()),
 					"entry.orderable", handelErlaubt && shopentry.canBuy(user));
 
 			t.parse("shop.list", "shop.listitem", true);
@@ -2089,19 +2093,18 @@ public class ErsteigernController extends Controller
 		return t;
 	}
 
-	private void alleBestellungenImShopAnzeigen(Session db, FraktionsGuiEintrag factionObj, TemplateEngine t)
+	private void alleBestellungenImShopAnzeigen(FraktionsGuiEintrag factionObj, TemplateEngine t)
 	{
 		t.setVar("shop.owner", 1);
 
-		List<?> orderentryList = db
-				.createQuery(
+		List<FactionShopOrder> orderentryList = em.createQuery(
 						"from FactionShopOrder as fso "
 								+ "where fso.shopEntry.faction = :faction and fso.status < 4 "
-								+ "order by case when fso.status=0 then fso.status else fso.date end asc")
-				.setInteger("faction", factionObj.getUser().getId()).list();
-		for (Object anOrderentryList : orderentryList)
+								+ "order by case when fso.status=0 then fso.status else fso.date end asc", FactionShopOrder.class)
+			.setParameter("faction", factionObj.getUser().getId())
+			.getResultList();
+		for (FactionShopOrder order: orderentryList)
 		{
-			FactionShopOrder order = (FactionShopOrder) anOrderentryList;
 
 			FactionShopEntry shopentry = order.getShopEntry();
 			ShopEntry shopEntryObj = null;
@@ -2109,7 +2112,8 @@ public class ErsteigernController extends Controller
 			String entryadddata = "";
 			if (shopentry.getType() == FactionShopEntry.Type.SHIP)
 			{ // Schiff
-				shopEntryObj = new ShopShipEntry(shopentry);
+				int typeId = Integer.parseInt(shopentry.getResource());
+				shopEntryObj = new ShopShipEntry(shipService.getShipType(typeId), shopentry);
 
 				entryadddata = "LK: " + order.getAddData();
 			}
@@ -2134,7 +2138,7 @@ public class ErsteigernController extends Controller
 			t.setVar("orderentry.name", shopEntryObj.getName(),
 					"orderentry.adddata", entryadddata,
 					"orderentry.owner", order.getUser().getId(),
-					"orderentry.owner.name", Common._title(ownerobj.getName()),
+					"orderentry.owner.name", Common._title(bbCodeParser, ownerobj.getName()),
 					"orderentry.link", shopEntryObj.getLink(),
 					"orderentry.id", order.getId(),
 					"orderentry.price", Common.ln(order.getPrice()),
@@ -2148,26 +2152,24 @@ public class ErsteigernController extends Controller
 		}
 	}
 
-	private void eigeneBestellungenImShopAnzeigen(Session db, User user, FraktionsGuiEintrag factionObj, TemplateEngine t)
+	private void eigeneBestellungenImShopAnzeigen(User user, FraktionsGuiEintrag factionObj, TemplateEngine t)
 	{
-		List<?> orderentryList = db
-				.createQuery(
+		List<FactionShopOrder> orderentryList = em.createQuery(
 						"from FactionShopOrder as fso "
-								+ "where fso.shopEntry.faction= :faction and fso.user= :user and fso.status<4")
-				.setEntity("faction", factionObj.getUser())
-				.setEntity("user", user)
-				.list();
-		for (Object anOrderentryList : orderentryList)
+								+ "where fso.shopEntry.faction= :faction and fso.user= :user and fso.status<4", FactionShopOrder.class)
+				.setParameter("faction", factionObj.getUser())
+				.setParameter("user", user)
+				.getResultList();
+		for (FactionShopOrder order : orderentryList)
 		{
-			FactionShopOrder order = (FactionShopOrder) anOrderentryList;
-
 			FactionShopEntry shopentry = order.getShopEntry();
 			ShopEntry shopEntryObj;
 
 			String entryadddata = "";
 			if (shopentry.getType() == FactionShopEntry.Type.SHIP)
 			{ // Schiff
-				shopEntryObj = new ShopShipEntry(shopentry);
+				int typeId = Integer.parseInt(shopentry.getResource());
+				shopEntryObj = new ShopShipEntry(shipService.getShipType(typeId), shopentry);
 			}
 			else if (shopentry.getType() == FactionShopEntry.Type.ITEM)
 			{ // Cargo
@@ -2179,7 +2181,7 @@ public class ErsteigernController extends Controller
 
 				String[] tmp = StringUtils.split(order.getAddData(), "@");
 
-				Ship gany = (Ship) db.get(Ship.class, Integer.parseInt(tmp[0]));
+				Ship gany = em.find(Ship.class, Integer.parseInt(tmp[0]));
 				if (gany != null)
 				{
 					String ganyname = Common._plaintitle(gany.getName());
@@ -2241,7 +2243,6 @@ public class ErsteigernController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult aktionsMeldungErstellenAction(User faction, String meldungstext)
 	{
-		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 
 		FraktionsGuiEintrag factionObj = ermittleFraktion(faction);
@@ -2261,9 +2262,9 @@ public class ErsteigernController extends Controller
 
 		FraktionAktionsMeldung meldung = new FraktionAktionsMeldung(user, factionUser);
 		meldung.setMeldungstext(meldungstext);
-		db.persist(meldung);
+		em.persist(meldung);
 
-        PM.send(user, factionUser.getId(), "LP Meldung", "Es ist eine neue Meldung zum Erhalt von Loyalitätspunkten eingegangen.");
+		pmService.send(user, factionUser.getId(), "LP Meldung", "Es ist eine neue Meldung zum Erhalt von Loyalitätspunkten eingegangen.");
 
 		return new RedirectViewResult("aktionMelden").withMessage("Die Aktionsmeldung wurde der Fraktion erfolgreich übermittelt.");
 	}

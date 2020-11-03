@@ -26,12 +26,14 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
 
 /**
  * Aktualisierungstool fuer die Maximalwerte der Asteroiden Ausbauten.
  *
  */
 @AdminMenuEntry(category = "Basis-Ausbau", name = "Maximalwerte", permission = WellKnownAdminPermission.EDIT_DI)
+@Component
 public class EditUpgradeMaxValue implements EntityEditor<UpgradeMaxValues>
 {
     @Override

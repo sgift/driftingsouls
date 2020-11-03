@@ -24,6 +24,8 @@ import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.battles.BattleShipFlag;
 import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.services.BattleService;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.List;
@@ -33,12 +35,11 @@ import java.util.List;
  * @author Christopher Jung
  *
  */
+@Component
 public class KSSecondRowEngageAction extends BasicKSAction {
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public KSSecondRowEngageAction() {
+
+	public KSSecondRowEngageAction(BattleService battleService) {
+		super(battleService, null);
 	}
 	
 	@Override
@@ -58,7 +59,7 @@ public class KSSecondRowEngageAction extends BasicKSAction {
 		}
 		
 		if( this.validate(battle) != Result.OK ) {
-			battle.logme("Die Aktion kann nicht ausgef&uuml;hrt werden");
+			getBattleService().logme(battle, "Die Aktion kann nicht ausgef&uuml;hrt werden");
 			return Result.ERROR;
 		}
 
@@ -68,8 +69,8 @@ public class KSSecondRowEngageAction extends BasicKSAction {
 			eShip.removeFlag(BattleShipFlag.SECONDROW);
 		}
 		
-		battle.logme( "Ihre Schiffe r&uuml;cken vor und durchbrechen die feindlichen Linien\n");
-		battle.log(new SchlachtLogAktion(battle.getOwnSide(), "Die feindlichen Schiffe r&uuml;cken vor und durchbrechen trotz heftigen Widerstands die Linien"));
+		getBattleService().logme(battle,  "Ihre Schiffe r&uuml;cken vor und durchbrechen die feindlichen Linien\n");
+		getBattleService().log(battle, new SchlachtLogAktion(battle.getOwnSide(), "Die feindlichen Schiffe r&uuml;cken vor und durchbrechen trotz heftigen Widerstands die Linien"));
 
 		if( battle.getOwnSide() == 0 ) {
 			battle.setFlag(BattleFlag.BLOCK_SECONDROW_1, true);

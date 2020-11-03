@@ -8,8 +8,10 @@ import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.User.Relation;
-import net.driftingsouls.ds2.server.entities.User.Relations;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
+import net.driftingsouls.ds2.server.services.BaseService;
+import net.driftingsouls.ds2.server.services.ShipService;
+import net.driftingsouls.ds2.server.services.UserService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 
@@ -17,6 +19,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -34,25 +37,26 @@ public class PlayerStarmap extends PublicStarmap
 	private final Set<Location> sektorenMitRotemAlarm;
 	private final Set<Location> bekannteOrte;
 	private final User user;
-	private final Relations relations;
+	private final UserService userService;
+	private final UserService.Relations relations;
+	private final BaseService baseService;
+	private final ShipService shipService;
 
 	/**
 	 * Legt eine neue Sicht an.
-	 *
 	 * @param user Der Spieler fuer den die Sicht gelten soll.
-	 * @param system Die ID des zu Grunde liegenden Sternensystems.
 	 * @param ausschnitt Der gewaehlte Ausschnitt <code>[x, y, w, h]</code> oder <code>null</code>, falls kein Ausschnitt verwendet werden soll
+	 * @param system Die ID des zu Grunde liegenden Sternensystems.
+	 * @param shipService
 	 */
-	public PlayerStarmap(User user, StarSystem system, int[] ausschnitt)
+	public PlayerStarmap(User user, UserService userService, BaseService baseService, int[] ausschnitt, StarSystem system, ShipService shipService)
 	{
 		super(system, ausschnitt);
 
-		this.user = user;
-		if(this.user == null)
-		{
-			throw new IllegalArgumentException("User may not be null.");
-		}
-		this.relations = user.getRelations();
+		this.user = Objects.requireNonNull(user);
+		this.userService = userService;
+		this.shipService = shipService;
+		this.relations = userService.getRelations(user);
 
 		this.scannableLocations = new HashMap<>();
 		this.sektorenMitBefreundetenSchiffen = new HashSet<>();
@@ -60,6 +64,7 @@ public class PlayerStarmap extends PublicStarmap
 
 		this.bekannteOrte = findeBekannteOrte(user);
 		this.sektorenMitRotemAlarm = findeSektorenMitRotemAlarm(user);
+		this.baseService = baseService;
 	}
 
 	private Set<Location> findeSektorenMitRotemAlarm(User user)
@@ -77,7 +82,7 @@ public class PlayerStarmap extends PublicStarmap
 			}
 		}
 
-		return Ship.getAlertStatus(user, zuPruefendeSektoren.toArray(new Location[0]));
+		return userService.getAlertStatus(user, zuPruefendeSektoren.toArray(new Location[0]));
 	}
 
 	private Set<Location> findeBekannteOrte(User user)
@@ -144,7 +149,7 @@ public class PlayerStarmap extends PublicStarmap
 						(user.getAlly() != null && user.getAlly().getShowAstis() && user.getAlly().equals(base.getOwner().getAlly())) ||
 						relations.isOnly(base.getOwner(), Relation.FRIEND) )
 				{
-					String img = base.getOverlayImage(location, user, isScannbar(location));
+					String img = baseService.getOverlayImage(base, location, user, isScannbar(location));
 					if( img != null ) {
 						return new SectorImage(img, 0, 0);
 					}
@@ -236,7 +241,7 @@ public class PlayerStarmap extends PublicStarmap
 
 						if( scannable && ship.isDocked() )
 						{
-							Ship mship = ship.getBaseShip();
+							Ship mship = shipService.getBaseShip(ship);
 							if( mship.getTypeData().hasFlag(ShipTypeFlag.SEHR_KLEIN))
 							{
 								scannable = false;

@@ -29,17 +29,18 @@ import net.driftingsouls.ds2.server.entities.Rasse;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ViewModel;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.modules.viewmodels.ResourceEntryViewModel;
-import org.hibernate.Session;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +54,17 @@ import java.util.Map;
 @Module(name="techliste")
 public class TechListeController extends Controller
 {
+	@PersistenceContext
+	private EntityManager em;
+
+	private final Rassen races;
+	private final BBCodeParser bbCodeParser;
+
+	public TechListeController(Rassen races, BBCodeParser bbCodeParser) {
+		this.races = races;
+		this.bbCodeParser = bbCodeParser;
+	}
+
 	@ViewModel
 	public static class RasseViewModel
 	{
@@ -94,24 +106,23 @@ public class TechListeController extends Controller
 	@Action(ActionType.AJAX)
 	public TechListeViewModel defaultAction(int rasse)
 	{
-		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
 
 		if( rasse == 0 )
 		{
 			rasse = user.getRace();
 		}
-		else if( Rassen.get().rasse(rasse) == null )
+		else if( races.rasse(rasse) == null )
 		{
 			rasse = user.getRace();
 		}
-		else if( !Rassen.get().rasse(rasse).isExtPlayable() && !Rassen.get().rasse(rasse).isPlayable() )
+		else if( !races.rasse(rasse).isExtPlayable() && !races.rasse(rasse).isPlayable() )
 		{
 			rasse = user.getRace();
 		}
 
 		TechListeViewModel viewModel = new TechListeViewModel();
-		for( Rasse aRasse : Rassen.get() ) {
+		for( Rasse aRasse : races ) {
 			if( aRasse.isExtPlayable() || aRasse.isPlayable() )
 			{
 				RasseViewModel rasseViewModel = new RasseViewModel();
@@ -121,7 +132,7 @@ public class TechListeController extends Controller
 			}
 		}
 
-		viewModel.rassenName = Rassen.get().rasse(rasse).getName();
+		viewModel.rassenName = races.rasse(rasse).getName();
 
 		Map<Integer,Forschung> researched = new LinkedHashMap<>();
 		Map<Integer,Forschung> researchable = new LinkedHashMap<>();
@@ -129,9 +140,9 @@ public class TechListeController extends Controller
 		Map<Integer,Forschung> invisible = new LinkedHashMap<>();
 
 		//Alle Forschungen durchgehen
-		gruppiereForschungenNachStatus(rasse, db, user, researched, researchable, notResearchable, invisible);
+		gruppiereForschungenNachStatus(rasse, user, researched, researchable, notResearchable, invisible);
 
-		Map<Integer, Integer> currentResearches = ermittleLaufendeForschungen(db, user);
+		Map<Integer, Integer> currentResearches = ermittleLaufendeForschungen(user);
 
 		viewModel.erforscht = gruppeVonForschungenAnzeigen(currentResearches, "researched", researched.values());
 		viewModel.erforschbar = gruppeVonForschungenAnzeigen(currentResearches, "researchable", researchable.values());
@@ -144,7 +155,7 @@ public class TechListeController extends Controller
 	private List<ForschungViewModel> gruppeVonForschungenAnzeigen(Map<Integer, Integer> currentResearches, String gruppenname, Collection<Forschung> forschungsliste)
 	{
 		List<ForschungViewModel> result = new ArrayList<>();
-		if( forschungsliste.size() == 0 ) {
+		if(forschungsliste.isEmpty()) {
 			return result;
 		}
 
@@ -153,7 +164,7 @@ public class TechListeController extends Controller
 
 			viewModel.id = forschung.getID();
 			viewModel.image = forschung.getImage();
-			viewModel.name = Common._title(forschung.getName());
+			viewModel.name = Common._title(bbCodeParser, forschung.getName());
 			viewModel.dauer = forschung.getTime();
 			viewModel.verbleibendeDauer = currentResearches.get(forschung.getID());
 			viewModel.spezialisierungspunkte = forschung.getSpecializationCosts();
@@ -188,45 +199,43 @@ public class TechListeController extends Controller
 		return result;
 	}
 
-	private Map<Integer, Integer> ermittleLaufendeForschungen(Session db, User user)
+	private Map<Integer, Integer> ermittleLaufendeForschungen(User user)
 	{
 		Map<Integer,Integer> currentResearches = new HashMap<>();
-		List<?> resList = db.createQuery("from Forschungszentrum where forschung is not null and base.owner=:owner")
-			.setEntity("owner", user)
-			.list();
-		for (Object aResList : resList)
+		List<Forschungszentrum> resList = em.createQuery("from Forschungszentrum where forschung is not null and base.owner=:owner", Forschungszentrum.class)
+			.setParameter("owner", user)
+			.getResultList();
+		for (Forschungszentrum fz: resList)
 		{
-			Forschungszentrum fz = (Forschungszentrum) aResList;
 			currentResearches.put(fz.getForschung().getID(), fz.getDauer());
 		}
 		return currentResearches;
 	}
 
-	private void gruppiereForschungenNachStatus(int rasse, Session db, User user, Map<Integer, Forschung> researched, Map<Integer, Forschung> researchable, Map<Integer, Forschung> notResearchable, Map<Integer, Forschung> invisible)
+	private void gruppiereForschungenNachStatus(int rasse, User user, Map<Integer, Forschung> researched, Map<Integer, Forschung> researchable, Map<Integer, Forschung> notResearchable, Map<Integer, Forschung> invisible)
 	{
-		final Iterator<?> forschungIter = db.createQuery("from Forschung order by name")
-			.iterate();
-		while( forschungIter.hasNext() ) {
-			Forschung f = (Forschung)forschungIter.next();
+		List<Forschung> researchList = em.createQuery("from Forschung order by name", Forschung.class)
+			.getResultList();
+		for(Forschung research: researchList) {
 
-			if( !Rassen.get().rasse(rasse).isMemberIn(f.getRace()) ) {
+			if( !races.rasse(rasse).isMemberIn(research.getRace()) ) {
 				continue;
 			}
 
 			// Status der Forschung (erforscht/verfuegbar/nicht verfuegbar) ermitteln
-			if( f.isVisibile(user) && user.hasResearched(f) ) {
-				researched.put(f.getID(), f);
+			if( research.isVisibile(user) && user.hasResearched(research) ) {
+				researched.put(research.getID(), research);
 			}
-			else if( f.isVisibile(user) && user.hasResearched(f.getBenoetigteForschungen()) ) {
-				researchable.put(f.getID(), f);
+			else if( research.isVisibile(user) && user.hasResearched(research.getBenoetigteForschungen()) ) {
+				researchable.put(research.getID(), research);
 			}
-			else if( !f.isVisibile(user) ) {
+			else if( !research.isVisibile(user) ) {
 				if( hasPermission(WellKnownPermission.FORSCHUNG_ALLES_SICHTBAR) ) {
-					invisible.put(f.getID(), f);
+					invisible.put(research.getID(), research);
 				}
 			}
 			else {
-				notResearchable.put(f.getID(), f);
+				notResearchable.put(research.getID(), research);
 			}
 		}
 	}

@@ -22,6 +22,7 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.services.HandelspostenService;
 import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
@@ -29,6 +30,8 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.ships.Ship;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,13 +44,14 @@ import java.util.List;
 @Module(name = "impobjects")
 public class ImpObjectsController extends Controller
 {
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public ImpObjectsController()
+	@PersistenceContext
+	private EntityManager em;
+
+	private final HandelspostenService tradingPostService;
+
+	public ImpObjectsController(HandelspostenService tradingPostService)
 	{
-		super();
+		this.tradingPostService = tradingPostService;
 	}
 
 	@ViewModel
@@ -95,13 +99,12 @@ public class ImpObjectsController extends Controller
 	@Action(ActionType.AJAX)
 	public JsonViewModel jsonAction(StarSystem system)
 	{
-		org.hibernate.Session db = getDB();
 		JsonViewModel json = new JsonViewModel();
 		User user = (User) getUser();
 
 		if (system == null)
 		{
-			system = (StarSystem) db.get(StarSystem.class, 1);
+			system = em.find(StarSystem.class, 1);
 		}
 
 		json.system = new JsonViewModel.SystemViewModel();
@@ -114,14 +117,13 @@ public class ImpObjectsController extends Controller
 				Sprungpunkte
 			*/
 
-			List<?> jnList = db.createQuery("from JumpNode where system=:sys and hidden=false")
-					.setInteger("sys", system.getID())
-					.list();
-			for (Object aJnList : jnList)
+			List<JumpNode> jnList = em.createQuery("from JumpNode where system=:sys and hidden=false", JumpNode.class)
+					.setParameter("sys", system.getID())
+					.getResultList();
+			for (JumpNode node: jnList)
 			{
-				JumpNode node = (JumpNode) aJnList;
 
-				StarSystem systemout = (StarSystem) db.get(StarSystem.class, node.getSystemOut());
+				StarSystem systemout = em.find(StarSystem.class, node.getSystemOut());
 
 				JsonViewModel.JumpNodeViewModel jn = new JsonViewModel.JumpNodeViewModel();
 				jn.x = node.getX();
@@ -137,23 +139,22 @@ public class ImpObjectsController extends Controller
 				Handelsposten
 			*/
 
-			List<?> postenList = db.createQuery("select s from Ship s join s.shiptype st left join s.modules sm " +
-					"where s.id>0 and s.system=:sys and (locate('tradepost',s.status)!=0 or locate('tradepost', coalesce(sm.flags, st.flags))!=0)")
-					.setInteger("sys", system.getID())
-					.list();
-			for (Object aPostenList : postenList)
+			List<Ship> tradingPosts = em.createQuery("select s from Ship s join s.shiptype st left join s.modules sm " +
+					"where s.id>0 and s.system=:sys and (locate('tradepost',s.status)!=0 or locate('tradepost', coalesce(sm.flags, st.flags))!=0)", Ship.class)
+					.setParameter("sys", system.getID())
+					.getResultList();
+			for (Ship tradingPost: tradingPosts)
 			{
-				Ship posten = (Ship) aPostenList;
 
-				if (!posten.isTradepostVisible(user, user.getRelations()))
+				if (!tradingPostService.isTradepostVisible(tradingPost, user))
 				{
 					continue;
 				}
 
 				JsonViewModel.HandelspostenViewModel postenObj = new JsonViewModel.HandelspostenViewModel();
-				postenObj.x = posten.getX();
-				postenObj.y = posten.getY();
-				postenObj.name = posten.getName();
+				postenObj.x = tradingPost.getX();
+				postenObj.y = tradingPost.getY();
+				postenObj.name = tradingPost.getName();
 
 				json.posten.add(postenObj);
 			}
@@ -162,14 +163,12 @@ public class ImpObjectsController extends Controller
 		/*
 			Basen
 		*/
-		List<?> baseList = db.createQuery("from Base where owner=:owner and system=:sys")
-				.setEntity("owner", getUser())
-				.setInteger("sys", system.getID())
-				.list();
-		for (Object aBaseList : baseList)
+		List<Base> bases = em.createQuery("from Base where owner=:owner and system=:sys", Base.class)
+				.setParameter("owner", getUser())
+				.setParameter("sys", system.getID())
+				.getResultList();
+		for (Base base: bases)
 		{
-			Base base = (Base) aBaseList;
-
 			JsonViewModel.BasisViewModel baseObj = new JsonViewModel.BasisViewModel();
 			baseObj.x = base.getX();
 			baseObj.y = base.getY();

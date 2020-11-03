@@ -20,13 +20,20 @@ package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.authentication.JavaSession;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.services.BattleService;
+import net.driftingsouls.ds2.server.services.ShipService;
+import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
+import org.springframework.stereotype.Component;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,21 +41,32 @@ import java.util.Map;
  * Zeigt das Menue fuer die verschiedenen Undockaktionen.
  *
  */
+@Component
 public class KSMenuUndockAction extends BasicKSMenuAction {
+    @PersistenceContext
+    private EntityManager em;
+
+    private final ShipService shipService;
+
+    public KSMenuUndockAction(BattleService battleService, JavaSession javaSession, ShipService shipService) {
+        super(battleService, (User)javaSession.getUser());
+        this.shipService = shipService;
+    }
+
     @Override
     public Result validate(Battle battle) {
         BattleShip ownShip = battle.getOwnShip();
-        org.hibernate.Session db = ContextMap.getContext().getDB();
 
-        if(ownShip.getShip().getBaseShip() != null)
+        if(shipService.getBaseShip(ownShip.getShip()) != null)
         {
             return Result.OK;
         }
 
-        boolean dock = db.createQuery("from Ship where docked in (:docked,:landed)")
-                .setString("landed", "l "+ownShip.getId())
-                .setString("docked", Integer.toString(ownShip.getId()))
-                .iterate().hasNext();
+        boolean dock = !em.createQuery("from Ship where docked in (:docked,:landed)", Ship.class)
+                .setParameter("landed", "l "+ownShip.getId())
+                .setParameter("docked", Integer.toString(ownShip.getId()))
+                .setMaxResults(1)
+                .getResultList().isEmpty();
 
         if( dock ) {
             return Result.OK;
@@ -67,7 +85,7 @@ public class KSMenuUndockAction extends BasicKSMenuAction {
 
         BattleShip enemyShip = battle.getEnemyShip();
 
-        if(ownShip.getShip().getBaseShip() != null)
+        if(shipService.getBaseShip(ownShip.getShip()) != null)
         {
             this.menuEntry(t, "Dieses Schiff abdocken.",
                     "ship", ownShip.getId(),
@@ -82,12 +100,12 @@ public class KSMenuUndockAction extends BasicKSMenuAction {
                     "ksaction", "undock_all"
             );
 
-            Map<ShipClasses,Integer> undockclasslist = new HashMap<>();
+            Map<ShipClasses,Integer> undockclasslist = new EnumMap<>(ShipClasses.class);
 
             List<BattleShip> ownShips = battle.getOwnShips();
             for (BattleShip aship : ownShips)
             {
-                if (aship.getShip().getBaseShip() == null || aship.getShip().getBaseShip().getId() != ownShip.getId())
+                if (shipService.getBaseShip(aship.getShip()) == null || shipService.getBaseShip(aship.getShip()).getId() != ownShip.getId())
                 {
                     continue;
                 }

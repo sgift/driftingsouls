@@ -24,6 +24,7 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import net.driftingsouls.ds2.server.units.UnitType;
 
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
 
 /**
  * Aktualisierungstool fuer Einheitengrafiken.
@@ -31,6 +32,7 @@ import org.springframework.lang.NonNull;
  * @author Christopher Jung
  */
 @AdminMenuEntry(category = "Einheiten", name = "Einheitengrafik", permission = WellKnownAdminPermission.EDIT_UNIT_PICTURE)
+@Component
 public class EditUnitPicture implements EntityEditor<UnitType>
 {
 	@Override

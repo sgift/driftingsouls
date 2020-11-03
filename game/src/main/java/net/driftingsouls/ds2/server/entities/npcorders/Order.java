@@ -79,7 +79,7 @@ public abstract class Order {
 	 * Setzt den User fuer den der Auftrag abgewickelt werden soll.
 	 * @param user Der User
 	 */
-	public final void setUser(final User user) {
+	public void setUser(final User user) {
 		this.user = user;
 	}
 

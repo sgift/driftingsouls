@@ -36,7 +36,10 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Verwaltung der Core eines Asteroiden.
@@ -47,6 +50,9 @@ import java.util.Iterator;
 public class CoreController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
+
+	@PersistenceContext
+	private EntityManager em;
 
 	@Autowired
 	public CoreController(TemplateViewResultFactory templateViewResultFactory)
@@ -263,7 +269,6 @@ public class CoreController extends Controller
 	{
 		t.setVar("base.core", 0);
 
-		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 
 		// Keine Core vorhanden
@@ -271,13 +276,11 @@ public class CoreController extends Controller
 
 		t.setBlock("_CORE", "cores.listitem", "cores.list");
 
-		Iterator<?> coreIter = db.createQuery("from Core where astiType=:type")
-				.setInteger("type", base.getKlasse().getId())
-				.iterate();
-		for (; coreIter.hasNext(); )
+		List<Core> cores = em.createQuery("from Core where astiType=:type", Core.class)
+				.setParameter("type", base.getKlasse().getId())
+				.getResultList();
+		for (Core core: cores)
 		{
-			Core core = (Core) coreIter.next();
-
 			if (!user.hasResearched(core.getTechRequired()))
 			{
 				continue;

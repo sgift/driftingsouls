@@ -24,13 +24,13 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
-import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.Handel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
@@ -39,8 +39,13 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.RedirectViewR
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.services.PmService;
+import net.driftingsouls.ds2.server.services.UserService;
+import net.driftingsouls.ds2.server.services.UserValueService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 import java.util.Map;
 
@@ -54,12 +59,21 @@ public class HandelController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
 	private final ConfigService configService;
+	private final PmService pmService;
+	private final BBCodeParser bbCodeParser;
+	private final UserValueService userValueService;
+
+	@PersistenceContext
+	private EntityManager em;
 
 	@Autowired
-	public HandelController(TemplateViewResultFactory templateViewResultFactory, ConfigService configService)
+	public HandelController(TemplateViewResultFactory templateViewResultFactory, ConfigService configService, PmService pmService, BBCodeParser bbCodeParser, UserValueService userValueService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
 		this.configService = configService;
+		this.pmService = pmService;
+		this.bbCodeParser = bbCodeParser;
+		this.userValueService = userValueService;
 
 		setPageTitle("Handel");
 		addPageMenuEntry("Angebote", Common.buildUrl("default"));
@@ -75,8 +89,6 @@ public class HandelController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult enterAction(String comm, @UrlParam(name = "#need") Map<String, Long> needMap, @UrlParam(name = "#have") Map<String, Long> haveMap)
 	{
-		org.hibernate.Session db = getDB();
-
 		boolean needeverything = false;
 		boolean haveeverything = false;
 		Cargo need = new Cargo();
@@ -106,7 +118,7 @@ public class HandelController extends Controller
 		{
 			String name;
 
-			Item item = (Item) db.get(Item.class, res.getId().getItemID());
+			Item item = em.find(Item.class, res.getId().getItemID());
 			if (!item.isHandel())
 			{
 				continue;
@@ -142,21 +154,22 @@ public class HandelController extends Controller
 			entry.setBietet(have.save());
 		}
 
-		User niemand = (User)db.get(User.class, -2);
-		List<Integer> userIDs = Common.cast(db.createQuery("select id from User").list());
+		User niemand = em.find(User.class, -1);
+		List<Integer> userIDs = em.createQuery("select id from User", Integer.class).getResultList();
 		
 		for(Integer userID : userIDs)
 		{
-			User user = (User)db.get(User.class, userID);
+			User user = em.find(User.class, userID);
 			//Abfragen, ob er eine PM moechte
-			if(user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_HANDEL_PM)) 
+			var sendTradeMessage = userValueService.getUserValue(user, WellKnownUserValue.GAMEPLAY_USER_HANDEL_PM);
+			if(Boolean.TRUE.equals(sendTradeMessage))
 			{
-				PM.send(niemand, user.getId(), "Neues Handelsinserat eingestellt","Handelsinserat eingestellt von :" + entry.getWho().getPlainname()+"\n Inseratsbeschreibung: "+comm );
+				pmService.send(niemand, user.getId(), "Neues Handelsinserat eingestellt","Handelsinserat eingestellt von :" + entry.getWho().getPlainname()+"\n Inseratsbeschreibung: "+comm );
 			}
 
 		}
 		
-		db.persist(entry);
+		em.persist(entry);
 		
 
 		return new RedirectViewResult("default");
@@ -169,7 +182,6 @@ public class HandelController extends Controller
 	public TemplateEngine addAction()
 	{
 		TemplateEngine t = templateViewResultFactory.createFor(this);
-		org.hibernate.Session db = getDB();
 
 		t.setVar("handel.add", 1);
 
@@ -178,7 +190,7 @@ public class HandelController extends Controller
 		ResourceList reslist = Resources.getResourceList().getResourceList();
 		for (ResourceEntry res : reslist)
 		{
-			Item item = (Item) db.get(Item.class, res.getId().getItemID());
+			Item item = em.find(Item.class, res.getId().getItemID());
 			if (!item.isHandel())
 			{
 				continue;
@@ -205,12 +217,11 @@ public class HandelController extends Controller
 	public RedirectViewResult deleteAction(@UrlParam(name = "del") Handel entry)
 	{
 		User user = (User) getUser();
-		org.hibernate.Session db = getDB();
 
 		String message = null;
 		if ((entry != null) && (entry.getWho().equals(user) || hasPermission(WellKnownPermission.HANDEL_ANGEBOTE_LOESCHEN)))
 		{
-			db.delete(entry);
+			em.remove(entry);
 			message = "Angebot gelöscht";
 		}
 		else
@@ -227,7 +238,6 @@ public class HandelController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine defaultAction(RedirectViewResult redirect)
 	{
-		org.hibernate.Session db = getDB();
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
 
@@ -240,12 +250,11 @@ public class HandelController extends Controller
 		t.setBlock("angebote.listitem", "angebot.want.listitem", "angebot.want.list");
 		t.setBlock("angebote.listitem", "angebot.need.listitem", "angebot.need.list");
 
-		List<?> entryList = db.createQuery("from Handel " +
-				"where who.vaccount=0 or who.wait4vac!=0 order by time desc")
-				.list();
-		for (Object anEntryList : entryList)
+		List<Handel> entryList = em.createQuery("from Handel " +
+				"where who.vaccount=0 or who.wait4vac!=0 order by time desc", Handel.class)
+				.getResultList();
+		for (Handel entry: entryList)
 		{
-			Handel entry = (Handel) anEntryList;
 
 			t.setVar("angebot.want.list", "",
 					"angebot.need.list", "");
@@ -260,14 +269,14 @@ public class HandelController extends Controller
 					cargo.setOption(Cargo.Option.SHOWMASS, false);
 					cargo.setOption(Cargo.Option.LINKCLASS, "handelwaren");
 
-					ResourceList reslist = cargo.getResourceList();
+					ResourceList resourceList = cargo.getResourceList();
 					if (i == 0)
 					{
-						Resources.echoResList(t, reslist, "angebot.want.list");
+						Resources.echoResList(t, resourceList, "angebot.want.list");
 					}
 					else
 					{
-						Resources.echoResList(t, reslist, "angebot.need.list");
+						Resources.echoResList(t, resourceList, "angebot.need.list");
 					}
 				}
 				else
@@ -288,10 +297,10 @@ public class HandelController extends Controller
 
 			t.setVar("angebot.id", entry.getId(),
 					"angebot.owner", entry.getWho().getId(),
-					"angebot.owner.name", Common._title(entry.getWho().getName()),
+					"angebot.owner.name", Common._title(bbCodeParser, entry.getWho().getName()),
 					"angebot.date", Common.date("d.m.Y H:i:s", entry.getTime()),
-					"angebot.description", Common._text(entry.getKommentar()),
-					"angebot.description.overflow", Common._text(entry.getKommentar()).length() > 220,
+					"angebot.description", Common._text(bbCodeParser, entry.getKommentar()),
+					"angebot.description.overflow", Common._text(bbCodeParser, entry.getKommentar()).length() > 220,
 					"angebot.newline", (count % 3 == 0),
 					"angebot.endline", (count % 3 == 0) && (count > 0),
 					"angebot.showdelete", entry.getWho().equals(user) || hasPermission(WellKnownPermission.HANDEL_ANGEBOTE_LOESCHEN));

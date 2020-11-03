@@ -31,8 +31,13 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.services.DismantlingService;
+import net.driftingsouls.ds2.server.services.FleetMgmtService;
+import net.driftingsouls.ds2.server.services.ShipActionService;
+import net.driftingsouls.ds2.server.services.ShipyardService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -52,15 +57,20 @@ import java.util.Map;
 public class WerftGUI {
 	private final Context context;
 	private final TemplateEngine t;
+	private final ShipyardService shipyardService;
+	private final BBCodeParser bbCodeParser;
+	private final FleetMgmtService fleetMgmtService;
+	private final DismantlingService dismantlingService;
+	private final ShipActionService shipActionService;
 
-	/**
-	 * Erstellt eine neue Instanz einer Werftgui auf Basis des Kontexts.
-	 * @param context Der Kontext
-	 * @param t Das zu verwendende TemplateEngine
-	 */
-	public WerftGUI( Context context,TemplateEngine t ) {
+	public WerftGUI(Context context, TemplateEngine t, ShipyardService shipyardService, BBCodeParser bbCodeParser, FleetMgmtService fleetMgmtService, DismantlingService dismantlingService, ShipActionService shipActionService) {
 		this.context = context;
 		this.t = t;
+		this.shipyardService = shipyardService;
+		this.bbCodeParser = bbCodeParser;
+		this.fleetMgmtService = fleetMgmtService;
+		this.dismantlingService = dismantlingService;
+		this.shipActionService = shipActionService;
 	}
 
 	/**
@@ -83,7 +93,7 @@ public class WerftGUI {
 			org.hibernate.Session db = context.getDB();
 
 			if( werft.getKomplex() != null ) {
-				werft.removeFromKomplex();
+				shipyardService.removeFromKomplex(werft);
 			}
 
 			if( linkedwerft > 0 ) {
@@ -110,7 +120,7 @@ public class WerftGUI {
 			WerftObject obj = (WerftObject)db.get(WerftObject.class, context.getRequest().getParameterInt("entry"));
 
 			if( (obj != null) && obj.getKomplex() != null ) {
-				obj.removeFromKomplex();
+				shipyardService.removeFromKomplex(obj);
 			}
 		}
 
@@ -152,7 +162,7 @@ public class WerftGUI {
 					);
 
 			// Resourcenliste
-			List<SchiffBauinformationen> shipdata = werft.getBuildShipList();
+			List<SchiffBauinformationen> shipdata = shipyardService.getBuildShipList(werft);
 
 			Cargo costs = new Cargo();
 			for (SchiffBauinformationen aShipdata : shipdata)
@@ -188,7 +198,7 @@ public class WerftGUI {
 					{
 						case "canclebuild":
 						{
-							WerftQueueEntry entry = werft.getBuildQueueEntry(position);
+							WerftQueueEntry entry = shipyardService.getBuildQueueEntry(werft, position);
 							if (entry != null)
 							{
 								t.setVar("werftgui.building.cancel", 1);
@@ -199,8 +209,8 @@ public class WerftGUI {
 						}
 						case "queuedown":
 						{
-							WerftQueueEntry entry = werft.getBuildQueueEntry(position);
-							WerftQueueEntry entry2 = werft.getBuildQueueEntry(position + 1);
+							WerftQueueEntry entry = shipyardService.getBuildQueueEntry(werft, position);
+							WerftQueueEntry entry2 = shipyardService.getBuildQueueEntry(werft,position + 1);
 							if ((entry != null) && (entry2 != null))
 							{
 								werft.swapQueueEntries(entry, entry2);
@@ -212,8 +222,8 @@ public class WerftGUI {
 							break;
 						case "queueup":
 						{
-							WerftQueueEntry entry = werft.getBuildQueueEntry(position);
-							WerftQueueEntry entry2 = werft.getBuildQueueEntry(position - 1);
+							WerftQueueEntry entry = shipyardService.getBuildQueueEntry(werft, position);
+							WerftQueueEntry entry2 = shipyardService.getBuildQueueEntry(werft, position - 1);
 							if ((entry != null) && (entry2 != null))
 							{
 								werft.swapQueueEntries(entry, entry2);
@@ -249,8 +259,8 @@ public class WerftGUI {
 		if( werft instanceof WerftKomplex ) {
 			t.setBlock("_WERFT.WERFTGUI", "werftgui.komplexparts.listitem", "werftgui.komplexparts.list");
 
-			final WerftObject[] members = ((WerftKomplex)werft).getMembers();
-			for (final WerftObject member : members)
+			List<WerftObject> members = ((WerftKomplex)werft).getMembers();
+			for (WerftObject member : members)
 			{
 				t.setVar(
 						"komplexpart.type.image", member.getWerftPicture(),
@@ -399,7 +409,7 @@ public class WerftGUI {
 				t.setVar("ship.needsrepair", 0);
 			}
 
-			String ownername = Common._title(ship.getOwner().getName());
+			String ownername = Common._title(bbCodeParser, ship.getOwner().getName());
 
 			t.setVar("ship.id", ship.getId(),
 					"ship.name", ship.getName(),
@@ -609,7 +619,7 @@ public class WerftGUI {
 
 		if( ship.getOwner() != user ) {
 			User owner = ship.getOwner();
-			t.setVar("ship.owner.name", Common._title(owner.getName()));
+			t.setVar("ship.owner.name", Common._title(bbCodeParser, owner.getName()));
 		}
 
 		String action = context.getRequest().getParameterString("werftact");
@@ -728,7 +738,7 @@ public class WerftGUI {
 		List<Ship> targetShips = new ArrayList<>();
 		if( ship.getFleet() != null )
 		{
-			for (Ship fleetship : ship.getFleet().getShips())
+			for (Ship fleetship : fleetMgmtService.getShips(ship.getFleet()))
 			{
 				if( fleetship.getType() == ship.getType() )
 				{
@@ -767,25 +777,24 @@ public class WerftGUI {
 
 		// Modul einbauen
 		if( (itemid != 0) && (slot != 0) ) {
-			Item item = (Item)db.get(Item.class, itemid);
+			Item item = db.get(Item.class, itemid);
 			if( item != null) {
 				for (Ship aship : targetShips)
 				{
-					werft.addModule( aship, slot, itemid );
+					shipActionService.addModule(werft, aship, slot, itemid );
 				}
 				t.setVar("ws.modules.msg", Common._plaintext(werft.getMessage()));
 			}
 		}
 		else if( moduleaction.equals("ausbauen") && (slot != 0) ) {
-			for (Ship aship : targetShips)
-			{
-				werft.removeModule( aship, slot );
+			for (Ship aship : targetShips) {
+				shipActionService.removeModule(werft, aship, slot );
 			}
 
 			t.setVar("ws.modules.msg", Common._plaintext(werft.getMessage()));
 		}
 
-		ModuleEntry[] modules = ship.getModules();
+		ModuleEntry[] modules = ship.getModuleEntries();
 		Map<Integer,Integer> usedslots = new HashMap<>();
 
 		for( int i=0; i < modules.length; i++ ) {
@@ -878,7 +887,7 @@ public class WerftGUI {
 			t.parse("ws.dismantle.available.list", "ws.dismantle.res.listitem", true);
 		}
 
-		boolean ok = werft.dismantleShip(ship, !conf.equals("ok"));
+		boolean ok = dismantlingService.dismantleShip(werft, ship, !conf.equals("ok"));
 		if( !ok ) {
 			t.setVar("ws.dismantle.error", werft.getMessage() );
 		}
@@ -928,8 +937,7 @@ public class WerftGUI {
 			t.parse("ws.repair.res.list", "ws.repair.res.listitem", true);
 		}
 
-		boolean ok = werft.repairShip(ship, !conf.equals("ok"));
-
+		boolean ok = shipActionService.repairShip(werft, ship, !conf.equals("ok"));
 		if( !ok ) {
 			t.setVar("ws.repair.error", werft.getMessage());
 		}
@@ -968,7 +976,7 @@ public class WerftGUI {
 			t.parse("ws.reload.res.list", "ws.reload.res.listitem", true);
 		}
 
-		boolean ok = werft.reloadShip(ship, !conf.equals("ok"));
+		boolean ok = shipActionService.reloadShip(werft, ship, !conf.equals("ok"));
 
 		if( !ok ) {
 			t.setVar("ws.reload.error", werft.getMessage());
@@ -1074,14 +1082,14 @@ public class WerftGUI {
 		// Testen ob Bau moeglich
 		if( !conf.equals("ok") ) {
 			// Sofort zahlen
-			boolean result = werft.buildShip(build, itemid, false, true );
+			boolean result = shipActionService.buildShip(werft, build, itemid, false, true );
 
 			if( !result ) {
 				t.setVar("build.instant.error", werft.getMessage().replace("\n", "<br/>\n"));
 			}
 
 			// Kosten pro Tick
-			result = werft.buildShip(build, itemid, true, true );
+			result = shipActionService.buildShip(werft, build, itemid, true, true );
 
 			if( !result ) {
 				t.setVar("build.pertick.error", werft.getMessage().replace("\n", "<br/>\n"));
@@ -1089,7 +1097,7 @@ public class WerftGUI {
 		}
 		// Bau ausfuehren
 		else {
-			boolean result = werft.buildShip(build, itemid, false, false );
+			boolean result = shipActionService.buildShip(werft, build, itemid, false, false );
 
 			if( !result ) {
 				t.setVar("build.error", werft.getMessage().replace("\n", "<br/>\n"));

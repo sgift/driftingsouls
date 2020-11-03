@@ -26,27 +26,34 @@ import net.driftingsouls.ds2.server.cargo.ResourceIDComparator;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.statistik.StatCargo;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.StatsController;
-import org.hibernate.Session;
+import org.springframework.stereotype.Component;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.SortedMap;
 import java.util.TreeMap;
+
+import static java.util.stream.Collectors.*;
 
 /**
  * Zeigt allgemeine Daten zu DS und zum Server an.
  *
  * @author Christopher Jung
  */
+@Component
 public class StatWarenentwicklung implements Statistic, AjaxStatistic
 {
+	@PersistenceContext
+	private EntityManager em;
+
 	public static class WareViewModel
 	{
 		private final String label;
@@ -80,43 +87,33 @@ public class StatWarenentwicklung implements Statistic, AjaxStatistic
 	public void show(StatsController contr, int size) throws IOException
 	{
 		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
 		User user = (User) contr.getUser();
 
 		Writer echo = context.getResponse().getWriter();
 		echo.write("<h1>Warenentwicklung</h1>");
-		SortedMap<ResourceID, SortedMap<Integer, Long>> cargos = generateDataMap(db);
+		SortedMap<ResourceID, SortedMap<Integer, Long>> cargos = generateDataMap();
 		echo.append("<div id='warenstats'></div><script type='text/javascript'>$(document).ready(function(){\n");
 		echo.append("Stats.chart('warenstats',");
-		List<WareViewModel> waren = erstelleViewModelDerWarenListe(db, user, cargos);
+		List<WareViewModel> waren = erstelleViewModelDerWarenListe(user, cargos);
 		echo.append(new Gson().toJson(waren));
 		echo.append(",{xaxis:{label:'Tick',pad:0,tickInterval:49}, yaxis:{label:'Menge'}, selection:'single'});\n");
 		echo.append("});</script>");
 	}
 
-	private List<WareViewModel> erstelleViewModelDerWarenListe(Session db, User user, SortedMap<ResourceID, SortedMap<Integer, Long>> cargos)
+	private List<WareViewModel> erstelleViewModelDerWarenListe(User user, SortedMap<ResourceID, SortedMap<Integer, Long>> cargos)
 	{
-		List<WareViewModel> waren = new ArrayList<>();
-		for (Map.Entry<ResourceID, SortedMap<Integer, Long>> entry : cargos.entrySet())
-		{
-			if (!isImportantResource(entry.getValue()))
-			{
-				continue;
-			}
-
-			Item item = (Item) db.get(Item.class, entry.getKey().getItemID());
-			if (item == null || !user.canSeeItem(item))
-			{
-				continue;
-			}
-			waren.add(new WareViewModel(item.getID(), item.getName(), item.getPicture()));
-		}
-		return waren;
+		return cargos.entrySet().stream()
+			.filter(entry -> isImportantResource(entry.getValue()))
+			.map(entry -> em.find(Item.class, entry.getKey().getItemID()))
+			.filter(Objects::nonNull)
+			.filter(user::canSeeItem)
+			.map(item -> new WareViewModel(item.getID(), item.getName(), item.getPicture()))
+			.collect(toList());
 	}
 
 	private boolean isImportantResource(SortedMap<Integer, Long> values)
 	{
-		long minValue = values.size() * 5;
+		long minValue = values.size() * 5L;
 		long count = 0;
 		for (Long value : values.values())
 		{
@@ -129,16 +126,15 @@ public class StatWarenentwicklung implements Statistic, AjaxStatistic
 		return false;
 	}
 
-	private SortedMap<ResourceID, SortedMap<Integer, Long>> generateDataMap(org.hibernate.Session db)
+	private SortedMap<ResourceID, SortedMap<Integer, Long>> generateDataMap()
 	{
 		SortedMap<ResourceID, SortedMap<Integer, Long>> cargos =
 				new TreeMap<>(new ResourceIDComparator(false));
 
 		int counter = 0;
-		List<StatCargo> stats = Common.cast(db
-				.createQuery("from StatCargo order by tick desc")
+		List<StatCargo> stats = em.createQuery("from StatCargo order by tick desc", StatCargo.class)
 				.setMaxResults(30 + 31) // ca 2 Monate
-				.list());
+				.getResultList();
 		for (StatCargo sc : stats)
 		{
 			if (counter++ % 2 == 1)
@@ -162,17 +158,16 @@ public class StatWarenentwicklung implements Statistic, AjaxStatistic
 	public DataViewModel generateData(StatsController contr, int size)
 	{
 		User user = (User) contr.getUser();
-		org.hibernate.Session db = contr.getDB();
 
 		ItemID itemId = new ItemID(ContextMap.getContext().getRequest().getParameterInt("key"));
 
-		Item item = (Item) db.get(Item.class, itemId.getItemID());
+		Item item = em.find(Item.class, itemId.getItemID());
 		if (item == null || !user.canSeeItem(item))
 		{
 			return new DataViewModel();
 		}
 
-		SortedMap<ResourceID, SortedMap<Integer, Long>> data = generateDataMap(db);
+		SortedMap<ResourceID, SortedMap<Integer, Long>> data = generateDataMap();
 		DataViewModel result = new DataViewModel();
 
 		result.key = new DataViewModel.KeyViewModel();

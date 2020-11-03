@@ -36,6 +36,7 @@ import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
@@ -43,15 +44,22 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.services.BattleService;
+import net.driftingsouls.ds2.server.services.LocationService;
+import net.driftingsouls.ds2.server.services.UserService;
+import net.driftingsouls.ds2.server.services.UserValueService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Query;
-import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -65,15 +73,34 @@ import java.util.Set;
  * @author Christopher Jung
  */
 @Module(name = "ueber")
+@Component
+@Transactional
 public class UeberController extends Controller
 {
 	private static final Log log = LogFactory.getLog(UeberController.class);
+
 	private final TemplateViewResultFactory templateViewResultFactory;
+	private final Rassen races;
+	private final BattleService battleService;
+	private final BBCodeParser bbCodeParser;
+	private final UserValueService userValueService;
+	private final LocationService locationService;
+	private final UserService userService;
+
+	@PersistenceContext
+	private EntityManager em;
+
 
 	@Autowired
-	public UeberController(TemplateViewResultFactory templateViewResultFactory)
+	public UeberController(TemplateViewResultFactory templateViewResultFactory, Rassen races, BattleService battleService, BBCodeParser bbCodeParser, UserValueService userValueService, LocationService locationService, UserService userService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.races = races;
+		this.battleService = battleService;
+		this.bbCodeParser = bbCodeParser;
+		this.userValueService = userValueService;
+		this.locationService = locationService;
+		this.userService = userService;
 	}
 
 	/**
@@ -104,13 +131,13 @@ public class UeberController extends Controller
 
 		if (tutorial == 1)
 		{
-			int inttutorial = user.getUserValue(WellKnownUserValue.TBLORDER_UEBERSICHT_INTTUTORIAL);
+			int inttutorial = userValueService.getUserValue(user, WellKnownUserValue.TBLORDER_UEBERSICHT_INTTUTORIAL);
 
-			user.setUserValue(WellKnownUserValue.TBLORDER_UEBERSICHT_INTTUTORIAL, inttutorial + 1);
+			userValueService.setUserValue(user, WellKnownUserValue.TBLORDER_UEBERSICHT_INTTUTORIAL, inttutorial + 1);
 		}
 		else if (tutorial == -1)
 		{
-			user.setUserValue(WellKnownUserValue.TBLORDER_UEBERSICHT_INTTUTORIAL, 0);
+			userValueService.setUserValue(user, WellKnownUserValue.TBLORDER_UEBERSICHT_INTTUTORIAL, 0);
 		}
 
 		return new RedirectViewResult("default");
@@ -125,10 +152,10 @@ public class UeberController extends Controller
 	public RedirectViewResult boxAction(String box)
 	{
 		User user = (User)getUser();
-		String boxSetting = user.getUserValue(WellKnownUserValue.TBLORDER_UEBERSICHT_BOX);
+		String boxSetting = userValueService.getUserValue(user, WellKnownUserValue.TBLORDER_UEBERSICHT_BOX);
 		if (box != null && !box.equals(boxSetting))
 		{
-			user.setUserValue(WellKnownUserValue.TBLORDER_UEBERSICHT_BOX, box);
+			userValueService.setUserValue(user, WellKnownUserValue.TBLORDER_UEBERSICHT_BOX, box);
 		}
 
 		return new RedirectViewResult("default");
@@ -140,22 +167,21 @@ public class UeberController extends Controller
 	@Action(value = ActionType.DEFAULT, readOnly = true)
 	public TemplateEngine defaultAction()
 	{
-		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		String ticktime = getTickTime();
 
 		String race = "???";
-		if (Rassen.get().rasse(user.getRace()) != null)
+		if (races.rasse(user.getRace()) != null)
 		{
-			race = Rassen.get().rasse(user.getRace()).getName();
+			race = races.rasse(user.getRace()).getName();
 		}
 
 		int ticks = getContext().get(ContextCommon.class).getTick();
 
-		long[] fullbalance = user.getFullBalance();
+		long[] fullbalance = userService.getFullBalance(user);
 
-		t.setVar("user.name", Common._title(user.getName()),
+		t.setVar("user.name", Common._title(bbCodeParser, user.getName()),
 				"user.race", race,
 				"res.nahrung.image", Cargo.getResourceImage(Resources.NAHRUNG),
 				"res.re.image", Cargo.getResourceImage(Resources.RE),
@@ -181,28 +207,28 @@ public class UeberController extends Controller
 		// auf neue Nachrichten checken
 		//------------------------------
 
-		long newCount = (Long) db.createQuery("select count(*) from PM where empfaenger= :user and gelesen=0")
-				.setEntity("user", user)
-				.iterate().next();
+		long newCount = em.createQuery("select count(*) from PM where empfaenger= :user and gelesen=0", Long.class)
+				.setParameter("user", user)
+				.getSingleResult();
 		t.setVar("user.newmsgs", Common.ln(newCount));
 
 		//------------------------------
 		// Mangel auf Asteroiden checken
 		//------------------------------
 
-		int anzahlBasen = mangelAufAsteroidenAnzeigen(db, user, t);
+		int anzahlBasen = showBasesLackingResources(user, t);
 
 		//------------------------------
 		// Mangel auf Schiffen checken
 		//------------------------------
 
-		mangelAufSchiffenAnzeigen(db, user, t);
+		mangelAufSchiffenAnzeigen(user, t);
 
 		//------------------------------
 		// Schlachten anzeigen
 		//------------------------------
 
-		laufendeSchlachtenAnzeigen(db, user, t);
+		laufendeSchlachtenAnzeigen(user, t);
 		//------------------------------
 		// Logo anzeigen
 		//------------------------------
@@ -216,15 +242,15 @@ public class UeberController extends Controller
 		// Interaktives Tutorial
 		//------------------------------
 
-		int inttutorial = user.getUserValue(WellKnownUserValue.TBLORDER_UEBERSICHT_INTTUTORIAL);
+		int inttutorial = userValueService.getUserValue(user, WellKnownUserValue.TBLORDER_UEBERSICHT_INTTUTORIAL);
 
 		if (inttutorial != 0)
 		{
-			long shipcount = (Long) db.createQuery("select count(*) from Ship " +
-					"where id>0 and owner= :user")
-					.setEntity("user", user)
-					.iterate().next();
-			showTutorialPages(t, anzahlBasen, shipcount, inttutorial);
+			long shipCount = em.createQuery("select count(*) from Ship " +
+					"where id>0 and owner= :user", Long.class)
+					.setParameter("user", user)
+					.getSingleResult();
+			showTutorialPages(t, anzahlBasen, shipCount, inttutorial);
 		}
 
 		//------------------------------------
@@ -240,16 +266,15 @@ public class UeberController extends Controller
 		// Bookmarks zusammenbauen
 		t.setVar("show.bookmarks", 1);
 
-		List<?> bookmarks = db.createQuery("from Ship where id>0 and einstellungen.bookmark=true and owner=:owner order by id desc")
-				.setEntity("owner", user)
-				.list();
-		for (Object bookmark1 : bookmarks)
+		List<Ship> bookmarks = em.createQuery("from Ship where id>0 and einstellungen.bookmark=true and owner=:owner order by id desc", Ship.class)
+				.setParameter("owner", user)
+				.getResultList();
+		for (Ship bookmark: bookmarks)
 		{
-			Ship bookmark = (Ship) bookmark1;
 			ShipTypeData shiptype = bookmark.getTypeData();
 			t.setVar("bookmark.shipid", bookmark.getId(),
 					"bookmark.shipname", bookmark.getName(),
-					"bookmark.location", bookmark.getLocation().displayCoordinates(false),
+					"bookmark.location", locationService.displayCoordinates(bookmark.getLocation(), false),
 					"bookmark.shiptype", shiptype.getNickname(),
 					"bookmark.description", bookmark.getEinstellungen().getDestSystem() + ":" + bookmark.getEinstellungen().getDestX() + "/" + bookmark.getEinstellungen().getDestY() + "<br />" + bookmark.getEinstellungen().getDestCom().replace("\r\n", "<br />"));
 			t.parse("bookmarks.list", "bookmarks.listitem", true);
@@ -258,21 +283,20 @@ public class UeberController extends Controller
 		t.setVar("show.fleets", 1);
 		boolean jdocked = false;
 
-		List<?> fleets = db.createQuery("select count(*),s.fleet from Ship s " +
+		List<Object[]> fleets = em.createQuery("select count(*),s.fleet from Ship s " +
 				"where s.id>0 and s.owner= :user and s.fleet.id!=0 " +
 				"group by s.fleet,s.docked,s.system,s.x,s.y " +
-				"order by s.docked,s.system,s.x,s.y")
-				.setEntity("user", user)
-				.list();
-		for (Object fleet1 : fleets)
+				"order by s.docked,s.system,s.x,s.y", Object[].class)
+				.setParameter("user", user)
+				.getResultList();
+		for (Object[] data: fleets)
 		{
-			Object[] data = (Object[]) fleet1;
 			long count = (Long) data[0];
 			ShipFleet fleet = (ShipFleet) data[1];
 
-			Ship aship = (Ship) db.createQuery("from Ship where fleet=:fleet")
-					.setEntity("fleet", fleet)
-					.iterate().next();
+			Ship aship = em.createQuery("from Ship where fleet=:fleet", Ship.class)
+					.setParameter("fleet", fleet)
+					.getSingleResult();
 
 			if (!jdocked && aship.isLanded())
 			{
@@ -285,7 +309,7 @@ public class UeberController extends Controller
 			}
 
 
-			String locationText = aship.getLocation().displayCoordinates(false);
+			String locationText = locationService.displayCoordinates(aship.getLocation(), false);
 			
 			t.setVar("fleet.shipid", aship.getId(),
 					"fleet.name", fleet.getName(),
@@ -297,30 +321,30 @@ public class UeberController extends Controller
 		return t;
 	}
 
-	private void mangelAufSchiffenAnzeigen(Session db, User user, TemplateEngine t)
+	private void mangelAufSchiffenAnzeigen(User user, TemplateEngine t)
 	{
 		long sw;
 		long shipNoCrew;
 
-		sw = (Long) db.createQuery("select count(*) " +
+		sw = em.createQuery("select count(*) " +
 				"from Ship " +
-				"where id>0 and owner= :user and (locate('mangel_nahrung',status)!=0 or locate('mangel_reaktor',status)!=0) and locate('nocrew',status)=0")
-				.setEntity("user", user)
-				.iterate().next();
+				"where id>0 and owner= :user and (locate('mangel_nahrung',status)!=0 or locate('mangel_reaktor',status)!=0) and locate('nocrew',status)=0", Long.class)
+				.setParameter("user", user)
+				.getSingleResult();
 
-		shipNoCrew = (Long) db.createQuery("select count(*) from Ship as s where s.id>0 and s.owner= :user" +
-				" and ((s.modules is not null and s.crew < (select crew from ShipModules where id=s.modules.id)) or s.crew < (select crew from ShipType where id = s.shiptype.id))")
-				.setEntity("user", user)
-				.iterate().next();
+		shipNoCrew = em.createQuery("select count(*) from Ship as s where s.id>0 and s.owner= :user" +
+				" and ((s.modules is not null and s.crew < (select crew from ShipModules where id=s.modules.id)) or s.crew < (select crew from ShipType where id = s.shiptype.id))", Long.class)
+				.setParameter("user", user)
+				.getSingleResult();
 
 		t.setVar("schiffe.mangel", Common.ln(sw),
 				"schiffe.nocrew", Common.ln(shipNoCrew));
 	}
 
-	private void laufendeSchlachtenAnzeigen(Session db, User user, TemplateEngine t)
+	private void laufendeSchlachtenAnzeigen(User user, TemplateEngine t)
 	{
 		// Ab hier beginnt das erste Bier
-		Set<Battle> battles = erzeugeListeDerRelevantenSchlachten(db, user);
+		Set<Battle> battles = erzeugeListeDerRelevantenSchlachten(user);
 
 		// Ab hier beginnt das zweite Bier
 		StringBuilder battlelist = new StringBuilder();
@@ -332,30 +356,30 @@ public class UeberController extends Controller
 			if (battle.getAlly(0) == 0)
 			{
 				final User commander1 = battle.getCommander(0);
-				eparty = Common._title(commander1.getName());
+				eparty = Common._title(bbCodeParser, commander1.getName());
 			}
 			else
 			{
-				final Ally ally = (Ally) db.get(Ally.class, battle.getAlly(0));
-				eparty = Common._title(ally.getName());
+				final Ally ally = em.find(Ally.class, battle.getAlly(0));
+				eparty = Common._title(bbCodeParser, ally.getName());
 			}
 
 			if (battle.getAlly(1) == 0)
 			{
 				final User commander2 = battle.getCommander(1);
-				eparty2 = Common._title(commander2.getName());
+				eparty2 = Common._title(bbCodeParser, commander2.getName());
 			}
 			else
 			{
-				final Ally ally = (Ally) db.get(Ally.class, battle.getAlly(1));
-				eparty2 = Common._title(ally.getName());
+				final Ally ally = em.find(Ally.class, battle.getAlly(1));
+				eparty2 = Common._title(bbCodeParser, ally.getName());
 			}
 
 
-			battlelist.append("<a class=\"error\" href=\"ds?module=angriff&amp;battle=").append(battle.getId()).append("\">Schlacht ").append(eparty).append(" vs ").append(eparty2).append(" bei ").append(battle.getLocation().displayCoordinates(false)).append("</a>&nbsp;");
+			battlelist.append("<a class=\"error\" href=\"ds?module=angriff&amp;battle=").append(battle.getId()).append("\">Schlacht ").append(eparty).append(" vs ").append(eparty2).append(" bei ").append(locationService.displayCoordinates(battle.getLocation(),false)).append("</a>&nbsp;");
 
 			// Nahrunganzeige der Schlacht
-			int nahrung = battle.getNahrungsBalance(user);
+			int nahrung = battleService.getNahrungsBalance(battle, user);
 
 			if (nahrung < 0)
 			{
@@ -374,7 +398,7 @@ public class UeberController extends Controller
 		t.setVar("global.battlelist", battlelist);
 	}
 
-	private Set<Battle> erzeugeListeDerRelevantenSchlachten(Session db, User user)
+	private Set<Battle> erzeugeListeDerRelevantenSchlachten(User user)
 	{
 		Set<Battle> battles = new LinkedHashSet<>();
 
@@ -393,7 +417,7 @@ public class UeberController extends Controller
 		{
 			// Zwei separate Queries fuer alle Schlachten um einen sehr unvorteilhaften Join zu vermeiden
 			String query = "from Battle " +
-					"where commander1 in (:commanders) or commander2 in (:commanders) ";
+					"where commander1 in :commanders or commander2 in :commanders ";
 
 			//hat der Benutzer eine ally, dann haeng das hier an
 			if (user.getAlly() != null)
@@ -406,73 +430,71 @@ public class UeberController extends Controller
 				query += " or quest is not null";
 			}
 
-			Query battleQuery = db.createQuery(query)
-					.setParameterList("commanders", commanderSet);
+			TypedQuery<Battle> battleQuery = em.createQuery(query, Battle.class)
+					.setParameter("commanders", commanderSet);
 
 			if (user.getAlly() != null)
 			{
-				battleQuery = battleQuery.setInteger("ally", user.getAlly().getId());
+				battleQuery = battleQuery.setParameter("ally", user.getAlly());
 			}
 
-			battles.addAll(Common.cast(battleQuery.list(), Battle.class));
+			battles.addAll(battleQuery.getResultList());
 
-			battles.addAll(Common.cast(
-					db.createQuery("select distinct battle from Ship where battle is not null and owner=:user")
-							.setEntity("user", user)
-							.list(),
-					Battle.class));
+			battles.addAll(
+					em.createQuery("select distinct battle from Ship where battle is not null and owner=:user", Battle.class)
+							.setParameter("user", user)
+							.getResultList());
 		}
 		// Bei entsprechendem AccessLevel/Flag alle Schlachten anzeigen
 		else
 		{
-			battles.addAll(Common.cast(db.createQuery("from Battle").list(), Battle.class));
+			battles.addAll(em.createQuery("from Battle", Battle.class).getResultList());
 		}
 		return battles;
 	}
 
-	private int mangelAufAsteroidenAnzeigen(Session db, User user, TemplateEngine t)
+	private int showBasesLackingResources(User user, TemplateEngine t)
 	{
-		int bw = 0;
-		int bases = 0;
+		int basesLackingResources = 0;
+		int baseCount = 0;
 
-		List<?> basen = db.createQuery("from Base where owner= :user order by id")
-				.setEntity("user", user)
-				.list();
-		for (Object aBasen : basen)
+		List<Base> bases = em.createQuery("from Base where owner= :user order by id", Base.class)
+				.setParameter("user", user)
+				.getResultList();
+		for (Base base: bases)
 		{
-			Base base = (Base) aBasen;
-			bases++;
+			baseCount++;
 
 			BaseStatus basedata = Base.getStatus(base);
 
 			Cargo cargo = new Cargo(base.getCargo());
 			cargo.addResource(Resources.RE, user.getKonto().longValue());
 
-			boolean mangel = false;
+			boolean lackOfResources = false;
 
-			ResourceList reslist = basedata.getProduction().getResourceList();
-			for (ResourceEntry res : reslist)
+			ResourceList resourceList = basedata.getProduction().getResourceList();
+			for (ResourceEntry resourceEntry : resourceList)
 			{
-				if ((res.getCount1() < 0) && (-(cargo.getResourceCount(res.getId()) / res.getCount1()) <= 9))
+				if ((resourceEntry.getCount1() < 0) && (-(cargo.getResourceCount(resourceEntry.getId()) / resourceEntry.getCount1()) <= 9))
 				{
-					mangel = true;
+					lackOfResources = true;
 					break;
 				}
 			}
 
 			if (basedata.getEnergy() < 0 && base.getEnergy() / -basedata.getEnergy() <= 9)
 			{
-				mangel = true;
+				lackOfResources = true;
 			}
 
-			if (mangel)
+			if (lackOfResources)
 			{
-				bw++;
+				basesLackingResources++;
 			}
 		}
 
-		t.setVar("astis.mangel", bw);
-		return bases;
+		t.setVar("astis.mangel", basesLackingResources);
+		return baseCount;
 	}
 
 	private String getTickTime()
@@ -498,7 +520,6 @@ public class UeberController extends Controller
 
 	private void showTutorialPages(TemplateEngine t, int bases, long shipcount, int inttutorial)
 	{
-		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 
 		boolean reqname = !"Kolonist".equals(user.getName());
@@ -516,42 +537,42 @@ public class UeberController extends Controller
 			reqbase = true;
 		}
 
-		IntTutorial sheet = (IntTutorial) db.createQuery("from IntTutorial where id= :id and reqName= :reqname and reqBase= :reqbase and reqShip= :reqship")
-				.setInteger("id", inttutorial)
-				.setBoolean("reqname", reqname)
-				.setBoolean("reqbase", reqbase)
-				.setBoolean("reqship", reqship)
-				.uniqueResult();
+		IntTutorial sheet = em.createQuery("from IntTutorial where id= :id and reqName= :reqname and reqBase= :reqbase and reqShip= :reqship", IntTutorial.class)
+				.setParameter("id", inttutorial)
+				.setParameter("reqname", reqname)
+				.setParameter("reqbase", reqbase)
+				.setParameter("reqship", reqship)
+				.getSingleResult();
 
 		// Ist die aktuelle Tutorialseite veraltet?
 		if ((sheet == null) || (sheet.getId() != inttutorial))
 		{
-			sheet = (IntTutorial) db.createQuery("from IntTutorial where reqName= :reqname and reqBase= :reqbase and reqShip= :reqship order by id")
-					.setBoolean("reqname", reqname)
-					.setBoolean("reqbase", reqbase)
-					.setBoolean("reqship", reqship)
+			sheet = em.createQuery("from IntTutorial where reqName= :reqname and reqBase= :reqbase and reqShip= :reqship order by id", IntTutorial.class)
+					.setParameter("reqname", reqname)
+					.setParameter("reqbase", reqbase)
+					.setParameter("reqship", reqship)
 					.setMaxResults(1)
-					.uniqueResult();
+					.getSingleResult();
 
 			if (sheet == null)
 			{
-				user.setUserValue(WellKnownUserValue.TBLORDER_UEBERSICHT_INTTUTORIAL, 0);
+				userValueService.setUserValue(user, WellKnownUserValue.TBLORDER_UEBERSICHT_INTTUTORIAL, 0);
 				return;
 			}
 
 			// Neue Tutorialseite speichern
 			inttutorial = sheet.getId();
-			user.setUserValue(WellKnownUserValue.TBLORDER_UEBERSICHT_INTTUTORIAL, inttutorial);
+			userValueService.setUserValue(user, WellKnownUserValue.TBLORDER_UEBERSICHT_INTTUTORIAL, inttutorial);
 		}
 
 		// Existiert eine Nachfolgerseite?
-		IntTutorial nextsheet = (IntTutorial) db.createQuery("from IntTutorial where benoetigteSeite= :reqsheet and reqName= :reqname and reqBase= :reqbase and reqShip= :reqship")
-				.setEntity("reqsheet", sheet)
-				.setBoolean("reqname", reqname)
-				.setBoolean("reqbase", reqbase)
-				.setBoolean("reqship", reqship)
+		IntTutorial nextsheet = em.createQuery("from IntTutorial where benoetigteSeite= :reqsheet and reqName= :reqname and reqBase= :reqbase and reqShip= :reqship", IntTutorial.class)
+				.setParameter("reqsheet", sheet)
+				.setParameter("reqname", reqname)
+				.setParameter("reqbase", reqbase)
+				.setParameter("reqship", reqship)
 				.setMaxResults(1)
-				.uniqueResult();
+				.getSingleResult();
 
 		// Kann das Tutorial jetzt beendet werden?
 		if ((nextsheet == null) && reqname && reqship && reqbase)
@@ -565,7 +586,7 @@ public class UeberController extends Controller
 
 		t.setVar("interactivetutorial.show", 1,
 				"sheet.headpic", sheet.getHeadImg(),
-				"sheet.text", Common._text(sheet.getText()));
+				"sheet.text", Common._text(bbCodeParser, sheet.getText()));
 	}
 
 }

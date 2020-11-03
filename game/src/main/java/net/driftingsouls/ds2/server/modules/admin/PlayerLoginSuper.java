@@ -22,12 +22,11 @@ import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.authentication.AuthenticationException;
 import net.driftingsouls.ds2.server.framework.authentication.AuthenticationManager;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
+import org.springframework.stereotype.Component;
 
-import java.io.IOException;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 /**
  * Ermoeglicht das Einloggen in einen anderen Account ohne Passwort.
@@ -35,19 +34,17 @@ import java.io.IOException;
  *
  */
 @AdminMenuEntry(category="Spieler", name="Masterlogin", permission = WellKnownAdminPermission.PLAYER_LOGIN_SUPER)
+@Component
 public class PlayerLoginSuper implements AdminPlugin {
-	private AuthenticationManager authManager;
-	
-	/**
-	 * Injiziert den DS-AuthenticationManager zum einloggen von Benutzern.
-	 * @param authManager Der AuthenticationManager
-	 */
-	@Autowired
-	@Required
-	public void setAuthenticationManager(AuthenticationManager authManager) {
+	@PersistenceContext
+	private EntityManager em;
+
+	private final AuthenticationManager authManager;
+
+	public PlayerLoginSuper(AuthenticationManager authManager) {
 		this.authManager = authManager;
 	}
-	
+
 	@Override
 	public void output(StringBuilder echo) {
 		Context context = ContextMap.getContext();
@@ -68,7 +65,7 @@ public class PlayerLoginSuper implements AdminPlugin {
 			echo.append("</div>");
 		}
 		else {
-			User userObj = (User)context.getDB().get(User.class, user);
+			User userObj = em.find(User.class, user);
 			if( userObj == null ) {
 				echo.append("<span style=\"color:red\">Der angegebene Spieler existiert nicht</span>");
 				return;

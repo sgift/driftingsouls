@@ -12,11 +12,14 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import org.hibernate.Session;
 
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @AdminMenuEntry(category = "Spieler", name = "Fraktionsangebot", permission = WellKnownAdminPermission.EDIT_FRAKTIONS_ANGEBOT)
+@Component
 public class EditFraktionsAngebot implements EntityEditor<FraktionsAngebot>
 {
 

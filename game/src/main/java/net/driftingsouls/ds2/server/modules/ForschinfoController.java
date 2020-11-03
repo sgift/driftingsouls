@@ -30,6 +30,7 @@ import net.driftingsouls.ds2.server.entities.FactoryEntry;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
@@ -41,10 +42,10 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Iterator;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 
 /**
@@ -56,11 +57,18 @@ import java.util.List;
 public class ForschinfoController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
+	private final Rassen races;
+	private final BBCodeParser bbCodeParser;
+
+	@PersistenceContext
+	private EntityManager em;
 
 	@Autowired
-	public ForschinfoController(TemplateViewResultFactory templateViewResultFactory)
+	public ForschinfoController(TemplateViewResultFactory templateViewResultFactory, Rassen races, BBCodeParser bbCodeParser)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.races = races;
+		this.bbCodeParser = bbCodeParser;
 
 		setPageTitle("Forschung");
 	}
@@ -105,7 +113,6 @@ public class ForschinfoController extends Controller
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
-		org.hibernate.Session db = getDB();
 
 		// Name und Bild
 		t.setVar("tech.name", Common._plaintitle(research.getName()),
@@ -119,12 +126,12 @@ public class ForschinfoController extends Controller
 		if (research.getRace() != -1)
 		{
 			String rasse = "???";
-			if (Rassen.get().rasse(research.getRace()) != null)
+			if (races.rasse(research.getRace()) != null)
 			{
-				rasse = Rassen.get().rasse(research.getRace()).getName();
+				rasse = races.rasse(research.getRace()).getName();
 			}
 
-			if (!Rassen.get().rasse(user.getRace()).isMemberIn(research.getRace()))
+			if (!races.rasse(user.getRace()).isMemberIn(research.getRace()))
 			{
 				rasse = "<span style=\"color:red\">" + rasse + "</span>";
 			}
@@ -151,7 +158,7 @@ public class ForschinfoController extends Controller
 		}
 
 		// Ermoeglicht
-		ermoeglichteForschungenAnzeigen(db, t, user, research);
+		ermoeglichteForschungenAnzeigen(t, user, research);
 
 		// Beschreibung
 		if (research.getDescription().length() > 0)
@@ -161,30 +168,30 @@ public class ForschinfoController extends Controller
 			{
 				colspan = 5;
 			}
-			t.setVar("tech.descrip", Common._text(research.getDescription()),
+			t.setVar("tech.descrip", Common._text(bbCodeParser, research.getDescription()),
 					"tech.descrip.colspan", colspan);
 		}
 
 		//
 		// Gebaeude
 		//
-		gebaeudeZurForschungAnzeigen(db, t, user, research);
+		gebaeudeZurForschungAnzeigen(t, user, research);
 
 		//
 		// Cores
 		//
-		coresZurForschungAnzeigen(db, t, research);
+		coresZurForschungAnzeigen(t, research);
 
 
 		//
 		// Schiffe
 		//
-		schiffeZurForschungAnzeigen(db, t, user, research);
+		schiffeZurForschungAnzeigen(t, user, research);
 
 		//
 		// Munition
 		//
-		munitionZurForschungAnzeigen(db, t, research);
+		munitionZurForschungAnzeigen(t, research);
 
 		if (research.getSpecializationCosts() > 0 && user.hasResearched(research))
 		{
@@ -228,18 +235,16 @@ public class ForschinfoController extends Controller
 		}
 	}
 
-	private void ermoeglichteForschungenAnzeigen(Session db, TemplateEngine t, User user, Forschung research)
+	private void ermoeglichteForschungenAnzeigen(TemplateEngine t, User user, Forschung research)
 	{
 		t.setBlock("_FORSCHINFO", "tech.allows.listitem", "tech.allows.list");
 
 		boolean entry = false;
-		List<?> results = db.createQuery("from Forschung where req1= :fid or req2= :fid or req3= :fid")
-				.setInteger("fid", research.getID())
-				.list();
-		for (Object result : results)
+		List<Forschung> results = em.createQuery("from Forschung where req1= :fid or req2= :fid or req3= :fid", Forschung.class)
+				.setParameter("fid", research.getID())
+				.getResultList();
+		for (Forschung res: results)
 		{
-			Forschung res = (Forschung) result;
-
 			if (res.isVisibile(user) ||
 					(!res.isVisibile(user) && user.hasResearched(res.getBenoetigteForschungen())))
 			{
@@ -264,7 +269,7 @@ public class ForschinfoController extends Controller
 		}
 	}
 
-	private void gebaeudeZurForschungAnzeigen(Session db, TemplateEngine t, User user, Forschung research)
+	private void gebaeudeZurForschungAnzeigen(TemplateEngine t, User user, Forschung research)
 	{
 		ResourceList reslist;
 		t.setBlock("_FORSCHINFO", "tech.buildings.listitem", "tech.buildings.list");
@@ -275,13 +280,11 @@ public class ForschinfoController extends Controller
 
 		boolean firstentry = true;
 
-		Iterator<?> buildingIter = db.createQuery("from Building where techReq=:tech")
+		List<Building> buildings = em.createQuery("from Building where techReq=:tech", Building.class)
 				.setParameter("tech", research)
-				.iterate();
-		for (; buildingIter.hasNext(); )
+				.getResultList();
+		for (Building building: buildings)
 		{
-			Building building = (Building) buildingIter.next();
-
 			t.start_record();
 
 			t.setVar("tech.building.hr", !firstentry,
@@ -327,9 +330,10 @@ public class ForschinfoController extends Controller
 		}
 	}
 
-	private void coresZurForschungAnzeigen(Session db, TemplateEngine t, Forschung research)
+	private void coresZurForschungAnzeigen(TemplateEngine t, Forschung research)
 	{
-		boolean firstentry;ResourceList reslist;
+		boolean firstentry;
+		ResourceList reslist;
 		t.setBlock("_FORSCHINFO", "tech.cores.listitem", "tech.cores.list");
 		t.setBlock("tech.cores.listitem", "tech.core.buildcosts.listitem", "tech.core.buildcosts.list");
 		t.setBlock("tech.cores.listitem", "tech.core.consumes.listitem", "tech.core.consumes.list");
@@ -337,13 +341,11 @@ public class ForschinfoController extends Controller
 		t.setVar("tech.cores.list", "");
 
 		firstentry = true;
-		Iterator<?> coreIter = db.createQuery("from Core where techReq=:tech")
-				.setInteger("tech", research.getID())
-				.iterate();
-		for (; coreIter.hasNext(); )
+		List<Core> cores = em.createQuery("from Core where techReq=:tech", Core.class)
+				.setParameter("tech", research.getID())
+				.getResultList();
+		for (Core core: cores)
 		{
-			Core core = (Core) coreIter.next();
-
 			t.start_record();
 
 			t.setVar("tech.core.astitype", core.getAstiType().getId(),
@@ -390,23 +392,23 @@ public class ForschinfoController extends Controller
 		}
 	}
 
-	private void schiffeZurForschungAnzeigen(Session db, TemplateEngine t, User user, Forschung research)
+	private void schiffeZurForschungAnzeigen(TemplateEngine t, User user, Forschung research)
 	{
-		boolean firstentry;Cargo costs;ResourceList reslist;
+		boolean firstentry;
+		Cargo costs;
+		ResourceList reslist;
 		t.setBlock("_FORSCHINFO", "tech.ships.listitem", "tech.ships.list");
 		t.setBlock("tech.ships.listitem", "tech.ship.costs.listitem", "tech.ship.costs.list");
 		t.setBlock("tech.ships.listitem", "tech.ship.techs.listitem", "tech.ship.techs.list");
 		t.setVar("tech.ships.list", "");
 
 		firstentry = true;
-		List<?> ships = db.createQuery("from ShipBaubar " +
-				"where res1= :fid or res2= :fid or res3= :fid")
-				.setInteger("fid", research.getID())
-				.list();
-		for (Object ship1 : ships)
+		List<ShipBaubar> ships = em.createQuery("from ShipBaubar " +
+				"where res1= :fid or res2= :fid or res3= :fid", ShipBaubar.class)
+				.setParameter("fid", research.getID())
+				.getResultList();
+		for (ShipBaubar ship: ships)
 		{
-			ShipBaubar ship = (ShipBaubar) ship1;
-
 			boolean show = true;
 
 			//Schiff sichtbar???
@@ -478,7 +480,7 @@ public class ForschinfoController extends Controller
 		}
 	}
 
-	private void munitionZurForschungAnzeigen(Session db, TemplateEngine t, Forschung research)
+	private void munitionZurForschungAnzeigen(TemplateEngine t, Forschung research)
 	{
 		boolean firstentry;ResourceList reslist;
 		t.setBlock("_FORSCHINFO", "tech.fac.listitem", "tech.fac.list");
@@ -488,26 +490,25 @@ public class ForschinfoController extends Controller
 
 		firstentry = true;
 
-		List<?> entryList = db.createQuery("from FactoryEntry " +
-				"where res1= :fid or res2= :fid or res3= :fid")
-				.setInteger("fid", research.getID())
-				.list();
+		List<FactoryEntry> entryList = em.createQuery("from FactoryEntry " +
+				"where res1= :fid or res2= :fid or res3= :fid", FactoryEntry.class)
+				.setParameter("fid", research.getID())
+				.getResultList();
 
-		for (Object anEntryList : entryList)
+		for (FactoryEntry factoryEntry: entryList)
 		{
-			FactoryEntry facentry = (FactoryEntry) anEntryList;
 			t.start_record();
 
 			t.setVar("tech.fac.hr", !firstentry,
-					"tech.fac.dauer", facentry.getDauer());
+					"tech.fac.dauer", factoryEntry.getDauer());
 
 			if (firstentry)
 			{
 				firstentry = false;
 			}
 
-			Cargo buildcosts = facentry.getBuildCosts();
-			Cargo production = facentry.getProduce();
+			Cargo buildcosts = factoryEntry.getBuildCosts();
+			Cargo production = factoryEntry.getProduce();
 
 			// Produktionskosten
 			reslist = buildcosts.getResourceList();

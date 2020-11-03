@@ -18,16 +18,8 @@
  */
 package net.driftingsouls.ds2.server.comm;
 
-import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
-import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.tasks.Taskmanager;
-import net.driftingsouls.ds2.server.notification.Notifier;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.Cache;
@@ -46,7 +38,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
-import java.util.List;
 
 /**
  * <p>Repraesentiert eine PM in der Datenbank.</p>
@@ -102,223 +93,6 @@ public class PM {
 	@Transient
 	private static final Log log = LogFactory.getLog(PM.class);
 
-	/**
-	 * Sendet eine PM von einem Spieler zu einem anderen.
-	 * @param from Der versendende Spieler
-	 * @param to Der Spieler, der die PM erhalten soll
-	 * @param title Der Titel der PM
-	 * @param txt Der Text
-	 */
-	public static void send( User from, int to, String title, String txt ) {
-		send( from, to, title, txt, 0);
-	}
-
-	/**
-	 * Sendet eine PM von einem Spieler zu einer Allianz.
-	 * @param from Der versendende Spieler
-	 * @param to Die Allianz, welche die PM erhalten soll
-	 * @param title Der Titel der PM
-	 * @param txt Der Text
-	 */
-	public static void sendToAlly( User from, Ally to, String title, String txt ) {
-		sendToAlly( from, to, title, txt, 0);
-	}
-
-	/**
-	 * Sendet eine PM von einem Spieler zu einer Allianz.
-	 * @param from Der versendende Spieler
-	 * @param to Die Allianz, welche die PM erhalten soll
-	 * @param title Der Titel der PM
-	 * @param txt Der Text
-	 * @param flags Flags, welche die PM erhalten soll
-	 */
-	public static void sendToAlly( User from, Ally to, String title, String txt, int flags ) {
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-
-		String msg = "an Allianz "+to.getName()+"\n"+txt;
-
-		if( title.length() > 100 ) {
-			title = title.substring(0,100);
-		}
-
-		List<?> members = db.createQuery("from User where ally=:ally")
-			.setEntity("ally", to)
-			.list();
-		for (Object member1 : members)
-		{
-			User member = (User) member1;
-
-			PM pm = new PM(from, member, title, msg);
-			pm.setFlags(flags);
-			db.persist(pm);
-		}
-	}
-
-	/**
-	 * Sendet eine PM von einem Spieler zu einem anderen Spieler.
-	 * @param from Der versendende Spieler
-	 * @param to Die ID des Spielers, welche die PM erhalten soll
-	 * @param title Der Titel der PM
-	 * @param txt Der Text
-	 * @param flags Flags, welche die PM erhalten soll
-	 */
-	public static void send( User from, int to, String title, String txt, int flags ) {
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-
-		/*
-		 *  Normale PM
-		 */
-
-		if( to != TASK ) {
-			if( title.length() > 100 ) {
-				title = title.substring(0,100);
-			}
-			if( txt.length() > 5000 ) {
-				txt = txt.substring(0,5000);
-			}
-
-			User user = (User)db.get(User.class, to);
-			if( user != null ) {
-				PM pm = new PM(from, user, title, txt);
-				pm.setFlags(flags);
-				db.persist(pm);
-
-				for( int forward : user.getUserValues(WellKnownUserValue.TBLORDER_PMS_FORWARD) )
-				{
-					if( forward != 0 ) {
-						send(user, forward, "Fwd: "+title,
-								"[align=center][color=green]- Folgende Nachricht ist soeben eingegangen -[/color][/align]\n" +
-								"[b]Absender:[/b] [userprofile="+from.getId()+"]"+from.getName()+"[/userprofile] ("+from.getId()+")\n\n"+
-								txt, flags);
-					}
-				}
-			}
-			else {
-				context.addError("Transmission an Spieler "+to+" fehlgeschlagen");
-			}
-		}
-		/*
-		 * Taskverarbeitung (Spezial-PM)
-		 */
-		else {
-
-			Taskmanager taskmanager = Taskmanager.getInstance();
-
-			if( txt.equals("handletm") ) {
-				taskmanager.handleTask(title, "pm_yes" );
-			}
-			else {
-				taskmanager.handleTask(title, "pm_no" );
-			}
-		}
-	}
-
-	/**
-	 * Sendet eine PM an alle Admins (spezifiziert durch den Konfigurationseintrag <code>ADMIN_PMS_ACCOUT</code>).
-	 * @param from Der versendende Spieler
-	 * @param title Der Titel der PM
-	 * @param txt Der Text
-	 * @param flags Flags, welche die PM erhalten soll
-	 */
-	public static void sendToAdmins(User from, String title, String txt, int flags  ) {
-		String[] adminlist = new ConfigService().getValue(WellKnownConfigValue.ADMIN_PMS_ACCOUNT).split(",");
-		for( String admin : adminlist ) {
-			send(from, Integer.parseInt(admin), title, txt, flags);
-		}
-	}
-
-	/**
-	 * Sendet eine Nachricht an alle Spieler (jeden mit ID > 0)
-	 *
-	 * @param from Der Absender
-	 * @param title Der Titel der PM
-	 * @param msg Der Text der PM
-	 * @param flags Flags der PM
-	 */
-	public static void sendToAll(User from, String title, String msg, int flags) {
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-
-		@SuppressWarnings("unchecked")
-		List<User> players = db.createQuery("from User where id>0").list();
-		for(User player: players) {
-			PM pm = new PM(from, player, title, msg);
-			pm.setFlags(flags);
-			db.persist(pm);
-		}
-	}
-
-
-	/**
-	 * Loescht alle PMs aus einem Ordner eines bestimmten Spielers.
-	 * Der Vorgang schlaegt fehl, wenn noch nicht alle wichtigen PMs gelesen wurden.
-	 * @param ordner Der Ordner, dessen Inhalt geloescht werden soll
-	 * @param user Der Besitzer des Ordners
-	 * @return 0, falls der Vorgang erfolgreich war. 1, wenn ein Fehler aufgetreten ist und 2, falls nicht alle PMs gelesen wurden
-	 */
-	public static int deleteAllInOrdner( Ordner ordner, User user ) {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
-		List<?> pms = db.createQuery("from PM where ordner=:ordner")
-			.setInteger("ordner", ordner.getId())
-			.list();
-		for (Object pm1 : pms)
-		{
-			PM pm = (PM) pm1;
-
-			if (pm.getEmpfaenger().getId() != user.getId())
-			{
-				return 2;
-			}
-			int result = pm.delete();
-			if (result != 0)
-			{
-				return result;
-			}
-		}
-
-		return 0;	//geloescht
-	}
-
-	/**
-	 * Verschiebt alle PMs von einem Ordner in einen anderen.
-	 * @param source Der Ausgangsordner
-	 * @param dest Der Zielordner
-	 * @param user Der Besitzer der PM
-	 */
-	public static void moveAllToOrdner( Ordner source, Ordner dest , User user) {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		Ordner trash = Ordner.getTrash( user );
-
-		List<?> pms = db.createQuery("from PM where ordner=:ordner and empfaenger=:user")
-			.setInteger("ordner", source.getId())
-			.setEntity("user", user)
-			.list();
-		for (Object pm1 : pms)
-		{
-			PM pm = (PM) pm1;
-			int gelesen = (trash == source) ? 1 : pm.getGelesen();
-
-			pm.setGelesen((trash == dest) ? 2 : gelesen);
-			pm.setOrdner(dest.getId());
-		}
-	}
-
-	/**
-	 * Stelllt alle geloeschten PMs eines Spielers wieder her.
-	 * @param user Der Spieler
-	 */
-	public static void recoverAll( User user ) {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		int trash = Ordner.getTrash( user ).getId();
-
-		db.createQuery("update PM set ordner=0,gelesen=1 where ordner=:ordner")
-			.setInteger("ordner", trash)
-			.executeUpdate();
-	}
-
 	@Id @GeneratedValue
 	private int id;
 	private int gelesen;
@@ -368,9 +142,6 @@ public class PM {
 		this.flags = 0;
 		this.inhalt = inhalt;
 		this.kommentar = "";
-		if(!empfaenger.getApiKey().isEmpty()) {
-			new Notifier (empfaenger.getApiKey()).sendMessage("DS2: "+title, "Nachricht von "+sender.getPlainname()+": \n"+ inhalt);		
-		}
 	}
 
 	/**
@@ -532,58 +303,6 @@ public class PM {
 	 */
 	public int getId() {
 		return id;
-	}
-
-	/**
-	 * Stellt eine geloeschte PM wieder her.
-	 */
-	public void recover() {
-		if( this.gelesen <= 1 ) {
-			return;
-		}
-
-		int trash = Ordner.getTrash( this.empfaenger ).getId();
-		if( this.ordner != trash ) {
-			return;
-		}
-		this.gelesen = 1;
-		this.ordner = 0;
-	}
-
-	/**
-	 * Loescht die PM.
-	 * @return 0, falls der Vorgang erfolgreich war. 1, wenn ein Fehler aufgetreten ist und 2, falls nicht alle PMs gelesen wurden
-	 */
-	public int delete() {
-		if( this.gelesen > 1 ) {
-			return 2;
-		}
-
-		Ordner trashCan = Ordner.getTrash(this.empfaenger);
-		int trash;
-		if(trashCan != null)
-		{
-			trash = trashCan.getId();
-		}
-		else
-		{
-			if(this.empfaenger != null)
-			{
-				log.error("User " + this.empfaenger.getId() + " has no trash can.");
-			}
-			else
-			{
-				log.error("An anonymous user (object was null) has no trash can.");
-			}
-			return 1;
-		}
-		if( this.hasFlag(PM.FLAGS_IMPORTANT) && (this.gelesen < 1) ) {
-			return 1;
-		}
-		this.gelesen = 2;
-		this.ordner = trash;
-
-		return 0;	//geloescht
 	}
 
 	/**

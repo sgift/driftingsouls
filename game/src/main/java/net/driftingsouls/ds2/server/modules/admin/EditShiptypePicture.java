@@ -19,14 +19,17 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
+import net.driftingsouls.ds2.server.services.ShipService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 
 /**
@@ -35,19 +38,29 @@ import java.util.List;
  * @author Christopher Jung
  */
 @AdminMenuEntry(category = "Schiffe", name = "Typengrafik", permission = WellKnownAdminPermission.EDIT_SHIPTYPE_PICTRUE)
+@Component
 public class EditShiptypePicture implements EntityEditor<ShipType>
 {
+	@PersistenceContext
+	private EntityManager em;
+
+	private final ShipService shipService;
+
+	public EditShiptypePicture(ShipService shipService) {
+		this.shipService = shipService;
+	}
+
 	private List<Integer> liefereZuAktualisierendeSchiffe(ShipType shipType)
 	{
-		return Common.cast(ContextMap.getContext().getDB().createQuery("select s.id from Ship s where s.shiptype=:type and s.modules is not null")
-								   .setEntity("type", shipType)
-								   .list());
+		return em.createQuery("select s.id from Ship s where s.shiptype=:type and s.modules is not null", Integer.class)
+								   .setParameter("type", shipType)
+								   .getResultList();
 	}
 
 	private void aktualisiereSchiff(ShipType oldshipType, ShipType shipType, Integer schiffsId)
 	{
-		Ship ship = (Ship)ContextMap.getContext().getDB().get(Ship.class, schiffsId);
-		ship.recalculateModules();
+		Ship ship = em.find(Ship.class, schiffsId);
+		shipService.recalculateModules(ship);
 	}
 
 	@Override

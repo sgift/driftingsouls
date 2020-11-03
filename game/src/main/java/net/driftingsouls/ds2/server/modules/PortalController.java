@@ -26,28 +26,46 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.BaseType;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
-import net.driftingsouls.ds2.server.entities.*;
+import net.driftingsouls.ds2.server.entities.Nebel;
+import net.driftingsouls.ds2.server.entities.NewsEntry;
+import net.driftingsouls.ds2.server.entities.Offizier;
+import net.driftingsouls.ds2.server.entities.Rasse;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.authentication.*;
+import net.driftingsouls.ds2.server.framework.authentication.AccountDisabledException;
+import net.driftingsouls.ds2.server.framework.authentication.AuthenticationException;
+import net.driftingsouls.ds2.server.framework.authentication.AuthenticationManager;
+import net.driftingsouls.ds2.server.framework.authentication.LoginDisabledException;
+import net.driftingsouls.ds2.server.framework.authentication.TickInProgressException;
+import net.driftingsouls.ds2.server.framework.authentication.WrongPasswordException;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.EmptyHeaderOutputHandler;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.KeinLoginNotwendig;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.KeineTicksperre;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.services.BuildingService;
+import net.driftingsouls.ds2.server.services.PmService;
+import net.driftingsouls.ds2.server.services.ShipService;
+import net.driftingsouls.ds2.server.services.UserService;
 import net.driftingsouls.ds2.server.units.TransientUnitCargo;
 import net.driftingsouls.ds2.server.user.authentication.AccountInVacationModeException;
-import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -64,13 +82,28 @@ public class PortalController extends Controller
 	private final AuthenticationManager authManager;
 	private final TemplateViewResultFactory templateViewResultFactory;
 	private final ConfigService configService;
+	private final Rassen races;
+	private final BuildingService buildingService;
+	private final PmService pmService;
+	private final UserService userService;
+	private final BBCodeParser bbCodeParser;
+	private final ShipService shipService;
+
+	@PersistenceContext
+	private EntityManager em;
 
 	@Autowired
-	public PortalController(AuthenticationManager authManager, TemplateViewResultFactory templateViewResultFactory, ConfigService configService)
+	public PortalController(AuthenticationManager authManager, TemplateViewResultFactory templateViewResultFactory, ConfigService configService, Rassen races, BuildingService buildingService, PmService pmService, UserService userService, BBCodeParser bbCodeParser, ShipService shipService)
 	{
 		this.authManager = authManager;
 		this.templateViewResultFactory = templateViewResultFactory;
 		this.configService = configService;
+		this.races = races;
+		this.buildingService = buildingService;
+		this.pmService = pmService;
+		this.userService = userService;
+		this.bbCodeParser = bbCodeParser;
+		this.shipService = shipService;
 	}
 
 	/**
@@ -82,7 +115,6 @@ public class PortalController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine passwordLostAction(String username)
 	{
-		org.hibernate.Session db = getDB();
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 
 		if ("".equals(username))
@@ -91,17 +123,17 @@ public class PortalController extends Controller
 		}
 		else
 		{
-			User user = (User) db.createQuery("from User where un = :username")
-					.setString("username", username)
-					.uniqueResult();
+			User user = em.createQuery("from User where un = :username", User.class)
+					.setParameter("username", username)
+					.getSingleResult();
 			if (user != null)
 			{
 				if (!"".equals(user.getEmail()))
 				{
 					String password = Common.md5(Integer.toString(ThreadLocalRandom.current().nextInt(Integer.MAX_VALUE)));
-					String enc_pw = Common.md5(password);
+					String encryptedPassword = Common.md5(password);
 
-					user.setPassword(enc_pw);
+					user.setPassword(encryptedPassword);
 
 					String subject = "Neues Passwort fuer Drifting Souls 2";
 
@@ -200,33 +232,29 @@ public class PortalController extends Controller
 
 	private StartLocations getStartLocation()
 	{
-		org.hibernate.Session db = getDB();
-
 		int systemID = 0;
 		int orderLocationID = 0;
 		int mindistance = 99999;
 		HashMap<Integer, StartLocation> minsysdistance = new HashMap<>();
 
-		List<?> systems = db.createQuery("from StarSystem order by id asc").list();
-		for (Object system1 : systems)
+		List<StarSystem> systems = em.createQuery("from StarSystem order by id asc", StarSystem.class).getResultList();
+		for (StarSystem system: systems)
 		{
-			StarSystem system = (StarSystem) system1;
 			Location[] locations = system.getOrderLocations();
 
 			for (int i = 0; i < locations.length; i++)
 			{
 				int dist = 0;
 				int count = 0;
-				Iterator<?> distiter = db.createQuery("SELECT sqrt((:x-x)*(:x-x)+(:y-y)*(:y-y)) FROM Base WHERE owner.id = 0 AND system = :system AND klasse.id = 1 ORDER BY sqrt((:x-x)*(:x-x)+(:y-y)*(:y-y))")
-						.setInteger("x", locations[i].getX())
-						.setInteger("y", locations[i].getY())
-						.setInteger("system", system.getID())
+				var distances = em.createQuery("SELECT sqrt((:x-x)*(:x-x)+(:y-y)*(:y-y)) FROM Base WHERE owner.id = 0 AND system = :system AND klasse.id = 1 ORDER BY sqrt((:x-x)*(:x-x)+(:y-y)*(:y-y))", Double.class)
+						.setParameter("x", locations[i].getX())
+						.setParameter("y", locations[i].getY())
+						.setParameter("system", system.getID())
 						.setMaxResults(15)
-						.iterate();
+						.getResultList();
 
-				while (distiter.hasNext())
-				{
-					dist += (Double) distiter.next();
+				for(Double distance: distances) {
+					dist += distance;
 					count++;
 				}
 
@@ -253,8 +281,6 @@ public class PortalController extends Controller
 
 	private boolean register(TemplateEngine t, String username, String email, int race, StarSystem system, String key, boolean agbAccepted, ConfigValue keys)
 	{
-		Session db = getDB();
-
 		if ("".equals(username) || "".equals(email))
 		{
 			return false;
@@ -264,19 +290,19 @@ public class PortalController extends Controller
 
 			String acceptAgbMessage = configService.getValue(WellKnownConfigValue.ACCEPT_AGB_MESSAGE);
 			t.setVar("show.register.acceptagb", 1,
-					"register.acceptagb.msg", Common._text(acceptAgbMessage));
+					"register.acceptagb.msg", Common._text(bbCodeParser, acceptAgbMessage));
 
 			return false;
 		}
 
-		User user1 = (User) db.createQuery("from User where un = :username")
-				.setString("username", username)
+		User user1 = em.createQuery("from User where un = :username", User.class)
+				.setParameter("username", username)
 				.setMaxResults(1)
-				.uniqueResult();
-		User user2 = (User) db.createQuery("from User where email = :email")
-				.setString("email", email)
+				.getSingleResult();
+		User user2 = em.createQuery("from User where email = :email", User.class)
+				.setParameter("email", email)
 				.setMaxResults(1)
-				.uniqueResult();
+				.getSingleResult();
 
 		if (user1 != null)
 		{
@@ -288,7 +314,7 @@ public class PortalController extends Controller
 			t.setVar("show.register.msg.wrongemail", 1);
 			return false;
 		}
-		if (!Rassen.get().rasse(race).isPlayable())
+		if (!races.rasse(race).isPlayable())
 		{
 			t.setVar("show.register.msg.wrongrace", 1);
 			return false;
@@ -306,7 +332,7 @@ public class PortalController extends Controller
 			return false;
 		}
 
-		List<StarSystem> systems = Common.cast(db.createQuery("from StarSystem").list());
+		List<StarSystem> systems = em.createQuery("from StarSystem", StarSystem.class).getResultList();
 
 		if ((system == null) || (system.getOrderLocations().length == 0))
 		{
@@ -325,7 +351,7 @@ public class PortalController extends Controller
 					t.setVar("system.id", sys.getID(),
 							"system.name", sys.getName(),
 							"system.selected", (sys.getID() == locations.systemID),
-							"system.description", Common._text(sys.getDescription()));
+							"system.description", Common._text(bbCodeParser, sys.getDescription()));
 
 					t.parse("register.systems.list", "register.systems.listitem", true);
 					t.parse("register.systemdesc.list", "register.systemdesc.listitem", true);
@@ -378,55 +404,57 @@ public class PortalController extends Controller
 		}
 
 		String password = Common.md5(Integer.toString(ThreadLocalRandom.current().nextInt(Integer.MAX_VALUE)));
-		String enc_pw = Common.md5(password);
+		String encryptedPassword = Common.md5(password);
 
-		int maxid = (Integer) db.createQuery("SELECT max(id) FROM User").iterate().next();
-		int newid = maxid + 1;
+		int highestUserId = em.createQuery("SELECT max(id) FROM User", Integer.class).getSingleResult();
+		int newId = highestUserId + 1;
 
 		int ticks = getContext().get(ContextCommon.class).getTick();
 
 		String history = "Kolonistenlizenz erworben am " + Common.getIngameTime(ticks) + " [" + Common.date("d.m.Y H:i:s") + " Uhr]";
 
-		User newuser = new User(username, enc_pw, race, history, new Cargo(), email);
+		User newUser = new User(newId, username, username, encryptedPassword, race, history, email, configService);
+		em.persist(newUser);
+		userService.setupTrash(newUser);
 
 		// Startgeld festlegen
-		newuser.setKonto(BigInteger.valueOf(50000));
+		newUser.setKonto(BigInteger.valueOf(50000));
 
 		// Schiffe erstellen
 		StartLocations locations = getStartLocation();
-		Location[] orderlocs = system.getOrderLocations();
-		Location orderloc = orderlocs[locations.minSysDistance.get(system.getID()).orderLocationID];
+		Location[] orderLocations = system.getOrderLocations();
+		Location orderLocation = orderLocations[locations.minSysDistance.get(system.getID()).orderLocationID];
 
-		Base base = (Base) db.createQuery("from Base where klasse.id=1 and owner.id=0 and system=:sys order by sqrt((:x-x)*(:x-x)+(:y-y)*(:y-y)) ")
-				.setInteger("sys", system.getID())
-				.setInteger("x", orderloc.getX())
-				.setInteger("y", orderloc.getY())
+		Base base = em.createQuery("from Base where klasse.id=1 and owner.id=0 and system=:sys order by sqrt((:x-x)*(:x-x)+(:y-y)*(:y-y))", Base.class)
+				.setParameter("sys", system.getID())
+				.setParameter("x", orderLocation.getX())
+				.setParameter("y", orderLocation.getY())
 				.setMaxResults(1)
-				.uniqueResult();
+				.getSingleResult();
 
-		erstelleStartBasis(db, newuser, base);
+		erstelleStartBasis(newUser, base);
 
-		Nebel nebel = (Nebel) db.createQuery("from Nebel where loc.system=:sys and type<3 order by sqrt((:x-loc.x)*(:x-loc.x)+(:y-loc.y)*(:y-loc.y))*(mod(type+1,3)+1)*3")
-				.setInteger("sys", system.getID())
-				.setInteger("x", base.getX())
-				.setInteger("y", base.getY())
+		Nebel nebel = em.createQuery("from Nebel where loc.system=:sys and type<3 order by sqrt((:x-loc.x)*(:x-loc.x)+(:y-loc.y)*(:y-loc.y))*(mod(type+1,3)+1)*3", Nebel.class)
+				.setParameter("sys", system.getID())
+				.setParameter("x", base.getX())
+				.setParameter("y", base.getY())
 				.setMaxResults(1)
-				.uniqueResult();
+				.getSingleResult();
 
 		if (race == 1)
 		{
-			SectorTemplateManager.getInstance().useTemplate(db, "ORDER_TERRANER", base.getLocation(), newid);
-			SectorTemplateManager.getInstance().useTemplate(db, "ORDER_TERRANER_TANKER", nebel.getLocation(), newid);
+			SectorTemplateManager.getInstance().useTemplate(em, shipService, "ORDER_TERRANER", base.getLocation(), newId);
+			SectorTemplateManager.getInstance().useTemplate(em, shipService, "ORDER_TERRANER_TANKER", nebel.getLocation(), newId);
 		}
 		else
 		{
-			SectorTemplateManager.getInstance().useTemplate(db, "ORDER_VASUDANER", base.getLocation(), newid);
-			SectorTemplateManager.getInstance().useTemplate(db, "ORDER_VASUDANER_TANKER", nebel.getLocation(), newid);
+			SectorTemplateManager.getInstance().useTemplate(em, shipService, "ORDER_VASUDANER", base.getLocation(), newId);
+			SectorTemplateManager.getInstance().useTemplate(em, shipService, "ORDER_VASUDANER_TANKER", nebel.getLocation(), newId);
 		}
 
 		//Willkommens-PM versenden
-		User source = (User) db.get(User.class, configService.getValue(WellKnownConfigValue.REGISTER_PM_SENDER));
-		PM.send(source, newid, "Willkommen bei Drifting Souls 2",
+		User source = em.find(User.class, configService.getValue(WellKnownConfigValue.REGISTER_PM_SENDER));
+		pmService.send(source, newId, "Willkommen bei Drifting Souls 2",
 				"[font=arial]Herzlich willkommen bei Drifting Souls 2!\n" +
 						"Diese PM wird automatisch an alle neuen Spieler versandt, um\n" +
 						"ihnen Hilfsquellen für den nicht immer einfachen Einstieg zu\n" +
@@ -441,10 +469,10 @@ public class PortalController extends Controller
 						"Viel Spaß bei DS2 wünschen Dir die Admins[/font]");
 
 		t.setVar("show.register.msg.ok", 1,
-				"register.newid", newid);
+				"register.newid", newId);
 
 		Common.copyFile(Configuration.getAbsolutePath() + "data/logos/user/0.gif",
-				Configuration.getAbsolutePath() + "data/logos/user/" + newid + ".gif");
+				Configuration.getAbsolutePath() + "data/logos/user/" + newId + ".gif");
 
 		versendeRegistrierungsEmail(username, email, password);
 
@@ -467,7 +495,7 @@ public class PortalController extends Controller
 		Common.mail(email, "Anmeldung bei Drifting Souls 2", message);
 	}
 
-	private void erstelleStartBasis(Session db, User newuser, Base base)
+	private void erstelleStartBasis(User newUser, Base base)
 	{
 		String[] baselayoutStr = configService.getValue(WellKnownConfigValue.REGISTER_BASELAYOUT).split(",");
 		Integer[] activebuildings = new Integer[baselayoutStr.length];
@@ -502,14 +530,13 @@ public class PortalController extends Controller
 			}
 
 			Building building = Building.getBuilding(aBebauung);
-			building.cleanup(getContext(), base, aBebauung);
+			buildingService.cleanup(building, base, aBebauung);
 		}
 
-		BaseType basetype = (BaseType) db.get(BaseType.class, 1);
-		//User newuser = (User)getDB().get(User.class, newid);
+		BaseType basetype = em.find(BaseType.class, 1);
 
 		base.setEnergy(base.getMaxEnergy());
-		base.setOwner(newuser);
+		base.setOwner(newUser);
 		base.setBebauung(baselayout);
 		base.setActive(activebuildings);
 		base.setArbeiter(arbeiter);
@@ -559,7 +586,7 @@ public class PortalController extends Controller
 		if (!"".equals(disableregister))
 		{
 			t.setVar("show.register.registerdisabled", 1,
-					"register.registerdisabled.msg", Common._text(disableregister));
+					"register.registerdisabled.msg", Common._text(bbCodeParser, disableregister));
 
 			return t;
 		}
@@ -590,14 +617,14 @@ public class PortalController extends Controller
 
 			int first = -1;
 
-			for (Rasse rasse : Rassen.get())
+			for (Rasse rasse : races)
 			{
 				if (rasse.isPlayable())
 				{
 					t.setVar("rasse.id", rasse.getId(),
 							"rasse.name", rasse.getName(),
 							"rasse.selected", (first == -1 ? 1 : 0),
-							"rasse.description", Common._text(rasse.getDescription()));
+							"rasse.description", Common._text(bbCodeParser, rasse.getDescription()));
 
 					if (first == -1)
 					{
@@ -641,7 +668,7 @@ public class PortalController extends Controller
 			catch (LoginDisabledException e)
 			{
 				t.setVar("show.login.logindisabled", 1,
-						"login.logindisabled.msg", Common._text(e.getMessage()));
+						"login.logindisabled.msg", Common._text(bbCodeParser, e.getMessage()));
 
 				return t;
 			}
@@ -699,11 +726,10 @@ public class PortalController extends Controller
 	public TemplateEngine loginVacmodeDeakAction(String username, String pw, String reason)
 	{
 		TemplateEngine t = templateViewResultFactory.createFor(this);
-		org.hibernate.Session db = getDB();
 
-		User user = (User) db.createQuery("from User where un=:username")
-				.setString("username", username)
-				.uniqueResult();
+		User user = em.createQuery("from User where un=:username", User.class)
+				.setParameter("username", username)
+				.getSingleResult();
 
 		String encPw = Common.md5(pw);
 
@@ -713,7 +739,7 @@ public class PortalController extends Controller
 			return t;
 		}
 
-		PM.sendToAdmins(user, "VACMODE-DEAK",
+		pmService.sendToAdmins(user, "VACMODE-DEAK",
 				"[VACMODE-DEAK]\nMY ID: " + user.getId() + "\nREASON:\n" + reason, 0);
 
 		t.setVar("show.login.vacmode.msg.send", 1);
@@ -747,7 +773,6 @@ public class PortalController extends Controller
 
 	private void zeigeNewsListeAn(TemplateEngine t, boolean archiv)
 	{
-		org.hibernate.Session db = getDB();
 		t.setVar(
 				"show.news", 1,
 				"show.overview", !archiv,
@@ -755,15 +780,15 @@ public class PortalController extends Controller
 
 		t.setBlock("_PORTAL", "news.listitem", "news.list");
 
-		List<NewsEntry> allnews = Common.cast(db.createQuery("FROM NewsEntry ORDER BY date DESC")
+		List<NewsEntry> news = em.createQuery("FROM NewsEntry ORDER BY date DESC", NewsEntry.class)
 											  .setMaxResults(archiv ? 100 : 2)
-											  .list());
-		for (NewsEntry news : allnews)
+											  .getResultList();
+		for (NewsEntry newsEn: news)
 		{
-			t.setVar("news.date", Common.date("d.m.Y H:i", news.getDate()),
-					"news.title", news.getTitle(),
-					"news.author", news.getAuthor(),
-					"news.text", Common._text(news.getNewsText()));
+			t.setVar("news.date", Common.date("d.m.Y H:i", newsEn.getDate()),
+					"news.title", newsEn.getTitle(),
+					"news.author", newsEn.getAuthor(),
+					"news.text", Common._text(bbCodeParser, newsEn.getNewsText()));
 			t.parse("news.list", "news.listitem", true);
 		}
 	}

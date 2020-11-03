@@ -26,6 +26,7 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
 
 /**
  * Ermoeglicht das Bearbeiten von Forschungen.
@@ -33,6 +34,7 @@ import org.springframework.lang.NonNull;
  *
  */
 @AdminMenuEntry(category="Techs", name="Forschung", permission = WellKnownAdminPermission.EDIT_RESEARCH)
+@Component
 public class EditResearch implements EntityEditor<Forschung>
 {
 	@Override
@@ -52,9 +54,9 @@ public class EditResearch implements EntityEditor<Forschung>
 		form.field("Forschungskosten", Cargo.class, Forschung::getCosts, Forschung::setCosts);
 		form.field("Spezialisierungspunkte", Integer.class, Forschung::getSpecializationCosts, Forschung::setSpecializationCosts);
 		form.textArea("Beschreibung", Forschung::getDescription, Forschung::setDescription);
-		form.field("Benötigt 1", Forschung.class, (f) -> f.getRequiredResearch(1), Forschung::setReq1).withNullOption("[keine]");
-		form.field("Benötigt 2", Forschung.class, (f) -> f.getRequiredResearch(2), Forschung::setReq2).withNullOption("[keine]");
-		form.field("Benötigt 3", Forschung.class, (f) -> f.getRequiredResearch(3), Forschung::setReq3).withNullOption("[keine]");
+		form.field("Benötigt 1", Forschung.class, f -> f.getRequiredResearch(1), Forschung::setReq1).withNullOption("[keine]");
+		form.field("Benötigt 2", Forschung.class, f -> f.getRequiredResearch(2), Forschung::setReq2).withNullOption("[keine]");
+		form.field("Benötigt 3", Forschung.class, f -> f.getRequiredResearch(3), Forschung::setReq3).withNullOption("[keine]");
 		form.field("Sichtbarkeit", Forschung.Visibility.class, Forschung::getVisibility, Forschung::setVisibility);
 	}
 }

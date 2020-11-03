@@ -26,7 +26,10 @@ import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.services.BattleService;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
@@ -35,12 +38,13 @@ import java.io.IOException;
  * @author Christopher Jung
  *
  */
+@Component
 public class KSTakeCommandAction extends BasicKSAction {
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public KSTakeCommandAction() {
+	private final BBCodeParser bbCodeParser;
+
+	public KSTakeCommandAction(BattleService battleService, BBCodeParser bbCodeParser) {
+		super(battleService, null);
+		this.bbCodeParser = bbCodeParser;
 		this.requireActive(false);
 		this.requireCommander(false);
 	}
@@ -61,25 +65,19 @@ public class KSTakeCommandAction extends BasicKSAction {
             if( (battle.getAlly(battle.getOwnSide()) == 0) ||
                 ((user.getAlly() != null) && (battle.getAlly(battle.getOwnSide()) != user.getAlly().getId())) ) {
 
-                battle.logme( "Sie geh&ouml;ren nicht der kommandierenden Allianz an\n" );
+                getBattleService().logme(battle,  "Sie geh&ouml;ren nicht der kommandierenden Allianz an\n" );
                 return Result.ERROR;
             }
         }
 
 		if( battle.getTakeCommand(battle.getOwnSide()) != 0 ) {
-			battle.logme( "Es versucht bereits ein anderer Spieler das Kommando zu &uuml;bernehmen\n" );
+			getBattleService().logme(battle,  "Es versucht bereits ein anderer Spieler das Kommando zu &uuml;bernehmen\n" );
 			return Result.ERROR;
 		}
-		/*
-		User oldCommander = battle.getCommander(battle.getOwnSide());
-		if( oldCommander.getInactivity() <= 0 ) {
-			battle.logme( "Der kommandierende Spieler ist noch anwesend\n" );
-			return Result.ERROR;
-		}
-		*/
+
 		battle.setCommander(battle.getOwnSide(), user);
-		battle.log(new SchlachtLogAktion(battle.getOwnSide(), "[userprofile="+user.getId()+",profile_alog]"+Common._titleNoFormat(user.getName())+"[/userprofile] hat die Schlacht übernommen"));
-		battle.log(new SchlachtLogKommandantWechselt(battle.getOwnSide(), battle.getCommander(battle.getOwnSide())));
+		getBattleService().log(battle, new SchlachtLogAktion(battle.getOwnSide(), "[userprofile="+user.getId()+",profile_alog]"+Common._titleNoFormat(bbCodeParser, user.getName())+"[/userprofile] hat die Schlacht übernommen"));
+		getBattleService().log(battle, new SchlachtLogKommandantWechselt(battle.getOwnSide(), battle.getCommander(battle.getOwnSide())));
 
 		return Result.OK;
 	}

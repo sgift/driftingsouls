@@ -20,7 +20,7 @@ public class SchiffBauinformationen implements Comparable<SchiffBauinformationen
 	private final BauinformationenQuelle quelle;
 	private final ResourceID item;
 
-	SchiffBauinformationen(ShipBaubar baudaten, BauinformationenQuelle quelle, ResourceID item)
+	public SchiffBauinformationen(ShipBaubar baudaten, BauinformationenQuelle quelle, ResourceID item)
 	{
 		this.baudaten = baudaten;
 		this.quelle = quelle;

@@ -20,16 +20,12 @@ package net.driftingsouls.ds2.server.werften;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
-import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.ships.SchiffHinzufuegenService;
-import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Type;
@@ -43,7 +39,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -100,9 +95,9 @@ public class WerftQueueEntry {
 	 * @param remaining Die verbleibende Bauzeit
 	 * @param slots Die Anzahl der belegten Slots
 	 */
-	public WerftQueueEntry(WerftObject werft, ShipType building, int remaining, int slots) {
+	public WerftQueueEntry(WerftObject werft, ShipType building, int remaining, int slots, int position) {
 		this.werft = werft;
-		this.position = getNextEmptyPosition(werft);
+		this.position = position;
 		this.building = building;
 		this.remaining = remaining;
 		this.costsPerTick = new Cargo();
@@ -117,22 +112,9 @@ public class WerftQueueEntry {
 	 * @param remaining Die verbleibende Bauzeit
 	 * @param slots Die Anzahl der belegten Slots
 	 */
-	public WerftQueueEntry(WerftObject werft, ShipType building, int buildItem, int remaining, int slots) {
-		this(werft, building, remaining, slots);
+	public WerftQueueEntry(WerftObject werft, ShipType building, int buildItem, int remaining, int slots, int position) {
+		this(werft, building, remaining, slots, position);
 		this.buildItem = buildItem;
-	}
-
-	private static int getNextEmptyPosition(WerftObject werft) {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
-		Integer position = (Integer)db.createQuery("select max(wq.position) from WerftQueueEntry as wq where wq.werft=:werft")
-			.setInteger("werft", werft.getWerftID())
-			.iterate().next();
-
-		if( position == null ) {
-			return 1;
-		}
-		return position+1;
 	}
 
 	/**
@@ -318,107 +300,6 @@ public class WerftQueueEntry {
 	}
 
 	/**
-	 * Beendet den Bauprozess dieses Bauschlangeneintrags erfolgreich.
-	 * Sollte dies nicht moeglich sein, wird 0 zurueckgegeben.
-	 *
-	 * @return die ID des gebauten Schiffes oder 0
-	 */
-	public int finishBuildProcess() {
-		MESSAGE.get().setLength(0);
-
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-
-		if( !this.isScheduled() ) {
-			return 0;
-		}
-
-		ShipType shipd = this.getBuildShipType();
-
-		User auser = this.werft.getOwner();
-
-		SchiffHinzufuegenService schiffHinzufuegenService = new SchiffHinzufuegenService();
-		Ship ship = schiffHinzufuegenService.erstelle(auser, shipd, this.werft.getLocation());
-
-		// Item benutzen
-		if( this.getRequiredItem() > -1 ) {
-			Cargo cargo = this.werft.getCargo(true);
-			List<ItemCargoEntry<Item>> itemlist = cargo.getItem(this.getRequiredItem());
-			boolean ok = false;
-			for (ItemCargoEntry<Item> anItemlist : itemlist)
-			{
-				if (anItemlist.getMaxUses() == 0)
-				{
-					ok = true;
-					break;
-				}
-			}
-
-			if( !ok ) {
-				User user = this.werft.getOwner();
-
-				Cargo allyitems = null;
-				if( user.getAlly() != null ) {
-					allyitems = new Cargo( Cargo.Type.ITEMSTRING, user.getAlly().getItems() );
-					itemlist = allyitems.getItem(this.getRequiredItem());
-					for (ItemCargoEntry<Item> anItemlist : itemlist)
-					{
-						if (anItemlist.getMaxUses() == 0)
-						{
-							ok = true;
-							break;
-						}
-					}
-				}
-
-				if( !ok ) {
-					ItemCargoEntry<Item> item;
-					String source;
-					if( (user.getAlly() != null) && allyitems.hasResource(new ItemID(this.getRequiredItem())) ) {
-						item = allyitems.getItem(this.getRequiredItem()).get(0);
-						source = "ally";
-					}
-					else {
-						item = cargo.getItem(this.getRequiredItem()).get(0);
-						source = "local";
-					}
-
-					item.useItem();
-
-					if( source.equals("local") ) {
-						this.werft.setCargo(cargo, true);
-					}
-					else {
-						this.werft.getOwner().getAlly().setItems(allyitems.save());
-					}
-				}
-			}
-		}
-
-		if( this.isBuildFlagschiff() ) {
-			this.werft.setBuildFlagschiff(false);
-		}
-
-		db.delete(this);
-		this.werft.removeQueueEntry(this);
-
-		final Iterator<?> entryIter = db.createQuery("from WerftQueueEntry where werft=:werft and position>:pos order by position")
-			.setEntity("werft", this.werft)
-			.setInteger("pos", this.position)
-			.iterate();
-		while( entryIter.hasNext() ) {
-			WerftQueueEntry entry = (WerftQueueEntry)entryIter.next();
-			entry.setPosition(entry.getPosition()-1);
-		}
-
-		db.flush();
-
-		this.werft.onFinishedBuildProcess(ship.getId());
-
-		return ship.getId();
-	}
-
-	/**
 	 * Gibt zurueck, ob alle Voraussetzungen fuer eine Weiterfuehrung
 	 * des Bauprozesses erfuellt sind. Wenn nichts gebaut wird,
 	 * wird ebenfalls true zurueckgegeben.
@@ -464,39 +345,11 @@ public class WerftQueueEntry {
 		return true;
 	}
 
-	private void substractBuildCosts() {
-		if( !this.getCostsPerTick().isEmpty() ) {
-			Cargo cargo = this.werft.getCargo(false);
-			cargo.substractCargo(this.getCostsPerTick());
-			this.werft.setCargo(cargo, false);
-		}
-
-		if( this.getEnergyPerTick() != 0 ) {
-			this.werft.setEnergy(this.werft.getEnergy() - this.getEnergyPerTick());
-		}
+	public ShipType getBuilding() {
+		return building;
 	}
 
-	/**
-	 * Dekrementiert die verbliebene Bauzeit um 1.
-	 */
-	public final void decRemainingTime() {
-		if( this.getRemainingTime() <= 0 ) {
-			return;
-		}
-
-		this.setRemainingTime(this.getRemainingTime()-1);
-	}
-
-	/**
-	 * <p>Setzt den Bau fort. Dies umfasst u.a. das Dekrementieren
-	 * der verbleibenden Bauzeit um 1 sowie des Abzugs der pro Tick
-	 * anfallenden Baukosten.</p>
-	 * <p>Es wird nicht geprueft, ob die Bedingungen fuer ein fortsetzen des
-	 * Baus erfuellt sind</p>
-	 * @see #isBuildContPossible()
-	 */
-	public void continueBuild() {
-		this.decRemainingTime();
-		this.substractBuildCosts();
+	public int getBuildItem() {
+		return buildItem;
 	}
 }

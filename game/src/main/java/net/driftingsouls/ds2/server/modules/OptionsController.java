@@ -21,10 +21,11 @@ package net.driftingsouls.ds2.server.modules;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.WellKnownPermission;
-import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
+import net.driftingsouls.ds2.server.services.PmService;
+import net.driftingsouls.ds2.server.services.UserService;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -40,7 +41,9 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactor
 import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
 import net.driftingsouls.ds2.server.namegenerator.SchiffsKlassenNamenGenerator;
 import net.driftingsouls.ds2.server.namegenerator.SchiffsNamenGenerator;
+import net.driftingsouls.ds2.server.services.UserValueService;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
+import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.notification.Notifier;
 import org.apache.commons.fileupload.FileItem;
@@ -48,6 +51,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,12 +68,23 @@ public class OptionsController extends Controller
 	private static final Log log = LogFactory.getLog(OptionsController.class);
 	private final TemplateViewResultFactory templateViewResultFactory;
 	private final ConfigService configService;
+	private final UserService userService;
+	private final PmService pmService;
+	private final BBCodeParser bbCodeParser;
+	private final UserValueService userValueService;
+
+	@PersistenceContext
+	private EntityManager em;
 
 	@Autowired
-	public OptionsController(TemplateViewResultFactory templateViewResultFactory, ConfigService configService)
+	public OptionsController(TemplateViewResultFactory templateViewResultFactory, ConfigService configService, UserService userService, PmService pmService, BBCodeParser bbCodeParser, UserValueService userValueService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
 		this.configService = configService;
+		this.userService = userService;
+		this.pmService = pmService;
+		this.bbCodeParser = bbCodeParser;
+		this.userValueService = userValueService;
 	}
 
 	/**
@@ -89,8 +105,7 @@ public class OptionsController extends Controller
 		{
 			boolean addhistory = false;
 
-			BBCodeParser bbcodeparser = BBCodeParser.getInstance();
-			if (!bbcodeparser.parse(user.getNickname(), new String[]{"all"}).trim().equals(bbcodeparser.parse(name, new String[]{"all"}).trim()))
+			if (!bbCodeParser.parse(user.getNickname(), new String[]{"all"}).trim().equals(bbCodeParser.parse(name, new String[]{"all"}).trim()))
 			{
 				addhistory = true;
 			}
@@ -102,7 +117,7 @@ public class OptionsController extends Controller
 				newname = newname.replace("[name]", name);
 			}
 
-			changemsg += "<span style=\"color:green\">Der Ingame-Name <span style=\"color:white\">" + Common._title(user.getNickname()) + "</span> wurde in <span style=\"color:white\">" + Common._title(name) + "</span> geändert</span><br />\n";
+			changemsg += "<span style=\"color:green\">Der Ingame-Name <span style=\"color:white\">" + Common._title(bbCodeParser, user.getNickname()) + "</span> wurde in <span style=\"color:white\">" + Common._title(bbCodeParser, name) + "</span> geändert</span><br />\n";
 
 			Common.writeLog("login.log", Common.date("j.m.Y H:i:s") + ": <" + getContext().getRequest().getRemoteAddress() + "> (" + user.getId() + ") <" + user.getUN() + "> Namensänderung: Ingame-Name <" + user.getNickname() + "> in <" + name + "> Browser <" + getContext().getRequest().getUserAgent() + ">\n");
 
@@ -112,6 +127,7 @@ public class OptionsController extends Controller
 			}
 
 			user.setName(newname);
+			user.setPlainname(bbCodeParser.parse(name,new String[] {"all"}));
 			user.setNickname(name);
 		}
 
@@ -185,7 +201,7 @@ public class OptionsController extends Controller
 					"\n" +
 					"MY REASONS:\n" +
 					reason;
-			PM.sendToAdmins(user, "Account löschen", msg, 0);
+			pmService.sendToAdmins(user, "Account löschen", msg, 0);
 
 			t.setVar("options.delaccountresp", 1,
 					"delaccountresp.admins", configService.getValue(WellKnownConfigValue.ADMIN_PMS_ACCOUNT));
@@ -229,11 +245,11 @@ public class OptionsController extends Controller
 
 		String changemsg = "";
 
-		if (shipgroupmulti != user.getUserValue(WellKnownUserValue.TBLORDER_SCHIFF_WRAPFACTOR))
+		if (shipgroupmulti != userValueService.getUserValue(user, WellKnownUserValue.TBLORDER_SCHIFF_WRAPFACTOR))
 		{
 			changemsg += "Neuer Schiffsgruppenmultiplikator gespeichert...<br />\n";
 
-			user.setUserValue(WellKnownUserValue.TBLORDER_SCHIFF_WRAPFACTOR, shipgroupmulti);
+			userValueService.setUserValue(user, WellKnownUserValue.TBLORDER_SCHIFF_WRAPFACTOR, shipgroupmulti);
 		}
 
 		if ((scriptdebug != 0) && hasPermission(WellKnownPermission.SCHIFF_SCRIPT))
@@ -246,7 +262,7 @@ public class OptionsController extends Controller
 			}
 		}
 
-		if (inttutorial != user.getUserValue(WellKnownUserValue.TBLORDER_UEBERSICHT_INTTUTORIAL))
+		if (inttutorial != userValueService.getUserValue(user, WellKnownUserValue.TBLORDER_UEBERSICHT_INTTUTORIAL))
 		{
 			if (inttutorial != 0)
 			{
@@ -256,14 +272,15 @@ public class OptionsController extends Controller
 			{
 				changemsg += "Tutorial deaktiviert...<br />\n";
 			}
-			user.setUserValue(WellKnownUserValue.TBLORDER_UEBERSICHT_INTTUTORIAL, inttutorial);
+			userValueService.setUserValue(user, WellKnownUserValue.TBLORDER_UEBERSICHT_INTTUTORIAL, inttutorial);
 		}
 
-		if (defrelation != user.getRelation(null))
+		if (defrelation != userService.getRelation(user, null))
 		{
 			changemsg += "Diplomatieeinstellung geändert...<br />\n";
 
-			user.setRelation(0, defrelation);
+			User nullUser = em.find(User.class, 0);
+			userService.setRelation(user, nullUser, defrelation);
 			if (user.getAlly() != null)
 			{
 				for (User auser : user.getAlly().getMembers())
@@ -272,16 +289,16 @@ public class OptionsController extends Controller
 					{
 						continue;
 					}
-					user.setRelation(auser.getId(), User.Relation.FRIEND);
-					auser.setRelation(user.getId(), User.Relation.FRIEND);
+					userService.setRelation(user, auser, User.Relation.FRIEND);
+					userService.setRelation(auser, user, User.Relation.FRIEND);
 				}
 			}
 		}
-		if (!apikey.equals(user.getApiKey()))
+		if (!apikey.equals(userValueService.getApiKey(user)))
 		{
 			if (apikey.length()==25||apikey.length()==0)//Die ApiKeys sind alle 25 Zeichen lang
 			{
-				user.setUserValue(WellKnownUserValue.APIKEY, apikey);
+				userValueService.setUserValue(user, WellKnownUserValue.APIKEY, apikey);
 					new Notifier(apikey).sendMessage("'Drifting Souls 2'-Push-Benachrichtigungen", user.getPlainname()+", Du hast die Push-Benachrichtigungen erfolgreich aktiviert...");
 			}
 			else
@@ -290,20 +307,20 @@ public class OptionsController extends Controller
 			}
 		}
 
-		user.setPersonenNamenGenerator(personenNamenGenerator);
-		user.setSchiffsKlassenNamenGenerator(schiffsKlassenNamenGenerator);
-		user.setSchiffsNamenGenerator(schiffsNamenGenerator);
-        user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_BATTLE_PM, battle_pm);
-        user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_RESEARCH_PM, research_pm);
-        user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_SHIP_BUILD_PM, ship_build_pm);
-        user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_BASE_DOWN_PM, base_down_pm);
-        user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_OFFICER_BUILD_PM, officer_build_pm);
-        user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_UNIT_BUILD_PM, unit_build_pm);
-        user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_AUKTION_PM,auktion_pm);
-				user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_HANDEL_PM,handel_pm);
-				user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_SOUNDS_MUTE,sounds_mute);
-				user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_SOUNDS_VOLUME,sounds_volume);
-				user.setUserValue(WellKnownUserValue.GAMEPLAY_USER_HANDELSPOSTEN_PM,handelsposten_pm);
+		userService.setPersonenNamenGenerator(user, personenNamenGenerator);
+		userService.setSchiffsKlassenNamenGenerator(user, schiffsKlassenNamenGenerator);
+		userService.setSchiffsNamenGenerator(user, schiffsNamenGenerator);
+		userValueService.setUserValue(user, WellKnownUserValue.GAMEPLAY_USER_BATTLE_PM, battle_pm);
+		userValueService.setUserValue(user, WellKnownUserValue.GAMEPLAY_USER_RESEARCH_PM, research_pm);
+		userValueService.setUserValue(user, WellKnownUserValue.GAMEPLAY_USER_SHIP_BUILD_PM, ship_build_pm);
+		userValueService.setUserValue(user, WellKnownUserValue.GAMEPLAY_USER_BASE_DOWN_PM, base_down_pm);
+		userValueService.setUserValue(user, WellKnownUserValue.GAMEPLAY_USER_OFFICER_BUILD_PM, officer_build_pm);
+		userValueService.setUserValue(user, WellKnownUserValue.GAMEPLAY_USER_UNIT_BUILD_PM, unit_build_pm);
+		userValueService.setUserValue(user, WellKnownUserValue.GAMEPLAY_USER_AUKTION_PM,auktion_pm);
+		userValueService.setUserValue(user, WellKnownUserValue.GAMEPLAY_USER_HANDEL_PM,handel_pm);
+		userValueService.setUserValue(user, WellKnownUserValue.GAMEPLAY_USER_SOUNDS_MUTE,sounds_mute);
+		userValueService.setUserValue(user, WellKnownUserValue.GAMEPLAY_USER_SOUNDS_VOLUME,sounds_volume);
+		userValueService.setUserValue(user, WellKnownUserValue.GAMEPLAY_USER_HANDELSPOSTEN_PM,handelsposten_pm);
 
 		return new RedirectViewResult("xtra").withMessage(changemsg);
 	}
@@ -378,13 +395,12 @@ public class OptionsController extends Controller
 			return result;
 		}
 
-		org.hibernate.Session db = getDB();
 		for (ShipClasses cls : ShipClasses.values())
 		{
-			ShipTypeData std = (ShipTypeData)db.createQuery("from ShipType where hide=false and shipClass=:cls")
+			ShipTypeData std = em.createQuery("from ShipType where hide=false and shipClass=:cls", ShipType.class)
 				.setParameter("cls", cls)
 				.setMaxResults(1)
-				.uniqueResult();
+				.getSingleResult();
 
 			if( std == null )
 			{
@@ -413,30 +429,30 @@ public class OptionsController extends Controller
 		t.setVar("options.message", redirect != null ? redirect.getMessage() : null);
 
 		t.setVar("options.xtra", 1,
-				"user.wrapfactor", user.getUserValue(WellKnownUserValue.TBLORDER_SCHIFF_WRAPFACTOR),
-				"user.inttutorial", user.getUserValue(WellKnownUserValue.TBLORDER_UEBERSICHT_INTTUTORIAL),
+				"user.wrapfactor", userValueService.getUserValue(user, WellKnownUserValue.TBLORDER_SCHIFF_WRAPFACTOR),
+				"user.inttutorial", userValueService.getUserValue(user, WellKnownUserValue.TBLORDER_UEBERSICHT_INTTUTORIAL),
 				"user.showScriptDebug", hasPermission(WellKnownPermission.SCHIFF_SCRIPT),
 				"user.scriptdebug", user.hasFlag(UserFlag.SCRIPT_DEBUGGING),
-				"user.defrelation", user.getRelation(null).ordinal(),
-                "user.battlepm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_BATTLE_PM),
-                "user.researchpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_RESEARCH_PM),
-                "user.shipbuildpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_SHIP_BUILD_PM),
-                "user.basedownpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_BASE_DOWN_PM),
-                "user.officerbuildpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_OFFICER_BUILD_PM),
-                "user.unitbuildpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_UNIT_BUILD_PM),
-				"user.apikey", user.getUserValue(WellKnownUserValue.APIKEY),
-				"user.handelpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_HANDEL_PM),
-				"user.auktionpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_AUKTION_PM),
-				"user.soundsmute", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_SOUNDS_MUTE),
-				"user.soundsvolume", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_SOUNDS_VOLUME),
-				"user.handelspostenpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_HANDELSPOSTEN_PM));
+				"user.defrelation", userService.getRelation(user, null).ordinal(),
+                "user.battlepm", userValueService.getUserValue(user, WellKnownUserValue.GAMEPLAY_USER_BATTLE_PM),
+                "user.researchpm", userValueService.getUserValue(user, WellKnownUserValue.GAMEPLAY_USER_RESEARCH_PM),
+                "user.shipbuildpm", userValueService.getUserValue(user, WellKnownUserValue.GAMEPLAY_USER_SHIP_BUILD_PM),
+                "user.basedownpm", userValueService.getUserValue(user, WellKnownUserValue.GAMEPLAY_USER_BASE_DOWN_PM),
+                "user.officerbuildpm", userValueService.getUserValue(user, WellKnownUserValue.GAMEPLAY_USER_OFFICER_BUILD_PM),
+                "user.unitbuildpm", userValueService.getUserValue(user, WellKnownUserValue.GAMEPLAY_USER_UNIT_BUILD_PM),
+				"user.apikey", userValueService.getUserValue(user, WellKnownUserValue.APIKEY),
+				"user.handelpm", userValueService.getUserValue(user, WellKnownUserValue.GAMEPLAY_USER_HANDEL_PM),
+				"user.auktionpm", userValueService.getUserValue(user, WellKnownUserValue.GAMEPLAY_USER_AUKTION_PM),
+				"user.soundsmute", userValueService.getUserValue(user, WellKnownUserValue.GAMEPLAY_USER_SOUNDS_MUTE),
+				"user.soundsvolume", userValueService.getUserValue(user, WellKnownUserValue.GAMEPLAY_USER_SOUNDS_VOLUME),
+				"user.handelspostenpm", userValueService.getUserValue(user, WellKnownUserValue.GAMEPLAY_USER_HANDELSPOSTEN_PM));
 
 		t.setBlock("_OPTIONS", "personenNamenGenerator.listitem", "personenNamenGenerator.list");
 		for (PersonenNamenGenerator png : PersonenNamenGenerator.values())
 		{
 			t.setVar("personenNamenGenerator.name", png.name(),
 					"personenNamenGenerator.label", png.getLabel(),
-					"personenNamenGenerator.selected", png == user.getPersonenNamenGenerator());
+					"personenNamenGenerator.selected", png == userService.getPersonenNamenGenerator(user));
 			t.parse("personenNamenGenerator.list", "personenNamenGenerator.listitem", true);
 		}
 
@@ -445,7 +461,7 @@ public class OptionsController extends Controller
 		{
 			t.setVar("schiffsKlassenNamenGenerator.name", skng.name(),
 					"schiffsKlassenNamenGenerator.label", skng.getLabel(),
-					"schiffsKlassenNamenGenerator.selected", skng == user.getSchiffsKlassenNamenGenerator());
+					"schiffsKlassenNamenGenerator.selected", skng == userService.getSchiffsKlassenNamenGenerator(user));
 			t.parse("schiffsKlassenNamenGenerator.list", "schiffsKlassenNamenGenerator.listitem", true);
 		}
 
@@ -454,7 +470,7 @@ public class OptionsController extends Controller
 		{
 			t.setVar("schiffsNamenGenerator.name", skng.name(),
 					"schiffsNamenGenerator.label", skng.getLabel(),
-					"schiffsNamenGenerator.selected", skng == user.getSchiffsNamenGenerator());
+					"schiffsNamenGenerator.selected", skng == userService.getSchiffsNamenGenerator(user));
 			t.parse("schiffsNamenGenerator.list", "schiffsNamenGenerator.listitem", true);
 		}
 
@@ -470,7 +486,7 @@ public class OptionsController extends Controller
 	public RedirectViewResult logoAction()
 	{
 		List<FileItem> list = getContext().getRequest().getUploadedFiles();
-		if (list.size() == 0)
+		if (list.isEmpty())
 		{
 			return new RedirectViewResult("default");
 		}
@@ -529,16 +545,16 @@ public class OptionsController extends Controller
 
 		String changemsg = "";
 
-		if (showtooltip == (user.getUserValue(WellKnownUserValue.TBLORDER_SCHIFF_TOOLTIPS) == 0))
+		if (showtooltip == (userValueService.getUserValue(user, WellKnownUserValue.TBLORDER_SCHIFF_TOOLTIPS) == 0))
 		{
-			user.setUserValue(WellKnownUserValue.TBLORDER_SCHIFF_TOOLTIPS, showtooltip ? 1 : 0);
+			userValueService.setUserValue(user, WellKnownUserValue.TBLORDER_SCHIFF_TOOLTIPS, showtooltip ? 1 : 0);
 
 			changemsg += "Anzeige der Tooltips " + (showtooltip ? "" : "de") + "aktiviert<br />\n";
 		}
 
-		if (wrapfactor != user.getUserValue(WellKnownUserValue.TBLORDER_SCHIFF_WRAPFACTOR))
+		if (wrapfactor != userValueService.getUserValue(user, WellKnownUserValue.TBLORDER_SCHIFF_WRAPFACTOR))
 		{
-			user.setUserValue(WellKnownUserValue.TBLORDER_SCHIFF_WRAPFACTOR, wrapfactor);
+			userValueService.setUserValue(user, WellKnownUserValue.TBLORDER_SCHIFF_WRAPFACTOR, wrapfactor);
 
 			changemsg += "Schiffsgruppierungen " + (wrapfactor != 0 ? "aktiviert" : "deaktiviert") + "<br />\n";
 		}
@@ -555,7 +571,7 @@ public class OptionsController extends Controller
 		User user = (User) getUser();
 
 		String message = null;
-		if (user.isNoob())
+		if (userService.isNoob(user))
 		{
 			user.setFlag(UserFlag.NOOB, false);
 			message = "Der Neuspielerschutz (GCP-Schutz) wurde vorzeitig aufgehoben.<br />";
@@ -575,9 +591,9 @@ public class OptionsController extends Controller
 
 		t.setVar("options.message", redirect != null ? redirect.getMessage() : null);
 		t.setVar("options.general", 1,
-				"user.wrapfactor", user.getUserValue(WellKnownUserValue.TBLORDER_SCHIFF_WRAPFACTOR),
-				"user.tooltip", user.getUserValue(WellKnownUserValue.TBLORDER_SCHIFF_TOOLTIPS),
-				"user.noob", user.isNoob(),
+				"user.wrapfactor", userValueService.getUserValue(user, WellKnownUserValue.TBLORDER_SCHIFF_WRAPFACTOR),
+				"user.tooltip", userValueService.getUserValue(user, WellKnownUserValue.TBLORDER_SCHIFF_TOOLTIPS),
+				"user.noob", userService.isNoob(user),
 				"vacation.maxtime", Common.ticks2DaysInDays(user.maxVacTicks()));
 
 		return t;

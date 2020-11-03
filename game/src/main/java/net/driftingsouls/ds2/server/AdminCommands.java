@@ -19,25 +19,29 @@
 package net.driftingsouls.ds2.server;
 
 import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.battles.AutoFire;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleType;
-import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.*;
-import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.map.TileCache;
+import net.driftingsouls.ds2.server.services.BattleService;
+import net.driftingsouls.ds2.server.services.DismantlingService;
+import net.driftingsouls.ds2.server.services.FleetMgmtService;
+import net.driftingsouls.ds2.server.services.LocationService;
+import net.driftingsouls.ds2.server.services.PmService;
+import net.driftingsouls.ds2.server.services.ShipService;
+import net.driftingsouls.ds2.server.services.ShipActionService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.tasks.Taskmanager;
+import net.driftingsouls.ds2.server.tasks.TaskManager;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitType;
@@ -46,15 +50,19 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 import org.hibernate.Cache;
 import org.hibernate.SessionFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
@@ -72,14 +80,32 @@ import java.util.stream.Collectors;
  * @author Christopher Jung
  *
  */
-public class AdminCommands {
+@Component
+@Lazy
+public class AdminCommands implements ApplicationContextAware {
 	private final Map<String,Class<? extends Command>> cmds = new HashMap<>();
 
-	/**
-	 * Konstruktor.
-	 */
-	public AdminCommands()
+	@PersistenceContext
+	private EntityManager em;
+
+	private ApplicationContext applicationContext;
+
+	private final BattleService battleService;
+	private final ShipService shipService;
+	private final PmService pmService;
+	private final LocationService locationService;
+	private final FleetMgmtService fleetMgmtService;
+	private final DismantlingService dismantlingService;
+	private final ShipActionService shipActionService;
+
+	public AdminCommands(BattleService battleService, ShipService shipService, PmService pmService, LocationService locationService, FleetMgmtService fleetMgmtService, DismantlingService dismantlingService, ShipActionService shipActionService)
 	{
+		this.shipService = shipService;
+		this.pmService = pmService;
+		this.locationService = locationService;
+		this.fleetMgmtService = fleetMgmtService;
+		this.dismantlingService = dismantlingService;
+		this.shipActionService = shipActionService;
 		Context context = ContextMap.getContext();
 		if( context.hasPermission(WellKnownAdminPermission.EDIT_SHIP) )
 		{
@@ -103,10 +129,10 @@ public class AdminCommands {
 			cmds.put("buildimgs", BuildImgsCommand.class);
 			cmds.put("exectask", ExecTaskCommand.class);
 			cmds.put("tick", TickCommand.class);
-        	cmds.put("autofire", AutoFireCommand.class);
 			cmds.put("clearcache", ClearCache.class);
 			cmds.put("cleartilecache", ClearSystemTileCache.class);
 		}
+		this.battleService = battleService;
 	}
 
 	/**
@@ -130,9 +156,9 @@ public class AdminCommands {
 		List<String> subAutoCompletes;
 		try
 		{
-			subAutoCompletes = cmds.get(command[0]).getDeclaredConstructor().newInstance().autoComplete(command);
+			subAutoCompletes = applicationContext.getBean(cmds.get(command[0])).autoComplete(command);
 		}
-		catch( InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e )
+		catch( BeansException e )
 		{
 			throw new IllegalStateException(e);
 		}
@@ -140,6 +166,11 @@ public class AdminCommands {
 		result.addAll(subAutoCompletes.stream().map(ac -> command[0] + " " + ac).collect(Collectors.toList()));
 
 		return result;
+	}
+
+	@Override
+	public void setApplicationContext(@NonNull ApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
 	}
 
 	public static class CommandFailedException extends RuntimeException
@@ -181,9 +212,9 @@ public class AdminCommands {
 		if( cmds.containsKey(command[0]) ) {
 			try
 			{
-				Command cmdExecuter = cmds.get(command[0]).getDeclaredConstructor().newInstance();
-				context.autowireBean(cmdExecuter);
-				output = cmdExecuter.execute(context, command);
+				Command commandExecutor = cmds.get(command[0]).getDeclaredConstructor().newInstance();
+				context.autowireBean(commandExecutor);
+				output = commandExecutor.execute(context, command);
 			}
 			catch( CommandFailedException e )
 			{
@@ -209,45 +240,8 @@ public class AdminCommands {
 		String execute(Context context, String[] command);
 		List<String> autoComplete(String[] command);
 	}
-    
-    protected static class AutoFireCommand implements Command
-    {
-        @Override
-        public String execute(Context context, String[] command)
-        {
-            if(command.length != 3)
-            {
-				throw new CommandFailedException("autofire [battleId] [side=0|1]");
-            }
-            
-            Battle battle = (Battle)context.getDB().get(Battle.class, Integer.valueOf(command[1]));
-            if(battle == null)
-            {
-                throw new CommandFailedException("Schlacht existiert nicht.");
-            }
-            
-            int side = Integer.parseInt(command[2]);
-            if(side != 0 && side != 1)
-            {
-				throw new CommandFailedException("Side war nicht 0 oder 1.");
-            }
-            battle.load(battle.getCommander(side), null, null, 0);
 
-            final AutoFire autoFire = new AutoFire(context.getDB(), battle);
-            autoFire.fireShips();
-
-            return "Autofeuer ausgefuehrt fuer Schlacht " + command[1];
-        }
-        
-        @Override
-        public List<String> autoComplete(String[] command)
-        {
-            return Collections.singletonList("[battleId] [side=0|1]");
-        }
-    }
-
-    @Component
-	@Lazy
+	@Component
 	protected static class TickCommand implements Command {
 		@Autowired
 		private TickAdminCommand tickAdminCommand;
@@ -317,23 +311,22 @@ public class AdminCommands {
 		}
 	}
 
-	protected static class EditFleetCommand implements Command {
+	protected class EditFleetCommand implements Command {
 		@Override
 		public String execute( Context context, String[] command ) {
 			String output = "";
-			org.hibernate.Session db = context.getDB();
 
 			ShipFleet fleet = null;
 			if( NumberUtils.isCreatable(command[1]) ) {
 				int fid = Integer.parseInt(command[1]);
-				fleet = (ShipFleet)db.get(ShipFleet.class, fid);
+				fleet = em.find(ShipFleet.class, fid);
 			}
 			else if( command[1].length() > 1 && command[1].charAt(0) == 's' )
 			{
 				String id = command[1].substring(1);
 				if( NumberUtils.isCreatable(id) )
 				{
-					Ship ship = (Ship)db.get(Ship.class, Integer.valueOf(id));
+					Ship ship = em.find(Ship.class, Integer.valueOf(id));
 					if( ship != null )
 					{
 						fleet = ship.getFleet();
@@ -352,7 +345,7 @@ public class AdminCommands {
 					{
 						throw new CommandFailedException("Ueberhitzung ungueltig");
 					}
-					for (Ship ship : fleet.getShips())
+					for (Ship ship : fleetMgmtService.getShips(fleet))
 					{
 						ship.setHeat(Integer.parseInt(command[3]));
 					}
@@ -362,7 +355,7 @@ public class AdminCommands {
 					{
 						throw new CommandFailedException("Antrieb ungueltig");
 					}
-					for (Ship ship : fleet.getShips())
+					for (Ship ship : fleetMgmtService.getShips(fleet))
 					{
 						ship.setEngine(Integer.parseInt(command[3]));
 					}
@@ -372,13 +365,13 @@ public class AdminCommands {
 					{
 						throw new CommandFailedException("Waffen ungueltig");
 					}
-					for (Ship ship : fleet.getShips())
+					for (Ship ship : fleetMgmtService.getShips(fleet))
 					{
 						ship.setWeapons(Integer.parseInt(command[3]));
 					}
 					break;
 				case "jumptarget":
-					for (Ship ship : fleet.getShips())
+					for (Ship ship : fleetMgmtService.getShips(fleet))
 					{
 						ship.setJumpTarget(command[3]);
 					}
@@ -388,7 +381,7 @@ public class AdminCommands {
 					{
 						throw new CommandFailedException("Energie ungueltig");
 					}
-					for (Ship ship : fleet.getShips())
+					for (Ship ship : fleetMgmtService.getShips(fleet))
 					{
 						ship.setEnergy(Integer.parseInt(command[3]));
 					}
@@ -396,14 +389,14 @@ public class AdminCommands {
 				case "pos":
 					Location loc = Location.fromString(command[3]);
 
-					for (Ship ship : fleet.getShips())
+					for (Ship ship : fleetMgmtService.getShips(fleet))
 					{
 						ship.setLocation(loc);
-						for (Ship lship : ship.getLandedShips())
+						for (Ship lship : shipService.getLandedShips(ship))
 						{
 							lship.setLocation(loc);
 						}
-						for (Ship lship : ship.getDockedShips())
+						for (Ship lship : shipService.getDockedShips(ship))
 						{
 							lship.setLocation(loc);
 						}
@@ -414,7 +407,7 @@ public class AdminCommands {
 					{
 						throw new CommandFailedException("Huelle ungueltig");
 					}
-					for (Ship ship : fleet.getShips())
+					for (Ship ship : fleetMgmtService.getShips(fleet))
 					{
 						ship.setHull(Integer.parseInt(command[3]));
 					}
@@ -424,7 +417,7 @@ public class AdminCommands {
 					{
 						throw new CommandFailedException("Schilde ungueltig");
 					}
-					for (Ship ship : fleet.getShips())
+					for (Ship ship : fleetMgmtService.getShips(fleet))
 					{
 						ship.setShields(Integer.parseInt(command[3]));
 					}
@@ -434,7 +427,7 @@ public class AdminCommands {
 					{
 						throw new CommandFailedException("Crew ungueltig");
 					}
-					for (Ship ship : fleet.getShips())
+					for (Ship ship : fleetMgmtService.getShips(fleet))
 					{
 						ship.setCrew(Integer.parseInt(command[3]));
 					}
@@ -442,7 +435,7 @@ public class AdminCommands {
 				case "info":
 					output += "Flotte: " + fleet.getId() + "\n";
 					output += "Name: " + fleet.getName() + "\n";
-					output += "Schiffe: " + fleet.getShips().size() + "\n";
+					output += "Schiffe: " + fleetMgmtService.getShips(fleet).size() + "\n";
 					break;
 				case "additemmodule":
 					if (!NumberUtils.isCreatable(command[3]))
@@ -456,16 +449,16 @@ public class AdminCommands {
 						throw new CommandFailedException("Item-ID ungueltig");
 					}
 					int itemid = Integer.parseInt(command[4]);
-					Item item = (Item) db.get(Item.class, itemid);
+					Item item = em.find(Item.class, itemid);
 
 					if ((item == null) || (item.getEffect().getType() != ItemEffect.Type.MODULE))
 					{
 						throw new CommandFailedException("Das Item passt nicht");
 					}
 
-					for (Ship ship : fleet.getShips())
+					for (Ship ship : fleetMgmtService.getShips(fleet))
 					{
-						ship.addModule(slot, ModuleType.ITEMMODULE, Integer.toString(itemid));
+						shipService.addModule(ship, slot, ModuleType.ITEMMODULE, Integer.toString(itemid));
 
 						ShipTypeData shiptype = ship.getTypeData();
 
@@ -491,14 +484,14 @@ public class AdminCommands {
 
 						if (shiptype.getWerft() != 0)
 						{
-							ShipWerft werft = (ShipWerft) db.createQuery("from ShipWerft where ship=:ship")
-									.setInteger("ship", ship.getId())
-									.uniqueResult();
+							ShipWerft werft = em.createQuery("from ShipWerft where ship=:ship", ShipWerft.class)
+									.setParameter("ship", ship)
+									.getSingleResult();
 
 							if (werft == null)
 							{
 								werft = new ShipWerft(ship);
-								db.persist(werft);
+								em.persist(werft);
 							}
 						}
 					}
@@ -508,9 +501,9 @@ public class AdminCommands {
 				default:
 					throw new CommandFailedException("Unknown editship sub-command >" + command[2] + "<");
 			}
-			for( Ship ship : fleet.getShips() )
+			for( Ship ship : fleetMgmtService.getShips(fleet) )
 			{
-				ship.recalculateShipStatus();
+				shipActionService.recalculateShipStatus(ship);
 			}
 
 			return output;
@@ -553,8 +546,7 @@ public class AdminCommands {
 			{
 				return "<itemId (Integer)>";
 			}
-			org.hibernate.Session db = ContextMap.getContext().getDB();
-			Item item = (Item)db.get(Item.class, Integer.valueOf(command[4]));
+			Item item = em.find(Item.class, Integer.valueOf(command[4]));
 			if( item == null )
 			{
 				return "<itemId (Integer)>";
@@ -568,7 +560,7 @@ public class AdminCommands {
 			if( command.length > 1 && NumberUtils.isCreatable(command[1]) )
 			{
 				org.hibernate.Session db = ContextMap.getContext().getDB();
-				ShipFleet fleet = (ShipFleet)db.get(ShipFleet.class, Integer.valueOf(command[1]));
+				ShipFleet fleet = em.find(ShipFleet.class, Integer.valueOf(command[1]));
 				if( fleet != null )
 				{
 					fleetLabel = "<"+fleet.getName()+" ("+fleet.getId()+")>";
@@ -580,7 +572,7 @@ public class AdminCommands {
 				if( NumberUtils.isCreatable(id) )
 				{
 					org.hibernate.Session db = ContextMap.getContext().getDB();
-					Ship ship = (Ship)db.get(Ship.class, Integer.valueOf(id));
+					Ship ship = em.find(Ship.class, Integer.valueOf(id));
 					if( ship != null && ship.getFleet() != null )
 					{
 						fleetLabel = "<"+ship.getFleet().getName()+" ("+ship.getFleet().getId()+")>";
@@ -591,7 +583,7 @@ public class AdminCommands {
 		}
 	}
 
-	protected static class EditShipCommand implements Command {
+	protected class EditShipCommand implements Command {
 		@Override
 		public String execute( Context context, String[] command ) {
 			String output = "";
@@ -603,7 +595,7 @@ public class AdminCommands {
 
 			int sid = Integer.parseInt(command[1]);
 
-			Ship ship = (Ship)db.get(Ship.class, sid);
+			Ship ship = em.find(Ship.class, sid);
 			if( ship == null ) {
 				throw new CommandFailedException("Schiff '"+sid+"' nicht gefunden");
 			}
@@ -646,11 +638,11 @@ public class AdminCommands {
 
 					ship.setLocation(loc);
 
-					for (Ship lship : ship.getLandedShips())
+					for (Ship lship : shipService.getLandedShips(ship))
 					{
 						lship.setLocation(loc);
 					}
-					for (Ship lship : ship.getDockedShips())
+					for (Ship lship : shipService.getDockedShips(ship))
 					{
 						lship.setLocation(loc);
 					}
@@ -709,14 +701,14 @@ public class AdminCommands {
 						throw new CommandFailedException("Item-ID ungueltig");
 					}
 					int itemid = Integer.parseInt(command[4]);
-					Item item = (Item) db.get(Item.class, itemid);
+					Item item = em.find(Item.class, itemid);
 
 					if ((item == null) || (item.getEffect().getType() != ItemEffect.Type.MODULE))
 					{
 						throw new CommandFailedException("Das Item passt nicht");
 					}
 
-					ship.addModule(slot, ModuleType.ITEMMODULE, Integer.toString(itemid));
+					shipService.addModule(ship, slot, ModuleType.ITEMMODULE, Integer.toString(itemid));
 
 					ShipTypeData shiptype = ship.getTypeData();
 
@@ -742,9 +734,9 @@ public class AdminCommands {
 
 					if (shiptype.getWerft() != 0)
 					{
-						ShipWerft werft = (ShipWerft) db.createQuery("from ShipWerft where ship=:ship")
-								.setInteger("ship", ship.getId())
-								.uniqueResult();
+						ShipWerft werft = em.createQuery("from ShipWerft where ship=:ship", ShipWerft.class)
+								.setParameter("ship", ship.getId())
+								.getSingleResult();
 
 						if (werft == null)
 						{
@@ -759,7 +751,7 @@ public class AdminCommands {
 				default:
 					throw new CommandFailedException("Unknown editship sub-command >" + command[2] + "<");
 			}
-			ship.recalculateShipStatus();
+			shipActionService.recalculateShipStatus(ship);
 
 			return output;
 		}
@@ -801,8 +793,7 @@ public class AdminCommands {
 			{
 				return "<itemId (Integer)>";
 			}
-			org.hibernate.Session db = ContextMap.getContext().getDB();
-			Item item = (Item)db.get(Item.class, Integer.valueOf(command[4]));
+			Item item = em.find(Item.class, Integer.valueOf(command[4]));
 			if( item == null )
 			{
 				return "<itemId (Integer)>";
@@ -815,8 +806,7 @@ public class AdminCommands {
 			String shipLabel = "<shipId>";
 			if( command.length > 1 && NumberUtils.isCreatable(command[1]) )
 			{
-				org.hibernate.Session db = ContextMap.getContext().getDB();
-				Ship ship = (Ship)db.get(Ship.class, Integer.valueOf(command[1]));
+				Ship ship = em.find(Ship.class, Integer.valueOf(command[1]));
 				if( ship != null )
 				{
 					shipLabel = "<"+ship.getName()+" ("+ship.getId()+")>";
@@ -826,7 +816,7 @@ public class AdminCommands {
 		}
 	}
 
-	protected static class AddResourceCommand implements Command {
+	protected class AddResourceCommand implements Command {
 		@Override
 		public String execute(Context context, String[] command) {
 			String output = "";
@@ -845,22 +835,20 @@ public class AdminCommands {
 			}
 			long count = Long.parseLong(command[3]);
 
-			org.hibernate.Session db = context.getDB();
-
 			if( !NumberUtils.isCreatable(oid.substring(1)) ) {
 				throw new CommandFailedException("ID ungueltig");
 			}
 
 			Cargo cargo;
 			if( oid.startsWith("b") ) {
-				Base base = (Base)db.get(Base.class, Integer.parseInt(oid.substring(1)));
+				Base base = em.find(Base.class, Integer.parseInt(oid.substring(1)));
 				if( base == null ) {
 					throw new CommandFailedException("Objekt existiert nicht");
 				}
 				cargo = new Cargo(base.getCargo());
 			}
 			else {
-				Ship ship = (Ship)db.get(Ship.class, Integer.parseInt(oid.substring(1)));
+				Ship ship = em.find(Ship.class, Integer.parseInt(oid.substring(1)));
 				if( ship == null ) {
 					throw new CommandFailedException("Objekt existiert nicht");
 				}
@@ -870,12 +858,12 @@ public class AdminCommands {
 			cargo.addResource( resid, count );
 
 			if( oid.startsWith("s") ) {
-				Ship ship = (Ship)db.get(Ship.class, Integer.parseInt(oid.substring(1)));
+				Ship ship = em.find(Ship.class, Integer.parseInt(oid.substring(1)));
 				ship.setCargo(cargo);
-				ship.recalculateShipStatus();
+				shipActionService.recalculateShipStatus(ship);
 			}
 			else {
-				Base base = (Base)db.get(Base.class, Integer.parseInt(oid.substring(1)));
+				Base base = em.find(Base.class, Integer.parseInt(oid.substring(1)));
 				base.setCargo(cargo);
 			}
 
@@ -892,9 +880,8 @@ public class AdminCommands {
 			Item item = null;
 			try {
 				ResourceID resid = Resources.fromString(command[2]);
-				org.hibernate.Session db = ContextMap.getContext().getDB();
-				item = (Item) Optional.ofNullable(resid)
-						.map(resourceID -> db.get(Item.class, resourceID.getItemID()))
+				item = Optional.ofNullable(resid)
+						.map(resourceID -> em.find(Item.class, resourceID.getItemID()))
 						.orElse(null);
 			}
 			catch( RuntimeException e ) {
@@ -923,14 +910,14 @@ public class AdminCommands {
 			char c = command[1].charAt(0);
 
 			if( c == 'b' ) {
-				Base base = (Base)db.get(Base.class, Integer.parseInt(id));
+				Base base = em.find(Base.class, Integer.parseInt(id));
 				if( base == null ) {
 					return "<(b|s)ObjektID>";
 				}
 				return "<Basis "+base.getName()+" ("+base.getId()+")>";
 			}
 			else if( c == 's' ){
-				Ship ship = (Ship)db.get(Ship.class, Integer.parseInt(id));
+				Ship ship = em.find(Ship.class, Integer.parseInt(id));
 				if( ship == null ) {
 					return "<(b|s)ObjektID>";
 				}
@@ -948,17 +935,15 @@ public class AdminCommands {
 		}
 	}
 
-	protected static class AddUnitsCommand implements Command {
+	protected class AddUnitsCommand implements Command {
 		@Override
 		public String execute(Context context, String[] command) {
 			String output = "";
 
-			org.hibernate.Session db = context.getDB();
-
 			String oid = command[1];
 			UnitType unitType;
 			try {
-				unitType = (UnitType)db.get(UnitType.class, Integer.parseInt(command[2]));
+				unitType = em.find(UnitType.class, Integer.parseInt(command[2]));
 			}
 			catch( RuntimeException e ) {
 				throw new CommandFailedException("Der angegebene Einheitentyp ist ungueltig");
@@ -975,29 +960,29 @@ public class AdminCommands {
 
 			UnitCargo cargo;
 			if( oid.startsWith("b") ) {
-				Base base = (Base)db.get(Base.class, Integer.parseInt(oid.substring(1)));
+				Base base = em.find(Base.class, Integer.parseInt(oid.substring(1)));
 				if( base == null ) {
 					throw new CommandFailedException("Objekt existiert nicht");
 				}
 				cargo = base.getUnits();
 			}
 			else {
-				Ship ship = (Ship)db.get(Ship.class, Integer.parseInt(oid.substring(1)));
+				Ship ship = em.find(Ship.class, Integer.parseInt(oid.substring(1)));
 				if( ship == null ) {
 					throw new CommandFailedException("Objekt existiert nicht");
 				}
-				cargo = ship.getUnits();
+				cargo = ship.getUnitCargo();
 			}
 
 			cargo.addUnit(unitType, count);
 
 			if( oid.startsWith("s") ) {
-				Ship ship = (Ship)db.get(Ship.class, Integer.parseInt(oid.substring(1)));
-				ship.setUnits(cargo);
-				ship.recalculateShipStatus();
+				Ship ship = em.find(Ship.class, Integer.parseInt(oid.substring(1)));
+				ship.setUnitCargo(cargo);
+				shipActionService.recalculateShipStatus(ship);
 			}
 			else {
-				Base base = (Base)db.get(Base.class, Integer.parseInt(oid.substring(1)));
+				Base base = em.find(Base.class, Integer.parseInt(oid.substring(1)));
 				base.setUnits(cargo);
 			}
 
@@ -1011,11 +996,9 @@ public class AdminCommands {
 				return "<unitId>";
 			}
 
-			org.hibernate.Session db = ContextMap.getContext().getDB();
-
 			UnitType unitType = null;
 			try {
-				unitType = (UnitType)db.get(UnitType.class, Integer.parseInt(command[2]));
+				unitType = em.find(UnitType.class, Integer.parseInt(command[2]));
 			}
 			catch( RuntimeException e ) {
 				// EMPTY
@@ -1043,14 +1026,14 @@ public class AdminCommands {
 			char c = command[1].charAt(0);
 
 			if( c == 'b' ) {
-				Base base = (Base)db.get(Base.class, Integer.parseInt(id));
+				Base base = em.find(Base.class, Integer.parseInt(id));
 				if( base == null ) {
 					return "<(b|s)ObjektID>";
 				}
 				return "<Basis "+base.getName()+" ("+base.getId()+")>";
 			}
 			else if( c == 's' ){
-				Ship ship = (Ship)db.get(Ship.class, Integer.parseInt(id));
+				Ship ship = em.find(Ship.class, Integer.parseInt(id));
 				if( ship == null ) {
 					return "<(b|s)ObjektID>";
 				}
@@ -1068,7 +1051,7 @@ public class AdminCommands {
 		}
 	}
 
-	protected static class BattleCommand implements Command {
+	protected class BattleCommand implements Command {
 		@Override
 		public String execute(Context context, String[] command) {
 			String output = "";
@@ -1076,21 +1059,20 @@ public class AdminCommands {
 			String cmd = command[1];
 			if( cmd.equals("end") ) {
 				int battleid = Integer.parseInt( command[2] );
-				org.hibernate.Session db = context.getDB();
 
-				Battle battle = (Battle)db.get(Battle.class, battleid);
+				Battle battle = em.find(Battle.class, battleid);
 
 				if( battle == null ) {
 					throw new CommandFailedException("Die angegebene Schlacht existiert nicht");
 				}
 
-				User sourceUser = (User)context.getDB().get(User.class, -1);
+				User sourceUser = em.find(User.class, -1);
 
-				PM.send(sourceUser, battle.getCommander(0).getId(), "Schlacht beendet", "Die Schlacht bei "+battle.getLocation().displayCoordinates(false)+" wurde durch die Administratoren beendet.");
-				PM.send(sourceUser, battle.getCommander(1).getId(), "Schlacht beendet", "Die Schlacht bei "+battle.getLocation().displayCoordinates(false)+" wurde durch die Administratoren beendet.");
+				pmService.send(sourceUser, battle.getCommander(0).getId(), "Schlacht beendet", "Die Schlacht bei "+locationService.displayCoordinates(battle.getLocation(), false)+" wurde durch die Administratoren beendet.");
+				pmService.send(sourceUser, battle.getCommander(1).getId(), "Schlacht beendet", "Die Schlacht bei "+locationService.displayCoordinates(battle.getLocation(), false)+" wurde durch die Administratoren beendet.");
 
-				battle.load(battle.getCommander(0), null, null, 0);
-				battle.endBattle(0, 0);
+				battleService.load(battle, battle.getCommander(0), null, null, 0);
+				battleService.endBattle(battle,0, 0);
 			}
 			else {
 				throw new CommandFailedException("Unknown battle sub-command >"+cmd+"<");
@@ -1105,7 +1087,7 @@ public class AdminCommands {
 		}
 	}
 
-	protected static class DestroyShipCommand implements Command {
+	protected class DestroyShipCommand implements Command {
 		@Override
 		public String execute(Context context, String[] command) {
 			String output;
@@ -1136,15 +1118,12 @@ public class AdminCommands {
 						break;
 				}
 			}
-			if( sql.size() > 0 ) {
-				org.hibernate.Session db = context.getDB();
-
-				List<?> ships = db.createQuery("from Ship where "+Common.implode(" and ",sql)).list();
+			if(!sql.isEmpty()) {
+				List<Ship> ships = em.createQuery("from Ship where "+Common.implode(" and ", sql), Ship.class).getResultList();
 				int num = ships.size();
-				for (Object ship : ships)
+				for(Ship ship: ships)
 				{
-					Ship aship = (Ship) ship;
-					aship.destroy();
+					dismantlingService.destroy(ship);
 				}
 
 				output = num+" Schiffe entfernt";
@@ -1395,6 +1374,12 @@ public class AdminCommands {
 	}
 
 	protected static class ExecTaskCommand implements Command {
+		private final TaskManager taskManager;
+
+		public ExecTaskCommand(TaskManager taskManager) {
+			this.taskManager = taskManager;
+		}
+
 		@Override
 		public String execute(Context context, String[] command) {
 			String output;
@@ -1402,8 +1387,8 @@ public class AdminCommands {
 			String taskid = command[1];
 			String message = command[2];
 
-			if( Taskmanager.getInstance().getTaskByID(taskid) != null ) {
-				Taskmanager.getInstance().handleTask(taskid, message);
+			if( taskManager.getTaskByID(taskid) != null ) {
+				taskManager.handleTask(taskid, message);
 				output = "Task ausgeführt";
 			}
 			else {
@@ -1420,26 +1405,20 @@ public class AdminCommands {
 		}
 	}
 
-	protected static class RecalcShipModulesCommand implements Command {
-		private static final Logger LOG = LogManager.getLogger(RecalcShipModulesCommand.class);
-
+	protected class RecalcShipModulesCommand implements Command {
 		@Override
 		public String execute(Context context, String[] command) {
 			String output;
-			org.hibernate.Session db = context.getDB();
 
 			final AtomicInteger count = new AtomicInteger(0);
 			long start = System.currentTimeMillis();
 
-			db.getTransaction().commit();
-
 			List<Integer> ships;
 			if( command.length < 2 )
 			{
-				ships = Common.cast(db
-						.createQuery("select s.id from Ship as s join s.modules " +
-								"where s.id>0 order by s.owner.id,s.docked,s.shiptype.id asc")
-						.list());
+				ships = em.createQuery("select s.id from Ship as s join s.modules " +
+								"where s.id>0 order by s.owner.id,s.docked,s.shiptype.id asc", Integer.class)
+						.getResultList();
 			}
 			else {
 				ships = new ArrayList<>();
@@ -1450,19 +1429,13 @@ public class AdminCommands {
 
 				@Override
 				public void doWork(Integer object) {
-					Ship ship = (Ship)getDB().get(Ship.class, object);
-					ship.recalculateModules();
+					Ship ship = em.find(Ship.class, object);
+					shipService.recalculateModules(ship);
 					count.incrementAndGet();
-
-					if( count.get() % 1000 == 0 ) {
-						LOG.info("Schiffe berechnet: "+count.get());
-					}
 				}
 			}
 			.setFlushSize(20)
 			.executeFor(ships);
-
-			db.beginTransaction();
 
 			output = "Es wurden "+count.get()+" Schiffe in "+ (System.currentTimeMillis() - start)/1000d +" Sekunden neu berechnet.";
 			return output;
@@ -1480,10 +1453,10 @@ public class AdminCommands {
 		public String execute(Context context, String[] command) {
 			String output = "Cache cleared";
 
-			SessionFactory sf = HibernateUtil.getSessionFactory();
+			SessionFactory sf = context.getBean(SessionFactory.class, null);
 			Cache c = sf.getCache();
-			c.evictEntityRegions();
-			c.evictCollectionRegions();
+			c.evictEntityData();
+			c.evictCollectionData();
 			c.evictQueryRegions();
 
 			return output;
@@ -1496,15 +1469,15 @@ public class AdminCommands {
 		}
 	}
 
-	protected static class ClearSystemTileCache implements Command {
+	protected class ClearSystemTileCache implements Command {
 
 		@Override
-		public String execute(Context context, String[] command) throws CommandFailedException {
+		public String execute(Context context, String[] command) {
 			if(command.length != 1) {
 				return "Usage: cleartilecache";
 			}
 
-			List<StarSystem> systems = Common.cast(ContextMap.getContext().getDB().createQuery("from StarSystem order by id asc").list());
+			List<StarSystem> systems = em.createQuery("from StarSystem order by id asc", StarSystem.class).getResultList();
 			for (StarSystem system: systems) {
 				TileCache tileCache = TileCache.forSystem(system);
 				tileCache.resetCache();

@@ -39,6 +39,9 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.JqGridViewModel;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.lang.NonNull;
 import java.io.IOException;
 import java.io.Writer;
@@ -59,11 +62,16 @@ import static java.util.stream.Collectors.toList;
  * @author Christopher Jung
  */
 @Module(name = "admin")
-public class AdminController extends Controller
+public class AdminController extends Controller implements ApplicationContextAware
 {
 	private static final Logger LOG = LogManager.getLogger(AdminController.class);
 
 	private static final List<Class<?>> plugins;
+
+	private final NavigableMap<String, MenuCategory> menu = new TreeMap<>();
+	private final Set<String> validPlugins = new HashSet<>();
+
+	private ApplicationContext applicationContext;
 
 	static
 	{
@@ -75,6 +83,11 @@ public class AdminController extends Controller
 				.map(ClassInfo::loadClass)
 				.collect(toList());
 		}
+	}
+
+	@Override
+	public void setApplicationContext(@NonNull ApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
 	}
 
 	private static class MenuCategory implements Comparable<MenuCategory>
@@ -161,9 +174,6 @@ public class AdminController extends Controller
 			return this.name.hashCode();
 		}
 	}
-
-	private final NavigableMap<String, MenuCategory> menu = new TreeMap<>();
-	private final Set<String> validPlugins = new HashSet<>();
 
 	/**
 	 * Konstruktor.
@@ -355,20 +365,21 @@ public class AdminController extends Controller
 		}
 	}
 
-	private String callNamedPlugin(String namedplugin)
+	private String callNamedPlugin(String namedPlugin)
 	{
 		try
 		{
-			Class<?> aClass = Class.forName(namedplugin);
+			@SuppressWarnings("unchecked")
+			Class<AdminPlugin> pluginClazz = (Class<AdminPlugin>)Class.forName(namedPlugin);
 
-			AdminPlugin plugin = instantiate(aClass);
+			AdminPlugin plugin = applicationContext.getBean(pluginClazz);
 			StringBuilder output = new StringBuilder();
 			plugin.output(output);
 			return output.toString();
 		}
 		catch (IOException | RuntimeException | ReflectiveOperationException e)
 		{
-			LOG.warn("Fehler beim Aufruf des Admin-Plugins "+namedplugin, e);
+			LOG.warn("Fehler beim Aufruf des Admin-Plugins "+namedPlugin, e);
 			throw new ValidierungException("Fehler beim Aufruf des Admin-Plugins: " + e);
 		}
 	}
@@ -380,6 +391,7 @@ public class AdminController extends Controller
 			getContext().autowireBean(plugin);
 			return plugin;
 		}
+
 		EntityEditor<?> editor = aClass.asSubclass(EntityEditor.class).getDeclaredConstructor().newInstance();
 		EditPlugin8<?> plugin = new EditPlugin8<>(editor);
 		getContext().autowireBean(plugin);

@@ -28,6 +28,8 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import org.hibernate.Session;
 
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
+
 import java.util.List;
 
 /**
@@ -35,6 +37,7 @@ import java.util.List;
  * 
  */
 @AdminMenuEntry(category = "Asteroiden", name = "Basis-Klasse", permission = WellKnownAdminPermission.EDIT_BASE_TYPE)
+@Component
 public class EditBaseType implements EntityEditor<BaseType>
 {
 	@Override
@@ -57,7 +60,7 @@ public class EditBaseType implements EntityEditor<BaseType>
 		form.field("Höhe", Integer.class, BaseType::getHeight, BaseType::setHeight);
 		form.field("Max. Feldanzahl", Integer.class, BaseType::getMaxTiles, BaseType::setMaxTiles);
 		form.field("Radius", Integer.class, BaseType::getSize, BaseType::setSize);
-		form.field("Terrain", String.class, (bt) -> bt.getTerrain() == null ? "" : Common.implode(";", bt.getTerrain()), (bt, value) -> bt.setTerrain(Common.explodeToInteger(";", value)));
+		form.field("Terrain", String.class, bt -> bt.getTerrain() == null ? "" : Common.implode(";", bt.getTerrain()), (bt, value) -> bt.setTerrain(Common.explodeToInteger(";", value)));
 		form.field("Zum Spawn freigegebene Ressourcen", String.class, BaseType::getSpawnableRess, BaseType::setSpawnableRess);
 
 		form.postUpdateTask("Sternenkartencache leeren", (btOld, bt) -> {

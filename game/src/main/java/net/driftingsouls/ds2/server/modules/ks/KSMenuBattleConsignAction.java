@@ -25,8 +25,13 @@ import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.services.BattleService;
+import org.springframework.stereotype.Component;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -38,7 +43,18 @@ import java.util.Set;
  * @author Christopher Jung
  *
  */
+@Component
 public class KSMenuBattleConsignAction extends BasicKSMenuAction {
+	@PersistenceContext
+	private EntityManager em;
+
+	private final BBCodeParser bbCodeParser;
+
+	public KSMenuBattleConsignAction(BattleService battleService, BBCodeParser bbCodeParser) {
+		super(battleService, null);
+		this.bbCodeParser = bbCodeParser;
+	}
+
 	@Override
 	public Result execute(TemplateEngine t, Battle battle) throws IOException {
 		Result result = super.execute(t, battle);
@@ -47,29 +63,22 @@ public class KSMenuBattleConsignAction extends BasicKSMenuAction {
 		}
 		
 		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
 		User user = (User)context.getActiveUser();	
 		
 		BattleShip ownShip = battle.getOwnShip();
 		BattleShip enemyShip = battle.getEnemyShip();
 		
-		List<?> sideUsers = db.createQuery("select distinct u " +
+		List<User> sideUsers = em.createQuery("select distinct u " +
 				"from BattleShip as bs " +
 				"join bs.ship.owner as u " +
-			"where bs.battle= :battleId and bs.side= :sideId order by u.id")
-			.setInteger("battleId", battle.getId())
-			.setInteger("sideId", battle.getOwnSide())
-			.list();
-		
-		Set<User> users = new LinkedHashSet<>();
+			"where bs.battle= :battleId and bs.side= :sideId order by u.id", User.class)
+			.setParameter("battleId", battle.getId())
+			.setParameter("sideId", battle.getOwnSide())
+			.getResultList();
 
-		for (Object sideUser : sideUsers)
-		{
-			users.add((User) sideUser);
-		}
-		
+		Set<User> users = new LinkedHashSet<>(sideUsers);
 		if( battle.getAlly(battle.getOwnSide()) > 0 ) {
-			Ally ally = (Ally)db.get(Ally.class, battle.getAlly(battle.getOwnSide()));
+			Ally ally = em.find(Ally.class, battle.getAlly(battle.getOwnSide()));
 			users.addAll(ally.getMembers());
 		}
 		
@@ -77,12 +86,12 @@ public class KSMenuBattleConsignAction extends BasicKSMenuAction {
 			if( member.getId() == user.getId() ) {
 				continue;
 			}
-			this.menuEntryAsk(t, Common._titleNoFormat(member.getName()),
+			this.menuEntryAsk(t, Common._titleNoFormat(bbCodeParser, member.getName()),
 								new Object[] {	"ship",		ownShip.getId(),
 												"attack",	enemyShip.getId(),
 												"ksaction",	"new_commander2",
 												"newcom",	member.getId() },
-								"Wollen sie das Kommando wirklich an "+Common._titleNoFormat(member.getName())+" &uuml;bergeben?" );
+								"Wollen sie das Kommando wirklich an "+Common._titleNoFormat(bbCodeParser, member.getName())+" &uuml;bergeben?" );
 		}
 		
 		this.menuEntry(t, "zur&uuml;ck",

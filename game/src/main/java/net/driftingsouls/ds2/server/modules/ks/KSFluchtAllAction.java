@@ -22,8 +22,11 @@ import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.battles.BattleShipFlag;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.services.BattleService;
+import net.driftingsouls.ds2.server.services.ShipService;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.List;
@@ -33,8 +36,15 @@ import java.util.List;
  * @author Christopher Jung
  *
  */
+@Component
 public class KSFluchtAllAction extends BasicKSAction {
-	
+	private final ShipService shipService;
+
+	public KSFluchtAllAction(BattleService battleService, ShipService shipService) {
+		super(battleService, null);
+		this.shipService = shipService;
+	}
+
 	/**
 	 * Prueft, ob das Schiff fliehen kann oder nicht.
 	 * @param ship Das Schiff
@@ -101,7 +111,7 @@ public class KSFluchtAllAction extends BasicKSAction {
 					}
 				}
 			}
-			if( (gotone == Boolean.FALSE) && ashipType.hasFlag(ShipTypeFlag.DROHNE) ) {
+			if( (Boolean.FALSE.equals(gotone)) && ashipType.hasFlag(ShipTypeFlag.DROHNE) ) {
 				continue;
 			}
 			
@@ -109,14 +119,13 @@ public class KSFluchtAllAction extends BasicKSAction {
 				continue;
 			}
 
-		
-			battle.logme( aship.getName()+" flieht n&auml;chste Runde\n" );
+			getBattleService().logme(battle, aship.getName()+" flieht n&auml;chste Runde\n" );
 			aship.addFlag(BattleShipFlag.FLUCHTNEXT);
 			
 			int remove = 1;
 			for (BattleShip s : ownShips)
 			{
-				if (s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == aship.getId())
+				if (shipService.getBaseShip(s.getShip()) != null && shipService.getBaseShip(s.getShip()).getId() == aship.getId())
 				{
 					s.addFlag(BattleShipFlag.FLUCHTNEXT);
 
@@ -125,7 +134,7 @@ public class KSFluchtAllAction extends BasicKSAction {
 			}
 			
 			if( remove > 1 ) {
-				battle.logme( (remove-1)+" an "+aship.getName()+" gedockte Schiffe fliehen n&auml;chste Runde\n" );
+				getBattleService().logme(battle, (remove-1)+" an "+aship.getName()+" gedockte Schiffe fliehen n&auml;chste Runde\n" );
 			}
 		}
 		

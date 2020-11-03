@@ -20,20 +20,24 @@ package net.driftingsouls.ds2.server.tick.regular;
 
 import net.driftingsouls.ds2.server.bases.AcademyQueueEntry;
 import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Offiziere;
 import net.driftingsouls.ds2.server.entities.Academy;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.framework.db.batch.SingleUnitOfWork;
+import net.driftingsouls.ds2.server.services.AcademyService;
+import net.driftingsouls.ds2.server.services.PmService;
+import net.driftingsouls.ds2.server.services.UserService;
+import net.driftingsouls.ds2.server.services.UserValueService;
 import net.driftingsouls.ds2.server.tick.TickController;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +56,19 @@ import java.util.Map;
 public class AcademyTick extends TickController {
 	private Map<Integer,Offizier.Ability> dTrain;
 	private static final Map<Integer,String> offis = new HashMap<>();
+
+	@PersistenceContext
+	private EntityManager em;
+
+	private final AcademyService academyService;
+	private final PmService pmService;
+	private final UserValueService userValueService;
+
+	public AcademyTick(AcademyService academyService, PmService pmService, UserValueService userValueService) {
+		this.academyService = academyService;
+		this.pmService = pmService;
+		this.userValueService = userValueService;
+	}
 
 	@Override
 	protected void prepare()
@@ -72,17 +89,14 @@ public class AcademyTick extends TickController {
 	@Override
 	protected void tick()
 	{
-		org.hibernate.Session db = getDB();
-
-		List<Integer> accList = Common.cast(db.createQuery("select a.id from Academy a " +
-			"where a.train=true and (a.base.owner.vaccount=0 or a.base.owner.wait4vac!=0)").list());
+		List<Integer> accList = em.createQuery("select a.id from Academy a " +
+			"where a.train=true and (a.base.owner.vaccount=0 or a.base.owner.wait4vac!=0)", Integer.class).getResultList();
 
 		new EvictableUnitOfWork<Integer>("Academy Tick")
 		{
 			@Override
 			public void doWork(Integer accId) {
-				org.hibernate.Session db = getDB();
-				Academy acc = (Academy)db.get(Academy.class, accId);
+				Academy acc = em.find(Academy.class, accId);
 
 				Base base = acc.getBase();
 
@@ -119,7 +133,7 @@ public class AcademyTick extends TickController {
 									msg.append(offi.getName()).append(" (").append(dTrain.get(entry.getTrainingType())).append(")\n");
 								}
 							}
-							entry.finishBuildProcess();
+							academyService.finishBuildProcess(entry);
 
 							log("\tOffizier Aus-/Weitergebildet");
 						}
@@ -130,10 +144,11 @@ public class AcademyTick extends TickController {
 					{
 						acc.rescheduleQueue();
 						// Nachricht versenden
-						final User sourceUser = (User)db.get(User.class, -1);
+						final User sourceUser = em.find(User.class, -1);
                         User accUser = base.getOwner();
-                        if(accUser.getUserValue(WellKnownUserValue.GAMEPLAY_USER_OFFICER_BUILD_PM)) {
-                            PM.send(sourceUser, base.getOwner().getId(), "Ausbildung abgeschlossen", msg.toString());
+                        var sendOfficerTrainedMessage = userValueService.getUserValue(accUser, WellKnownUserValue.GAMEPLAY_USER_OFFICER_BUILD_PM);
+                        if(Boolean.TRUE.equals(sendOfficerTrainedMessage)) {
+                            pmService.send(sourceUser, base.getOwner().getId(), "Ausbildung abgeschlossen", msg.toString());
                         }
 					}
 
@@ -157,13 +172,12 @@ public class AcademyTick extends TickController {
 		new SingleUnitOfWork("Academy Tick - Offiziere befoerdern") {
 			@Override
 			public void doWork() {
-				org.hibernate.Session db = getDB();
 				int count = 0;
 				for( int i = Offiziere.MAX_RANG; i > 0; i-- ) {
-					count += db.createQuery("update Offizier " +
+					count += em.createQuery("update Offizier " +
 							"set rang= :rang " +
 					"where rang < :rang and (ing+waf+nav+sec+com)/125 >= :rang")
-					.setInteger("rang", i)
+					.setParameter("rang", i)
 					.executeUpdate();
 				}
 				log(count+" Offizier(e) befoerdert");

@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.entities.statistik;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -31,7 +32,6 @@ import javax.persistence.Version;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 
 import net.driftingsouls.ds2.server.entities.User;
-import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Type;
 
 /**
@@ -46,8 +46,7 @@ public class StatUserCargo {
 	private Long id;
 	
 	@OneToOne(fetch=FetchType.LAZY, optional = false)
-	@JoinColumn(name="user_id", nullable = false)
-	@ForeignKey(name="stats_user_cargo_fk_user_id")
+	@JoinColumn(name="user_id", nullable = false, foreignKey = @ForeignKey(name="stats_user_cargo_fk_user_id"))
 	private User user;
 	
 	@Type(type="largeCargo")
@@ -87,7 +86,7 @@ public class StatUserCargo {
 	 * Setzt den Cargo des Spielers.
 	 * @param cargo Der Cargo
 	 */
-	public final void setCargo(final Cargo cargo) {
+	public void setCargo(final Cargo cargo) {
 		this.cargo = cargo;
 	}
 
@@ -103,7 +102,7 @@ public class StatUserCargo {
 	 * Setzt den Spieler.
 	 * @param user Der Spieler
 	 */
-	public final void setUser(final User user) {
+	public void setUser(final User user) {
 		this.user = user;
 	}
 

@@ -18,11 +18,15 @@
  */
 package net.driftingsouls.ds2.server.tick.regular;
 
-import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.services.DismantlingService;
+import net.driftingsouls.ds2.server.services.LocationService;
+import net.driftingsouls.ds2.server.services.PmService;
+import net.driftingsouls.ds2.server.services.ShipyardService;
+import net.driftingsouls.ds2.server.services.UserValueService;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
@@ -31,12 +35,14 @@ import net.driftingsouls.ds2.server.werften.ShipWerft;
 import net.driftingsouls.ds2.server.werften.WerftKomplex;
 import net.driftingsouls.ds2.server.werften.WerftObject;
 import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
-import org.hibernate.FlushMode;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Berechnung des Ticks fuer Werften.
@@ -47,6 +53,22 @@ import java.util.List;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class WerftTick extends TickController
 {
+	@PersistenceContext
+	private EntityManager em;
+
+	private final ShipyardService shipyardService;
+	private final PmService pmService;
+	private final UserValueService userValueService;
+	private final LocationService locationService;
+	private final DismantlingService dismantlingService;
+
+	public WerftTick(ShipyardService shipyardService, PmService pmService, UserValueService userValueService, LocationService locationService, DismantlingService dismantlingService) {
+		this.shipyardService = shipyardService;
+		this.pmService = pmService;
+		this.userValueService = userValueService;
+		this.locationService = locationService;
+		this.dismantlingService = dismantlingService;
+	}
 
 	@Override
 	protected void prepare()
@@ -55,21 +77,17 @@ public class WerftTick extends TickController
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	protected void tick()
 	{
-		org.hibernate.Session db = getDB();
-		db.setFlushMode(FlushMode.MANUAL);
-		final User sourceUser = (User) db.get(User.class, -1);
+		final User sourceUser = em.find(User.class, -1);
 
-		List<Integer> werften = db.createQuery("select w.id from WerftObject w where size(w.queue)>0")
-								.list();
+		List<Integer> werften = em.createQuery("select w.id from WerftObject w where size(w.queue)>0", Integer.class)
+								.getResultList();
 		new EvictableUnitOfWork<Integer>("Werft Tick")
 		{
 			@Override
 			public void doWork(Integer werftId) {
-				org.hibernate.Session db = getDB();
-				WerftObject werft = (WerftObject) db.get(WerftObject.class, werftId);
+				WerftObject werft = em.find(WerftObject.class, werftId);
 
 				processWerft(sourceUser, werft);
 			}
@@ -82,8 +100,6 @@ public class WerftTick extends TickController
 	{
 		try
 		{
-			org.hibernate.Session db = getDB();
-
 			if ((werft instanceof ShipWerft) && (((ShipWerft) werft).getShipID() < 0))
 			{
 				return;
@@ -119,16 +135,16 @@ public class WerftTick extends TickController
 
 				if (entry.getRequiredItem() > -1)
 				{
-					Item item = (Item) db.get(Item.class, entry.getRequiredItem());
+					Item item = em.find(Item.class, entry.getRequiredItem());
 					this.log("\tItem benoetigt: " + item.getName() + " (" + entry.getRequiredItem() + ")");
 				}
 
 				// Wenn keine volle Crew vorhanden ist, besteht hier die Moeglichkeit, dass nicht weitergebaut wird.
-				if (Math.random() <= werft.getWorkerPercentageAvailable())
+				if (ThreadLocalRandom.current().nextDouble() <= werft.getWorkerPercentageAvailable())
 				{
 					if (entry.isBuildContPossible())
 					{
-						entry.continueBuild();
+						shipyardService.continueBuild(entry);
 						this.log("\tVoraussetzungen erfuellt - bau geht weiter");
 					}
 				}
@@ -141,23 +157,24 @@ public class WerftTick extends TickController
 				{
 					this.log("\tSchiff " + shipd.getTypeId() + " gebaut");
 
-					int shipid = entry.finishBuildProcess();
+					int shipid = dismantlingService.finishBuildProcess(entry);
 					this.slog(entry.MESSAGE.getMessage());
 
 					if (shipid > 0)
 					{
 						// MSG
-						String msg = "Auf " + bbcode(werft) + " wurde eine [ship=" + shipid + "]" + shipd.getNickname() + "[/ship] gebaut. Sie steht bei [map]" + werft.getLocation().displayCoordinates(false) + "[/map].";
+						String msg = "Auf " + bbcode(werft) + " wurde eine [ship=" + shipid + "]" + shipd.getNickname() + "[/ship] gebaut. Sie steht bei [map]" + locationService.displayCoordinates(werft.getLocation(), false) + "[/map].";
 
-                        if(werft.getOwner().getUserValue(WellKnownUserValue.GAMEPLAY_USER_SHIP_BUILD_PM)) {
-                            PM.send(sourceUser, werft.getOwner().getId(), "Schiff gebaut", msg);
+						var sendShipBuildMessage = userValueService.getUserValue(werft.getOwner(), WellKnownUserValue.GAMEPLAY_USER_SHIP_BUILD_PM);
+                        if(Boolean.TRUE.equals(sendShipBuildMessage)) {
+							pmService.send(sourceUser, werft.getOwner().getId(), "Schiff gebaut", msg);
                         }
 					}
 
 					if (--maxCompleted <= 0)
 					{
 						this.log("Maximum an fertigen Schiffen erreicht - abbruch");
-						PM.send(sourceUser, werft.getOwner().getId(), "Geplante Auslieferungen",
+						pmService.send(sourceUser, werft.getOwner().getId(), "Geplante Auslieferungen",
 							   "Auf " + bbcode(werft) + " wurde die maximale Anzahl an gleichzeig zu produzierenden Schiffen erreicht. " +
 							   "Weitere Fertigstellungen wurden von der Raumsicherheit als auch vom Arbeitsschutzbeauftragten der auf den " +
 							   "Werften vertretenen Gewerkschaften abgeleht. Der Weiterbau wird beim nächsten Tick automatisch wieder aufgenommen.\n\ngez.\nKoordinationsbüro Werftkomplexe");
@@ -192,7 +209,7 @@ public class WerftTick extends TickController
 		}
 
 		WerftKomplex komplex = (WerftKomplex) werft;
-		return bbcode(komplex.getMembers()[0]);
+		return bbcode(komplex.getMembers().get(0));
 	}
 
 }

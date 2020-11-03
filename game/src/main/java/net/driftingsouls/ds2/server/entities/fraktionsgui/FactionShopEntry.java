@@ -152,7 +152,7 @@ public class FactionShopEntry {
 	 * Setzt die Fraktion, der der Eintrag gehoert.
 	 * @param faction Die Fraktions-ID
 	 */
-	public final void setFaction(final User faction) {
+	public void setFaction(final User faction) {
 		this.faction = faction;
 	}
 
@@ -202,7 +202,7 @@ public class FactionShopEntry {
 	 * Setzt die Produktdaten.
 	 * @param resource Die Produktdaten
 	 */
-	public final void setResource(final String resource) {
+	public void setResource(final String resource) {
 		this.resource = resource;
 	}
 
@@ -218,7 +218,7 @@ public class FactionShopEntry {
 	 * Setzt den Typ des Produkts.
 	 * @param type Der Typ
 	 */
-	public final void setType(final Type type) {
+	public void setType(final Type type) {
 		this.type = type;
 	}
 

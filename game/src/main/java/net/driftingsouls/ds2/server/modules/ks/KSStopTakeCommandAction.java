@@ -21,23 +21,29 @@ package net.driftingsouls.ds2.server.modules.ks;
 import java.io.IOException;
 
 import net.driftingsouls.ds2.server.battles.Battle;
-import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.services.BattleService;
+import net.driftingsouls.ds2.server.services.LocationService;
+import net.driftingsouls.ds2.server.services.PmService;
+import org.springframework.stereotype.Component;
 
 /**
  * Bricht die Uebernahme des Kommandos durch einen anderen Spieler ab.
  * @author Christopher Jung
  *
  */
+@Component
 public class KSStopTakeCommandAction extends BasicKSAction {
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public KSStopTakeCommandAction() {
+	private final PmService pmService;
+	private final LocationService locationService;
+
+	public KSStopTakeCommandAction(BattleService battleService, PmService pmService, LocationService locationService) {
+		super(battleService, null);
+		this.pmService = pmService;
+		this.locationService = locationService;
 		this.requireActive(false);
 	}
 	
@@ -53,12 +59,12 @@ public class KSStopTakeCommandAction extends BasicKSAction {
 		User user = (User)context.getActiveUser();	
 		
 		if( battle.getTakeCommand(battle.getOwnSide()) == 0 ) {
-			battle.logme( "Es versucht niemand das Kommando zu &uuml;bernehmen\n" );
+			getBattleService().logme(battle,  "Es versucht niemand das Kommando zu &uuml;bernehmen\n" );
 			
 			return Result.ERROR;
 		}
 		
-		PM.send( user, battle.getTakeCommand(battle.getOwnSide()), "Schlacht-&uuml;bergabe abgelehnt", "Die &Uuml;bergabe es Kommandos der Schlacht bei "+battle.getLocation().displayCoordinates(false)+" wurde abgelehnt");
+		pmService.send( user, battle.getTakeCommand(battle.getOwnSide()), "Schlacht-&uuml;bergabe abgelehnt", "Die &Uuml;bergabe es Kommandos der Schlacht bei "+locationService.displayCoordinates(battle.getLocation(), false)+" wurde abgelehnt");
 
 		battle.setTakeCommand(battle.getOwnSide(), 0);
 

@@ -61,7 +61,7 @@ public class Task {
 	 * Erstellt eine neue Task.
 	 * @param type Der Typ der Task
 	 */
-	public Task(Taskmanager.Types type) {
+	public Task(TaskManager.Types type) {
 		this.taskID =  Common.md5(Integer.toString(ThreadLocalRandom.current().nextInt(Integer.MAX_VALUE)))+Common.time();
 		this.type = type.getTypeID();
 		this.time = Common.time();
@@ -151,8 +151,8 @@ public class Task {
 	 * Gibt den Typ der Task zurueck.
 	 * @return der Typ
 	 */
-	public Taskmanager.Types getType() {
-		return Taskmanager.Types.getTypeByID(type);
+	public TaskManager.Types getType() {
+		return TaskManager.Types.getTypeByID(type);
 	}
 
 	/**

@@ -23,9 +23,10 @@ import net.driftingsouls.ds2.server.entities.NewsEntry;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import org.hibernate.Session;
+import org.springframework.stereotype.Component;
 
-import java.io.IOException;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 /**
  * Ermoeglicht das Verfassen von neuen News im Portal.
@@ -33,7 +34,11 @@ import java.io.IOException;
  *
  */
 @AdminMenuEntry(category="Portal", name="News schreiben", permission = WellKnownAdminPermission.PORTAL_NEWS)
+@Component
 public class PortalNews implements AdminPlugin {
+	@PersistenceContext
+	private EntityManager em;
+
 	@Override
 	public void output(StringBuilder echo) {
 		Context context = ContextMap.getContext();
@@ -59,11 +64,10 @@ public class PortalNews implements AdminPlugin {
 		}
 		else 
 		{
-			Session db = context.getDB();
 			String username = Common.escapeHTML(context.getActiveUser().getPlainname());
 			long timestamp = Common.time();
 			NewsEntry entry = new NewsEntry(title, username, timestamp, shortDescription, news);
-			db.persist(entry);
+			em.persist(entry);
 			echo.append("News hinzugef&uuml;gt<br />");
 		}
 	}

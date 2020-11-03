@@ -21,20 +21,28 @@ package net.driftingsouls.ds2.server.modules;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
-import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.services.CargoService;
+import net.driftingsouls.ds2.server.services.LocationService;
+import net.driftingsouls.ds2.server.services.PmService;
+import net.driftingsouls.ds2.server.services.ShipService;
+import net.driftingsouls.ds2.server.services.ShipActionService;
+import net.driftingsouls.ds2.server.services.UserService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.Map;
 
 /**
@@ -47,10 +55,28 @@ public class PluendernController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
 
+	@PersistenceContext
+	private EntityManager em;
+
+	private final ShipService shipService;
+	private final PmService pmService;
+	private final BBCodeParser bbCodeParser;
+	private final UserService userService;
+	private final LocationService locationService;
+	private final CargoService cargoService;
+	private final ShipActionService shipActionService;
+
 	@Autowired
-	public PluendernController(TemplateViewResultFactory templateViewResultFactory)
+	public PluendernController(TemplateViewResultFactory templateViewResultFactory, ShipService shipService, PmService pmService, BBCodeParser bbCodeParser, UserService userService, LocationService locationService, CargoService cargoService, ShipActionService shipActionService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.shipService = shipService;
+		this.pmService = pmService;
+		this.bbCodeParser = bbCodeParser;
+		this.userService = userService;
+		this.locationService = locationService;
+		this.cargoService = cargoService;
+		this.shipActionService = shipActionService;
 
 		setPageTitle("Pluendern");
 	}
@@ -71,7 +97,7 @@ public class PluendernController extends Controller
 		}
 		ShipTypeData shipTypeTo = zielSchiff.getTypeData();
 
-		if (user.isNoob())
+		if (userService.isNoob(user))
 		{
 			throw new ValidierungException("Sie stehen unter GCP-Schutz und k&ouml;nnen daher nicht pl&uuml;nndern<br />Hinweis: der GCP-Schutz kann unter Optionen vorzeitig beendet werden", errorurl);
 		}
@@ -83,7 +109,7 @@ public class PluendernController extends Controller
 
 		User taruser = zielSchiff.getOwner();
 
-		if (taruser.isNoob())
+		if (userService.isNoob(taruser))
 		{
 			throw new ValidierungException("Dieser Kolonist steht unter GCP-Schutz", errorurl);
 		}
@@ -127,7 +153,7 @@ public class PluendernController extends Controller
 				throw new ValidierungException("Sie k&ouml;nnen gelandete Schiffe weder kapern noch pl&uuml;ndern", errorurl);
 			}
 
-			Ship mastership = zielSchiff.getBaseShip();
+			Ship mastership = shipService.getBaseShip(zielSchiff);
 			if (((mastership.getCrew() != 0)) && (mastership.getEngine() != 0) &&
 					(mastership.getWeapons() != 0))
 			{
@@ -178,7 +204,6 @@ public class PluendernController extends Controller
 											 boolean fromkapern)
 	{
 		User user = (User) this.getUser();
-		org.hibernate.Session db = getDB();
 
 		validiereEigenesUndZielschiff(shipFrom, shipTo);
 
@@ -188,12 +213,12 @@ public class PluendernController extends Controller
 		ShipTypeData shipTypeTo = shipTo.getTypeData();
 		ShipTypeData shipTypeFrom = shipFrom.getTypeData();
 
-		long curcargoto = shipTypeTo.getCargo() - cargoto.getMass();
-		long curcargofrom = shipTypeFrom.getCargo() - cargofrom.getMass();
+		long curcargoto = shipTypeTo.getCargo() - cargoService.getMass(cargoto);
+		long curcargofrom = shipTypeFrom.getCargo() - cargoService.getMass(cargofrom);
 
 		StringBuilder msg = new StringBuilder();
-		Cargo newCargoTo = (Cargo) cargoto.clone();
-		Cargo newCargoFrom = (Cargo) cargofrom.clone();
+		Cargo newCargoTo = cargoto.clone();
+		Cargo newCargoFrom = cargofrom.clone();
 
 		long totaltransferfcount = 0;
 		boolean transfer = false;
@@ -229,7 +254,7 @@ public class PluendernController extends Controller
 				if (transt > 0)
 				{
 					int itemid = res.getId().getItemID();
-					Item item = (Item) db.get(Item.class, itemid);
+					Item item = em.find(Item.class, itemid);
 					if (item.isUnknownItem())
 					{
 						User targetUser = shipTo.getOwner();
@@ -239,8 +264,8 @@ public class PluendernController extends Controller
 
 				newCargoTo.addResource(res.getId(), transt);
 				newCargoFrom.substractResource(res.getId(), transt);
-				curcargoto = shipTypeTo.getCargo() - newCargoTo.getMass();
-				curcargofrom = shipTypeFrom.getCargo() - newCargoFrom.getMass();
+				curcargoto = shipTypeTo.getCargo() - cargoService.getMass(newCargoTo);
+				curcargofrom = shipTypeFrom.getCargo() - cargoService.getMass(newCargoFrom);
 
 				message.append(" - jetzt [resource=").append(res.getId()).append("]").append(newCargoTo.getResourceCount(res.getId())).append("[/resource] auf ").append(shipTo.getName()).append(" vorhanden");
 
@@ -276,7 +301,7 @@ public class PluendernController extends Controller
 				if (transf > 0)
 				{
 					int itemid = res.getId().getItemID();
-					Item item = (Item) db.get(Item.class, itemid);
+					Item item = em.find(Item.class, itemid);
 					if (item.isUnknownItem())
 					{
 						user.addKnownItem(itemid);
@@ -288,8 +313,8 @@ public class PluendernController extends Controller
 				newCargoFrom.addResource(res.getId(), transf);
 				newCargoTo.substractResource(res.getId(), transf);
 
-				curcargoto = shipTypeTo.getCargo() - newCargoTo.getMass();
-				curcargofrom = shipTypeFrom.getCargo() - newCargoFrom.getMass();
+				curcargoto = shipTypeTo.getCargo() - cargoService.getMass(newCargoTo);
+				curcargofrom = shipTypeFrom.getCargo() - cargoService.getMass(newCargoFrom);
 
 				message.append(" - jetzt [resource=").append(res.getId()).append("]").append(newCargoFrom.getResourceCount(res.getId())).append("[/resource] auf ").append(shipFrom.getName()).append(" vorhanden");
 
@@ -323,9 +348,9 @@ public class PluendernController extends Controller
 		{
 			msg.insert(0, shipTo.getName() + " (" + shipTo.getId() + ") wird von " +
 					shipFrom.getName() + " (" + shipFrom.getId() + ") bei " +
-					shipFrom.getLocation().displayCoordinates(false) + " gepl&uuml;ndert.\n");
+					locationService.displayCoordinates(shipFrom.getLocation(), false) + " gepl&uuml;ndert.\n");
 
-			PM.send(shipFrom.getOwner(), shipTo.getOwner().getId(), "Schiff gepl&uuml;ndert", msg.toString());
+			pmService.send(shipFrom.getOwner(), shipTo.getOwner().getId(), "Schiff gepl&uuml;ndert", msg.toString());
 		}
 	}
 
@@ -334,8 +359,8 @@ public class PluendernController extends Controller
 		shipFrom.setCargo(newCargoFrom);
 		shipTo.setCargo(newCargoTo);
 
-		String status = shipTo.recalculateShipStatus();
-		shipFrom.recalculateShipStatus();
+		String status = shipActionService.recalculateShipStatus(shipTo);
+		shipActionService.recalculateShipStatus(shipFrom);
 
 		// Falls das Schiff instabil ist, dann diesem den "destory"-Status geben,
 		// damit der Schiffstick dieses zerstoert
@@ -374,7 +399,7 @@ public class PluendernController extends Controller
 
 		if( redirect != null )
 		{
-			t.setVar("pluendern.message", Common._text(redirect.getMessage()));
+			t.setVar("pluendern.message", Common._text(bbCodeParser, redirect.getMessage()));
 		}
 
 		t.setVar(
@@ -392,10 +417,10 @@ public class PluendernController extends Controller
 
 		t.setVar("fromship.name", shipFrom.getName(),
 				"fromship.id", shipFrom.getId(),
-				"fromship.cargo", Common.ln(shipTypeFrom.getCargo() - fromcargo.getMass()),
+				"fromship.cargo", Common.ln(shipTypeFrom.getCargo() - cargoService.getMass(fromcargo)),
 				"toship.name", shipTo.getName(),
 				"toship.id", shipTo.getId(),
-				"toship.cargo", Common.ln(shipTypeTo.getCargo() - tocargo.getMass()));
+				"toship.cargo", Common.ln(shipTypeTo.getCargo() - cargoService.getMass(tocargo)));
 
 		t.setBlock("_PLUENDERN", "res.listitem", "res.list");
 

@@ -33,10 +33,11 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
-import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Iterator;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import java.util.List;
 
 /**
  * Die Liste aller baubaren Gebaeude und Cores.
@@ -47,11 +48,16 @@ import java.util.Iterator;
 public class BuildingsController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
+	private final Rassen races;
+
+	@PersistenceContext
+	private EntityManager em;
 
 	@Autowired
-	public BuildingsController(TemplateViewResultFactory templateViewResultFactory)
+	public BuildingsController(TemplateViewResultFactory templateViewResultFactory, Rassen races)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.races = races;
 
 		setPageTitle("Gebäude");
 	}
@@ -66,17 +72,16 @@ public class BuildingsController extends Controller
 	{
 		User user = (User) getUser();
 		TemplateEngine t = templateViewResultFactory.createFor(this);
-		org.hibernate.Session db = getDB();
-		int userrasse = user.getRace();
+		int userRace = user.getRace();
 
 
-		gebaeudeListeAnzeigen(user, t, db, userrasse);
+		gebaeudeListeAnzeigen(user, t, userRace);
 
 		//
 		// Cores
 		//
 
-		coreListeAnzeigen(user, t, db);
+		coreListeAnzeigen(user, t);
 
 		t.setVar("base.id", col,
 				"base.field", field);
@@ -84,17 +89,16 @@ public class BuildingsController extends Controller
 		return t;
 	}
 
-	private void gebaeudeListeAnzeigen(User user, TemplateEngine t, Session db, int userrasse)
+	private void gebaeudeListeAnzeigen(User user, TemplateEngine t, int userrasse)
 	{
 		t.setBlock("_BUILDINGS", "buildings.listitem", "buildings.list");
 		t.setBlock("buildings.listitem", "building.buildcosts.listitem", "building.buildcosts.list");
 		t.setBlock("buildings.listitem", "building.produces.listitem", "building.produces.list");
 		t.setBlock("buildings.listitem", "building.consumes.listitem", "building.consumes.list");
 
-		Iterator<?> buildingIter = db.createQuery("from Building order by name").iterate();
-		for (; buildingIter.hasNext(); )
+		List<Building> buildings = em.createQuery("from Building order by name", Building.class).getResultList();
+		for (Building building: buildings )
 		{
-			Building building = (Building) buildingIter.next();
 			if (!user.hasResearched(building.getTechRequired()))
 			{
 				continue;
@@ -140,15 +144,15 @@ public class BuildingsController extends Controller
 
 			if (buildingrasse == 0)
 			{
-				addinfo.append("<span style=\"color:#FFFFFF; font-weight:normal\">").append(Rassen.get().rasse(buildingrasse).getName()).append(" <br /></span>");
+				addinfo.append("<span style=\"color:#FFFFFF; font-weight:normal\">").append(races.rasse(buildingrasse).getName()).append(" <br /></span>");
 			}
 			else if (userrasse == buildingrasse)
 			{
-				addinfo.append("<span style=\"color:#00FF00; font-weight:normal\">").append(Rassen.get().rasse(buildingrasse).getName()).append(" <br /></span>");
+				addinfo.append("<span style=\"color:#00FF00; font-weight:normal\">").append(races.rasse(buildingrasse).getName()).append(" <br /></span>");
 			}
 			else
 			{
-				addinfo.append("<span style=\"color:#FF0000; font-weight:normal\">").append(Rassen.get().rasse(buildingrasse).getName()).append(" <br /></span>");
+				addinfo.append("<span style=\"color:#FF0000; font-weight:normal\">").append(races.rasse(buildingrasse).getName()).append(" <br /></span>");
 			}
 
 
@@ -179,7 +183,7 @@ public class BuildingsController extends Controller
 		}
 	}
 
-	private void coreListeAnzeigen(User user, TemplateEngine t, Session db)
+	private void coreListeAnzeigen(User user, TemplateEngine t)
 	{
 		t.setBlock("_BUILDINGS", "cores.listitem", "cores.list");
 		t.setBlock("cores.listitem", "core.buildcosts.listitem", "core.buildcosts.list");
@@ -187,10 +191,9 @@ public class BuildingsController extends Controller
 		t.setBlock("cores.listitem", "core.consumes.listitem", "core.consumes.list");
 
 
-		Iterator<?> coreIter = db.createQuery("from Core order by name,astiType.id").iterate();
-		for (; coreIter.hasNext(); )
+		List<Core> cores = em.createQuery("from Core order by name, astiType.id", Core.class).getResultList();
+		for (Core core: cores)
 		{
-			Core core = (Core) coreIter.next();
 			if (!user.hasResearched(core.getTechRequired()))
 			{
 				continue;

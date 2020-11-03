@@ -20,23 +20,25 @@ package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.services.BattleService;
+import net.driftingsouls.ds2.server.services.ShipActionService;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 
 /**
  * Laedt die Schilde aller eigener Schiffe einer Klasse auf.
  * @author Christopher Jung
  *
  */
+@Component
+@Lazy
 public class KSRegenerateShieldsClassAction extends KSRegenerateShieldsAllAction {
 	private final ShipClasses shieldclass;
-	
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public KSRegenerateShieldsClassAction() {
-		
+
+	public KSRegenerateShieldsClassAction(BattleService battleService, ShipActionService shipActionService) {
+		super(battleService, shipActionService);
 		this.shieldclass = ShipClasses.values()[ContextMap.getContext().getRequest().getParameterInt("shieldclass")];
 	}
 	

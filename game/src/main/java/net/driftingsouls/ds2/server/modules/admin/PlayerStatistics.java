@@ -19,10 +19,10 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
+import org.springframework.stereotype.Component;
 
-import java.io.IOException;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 /**
  * Erweiterte Spielerstatistik.
@@ -30,10 +30,13 @@ import java.io.IOException;
  *
  */
 @AdminMenuEntry(category="Spieler", name="Erw. Statistik", permission = WellKnownAdminPermission.PLAYER_STATISTICS)
+@Component
 public class PlayerStatistics implements AdminPlugin {
+	@PersistenceContext
+	private EntityManager em;
 
 	@Override
-	public void output(StringBuilder echo) throws IOException
+	public void output(StringBuilder echo)
 	{
 		echo.append("<div class='gfxbox' style='width:700px'>");
 		echo.append("<script type='text/javascript'>$(document).ready(function(){");
@@ -105,22 +108,12 @@ public class PlayerStatistics implements AdminPlugin {
 	}
 
 	private String getJsValue(String label, String query) {
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-
-		long count = (Long)db
-			.createQuery(query)
-			.uniqueResult();
+		long count = em.createQuery(query, Long.class).getSingleResult();
 		return "['"+label+"',"+count+"]";
 	}
 
 	private void addValue(StringBuilder echo, String label, String query) {
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-
-		long count = (Long)db
-			.createQuery(query)
-			.uniqueResult();
+		long count = em.createQuery(query, Long.class).getSingleResult();
 		echo.append("<tr><td>").append(label).append("</td><td>").append(count).append("</td></tr>");
 	}
 }

@@ -44,6 +44,8 @@ public class Configuration
 {
 	private static final Map<String, String> config = new HashMap<>();
 
+	private Configuration() {}
+
 	/**
 	 * Laedt alle Konfigurationseinstellungen aus der config.xml im angegebenen Verzeichnis. Alle
 	 * bereits geladenen Konfigurationseinstellungen werden vorher geloescht. Das

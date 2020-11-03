@@ -18,30 +18,26 @@
  */
 package net.driftingsouls.ds2.server.werften;
 
-import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.ResourceEntry;
-import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import org.hibernate.annotations.ForeignKey;
-import org.jetbrains.annotations.NotNull;
-
 import org.springframework.lang.NonNull;
+
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import java.util.List;
 
 /**
  * Repraesentiert eine Werft auf einem Schiff in DS.
@@ -114,7 +110,7 @@ public class ShipWerft extends WerftObject {
 	public void setLink( Base base ) {
 		// In einem Komplex darf eine Basis nur einmal vorkommen
 		if( (base != null) && (getKomplex() != null) ) {
-			WerftObject[] members = getKomplex().getMembers();
+			List<WerftObject> members = getKomplex().getMembers();
 			for (WerftObject member1 : members)
 			{
 				if (!(member1 instanceof ShipWerft))
@@ -164,45 +160,6 @@ public class ShipWerft extends WerftObject {
 
 		}
 		return cargo;
-	}
-
-	@Override
-	public void setCargo(Cargo cargo, boolean localonly) {
-		for (ResourceEntry entry : cargo.getResourceList())
-		{
-			if( entry.getCount1() < 0 )
-			{
-				throw new IllegalArgumentException("Der Cargo kann nicht negativ sein ("+entry.getId()+": "+entry.getCount1());
-			}
-		}
-
-		if( (this.linked != null) && !localonly ) {
-			ShipTypeData shiptype = this.ship.getTypeData();
-
-			Cargo basecargo = this.linked.getCargo();
-
-			cargo.substractCargo( basecargo );
-
-			ResourceList reslist = cargo.getResourceList();
-			for( ResourceEntry res : reslist ) {
-				if( res.getCount1() < 0 ) {
-					basecargo.addResource( res.getId(), cargo.getResourceCount( res.getId() ) );
-					cargo.setResource( res.getId(), 0 );
-				}
-			}
-
-			// Ueberpruefen, ob wir nun zu viel Cargo auf dem Schiff haben
-			long cargocount = cargo.getMass();
-
-			if( cargocount > shiptype.getCargo() ) {
-				Cargo shipcargo = cargo.cutCargo(shiptype.getCargo());
-				basecargo.addCargo(cargo);
-				cargo = shipcargo;
-			}
-			this.linked.setCargo(basecargo);
-		}
-
-		this.ship.setCargo(cargo);
 	}
 
 	@Override
@@ -414,95 +371,11 @@ public class ShipWerft extends WerftObject {
 		return this.ship.getOwner();
 	}
 
-	@Override
-	public void onFinishedBuildProcess(int shipid) {
-		super.onFinishedBuildProcess(shipid);
-
-		// Falls es sich um eine Einwegwerft handelt, dann diese zerstoeren
-		if( getType() == WerftTyp.EINWEG ) {
-			getShip().destroy();
-		}
-	}
-
-	@Override
-	public boolean repairShip(@NonNull Ship ship, boolean testonly) {
-		boolean result = super.repairShip(ship, testonly);
-
-		this.ship.recalculateShipStatus();
-		return result;
-	}
-
-	@Override
-	public boolean reloadShip(@NonNull Ship ship, boolean testonly) {
-		boolean result = super.reloadShip(ship, testonly);
-
-		this.ship.recalculateShipStatus();
-		return result;
-	}
-
-	@Override
-	public void removeModule( @NotNull Ship ship, int slot ) {
-		super.removeModule( ship, slot );
-
-		this.ship.recalculateShipStatus();
-	}
-
-	@Override
-	public void addModule(@NonNull Ship ship, int slot, int item ) {
-		super.addModule( ship, slot, item );
-
-		this.ship.recalculateShipStatus();
-	}
-
-	@Override
-	public boolean dismantleShip(@NonNull Ship ship, boolean testonly) {
-		boolean result = super.dismantleShip(ship, testonly);
-
-		this.ship.recalculateShipStatus();
-		return result;
-	}
-
     @Override
     public boolean isEinwegWerft()
     {
         return this.getType() == WerftTyp.EINWEG || this.getOneWayFlag() != null;
     }
-
-	@Override
-	public boolean buildShip( int build, int item, boolean costsPerTick, boolean testonly ) {
-		boolean result = super.buildShip(build, item, costsPerTick, testonly);
-
-        // Reste aufräumen, die hier reingehören.
-        if(result && !testonly)
-        {
-            if( this.getOneWayFlag() != null) {
-                // Einweg-Werft-Code
-                Context context = ContextMap.getContext();
-                User user = this.getOwner();
-
-                ShipType newtype = this.getOneWayFlag();
-
-                String currentTime = Common.getIngameTime(context.get(ContextCommon.class).getTick());
-                String history = "Baubeginn am "+currentTime+" durch "+user.getName()+" ("+user.getId()+")";
-
-                Ship ship = this.getShip();
-                ship.getHistory().addHistory(history);
-                ship.setName("Baustelle");
-                ship.setBaseType(newtype);
-                ship.setHull(newtype.getHull());
-                ship.setAblativeArmor(newtype.getAblativeArmor());
-                ship.setCrew(newtype.getCrew());
-                ship.setEnergy(newtype.getEps());
-                ship.setEnergy(newtype.getEps());
-                ship.setOwner(user);
-                ship.recalculateModules();
-
-                this.setType(WerftTyp.EINWEG);
-            }
-        }
-		this.ship.recalculateShipStatus();
-		return result;
-	}
 
 	@Override
 	public String getWerftPicture() {
@@ -531,7 +404,7 @@ public class ShipWerft extends WerftObject {
 		// Falls notwendig den Link auf die Basis entfernen - in einem Komplex darf eine Basis
 		// nur einmal vorkommen
 		if( this.linked != null ) {
-			WerftObject[] members = linkedWerft.getMembers();
+			List<WerftObject> members = linkedWerft.getMembers();
 			for (WerftObject member1 : members)
 			{
 				if (!(member1 instanceof ShipWerft))
@@ -560,7 +433,7 @@ public class ShipWerft extends WerftObject {
 		// Falls notwendig den Link auf die Basis entfernen - in einem Komplex darf eine Basis
 		// nur einmal vorkommen
 		if( this.linked != null ) {
-			WerftObject[] members = this.getKomplex().getMembers();
+			List<WerftObject> members = this.getKomplex().getMembers();
 			for (WerftObject member1 : members)
 			{
 				if (!(member1 instanceof ShipWerft))

@@ -18,12 +18,12 @@
  */
 package net.driftingsouls.ds2.server.framework;
 
-import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import net.driftingsouls.ds2.server.framework.pipeline.Error;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.pipeline.Response;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -108,13 +108,15 @@ public class BasicContext implements Context
 	@Override
 	public EntityManager getEM()
 	{
-		return HibernateUtil.getCurrentEntityManager();
+		SessionFactory sessionFactory = applicationContext.getBean(SessionFactory.class);
+		return sessionFactory.getCurrentSession();
 	}
 
 	@Override
 	public org.hibernate.Session getDB()
 	{
-		return (org.hibernate.Session) HibernateUtil.getCurrentEntityManager().getDelegate();
+		SessionFactory sessionFactory = applicationContext.getBean(SessionFactory.class);
+		return sessionFactory.getCurrentSession();
 	}
 
 	@Override

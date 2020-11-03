@@ -33,16 +33,18 @@ import org.springframework.stereotype.Service;
 @Service
 public class HandleGanyTransport implements TaskHandler
 {
+	private final TaskManager taskManager;
+
+	public HandleGanyTransport(TaskManager taskManager) {
+		this.taskManager = taskManager;
+	}
+
 	@Override
 	public void handleEvent(Task task, String event)
 	{
-		//Context context = ContextMap.getContext();
-		//org.hibernate.Session db = context.getDB();
-		Taskmanager tm = Taskmanager.getInstance();
-
 	    // Vorerst automatischen Code deaktivieren
 		// Ganytransporte werden per Hand erledigt
-		tm.removeTask(task.getTaskID());
+		taskManager.removeTask(task.getTaskID());
 
         /*
 		int orderid = Integer.parseInt(task.getData1());

@@ -2,7 +2,6 @@ package net.driftingsouls.ds2.server.modules.fraktionen;
 
 import net.driftingsouls.ds2.server.entities.fraktionsgui.FactionShopEntry;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
 /**
@@ -19,11 +18,10 @@ class ShopShipEntry extends ShopEntry
 	 *
 	 * @param data Die SQL-Ergebniszeile des Shopeintrags
 	 */
-	public ShopShipEntry(FactionShopEntry data)
+	public ShopShipEntry(ShipTypeData shipType, FactionShopEntry data)
 	{
 		super(data);
-
-		this.shiptype = Ship.getShipType(Integer.parseInt(this.getResource()));
+		this.shiptype = shipType;
 	}
 
 	@Override

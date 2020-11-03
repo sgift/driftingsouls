@@ -20,18 +20,33 @@ package net.driftingsouls.ds2.server.modules.stats;
 
 import java.io.IOException;
 
+import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.modules.StatsController;
+import net.driftingsouls.ds2.server.services.UserService;
 import net.driftingsouls.ds2.server.uilibs.PlayerList;
+import org.springframework.stereotype.Component;
 
 /**
  * Zeigt die Spielerliste an.
  * @author Christopher Jung
  *
  */
+@Component
 public class StatPlayerList implements Statistic {
+	private final UserService userService;
+	private final Rassen races;
+	private final BBCodeParser bbCodeParser;
+
+	public StatPlayerList(UserService userService, Rassen races, BBCodeParser bbCodeParser) {
+		this.userService = userService;
+		this.races = races;
+		this.bbCodeParser = bbCodeParser;
+	}
+
 	@Override
 	public void show(StatsController contr, int size) throws IOException {
-		new PlayerList().draw(ContextMap.getContext());
+		new PlayerList(userService, races, bbCodeParser).draw(ContextMap.getContext());
 	}
 }

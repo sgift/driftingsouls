@@ -28,7 +28,7 @@ public class ClientController extends Controller
 	}
 
 	@Action(value = ActionType.DEFAULT, outputHandler = NgAppHtmlOutputHandler.class)
-	public final void defaultAction() throws IOException
+	public void defaultAction() throws IOException
 	{
 		Writer echo = getResponse().getWriter();
 

@@ -331,7 +331,7 @@ public class Cargo implements Cloneable {
 		return null;
 	}
 
-	protected List<Long[]> getItemArray() {
+	public List<Long[]> getItemArray() {
 		return items;
 	}
 
@@ -488,7 +488,7 @@ public class Cargo implements Cloneable {
 	 * Gibt alle Items im Cargo als <code>ItemCargoEntry</code>-Instanzen zurueck.
 	 * @return Liste aller Items im Cargo
 	 */
-	public List<ItemCargoEntry<Item>> getItems() {
+	public List<ItemCargoEntry<Item>> getItemEntries() {
 		List<ItemCargoEntry<Item>> result = new ArrayList<>();
 		for (Long[] item : items)
 		{
@@ -496,6 +496,10 @@ public class Cargo implements Cloneable {
 		}
 
 		return result;
+	}
+
+	public List<Long[]> getItems() {
+		return items;
 	}
 
 	/**
@@ -961,52 +965,6 @@ public class Cargo implements Cloneable {
 	}
 
 	/**
-	 * Spaltet vom Cargo ein Cargo-Objekt ab. Das neue Cargo-Objekt enthaelt
-	 * Resourcen in der angegebenen Masse (oder weniger, falls nicht genug im
-	 * Ausgangsobjekt waren). Das alte Cargoobjekt wird um diese Resourcenmenge
-	 * verringert.
-	 * @param mass Die gewuenschte Masse
-	 * @return Das abgespaltene Cargoobjekt.
-	 */
-	public Cargo cutCargo( long mass ) {
-		Cargo retcargo;
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
-		if( mass >= getMass() ) {
-			retcargo = (Cargo)clone();
-			items.clear();
-
-			return retcargo;
-		}
-		retcargo = new Cargo();
-
-		long currentmass = 0;
-
-		if( currentmass != mass ) {
-			for( int i=0; i < items.size(); i++ ) {
-				Long[] aitem = items.get(i);
-
-				Item item = (Item)db.get(Item.class, aitem[0].intValue());
-				if( item.getCargo()*aitem[1] + currentmass < mass ) {
-					currentmass += item.getCargo()*aitem[1];
-					retcargo.getItemArray().add(aitem);
-					items.remove(aitem);
-					i--;
-				}
-				else if( item.getCargo() > 0 ) {
-					Long[] newitem = aitem.clone();
-					newitem[1] = (mass-currentmass)/item.getCargo();
-					aitem[1] -= newitem[1];
-					currentmass += item.getCargo()*newitem[1];
-					retcargo.getItemArray().add(newitem);
-				}
-			}
-		}
-
-		return retcargo;
-	}
-
-	/**
 	 * Setzt die vorhandene Menge der angegebenen Resource auf
 	 * den angegebenen Wert.
 	 * @param resourceid Die Resourcen-ID
@@ -1152,7 +1110,7 @@ public class Cargo implements Cloneable {
 	}
 
 	@Override
-	public Object clone() {
+	public Cargo clone() {
 		try {
 			Cargo cargo = (Cargo)super.clone();
 			cargo.items = new ArrayList<>();

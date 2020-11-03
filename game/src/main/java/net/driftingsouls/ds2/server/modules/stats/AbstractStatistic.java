@@ -23,6 +23,7 @@ import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -32,7 +33,10 @@ import java.util.Map;
 abstract class AbstractStatistic implements Statistic {
 	private final Context context;
 
-	protected AbstractStatistic() {
+	private final BBCodeParser bbCodeParser;
+
+	protected AbstractStatistic(BBCodeParser bbCodeParser) {
+		this.bbCodeParser = bbCodeParser;
 		context = ContextMap.getContext();
 	}
 
@@ -77,20 +81,20 @@ abstract class AbstractStatistic implements Statistic {
 
 	protected interface LinkGenerator<T>
 	{
-		String generate(T object);
+		String generate(BBCodeParser parser, T object);
 	}
 
 	/**
 	 * Link-Generator fuer User-Entities.
 	 */
-	protected static final LinkGenerator<User> USER_LINK_GENERATOR = object -> "<a class=\"profile\" href=\"./ds?module=userprofile&amp;user="+object.getId()+"\">"+
-		Common._title(object.getName())+" ("+object.getId()+")</a>";
+	protected final LinkGenerator<User> USER_LINK_GENERATOR = (parser, user) -> "<a class=\"profile\" href=\"./ds?module=userprofile&amp;user="+user.getId()+"\">"+
+		Common._title(parser, user.getName())+" ("+user.getId()+")</a>";
 
 	/**
 	 * Link-Generator fuer Ally-Entities.
 	 */
-	protected static final LinkGenerator<Ally> ALLY_LINK_GENERATOR = object -> "<a class=\"profile\" href=\"./ds?module=allylist&amp;action=details&amp;details="+object.getId()+"\">"+
-		Common._title(object.getName())+" ("+object.getId()+")</a>";
+	protected final LinkGenerator<Ally> ALLY_LINK_GENERATOR = (parser, ally) -> "<a class=\"profile\" href=\"./ds?module=allylist&amp;action=details&amp;details="+ally.getId()+"\">"+
+		Common._title(parser, ally.getName())+" ("+ally.getId()+")</a>";
 
 	/**
 	 * Generiert eine Statistik mit Platz, Namen und (optional) Anzahl.
@@ -99,7 +103,6 @@ abstract class AbstractStatistic implements Statistic {
 	 * @param generator Der Generator fuer den anzuzeigenden Namen (Link)
 	 * @param showCount <code>true</code> falls die Anzahl angezeigt werden soll
 	 * @param size Die maximale Anzahl an anzuzeigenden Zeilen bzw 0 fuer beliebig viele
-	 * @throws IOException
 	 */
 	protected <T> void generateStatistic(String name, Map<T,Long> counts, LinkGenerator<T> generator, boolean showCount, long size) throws IOException {
 		Writer echo = getContext().getResponse().getWriter();
@@ -111,7 +114,7 @@ abstract class AbstractStatistic implements Statistic {
 		for( Map.Entry<T,Long> entry : counts.entrySet() )
 		{
 	   		echo.append("<tr><td>").append(Integer.toString(count + 1)).append(".</td>\n");
-			echo.append("<td>").append(generator.generate(entry.getKey())).append("</td>\n");
+			echo.append("<td>").append(generator.generate(bbCodeParser, entry.getKey())).append("</td>\n");
 			if( showCount ) {
 				echo.append("<td>").append(Common.ln(entry.getValue())).append("</td></tr>\n");
 			}

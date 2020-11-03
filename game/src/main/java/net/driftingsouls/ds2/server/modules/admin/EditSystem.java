@@ -28,14 +28,17 @@ import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.Jump;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
+import net.driftingsouls.ds2.server.services.BattleService;
+import net.driftingsouls.ds2.server.services.BuildingService;
+import net.driftingsouls.ds2.server.services.DismantlingService;
 import net.driftingsouls.ds2.server.ships.Ship;
-import org.hibernate.Session;
-
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.Serializable;
 
 /**
@@ -43,8 +46,22 @@ import java.io.Serializable;
  *
  */
 @AdminMenuEntry(category = "Systeme", name = "System", permission = WellKnownAdminPermission.EDIT_SYSTEM)
+@Component
 public class EditSystem implements EntityEditor<StarSystem>
 {
+	@PersistenceContext
+	private EntityManager em;
+
+	private final BattleService battleService;
+	private final BuildingService buildingService;
+	private final DismantlingService dismantlingService;
+
+	public EditSystem(BattleService battleService, BuildingService buildingService, DismantlingService dismantlingService) {
+		this.battleService = battleService;
+		this.buildingService = buildingService;
+		this.dismantlingService = dismantlingService;
+	}
+
 	@Override
 	public Class<StarSystem> getEntityType()
 	{
@@ -70,87 +87,86 @@ public class EditSystem implements EntityEditor<StarSystem>
 
 
 		form.postUpdateTask("Schiffe an Systemgrenzen anpassen",
-				(s) -> Common.cast(ContextMap.getContext().getDB().createQuery("select id from Ship where system = :system and (x>:width or y>:height)")
-						.setInteger("system", s.getID())
-						.setInteger("width", s.getWidth())
-						.setInteger("height", s.getHeight())
-						.list()),
+				s -> em.createQuery("select id from Ship where system = :system and (x>:width or y>:height)", Integer.class)
+						.setParameter("system", s.getID())
+						.setParameter("width", s.getWidth())
+						.setParameter("height", s.getHeight())
+						.getResultList(),
 				this::aktualisiereSchiffe
 		);
 		form.postUpdateTask("Schlachten an Systemgrenzen anpassen",
-				(s) -> Common.cast(ContextMap.getContext().getDB().createQuery("select id from Battle where system = :system and (x>:width or y>:height)")
-						.setInteger("system", s.getID())
-						.setInteger("width", s.getWidth())
-						.setInteger("height", s.getHeight())
-						.list()),
+				s -> em.createQuery("select id from Battle where system = :system and (x>:width or y>:height)", Integer.class)
+						.setParameter("system", s.getID())
+						.setParameter("width", s.getWidth())
+						.setParameter("height", s.getHeight())
+						.getResultList(),
 				this::aktualisiereSchlachten
 		);
 		form.postUpdateTask("Basen an Systemgrenzen anpassen",
-				(s) -> Common.cast(ContextMap.getContext().getDB().createQuery("select id from Base where system = :system and (x>:width or y>:height)")
-						.setInteger("system", s.getID())
-						.setInteger("width", s.getWidth())
-						.setInteger("height", s.getHeight())
-						.list()),
+				s -> em.createQuery("select id from Base where system = :system and (x>:width or y>:height)", Integer.class)
+						.setParameter("system", s.getID())
+						.setParameter("width", s.getWidth())
+						.setParameter("height", s.getHeight())
+						.getResultList(),
 				this::aktualisiereBasen
 		);
 		form.postUpdateTask("Ueberfluessige Nebel entfernen",
-				(s) -> Common.cast(ContextMap.getContext().getDB().createQuery("select loc from Nebel where loc.system = :system and (loc.x>:width or loc.y>:height)")
-						.setInteger("system", s.getID())
-						.setInteger("width", s.getWidth())
-						.setInteger("height", s.getHeight())
-						.list()),
+				s -> em.createQuery("select loc from Nebel where loc.system = :system and (loc.x>:width or loc.y>:height)", MutableLocation.class)
+						.setParameter("system", s.getID())
+						.setParameter("width", s.getWidth())
+						.setParameter("height", s.getHeight())
+						.getResultList(),
 				this::entferneNebel
 		);
 
 
 
 		form.preDeleteTask("Nebel entfernen",
-				(s) -> Common.cast(ContextMap.getContext().getDB().createQuery("select loc from Nebel where loc.system = :system")
-						.setInteger("system", s.getID())
-						.list()),
+				s -> em.createQuery("select loc from Nebel where loc.system = :system", MutableLocation.class)
+						.setParameter("system", s.getID())
+						.getResultList(),
 				this::entferneNebel
 		);
 
 		form.preDeleteTask("Schlachten beenden",
-				(s) -> Common.cast(ContextMap.getContext().getDB().createQuery("select id from Battle where system = :system")
-						.setInteger("system", s.getID())
-						.list()),
+				s -> em.createQuery("select id from Battle where system = :system", Integer.class)
+						.setParameter("system", s.getID())
+						.getResultList(),
 				this::schlachtBeenden
 		);
 
 		form.preDeleteTask("Schiffe entfernen",
-				(s) -> Common.cast(ContextMap.getContext().getDB().createQuery("select id from Ship where system = :system")
-						.setInteger("system", s.getID())
-						.list()),
+				s -> em.createQuery("select id from Ship where system = :system", Integer.class)
+						.setParameter("system", s.getID())
+						.getResultList(),
 				this::destroyShip
 		);
 
 		form.preDeleteTask("Jumps entfernen",
-				(s) -> Common.cast(ContextMap.getContext().getDB().createQuery("select id from Jump where system = :system")
-						.setInteger("system", s.getID())
-						.list()),
+				s -> em.createQuery("select id from Jump where system = :system", Integer.class)
+						.setParameter("system", s.getID())
+						.getResultList(),
 				this::destroyJump
 		);
 
 		form.preDeleteTask("Sprungpunkte entfernen",
-				(s) -> Common.cast(ContextMap.getContext().getDB().createQuery("select id from JumpNode where system = :system or systemOut = :system")
-						.setInteger("system", s.getID())
-						.list()),
+				s -> em.createQuery("select id from JumpNode where system = :system or systemOut = :system", Integer.class)
+						.setParameter("system", s.getID())
+						.getResultList(),
 				this::destroyJumpNode
 		);
 
 		form.preDeleteTask("Basen entfernen",
-				(s) -> Common.cast(ContextMap.getContext().getDB().createQuery("select id from Base where system = :system")
-						.setInteger("system", s.getID())
-						.list()),
+				s -> em.createQuery("select id from Base where system = :system", Integer.class)
+						.setParameter("system", s.getID())
+						.getResultList(),
 				this::destroyBase
 		);
 	}
 
 	private void destroyBase(StarSystem oldsystem, StarSystem system, Serializable baseid)
 	{
-		Session db = ContextMap.getContext().getDB();
-		Base base = (Base)db.get(Base.class, baseid);
+		Base base = em.find(Base.class, baseid);
 
 		Integer[] bebauung = base.getBebauung();
 		for (Integer aBebauung : bebauung)
@@ -161,53 +177,50 @@ public class EditSystem implements EntityEditor<StarSystem>
 			}
 
 			Building building = Building.getBuilding(aBebauung);
-			building.cleanup(ContextMap.getContext(), base, aBebauung);
+			buildingService.cleanup(building, base, aBebauung);
 		}
 
-		db.delete(base);
+		em.remove(base);
 	}
 
 	private void schlachtBeenden(StarSystem oldsystem, StarSystem system, Serializable battleid)
 	{
-		Session db = ContextMap.getContext().getDB();
-		Battle battle = (Battle)db.get(Battle.class, battleid);
+		Battle battle = em.find(Battle.class, battleid);
 
-		battle.load(battle.getCommander(0), null, null, 0);
-		battle.endBattle(0, 0);
+		battleService.load(battle, battle.getCommander(0), null, null, 0);
+		battleService.endBattle(battle,0, 0);
 	}
 
 	private void destroyJump(StarSystem oldsystem, StarSystem system, Serializable jumpid)
 	{
-		Session db = ContextMap.getContext().getDB();
-		Jump jumpNode = (Jump) db.get(Jump.class, jumpid);
-		db.delete(jumpNode);
+		Jump jumpNode = em.find(Jump.class, jumpid);
+		em.remove(jumpNode);
 	}
 
 	private void destroyJumpNode(StarSystem oldsystem, StarSystem system, Serializable jumpnodeid)
 	{
-		Session db = ContextMap.getContext().getDB();
-		JumpNode jumpNode = (JumpNode) db.get(JumpNode.class, jumpnodeid);
-		db.delete(jumpNode);
+		JumpNode jumpNode = em.find(JumpNode.class, jumpnodeid);
+		em.remove(jumpNode);
 	}
 
 	private void destroyShip(StarSystem oldsystem, StarSystem system, Serializable shipid)
 	{
-		Ship ship = (Ship) ContextMap.getContext().getDB().get(Ship.class, shipid);
-		ship.destroy();
+		Ship ship = em.find(Ship.class, shipid);
+		dismantlingService.destroy(ship);
 	}
 
 	private void entferneNebel(StarSystem oldsystem, StarSystem system, MutableLocation loc)
 	{
 		if( loc.getX() > system.getWidth() || loc.getY() > system.getHeight() )
 		{
-			Nebel nebel = (Nebel) ContextMap.getContext().getDB().get(Nebel.class, loc);
-			ContextMap.getContext().getDB().delete(nebel);
+			Nebel nebel = em.find(Nebel.class, loc);
+			em.remove(nebel);
 		}
 	}
 
 	private void aktualisiereBasen(StarSystem oldsystem, StarSystem system, Integer id)
 	{
-		Base base = (Base) ContextMap.getContext().getDB().get(Base.class, id);
+		Base base = em.find(Base.class, id);
 		if (base.getX() > system.getWidth())
 		{
 			base.setX(system.getWidth());
@@ -220,7 +233,7 @@ public class EditSystem implements EntityEditor<StarSystem>
 
 	private void aktualisiereSchlachten(StarSystem oldsystem, StarSystem system, Integer id)
 	{
-		Battle battle = (Battle) ContextMap.getContext().getDB().get(Battle.class, id);
+		Battle battle = em.find(Battle.class, id);
 		if (battle.getX() > system.getWidth())
 		{
 			battle.setX(system.getWidth());
@@ -233,7 +246,7 @@ public class EditSystem implements EntityEditor<StarSystem>
 
 	private void aktualisiereSchiffe(StarSystem oldsystem, StarSystem system, Integer id)
 	{
-		Ship ship = (Ship) ContextMap.getContext().getDB().get(Ship.class, id);
+		Ship ship = em.find(Ship.class, id);
 		if (ship.getX() > system.getWidth())
 		{
 			ship.setX(system.getWidth());

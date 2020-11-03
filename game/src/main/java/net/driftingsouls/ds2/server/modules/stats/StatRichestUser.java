@@ -20,12 +20,12 @@
 package net.driftingsouls.ds2.server.modules.stats;
 
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.ally.Ally;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.modules.StatsController;
+import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -36,52 +36,28 @@ import java.util.Map;
  * @author Simon Dietsch
  *
  */
+@Service
 public class StatRichestUser extends AbstractStatistic implements Statistic {
-	private final boolean allys;
+	@PersistenceContext
+	private EntityManager em;
 
-	/**
-	 * Konstruktor.
-	 * @param allys Sollten Allianzen (<code>true</code>) angezeigt werden?
-	 */
-	public StatRichestUser(boolean allys) {
-		this.allys = allys;
+	public StatRichestUser(BBCodeParser bbCodeParser) {
+        super(bbCodeParser);
 	}
 
 	@Override
 	public void show(StatsController contr, int size) throws IOException {
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
+		List<User> users = em.createQuery("select u from User u where id>:minid and (u.vaccount=0 or u.wait4vac>0) order by konto desc,id desc", User.class)
+			.setParameter("minid", StatsController.MIN_USER_ID)
+			.setMaxResults(size)
+			.getResultList();
 
-		if( !allys ) {
-			List<User> users = Common.cast(db
-				.createQuery("select u from User u where id>:minid and (u.vaccount=0 or u.wait4vac>0) order by konto desc,id desc")
-				.setParameter("minid", StatsController.MIN_USER_ID)
-				.setMaxResults(size)
-				.list());
-
-			Map<User,Long> displayMap = new LinkedHashMap<>();
-			for( User user : users )
-			{
-				displayMap.put(user, user.getKonto().longValue());
-			}
-
-			this.generateStatistic("Linked Markets Fortune List:", displayMap, USER_LINK_GENERATOR, false, -1);
+		Map<User,Long> displayMap = new LinkedHashMap<>();
+		for( User user : users )
+		{
+			displayMap.put(user, user.getKonto().longValue());
 		}
-		else {
-			List<Object[]> allianzen = Common.cast(db
-				.createQuery("select a,sum(u.konto) from User u join u.ally a " +
-						"where u.id>:minid and (u.vaccount=0 or u.wait4vac>0) group by a,u order by sum(u.konto) desc,u.id desc")
-				.setParameter("minid", StatsController.MIN_USER_ID)
-				.setMaxResults(size)
-				.list());
 
-			Map<Ally,Long> displayMap = new LinkedHashMap<>();
-			for( Object[] allianz : allianzen )
-			{
-				displayMap.put((Ally)allianz[0], ((Number)allianz[1]).longValue());
-			}
-
-			this.generateStatistic("Linked Markets Fortune List:", displayMap, ALLY_LINK_GENERATOR, false, -1);
-		}
+		this.generateStatistic("Linked Markets Fortune List:", displayMap, USER_LINK_GENERATOR, false, -1);
 	}
 }

@@ -49,7 +49,7 @@ public class EditPlugin8<T> implements AdminPlugin
 	}
 
 	@Override
-	public final void output(StringBuilder echo) throws IOException
+	public void output(StringBuilder echo) throws IOException
 	{
 		Context context = ContextMap.getContext();
 		Session db = context.getDB();

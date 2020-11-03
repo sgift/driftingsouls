@@ -35,11 +35,12 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
-import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -51,11 +52,16 @@ import java.util.Map;
 public class BuildController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
+	private final Rassen races;
+
+	@PersistenceContext
+	private EntityManager em;
 
 	@Autowired
-	public BuildController(TemplateViewResultFactory templateViewResultFactory)
+	public BuildController(TemplateViewResultFactory templateViewResultFactory, Rassen races)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.races = races;
 
 		setPageTitle("Bauen");
 	}
@@ -148,7 +154,7 @@ public class BuildController extends Controller
 
 		if (build.isUComplex())
 		{
-			int c = berechneAnzahlUnterirdischerKomplexe(getDB(), buildingcount);
+			int c = berechneAnzahlUnterirdischerKomplexe(buildingcount);
 			int grenze = berechneMaximaleAnzahlUnterirdischerKomplexe(base);
 
 			if (c > grenze - 1)
@@ -158,7 +164,7 @@ public class BuildController extends Controller
 				return new RedirectViewResult("default");
 			}
 		}
-		if (!Rassen.get().rasse(user.getRace()).isMemberIn(build.getRace()))
+		if (!races.rasse(user.getRace()).isMemberIn(build.getRace()))
 		{
 			addError("Sie gehören der falschen Spezies an und können dieses Gebäude nicht selbst errichten.");
 			return new RedirectViewResult("default");
@@ -247,7 +253,6 @@ public class BuildController extends Controller
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
-		org.hibernate.Session db = getDB();
 
 		t.setVar("base.id", base.getId(),
 				"base.name", Common._plaintitle(base.getName()),
@@ -270,7 +275,7 @@ public class BuildController extends Controller
 
 		//Max UComplex-Gebaeude-Check
 		int grenze = berechneMaximaleAnzahlUnterirdischerKomplexe(base);
-		int c = berechneAnzahlUnterirdischerKomplexe(db, buildingcount);
+		int c = berechneAnzahlUnterirdischerKomplexe(buildingcount);
 
 		boolean ucomplex = c <= grenze - 1;
 
@@ -278,12 +283,11 @@ public class BuildController extends Controller
 		t.setBlock("buildings.listitem", "buildings.res.listitem", "buildings.res.list");
 
 		//Alle Gebaeude ausgeben
-		Iterator<?> buildingIter = db.createQuery("from Building where category=:cat order by name")
-				.setInteger("cat", cat)
-				.iterate();
-		for (; buildingIter.hasNext(); )
+		List<Building> buildings = em.createQuery("from Building where category=:cat order by name", Building.class)
+				.setParameter("cat", cat)
+				.getResultList();
+		for (Building building: buildings)
 		{
-			Building building = (Building) buildingIter.next();
 			//Existiert bereits die max. Anzahl dieses Geb. Typs auf dem Asti?
 			if ((building.getPerPlanetCount() != 0) && buildingcount.containsKey(building.getId()) &&
 					(building.getPerPlanetCount() <= buildingcount.get(building.getId())))
@@ -306,7 +310,7 @@ public class BuildController extends Controller
 			{
 				continue;
 			}
-			if (!Rassen.get().rasse(user.getRace()).isMemberIn(building.getRace()))
+			if (!races.rasse(user.getRace()).isMemberIn(building.getRace()))
 			{
 				continue;
 			}
@@ -374,14 +378,13 @@ public class BuildController extends Controller
 		return ownerbuildingcount;
 	}
 
-	private int berechneAnzahlUnterirdischerKomplexe(Session db, Map<Integer, Integer> buildingcount)
+	private int berechneAnzahlUnterirdischerKomplexe(Map<Integer, Integer> buildingcount)
 	{
 		int c = 0;
 
-		Iterator<?> ucBuildingIter = db.createQuery("from Building where ucomplex=true").iterate();
-		for (; ucBuildingIter.hasNext(); )
+		List<Building> buildings = em.createQuery("from Building where ucomplex=true", Building.class).getResultList();
+		for (Building building: buildings)
 		{
-			Building building = (Building) ucBuildingIter.next();
 			if (buildingcount.containsKey(building.getId()))
 			{
 				c += buildingcount.get(building.getId());

@@ -107,53 +107,8 @@ public class DefaultBuilding extends Building
 	@Override
 	public String output(Context context, Base base, int field, int building)
 	{
-		StringBuilder buffer = new StringBuilder();
-		buffer.append("Verbraucht:<br />\n");
-		buffer.append("<div align=\"center\">\n");
-
-		boolean entry = false;
-		ResourceList reslist = getConsumes().getResourceList();
-		for (ResourceEntry res : reslist)
-		{
-			buffer.append("<img src=\"").append(res.getImage()).append("\" alt=\"\" />").append(res.getCargo1()).append(" ");
-			entry = true;
-		}
-
-		if (getEVerbrauch() > 0)
-		{
-			buffer.append("<img src=\"" + "./data/interface/energie.gif\" alt=\"\" />").append(getEVerbrauch()).append(" ");
-			entry = true;
-		}
-		if (!entry)
-		{
-			buffer.append("-");
-		}
-
-		buffer.append("</div>\n");
-
-		buffer.append("Produziert:<br />\n");
-		buffer.append("<div align=\"center\">\n");
-
-		entry = false;
-		reslist = getProduces().getResourceList();
-		for (ResourceEntry res : reslist)
-		{
-			buffer.append("<img src=\"").append(res.getImage()).append("\" alt=\"\" />").append(res.getCargo1()).append(" ");
-			entry = true;
-		}
-
-		if (getEProduktion() > 0)
-		{
-			buffer.append("<img src=\"" + "./data/interface/energie.gif\" alt=\"\" />").append(getEProduktion());
-			entry = true;
-		}
-
-		if (!entry)
-		{
-			buffer.append("-");
-		}
-		buffer.append("</div><br />\n");
-		return buffer.toString();
+		//TODO: REMOVE
+		return null;
 	}
 
 	@Override

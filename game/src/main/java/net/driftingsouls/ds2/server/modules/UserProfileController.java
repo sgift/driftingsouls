@@ -20,7 +20,8 @@ package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.config.Medal;
-import net.driftingsouls.ds2.server.config.Medals;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
+import net.driftingsouls.ds2.server.services.MedalService;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
@@ -31,6 +32,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.services.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -46,11 +48,19 @@ import java.util.Set;
 public class UserProfileController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
+	private final UserService userService;
+	private final Rassen races;
+	private final BBCodeParser bbCodeParser;
+	private final MedalService medalService;
 
 	@Autowired
-	public UserProfileController(TemplateViewResultFactory templateViewResultFactory)
+	public UserProfileController(TemplateViewResultFactory templateViewResultFactory, UserService userService, Rassen races, BBCodeParser bbCodeParser, MedalService medalService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.userService = userService;
+		this.races = races;
+		this.bbCodeParser = bbCodeParser;
+		this.medalService = medalService;
 
 		setPageTitle("Profil");
 	}
@@ -80,7 +90,7 @@ public class UserProfileController extends Controller
 			return new RedirectViewResult("default");
 		}
 
-		user.setRelation(ausgewaehlterBenutzer.getId(), relation);
+		userService.setRelation(user, ausgewaehlterBenutzer, relation);
 
 		return new RedirectViewResult("default").withMessage("Beziehungsstatus geändert.");
 	}
@@ -120,7 +130,7 @@ public class UserProfileController extends Controller
 		List<User> allymemberList = user.getAlly().getMembers();
 		for (User auser : allymemberList)
 		{
-			auser.setRelation(ausgewaehlterBenutzer.getId(), relation);
+			userService.setRelation(auser, ausgewaehlterBenutzer, relation);
 		}
 
 		return new RedirectViewResult("default").withMessage("Beziehungsstatus geändert.");
@@ -146,7 +156,7 @@ public class UserProfileController extends Controller
 		if (ausgewaehlterBenutzer.getAlly() != null)
 		{
 			Ally ally = ausgewaehlterBenutzer.getAlly();
-			t.setVar("user.ally.name", Common._title(ally.getName()),
+			t.setVar("user.ally.name", Common._title(bbCodeParser, ally.getName()),
 					"user.ally.id", ally.getId());
 
 			String pstatus = "";
@@ -178,7 +188,7 @@ public class UserProfileController extends Controller
 		{
 			if ((user.getAlly() == null) || (user.getAlly() != ausgewaehlterBenutzer.getAlly()))
 			{
-				User.Relation relation = user.getRelation(ausgewaehlterBenutzer);
+				User.Relation relation = userService.getRelation(user, ausgewaehlterBenutzer);
 
 				if (relation == User.Relation.ENEMY)
 				{
@@ -195,9 +205,9 @@ public class UserProfileController extends Controller
 			}
 		}
 
-		t.setVar("user.name", Common._title(ausgewaehlterBenutzer.getName()),
-				"user.rasse.name", Rassen.get().rasse(ausgewaehlterBenutzer.getRace()).getName(),
-				"user.rang", Medals.get().rang(ausgewaehlterBenutzer.getRang()),
+		t.setVar("user.name", Common._title(bbCodeParser, ausgewaehlterBenutzer.getName()),
+				"user.rasse.name", races.rasse(ausgewaehlterBenutzer.getRace()).getName(),
+				"user.rang", medalService.rang(ausgewaehlterBenutzer.getRang()),
 				"user.signupdate", (ausgewaehlterBenutzer.getSignup() > 0 ? Common.date("d.m.Y H:i:s", ausgewaehlterBenutzer.getSignup()) : "schon immer"));
 
 		npcRangAnzeigen(ausgewaehlterBenutzer, t, user);
@@ -235,7 +245,7 @@ public class UserProfileController extends Controller
 		String relcolor = "#c7c7c7";
 		if (user.getId() != ausgewaehlterBenutzer.getId())
 		{
-			User.Relation relation = ausgewaehlterBenutzer.getRelation(user);
+			User.Relation relation = userService.getRelation(ausgewaehlterBenutzer, user);
 			switch (relation)
 			{
 				case ENEMY:
@@ -262,7 +272,7 @@ public class UserProfileController extends Controller
 
 			for (String aHistory : history)
 			{
-				t.setVar("history.line", Common._title(aHistory, new String[0]));
+				t.setVar("history.line", Common._title(bbCodeParser, aHistory, new String[0]));
 
 				t.parse("history.list", "history.listitem", true);
 			}
@@ -274,7 +284,7 @@ public class UserProfileController extends Controller
 		t.setBlock("_USERPROFILE", "medals.listitem", "medals.list");
 
 		int idx = 0;
-		for( Medal medal : ausgewaehlterBenutzer.getMedals() )
+		for( Medal medal : userService.getMedals(ausgewaehlterBenutzer) )
 		{
 			t.setVar("medal.index", idx++,
 					"medal.name", medal.getName(),
@@ -295,8 +305,8 @@ public class UserProfileController extends Controller
 				{
 					continue;
 				}
-				t.setVar("npcrang", rang.getRankGiver().getOwnGrantableRank(rang.getRank()),
-						"npcrang.npc", Common._title(rang.getRankGiver().getName()));
+				t.setVar("npcrang", userService.getOwnGrantableRank(rang.getRankGiver(), rang.getRank()),
+						"npcrang.npc", Common._title(bbCodeParser, rang.getRankGiver().getName()));
 
 				t.parse("user.npcrang.list", "user.npcrang", true);
 			}
@@ -326,8 +336,8 @@ public class UserProfileController extends Controller
 						if (ownGiverId == foreignGiverId && foreignRank.getRank() > 0)
 						{
 							// zeige den Rang an
-							t.setVar("npcrang", foreignRank.getRankGiver().getOwnGrantableRank(foreignRank.getRank()),
-									"npcrang.npc", Common._title(foreignRank.getRankGiver().getName()));
+							t.setVar("npcrang", userService.getOwnGrantableRank(foreignRank.getRankGiver(), foreignRank.getRank()),
+									"npcrang.npc", Common._title(bbCodeParser, foreignRank.getRankGiver().getName()));
 
 							// user.getOwnGrantableRanks()
 

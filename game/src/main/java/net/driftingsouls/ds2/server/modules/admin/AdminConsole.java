@@ -25,6 +25,8 @@ import net.driftingsouls.ds2.server.AdminCommands;
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 
 /**
  * Ermoeglicht das Absetzen von Admin-Kommandos.
@@ -32,7 +34,15 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
  *
  */
 @AdminMenuEntry(category="Sonstiges", name="Admin-Konsole", permission = WellKnownAdminPermission.CONSOLE)
+@Component
+@Lazy
 public class AdminConsole implements AdminPlugin {
+	private final AdminCommands adminCommands;
+
+	public AdminConsole(AdminCommands adminCommands) {
+		this.adminCommands = adminCommands;
+	}
+
 	@Override
 	public void output(StringBuilder echo) {
 		Context context = ContextMap.getContext();
@@ -44,14 +54,14 @@ public class AdminConsole implements AdminPlugin {
 			int autoComplete = context.getRequest().getParameterInt("autoComplete");
 			if( autoComplete == 1 ) {
 				JsonArray result = new JsonArray();
-				for( String ac : new AdminCommands().autoComplete(cmd) ) {
+				for( String ac : adminCommands.autoComplete(cmd) ) {
 					result.add(new JsonPrimitive(ac));
 				}
 				echo.append(result.toString());
 				return;
 			}
 			
-			echo.append(new Gson().toJson(new AdminCommands().executeCommand(cmd)));
+			echo.append(new Gson().toJson(adminCommands.executeCommand(cmd)));
 			return;
 		}
 		
@@ -60,7 +70,7 @@ public class AdminConsole implements AdminPlugin {
 			echo.append("<table class=\"noBorderX\">\n");
 			echo.append("<tr>\n");
 			echo.append("<td class=\"noBorderX\">\n");
-			echo.append(new AdminCommands().executeCommand(cmd).message.replace("\n", "<br />" ));
+			echo.append(adminCommands.executeCommand(cmd).message.replace("\n", "<br />" ));
 			echo.append("</td>\n");
 			echo.append("</tr>\n");
 			echo.append("</table>\n");

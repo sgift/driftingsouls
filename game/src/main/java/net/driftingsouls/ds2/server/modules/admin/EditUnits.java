@@ -26,6 +26,7 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import net.driftingsouls.ds2.server.units.UnitType;
 
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
 
 /**
  * Aktualisierungstool fuer die Werte einer Einheit.
@@ -33,6 +34,7 @@ import org.springframework.lang.NonNull;
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Einheiten", name = "Einheit", permission = WellKnownAdminPermission.EDIT_UNITS)
+@Component
 public class EditUnits implements EntityEditor<UnitType>
 {
 	@Override

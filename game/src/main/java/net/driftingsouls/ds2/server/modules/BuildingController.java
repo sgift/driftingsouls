@@ -18,14 +18,42 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
+import net.driftingsouls.ds2.server.bases.AcademyBuilding;
+import net.driftingsouls.ds2.server.bases.AcademyQueueEntry;
+import net.driftingsouls.ds2.server.bases.AutoGTUAction;
 import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.bases.BaseStatus;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
+import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
+import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
+import net.driftingsouls.ds2.server.cargo.Resources;
+import net.driftingsouls.ds2.server.config.Faction;
+import net.driftingsouls.ds2.server.config.Offiziere;
+import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.entities.Academy;
+import net.driftingsouls.ds2.server.entities.Forschung;
+import net.driftingsouls.ds2.server.entities.Forschungszentrum;
+import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
+import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
+import net.driftingsouls.ds2.server.entities.ally.Ally;
+import net.driftingsouls.ds2.server.entities.statistik.StatVerkaeufe;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigService;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.ViewModel;
+import net.driftingsouls.ds2.server.framework.authentication.JavaSession;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
@@ -33,13 +61,32 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
+import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.modules.viewmodels.GebaeudeAufBasisViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.ResourceEntryViewModel;
+import net.driftingsouls.ds2.server.services.BuildingService;
+import net.driftingsouls.ds2.server.services.CargoService;
+import net.driftingsouls.ds2.server.services.DismantlingService;
+import net.driftingsouls.ds2.server.services.FleetMgmtService;
+import net.driftingsouls.ds2.server.services.PmService;
+import net.driftingsouls.ds2.server.services.ShipActionService;
+import net.driftingsouls.ds2.server.services.ShipyardService;
+import net.driftingsouls.ds2.server.services.UserService;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.werften.BaseWerft;
+import net.driftingsouls.ds2.server.werften.WerftGUI;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.io.Writer;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Die Gebaeudeansicht.
@@ -48,6 +95,23 @@ import java.util.List;
 @Module(name="building")
 public class BuildingController extends Controller
 {
+	@PersistenceContext
+	private EntityManager em;
+
+	private final Map<String, OutputFunction> outputHandler;
+	private final ShipyardService shipyardService;
+	private final Rassen races;
+	private final TemplateViewResultFactory templateViewResultFactory;
+	private final JavaSession javaSession;
+	private final BuildingService buildingService;
+	private final PmService pmService;
+	private final BBCodeParser bbCodeParser;
+	private final UserService userService;
+	private final FleetMgmtService fleetMgmtService;
+	private final CargoService cargoService;
+	private final DismantlingService dismantlingService;
+	private final ShipActionService shipActionService;
+
 	@ViewModel
 	public static class BuildingActionViewModel
 	{
@@ -58,8 +122,28 @@ public class BuildingController extends Controller
 		public String message;
 	}
 
-	public BuildingController() {
+	public BuildingController(ShipyardService shipyardService, Rassen races, TemplateViewResultFactory templateViewResultFactory, JavaSession javaSession, PmService pmService, BuildingService buildingService, PmService pmService1, BBCodeParser bbCodeParser, UserService userService, FleetMgmtService fleetMgmtService, CargoService cargoService, DismantlingService dismantlingService, ShipActionService shipActionService) {
+		this.shipyardService = shipyardService;
+		this.races = races;
+		this.templateViewResultFactory = templateViewResultFactory;
+		this.javaSession = javaSession;
+		this.buildingService = buildingService;
+		this.pmService = pmService1;
+		this.bbCodeParser = bbCodeParser;
+		this.userService = userService;
+		this.fleetMgmtService = fleetMgmtService;
+		this.cargoService = cargoService;
+		this.dismantlingService = dismantlingService;
+		this.shipActionService = shipActionService;
 		setPageTitle("Gebäude");
+
+		outputHandler = Map.of(
+			"net.driftingsouls.ds2.server.bases.Werft", this::shipyardOutput,
+			"net.driftingsouls.ds2.server.bases.DefaultBuilding", this::defaultOutput,
+			"net.driftingsouls.ds2.server.bases.ForschungszentrumBuilding", this::researchCenterOutput,
+			"net.driftingsouls.ds2.server.bases.Kommandozentrale", this::commandPostOutput,
+			"net.driftingsouls.ds2.server.bases.AcademyBuilding", this::academyOutput
+		);
 	}
 
 	public Building getGebaeudeFuerFeld(Base basis, int feld)
@@ -265,7 +349,7 @@ public class BuildingController extends Controller
 		buildcosts.multiply( 0.8, Cargo.Round.FLOOR );
 
 		ResourceList reslist = buildcosts.getResourceList();
-		Cargo addcargo = buildcosts.cutCargo(base.getMaxCargo()-base.getCargo().getMass());
+		Cargo addcargo = cargoService.cutCargo(buildcosts, base.getMaxCargo()-cargoService.getMass(base.getCargo()));
 
 		for( ResourceEntry res : reslist ) {
 			DemoViewModel.DemoResourceEntryViewModel resObj = new DemoViewModel.DemoResourceEntryViewModel();
@@ -284,7 +368,7 @@ public class BuildingController extends Controller
 
 		Integer[] bebauung = base.getBebauung();
 
-		building.cleanup( getContext(), base, bebauung[field] );
+		buildingService.cleanup(building, base, bebauung[field]);
 
 		bebauung[field] = 0;
 		base.setBebauung(bebauung);
@@ -333,7 +417,7 @@ public class BuildingController extends Controller
 
 		echo.append("<div align=\"center\">Rückerstattung:</div><br />\n");
 		ResourceList reslist = buildcosts.getResourceList();
-		Cargo addcargo = buildcosts.cutCargo(base.getMaxCargo()-base.getCargo().getMass());
+		Cargo addcargo = cargoService.cutCargo(buildcosts, base.getMaxCargo()-cargoService.getMass(base.getCargo()));
 
 		for( ResourceEntry res : reslist ) {
 			echo.append("<img src=\"").append(res.getImage()).append("\" alt=\"\" />").append(res.getCargo1());
@@ -349,7 +433,7 @@ public class BuildingController extends Controller
 
 		Integer[] bebauung = base.getBebauung();
 
-		building.cleanup( getContext(), base, bebauung[field] );
+		buildingService.cleanup(building, base, bebauung[field]);
 
 		bebauung[field] = 0;
 		base.setBebauung(bebauung);
@@ -453,7 +537,7 @@ public class BuildingController extends Controller
 			}
 		}
 
-		echo.append(building.output(getContext(), base, field, building.getId()));
+		echo.append(outputHandler.getOrDefault(building.getModule(), this::delegatingOutput).output(building, base, field, building.getId()));
 
 		if (!classicDesign)
 		{
@@ -505,5 +589,1126 @@ public class BuildingController extends Controller
 		echo.append("<br /><a style=\"font-size:16px\" class=\"back\" href=\"").append(Common.buildUrl("default", "module", "base", "col", base.getId())).append("\">zurück zur Basis</a><br /></div>\n");
 
 		return echo.toString();
+	}
+
+	private String defaultOutput(Building building, Base base, int field, int buildingId) {
+		StringBuilder buffer = new StringBuilder();
+		buffer.append("Verbraucht:<br />\n");
+		buffer.append("<div align=\"center\">\n");
+
+		boolean entry = false;
+		ResourceList reslist = building.getConsumes().getResourceList();
+		for (ResourceEntry res : reslist)
+		{
+			buffer.append("<img src=\"").append(res.getImage()).append("\" alt=\"\" />").append(res.getCargo1()).append(" ");
+			entry = true;
+		}
+
+		if (building.getEVerbrauch() > 0)
+		{
+			buffer.append("<img src=\"" + "./data/interface/energie.gif\" alt=\"\" />").append(building.getEVerbrauch()).append(" ");
+			entry = true;
+		}
+		if (!entry)
+		{
+			buffer.append("-");
+		}
+
+		buffer.append("</div>\n");
+
+		buffer.append("Produziert:<br />\n");
+		buffer.append("<div align=\"center\">\n");
+
+		entry = false;
+		reslist = building.getProduces().getResourceList();
+		for (ResourceEntry res : reslist)
+		{
+			buffer.append("<img src=\"").append(res.getImage()).append("\" alt=\"\" />").append(res.getCargo1()).append(" ");
+			entry = true;
+		}
+
+		if (building.getEProduktion() > 0)
+		{
+			buffer.append("<img src=\"" + "./data/interface/energie.gif\" alt=\"\" />").append(building.getEProduktion());
+			entry = true;
+		}
+
+		if (!entry)
+		{
+			buffer.append("-");
+		}
+		buffer.append("</div><br />\n");
+		return buffer.toString();
+	}
+
+	private String shipyardOutput(Building building, Base base, int field, int buildingId) {
+		StringBuilder response = new StringBuilder(500);
+
+		BaseWerft werft = base.getWerft();
+		if( werft == null ) {
+			response.append("<a href=\"./ds?module=basen\"><span style=\"color:#ff0000; font-weight:bold\">Fehler: Die angegebene Kolonie hat keine Werft</span></a>\n");
+			return response.toString();
+		}
+
+		werft.setBaseField(field);
+
+		TemplateEngine t = templateViewResultFactory.createEmpty();
+		WerftGUI werftgui = new WerftGUI( getContext(), t, shipyardService, bbCodeParser, fleetMgmtService, dismantlingService, shipActionService);
+		response.append(werftgui.execute( werft ));
+
+		response.append("<br /></div>\n");
+		return response.toString();
+	}
+
+	private String researchCenterOutput(Building building, Base base, int field, int buildingId) {
+		int research = getContext().getRequest().getParameterInt("res");
+		String confirm = getContext().getRequest().getParameterString("conf");
+		String kill = getContext().getRequest().getParameterString("kill");
+		String show = getContext().getRequest().getParameterString("show");
+		if( !show.equals("oldres") ) {
+			show = "newres";
+		}
+
+		StringBuilder echo = new StringBuilder(2000);
+
+		Forschungszentrum fz = base.getForschungszentrum();
+		if( fz == null ) {
+			buildInternal(base);
+			fz = base.getForschungszentrum();
+		}
+
+		echo.append("<table class=\"show\" cellspacing=\"2\" cellpadding=\"2\">\n");
+		echo.append("<tr><td class=\"noBorderS\" style=\"text-align:center;font-size:12px\">Forschungszentrum<br />").append(base.getName()).append("</td><td class=\"noBorder\">&nbsp;</td>\n");
+
+		//Neue Forschung & Bereits erforscht
+		echo.append("<td class=\"noBorderS\">\n");
+
+		echo.append("<div class='gfxbox' style='width:480px;text-align:center'>");
+
+		echo.append("<a class=\"forschinfo\" href=\"./ds?module=building&amp;col=").append(base.getId()).append("&amp;field=").append(field).append("&amp;show=newres\">Neue Forschung</a>&nbsp;\n");
+		echo.append("&nbsp;|&nbsp;&nbsp;<a class=\"forschinfo\" href=\"./ds?module=building&amp;col=").append(base.getId()).append("&amp;field=").append(field).append("&amp;show=oldres\">Bereits erforscht</a>\n");
+
+		echo.append("</div>");
+
+		echo.append("</td>\n");
+		echo.append("</tr>\n");
+		echo.append("<tr>\n");
+		echo.append("<td colspan=\"3\" class=\"noBorderS\">\n");
+		echo.append("<br />\n");
+
+		echo.append("<div class='gfxbox' style='width:610px'>");
+
+		if( (kill.length() != 0) || (research != 0) ) {
+			if( kill.length() != 0 ) {
+				killResearch(echo, fz, field, confirm);
+			}
+			if( research != 0 ) {
+				doResearch(echo, fz, research, field, confirm );
+			}
+		}
+		else if( show.equals("newres") ) {
+			if( !currentResearch(echo, fz, field ) ) {
+				possibleResearch(echo, fz, field );
+			}
+		}
+		else {
+			alreadyResearched(echo );
+		}
+
+		echo.append("</div>");
+
+		echo.append("<br />\n");
+		echo.append("</td>\n");
+		echo.append("</tr>\n");
+
+		echo.append("</table>");
+		return echo.toString();
+	}
+
+
+	private String commandPostOutput(Building building, Base base, int field, int buildingId) {
+		User user = (User)ContextMap.getContext().getActiveUser();
+
+		String show = ContextMap.getContext().getRequest().getParameter("show");
+		if( show == null ) {
+			show = "";
+		}
+		String baction = ContextMap.getContext().getRequest().getParameterString("baction");
+
+		if( !show.equals("general") && !show.equals("autogtu") ) {
+			show = "general";
+		}
+
+		TemplateViewResultFactory templateViewResultFactory = ContextMap.getContext().getBean(TemplateViewResultFactory.class, null);
+		TemplateEngine t = templateViewResultFactory.createEmpty();
+		if( !t.setFile( "_BUILDING", "buildings.kommandozentrale.html" ) )
+		{
+			ContextMap.getContext().addError("Konnte das Template-Engine nicht initialisieren");
+			return "";
+		}
+
+		t.setVar(	"base.name",	base.getName(),
+			"base.id",		base.getId(),
+			"base.field",	field,
+			"base.system",	base.getSystem(),
+			"base.size",	base.getSize());
+
+		GtuWarenKurse kurseRow = em.find(GtuWarenKurse.class, "asti");
+		Cargo kurse = new Cargo(kurseRow.getKurse());
+		kurse.setOption( Cargo.Option.SHOWMASS, false );
+
+		Cargo cargo = new Cargo(base.getCargo());
+
+		StringBuilder message = new StringBuilder();
+
+		/*
+			Resourcen an die GTU verkaufen
+		 */
+
+		if( baction.equals("sell") ) {
+			BigInteger totalRE = BigInteger.ZERO;
+
+			int tick = ContextMap.getContext().get(ContextCommon.class).getTick();
+			int system = base.getSystem();
+
+			Optional<StatVerkaeufe> statsRow = em.createQuery("from StatVerkaeufe where tick=:tick and place=:place and system=:sys", StatVerkaeufe.class)
+				.setParameter("tick", tick)
+				.setParameter("place", "asti")
+				.setParameter("sys", system)
+				.getResultStream().findAny();
+			Cargo stats = statsRow.map(sr -> new Cargo(sr.getStats())).orElse(new Cargo());
+
+			boolean changed = false;
+
+			ResourceList reslist = kurse.getResourceList();
+			for( ResourceEntry res : reslist ) {
+				long tmp = ContextMap.getContext().getRequest().getParameterInt(res.getId()+"to");
+
+				if( tmp > 0 ) {
+					if( tmp > cargo.getResourceCount(res.getId()) ) {
+						tmp = cargo.getResourceCount(res.getId());
+					}
+
+					if( tmp <= 0 ) {
+						continue;
+					}
+
+					BigDecimal get = BigDecimal.valueOf(tmp).multiply(BigDecimal.valueOf(res.getCount1() / 1000d));
+
+					message.append("<img src=\"").append(res.getImage()).append("\" alt=\"\" />").append(Common.ln(tmp)).append(" f&uuml;r ").append(Common.ln(get)).append(" RE verkauft<br />\n");
+					totalRE = totalRE.add(get.toBigInteger());
+
+					changed = true;
+					cargo.substractResource(res.getId(), tmp);
+					stats.addResource(res.getId(), tmp);
+				}
+			}
+			if( changed ) {
+				statsRow.ifPresentOrElse(sr -> sr.setStats(stats),() -> {
+					var row = new StatVerkaeufe(tick, system, "asti");
+					row.setStats(stats);
+					em.persist(row);
+				});
+
+				base.setCargo(cargo);
+				user.transferMoneyFrom(Faction.GTU, totalRE, "Warenverkauf Asteroid "+base.getId()+" - "+base.getName(), false, UserMoneyTransfer.Transfer.SEMIAUTO );
+
+				message.append("<br />");
+			}
+		}
+
+		/*
+			Allyitems an die Allianz ueberstellen
+		*/
+
+		if( baction.equals("item") ) {
+			int itemid = ContextMap.getContext().getRequest().getParameterInt("item");
+
+			Ally ally = user.getAlly();
+			Item item = em.find(Item.class, itemid);
+
+			if( ally == null ) {
+				message.append("Sie sind in keiner Allianz<br /><br />\n");
+			}
+			else if( item == null || item.getEffect().hasAllyEffect() ) {
+				message.append("Kein passenden Itemtyp gefunden<br /><br />\n");
+			}
+			else if( !cargo.hasResource( new ItemID(itemid) ) ) {
+				message.append("Kein passendes Item vorhanden<br /><br />\n");
+			}
+			else {
+				Cargo allyitems = new Cargo( Cargo.Type.ITEMSTRING, ally.getItems() );
+				allyitems.addResource( new ItemID(itemid), 1 );
+				cargo.substractResource( new ItemID(itemid), 1 );
+
+				ally.setItems(allyitems.save());
+				base.setCargo(cargo);
+
+				String msg = "Ich habe das Item \""+item.getName()+"\" der Allianz zur Verfügung gestellt.";
+				pmService.sendToAlly(user, ally, "Item &uuml;berstellt", msg);
+
+				message.append("Das Item wurde an die Allianz übergeben<br /><br />\n");
+			}
+		}
+
+		/*
+			Einen Auto-Verkauf Eintrag hinzufuegen
+		*/
+		if( baction.equals("gtuadd") ) {
+			ResourceID resid = Resources.fromString(ContextMap.getContext().getRequest().getParameterString("resid"));
+
+			int actid = ContextMap.getContext().getRequest().getParameterInt("actid");
+			int count = ContextMap.getContext().getRequest().getParameterInt("count");
+
+			if( (actid >= 0) && (actid <= 1 ) && (count != 0 || (actid == 1)) ) {
+				BaseStatus basedata = Base.getStatus(base);
+				Cargo stat = (Cargo)basedata.getProduction().clone();
+				stat.setResource(Resources.NAHRUNG, 0);
+
+				if( stat.getResourceCount(resid) != 0 && kurse.getResourceCount(resid) != 0 ) {
+					List<AutoGTUAction> acts = base.getAutoGTUActs();
+					acts.add(new AutoGTUAction(resid,actid,count));
+					base.setAutoGTUActs(acts);
+
+					message.append("Automatischer Verkauf von <img style=\"vertical-align:middle\" src=\"").append(Cargo.getResourceImage(resid)).append("\" alt=\"\" />").append(Cargo.getResourceName(resid)).append(" hinzugef&uuml;gt<br /><br />\n");
+				}
+			}
+		}
+
+		/*
+			Einen Auto-Verkauf Eintrag entfernen
+		*/
+		if( baction.equals("gtudel") ) {
+			String gtuact = ContextMap.getContext().getRequest().getParameterString("gtuact");
+
+			if( gtuact.length() != 0 ) {
+				List<AutoGTUAction> autoactlist = base.getAutoGTUActs();
+
+				for( AutoGTUAction autoact : autoactlist ) {
+					if( gtuact.equals(autoact.toString()) ) {
+						autoactlist.remove(autoact);
+						message.append("Eintrag entfernt<br /><br />\n");
+
+						break;
+					}
+				}
+				base.setAutoGTUActs(autoactlist);
+			}
+		}
+
+		t.setVar("building.message", message.toString());
+
+		if( show.equals("general") ) {
+			t.setVar("show.general", 1);
+
+			t.setBlock("_BUILDING", "general.itemconsign.listitem", "general.itemconsign.list");
+			t.setBlock("_BUILDING", "general.shiptransfer.listitem", "general.shiptransfer.list");
+			t.setBlock("_BUILDING", "general.basetransfer.listitem", "general.basetransfer.list");
+			t.setBlock("_BUILDING", "general.sell.listitem", "general.sell.list");
+
+			t.setVar(	"res.batterien.image",	Cargo.getResourceImage(Resources.BATTERIEN),
+				"res.lbatterien.image",	Cargo.getResourceImage(Resources.LBATTERIEN),
+				"res.platin.image",		Cargo.getResourceImage(Resources.PLATIN) );
+
+			List<ItemCargoEntry<Item>> itemlist = cargo.getItemEntries();
+			if( itemlist.size() != 0 ) {
+				Ally ally = user.getAlly();
+				if( ally != null ) {
+					for( ItemCargoEntry<Item> item : itemlist ) {
+						Item itemobject = item.getItem();
+						if( itemobject.getEffect().hasAllyEffect() ) {
+							t.setVar(	"item.id",		item.getItemID(),
+								"item.name",	itemobject.getName() );
+							t.parse("general.itemconsign.list", "general.itemconsign.listitem", true);
+						}
+					}
+				}
+			}
+
+			/*
+				Waren zu Schiffen/Basen im Orbit transferieren
+			*/
+
+			List<Ship> ships = em.createQuery("from Ship " +
+				"where id>:minid and (x between :minx and :maxx) and " +
+				"(y between :miny and :maxy) and " +
+				"system= :sys and locate('l ',docked)=0 and battle is null " +
+				"order by x,y,owner.id,id", Ship.class)
+				.setParameter("minid", 0)
+				.setParameter("minx", base.getX()-base.getSize())
+				.setParameter("maxx", base.getX()+base.getSize())
+				.setParameter("miny", base.getY()-base.getSize())
+				.setParameter("maxy", base.getY()+base.getSize())
+				.setParameter("sys", base.getSystem())
+				.getResultList();
+			if( !ships.isEmpty() ) {
+				Location oldLoc = null;
+
+				for (Object ship1 : ships)
+				{
+					Ship ship = (Ship) ship1;
+
+					if (oldLoc == null)
+					{
+						oldLoc = ship.getLocation();
+
+						if (base.getSize() != 0)
+						{
+							t.setVar("ship.begingroup", 1);
+						}
+					}
+					else if (!oldLoc.equals(ship.getLocation()))
+					{
+						oldLoc = ship.getLocation();
+
+						if (base.getSize() != 0)
+						{
+							t.setVar("ship.begingroup", 1,
+								"ship.endgroup", 1);
+						}
+					}
+					else
+					{
+						t.setVar("ship.begingroup", 0,
+							"ship.endgroup", 0);
+					}
+
+					t.setVar("ship.id", ship.getId(),
+						"ship.name", Common._plaintitle(ship.getName()),
+						"ship.x", ship.getX(),
+						"ship.y", ship.getY());
+
+					if (ship.getOwner().getId() != user.getId())
+					{
+						t.setVar("ship.owner.name", Common.escapeHTML(ship.getOwner().getPlainname()));
+					}
+					else
+					{
+						t.setVar("ship.owner.name", "");
+					}
+
+					t.parse("general.shiptransfer.list", "general.shiptransfer.listitem", true);
+				}
+			}
+
+			List<Base> targetbases = em.createQuery("from Base where x= :x and y= :y and system= :sys and id!= :id and owner= :owner", Base.class)
+				.setParameter("x", base.getX())
+				.setParameter("y", base.getY())
+				.setParameter("sys", base.getSystem())
+				.setParameter("id", base.getId())
+				.setParameter("owner", base.getOwner())
+				.getResultList();
+			for (Object targetbase1 : targetbases)
+			{
+				Base targetbase = (Base) targetbase1;
+
+				t.setVar("targetbase.id", targetbase.getId(),
+					"targetbase.name", Common._plaintitle(targetbase.getName()));
+				t.parse("general.basetransfer.list", "general.basetransfer.listitem", true);
+			}
+
+
+			/*
+				Waren verkaufen
+			*/
+			ResourceList reslist = kurse.compare(cargo, false);
+			for( ResourceEntry res : reslist ) {
+				if( res.getCount2() == 0 ) {
+					continue;
+				}
+
+				t.setVar(	"res.image",	res.getImage(),
+					"res.name",		res.getName(),
+					"res.cargo2",	res.getCargo2(),
+					"res.id",		res.getId() );
+
+				if( res.getCount1() <= 5 ) {
+					t.setVar("res.cargo1", "Kein Bedarf");
+				}
+				else {
+					t.setVar("res.cargo1", Common.ln(res.getCount1()/1000d)+" RE");
+				}
+
+				t.parse("general.sell.list", "general.sell.listitem", true);
+			}
+		}
+		else {
+			t.setVar("show.autogtu", 1);
+			t.setBlock("_BUILDING", "autogtu.acts.listitem", "autogtu.acts.list");
+			t.setBlock("_BUILDING", "autogtu.reslist.listitem", "autogtu.reslist.list");
+
+			List<AutoGTUAction> autoactlist = base.getAutoGTUActs();
+			for( AutoGTUAction autoact : autoactlist ) {
+				if( (autoact.getActID() != 1) && (autoact.getCount() == 0) ) {
+					continue;
+				}
+
+				t.setVar(	"res.image",		Cargo.getResourceImage(autoact.getResID()),
+					"res.name",			Cargo.getResourceName(autoact.getResID()),
+					"res.sellcount"	,	Common.ln(autoact.getCount()),
+					"res.action.total",	autoact.getActID() == 0,
+					"res.action.limit",	autoact.getActID() == 1,
+					"res.actionstring",	autoact.toString() );
+
+				t.parse("autogtu.acts.list", "autogtu.acts.listitem", true);
+			}
+
+			BaseStatus basedata = Base.getStatus(base);
+			Cargo stat = (Cargo)basedata.getProduction().clone();
+			stat.setResource( Resources.NAHRUNG, 0 );
+			stat.setOption( Cargo.Option.NOHTML, true );
+			ResourceList reslist = stat.compare(kurse, false);
+			for( ResourceEntry res : reslist ) {
+				if( (res.getCount1() > 0) && (res.getCount2() > 0) ) {
+					t.setVar(	"res.id",	res.getId(),
+						"res.name",	res.getName() );
+					t.parse("autogtu.reslist.list", "autogtu.reslist.listitem", true);
+				}
+			}
+		}
+
+		t.parse( "OUT", "_BUILDING" );
+		return t.getVar("OUT");
+	}
+
+	private String delegatingOutput(Building building, Base base, int field, int buildingId) {
+		//TODO: Temporary, all output should be done by controller, but for the moment fall back to legacy behaviour for subclasses not yet converted
+		return building.output(getContext(), base, field, buildingId);
+	}
+
+	private void killResearch(StringBuilder echo, Forschungszentrum fz, int field, String conf) {
+		if( !conf.equals("ok") ) {
+			echo.append("<div style=\"text-align:center\">\n");
+			echo.append("Wollen sie die Forschung wirklich abbrechen?<br />\n");
+			echo.append("Achtung: Es erfolgt keine R&uuml;ckerstattung der Resourcen!<br /><br />\n");
+			echo.append("<a class=\"error\" href=\"./ds?module=building&amp;col=").append(fz.getBase().getId()).append("&amp;field=").append(field).append("&amp;kill=yes&amp;conf=ok\">Forschung abbrechen</a><br />\n");
+			echo.append("</div>\n");
+			return;
+		}
+
+		fz.setForschung(null);
+		fz.setDauer(0);
+
+		echo.append("<div style=\"text-align:center;color:red;font-weight:bold\">\n");
+		echo.append("Forschung abgebrochen<br />\n");
+		echo.append("</div>");
+	}
+
+	private void doResearch(StringBuilder echo, Forschungszentrum fz, int researchid, int field, String conf) {
+		User user = (User)javaSession.getUser();
+
+		Base base = fz.getBase();
+
+		Forschung tech = Forschung.getInstance(researchid);
+		boolean ok = true;
+
+		if( !races.rasse(user.getRace()).isMemberIn(tech.getRace()) ) {
+			echo.append("<a class=\"error\" href=\"./ds?module=base&amp;col=").append(base.getId()).append("\">Fehler: Diese Forschung kann von ihrer Rasse nicht erforscht werden</a>\n");
+			return;
+		}
+
+		Cargo techCosts = tech.getCosts();
+		techCosts.setOption( Cargo.Option.SHOWMASS, false );
+
+		// Muss der User die Forschung noch best?tigen?
+		if( !conf.equals("ok") ) {
+			echo.append("<div style=\"text-align:center\">\n");
+			echo.append(Common._plaintitle(tech.getName())).append("<br /><img style=\"vertical-align:middle\" src=\"./data/interface/time.gif\" alt=\"Dauer\" />").append(tech.getTime()).append(" ");
+			echo.append("<img style=\"vertical-align:middle\" src=\"./data/interface/forschung/specpoints.gif\" alt=\"Spezialisierungskosten\" />").append(tech.getSpecializationCosts()).append(" ");
+			ResourceList reslist = techCosts.getResourceList();
+			for( ResourceEntry res : reslist ) {
+				echo.append("<img style=\"vertical-align:middle\" src=\"").append(res.getImage()).append("\" alt=\"\" />").append(res.getCargo1()).append(" ");
+			}
+
+			echo.append("<br /><br />\n");
+			echo.append("<a class=\"ok\" href=\"./ds?module=building&amp;col=").append(base.getId()).append("&amp;field=").append(field).append("&amp;res=").append(researchid).append("&amp;conf=ok\">Erforschen</a></span><br />\n");
+			echo.append("</div>\n");
+
+			return;
+		}
+
+		// Wird bereits im Forschungszentrum geforscht?
+		if( fz.getForschung() != null ) {
+			ok = false;
+		}
+
+		// Besitzt der Spieler alle fuer die Forschung noetigen Forschungen?
+		if( !user.hasResearched(tech.getBenoetigteForschungen()) )
+		{
+			ok = false;
+		}
+
+		if(user.getFreeSpecializationPoints() < tech.getSpecializationCosts())
+		{
+			ok = false;
+		}
+
+		if( !ok ) {
+			echo.append("<a class=\"error\" href=\"./ds?module=base&amp;col=").append(base.getId()).append("\">Fehler: Forschung kann nicht durchgef&uuml;hrt werden</a>\n");
+			return;
+		}
+
+		// Alles bis hierhin ok -> nun zu den Resourcen!
+		Cargo cargo = new Cargo(base.getCargo());
+		ok = true;
+
+		ResourceList reslist = techCosts.compare( cargo, false, false, true );
+		for( ResourceEntry res : reslist ) {
+			if( res.getDiff() > 0 ) {
+				echo.append("<span style=\"color:red\">Nicht genug <img style=\"vertical-align:middle\" src=\"").append(res.getImage()).append("\" alt=\"\" />").append(res.getName()).append("</span><br />\n");
+				ok = false;
+			}
+		}
+
+		// Alles OK -> Forschung starten!!!
+		if( ok ) {
+			cargo.substractCargo( techCosts );
+			echo.append("<div style=\"text-align:center;color:green\">\n");
+			echo.append(Common._plaintitle(tech.getName())).append(" wird erforscht<br />\n");
+			echo.append("</div>\n");
+
+			fz.setForschung(tech);
+			fz.setDauer(tech.getTime());
+			base.setCargo(cargo);
+		}
+	}
+
+	private boolean currentResearch(StringBuilder echo, Forschungszentrum fz, int field ) {
+		Forschung tech = fz.getForschung();
+		if( tech != null ) {
+			echo.append("<img style=\"float:left;border:0px\" src=\"").append(tech.getImage()).append("\" alt=\"\" />");
+			echo.append("Erforscht: <a class=\"forschinfo\" href=\"./ds?module=forschinfo&amp;res=").append(tech.getID()).append("\">").append(Common._plaintitle(tech.getName())).append("</a>\n");
+			echo.append("[<a class=\"error\" href=\"./ds?module=building&amp;col=").append(fz.getBase().getId()).append("&amp;field=").append(field).append("&amp;kill=yes\">x</a>]<br />\n");
+			echo.append("Dauer: noch <img style=\"vertical-align:middle\" src=\"./data/interface/time.gif\" alt=\"\" />").append(fz.getDauer()).append(" Runden\n");
+			echo.append("<br /><br />\n");
+			return true;
+		}
+		return false;
+	}
+
+	private void buildInternal(Base base)
+	{
+		Context context = ContextMap.getContext();
+		if( context == null ) {
+			throw new RuntimeException("No Context available");
+		}
+		if( base.getForschungszentrum() == null )
+		{
+			Forschungszentrum fz = new Forschungszentrum(base);
+			em.persist(fz);
+
+			base.setForschungszentrum(fz);
+		}
+	}
+
+	private void possibleResearch(StringBuilder echo, Forschungszentrum fz, int field) {
+		User user = (User)javaSession.getUser();
+
+		echo.append("M&ouml;gliche Forschungen: <br />\n");
+		echo.append("<table class=\"noBorderX\" width=\"100%\">\n");
+		echo.append("<tr>\n");
+		echo.append("<td class=\"noBorderX\">Name</td>\n");
+		echo.append("<td class=\"noBorderX\">Kosten</td>\n");
+		echo.append("</tr>\n");
+
+		Base base = fz.getBase();
+		Cargo cargo = base.getCargo();
+
+		List<Integer> researches = new ArrayList<>();
+		List<Forschungszentrum> researchList = em.createQuery("from Forschungszentrum " +
+			"where forschung is not null and base.owner=:owner", Forschungszentrum.class)
+			.setParameter("owner", user)
+			.getResultList();
+		for (Forschungszentrum aFz : researchList)
+		{
+			if (aFz.getForschung() != null)
+			{
+				researches.add(aFz.getForschung().getID());
+			}
+		}
+
+		boolean first = true;
+
+		List<Forschung> forschungen = em.createQuery("from Forschung order by name", Forschung.class).getResultList();
+		for (Forschung tech: forschungen)
+		{
+			if (!races.rasse(user.getRace()).isMemberIn(tech.getRace()))
+			{
+				continue;
+			}
+			if (researches.contains(tech.getID()))
+			{
+				continue;
+			}
+			if (user.hasResearched(tech))
+			{
+				continue;
+			}
+
+			if (user.getFreeSpecializationPoints() < tech.getSpecializationCosts())
+			{
+				continue;
+			}
+
+			boolean ok = true;
+
+			if( !user.hasResearched(tech.getBenoetigteForschungen()) )
+			{
+				ok = false;
+			}
+
+			if (ok)
+			{
+				if (!first)
+				{
+					echo.append("<tr><td colspan=\"2\" class=\"noBorderX\"><hr style=\"height:1px; border:0px; background-color:#606060; color:#606060\" /></td></tr>\n");
+				} else
+				{
+					first = false;
+				}
+
+				echo.append("<tr>\n");
+				echo.append("<td class=\"noBorderX\" style=\"width:60%\">\n");
+				if (!userService.isNoob(user) || !tech.hasFlag(Forschung.FLAG_DROP_NOOB_PROTECTION))
+				{
+					echo.append("<a class=\"forschinfo\" href=\"./ds?module=building&amp;col=").append(base.getId()).append("&amp;field=").append(field).append("&amp;res=").append(tech.getID()).append("\">").append(Common._plaintitle(tech.getName())).append("</a>\n");
+				}
+				else
+				{
+					echo.append("<a class=\"forschinfo\" " + "href=\"javascript:DS.ask(" + "'Achtung!\\nWenn Sie diese Technologie erforschen verlieren sie den GCP-Schutz. Dies bedeutet, dass Sie sowohl angreifen als auch angegriffen werden k&ouml;nnen'," + "'./ds?module=building&amp;col=").append(base.getId()).append("&amp;field=").append(field).append("&amp;res=").append(tech.getID()).append("'").append(")\">").append(Common._plaintitle(tech.getName())).append("</a>\n");
+				}
+				echo.append("<a class=\"forschinfo\" href=\"./ds?module=forschinfo&amp;res=").append(tech.getID()).append("\"><img style=\"border:0px;vertical-align:middle\" src=\"./data/interface/forschung/info.gif\" alt=\"?\" /></a>\n");
+				echo.append("&nbsp;&nbsp;");
+				echo.append("</td>\n");
+
+				echo.append("<td class=\"noBorderX\">");
+				echo.append("<img style=\"vertical-align:middle\" src=\"./data/interface/time.gif\" alt=\"Dauer\" />").append(tech.getTime()).append(" ");
+				echo.append("<img style=\"vertical-align:middle\" src=\"./data/interface/forschung/specpoints.gif\" alt=\"Spezialisierungskosten\" />").append(tech.getSpecializationCosts()).append(" ");
+
+				Cargo costs = tech.getCosts();
+				costs.setOption(Cargo.Option.SHOWMASS, false);
+
+				ResourceList reslist = costs.compare(cargo, false, false, true);
+				for (ResourceEntry res : reslist)
+				{
+					if (res.getDiff() > 0)
+					{
+						echo.append("<img style=\"vertical-align:middle\" src=\"").append(res.getImage()).append("\" alt=\"\" /><span style=\"color:red\">").append(res.getCargo1()).append("</span> ");
+					} else
+					{
+						echo.append("<img style=\"vertical-align:middle\" src=\"").append(res.getImage()).append("\" alt=\"\" />").append(res.getCargo1()).append(" ");
+					}
+				}
+
+				echo.append("</td></tr>\n");
+			}
+		}
+
+		echo.append("</table><br />\n");
+	}
+
+	private String academyOutput(Building building, Base base, int field, int buildingId) {
+		AcademyBuilding academyBuilding = (AcademyBuilding)building;
+
+		TemplateEngine t = templateViewResultFactory.createEmpty();
+
+		int siliziumcosts = new ConfigService().getValue(WellKnownConfigValue.NEW_OFF_SILIZIUM_COSTS);
+		int nahrungcosts = new ConfigService().getValue(WellKnownConfigValue.NEW_OFF_NAHRUNG_COSTS);
+		int dauercosts = new ConfigService().getValue(WellKnownConfigValue.OFF_DAUER_COSTS);
+		int maxoffstotrain = new ConfigService().getValue(WellKnownConfigValue.MAX_OFFS_TO_TRAIN);
+
+		int newo = getContext().getRequest().getParameterInt("newo");
+		int train = getContext().getRequest().getParameterInt("train");
+		int off = getContext().getRequest().getParameterInt("off");
+		int up = getContext().getRequest().getParameterInt("up");
+		int down = getContext().getRequest().getParameterInt("down");
+		int cancel = getContext().getRequest().getParameterInt("cancel");
+		int queueid = getContext().getRequest().getParameterInt("queueid");
+		String conf = getContext().getRequest().getParameterString("conf");
+
+		if( !t.setFile( "_BUILDING", "buildings.academy.html" ) ) {
+			getContext().addError("Konnte das Template-Engine nicht initialisieren");
+			return "";
+		}
+
+		Academy academy = base.getAcademy();
+		if( academy == null ) {
+			getContext().addError("Diese Akademie verf&uuml;gt &uuml;ber keinen Akademie-Eintrag in der Datenbank");
+			return "";
+		}
+
+
+		t.setVar(
+			"base.name",	base.getName(),
+			"base.id",		base.getId(),
+			"base.field",	field,
+			"academy.actualbuilds", academy.getNumberScheduledQueueEntries(),
+			"academy.maxbuilds", maxoffstotrain);
+
+		//--------------------------------
+		// Als erstes ueberpruefen wir, ob eine Aktion durchgefuehrt wurde
+		//--------------------------------
+		if( up == 1 && queueid > 0 )
+		{
+			if( queueid == 1)
+			{
+				t.setVar(
+					"academy.message", "<font color=\"red\">Vielen Dank fuer diesen URL-Hack.<br />Ihre Anfrage wurde soeben mitsamt Ihrer Spieler-ID an die Admins geschickt.<br />Wir wuenschen noch einen angenehmen Tag!</font>"
+				);
+			}
+			else
+			{
+				AcademyQueueEntry thisentry = academy.getQueueEntryById(queueid);
+				if(thisentry != null && thisentry.getPosition() > 0 )
+				{
+					AcademyQueueEntry upperentry = academy.getQueueEntryByPosition(thisentry.getPosition()-1);
+
+					thisentry.setPosition(thisentry.getPosition()-1);
+
+					if( upperentry != null )
+					{
+						upperentry.setPosition(upperentry.getPosition()+1);
+					}
+				}
+			}
+		}
+		if( down == 1 && queueid > 0 )
+		{
+			AcademyQueueEntry thisentry = academy.getQueueEntryById(queueid );
+			//Es kann ja sein, dass der Eintrag gar nicht mehr existiert.
+			if(thisentry != null)
+			{
+				if( thisentry.isLastPosition() ) {
+					t.setVar(
+						"academy.message", "<font color=\"red\">Vielen Dank fuer diesen URL-Hack.<br />Ihre Anfrage wurde soeben mitsamt Ihrer Spieler-ID an die Admins geschickt.<br />Wir wuenschen noch einen angenehmen Tag!</font>"
+					);
+				}
+				else
+				{
+					AcademyQueueEntry upperentry = academy.getQueueEntryByPosition(thisentry.getPosition()+1);
+					thisentry.setPosition(thisentry.getPosition()+1);
+					if( upperentry != null ) {
+						upperentry.setPosition(upperentry.getPosition()-1);
+					}
+				}
+			}
+		}
+		if( cancel == 1 && queueid > 0 )
+		{
+			AcademyQueueEntry thisentry = academy.getQueueEntryById(queueid);
+			//Es kann ja sein, dass der Eintrag gar nicht mehr existiert.
+			if(thisentry != null)
+			{
+				int offid = thisentry.getTraining();
+				thisentry.deleteQueueEntry();
+				academy.rescheduleQueue();
+				if(offid > 0 )
+				{
+					if( !academy.isOffizierScheduled(offid))
+					{
+						Offizier offizier = Offizier.getOffizierByID(offid);
+						offizier.setTraining(false);
+					}
+				}
+				if( academy.getNumberScheduledQueueEntries() == 0 ) {
+					academy.setTrain(false);
+				}
+			}
+		}
+
+		//---------------------------------
+		// Einen neuen Offizier ausbilden
+		//---------------------------------
+
+		if( newo != 0 ) {
+			t.setVar("academy.show.trainnewoffi", 1);
+
+			Cargo cargo = new Cargo(base.getCargo());
+
+			boolean ok = true;
+			if( cargo.getResourceCount( Resources.SILIZIUM ) < siliziumcosts ) {
+				t.setVar("trainnewoffi.error", "Nicht genug Silizium");
+				ok = false;
+			}
+			if( cargo.getResourceCount( Resources.NAHRUNG ) < nahrungcosts ) {
+				t.setVar("trainnewoffi.error", "Nicht genug Nahrung");
+				ok = false;
+			}
+
+			if( ok ) {
+				t.setVar("trainnewoffi.train", 1);
+
+				cargo.substractResource( Resources.SILIZIUM, siliziumcosts);
+				cargo.substractResource( Resources.NAHRUNG, nahrungcosts);
+				academy.setTrain(true);
+				AcademyQueueEntry entry = new AcademyQueueEntry(academy, -newo, dauercosts);
+				base.setCargo(cargo);
+				em.persist(entry);
+				academy.addQueueEntry(entry);
+			}
+		}
+
+		//--------------------------------------
+		// "Upgrade" eines Offiziers durchfuehren
+		//--------------------------------------
+
+		if( (train != 0) && (off != 0) ) {
+			Offizier offizier = Offizier.getOffizierByID(off);
+			//Auch hier kann es sein dass der Offizier nicht existiert.
+			if(offizier != null )
+			{
+				if( offizier.getStationiertAufBasis() != null && offizier.getStationiertAufBasis().getId() == base.getId() ) {
+					int sk = academyBuilding.getUpgradeCosts(academy, 0, offizier, train);
+					int nk = academyBuilding.getUpgradeCosts(academy, 1, offizier, train);
+					int dauer = academyBuilding.getUpgradeCosts(academy, 2, offizier, train);
+
+					t.setVar(
+						"academy.show.trainoffi", 1,
+						"trainoffi.id",			offizier.getID(),
+						"trainoffi.trainid",	train,
+						"offizier.name",		Common._plaintext(offizier.getName()),
+						"offizier.train.dauer",		dauer,
+						"offizier.train.nahrung", 	nk,
+						"offizier.train.silizium",	sk,
+						"resource.nahrung.image",	Cargo.getResourceImage(Resources.NAHRUNG),
+						"resource.silizium.image",	Cargo.getResourceImage(Resources.SILIZIUM));
+
+					if( train == 1 ) {
+						t.setVar("offizier.train.ability", "Technik");
+					}
+					else if( train == 2 ) {
+						t.setVar("offizier.train.ability", "Waffen");
+					}
+					else if( train == 3 ) {
+						t.setVar("offizier.train.ability", "Navigation");
+					}
+					else if( train == 4 ) {
+						t.setVar("offizier.train.ability", "Sicherheit");
+					}
+					else if( train == 5 ) {
+						t.setVar("offizier.train.ability", "Kommandoeffizienz");
+					}
+
+					Cargo cargo = new Cargo(base.getCargo());
+					boolean ok = true;
+					if( cargo.getResourceCount( Resources.SILIZIUM ) < sk) {
+						t.setVar("trainoffi.error", "Nicht genug Silizium");
+						ok = false;
+					}
+					if( cargo.getResourceCount( Resources.NAHRUNG ) < nk ) {
+						t.setVar("trainoffi.error", "Nicht genug Nahrung");
+						ok = false;
+					}
+
+					if( !conf.equals("ok") ) {
+						t.setVar("trainoffi.conf",	1);
+						t.parse( "OUT", "_BUILDING" );
+						return t.getVar("OUT");
+					}
+
+					if( ok ) {
+						t.setVar("trainoffi.train", 1);
+
+						cargo.substractResource( Resources.SILIZIUM, sk );
+						cargo.substractResource( Resources.NAHRUNG, nk );
+
+						AcademyQueueEntry entry = new AcademyQueueEntry(academy,offizier.getID(),dauer,train);
+
+						offizier.setTraining(true);
+						base.setCargo(cargo);
+						em.persist(entry);
+						academy.addQueueEntry(entry);
+						academy.setTrain(true);
+						academy.rescheduleQueue();
+
+						t.setVar("academy.actualbuilds", academy.getNumberScheduledQueueEntries());
+
+						t.parse( "OUT", "_BUILDING" );
+						return t.getVar("OUT");
+					}
+				}
+			}
+		}
+
+		//--------------------------------
+		// Dann berechnen wir die Ausbildungsschlange neu
+		//--------------------------------
+		academy.rescheduleQueue();
+
+		t.setVar("academy.actualbuilds", academy.getNumberScheduledQueueEntries());
+
+		em.flush();
+		//-----------------------------------------------
+		// werden gerade Offiziere ausgebildet? Bauschlange anzeigen!
+		//-----------------------------------------------
+
+		if( academy.getTrain() ) {
+			t.setVar(
+				"academy.show.training", 1);
+
+			t.setBlock("_BUILDING", "academy.training.listitem", "academy.training.list");
+
+			List<AcademyQueueEntry> entries = new ArrayList<>(academy.getQueueEntries());
+			entries.sort(new AcademyBuilding.AcademyQueueEntryComparator());
+			for( AcademyQueueEntry entry : entries )
+			{
+				if( entry.getTraining() > 0 )
+				{
+					Offizier offi = Offizier.getOffizierByID(entry.getTraining());
+					if( offi != null )
+					{
+						t.setVar(
+							"trainoffizier.id", entry.getTraining(),
+							"trainoffizier.name", offi.getName(),
+							"trainoffizier.attribute", AcademyBuilding.getAttributes().get(entry.getTrainingType()),
+							"trainoffizier.offi", true,
+							"trainoffizier.picture", offi.getPicture()
+						);
+					}
+				}
+				else
+				{
+					t.setVar(
+						"trainoffizier.attribute", "Neuer Offizier",
+						"trainoffizier.name", Common._plaintext(AcademyBuilding.getOfficers().get(-entry.getTraining())),
+						"trainoffizier.offi", false
+					);
+				}
+				t.setVar(
+					"trainoffizier.remain", entry.getRemainingTime(),
+					"trainoffizier.build", entry.isScheduled(),
+					"trainoffizier.queue.id", entry.getId(),
+					"trainoffizier.showup", true,
+					"trainoffizier.showdown", true
+				);
+
+				if( entry.getPosition() == 1 )
+				{
+					t.setVar(
+						"trainoffizier.showup", false
+					);
+				}
+				if( entry.isLastPosition() )
+				{
+					t.setVar(
+						"trainoffizier.showdown", false
+					);
+				}
+
+				t.parse("academy.training.list", "academy.training.listitem", true);
+
+			}
+		}
+
+		//---------------------------------
+		// Liste: Neue Offiziere ausbilden
+		//---------------------------------
+
+		t.setVar(
+			"academy.show.trainnew",	1,
+			"resource.silizium.image",	Cargo.getResourceImage(Resources.SILIZIUM),
+			"resource.nahrung.image",	Cargo.getResourceImage(Resources.NAHRUNG),
+			"resource.silizium.costs", siliziumcosts,
+			"resource.nahrung.costs", nahrungcosts,
+			"dauer.costs", dauercosts
+		);
+
+		t.setBlock("_BUILDING", "academy.trainnew.listitem", "academy.trainnew.list");
+
+		for( Offiziere.Offiziersausbildung offi : Offiziere.LIST.values() ) {
+			t.setVar(
+				"offizier.id",		offi.getId(),
+				"offizier.name",	Common._title(bbCodeParser, offi.getName()),
+				"offizier.ing",		offi.getAbility(Offizier.Ability.ING),
+				"offizier.waf",		offi.getAbility(Offizier.Ability.WAF),
+				"offizier.nav",		offi.getAbility(Offizier.Ability.NAV),
+				"offizier.sec",		offi.getAbility(Offizier.Ability.SEC),
+				"offizier.com",		offi.getAbility(Offizier.Ability.COM));
+
+			t.parse("academy.trainnew.list", "academy.trainnew.listitem", true);
+		}
+
+
+		//---------------------------------
+		// Liste: "Upgrade" von Offizieren
+		//---------------------------------
+
+		t.setVar(
+			"academy.show.offilist", 1,
+			"offilist.allowactions", 1);
+
+		t.setBlock("_BUILDING", "academy.offilistausb.listitem", "academy.offilistausb.list");
+
+		List<Offizier> offiziere = Offizier.getOffiziereByDest(base);
+		for( Offizier offi : offiziere ) {
+			if( !offi.isTraining() )
+			{
+				continue;
+			}
+			t.setVar(
+				"offizier.picture",	offi.getPicture(),
+				"offizier.id",		offi.getID(),
+				"offizier.name",	Common._plaintitle(offi.getName()),
+				"offizier.ing",		offi.getAbility(Offizier.Ability.ING),
+				"offizier.waf",		offi.getAbility(Offizier.Ability.WAF),
+				"offizier.nav",		offi.getAbility(Offizier.Ability.NAV),
+				"offizier.sec",		offi.getAbility(Offizier.Ability.SEC),
+				"offizier.com",		offi.getAbility(Offizier.Ability.COM),
+				"offizier.special",	offi.getSpecial().getName() );
+
+			t.parse("academy.offilistausb.list", "academy.offilistausb.listitem", true);
+		}
+
+		t.setBlock("_BUILDING", "academy.offilist.listitem", "academy.offilist.list");
+
+		offiziere = Offizier.getOffiziereByDest(base);
+		for( Offizier offi : offiziere )
+		{
+			if( offi.isTraining() )
+			{
+				continue;
+			}
+			t.setVar(
+				"offizier.picture",	offi.getPicture(),
+				"offizier.id",		offi.getID(),
+				"offizier.name",	Common._plaintitle(offi.getName()),
+				"offizier.ing",		offi.getAbility(Offizier.Ability.ING),
+				"offizier.waf",		offi.getAbility(Offizier.Ability.WAF),
+				"offizier.nav",		offi.getAbility(Offizier.Ability.NAV),
+				"offizier.sec",		offi.getAbility(Offizier.Ability.SEC),
+				"offizier.com",		offi.getAbility(Offizier.Ability.COM),
+				"offizier.special",	offi.getSpecial().getName() );
+
+			t.parse("academy.offilist.list", "academy.offilist.listitem", true);
+		}
+
+		t.parse( "OUT", "_BUILDING" );
+		return t.getVar("OUT");
+	}
+
+	private void alreadyResearched(StringBuilder echo) {
+		User user = (User)javaSession.getUser();
+
+		echo.append("<table class=\"noBorderX\">");
+		echo.append("<tr><td class=\"noBorderX\" align=\"left\">Bereits erforscht:</td></tr>\n");
+
+		List<Forschung> research = em.createQuery("from Forschung order by id", Forschung.class).getResultList();
+		for(Forschung tech: research) {
+			if( tech.isVisibile(user) && user.hasResearched(tech) ) {
+				echo.append("<tr><td class=\"noBorderX\">\n");
+				echo.append("<a class=\"forschinfo\" href=\"./ds?module=forschinfo&amp;res=").append(tech.getID()).append("\">").append(Common._plaintitle(tech.getName())).append("</a>");
+				echo.append("</td><td class=\"noBorderX\"><img src=\"./data/interface/forschung/specpoints.gif\" alt=\"Spezialisierungskosten\">").append(tech.getSpecializationCosts()).append("</td>");
+				echo.append("</tr>\n");
+			}
+		}
+		echo.append("</table><br />");
+	}
+
+	/**
+	 * A method that knows how to print a specific building type, e.g. net.driftingsouls.ds2.server.bases.Werft.
+	 */
+	@FunctionalInterface
+	private interface OutputFunction {
+		String output(Building building, Base base, int field, int buildingId);
 	}
 }

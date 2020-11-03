@@ -23,15 +23,17 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
-import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.services.CargoService;
+import net.driftingsouls.ds2.server.services.PmService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -42,6 +44,8 @@ import org.apache.commons.lang3.mutable.MutableLong;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,6 +60,13 @@ import java.util.stream.Collectors;
 @Module(name = "transport")
 public class TransportController extends Controller
 {
+	@PersistenceContext
+	private EntityManager em;
+
+	private final PmService pmService;
+	private final BBCodeParser bbCodeParser;
+	private final CargoService cargoService;
+
 	private static class MultiTarget
 	{
 		private final String name;
@@ -115,7 +126,7 @@ public class TransportController extends Controller
 			{
 				TransportTarget handler = new BaseTransportTarget();
 				handler.create(role, aFromlist);
-				if (list.size() > 0)
+				if (!list.isEmpty())
 				{
 					Location loc = list.get(0).getLocation();
 					Location thisLoc = handler.getLocation();
@@ -148,7 +159,7 @@ public class TransportController extends Controller
 			{
 				if (aFromlist.equals("fleet"))
 				{
-					if (list.size() == 0)
+					if (list.isEmpty())
 					{
 						throw new ValidierungException("Es wurde kein Schiff angegeben, zu dem die Flotte ausgewaehlt werden soll");
 					}
@@ -529,8 +540,11 @@ public class TransportController extends Controller
 	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
-	public TransportController(TemplateViewResultFactory templateViewResultFactory)
+	public TransportController(PmService pmService, BBCodeParser bbCodeParser, CargoService cargoService, TemplateViewResultFactory templateViewResultFactory)
 	{
+		this.pmService = pmService;
+		this.bbCodeParser = bbCodeParser;
+		this.cargoService = cargoService;
 		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("Warentransfer");
@@ -687,14 +701,14 @@ public class TransportController extends Controller
 
 		if (mode == 't')
 		{
-			cargofrom.setValue(fromItem.getMaxCargo() - newfromc.getMass());
-			cargoto.setValue(toItem.getMaxCargo() - newtoc.getMass());
+			cargofrom.setValue(fromItem.getMaxCargo() - cargoService.getMass(newfromc));
+			cargoto.setValue(toItem.getMaxCargo() - cargoService.getMass(newtoc));
 		}
 		else
 		{
-			cargofrom.setValue(toItem.getMaxCargo() - newfromc.getMass());
+			cargofrom.setValue(toItem.getMaxCargo() - cargoService.getMass(newfromc));
 
-			cargoto.setValue(fromItem.getMaxCargo() - newtoc.getMass());
+			cargoto.setValue(fromItem.getMaxCargo() - cargoService.getMass(newtoc));
 		}
 
 		if ((fromItem.getOwner() == toItem.getOwner()) || (toItem.getOwner() == 0))
@@ -738,7 +752,6 @@ public class TransportController extends Controller
 		validiereWarenKoennenZwischenQuelleUndZielTransferiertWerden(from, to, way[0], way[1]);
 
 		StringBuilder message = new StringBuilder();
-		org.hibernate.Session db = getDB();
 
 		boolean transfer = false;
 
@@ -755,14 +768,14 @@ public class TransportController extends Controller
 		{
 			newtoclist.add(k, (Cargo) to.get(k).getCargo().clone());
 			totaltocargo.addCargo(to.get(k).getCargo());
-			cargotolist.add(k, to.get(k).getMaxCargo() - to.get(k).getCargo().getMass());
+			cargotolist.add(k, to.get(k).getMaxCargo() - cargoService.getMass(to.get(k).getCargo()));
 		}
 
 		for (int k = 0; k < from.size(); k++)
 		{
 			newfromclist.add(k, (Cargo) from.get(k).getCargo().clone());
 			totalfromcargo.addCargo(from.get(k).getCargo());
-			cargofromlist.add(k, from.get(k).getMaxCargo() - from.get(k).getCargo().getMass());
+			cargofromlist.add(k, from.get(k).getMaxCargo() - cargoService.getMass(from.get(k).getCargo()));
 		}
 
 		Map<Integer, StringBuilder> msg = new HashMap<>();
@@ -814,10 +827,10 @@ public class TransportController extends Controller
 							// Evt unbekannte Items bekannt machen
 							if (getUser().getId() != toTarget.getOwner())
 							{
-								Item item = (Item) db.get(Item.class, res.getId().getItemID());
+								Item item = em.find(Item.class, res.getId().getItemID());
 								if (item.isUnknownItem())
 								{
-									User auser = (User) getDB().get(User.class, toTarget.getOwner());
+									User auser = em.find(User.class, toTarget.getOwner());
 									auser.addKnownItem(res.getId().getItemID());
 								}
 							}
@@ -905,7 +918,7 @@ public class TransportController extends Controller
 					}
 
 					String tmpmsg = Common.implode(",", sourceshiplist) + " l&auml;dt Waren auf " + Common.implode(",", shiplist) + "\n" + msg.get(toTarget.getOwner());
-					PM.send((User) getUser(), toTarget.getOwner(), "Waren transferiert", tmpmsg);
+					pmService.send((User) getUser(), toTarget.getOwner(), "Waren transferiert", tmpmsg);
 
 					ownerpmlist.put(toTarget.getOwner(), msg.get(toTarget.getOwner()).toString());
 				}
@@ -961,7 +974,7 @@ public class TransportController extends Controller
 
 		if( redirect != null )
 		{
-			t.setVar("transport.message", Common._text(redirect.getMessage()));
+			t.setVar("transport.message", Common._text(bbCodeParser, redirect.getMessage()));
 		}
 
 		t.setVar("global.rawway", rawWay,
@@ -1140,7 +1153,7 @@ public class TransportController extends Controller
 		{
 			t.setVar("targetobj.name", to.get(0).getObjectName(),
 					"targetobj.id", to.get(0).getId(),
-					"target.cargo", Common.ln(to.get(0).getMaxCargo() - to.get(0).getCargo().getMass()));
+					"target.cargo", Common.ln(to.get(0).getMaxCargo() - cargoService.getMass(to.get(0).getCargo())));
 
 			t.setVar("target.id", to.get(0).getId());
 		}
@@ -1149,7 +1162,7 @@ public class TransportController extends Controller
 			long cargo = 0;
 			for (TransportTarget atod : to)
 			{
-				cargo = Math.max(atod.getMaxCargo() - atod.getCargo().getMass(), cargo);
+				cargo = Math.max(atod.getMaxCargo() - cargoService.getMass(atod.getCargo()), cargo);
 				t.setVar("targetobj.name", atod.getObjectName(),
 						"targetobj.id", atod.getId());
 
@@ -1165,7 +1178,7 @@ public class TransportController extends Controller
 			long cargo = 0;
 			for (TransportTarget atod : to)
 			{
-				cargo = Math.max(atod.getMaxCargo() - atod.getCargo().getMass(), cargo);
+				cargo = Math.max(atod.getMaxCargo() - cargoService.getMass(atod.getCargo()), cargo);
 			}
 			TransportTarget first = to.get(0);
 
@@ -1188,7 +1201,7 @@ public class TransportController extends Controller
 
 			t.setVar("sourceobj.name", first.getObjectName(),
 					"sourceobj.id", first.getId(),
-					"source.cargo", Common.ln(first.getMaxCargo() - first.getCargo().getMass()));
+					"source.cargo", Common.ln(first.getMaxCargo() - cargoService.getMass(first.getCargo())));
 
 			t.setVar("source.id", first.getId());
 		}
@@ -1197,7 +1210,7 @@ public class TransportController extends Controller
 			long cargo = 0;
 			for (TransportTarget afromd : from)
 			{
-				cargo = Math.max(afromd.getMaxCargo() - afromd.getCargo().getMass(), cargo);
+				cargo = Math.max(afromd.getMaxCargo() - cargoService.getMass(afromd.getCargo()), cargo);
 				t.setVar("sourceobj.name", afromd.getObjectName(),
 						"sourceobj.id", afromd.getId());
 

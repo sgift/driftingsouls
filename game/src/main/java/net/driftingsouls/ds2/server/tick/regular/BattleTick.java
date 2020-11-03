@@ -22,11 +22,15 @@ import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.SchlachtLogRundeBeendet;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
+import net.driftingsouls.ds2.server.services.BattleService;
 import net.driftingsouls.ds2.server.tick.TickController;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 
 /**
@@ -38,6 +42,15 @@ import java.util.List;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class BattleTick extends TickController {
 
+	@PersistenceContext
+	private EntityManager em;
+
+	private final BattleService battleService;
+
+	public BattleTick(BattleService battleService) {
+		this.battleService = battleService;
+	}
+
 	@Override
 	protected void prepare() {
 		// EMPTY
@@ -45,7 +58,6 @@ public class BattleTick extends TickController {
 
 	@Override
 	protected void tick() {
-		org.hibernate.Session db = getDB();
 
 		/*
 				Schlachten
@@ -53,15 +65,13 @@ public class BattleTick extends TickController {
 
 		final long lastacttime = Common.time()-1800;
 
-		List<Integer> battles = Common.cast(db.createQuery("select id from Battle")
-											 .list());
+		List<Integer> battles = em.createQuery("select id from Battle", Integer.class).getResultList();
 
 		new EvictableUnitOfWork<Integer>("Battle Tick")
 		{
 			@Override
 			public void doWork(Integer battleId) {
-				org.hibernate.Session db = getDB();
-				Battle battle = (Battle)db.get(Battle.class, battleId);
+				Battle battle = em.find(Battle.class, battleId);
 
 				if( battle.getBlockCount() > 0 && battle.getLetzteRunde() <= lastacttime )
 				{
@@ -74,11 +84,11 @@ public class BattleTick extends TickController {
 				}
 
 				log("+ Naechste Runde bei Schlacht "+battle.getId());
-                battle.load( battle.getCommander(0), null, null, 0 );
-				if( battle.endTurn(false) )
+                battleService.load(battle, battle.getCommander(0), null, null, 0 );
+				if( battleService.endTurn(battle,false) )
 				{
 					// Daten nur aktualisieren, wenn die Schlacht auch weiterhin existiert
-					battle.log(new SchlachtLogRundeBeendet(-1, SchlachtLogRundeBeendet.Modus.ALLE));
+					battleService.log(battle, new SchlachtLogRundeBeendet(-1, SchlachtLogRundeBeendet.Modus.ALLE));
 				}
 			}
 		}

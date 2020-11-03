@@ -23,11 +23,13 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.modules.StatsController;
 import net.driftingsouls.ds2.server.ships.Ship;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Component;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
@@ -37,19 +39,27 @@ import java.util.List;
  * @author Christopher Jung
  *
  */
+@Component
 public class StatOwnOffiziere implements Statistic {
-	private static final Log log = LogFactory.getLog(StatOwnOffiziere.class);
+
+	@PersistenceContext
+	private EntityManager em;
+
+	private final BBCodeParser bbCodeParser;
+
+	public StatOwnOffiziere(BBCodeParser bbCodeParser) {
+		this.bbCodeParser = bbCodeParser;
+	}
 
 	@Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
 		User user = (User)context.getActiveUser();
-		org.hibernate.Session db = context.getDB();
 		Writer echo = context.getResponse().getWriter();
 
-		List<?> offiziere = db.createQuery("from Offizier where owner=:user order by ing+nav+waf+sec+com desc")
-			.setInteger("user", user.getId())
-			.list();
+		List<Offizier> offiziere = em.createQuery("from Offizier where owner=:user order by ing+nav+waf+sec+com desc", Offizier.class)
+			.setParameter("user", user.getId())
+			.getResultList();
 
 		if( offiziere.size() == 0 ) {
 			echo.append("<div align=\"center\">Sie verf&uuml;gen &uuml;ber keine Offiziere</div>\n");
@@ -65,7 +75,7 @@ public class StatOwnOffiziere implements Statistic {
 			Offizier offizier = (Offizier) anOffiziere;
 
 			echo.append("<tr>\n");
-			echo.append("<td class=\"noBorderX\"><img src=\"").append(offizier.getPicture()).append("\" alt=\"Rang ").append(Integer.toString(offizier.getRang())).append("\" /> <a class=\"forschinfo\" href=\"").append(Common.buildUrl("default", "module", "choff", "off", offizier.getID())).append("\">").append(Common._title(offizier.getName())).append("</a> (").append(Integer.toString(offizier.getID())).append(")</td>\n");
+			echo.append("<td class=\"noBorderX\"><img src=\"").append(offizier.getPicture()).append("\" alt=\"Rang ").append(Integer.toString(offizier.getRang())).append("\" /> <a class=\"forschinfo\" href=\"").append(Common.buildUrl("default", "module", "choff", "off", offizier.getID())).append("\">").append(Common._title(bbCodeParser, offizier.getName())).append("</a> (").append(Integer.toString(offizier.getID())).append(")</td>\n");
 			echo.append("<td class=\"noBorderX\">&nbsp;</td>\n");
 
 			if (offizier.getStationiertAufSchiff() != null)

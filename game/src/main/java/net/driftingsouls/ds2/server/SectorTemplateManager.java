@@ -18,18 +18,19 @@
  */
 package net.driftingsouls.ds2.server;
 
+import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
+import net.driftingsouls.ds2.server.entities.GlobalSectorTemplate;
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.services.ShipService;
+import net.driftingsouls.ds2.server.ships.SchiffEinstellungen;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipFleet;
+
+import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
-import net.driftingsouls.ds2.server.entities.GlobalSectorTemplate;
-import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.ships.SchiffEinstellungen;
-import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipFleet;
 
 /**
  * <h1>Die Sektor-Template-Verwaltung.</h1>
@@ -47,9 +48,6 @@ public class SectorTemplateManager {
 		// EMPTY
 	}
 
-	/*
-	 * TODO: Caching, Caching, Caching....
-	 */
 	/**
 	 * Gibt eine Instanz des SektorTemplateManagers zurueck.
 	 * @return eine Instanz des SektorTemplateManagers
@@ -83,25 +81,25 @@ public class SectorTemplateManager {
 
 	/**
 	 * Fuegt Schiffe eines Templates an einer gegebenen Position ein.
-	 * @param db Die DB-Verbindung
+	 * @param em EntityManager
 	 * @param name Der Name des Templates
 	 * @param location Die Position, an der das Template eingefuegt werden soll
 	 * @param owner Der Besitzer der einzufuegenden Schiffe
 	 * @param smartid Soll die erste freie ID verwendet werden (<code>true</code>)?
 	 * @return Die IDs der eingefuegten Schiffe
 	 */
-	public Integer[] useTemplate(org.hibernate.Session db, String name, Location location, int owner, boolean smartid ) {
+	public Integer[] useTemplate(EntityManager em, ShipService shipService, String name, Location location, int owner, boolean smartid ) {
 		if( smartid ) {
 			System.err.println("FIXME: SectorTemplateManager.useTemplate -> smartid not implemented");
 			new Throwable().printStackTrace();
 		}
-		User user = (User)db.get(User.class, owner);
+		User user = em.find(User.class, owner);
 
-		GlobalSectorTemplate res = (GlobalSectorTemplate)db.get(GlobalSectorTemplate.class, name);
+		GlobalSectorTemplate res = em.find(GlobalSectorTemplate.class, name);
 		if( res == null ) {
 			System.err.println("ERROR: SectorTemplateManager.useTemplate -> unknown resourceid '"+name+"' used");
 			new Throwable().printStackTrace();
-			return null;
+			return new Integer[0];
 		}
 
 		List<Integer> shipids = new ArrayList<>();
@@ -126,20 +124,20 @@ public class SectorTemplateManager {
 		Map<Integer,Integer> idtable = new HashMap<>();
 		List<FleetEntry> fleet = new ArrayList<>();
 
-		List<Ship> ships = Common.cast(db.createQuery(query).list());
+		List<Ship> ships = em.createQuery(query, Ship.class).getResultList();
 		for(Ship ship : ships ) {
 			int newx = location.getX() + ship.getX() - res.getX();
 			int newy = location.getY() + ship.getY() - res.getY();
 
 			Ship newship = new Ship(user, ship.getBaseType(), location.getSystem(), newx, newy);
 
-			db.persist(newship);
-			db.save(newship.getHistory());
+			em.persist(newship);
+			em.persist(newship.getHistory());
 
-			ModuleEntry[] modules = ship.getModules();
+			ModuleEntry[] modules = ship.getModuleEntries();
 			for( ModuleEntry entry : modules)
 			{
-				newship.addModule(entry.getSlot(), entry.getModuleType(), entry.getData());
+				shipService.addModule(newship, entry.getSlot(), entry.getModuleType(), entry.getData());
 			}
 			newship.setName(ship.getName());
 			newship.setStatus(ship.getStatus());
@@ -185,18 +183,6 @@ public class SectorTemplateManager {
 			}
 
 			shipids.add(shipid);
-
-			/*if( ship.getInt("modules") != 0 ) {
-				/* TODO: das geht auch schoener...ggf via Ships.recalculateShipModules
-				SQLResultRow modules = db.first("SELECT * FROM ships_modules WHERE id='",ship.getInt("id"),"'");
-				db.update("INSERT INTO ships_modules " ,
-						"(id,modules,nickname,picture,ru,rd,ra,rm," ,
-						"eps,cost,hull,panzerung,cargo,heat,crew,weapons,maxheat,torpedodef," ,
-						"shields,size,jdocks,adocks,sensorrange,hydro,deutfactor,recost,flags,werft,ow_werft,ablativeArmor) VALUES " ,
-						"('",shipid,",'",modules.get("modules"),"','",modules.get("nickname"),"','",modules.get("picture"),"','",modules.get("ru"),"','",modules.get("rd"),"','",modules.get("ra"),"','",modules.get("rm"),"'," ,
-						"'",modules.get("eps"),"','",modules.get("cost"),"','",modules.get("hull"),"','",modules.get("panzerung"),"','",modules.get("cargo"),"','",modules.get("heat"),"','",modules.get("crew"),"','",modules.get("weapons"),"','",modules.get("maxheat"),"','",modules.get("torpedodef"),"'," ,
-						"'",modules.get("shields"),"','",modules.get("size"),"','",modules.get("jdocks"),"','",modules.get("adocks"),"','",modules.get("sensorrange"),"','",modules.get("hydro"),"','",modules.get("deutfactor"),"','",modules.get("recost"),"','",modules.get("flags"),"','",modules.get("werft"),"','",modules.get("ow_werft"),"','",modules.get("ablativeArmor"),"')");
-			}*/
 		}
 
 		// Gedockte Schiffe behandeln
@@ -223,24 +209,26 @@ public class SectorTemplateManager {
 				newdock = Integer.toString(masterid);
 			}
 
-			db.createQuery("UPDATE Ship SET docked= :docked WHERE id= :id")
-				.setString("docked", newdock)
-				.setInteger("id", dock.shipid);
+			em.createQuery("UPDATE Ship SET docked= :docked WHERE id= :id")
+				.setParameter("docked", newdock)
+				.setParameter("id", dock.shipid)
+				.executeUpdate();
 		}
 
 		Map<Integer,Integer> fleetlist = new HashMap<>();
 
 		for( FleetEntry flship : fleet ) {
 			if( !fleetlist.containsKey(flship.fleetid) ) {
-				ShipFleet flotte = (ShipFleet)db.get(ShipFleet.class, flship.fleetid);
+				ShipFleet flotte = em.find(ShipFleet.class, flship.fleetid);
 
 				ShipFleet newfleet = new ShipFleet(flotte.getName());
-				db.persist(newfleet);
+				em.persist(newfleet);
 				fleetlist.put( flship.fleetid, newfleet.getId() );
 			}
-			db.createQuery("UPDATE Ship SET fleet= :fleet WHERE id=:id")
-				.setInteger("fleet", fleetlist.get(flship.fleetid))
-				.setInteger("id", flship.shipid);
+			em.createQuery("UPDATE Ship SET fleet= :fleet WHERE id=:id")
+				.setParameter("fleet", fleetlist.get(flship.fleetid))
+				.setParameter("id", flship.shipid)
+				.executeUpdate();
 		}
 
 		return shipids.toArray(new Integer[0]);
@@ -249,13 +237,13 @@ public class SectorTemplateManager {
 	/**
 	 * Fuegt Schiffe eines Templates an einer gegebenen Position ein. Als Schiffs-ID
 	 * wird die naechste von der DB vergebene verwendet.
-	 * @param db Die DB-Verbindung
+	 * @param em EntityManager
 	 * @param name Der Name des Templates
 	 * @param location Die Position, an der das Template eingefuegt werden soll
 	 * @param owner Der Besitzer der einzufuegenden Schiffe
 	 * @return Die IDs der eingefuegten Schiffe
 	 */
-	public Integer[] useTemplate(org.hibernate.Session db, String name, Location location, int owner) {
-		return useTemplate(db, name, location, owner, false);
+	public Integer[] useTemplate(EntityManager em, ShipService shipService, String name, Location location, int owner) {
+		return useTemplate(em, shipService, name, location, owner, false);
 	}
 }

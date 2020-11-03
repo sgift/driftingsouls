@@ -21,7 +21,9 @@ package net.driftingsouls.ds2.server.modules.stats;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.modules.StatsController;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -33,8 +35,13 @@ import java.util.Map;
  * @author Christopher Jung
  *
  */
+@Service
 public class StatMemberCount extends AbstractStatistic implements Statistic {
-	@Override
+    public StatMemberCount(BBCodeParser bbCodeParser) {
+        super(bbCodeParser);
+    }
+
+    @Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();

@@ -20,9 +20,11 @@ package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.services.BattleService;
 import net.driftingsouls.ds2.server.ships.Alarmstufe;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
@@ -30,8 +32,13 @@ import java.io.IOException;
  * Aktiviert bei einem Schiff in der Schlacht den roten Alarm.
  *
  */
+@Component
 public class KSActivateAR extends BasicKSMenuAction
 {
+    public KSActivateAR(BattleService battleService) {
+        super(battleService, null);
+    }
+
     @Override
     public Result validate(Battle battle) {
 

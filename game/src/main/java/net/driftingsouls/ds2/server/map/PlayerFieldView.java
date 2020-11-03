@@ -9,14 +9,15 @@ import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.User.Relation;
-import net.driftingsouls.ds2.server.entities.User.Relations;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
+import net.driftingsouls.ds2.server.services.ShipService;
+import net.driftingsouls.ds2.server.services.UserService;
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
-import org.hibernate.Session;
 
+import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,27 +34,34 @@ import java.util.stream.Collectors;
  */
 public class PlayerFieldView implements FieldView
 {
-	private final Session db;
+	private final EntityManager em;
 	private final Field field;
 	private final User user;
+	private final UserService userService;
+	private final UserService.Relations relations;
 	private final Ship scanShip;
 	private final Location location;
 	private final boolean inScanRange;
+	private final ShipService shipService;
 
     /**
 	 * Legt eine neue Sicht an.
-	 *
-	 * @param db Ein aktives Hibernate Sessionobjekt.
+	 *  @param em Ein aktiver EntityManager
 	 * @param user Der Spieler fuer den die Sicht gelten soll.
+	 * @param userService Service für Spieler-Entitäten.
 	 * @param position Der gesuchte Sektor.
-     * @param scanShip Schiff mit dem der Spieler den Sektor scannt.
+	 * @param scanShip Schiff mit dem der Spieler den Sektor scannt.
+	 * @param shipService
 	 */
-	public PlayerFieldView(Session db, User user, Location position, Ship scanShip)
+	public PlayerFieldView(EntityManager em, User user, UserService userService, Location position, Ship scanShip, ShipService shipService)
 	{
-		this.field = new Field(db, position);
+		this.shipService = shipService;
+		this.relations = userService.getRelations(user);
+		this.field = new Field(em, position);
 		this.user = user;
+		this.userService = userService;
         this.scanShip = scanShip;
-		this.db = db;
+		this.em = em;
         this.location = position;
 		this.inScanRange = this.isInScanRange();
 	}
@@ -75,7 +83,7 @@ public class PlayerFieldView implements FieldView
 				bases.add(base);
 			}
 			else if( (this.user.getAlly() != null && user.getAlly().equals(base.getOwner().getAlly())) ||
-					 this.user.getRelations().isOnly(base.getOwner(), Relation.FRIEND) )
+					 relations.isOnly(base.getOwner(), Relation.FRIEND) )
 			{
 				bases.add(base);
 			}
@@ -108,7 +116,7 @@ public class PlayerFieldView implements FieldView
         }
 
         int scanRange = scanShip.getEffectiveScanRange();
-        Nebel nebula = (Nebel)db.get(Nebel.class, new MutableLocation(scanShip.getLocation()));
+        Nebel nebula = em.find(Nebel.class, new MutableLocation(scanShip.getLocation()));
         if(nebula != null)
         {
             scanRange /= 2;
@@ -154,7 +162,6 @@ public class PlayerFieldView implements FieldView
 		}
 
 		Ally ally = this.user.getAlly();
-		Relations relations = this.user.getRelations();
 		for (Ship viewableShip : field.getShips())
 		{
 			if (viewableShip.isLanded())
@@ -162,7 +169,7 @@ public class PlayerFieldView implements FieldView
 				continue;
 			}
 
-			final ShipType type = (ShipType) db.get(ShipType.class, viewableShip.getType());
+			final ShipType type = em.find(ShipType.class, viewableShip.getType());
 			final User owner = viewableShip.getOwner();
 
 			boolean enemy = false;
@@ -196,7 +203,7 @@ public class PlayerFieldView implements FieldView
 
 					if (viewableShip.isDocked())
 					{
-						Ship mship = viewableShip.getBaseShip();
+						Ship mship = shipService.getBaseShip(viewableShip);
 						if (mship.getTypeData().hasFlag(ShipTypeFlag.SEHR_KLEIN))
 						{
 							continue;
@@ -279,7 +286,7 @@ public class PlayerFieldView implements FieldView
 		{
 			return false;
 		}
-		return !Ship.getAlertStatus(this.user, this.location).isEmpty();
+		return !userService.getAlertStatus(this.user, this.location).isEmpty();
 	}
 
 	@Override
@@ -310,7 +317,6 @@ public class PlayerFieldView implements FieldView
             return true;
         }
 
-        Relations relations = user.getRelations();
 		return relations.isOnly(owner, Relation.FRIEND);
 	}
 }

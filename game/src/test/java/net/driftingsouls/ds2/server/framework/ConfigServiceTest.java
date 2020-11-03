@@ -1,34 +1,55 @@
 package net.driftingsouls.ds2.server.framework;
 
-import net.driftingsouls.ds2.server.DBTest;
-
+import net.driftingsouls.ds2.server.TestAppConfig;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.NonNullApi;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import static org.junit.Assert.*;
 
-public class ConfigServiceTest extends DBTest
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = {
+	TestAppConfig.class
+})
+public class ConfigServiceTest
 {
+	@PersistenceContext
+	private EntityManager entityManager;
+	@Autowired
+	private PlatformTransactionManager transactionManager;
+	@Autowired
+	private ConfigService configService;
+
 	@Test
 	public void gegebenEineLeereDatenbank_get_sollteDenDefaultWertZurueckgebenUndEinenEintragInDerDBAnlegen()
 	{
-		mitTransaktion(() -> {
-			// setup
+		var transactionTemplate = new TransactionTemplate(transactionManager);
+		var value = transactionTemplate.execute(status -> {
 			ConfigValueDescriptor<String> desc = new DummyConfigValueDescriptor<>(String.class, "dummy", "1234");
-			ConfigService configService = new ConfigService();
 
-			// run
-			ConfigValue value = configService.get(desc);
-
-			// assert
-			assertNotNull(value);
-			assertEquals("1234", value.getValue());
-			assertEquals("dummy", value.getName());
+			return configService.get(desc);
 		});
 
-		getEM().clear();
 
-		ConfigValue dbValue = getEM().find(ConfigValue.class, "dummy");
-		assertNotNull(dbValue);
+		// assert
+		assertNotNull(value);
+		assertEquals("1234", value.getValue());
+		assertEquals("dummy", value.getName());
+
+		ConfigValue dbValue = transactionTemplate.execute(status -> entityManager.find(ConfigValue.class, "dummy"));
+ 		assertNotNull(dbValue);
 		assertEquals("1234", dbValue.getValue());
 		assertEquals("dummy", dbValue.getName());
 	}
@@ -36,66 +57,56 @@ public class ConfigServiceTest extends DBTest
 	@Test
 	public void gegebenEineDatenbankMitGesetztemConfigWert_get_sollteGenauDiesenWertZurueckgeben()
 	{
-		// setup
-		mitTransaktion(() -> {
-			ConfigValue val = new ConfigValue("dummy", "5678");
-			getEM().persist(val);
+		var transactionTemplate = new TransactionTemplate(transactionManager);
+		transactionTemplate.executeWithoutResult(transactionStatus -> {
+			ConfigValue val = new ConfigValue("dummy2", "5678");
+			entityManager.persist(val);
 		});
 
-		ConfigValueDescriptor<String> desc = new DummyConfigValueDescriptor<>(String.class, "dummy", "1234");
-		ConfigService configService = new ConfigService();
 
-		mitTransaktion(() -> {
-			// run
-			ConfigValue value = configService.get(desc);
+		ConfigValueDescriptor<String> desc = new DummyConfigValueDescriptor<>(String.class, "dummy2", "1234");
 
-			// assert
-			assertNotNull(value);
-			assertEquals("5678", value.getValue());
-			assertEquals("dummy", value.getName());
-		});
+		// run
+		ConfigValue value = configService.get(desc);
+
+		// assert
+		assertNotNull(value);
+		assertEquals("5678", value.getValue());
+		assertEquals("dummy2", value.getName());
 	}
 
 	@Test
 	public void gegebenEineLeereDatenbank_getValue_sollteDenDefaultWertZurueckgeben()
 	{
-		mitTransaktion(() -> {
-			// setup
-			ConfigValueDescriptor<String> desc = new DummyConfigValueDescriptor<>(String.class, "dummy", "1234");
-			ConfigService configService = new ConfigService();
+		// setup
+		ConfigValueDescriptor<String> desc = new DummyConfigValueDescriptor<>(String.class, "dummy3", "1234");
 
-			// run
-			String value = configService.getValue(desc);
+		// run
+		String value = configService.getValue(desc);
 
-			// assert
-			assertEquals("1234", value);
-		});
+		// assert
+		assertEquals("1234", value);
 
-		getEM().clear();
-
-		ConfigValue dbValue = getEM().find(ConfigValue.class, "dummy");
+		ConfigValue dbValue = entityManager.find(ConfigValue.class, "dummy3");
 		assertNull(dbValue);
 	}
 
 	@Test
 	public void gegebenEineDatenbankMitGesetztemConfigWert_getValue_sollteGenauDiesenWertZurueckgeben()
 	{
-		// setup
-		mitTransaktion(() -> {
-			ConfigValue val = new ConfigValue("dummy", "5678");
-			getEM().persist(val);
+		var transactionTemplate = new TransactionTemplate(transactionManager);
+		transactionTemplate.executeWithoutResult(transactionStatus -> {
+			ConfigValue val = new ConfigValue("dummy4", "5678");
+			entityManager.persist(val);
 		});
 
-		ConfigValueDescriptor<String> desc = new DummyConfigValueDescriptor<>(String.class, "dummy", "1234");
-		ConfigService configService = new ConfigService();
+		ConfigValueDescriptor<String> desc = new DummyConfigValueDescriptor<>(String.class, "dummy4", "1234");
 
-		mitTransaktion(() -> {
-			// run
-			String value = configService.getValue(desc);
+		// run
+		String value = configService.getValue(desc);
 
-			// assert
-			assertEquals("5678", value);
-		});
+		// assert
+		assertEquals("5678", value);
 	}
 
 	private static class DummyConfigValueDescriptor<T> implements ConfigValueDescriptor<T> {

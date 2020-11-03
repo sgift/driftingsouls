@@ -25,8 +25,10 @@ import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -35,14 +37,24 @@ import java.util.List;
  *
  */
 @AdminMenuEntry(category="Sonstiges", name="Schlacht beenden", permission = WellKnownAdminPermission.BATTLE_END)
+@Component
+@Lazy
 public class BattleEnd implements AdminPlugin 
 {
+	private final AdminCommands adminCommands;
+	private final BBCodeParser bbCodeParser;
+
+	public BattleEnd(AdminCommands adminCommands, BBCodeParser bbCodeParser) {
+		this.adminCommands = adminCommands;
+		this.bbCodeParser = bbCodeParser;
+	}
+
 	@Override
 	public void output(StringBuilder echo) {
 		Context context = ContextMap.getContext();
 
 		int battleid = context.getRequest().getParameterInt("battleid");
-				
+
 		if( battleid == 0 ) 
 		{
 			echo.append("<div class='gfxbox' style='width:540px;text-align:center'>");
@@ -63,20 +75,20 @@ public class BattleEnd implements AdminPlugin
 				if( battle.getAlly(0) != 0 ) 
 				{
 					Ally ally = (Ally)db.get(Ally.class, battle.getAlly(0));
-					commander1 = Common._title(ally.getName());
+					commander1 = Common._title(bbCodeParser, ally.getName());
 				}
 				else 
 				{
-					commander1 = Common._title(battle.getCommander(0).getName());
+					commander1 = Common._title(bbCodeParser, battle.getCommander(0).getName());
 				}
 				if( battle.getAlly(1) != 0 ) 
 				{
 					Ally ally = (Ally)db.get(Ally.class, battle.getAlly(1));
-					commander2 = Common._title(ally.getName());
+					commander2 = Common._title(bbCodeParser, ally.getName());
 				}
 				else 
 				{
-					commander2 = Common._title(battle.getCommander(1).getName());
+					commander2 = Common._title(bbCodeParser, battle.getCommander(1).getName());
 				} 
 				echo.append("<td class=\"noBorderX\" style=\"text-align:center\">").append(commander1).append("<br />vs<br />").append(commander2).append("</td>\n");
 				echo.append("</tr>\n");
@@ -94,7 +106,7 @@ public class BattleEnd implements AdminPlugin
 		}
 		else 
 		{
-			new AdminCommands().executeCommand("battle end "+battleid);
+			adminCommands.executeCommand("battle end "+battleid);
 					
 			echo.append("Schlacht beendet<br />");
 		}

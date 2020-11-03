@@ -21,37 +21,55 @@ package net.driftingsouls.ds2.server.werften;
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
-import net.driftingsouls.ds2.server.cargo.*;
-import net.driftingsouls.ds2.server.cargo.modules.Module;
-import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
-import net.driftingsouls.ds2.server.cargo.modules.ModuleItemModule;
-import net.driftingsouls.ds2.server.cargo.modules.ModuleType;
-import net.driftingsouls.ds2.server.config.ModuleSlots;
-import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
+import net.driftingsouls.ds2.server.cargo.ItemID;
+import net.driftingsouls.ds2.server.cargo.ResourceEntry;
+import net.driftingsouls.ds2.server.cargo.ResourceList;
+import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.config.items.Schiffsbauplan;
-import net.driftingsouls.ds2.server.config.items.Schiffsmodul;
-import net.driftingsouls.ds2.server.config.items.Schiffsverbot;
 import net.driftingsouls.ds2.server.config.items.effects.IEDraftShip;
-import net.driftingsouls.ds2.server.config.items.effects.IEModule;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
-import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.DSObject;
-import net.driftingsouls.ds2.server.ships.*;
-import org.apache.commons.lang3.StringUtils;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipBaubar;
+import net.driftingsouls.ds2.server.ships.ShipType;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import org.apache.log4j.Logger;
-import org.hibernate.Session;
 import org.hibernate.annotations.ForeignKey;
 import org.jetbrains.annotations.NotNull;
-
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
-import javax.persistence.*;
-import java.util.*;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.DiscriminatorColumn;
+import javax.persistence.DiscriminatorType;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.persistence.Version;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 /**
@@ -221,15 +239,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
     }
 
 	/**
-	 * Wird von Bauschlangeneintraegen aufgerufen, nachdem sie erfolgreich abgeschlossen wurden.
-	 * Der Bauschlangeneintrag ist zu diesem Zeitpunkt bereits entfernt.
-	 * @param shipid Die ID des neugebauten Schiffes
-	 */
-	protected void onFinishedBuildProcess(int shipid) {
-		rescheduleQueue();
-	}
-
-	/**
 	 * Berechnet, welche Eintraege der Bauschlange im Moment gebaut werden und welche nicht.
 	 *
 	 */
@@ -329,13 +338,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * @return Der Cargo der Werft
 	 */
 	public abstract Cargo getCargo(boolean localonly);
-
-	/**
-	 * Schreibt den Cargo der Werft wieder in die DB.
-	 * @param cargo Der neue Cargo der Werft
-	 * @param localonly Handelt es sich nur um den Cargo der Werft (<code>true</code>) oder auch um den Cargo von gekoppelten Objekten (<code>false</code>)?
-	 */
-	public abstract void setCargo(Cargo cargo, boolean localonly);
 
 	/**
 	 * Gibt die maximale Cargogroesse zurueck, den die Werft besitzen kann.
@@ -445,94 +447,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		return 0;
 	}
 
-	/**
-	 * Entfernt ein Item-Modul aus einem Schiff. Das Item-Modul
-	 * befindet sich anschiessend auf der Werft.
-	 * {@link DSObject#MESSAGE} enthaelt die Hinweistexte
-	 *
-	 * @param ship Das Schiff
-	 * @param slot Modulslot, aus dem das Modul ausgebaut werden soll
-	 *
-	 */
-	public void removeModule( @NonNull Ship ship, int slot ) {
-		if(this.type == WerftTyp.EINWEG)
-		{
-			MESSAGE.get().append("Diese Werft ist vollständig auf ihr einziges Bauprojekt konzentriert.");
-			return;
-		}
-		Map<Integer,Integer> usedslots = new HashMap<>();
-		ModuleEntry[] modules = ship.getModules();
-		for( int i=0; i < modules.length; i++ ) {
-			usedslots.put(modules[i].getSlot(), i);
-		}
-
-		if( !usedslots.containsKey(slot) ) {
-			MESSAGE.get().append(ship.getName()).append(" - Es befindet sich kein Modul in diesem Slot\n");
-			return;
-		}
-
-		ShipTypeData shiptype = ship.getTypeData();
-
-		String[] aslot = null;
-
-		String[] moduleslots = StringUtils.split(shiptype.getTypeModules(), ';');
-		for (String moduleslot : moduleslots)
-		{
-			String[] data = StringUtils.split(moduleslot, ':');
-
-			if (Integer.parseInt(data[0]) == slot)
-			{
-				aslot = data;
-				break;
-			}
-		}
-
-		if( aslot == null ) {
-			MESSAGE.get().append(ship.getName()).append(" - Keinen passenden Slot gefunden\n");
-			return;
-		}
-
-		ShipTypeData oldshiptype;
-		try {
-			oldshiptype = (ShipTypeData)shiptype.clone();
-		}
-		catch( CloneNotSupportedException e ) {
-			oldshiptype = shiptype;
-		}
-
-		ModuleEntry module = modules[usedslots.get(slot)];
-		Module moduleobj = module.createModule();
-		if( aslot.length > 2 ) {
-			moduleobj.setSlotData(aslot[2]);
-		}
-
-		Cargo cargo = getCargo(false);
-
-		if( moduleobj instanceof ModuleItemModule ) {
-			ResourceID itemid = ((ModuleItemModule)moduleobj).getItemID();
-			cargo.addResource( itemid, 1 );
-		}
-		ship.removeModule( module );
-
-		Cargo transferCargoZurWerft = ship.postUpdateShipType(oldshiptype);
-
-		if( this.getMaxCargo(false) - cargo.getMass() > 0 ) {
-			Cargo addwerftcargo = transferCargoZurWerft.cutCargo( this.getMaxCargo(false) - cargo.getMass() );
-			cargo.addCargo( addwerftcargo );
-
-			if( !transferCargoZurWerft.isEmpty() )
-			{
-				Cargo shipCargo = ship.getCargo();
-				shipCargo.addCargo(transferCargoZurWerft);
-				ship.setCargo(shipCargo);
-			}
-		}
-        setCargo(cargo, false);
-
-		MESSAGE.get().append(Ship.MESSAGE.get());
-		MESSAGE.get().append(ship.getName()).append(" - Modul ausgebaut\n");
-	}
-
     /**
      * Gibt zurueck, ob es sich bei dieser Werft um eine Einwegwerft oder dessen Vorstufe handelt.
      * Einwegwerften können nur ein Schiff bauen und werden dann zerstört.
@@ -542,121 +456,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
     {
         return false;
     }
-
-	//--------------------------------------------------------------------------------------------------------------
-
-	/**
-	 * Fuegt einem Schiff ein Item-Modul hinzu. Das Item-Modul
-	 * muss auf der Werft vorhanden sein.
-	 * {@link DSObject#MESSAGE} enthaelt die Hinweistexte
-	 *
-	 * @param ship Das Schiff
-	 * @param slot Der Slot, in den das Modul eingebaut werden soll
-	 * @param itemid Die ID des einzubauenden Item-Moduls
-	 *
-	 */
-	public void addModule( @NonNull Ship ship, int slot, int itemid ) {
-		if(this.isEinwegWerft())
-		{
-			MESSAGE.get().append("Diese Werft ist vollständig auf ihr einziges Bauprojekt konzentriert.");
-			return;
-		}
-		Map<Integer,Integer> usedslots = new HashMap<>();
-		ModuleEntry[] modules = ship.getModules();
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-
-		for( int i=0; i < modules.length; i++ ) {
-			usedslots.put(modules[i].getSlot(), i);
-		}
-
-		if( usedslots.containsKey(slot) ) {
-			MESSAGE.get().append(ship.getName()).append(" - Der Slot ist bereits belegt\n");
-			return;
-		}
-
-		Cargo cargo = this.getCargo(false);
-		List<ItemCargoEntry<Schiffsmodul>> itemlist = cargo.getItemsOfType(Schiffsmodul.class);
-
-		ShipTypeData shiptype = ship.getTypeData();
-
-		String[] aslot = null;
-
-		String[] moduleslots = StringUtils.split(shiptype.getTypeModules(), ';');
-		for (String moduleslot : moduleslots)
-		{
-			String[] data = StringUtils.split(moduleslot, ':');
-
-			if (Integer.parseInt(data[0]) == slot)
-			{
-				aslot = data;
-				break;
-			}
-		}
-
-		if( aslot == null ) {
-			MESSAGE.get().append(ship.getName()).append(" - Keinen passenden Slot gefunden\n");
-			return;
-		}
-
-		Item item = (Item)db.get(Item.class, itemid);
-		if( !ModuleSlots.get().slot(aslot[1]).isMemberIn( ((IEModule)item.getEffect()).getSlots() ) ) {
-			MESSAGE.get().append(ship.getName()).append(" - Das Item passt nicht in dieses Slot\n");
-			return;
-		}
-
-		if( item.getAccessLevel() > context.getActiveUser().getAccessLevel() ) {
-			MESSAGE.get().append(ship.getName()).append(" - Ihre Techniker wissen nichts mit dem Modul anzufangen\n");
-			return;
-		}
-
-		ItemCargoEntry<Schiffsmodul> myitem = null;
-
-		for (ItemCargoEntry<Schiffsmodul> anItemlist : itemlist)
-		{
-			if (anItemlist.getItemID() == itemid)
-			{
-				myitem = anItemlist;
-				break;
-			}
-		}
-
-		if( myitem == null || myitem.getCount() <= 0 ) {
-			MESSAGE.get().append(ship.getName()).append(" - Kein passendes Item gefunden\n");
-			return;
-		}
-
-		ShipTypeData oldshiptype;
-		try {
-			oldshiptype = (ShipTypeData)shiptype.clone();
-		}
-		catch( CloneNotSupportedException e ) {
-			oldshiptype = shiptype;
-		}
-
-		ship.addModule( slot, ModuleType.ITEMMODULE, Integer.toString(itemid) );
-		cargo.substractResource( myitem.getResourceID(), 1 );
-
-		Cargo transferCargoZurWerft = ship.postUpdateShipType(oldshiptype);
-
-		if( this.getMaxCargo(false) - cargo.getMass() > 0 ) {
-			Cargo addwerftcargo = transferCargoZurWerft.cutCargo( this.getMaxCargo(false) - cargo.getMass() );
-			cargo.addCargo( addwerftcargo );
-
-			if( !transferCargoZurWerft.isEmpty() )
-			{
-				Cargo shipCargo = ship.getCargo();
-				shipCargo.addCargo(transferCargoZurWerft);
-				ship.setCargo(shipCargo);
-			}
-		}
-        setCargo(cargo,false);
-
-		MESSAGE.get().append(Ship.MESSAGE.get());
-
-		MESSAGE.get().append(ship.getName()).append(" - Modul eingebaut\n");
-
-	}
 
 	/**
 	 * Berechnet den Cargo, den man beim Demontieren eines Schiffes zurueckbekommt. Er entspricht somit
@@ -758,116 +557,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		}
 
 		return cost;
-	}
-
-
-	/**
-	 * Demontiert mehrere Schiffe auf einmal.
-	 *
-	 * @param ships Schiffe, die demontiert werden sollten.
-	 * @return Anzahl der Schiffe, die wirklich demontiert wurde.
-	 */
-	public int dismantleShips(@NonNull Collection<Ship> ships)
-	{
-		int dismantledShips = 0;
-		for(Ship ship: ships)
-		{
-			if(dismantleShip(ship, false))
-			{
-				dismantledShips++;
-			}
-		}
-
-		return dismantledShips;
-	}
-
-	/**
-	 * Demontiert ein Schiff. Es wird dabei nicht ueberprueft, ob sich Schiff
-	 * und Werft im selben Sektor befinden, ob das Schiff in einem Kampf ist usw sondern
-	 * nur das demontieren selbst.{@link DSObject#MESSAGE} enthaelt die Hinweistexte
-	 *
-	 * @param ship Das zu demontierende Schiff
-	 * @param testonly Soll nur geprueft (true) oder wirklich demontiert werden (false)?
-	 * @return true, wenn kein Fehler aufgetreten ist
-	 */
-	public boolean dismantleShip(@NonNull Ship ship, boolean testonly) {
-		if(this.isEinwegWerft())
-		{
-			MESSAGE.get().append("Diese Werft ist vollständig auf ihr einziges Bauprojekt konzentriert.");
-			return false;
-		}
-		log.debug("Dismantling ship " + ship.getId());
-		StringBuilder output = MESSAGE.get();
-
-		if( ship.getId() < 0 ) {
-			ContextMap.getContext().addError("Das angegebene Schiff existiert nicht");
-			log.debug("Ship doesn't exist");
-			return false;
-		}
-
-		if(this instanceof ShipWerft)
-		{
-			Ship shipyard = ((ShipWerft)this).getShip();
-			if(ship.equals(shipyard))
-			{
-				log.debug("Shipyard tried to dismantle itself.");
-				return false;
-			}
-		}
-
-		Cargo scargo = ship.getCargo();
-
-		Cargo cargo = this.getCargo(false);
-
-	 	long maxcargo = this.getMaxCargo(false);
-
-		Cargo cost = this.getDismantleCargo( ship );
-
-		Cargo newcargo = (Cargo)cargo.clone();
-		long totalcargo = cargo.getMass();
-
-		boolean ok = true;
-
-		cost.addCargo( scargo );
-		newcargo.addCargo( cost );
-
-		if( cost.getMass() + totalcargo > maxcargo ) {
-			log.debug("Not enough space for resources.");
-			output.append("Nicht gen&uuml;gend Platz f&uuml;r alle Waren\n");
-			ok = false;
-		}
-
-		int maxoffis = this.canTransferOffis();
-
-		Set<Offizier> offiziere = ship.getOffiziere();
-
-		if( offiziere.size() > maxoffis ) {
-			output.append("Nicht genug Platz f&uuml;r alle Offiziere");
-			ok = false;
-		}
-		if( !ok ) {
-			return false;
-		}
-
-		if(!testonly) {
-			this.setCargo(newcargo, false);
-
-			this.setCrew(this.getCrew()+ship.getCrew());
-			if(this.getCrew() > this.getMaxCrew())
-			{
-				this.setCrew(this.getMaxCrew());
-			}
-
-			//Iterate over copy or we get ConcurrentModificationException when officer is moved out of original set
-			Set<Offizier> dockyardOfficers = new HashSet<>(offiziere);
-			for( Offizier offi : dockyardOfficers ) {
-				this.transferOffi(offi.getID());
-			}
-
-			ship.destroy();
-		}
-
-		return true;
 	}
 
 	/**
@@ -1099,239 +788,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		return reloadCosts;
 
 	}
-		/**
-	 * Laedt ein Schiff in einer Werft auf.
-	 * Es werden nur Dinge geprueft, die unmittelbar mit dem Aufladevorgang selbst
-	 * etwas zu tun haben. Die Positionen von Schiff und Werft usw werden jedoch nicht gecheckt.
-	 * {@link DSObject#MESSAGE} enthaelt die Hinweistexte
-	 *
-	 * @param ship Das Schiff
-	 * @param testonly Soll nur getestet (true) oder auch wirklich aufgeladen (false) werden?
-	 *
-	 * @return true, wenn kein Fehler aufgetreten ist
-	 */
-	public boolean reloadShip(@NonNull Ship ship, boolean testonly) {
-		if(!ship.getLocation().sameSector(0, this.getLocation(), this.getSize()))
-		{
-			MESSAGE.get().append("Diese Werft befindet sich nicht an der gleichen Position wie das Schiff.");
-			return false;
-		}
-		if(this.isEinwegWerft())
-		{
-			MESSAGE.get().append("Diese Werft ist vollständig auf ihr einziges Bauprojekt konzentriert.");
-			return false;
-		}
-        if(ship.hasFlag(Ship.FLAG_RECENTLY_REPAIRED))
-        {
-            MESSAGE.get().append("Das Schiff wurde k&uuml;rzlich aufgeladen und kann derzeit nicht aufgeladen werden.");
-            return false;
-        }
-
-		boolean ok = true;
-		ReloadCosts rc = this.getReloadCosts(ship);
-		int newe = this.getEnergy();
-
-		if( rc.e > 0 ) {
-			if( rc.e > newe ) {
-				ok = false;
-			}
-			newe -= rc.e;
-		}
-
-
-		if( !ok ) {
-			MESSAGE.get().append("Nicht gen&uuml;gend Energie f&uuml;r den Aufladevorgang vorhanden");
-			return false;
-		}
-		else if( !testonly ) {
-			ShipTypeData shiptype = ship.getTypeData();
-			this.setEnergy(newe);
-			ship.setEnergy(shiptype.getEps());
-            ship.addFlag(Ship.FLAG_RECENTLY_REPAIRED, 5);
-		}
-		return true;
-	}
-	//-------
-
-	/**
-	 * Repariert ein Schiff auf einer Werft.
-	 * Es werden nur Dinge geprueft, die unmittelbar mit dem Repariervorgang selbst
-	 * etwas zu tun haben. Die Positionen von Schiff und Werft usw werden jedoch nicht gecheckt.
-	 * {@link DSObject#MESSAGE} enthaelt die Hinweistexte
-	 *
-	 * @param ship Das Schiff
-	 * @param testonly Soll nur getestet (true) oder auch wirklich repariert (false) werden?
-	 *
-	 * @return true, wenn kein Fehler aufgetreten ist
-	 */
-	public boolean repairShip(@NonNull Ship ship, boolean testonly) {
-		if(!ship.getLocation().sameSector(0, this.getLocation(), this.getSize()))
-		{
-			MESSAGE.get().append("Diese Werft befindet sich nicht an der gleichen Position wie das Schiff.");
-			return false;
-		}
-		if(this.isEinwegWerft())
-		{
-			MESSAGE.get().append("Diese Werft ist vollständig auf ihr einziges Bauprojekt konzentriert.");
-			return false;
-		}
-        if(ship.hasFlag(Ship.FLAG_RECENTLY_REPAIRED))
-        {
-            MESSAGE.get().append("Das Schiff wurde k&uuml;rzlich repariert und kann derzeit nicht repariert werden.");
-            return false;
-        }
-
-		ShipTypeData shiptype = ship.getTypeData();
-
-		Cargo cargo = this.getCargo(false);
-	    boolean ok = true;
-		RepairCosts rc = this.getRepairCosts(ship);
-
-
-		Cargo newcargo = (Cargo) cargo.clone();
-		int newe = this.getEnergy();
-
-		//Kosten ausgeben
-		ResourceList reslist = rc.cost.compare( cargo, false );
-		for( ResourceEntry res : reslist ) {
-			if (res.getDiff() > 0) {
-				ok = false;
-				break;
-			}
-		}
-		newcargo.substractCargo( rc.cost );
-
-		if( rc.e > 0 ) {
-			if( rc.e > newe ) {
-				ok = false;
-			}
-			newe -= rc.e;
-		}
-
-
-		if( !ok ) {
-			MESSAGE.get().append("Nicht gen&uuml;gend Material zur Reperatur vorhanden");
-			return false;
-		}
-		else if( !testonly ) {
-			this.setCargo( newcargo, false );
-
-			this.setEnergy(newe);
-			ship.setAblativeArmor(shiptype.getAblativeArmor());
-			ship.setHull(shiptype.getHull());
-			ship.setEngine(100);
-			ship.setSensors(100);
-			ship.setComm(100);
-			ship.setWeapons(100);
-            ship.addFlag(Ship.FLAG_RECENTLY_REPAIRED, 5);
-		}
-		return true;
-	}
-
-	/**
-	 * Liefert die Liste aller theoretisch baubaren Schiffe auf dieser Werft.
-	 * Das vorhanden sein von Resourcen wird hierbei nicht beruecksichtigt.
-	 * @return array mit Schiffsbaudaten (ships_baubar) sowie
-	 * 			'_item' => array( ('local' | 'ally'), $resourceid) oder '_item' => false
-	 * 			zur Bestimmung ob und wenn ja welcher Bauplan benoetigt wird zum bauen
-	 */
-	public @NonNull List<SchiffBauinformationen> getBuildShipList() {
-		List<SchiffBauinformationen> result = new ArrayList<>();
-
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-
-		User user = this.getOwner();
-
-		Cargo availablecargo = this.getCargo(false);
-
-		Cargo allyitems;
-		if( user.getAlly() != null ) {
-			allyitems = new Cargo(Cargo.Type.ITEMSTRING, user.getAlly().getItems());
-		}
-		else {
-			allyitems = new Cargo();
-		}
-
-		Map<ShipType,Boolean> disableShips = new HashMap<>();
-
-		for (ItemCargoEntry<Schiffsverbot> anItemlist : availablecargo.getItemsOfType(Schiffsverbot.class))
-		{
-			disableShips.put(anItemlist.getItem().getSchiffstyp(), true);
-		}
-
-		for (ItemCargoEntry<Schiffsverbot> anItemlist : allyitems.getItemsOfType(Schiffsverbot.class))
-		{
-			disableShips.put(anItemlist.getItem().getSchiffstyp(), true);
-		}
-
-		List<?> baubarList = db
-				.createQuery("select sb from ShipBaubar sb WHERE sb.werftSlots <= :werftslots order by sb.type.nickname")
-				.setInteger("werftslots", this.getWerftSlots())
-				.list();
-		for( Object obj : baubarList )
-		{
-			ShipBaubar sb = (ShipBaubar)obj;
-			if( disableShips.containsKey(sb.getType()) ) {
-				continue;
-			}
-			if( !Rassen.get().rasse(user.getRace()).isMemberIn(sb.getRace()) ) {
-				continue;
-			}
-
-			if( sb.getType().getShipClass() == ShipClasses.SCHUTZSCHILD && !(this.getType() == WerftTyp.BASIS)) {
-				continue;
-			}
-
-			//Forschungen checken
-			if( !user.hasResearched(sb.getBenoetigteForschungen()) )
-			{
-				continue;
-			}
-
-			result.add(new SchiffBauinformationen(sb, BauinformationenQuelle.FORSCHUNG, null));
-		}
-
-		//Items
-		Cargo localcargo = this.getCargo(true);
-		for (ItemCargoEntry<Schiffsbauplan> item : localcargo.getItemsOfType(Schiffsbauplan.class))
-		{
-			IEDraftShip effect = item.getItem().getEffect();
-
-			if (effect.getWerftSlots() > this.getWerftSlots())
-			{
-				continue;
-			}
-
-			//Forschungen checken
-			if (!user.hasResearched(effect.getBenoetigteForschungen()) )
-			{
-				continue;
-			}
-
-			result.add(new SchiffBauinformationen(effect.toShipBaubar(), BauinformationenQuelle.LOKALES_ITEM, item.getResourceID()));
-		}
-
-		for (ItemCargoEntry<Schiffsbauplan> item : allyitems.getItemsOfType(Schiffsbauplan.class))
-		{
-			IEDraftShip effect = item.getItem().getEffect();
-
-			if (effect.getWerftSlots() > this.getWerftSlots())
-			{
-				continue;
-			}
-
-			//Forschungen checken
-			if (!user.hasResearched(effect.getBenoetigteForschungen()) )
-			{
-				continue;
-			}
-
-			result.add(new SchiffBauinformationen(effect.toShipBaubar(), BauinformationenQuelle.ALLIANZ_ITEM, item.getResourceID()));
-		}
-
-		return result;
-	}
 
 	/**
 	 * Liefert die Schiffsbaudaten zu einer Kombination aus Schiffsbau-ID und/oder Item.
@@ -1395,152 +851,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		shipdata = effect.toShipBaubar();
 
 		return new SchiffBauinformationen(shipdata, quelle, new ItemID(itemid));
-	}
-
-	/**
-	 * Baut ein Schiff in der Werft auf Basis der angegebenen Schiffbau-ID und der
-	 * angegebenen Item-ID (Bauplan). {@link DSObject#MESSAGE} enthaelt die Hinweistexte
-	 *
-	 * @param build Schiffbau-ID
-	 * @param item Item-ID
-	 * @param costsPerTick Sollen die Baukosten pro Tick (<code>true</code>) oder der Gesamtbetrag jetzt (<code>false</code>) abgezogen werden
-	 * @param testonly Soll nur getestet (true) oder wirklich gebaut (false) werden?
-	 * @return true, wenn kein Fehler aufgetreten ist
-	 */
-	public boolean buildShip( int build, int item, boolean costsPerTick, boolean testonly )
-	{
-		SchiffBauinformationen shipdata = this.getShipBuildData( build, item );
-		if( shipdata == null )
-		{
-			MESSAGE.get().append("Diese Werft dieses Bauprojekt nicht durchführen");
-			return false;
-		}
-		return buildShip(shipdata, costsPerTick, testonly);
-	}
-
-	/**
-	 * Baut ein Schiff in der Werft auf Basis der angegebenen Schiffbau-ID und der
-	 * angegebenen Item-ID (Bauplan). {@link DSObject#MESSAGE} enthaelt die Hinweistexte
-	 *
-	 * @param build Die Schiffsbaudaten
-	 * @param costsPerTick Sollen die Baukosten pro Tick (<code>true</code>) oder der Gesamtbetrag jetzt (<code>false</code>) abgezogen werden
-	 * @param testonly Soll nur getestet (true) oder wirklich gebaut (false) werden?
-	 * @return true, wenn kein Fehler aufgetreten ist
-	 */
-	public boolean buildShip( @NonNull SchiffBauinformationen build, boolean costsPerTick, boolean testonly ) {
-		StringBuilder output = MESSAGE.get();
-
-		if( this.type == WerftTyp.EINWEG )
-		{
-			output.append("Diese Werft kann nur ein einziges Bauprojekt durchführen");
-			return false;
-		}
-
-		if( !this.getBuildShipList().contains(build) )
-		{
-			output.append("Diese Werft dieses Bauprojekt nicht durchführen");
-			return false;
-		}
-		if(build.getBaudaten().getType().getShipClass() == ShipClasses.SCHUTZSCHILD){
-			for( Ship ship : this.getOwner().getShips() ){
-				if( ship.getTypeData().getShipClass() == ShipClasses.SCHUTZSCHILD){
-					output.append("Diese Station kann nur einmal existieren");
-					return false;
-				}
-			}
-
-			for( WerftQueueEntry entry : this.getBuildQueue() ){
-				if( entry.getBuildShipType().getShipClass() == ShipClasses.SCHUTZSCHILD){
-					output.append("Diese Station kann nur einmal existieren");
-					return false;
-				}
-			}
-		}
-
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-
-		Cargo cargo = new Cargo(this.getCargo(false));
-
-		ShipBaubar shipdata = build.getBaudaten();
-		if( (shipdata == null) ) {
-			return false;
-		}
-
-		//Resourcenbedarf angeben
-		boolean ok = true;
-
-		int e = this.getEnergy();
-
-		Cargo shipdataCosts = new Cargo(shipdata.getCosts());
-
-		if( !costsPerTick ) {
-			// Abzug der sofort anfallenden Baukosten
-			ResourceList reslist = shipdataCosts.compare( cargo, false );
-			for( ResourceEntry res : reslist ) {
-				if( res.getDiff() > 0 ) {
-					ok = false;
-					break;
-				}
-			}
-
-			// E-Kosten
-			if( shipdata.getEKosten() > this.getEnergy()) {
-				ok = false;
-			}
-		}
-
-		int frei = this.getCrew();
-
-		//Crew
-		if (shipdata.getCrew() > frei) {
-			ok = false;
-		}
-
-		if( !ok ) {
-			output.append("Nicht genug Material verf&uuml;gbar");
-
-			return false;
-		}
-		else if( testonly ) {
-			//Auf bestaetigung des "Auftrags" durch den Spieler warten
-
-			return true;
-		}
-		else {
-			frei -= shipdata.getCrew();
-
-			if( !costsPerTick ) {
-				cargo.substractCargo( shipdataCosts );
-				e -= shipdata.getEKosten();
-
-				this.setCargo(cargo, false);
-				this.setEnergy(e);
-			}
-			this.setCrew(frei);
-
-			/*
-				Werftauftrag einstellen
-			*/
-			ShipType type = shipdata.getType();
-
-			WerftQueueEntry entry = new WerftQueueEntry(this, type, build.getItem() != null ? build.getItem().getItemID() : -1, shipdata.getDauer(), shipdata.getWerftSlots());
-			entry.setBuildFlagschiff(shipdata.isFlagschiff());
-			if( entry.isBuildFlagschiff() ) {
-				this.buildFlagschiff = true;
-			}
-			if( costsPerTick ) {
-				shipdataCosts.multiply(1/(double)shipdata.getDauer(), Cargo.Round.CEIL);
-				entry.setCostsPerTick(shipdataCosts);
-				entry.setEnergyPerTick((int)Math.ceil(shipdata.getEKosten()/(double)shipdata.getDauer()));
-			}
-			db.persist(entry);
-			this.queue.add(entry);
-
-			rescheduleQueue();
-
-			return true;
-		}
 	}
 
 	/**
@@ -1628,20 +938,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		rescheduleQueue();
 	}
 
-	/**
-	 * Gibt den Bauschlangeneintrag mit der angegebenen Position zurueck.
-	 * @param position Die Position
-	 * @return Der Bauschlangeneintrag
-	 */
-	public @Nullable WerftQueueEntry getBuildQueueEntry(int position) {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
-		return (WerftQueueEntry)db.createQuery("from WerftQueueEntry where werft=:werft and position=:pos")
-			.setInteger("werft", this.getWerftID())
-			.setInteger("pos", position)
-			.uniqueResult();
-	}
-
 	@Override
 	public @NonNull Location getLocation() {
 		return new Location(getSystem(), getX(), getY());
@@ -1676,9 +972,9 @@ public abstract class WerftObject extends DSObject implements Locatable {
 
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		WerftObject[] werften = this.linkedWerft.getMembers();
+		List<WerftObject> werften = this.linkedWerft.getMembers();
 
-		if( werften.length < 3 ) {
+		if( werften.size() < 3 ) {
 			final WerftKomplex komplex = this.linkedWerft;
 
 			for (WerftObject aWerften : werften)
@@ -1688,7 +984,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 
 			// Die Werftauftraege der groessten Werft zuordnen oder
 			// (falls notwendig) loeschen
-			final WerftObject largest = werften[0].getWerftSlots() > werften[1].getWerftSlots() ? werften[0] : werften[1];
+			final WerftObject largest = werften.get(0).getWerftSlots() > werften.get(1).getWerftSlots() ? werften.get(0) : werften.get(1);
 
 			List<WerftQueueEntry> entries = komplex.getBuildQueue();
 			for (WerftQueueEntry entry : entries)
@@ -1707,18 +1003,18 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		else {
 			WerftKomplex komplex = this.linkedWerft;
 			this.linkedWerft = null;
+			komplex.getWerften().remove(this);
 
-			komplex.refresh();
 			komplex.rescheduleQueue();
 		}
 	}
 
-	protected void addQueueEntry(WerftQueueEntry entry)
+	public void addQueueEntry(WerftQueueEntry entry)
 	{
 		this.queue.add(entry);
 	}
 
-	protected void removeQueueEntry(WerftQueueEntry entry)
+	public void removeQueueEntry(WerftQueueEntry entry)
 	{
 		this.queue.remove(entry);
 	}
@@ -1738,6 +1034,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		}
 
 		this.linkedWerft = linkedWerft;
+		this.linkedWerft.getWerften().add(this);
 
 		List<WerftQueueEntry> entries = this.getBuildQueue();
 		for (WerftQueueEntry entry : entries)
@@ -1747,7 +1044,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			removeQueueEntry(entry);
 		}
 
-		linkedWerft.refresh();
 		this.linkedWerft.rescheduleQueue();
 	}
 
@@ -1806,24 +1102,18 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	public abstract boolean isLinkableWerft();
 
 	/**
-	 * Loescht die Werft und alle mit ihr verbundenen Auftraege.
-	 *
-	 */
-	public void destroy() {
-		if( getKomplex() != null ) {
-			removeFromKomplex();
-		}
-
-		Session db = ContextMap.getContext().getDB();
-		clearQueue();
-		db.delete(this);
-	}
-
-	/**
 	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
 	 */
 	public int getVersion() {
 		return this.version;
+	}
+
+	public WerftKomplex getLinkedWerft() {
+		return linkedWerft;
+	}
+
+	public void setLinkedWerft(WerftKomplex linkedWerft) {
+		this.linkedWerft = linkedWerft;
 	}
 }

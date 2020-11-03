@@ -91,7 +91,7 @@ public class StatVerkaeufe {
 	 * Setzt den Ort.
 	 * @param place Der Ort
 	 */
-	public final void setPlace(String place) {
+	public void setPlace(String place) {
 		this.place = place;
 	}
 
@@ -107,7 +107,7 @@ public class StatVerkaeufe {
 	 * Setzt die Verkaufsdaten.
 	 * @param stats Die Verkaufsdaten
 	 */
-	public final void setStats(Cargo stats) {
+	public void setStats(Cargo stats) {
 		this.stats = stats;
 	}
 
@@ -123,7 +123,7 @@ public class StatVerkaeufe {
 	 * Setzt das System.
 	 * @param system Das System
 	 */
-	public final void setSystem(int system) {
+	public void setSystem(int system) {
 		this.system = system;
 	}
 
@@ -139,7 +139,7 @@ public class StatVerkaeufe {
 	 * Setzt den Tick.
 	 * @param tick Der Tick
 	 */
-	public final void setTick(int tick) {
+	public void setTick(int tick) {
 		this.tick = tick;
 	}
 

@@ -52,7 +52,7 @@ public class ShipFlag
      * @param ship Das betroffene Schiff
      * @param remaining Die Anzahl der Ticks bis das Flag entfernt wird (-1 fuer unendlich)
      */
-    ShipFlag(int flagType, Ship ship, int remaining)
+    public ShipFlag(int flagType, Ship ship, int remaining)
     {
         this.flagType = flagType;
         this.remaining = remaining;

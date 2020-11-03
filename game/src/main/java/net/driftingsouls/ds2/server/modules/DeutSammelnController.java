@@ -32,11 +32,16 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.RedirectViewR
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.services.FleetMgmtService;
+import net.driftingsouls.ds2.server.services.ShipService;
+import net.driftingsouls.ds2.server.services.ShipActionService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -50,11 +55,20 @@ import java.util.List;
 public class DeutSammelnController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
+	private final ShipService shipService;
+	private final FleetMgmtService fleetMgmtService;
+	private final ShipActionService shipActionService;
+
+	@PersistenceContext
+	private EntityManager em;
 
 	@Autowired
-	public DeutSammelnController(TemplateViewResultFactory templateViewResultFactory)
+	public DeutSammelnController(TemplateViewResultFactory templateViewResultFactory, ShipService shipService, FleetMgmtService fleetMgmtService, ShipActionService shipActionService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.shipService = shipService;
+		this.fleetMgmtService = fleetMgmtService;
+		this.shipActionService = shipActionService;
 
 		setPageTitle("Deut. sammeln");
 	}
@@ -75,11 +89,11 @@ public class DeutSammelnController extends Controller
 		}
 		else
 		{
-			if (fleet.getOwner() != user)
+			if (fleetMgmtService.getOwner(fleet) != user)
 			{
 				throw new ValidierungException("Die angegebene Flotte existiert nicht", Common.buildUrl("default", "module", "schiffe"));
 			}
-			ships.addAll(fleet.getShips());
+			ships.addAll(fleetMgmtService.getShips(fleet));
 		}
 
 		return ships;
@@ -87,10 +101,8 @@ public class DeutSammelnController extends Controller
 
 	private Nebel ermittleNebelFuerSchiffsliste(List<Ship> schiffe)
 	{
-		org.hibernate.Session db = getDB();
-
 		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", schiffe.get(0).getId());
-		Nebel nebel = (Nebel) db.get(Nebel.class, new MutableLocation(schiffe.get(0)));
+		Nebel nebel = em.find(Nebel.class, new MutableLocation(schiffe.get(0)));
 		if (nebel == null)
 		{
 			throw new ValidierungException("Der Nebel befindet sich nicht im selben Sektor wie das Schiff", errorurl);
@@ -159,13 +171,14 @@ public class DeutSammelnController extends Controller
 		{
 			message.append(Common._plaintitle(aship.getName())).append(" (").append(aship.getId()).append("): ");
 
-			long saugdeut = aship.sammelDeuterium(nebel, e);
+			long saugdeut = shipService.sammelDeuterium(aship, nebel, e);
 			if (saugdeut <= 0)
 			{
 				message.append("Es konnte kein weiteres Deuterium gesammelt werden<br />");
 			}
 			else
 			{
+				shipActionService.recalculateShipStatus(aship);
 				message.append("<img src=\"").append(Cargo.getResourceImage(Resources.DEUTERIUM)).append("\" alt=\"\" />").append(saugdeut).append(" für <img src=\"./data/interface/energie.gif\" alt=\"Energie\" />").append(e).append(" gesammelt<br />");
 			}
 		}

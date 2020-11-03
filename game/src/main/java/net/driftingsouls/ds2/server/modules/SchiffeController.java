@@ -36,6 +36,11 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.RedirectViewR
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.services.CargoService;
+import net.driftingsouls.ds2.server.services.LocationService;
+import net.driftingsouls.ds2.server.services.NebulaService;
+import net.driftingsouls.ds2.server.services.ShipService;
+import net.driftingsouls.ds2.server.services.UserValueService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -46,9 +51,10 @@ import net.driftingsouls.ds2.server.werften.WerftObject;
 import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,11 +71,24 @@ public class SchiffeController extends Controller
 	private static final Log log = LogFactory.getLog(SchiffeController.class);
 
 	private final TemplateViewResultFactory templateViewResultFactory;
+	private final UserValueService userValueService;
+	private final NebulaService nebulaService;
+	private final LocationService locationService;
+	private final ShipService shipService;
+	private final CargoService cargoService;
+
+	@PersistenceContext
+	private EntityManager em;
 
 	@Autowired
-	public SchiffeController(TemplateViewResultFactory templateViewResultFactory)
+	public SchiffeController(TemplateViewResultFactory templateViewResultFactory, UserValueService userValueService, NebulaService nebulaService, LocationService locationService, ShipService shipService, CargoService cargoService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.userValueService = userValueService;
+		this.nebulaService = nebulaService;
+		this.locationService = locationService;
+		this.shipService = shipService;
+		this.cargoService = cargoService;
 	}
 
 	/**
@@ -83,7 +102,7 @@ public class SchiffeController extends Controller
 		if (mode.equals("carg") || mode.equals("norm"))
 		{
 			User user = (User)getUser();
-			user.setUserValue(WellKnownUserValue.TBLORDER_SCHIFFE_MODE, mode);
+			userValueService.setUserValue(user, WellKnownUserValue.TBLORDER_SCHIFFE_MODE, mode);
 		}
 
 		return new RedirectViewResult("default");
@@ -100,7 +119,7 @@ public class SchiffeController extends Controller
 		if (Common.inArray(order, new String[]{"id", "name", "type", "sys", "crew", "hull", "alarm", "e"}))
 		{
 			User user = (User)getUser();
-			user.setUserValue(WellKnownUserValue.TBLORDER_SCHIFFE_ORDER, order);
+			userValueService.setUserValue(user, WellKnownUserValue.TBLORDER_SCHIFFE_ORDER, order);
 		}
 
 		return new RedirectViewResult("default");
@@ -115,7 +134,7 @@ public class SchiffeController extends Controller
 	public RedirectViewResult changeJDockedAction(int showLJaeger)
 	{
 		User user = (User)getUser();
-		user.setUserValue(WellKnownUserValue.TBLORDER_SCHIFFE_SHOWJAEGER, showLJaeger);
+		userValueService.setUserValue(user, WellKnownUserValue.TBLORDER_SCHIFFE_SHOWJAEGER, showLJaeger);
 
 		return new RedirectViewResult("default");
 	}
@@ -129,7 +148,7 @@ public class SchiffeController extends Controller
 	public RedirectViewResult changeHandelsposten(boolean showHandelsposten)
 	{
 		User user = (User)getUser();
-		user.setUserValue(WellKnownUserValue.TBLORDER_SCHIFFE_SHOWHANDELSPOSTEN, showHandelsposten);
+		userValueService.setUserValue(user, WellKnownUserValue.TBLORDER_SCHIFFE_SHOWHANDELSPOSTEN, showHandelsposten);
 
 		return new RedirectViewResult("default");
 	}
@@ -149,7 +168,6 @@ public class SchiffeController extends Controller
 	public TemplateEngine defaultAction(String only, int low, int crewless, int listoffset, @UrlParam(name = "kampf_only") int kampfOnly)
 	{
 		TemplateEngine t = templateViewResultFactory.createFor(this);
-		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 
 		t.setVar("global.low", low,
@@ -157,9 +175,9 @@ public class SchiffeController extends Controller
 				"global.only", only,
 				"user.race", user.getRace());
 
-		String ord = user.getUserValue(WellKnownUserValue.TBLORDER_SCHIFFE_ORDER);
-		int showjaeger = user.getUserValue(WellKnownUserValue.TBLORDER_SCHIFFE_SHOWJAEGER);
-		boolean showHandelsposten = user.getUserValue(WellKnownUserValue.TBLORDER_SCHIFFE_SHOWHANDELSPOSTEN);
+		String ord = userValueService.getUserValue(user, WellKnownUserValue.TBLORDER_SCHIFFE_ORDER);
+		int showjaeger = userValueService.getUserValue(user, WellKnownUserValue.TBLORDER_SCHIFFE_SHOWJAEGER);
+		boolean showHandelsposten = userValueService.getUserValue(user, WellKnownUserValue.TBLORDER_SCHIFFE_SHOWHANDELSPOSTEN);
 
 		Map<String, String> ordermapper = new HashMap<>();
 		ordermapper.put("id", "s.id");
@@ -284,15 +302,13 @@ public class SchiffeController extends Controller
 			t.setVar("schiffe.prevoffset", listoffset - MAX_SHIPS_PER_PAGE);
 		}
 
-		List<?> ships = db.createQuery(query)
-				.setEntity("owner", user)
+		List<Ship> ships = em.createQuery(query, Ship.class)
+				.setParameter("owner", user)
 				.setMaxResults(MAX_SHIPS_PER_PAGE + 1)
 				.setFirstResult(listoffset)
-				.list();
-		for (Object ship1 : ships)
+				.getResultList();
+		for (Ship ship: ships)
 		{
-			Ship ship = (Ship) ship1;
-
 			t.start_record();
 
 			shiplistcount++;
@@ -303,12 +319,12 @@ public class SchiffeController extends Controller
 				break;
 			}
 
-			gibSchiffAus(only, low, t, db, ship);
+			gibSchiffAus(only, low, t, ship);
 		}
 		return t;
 	}
 
-	private void gibSchiffAus(String only, int low, TemplateEngine t, Session db, Ship ship)
+	private void gibSchiffAus(String only, int low, TemplateEngine t, Ship ship)
 	{
 		ShipTypeData shiptype = ship.getTypeData();
 
@@ -376,9 +392,9 @@ public class SchiffeController extends Controller
 
 		if (shiptype.getWerft() != 0)
 		{
-			WerftObject werft = (WerftObject) db.createQuery("from ShipWerft where ship=:ship")
-					.setEntity("ship", ship)
-					.uniqueResult();
+			WerftObject werft = em.createQuery("from ShipWerft where ship=:ship", WerftObject.class)
+					.setParameter("ship", ship)
+					.getSingleResult();
 			if (werft == null)
 			{
 				log.warn("Schiff " + ship.getId() + " hat keinen Werfteintrag");
@@ -420,8 +436,8 @@ public class SchiffeController extends Controller
 				"ship.battle", ship.getBattle() != null ? ship.getBattle().getId() : 0,
 				"ship.type", ship.getType(),
 				"ship.type.name", shiptype.getNickname(),
-				"ship.location", ship.getLocation().displayCoordinates(false),
-				"ship.location.url", ship.getLocation().urlFragment(),
+				"ship.location", locationService.displayCoordinates(ship.getLocation(), false),
+				"ship.location.url", locationService.urlFragment(ship.getLocation()),
 				"ship.e", Common.ln(ship.getEnergy()),
 				"ship.hull", Common.ln(ship.getHull()),
 				"ship.hullcolor", hullcolor,
@@ -452,7 +468,7 @@ public class SchiffeController extends Controller
 
 		if (ship.isDocked())
 		{
-			Ship master = ship.getBaseShip();
+			Ship master = shipService.getBaseShip(ship);
 			if (master != null)
 			{
 				t.setVar("ship.docked.name", master.getName(),
@@ -461,7 +477,7 @@ public class SchiffeController extends Controller
 		}
 		else if (ship.isLanded())
 		{
-			Ship master = ship.getBaseShip();
+			Ship master = shipService.getBaseShip(ship);
 			if (master != null)
 			{
 				t.setVar("ship.landed.name", master.getName(),
@@ -471,12 +487,12 @@ public class SchiffeController extends Controller
 
 		if (shiptype.getADocks() > 0)
 		{
-			t.setVar("ship.adocks.docked", ship.getDockedCount());
+			t.setVar("ship.adocks.docked", shipService.getDockedCount(ship));
 		}
 
 		if (shiptype.getJDocks() > 0)
 		{
-			t.setVar("ship.jdocks.docked", ship.getLandedCount());
+			t.setVar("ship.jdocks.docked", shipService.getLandedCount(ship));
 		}
 
 		if ((shiptype.getShipClass() == ShipClasses.AWACS) || (shiptype.getShipClass() == ShipClasses.FORSCHUNGSKREUZER))
@@ -485,7 +501,7 @@ public class SchiffeController extends Controller
 
 			if ((sensorrange > 0) && (ship.getCrew() >= shiptype.getMinCrew() / 3))
 			{
-				Nebel.Typ nebel = Nebel.getNebula(ship.getLocation());
+				Nebel.Typ nebel = nebulaService.getNebula(ship.getLocation());
 				if (nebel == null || nebel.allowsScan())
 				{
 					t.setVar("ship.longscan", 1,
@@ -519,11 +535,6 @@ public class SchiffeController extends Controller
 						color = "red";
 					}
 				}
-				/*if (res.getId().equals(Resources.BATTERIEN))
-				{
-					color = "";
-					wa--;
-				}*/
 				else if (!Common.inArray(res.getId(), new ResourceID[]{Resources.NAHRUNG, Resources.URAN, Resources.DEUTERIUM, Resources.ANTIMATERIE, Resources.BATTERIEN}))
 				{
 					color = "";
@@ -553,7 +564,7 @@ public class SchiffeController extends Controller
 
 		if (shiptype.getCargo() != 0)
 		{
-			t.setVar("ship.restcargo", Common.ln(shiptype.getCargo() - cargo.getMass()),
+			t.setVar("ship.restcargo", Common.ln(shiptype.getCargo() - cargoService.getMass(cargo)),
 					"ship.restcargo.show", 1);
 		}
 		if ((wa == 0) && (low != 0))
@@ -561,7 +572,7 @@ public class SchiffeController extends Controller
 			t.setVar("ship.e.none", 1);
 		}
 
-		UnitCargo unitcargo = ship.getUnits();
+		UnitCargo unitcargo = ship.getUnitCargo();
 
 		if (unitcargo != null && !unitcargo.isEmpty())
 		{

@@ -18,19 +18,18 @@
  */
 package net.driftingsouls.ds2.server.entities.ally;
 
-import net.driftingsouls.ds2.server.ContextCommon;
-import net.driftingsouls.ds2.server.config.Medals;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
+import net.driftingsouls.ds2.server.services.MedalService;
 import net.driftingsouls.ds2.server.config.Rang;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -68,8 +67,7 @@ public class Ally {
 	private Date founded;
 	private int tick;
 	@OneToOne(fetch=FetchType.LAZY, optional=false)
-	@JoinColumn(name="president", nullable=false)
-	@ForeignKey(name = "ally_fk_users")
+	@JoinColumn(name="president", nullable=false, foreignKey = @ForeignKey(name = "ally_fk_users"))
 	private User president;
 	@Lob
 	@Column(nullable = false)
@@ -118,13 +116,13 @@ public class Ally {
 	 * @param name Der Name der Allianz
 	 * @param president Der Praesident der Allianz
 	 */
-	public Ally(String name, User president) {
+	public Ally(String name, String plainname, User president, int tick) {
 		this.description = "";
 		this.hp = "";
 		this.allytag = "[name]";
 		this.pname = "Anführer";
 		this.founded = new Date();
-		this.tick = ContextMap.getContext().get(ContextCommon.class).getTick();
+		this.tick = tick;
 		this.showastis = true;
 		this.showGtuBieter = 1;
 		this.showlrs = 1;
@@ -133,7 +131,7 @@ public class Ally {
 		this.members = new HashSet<>();
 
 		this.name = name;
-		this.plainname = Common._titleNoFormat(name);
+		this.plainname = plainname;
 		this.president = president;
 		this.posten = new HashSet<>();
 	}
@@ -280,7 +278,10 @@ public class Ally {
 	 */
 	public void setName(String name) {
 		this.name = name;
-		this.plainname = Common._titleNoFormat(name);
+	}
+
+	public void setPlainname(String plainname) {
+		this.plainname = plainname;
 	}
 
 	/**
@@ -481,43 +482,5 @@ public class Ally {
 	public Set<AllyRangDescriptor> getRangDescriptors()
 	{
 		return this.rangDescriptors;
-	}
-
-	/**
-	 * Gibt die Liste aller bekannten Raenge dieser Allianz zurueck. Dies umfasst sowohl
-	 * die spezifischen Raenge dieser Allianz als auch alle allgemeinen Raenge ({@link Medals#raenge()}).
-	 * @return Die nach Rangnummer sortierte Liste der Rangbezeichnungen
-	 */
-	public SortedSet<Rang> getFullRangNameList()
-	{
-		SortedSet<Rang> result = new TreeSet<>();
-		for( AllyRangDescriptor rang : this.rangDescriptors )
-		{
-			result.add(new Rang(rang.getRang(), rang.getName(), rang.getImage()));
-		}
-
-		result.addAll(Medals.get().raenge().values());
-
-		return result;
-	}
-
-	/**
-	 * Gibt den Anzeigenamen fuer die angegebene Rangnummer zurueck.
-	 * Sofern die Allianz ueber eine eigene Bezeichnung verfuegt wird diese zurueckgegeben.
-	 * Andernfalls wird die globale Bezeichnung verwendet.
-	 * @param rangNr Die Rangnummer
-	 * @return Der Anzeigename
-	 */
-	public String getRangName(int rangNr)
-	{
-		for( AllyRangDescriptor rang : this.rangDescriptors )
-		{
-			if( rang.getRang() == rangNr )
-			{
-				return rang.getName();
-			}
-		}
-
-		return Medals.get().rang(rangNr).getName();
 	}
 }

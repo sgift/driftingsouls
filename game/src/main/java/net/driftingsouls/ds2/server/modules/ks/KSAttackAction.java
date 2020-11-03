@@ -33,13 +33,19 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.authentication.JavaSession;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.services.BattleService;
+import net.driftingsouls.ds2.server.services.ShipService;
+import net.driftingsouls.ds2.server.services.ShipActionService;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -52,7 +58,45 @@ import java.util.concurrent.ThreadLocalRandom;
  * @author Christopher Jung
  *
  */
+@Component
 public class KSAttackAction extends BasicKSAction {
+
+	private static final Log log = LogFactory.getLog(KSAttackAction.class);
+
+	private Weapon weapon;
+	private BattleShip ownShip;
+	private BattleShip enemyShip;
+	private Waffenbeschreibung localweapon;
+	private String weaponName;
+	private String attmode;
+
+	private final ShipService shipService;
+	private final ShipActionService shipActionService;
+
+	@Autowired
+	public KSAttackAction(BattleService battleService, JavaSession javaSession, ShipService shipService, ShipActionService shipActionService) {
+		super(battleService, (User)javaSession.getUser());
+		this.shipService = shipService;
+		this.shipActionService = shipActionService;
+	}
+
+	public void reset(Weapon weapon, String attMode) {
+		this.weapon = weapon;
+
+		this.requireOwnShipReady(true);
+
+		this.ownShip = null;
+		this.enemyShip = null;
+		this.localweapon = null;
+		this.weaponName = null;
+
+		this.attmode = attMode;
+		if( !this.attmode.equals("single") && !this.attmode.equals("alphastrike") && !this.attmode.equals("strafe") &&
+			!this.attmode.equals("alphastrike_max") && !this.attmode.equals("strafe_max") ) {
+			this.attmode = "single";
+		}
+	}
+
 	/**
 	 * Basisklasse fuer beim Feuern verwendete Waffenbeschreibungen.
 	 */
@@ -322,37 +366,6 @@ public class KSAttackAction extends BasicKSAction {
 		}
 	}
 
-	private final Weapon weapon;
-	private BattleShip ownShip;
-	private BattleShip enemyShip;
-	private Waffenbeschreibung localweapon;
-    private String weaponName;
-	private String attmode;
-
-	public KSAttackAction()
-    {
-        this(null, Weapons.get().weapon(ContextMap.getContext().getRequest().getParameterString("weapon")), ContextMap.getContext().getRequest().getParameterString("attmode"));
-	}
-
-    public KSAttackAction(User user, Weapon weapon, String attMode)
-    {
-        super(user);
-        this.weapon = weapon;
-
-        this.requireOwnShipReady(true);
-
-        this.ownShip = null;
-        this.enemyShip = null;
-        this.localweapon = null;
-        this.weaponName = null;
-
-        this.attmode = attMode;
-        if( !this.attmode.equals("single") && !this.attmode.equals("alphastrike") && !this.attmode.equals("strafe") &&
-                !this.attmode.equals("alphastrike_max") && !this.attmode.equals("strafe_max") ) {
-            this.attmode = "single";
-        }
-	}
-
     public BattleShip getAttackedShip()
     {
         return this.enemyShip;
@@ -380,14 +393,14 @@ public class KSAttackAction extends BasicKSAction {
 		List<BattleShip> enemyShips = battle.getEnemyShips();
 		for (BattleShip s : enemyShips)
 		{
-			if (s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == eShip.getId())
+			if (shipService.getBaseShip(s.getShip()) != null && shipService.getBaseShip(s.getShip()).getId() == eShip.getId())
 			{
         //Rettungskapseln sollen nicht zerstört werden, wenn sie gedockt/gelandet wurden
         if ( s.getShip().getTypeData().getShipClass() ==  ShipClasses.RETTUNGSKAPSEL)
         {
           //Den Offizier des Traegerschiffs identifizieren
           Offizier offizier;
-          offizier = s.getShip().getBaseShip().getOffizier();
+          offizier = shipService.getBaseShip(s.getShip()).getOffizier();
           
           //testen, ob es ueberhaupt einen Offizier zu retten gibt
           if (offizier != null)
@@ -399,11 +412,11 @@ public class KSAttackAction extends BasicKSAction {
           //jetzt Rettungskapsel starten/abdocken
           if(s.getShip().isLanded())
           {
-            s.getShip().getBaseShip().start(s.getShip());
+            shipService.start(shipService.getBaseShip(s.getShip()), s.getShip());
           }
           else
           {
-            s.getShip().getBaseShip().undock(s.getShip());
+            shipService.undock(shipService.getBaseShip(s.getShip()), s.getShip());
           }
           //die Kapsel hat das Traegerschiff verlassen
           //nun darf die Rettungskapsel fliehen und in die 2. Reihe
@@ -412,8 +425,8 @@ public class KSAttackAction extends BasicKSAction {
 
                
           //und jetzt raeumen wir noch auf
-          s.getShip().recalculateShipStatus();
-          s.getShip().getBaseShip().recalculateShipStatus();
+          shipActionService.recalculateShipStatus(s.getShip());
+			shipActionService.recalculateShipStatus(shipService.getBaseShip(s.getShip()));
 		
           }
         else
@@ -438,7 +451,7 @@ public class KSAttackAction extends BasicKSAction {
 		// Wurde mehr als ein Schiff zerstoert?
 		if( remove > 1 ) {
 			logMsg.append(remove - 1).append(" gedockte/gelandete Schiffe wurden bei der Explosion zerstört\n");
-			battle.logme( (remove-1)+" gedockte/gelandete Schiffe wurden bei der Explosion zerst&ouml;rt\n" );
+			getBattleService().logme(battle,  (remove-1)+" gedockte/gelandete Schiffe wurden bei der Explosion zerst&ouml;rt\n" );
     }
 	}
 
@@ -555,11 +568,11 @@ public class KSAttackAction extends BasicKSAction {
 			if( eShip.getShields() >= absSchaden*hit ) {
 				eShip.setShields(eShip.getShields() - absSchaden*hit);
 				if( eShip.getShields() == 0 ) {
-					battle.logme( "+ Schilde ausgefallen\n" );
+					getBattleService().logme(battle,  "+ Schilde ausgefallen\n" );
 					logMsg.append("+ Schilde ausgefallen\n");
 				}
 				else {
-					battle.logme( "+ Schaden (Schilde): "+Common.ln(hit*absSchaden)+"\n" );
+					getBattleService().logme(battle,  "+ Schaden (Schilde): "+Common.ln(hit*absSchaden)+"\n" );
 					logMsg.append("+ Schilde: ").append(Common.ln(hit * absSchaden)).append(" Schaden\n");
 				}
 				hit = 0;
@@ -567,7 +580,7 @@ public class KSAttackAction extends BasicKSAction {
 			else {
 				hit -= eShip.getShields()/absSchaden;
 				eShip.setShields(0);
-				battle.logme( "+ Schilde ausgefallen\n" );
+				getBattleService().logme(battle,  "+ Schilde ausgefallen\n" );
 				logMsg.append("+ Schilde ausgefallen\n");
 			}
 		}
@@ -578,7 +591,7 @@ public class KSAttackAction extends BasicKSAction {
 				int dmgThisTurn = eShip.getShip().getHull()-eShip.getHull()+hulldamage;
 				if( dmgThisTurn / (double)eShipType.getHull() > 0.25 ) {
 					int newhulldamage = (int)(Math.ceil(eShipType.getHull()*0.25) - (eShip.getShip().getHull()-eShip.getHull()));
-					battle.logme("+ Schiffsflag Schadensabsorption absorbiert Schaden ("+Common.ln(hulldamage-newhulldamage)+" dmg)\n");
+					getBattleService().logme(battle, "+ Schiffsflag Schadensabsorption absorbiert Schaden ("+Common.ln(hulldamage-newhulldamage)+" dmg)\n");
 					logMsg.append("+ Schiffsflag Schadensabsorption absorbiert Schaden  (").append(Common.ln(hulldamage - newhulldamage)).append(" dmg)\n");
 
 					hulldamage = newhulldamage;
@@ -598,7 +611,7 @@ public class KSAttackAction extends BasicKSAction {
 					damage = eShip.getAblativeArmor();
 				}
 
-				battle.logme( "+ Schaden (ablative Panzerung): "+Common.ln(damage)+"\n" );
+				getBattleService().logme(battle,  "+ Schaden (ablative Panzerung): "+Common.ln(damage)+"\n" );
 				logMsg.append("+ Hülle: ").append(Common.ln(damage)).append(" Schaden\n");
 
 				//Ablative Panzerung von VOR dem Treffer abziehen
@@ -617,7 +630,7 @@ public class KSAttackAction extends BasicKSAction {
 			if( eShipType.hasFlag(ShipTypeFlag.GOD_MODE ) ) {
 				if( eShip.getHull() - hulldamage < 1 ) {
 					hulldamage = eShip.getHull() - 1;
-					battle.logme("+ Schiff nicht zerstörbar\n");
+					getBattleService().logme(battle, "+ Schiff nicht zerstörbar\n");
 					logMsg.append("+ Schiff nicht zerstörbar\n");
 				}
 			}
@@ -633,7 +646,7 @@ public class KSAttackAction extends BasicKSAction {
 				//Hat die ablative Panzerung alles abgefangen?
 				if(hulldamage > 0)
 				{
-					battle.logme( "+ Schaden (Hülle): "+Common.ln(hulldamage)+"\n" );
+					getBattleService().logme(battle,  "+ Schaden (Hülle): "+Common.ln(hulldamage)+"\n" );
 					logMsg.append("+ Hülle: ").append(Common.ln(hulldamage)).append(" Schaden\n");
 				}
 
@@ -695,19 +708,19 @@ public class KSAttackAction extends BasicKSAction {
 
 						if (value > 0)
 						{
-							battle.logme("+ " + subsysteme_name.get(rnd) + ": " + Common.ln(subdmg) + " Schaden\n");
+							getBattleService().logme(battle, "+ " + subsysteme_name.get(rnd) + ": " + Common.ln(subdmg) + " Schaden\n");
 							logMsg.append("+ ").append(subsysteme_name.get(rnd)).append(": ").append(Common.ln(subdmg)).append(" Schaden\n");
 						}
 						else
 						{
-							battle.logme("+ " + subsysteme_name.get(rnd) + ": ausgefallen\n");
+							getBattleService().logme(battle, "+ " + subsysteme_name.get(rnd) + ": ausgefallen\n");
 							logMsg.append("+ ").append(subsysteme_name.get(rnd)).append(": ausgefallen\n");
 						}
 					}
 				}
 			}
 			else {
-				battle.logme( "[color=red]+ Schiff zerstört[/color]\n" );
+				getBattleService().logme(battle,  "[color=red]+ Schiff zerstört[/color]\n" );
 				logMsg.append("[color=red]+ Schiff zerstört[/color]\n");
 				if( !new ConfigService().getValue(WellKnownConfigValue.DESTROYABLE_SHIPS) ) {
 					if( eShip.getHull() < 1 ) {
@@ -729,7 +742,7 @@ public class KSAttackAction extends BasicKSAction {
 			}
 			if(eShip.hasFlag(BattleShipFlag.FLUCHT) && (eShip.getEngine() == 0) && (eShipType.getCost() > 0) ) {
 				eShip.removeFlag(BattleShipFlag.FLUCHT);
-				battle.logme( "+ Flucht gestoppt\n" );
+				getBattleService().logme(battle,  "+ Flucht gestoppt\n" );
 				logMsg.append("[color=red]+ Flucht gestoppt[/color]\n");
 			}
 		}
@@ -767,7 +780,7 @@ public class KSAttackAction extends BasicKSAction {
 			boolean item = itemlist.stream().anyMatch(i -> i.getItem() == munition);
 
 			if( !item ) {
-				battle.logme( "Sie verf&uuml;gen nicht &uuml;ber den angegebenen Munitionstyp\n" );
+				getBattleService().logme(battle,  "Sie verf&uuml;gen nicht &uuml;ber den angegebenen Munitionstyp\n" );
 				return null;
 			}
 
@@ -796,7 +809,7 @@ public class KSAttackAction extends BasicKSAction {
 			}
 
 			if( munitionsdefinition == null ) {
-				battle.logme( "Sie verf&uuml;gen &uuml;ber keine Munition\n" );
+				getBattleService().logme(battle,  "Sie verf&uuml;gen &uuml;ber keine Munition\n" );
 				return null;
 			}
 		}
@@ -812,11 +825,11 @@ public class KSAttackAction extends BasicKSAction {
 		}
 
 		if( ammoitem == null || ammoitem.getCount() <  weaponCount*this.weapon.getSingleShots() ) {
-			battle.logme( this.weapon.getName()+" k&ouml;nnen nicht abgefeuert werden, da nicht genug Munition f&uuml;r alle Gesch&uuml;tze vorhanden ist.\n" );
+			getBattleService().logme(battle,  this.weapon.getName()+" k&ouml;nnen nicht abgefeuert werden, da nicht genug Munition f&uuml;r alle Gesch&uuml;tze vorhanden ist.\n" );
 			return null;
 		}
 
-		battle.logme( "Feuere "+munitionsdefinition.getName()+" ab...\n" );
+		getBattleService().logme(battle,  "Feuere "+munitionsdefinition.getName()+" ab...\n" );
 
 		return new AmmoBasierteWaffenbeschreibung(this.weapon, munitionsdefinition, ammoitem, enemyShipType.getSize() <= ShipType.SMALL_SHIP_MAXSIZE);
 	}
@@ -1100,7 +1113,7 @@ public class KSAttackAction extends BasicKSAction {
 				{
 					continue;
 				}
-				else if (eship.isSecondRow())
+				else if (getBattleService().isSecondRow(eship))
 				{
 					continue;
 				}
@@ -1176,7 +1189,7 @@ public class KSAttackAction extends BasicKSAction {
 	}
 
 	private void calcADStep(StringBuilder logMsg, Battle battle, int navskill, BattleShip aeShip, int hit, int schaden, int shieldSchaden, double damagemod) {
-		battle.logme("\n"+aeShip.getName()+" ("+aeShip.getId()+"):\n");
+		getBattleService().logme(battle, "\n"+aeShip.getName()+" ("+aeShip.getId()+"):\n");
 		logMsg.append("\n").append(aeShip.getName()).append(" (").append(aeShip.getId()).append("):\n");
 
 		ShipTypeData aeShipType = aeShip.getTypeData();
@@ -1189,15 +1202,15 @@ public class KSAttackAction extends BasicKSAction {
 			int defensivskill = aeShip.getDefensiveValue();
 
 			int subWS = this.getTrefferWS(this.localweapon.getSubWs(), aeShip, aeShipType, defensivskill, navskill );
-			battle.logme( "SubsystemTWS: "+subWS+"%\n" );
+			getBattleService().logme(battle,  "SubsystemTWS: "+subWS+"%\n" );
 
 			int subPanzerung = tmppanzerung;
 			if( subPanzerung > 10 ) {
 				subPanzerung = 10;
-				battle.logme("Panzerung absorbiert Subsystemschaden\n");
+				getBattleService().logme(battle, "Panzerung absorbiert Subsystemschaden\n");
 			}
 			else if( subPanzerung > 0 ) {
-				battle.logme("Panzerung reduziert Subsystemschaden ("+(subPanzerung*10)+"%)\n");
+				getBattleService().logme(battle, "Panzerung reduziert Subsystemschaden ("+(subPanzerung*10)+"%)\n");
 			}
 
 			tmpsubdmgs = getSubDamages(subPanzerung, subWS, damagemod);
@@ -1302,7 +1315,7 @@ public class KSAttackAction extends BasicKSAction {
 
         if( !weaponList.containsKey(weaponName) )
         {
-            battle.logme("Ihr Schiff besitzt keine Waffen des Typs "+this.weapon.getName());
+            getBattleService().logme(battle, "Ihr Schiff besitzt keine Waffen des Typs "+this.weapon.getName());
             return Result.ERROR;
         }
 
@@ -1363,19 +1376,19 @@ public class KSAttackAction extends BasicKSAction {
 
         if( (ownShipType.getMinCrew() > 0) && (this.ownShip.getCrew() < ownShipType.getMinCrew()/2d) )
         {
-            battle.logme( "Nicht genug Besatzung, um mit der Waffe "+this.weapon.getName()+" zu feuern\n" );
+            getBattleService().logme(battle,  "Nicht genug Besatzung, um mit der Waffe "+this.weapon.getName()+" zu feuern\n" );
             return Result.ERROR;
         }
 
         if( this.ownShip.hasFlag(BattleShipFlag.DISABLE_WEAPONS) )
         {
-            battle.logme( "Das Schiff kann seine Waffen in diesem Kampf nicht mehr abfeuern\n" );
+            getBattleService().logme(battle,  "Das Schiff kann seine Waffen in diesem Kampf nicht mehr abfeuern\n" );
             return Result.ERROR;
         }
 
         if( this.ownShip.hasFlag(BattleShipFlag.BLOCK_WEAPONS) )
         {
-            battle.logme( "Sie k&ouml;nnen in dieser Runde keine Waffen mehr abfeuern\n" );
+            getBattleService().logme(battle,  "Sie k&ouml;nnen in dieser Runde keine Waffen mehr abfeuern\n" );
             return Result.ERROR;
         }
 
@@ -1400,25 +1413,25 @@ public class KSAttackAction extends BasicKSAction {
 
         if( !gotone )
         {
-            battle.logme( "Sie ben&ouml;tigen ein Drohnen-Kontrollschiff, um feuern zu k&ouml;nnen\n" );
+            getBattleService().logme(battle,  "Sie ben&ouml;tigen ein Drohnen-Kontrollschiff, um feuern zu k&ouml;nnen\n" );
             return Result.ERROR;
         }
 
         if( weapons <= 0 )
         {
-            battle.logme( "Das Schiff verf&uuml;gt nicht &uuml;ber die von ihnen gew&auml;hlte Waffe ("+weaponName+")\n" );
+            getBattleService().logme(battle,  "Das Schiff verf&uuml;gt nicht &uuml;ber die von ihnen gew&auml;hlte Waffe ("+weaponName+")\n" );
             return Result.ERROR;
         }
 
         if( this.ownShip.getShip().getEnergy() < this.weapon.getECost()*weapons )
         {
-            battle.logme( "Nicht genug Energie vorhanden, um mit der Waffe "+this.weapon.getName()+" zu feuern\n" );
+            getBattleService().logme(battle,  "Nicht genug Energie vorhanden, um mit der Waffe "+this.weapon.getName()+" zu feuern\n" );
             return Result.ERROR;
         }
 
         if(this.ownShip.getShip().isLanded())
         {
-            battle.logme( "Sie k&ouml;nnen nicht mit gelandeten Schiffen feuern\n" );
+            getBattleService().logme(battle,  "Sie k&ouml;nnen nicht mit gelandeten Schiffen feuern\n" );
             return Result.ERROR;
         }
 
@@ -1439,7 +1452,7 @@ public class KSAttackAction extends BasicKSAction {
 
 			for (int innerloop = 0; innerloop < sameShipLoop; innerloop++) {
 				if ((outerloop > 0) || (innerloop > 0)) {
-					battle.logme("\n[HR]");
+					getBattleService().logme(battle, "\n[HR]");
 					logMsg.append("\n");
 				}
 
@@ -1448,16 +1461,16 @@ public class KSAttackAction extends BasicKSAction {
 				if (this.ownShip.hasFlag(BattleShipFlag.SECONDROW) &&
 						!this.localweapon.isLongRange() &&
 						!this.localweapon.isVeryLongRange()) {
-					battle.logme(this.weapon.getName() + " haben nicht die notwendige Reichweite, um aus der zweiten Reihe heraus abgefeuert zu werden\n");
+					getBattleService().logme(battle, this.weapon.getName() + " haben nicht die notwendige Reichweite, um aus der zweiten Reihe heraus abgefeuert zu werden\n");
 					breakFlag = true;
 					result = Result.ERROR;
 					break;
 				}
 
-				battle.logme("Ziel: " + Battle.log_shiplink(this.enemyShip.getShip()) + "\n");
+				getBattleService().logme(battle, "Ziel: " + Battle.log_shiplink(this.enemyShip.getShip()) + "\n");
 
 				if (heat + weapons > maxheat) {
-					battle.logme(this.weapon.getName() + " k&ouml;nnen nicht abgefeuert werden, da diese sonst &uuml;berhitzen w&uuml;rden\n");
+					getBattleService().logme(battle, this.weapon.getName() + " k&ouml;nnen nicht abgefeuert werden, da diese sonst &uuml;berhitzen w&uuml;rden\n");
 					breakFlag = true;
 					result = Result.ERROR;
 					break;
@@ -1466,7 +1479,7 @@ public class KSAttackAction extends BasicKSAction {
 				if (!this.weapon.getMunitionstypen().isEmpty()) {
 					Cargo mycargo = this.ownShip.getCargo();
 					if (mycargo.getResourceCount(this.localweapon.getAmmoItem().getResourceID()) - this.localweapon.getCount() * this.weapon.getSingleShots() < 0) {
-						battle.logme(this.weapon.getName() + " k&ouml;nnen nicht abgefeuert werden, da nicht genug Munition vorhanden ist\n");
+						getBattleService().logme(battle, this.weapon.getName() + " k&ouml;nnen nicht abgefeuert werden, da nicht genug Munition vorhanden ist\n");
 						breakFlag = true;
 						result = Result.ERROR;
 						break;
@@ -1474,35 +1487,35 @@ public class KSAttackAction extends BasicKSAction {
 				}
 
 				if (this.ownShip.getShip().getEnergy() < this.weapon.getECost() * weapons) {
-					battle.logme("Nicht genug Energie vorhanden, um mit der Waffe " + this.weapon.getName() + " zu feuern\n");
+					getBattleService().logme(battle, "Nicht genug Energie vorhanden, um mit der Waffe " + this.weapon.getName() + " zu feuern\n");
 					breakFlag = true;
 					result = Result.ERROR;
 					break;
 				}
 
 				if (this.enemyShip.hasFlag(BattleShipFlag.DESTROYED)) {
-					battle.logme("Das angegebene Ziel ist bereits zerst&ouml;rt\n");
+					getBattleService().logme(battle, "Das angegebene Ziel ist bereits zerst&ouml;rt\n");
 					breakFlag = true;
 					result = Result.ERROR;
 					break;
 				}
 
 				if (this.enemyShip.hasFlag(BattleShipFlag.FLUCHT) && !ownShipType.hasFlag(ShipTypeFlag.ABFANGEN)) {
-					battle.logme("Ihr Schiff kann keine fl&uuml;chtenden Schiffe abfangen\n");
+					getBattleService().logme(battle, "Ihr Schiff kann keine fl&uuml;chtenden Schiffe abfangen\n");
 					breakFlag = true;
 					result = Result.ERROR;
 					break;
 				}
 
 				if (this.enemyShip.hasFlag(BattleShipFlag.SECONDROW) && !this.localweapon.isVeryLongRange()) {
-					battle.logme("Ihre Waffen k&ouml;nnen das angegebene Ziel nicht erreichen\n");
+					getBattleService().logme(battle, "Ihre Waffen k&ouml;nnen das angegebene Ziel nicht erreichen\n");
 					breakFlag = true;
 					result = Result.ERROR;
 					break;
 				}
 
 				if (this.enemyShip.hasFlag(BattleShipFlag.JOIN)) {
-					battle.logme("Sie k&ouml;nnen nicht auf einem Schiff feuern, das gerade erst der Schlacht beitritt\n");
+					getBattleService().logme(battle, "Sie k&ouml;nnen nicht auf einem Schiff feuern, das gerade erst der Schlacht beitritt\n");
 					breakFlag = true;
 					result = Result.ERROR;
 					break;
@@ -1510,7 +1523,7 @@ public class KSAttackAction extends BasicKSAction {
 
 				for (BattleShip battleship : battle.getEnemyShips()) {
 					if (battleship.getShip().getTypeData().hasFlag(ShipTypeFlag.SCHUTZSCHILD) && !this.enemyShip.getTypeData().hasFlag(ShipTypeFlag.SCHUTZSCHILD)) {
-						battle.logme("Sie m&uuml;ssen zuerst den Schutzschild zerstören\n");
+						getBattleService().logme(battle, "Sie m&uuml;ssen zuerst den Schutzschild zerstören\n");
 						result = Result.ERROR;
 						break outer;
 					}
@@ -1522,10 +1535,10 @@ public class KSAttackAction extends BasicKSAction {
 				int antitorptrefferws = this.getAntiTorpTrefferWS(enemyShipType, this.enemyShip);
 
 				if (antitorptrefferws > 0) {
-					battle.logme("Anti-Torp.-Treffer-WS: " + this.getTWSText(antitorptrefferws) + "%\n");
+					getBattleService().logme(battle, "Anti-Torp.-Treffer-WS: " + this.getTWSText(antitorptrefferws) + "%\n");
 				}
 				if (fighterdef > 0) {
-					battle.logme("Verteidigung durch Schiffe: " + this.getTWSText(fighterdef) + "%\n");
+					getBattleService().logme(battle, "Verteidigung durch Schiffe: " + this.getTWSText(fighterdef) + "%\n");
 				}
 
 				ownShipType = this.ownShip.getTypeData();
@@ -1540,9 +1553,9 @@ public class KSAttackAction extends BasicKSAction {
 				int defensivskill = enemyShip.getDefensiveValue();
 
 				if (battle.getCommander(ownShip.getSide()).hasFlag(UserFlag.KS_DEBUG)) {
-					battle.logme("Offensivskill: " + offensivskill + "\n");
-					battle.logme("Navigationsskill: " + navskill + "\n");
-					battle.logme("Defensivskill: " + defensivskill + "\n");
+					getBattleService().logme(battle, "Offensivskill: " + offensivskill + "\n");
+					getBattleService().logme(battle, "Navigationsskill: " + navskill + "\n");
+					getBattleService().logme(battle, "Defensivskill: " + defensivskill + "\n");
 				}
 
 				/*
@@ -1603,7 +1616,7 @@ public class KSAttackAction extends BasicKSAction {
 				 */
 				if (battle.getBetakStatus(battle.getOwnSide()) && !enemyShipType.isMilitary()) {
 					battle.setBetakStatus(battle.getOwnSide(), false);
-					battle.logme("[color=red][b]Sie haben die BETAK-Konvention verletzt[/b][/color]\n\n");
+					getBattleService().logme(battle, "[color=red][b]Sie haben die BETAK-Konvention verletzt[/b][/color]\n\n");
 					logMsg.append("[color=red][b]Die BETAK-Konvention wurde verletzt[/b][/color]\n\n");
 				}
 
@@ -1625,7 +1638,7 @@ public class KSAttackAction extends BasicKSAction {
 				 * 	Wenn das angreifende Schiff auch zerstoert werden muss tun wir das jetzt mal
 				 */
 				if (this.localweapon.isDestroyAfter()) {
-					battle.logme("[color=red]+ Angreifer zerst&ouml;rt[/color]\n");
+					getBattleService().logme(battle, "[color=red]+ Angreifer zerst&ouml;rt[/color]\n");
 					logMsg.append("[color=red]+ Angreifer zerstört[/color]\n");
 
 					if (new ConfigService().getValue(WellKnownConfigValue.DESTROYABLE_SHIPS)) {
@@ -1655,7 +1668,7 @@ public class KSAttackAction extends BasicKSAction {
 
         if( !firstentry )
         {
-			battle.log(new SchlachtLogAktion(battle.getOwnSide(), logMsg.toString()));
+			getBattleService().log(battle, new SchlachtLogAktion(battle.getOwnSide(), logMsg.toString()));
         }
 
         if( !battle.getEnemyShip(oldenemyship).hasFlag(BattleShipFlag.DESTROYED) )
@@ -1663,7 +1676,7 @@ public class KSAttackAction extends BasicKSAction {
             battle.setEnemyShipIndex(oldenemyship);
         }
 
-        this.ownShip.getShip().recalculateShipStatus();
+		shipActionService.recalculateShipStatus(ownShip.getShip());
 
         return result;
     }
@@ -1712,7 +1725,7 @@ public class KSAttackAction extends BasicKSAction {
 		{
 			int rnd = ThreadLocalRandom.current().nextInt(1,101);
 			if( battle.getCommander(ownShip.getSide()).hasFlag( UserFlag.KS_DEBUG )) {
-				battle.logme( i + ". Schuss: " + rnd + "%\n");
+				getBattleService().logme(battle,  i + ". Schuss: " + rnd + "%\n");
 			}
 			if( rnd <= trefferWS )
 			{
@@ -1739,11 +1752,11 @@ public class KSAttackAction extends BasicKSAction {
 				def++;
 			}
 		}
-		battle.logme( this.weapon.getName()+": "+hit+" von "+ gesamtSchuesse +" Sch&uuml;ssen haben getroffen\n" );
+		getBattleService().logme(battle,  this.weapon.getName()+": "+hit+" von "+ gesamtSchuesse +" Sch&uuml;ssen haben getroffen\n" );
 		logMsg.append(Battle.log_shiplink(this.ownShip.getShip())).append(" feuert auf ").append(Battle.log_shiplink(this.enemyShip.getShip())).append("\n+ Waffe: ").append(this.localweapon.getName()).append("\n");
 		if( this.localweapon.getDestroyable() > 0 && (def != 0) )
 		{
-			battle.logme( this.weapon.getName()+": "+def+" von "+ gesamtSchuesse +" Sch&uuml;ssen wurden abgefangen\n" );
+			getBattleService().logme(battle,  this.weapon.getName()+": "+def+" von "+ gesamtSchuesse +" Sch&uuml;ssen wurden abgefangen\n" );
 			logMsg.append("+ ").append(this.weapon.getName()).append(": ").append(def).append(" von ").append(gesamtSchuesse).append(" Schüssen wurden abgefangen\n");
 		}
 		return hit;
@@ -1761,22 +1774,22 @@ public class KSAttackAction extends BasicKSAction {
 		{
 			int subWS = this.getTrefferWS(this.localweapon.getSubWs(), this.enemyShip, enemyShipType, defensivskill, navskill );
 			if( battle.getCommander(ownShip.getSide()).hasFlag( UserFlag.KS_DEBUG )) {
-				battle.logme( "Subsystem-TWS: "+ subWS +"%\n" );
+				getBattleService().logme(battle,  "Subsystem-TWS: "+ subWS +"%\n" );
 			}
 			else
 			{
-				battle.logme( "Subsystem-TWS: "+ this.getTWSText(subWS) +"\n");
+				getBattleService().logme(battle,  "Subsystem-TWS: "+ this.getTWSText(subWS) +"\n");
 			}
 
 			int subPanzerung = panzerung;
 			if( subPanzerung > 10 )
 			{
 				subPanzerung = 10;
-				battle.logme("Panzerung absorbiert Subsystemschaden\n");
+				getBattleService().logme(battle, "Panzerung absorbiert Subsystemschaden\n");
 			}
 			else if( subPanzerung > 0 )
 			{
-				battle.logme("Panzerung reduziert Subsystemschaden ("+(subPanzerung*10)+"%)\n");
+				getBattleService().logme(battle, "Panzerung reduziert Subsystemschaden ("+(subPanzerung*10)+"%)\n");
 			}
 
 			subdmgs = this.getSubDamages( subPanzerung, subWS, 1);
@@ -1792,13 +1805,13 @@ public class KSAttackAction extends BasicKSAction {
         if(useBattleLog)
         {
             if( battle.getCommander(ownShip.getSide()).hasFlag( UserFlag.KS_DEBUG )) {
-                battle.logme( "Basis-Treffer-WS: "+ trefferWS +"%\n");
-                battle.logme( "Jäger-Torp.-Verteidigung: "+ fighterdef +"%\n");
-                battle.logme( "Anti-Torp.-Treffer-WS: "+ antitorptrefferws +"%\n");
+                getBattleService().logme(battle,  "Basis-Treffer-WS: "+ trefferWS +"%\n");
+                getBattleService().logme(battle,  "Jäger-Torp.-Verteidigung: "+ fighterdef +"%\n");
+                getBattleService().logme(battle,  "Anti-Torp.-Treffer-WS: "+ antitorptrefferws +"%\n");
             }
             else
             {
-                battle.logme( "Basis-Treffer-WS: "+ this.getTWSText(trefferWS) +"\n");
+                getBattleService().logme(battle,  "Basis-Treffer-WS: "+ this.getTWSText(trefferWS) +"\n");
             }
         }
 
@@ -1813,11 +1826,11 @@ public class KSAttackAction extends BasicKSAction {
             }
 		}
 		if( battle.getCommander(ownShip.getSide()).hasFlag( UserFlag.KS_DEBUG )) {
-			battle.logme( "Treffer-WS: "+ trefferWS +"%\n" );
+			getBattleService().logme(battle,  "Treffer-WS: "+ trefferWS +"%\n" );
 		}
 		else
 		{
-			battle.logme( "Treffer-WS: "+ this.getTWSText(trefferWS) +"\n");
+			getBattleService().logme(battle,  "Treffer-WS: "+ this.getTWSText(trefferWS) +"\n");
 		}
 		return trefferWS;
 	}
@@ -1851,6 +1864,4 @@ public class KSAttackAction extends BasicKSAction {
 		}
 		return answer;
 	}
-
-    private static final Log log = LogFactory.getLog(KSAttackAction.class);
 }

@@ -20,12 +20,14 @@ package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
+import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.authentication.JavaSession;
+import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.services.BattleService;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.List;
@@ -33,30 +35,19 @@ import java.util.stream.Collectors;
 
 /**
  * Berechnet das Waffenfeuer für eine ganze Gruppe an Schiffen im KS.
- *
  */
+@Component
 public class KSGroupAttackAction extends BasicKSAction {
+    private final KSAttackAction attackAction;
 
-    /**
-     * Konstruktor.
-     *
-     */
-    public KSGroupAttackAction()
-    {
-        this(null);
-    }
-
-    public KSGroupAttackAction(User user)
-    {
-        super(user);
-
+    public KSGroupAttackAction(BattleService battleService, JavaSession javaSession, KSAttackAction attackAction) {
+        super(battleService, (User) javaSession.getUser());
         this.requireOwnShipReady(true);
-
+        this.attackAction = attackAction;
     }
 
     @Override
-    public Result execute(TemplateEngine t, Battle battle) throws IOException
-    {
+    public Result execute(TemplateEngine t, Battle battle) throws IOException {
         int typeid = battle.getOwnShip().getTypeData().getTypeId();
         int enemytypeid = battle.getEnemyShip().getTypeData().getTypeId();
 
@@ -65,38 +56,33 @@ public class KSGroupAttackAction extends BasicKSAction {
         BattleShip activeShip = battle.getShipByID(activeShipID);
 
         List<BattleShip> togoShips = battle.getOwnShips().stream().filter(bship -> bship.getTypeData().getTypeId() == typeid).collect(Collectors.toList());
-        battle.logme(togoShips.size() + " Schiffe zu feuern.\n");
+        getBattleService().logme(battle, togoShips.size() + " Schiffe zu feuern.\n");
 
-        for(BattleShip aship : togoShips)
-        {
+        for (BattleShip aship : togoShips) {
             BattleShip enemyShip = battle.getEnemyShip();
             battle.setFiringShip(aship.getShip());
-            battle.logme("Schiff: "+Battle.log_shiplink(aship.getShip())+"\n");
+            getBattleService().logme(battle, "Schiff: " + Battle.log_shiplink(aship.getShip()) + "\n");
 
-            if(enemyShip.getTypeData().getTypeId() != enemytypeid)
-            {
+            if (enemyShip.getTypeData().getTypeId() != enemytypeid) {
                 break;
             }
-            KSAttackAction act = new KSAttackAction();
-            act.setController(getController());
-            Result result = act.execute(t, battle);
+            attackAction.setController(getController());
+            var weapon = Weapons.get().weapon(ContextMap.getContext().getRequest().getParameterString("weapon"));
+            var attackMode = ContextMap.getContext().getRequest().getParameterString("attmode");
+            attackAction.reset(weapon, attackMode);
+            Result result = attackAction.execute(t, battle);
 
-            if(result == Result.HALT)
-            {
-                if (activeShip != null)
-                {
+            if (result == Result.HALT) {
+                if (activeShip != null) {
                     battle.setFiringShip(activeShip.getShip());
                 }
                 return result;
             }
         }
-        if (activeShip != null)
-        {
+        if (activeShip != null) {
             battle.setFiringShip(activeShip.getShip());
         }
 
         return Result.OK;
     }
-
-    private static final Log log = LogFactory.getLog(KSGroupAttackAction.class);
 }

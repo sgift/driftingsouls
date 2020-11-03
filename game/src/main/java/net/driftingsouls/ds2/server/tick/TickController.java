@@ -19,21 +19,20 @@
 package net.driftingsouls.ds2.server.tick;
 
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
+import net.driftingsouls.ds2.server.framework.pipeline.Error;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,7 +40,9 @@ import java.util.Map;
  * @author Christopher Jung
  *
  */
-public abstract class TickController implements ApplicationContextAware
+@Lazy
+@Transactional
+public abstract class TickController
 {
 	private static final Log log = LogFactory.getLog(TickController.class);
 
@@ -53,8 +54,9 @@ public abstract class TickController implements ApplicationContextAware
 	private final long exectime;
 
 	private final Map<String,Writer> logTargets;
-	private Session db;
-	private Context context;
+
+	private final List<Error> errors;
+
 	/**
 	 * Erstellt eine neue Instanz.
 	 */
@@ -62,14 +64,7 @@ public abstract class TickController implements ApplicationContextAware
 	{
 		logTargets = new HashMap<>();
 		exectime = System.currentTimeMillis();
-
-	}
-
-	@Override
-	public void setApplicationContext(@NotNull ApplicationContext applicationContext)
-	{
-		this.db = HibernateUtil.getSessionFactory().openSession();
-		this.context = new TickContext(db, null, null, applicationContext);
+		errors = new ArrayList<>();
 	}
 
 	/**
@@ -85,8 +80,6 @@ public abstract class TickController implements ApplicationContextAware
 				// EMPTY
 			}
 		}
-
-		db.close();
 	}
 
 	/**
@@ -107,15 +100,15 @@ public abstract class TickController implements ApplicationContextAware
 		try {
 			log("-----------------"+Common.date("d.m.Y H:i:s")+"-------------------");
 			prepare();
-			if( getErrorList().length == 0 ) {
+			if(errors.isEmpty()) {
 				tick();
 			}
 
-			if( getErrorList().length > 0 ) {
+			if(!errors.isEmpty()) {
 				log("");
 				log("Fehlerliste:");
 
-				for( net.driftingsouls.ds2.server.framework.pipeline.Error error : getErrorList() ) {
+				for(Error error: errors) {
 					slog("* ");
 					log(error.getDescription());
 				}
@@ -141,7 +134,7 @@ public abstract class TickController implements ApplicationContextAware
 				logTargets.get(i).flush();
 			}
 			catch( IOException e ) {
-				System.err.println("Fehler beim Schreiben - schliesse Handler: "+e);
+				log.error("Fehler beim Schreiben - schliesse Handler", e);
 				try{
 					removeLogTarget(i);
 				}
@@ -208,29 +201,7 @@ public abstract class TickController implements ApplicationContextAware
 		return true;
 	}
 
-	/**
-	 * Gibt den aktuellen Context zurueck.
-	 * @return der Kontext
-	 */
-	public Context getContext()
-	{
-		return context;
-	}
-
-	/**
-	 * Gibt die Hibernate DB-Session des Kontexts zurueck.
-	 * @return die DB-Session
-	 */
-	public Session getDB()
-	{
-		return db;
-	}
-
-	/**
-	 * Gibt die Fehlerliste des Kontexts zurueck.
-	 * @return die Fehlerliste
-	 */
-	public net.driftingsouls.ds2.server.framework.pipeline.Error[] getErrorList() {
-		return context.getErrorList();
+	protected void addError(Error error) {
+		errors.add(error);
 	}
 }

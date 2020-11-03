@@ -18,18 +18,15 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
-import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.MutableLocation;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.services.DismantlingService;
+import net.driftingsouls.ds2.server.services.ShipService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.Ships;
-import org.hibernate.Session;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -59,45 +56,6 @@ import java.util.stream.Collectors;
 @Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @BatchSize(size=50)
 public class Nebel implements Locatable {
-	/**
-	 * Gibt den Nebeltyp an der angegebenen Position zurueck. Sollte sich an der Position kein
-	 * Nebel befinden, wird <code>null</code> zurueckgegeben.
-	 * @param loc Die Position
-	 * @return Der Nebeltyp oder <code>null</code>
-	 */
-	@SuppressWarnings("unchecked")
-	public static synchronized Typ getNebula(Location loc) {
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-
-		// Hibernate cachet nur Ergebnisse, die nicht leer waren.
-		// Da es jedoch viele Positionen ohne Nebel gibt wuerden viele Abfragen
-		// mehrfach durchgefuehrt. Daher wird in der Session vermerkt, welche
-		// Positionen bereits geprueft wurden
-
-		Set<Location> emptySpace = (Set<Location>)context.getVariable(Ships.class, "getNebula(Location)#EmptySpace");
-		if( emptySpace == null ) {
-			emptySpace = new HashSet<>();
-			context.putVariable(Ships.class, "getNebula(Location)#EmptySpace", emptySpace);
-		}
-		if(!emptySpace.contains(loc) ) {
-			Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(loc));
-			if( nebel == null ) {
-				emptySpace.add(loc);
-				return null;
-			}
-
-			return nebel.getType();
-		}
-
-		if(emptySpace.contains(loc)) {
-			return null;
-		}
-
-		Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(loc));
-		return nebel.getType();
-	}
-
 	/**
 	 * Nebeltyp.
 	 */
@@ -296,23 +254,19 @@ public class Nebel implements Locatable {
 		 *
 		 * @param ship The ship to be damaged.
 		 */
-		public void damageShip(Ship ship, ConfigService config) {
-			damageShip(ship, config, ContextMap.getContext().getDB());
-		}
-
-		public void damageShip(Ship ship, ConfigService config, Session db) {
+		public void damageShip(Ship ship, ConfigService config, ShipService shipService, DismantlingService dismantlingService) {
 			// Currently only damage nebula do damage and we only have one type of damage nebula
 			// so no different effects
 			if(this != DAMAGE) {
 				return;
 			}
 
-			double shieldDamageFactor = config.getValue(db, WellKnownConfigValue.NEBULA_DAMAGE_SHIELD)/100.d;
-			double ablativeDamageFactor = config.getValue(db, WellKnownConfigValue.NEBULA_DAMAGE_ABLATIVE)/100.d;
-			double hullDamageFactor = config.getValue(db, WellKnownConfigValue.NEBULA_DAMAGE_HULL)/100.d;
-			double subsystemDamageFactor = config.getValue(db, WellKnownConfigValue.NEBULA_DAMAGE_SUBSYSTEM)/100.d;
+			double shieldDamageFactor = config.getValue(WellKnownConfigValue.NEBULA_DAMAGE_SHIELD)/100.d;
+			double ablativeDamageFactor = config.getValue(WellKnownConfigValue.NEBULA_DAMAGE_ABLATIVE)/100.d;
+			double hullDamageFactor = config.getValue(WellKnownConfigValue.NEBULA_DAMAGE_HULL)/100.d;
+			double subsystemDamageFactor = config.getValue(WellKnownConfigValue.NEBULA_DAMAGE_SUBSYSTEM)/100.d;
 
-			damageInternal(ship, 1.0d, shieldDamageFactor, ablativeDamageFactor, hullDamageFactor, subsystemDamageFactor);
+			damageInternal(shipService, dismantlingService, ship, 1.0d, shieldDamageFactor, ablativeDamageFactor, hullDamageFactor, subsystemDamageFactor);
 		}
 
 		/**
@@ -321,7 +275,7 @@ public class Nebel implements Locatable {
 		 * @param ship Ship to damage
 		 * @param globalDamageFactor Dampens initial damage to this ship (needed for docked ships, which should not take more damage than their carrier)
 		 */
-		private void damageInternal(Ship ship, double globalDamageFactor, double shieldDamageFactor, double ablativeDamageFactor, double hullDamageFactor, double subsystemDamageFactor) {
+		private void damageInternal(ShipService shipService, DismantlingService dismantlingService, Ship ship, double globalDamageFactor, double shieldDamageFactor, double ablativeDamageFactor, double hullDamageFactor, double subsystemDamageFactor) {
 			/*
 			Damage is applied according to the following formula ("ship type" always includes modules here):
 			- Find the maximum shield of this ship type
@@ -367,8 +321,8 @@ public class Nebel implements Locatable {
 			ship.setAblativeArmor(ablativeRemaining);
 
 			// No more shields left to save them -> also damage docked ships
-			for (Ship dockedShip : ship.getDockedShips()) {
-				damageInternal(dockedShip, shieldOverflowFactor, shieldDamageFactor, ablativeDamageFactor, hullDamageFactor, subsystemDamageFactor);
+			for (Ship dockedShip : shipService.getDockedShips(ship)) {
+				damageInternal(shipService, dismantlingService, dockedShip, shieldOverflowFactor, shieldDamageFactor, ablativeDamageFactor, hullDamageFactor, subsystemDamageFactor);
 			}
 
 			//No damage left after ablative armor
@@ -383,7 +337,7 @@ public class Nebel implements Locatable {
 			int hullDamage = (int)Math.floor(shipType.getHull() * hullDamageFactor * ablativeOverflowFactor);
 			int hullRemaining = ship.getHull() - hullDamage;
 			if(hullRemaining <= 0) {
-				ship.destroy();
+				dismantlingService.destroy(ship);
 				return;
 			} else {
 				ship.setHull(hullRemaining);

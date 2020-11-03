@@ -47,7 +47,7 @@ public class UnitsDefault implements SchiffPlugin {
 		TemplateEngine t = caller.t;
 		t.setFile("_PLUGIN_"+pluginid, "schiff.unitcargo.default.html");
 
-		UnitCargo unitcargo = ship.getUnits();
+		UnitCargo unitcargo = ship.getUnitCargo();
 		
 		t.setBlock("_UNITS","schiff.unitcargo.reslist.listitem","schiff.unitcargo.reslist.list");
 

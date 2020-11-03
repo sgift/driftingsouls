@@ -7,6 +7,7 @@ import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.admin.editoren.HtmlUtils;
+import org.springframework.stereotype.Component;
 
 /**
  * Ein Tool, um die diversen globalen Konfigurationswerte zu aendern.
@@ -14,10 +15,10 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.HtmlUtils;
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Sonstiges", name = "Configwerte editieren", permission = WellKnownAdminPermission.EDIT_CONFIG_VALUES)
+@Component
 public class EditConfigValues implements AdminPlugin
 {
 	@Override
-	@SuppressWarnings("unchecked")
 	public void output(StringBuilder echo)
 	{
 		Context context = ContextMap.getContext();

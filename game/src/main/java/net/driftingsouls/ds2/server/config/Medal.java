@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.config;
 
+import net.driftingsouls.ds2.server.services.MedalService;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -133,15 +135,5 @@ public class Medal {
 	public void setImageSmall(String imageSmall)
 	{
 		this.imageSmall = imageSmall;
-	}
-
-	/**
-	 * Konvertiert die angegebene ID in einen Orden.
-	 * @param medalId Die ID
-	 * @return Der Orden oder <code>null</code>
-	 */
-	public static Medal valueOf(String medalId)
-	{
-		return Medals.get().medal(Integer.parseInt(medalId));
 	}
 }

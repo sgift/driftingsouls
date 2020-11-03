@@ -22,8 +22,11 @@ import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.battles.BattleShipFlag;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.services.BattleService;
+import net.driftingsouls.ds2.server.services.ShipService;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.List;
@@ -33,12 +36,17 @@ import java.util.List;
  * @author Christopher Jung
  *
  */
+@Component
 public class KSFluchtSingleAction extends BasicKSAction {
+	private final ShipService shipService;
+
 	/**
 	 * Konstruktor.
 	 *
 	 */
-	public KSFluchtSingleAction() {
+	public KSFluchtSingleAction(BattleService battleService, ShipService shipService) {
+		super(battleService, null);
+		this.shipService = shipService;
 		this.requireOwnShipReady(true);
 	}
 	
@@ -52,29 +60,29 @@ public class KSFluchtSingleAction extends BasicKSAction {
 		BattleShip ownShip = battle.getOwnShip();
 
 		if( ownShip.hasFlag(BattleShipFlag.DESTROYED) ) {
-			battle.logme( "Dieses Schiff explodiert am Ende der Runde\n" );
+			getBattleService().logme(battle, "Dieses Schiff explodiert am Ende der Runde\n" );
 			return Result.ERROR;
 		}
 	
 		if( ownShip.getShip().getEngine() == 0 ) {
-			battle.logme( "Das Schiff kann nicht fliehen, da der Antrieb zerst&ouml;rt ist\n" );
+			getBattleService().logme(battle, "Das Schiff kann nicht fliehen, da der Antrieb zerst&ouml;rt ist\n" );
 			return Result.ERROR;
 		}
 		
 		if( ownShip.getShip().isDocked() || ownShip.getShip().isLanded()) {
-			battle.logme( "Sie k&ouml;nnen nicht mit gedockten/gelandeten Schiffen fliehen\n" );
+			getBattleService().logme(battle, "Sie k&ouml;nnen nicht mit gedockten/gelandeten Schiffen fliehen\n" );
 			return Result.ERROR;
 		}
 	
 		if( ownShip.getEngine() <= 0 ) {
-			battle.logme( "Das Schiff kann nicht fliehen, da der Antrieb zerst&ouml;rt ist\n" );
+			getBattleService().logme(battle, "Das Schiff kann nicht fliehen, da der Antrieb zerst&ouml;rt ist\n" );
 			return Result.ERROR;
 		}
 		
 		ShipTypeData ownShipType = ownShip.getTypeData();
 		 
 		if( (ownShipType.getMinCrew() > 0) && (ownShip.getCrew() < (int)(ownShipType.getMinCrew()/4d)) ) {
-			battle.logme( "Nicht genug Crew um zu fliehen\n" );
+			getBattleService().logme(battle, "Nicht genug Crew um zu fliehen\n" );
 			return Result.ERROR;
 		}		
 		
@@ -96,11 +104,11 @@ public class KSFluchtSingleAction extends BasicKSAction {
 		}
 		
 		if( !gotone ) {
-			battle.logme( "Sie ben&ouml;tigen ein Drohnen-Kontrollschiff um fliehen zu k&ouml;nnen\n" );
+			getBattleService().logme(battle, "Sie ben&ouml;tigen ein Drohnen-Kontrollschiff um fliehen zu k&ouml;nnen\n" );
 			return Result.ERROR;
 		}
 
-		battle.logme( ownShip.getName()+" wird n&auml;chste Runde fl&uuml;chten\n" );
+		getBattleService().logme(battle, ownShip.getName()+" wird n&auml;chste Runde fl&uuml;chten\n" );
 			
 		ownShip.addFlag(BattleShipFlag.FLUCHTNEXT);
 
@@ -108,7 +116,7 @@ public class KSFluchtSingleAction extends BasicKSAction {
 		List<BattleShip> ownShips = battle.getOwnShips();
 		for (BattleShip s : ownShips)
 		{
-			if (s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == ownShip.getId())
+			if (shipService.getBaseShip(s.getShip()) != null && shipService.getBaseShip(s.getShip()).getId() == ownShip.getId())
 			{
 				s.addFlag(BattleShipFlag.FLUCHTNEXT);
 
@@ -117,7 +125,7 @@ public class KSFluchtSingleAction extends BasicKSAction {
 		}
 		
 		if( remove > 1 ) {
-			battle.logme( (remove-1)+" an "+ownShip.getName()+" gedockte Schiffe werden n&auml;chste Runde fliehen\n" );
+			getBattleService().logme(battle, (remove-1)+" an "+ownShip.getName()+" gedockte Schiffe werden n&auml;chste Runde fliehen\n" );
 		}
 	
 		return Result.OK;

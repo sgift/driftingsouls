@@ -18,8 +18,7 @@
  */
 package net.driftingsouls.ds2.server.cargo;
 
-import org.hibernate.HibernateException;
-import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.type.StringType;
 import org.hibernate.usertype.UserType;
 
@@ -36,7 +35,7 @@ import java.sql.SQLException;
  */
 public class HibernateCargoType implements UserType {
 	@Override
-	public Object assemble(Serializable cached, Object owner) throws HibernateException {
+	public Object assemble(Serializable cached, Object owner) {
 		if( cached == null ) {
 			return null;
 		}
@@ -44,7 +43,7 @@ public class HibernateCargoType implements UserType {
 	}
 
 	@Override
-	public Object deepCopy(Object value) throws HibernateException {
+	public Object deepCopy(Object value) {
 		if( value == null ) {
 			return null;
 		}
@@ -53,7 +52,7 @@ public class HibernateCargoType implements UserType {
 	}
 
 	@Override
-	public Serializable disassemble(Object value) throws HibernateException {
+	public Serializable disassemble(Object value) {
 		if( value == null ) {
 			return null;
 		}
@@ -62,23 +61,18 @@ public class HibernateCargoType implements UserType {
 	}
 
 	@Override
-	public boolean equals(Object x, Object y) throws HibernateException {
+	public boolean equals(Object x, Object y) {
 		return x.equals(y);
 	}
 
 	@Override
-	public int hashCode(Object x) throws HibernateException {
+	public int hashCode(Object x) {
 		return x.hashCode();
 	}
 
 	@Override
-	public boolean isMutable() {
-		return true;
-	}
-
-	@Override
-	public Object nullSafeGet(ResultSet rs, String[] names, SessionImplementor impl, Object owner) throws HibernateException, SQLException {
-		String value = StringType.INSTANCE.nullSafeGet(rs, names[0], impl);
+	public Object nullSafeGet(ResultSet rs, String[] names, SharedSessionContractImplementor session, Object owner) throws SQLException {
+		String value = StringType.INSTANCE.nullSafeGet(rs, names[0], session);
 
 		if( (value == null) || value.isEmpty() ) {
 			return new Cargo();
@@ -87,15 +81,19 @@ public class HibernateCargoType implements UserType {
 	}
 
 	@Override
-	public void nullSafeSet(PreparedStatement st, Object value, int index, SessionImplementor impl) throws HibernateException, SQLException {
+	public void nullSafeSet(PreparedStatement st, Object value, int index, SharedSessionContractImplementor session) throws SQLException {
 		if( value == null ) {
 			value = new Cargo();
 		}
-		StringType.INSTANCE.nullSafeSet(st, ((Cargo)value).save(), index, impl);
+		StringType.INSTANCE.nullSafeSet(st, ((Cargo)value).save(), index, session);
 	}
 
 	@Override
-	public Object replace(Object original, Object target, Object owner) throws HibernateException {
+	public boolean isMutable() {
+		return true;
+	}
+	@Override
+	public Object replace(Object original, Object target, Object owner) {
 		return ((Cargo)original).clone();
 	}
 

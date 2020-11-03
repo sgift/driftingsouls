@@ -18,9 +18,12 @@
  */
 package net.driftingsouls.ds2.server.tasks;
 
-import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.services.DismantlingService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import org.springframework.stereotype.Service;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 /**
  * TASK_SHIP_DESTROY_COUNTDOWN
@@ -34,16 +37,25 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class HandleShipDestroyCountdown implements TaskHandler {
+	@PersistenceContext
+	private EntityManager em;
+
+	private final TaskManager taskManager;
+	private final DismantlingService dismantlingService;
+
+	public HandleShipDestroyCountdown(TaskManager taskManager, DismantlingService dismantlingService) {
+		this.taskManager = taskManager;
+		this.dismantlingService = dismantlingService;
+	}
 
 	@Override
 	public void handleEvent(Task task, String event) {	
 		if( event.equals("tick_timeout") ) {
-			org.hibernate.Session db = ContextMap.getContext().getDB();
-			Ship ship = (Ship)db.get(Ship.class, Integer.parseInt(task.getData1()));
+			Ship ship = em.find(Ship.class, Integer.parseInt(task.getData1()));
 			
-			ship.destroy();
+			dismantlingService.destroy(ship);
 			
-			Taskmanager.getInstance().removeTask( task.getTaskID() );
+			taskManager.removeTask( task.getTaskID() );
 		}
 	}
 

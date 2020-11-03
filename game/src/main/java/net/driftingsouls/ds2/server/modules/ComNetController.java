@@ -19,7 +19,8 @@
 package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.ContextCommon;
-import net.driftingsouls.ds2.server.config.Medals;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
+import net.driftingsouls.ds2.server.services.MedalService;
 import net.driftingsouls.ds2.server.config.Rang;
 import net.driftingsouls.ds2.server.entities.ComNetChannel;
 import net.driftingsouls.ds2.server.entities.ComNetEntry;
@@ -38,8 +39,9 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -53,11 +55,18 @@ import java.util.Map;
 public class ComNetController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
+	private final BBCodeParser bbCodeParser;
+	private final MedalService medalService;
+
+	@PersistenceContext
+	private EntityManager em;
 
 	@Autowired
-	public ComNetController(TemplateViewResultFactory templateViewResultFactory)
+	public ComNetController(TemplateViewResultFactory templateViewResultFactory, BBCodeParser bbCodeParser, MedalService medalService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.bbCodeParser = bbCodeParser;
+		this.medalService = medalService;
 
 		setPageTitle("Com-Net");
 	}
@@ -86,7 +95,7 @@ public class ComNetController extends Controller
 		User user = (User) getUser();
 
 		t.setVar("channel.id", channel.getId(),
-				"channel.name", Common._title(channel.getName()));
+				"channel.name", Common._title(bbCodeParser, channel.getName()));
 
 		if (back < 0)
 		{
@@ -154,15 +163,15 @@ public class ComNetController extends Controller
 				}
 				else
 				{
-					head = Common._title(head);
+					head = Common._title(bbCodeParser, head);
 				}
 
-				String text = Smilie.parseSmilies(Common._text(entry.getText()));
+				String text = Smilie.parseSmilies(Common._text(bbCodeParser, entry.getText()));
 
 				t.setVar("post.pic", entry.getPic(),
 						"post.postid", entry.getPost(),
 						"post.id", entry.getUser().getId(),
-						"post.name", Common._title(entry.getName()),
+						"post.name", Common._title(bbCodeParser, entry.getName()),
 						"post.time", Common.date("d.m.Y H:i:s", entry.getTime()),
 						"post.title", head,
 						"post.text", text,
@@ -195,11 +204,10 @@ public class ComNetController extends Controller
 		validiereComNetChannel(channel);
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
-		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 
 		t.setVar("channel.id", channel.getId(),
-				"channel.name", Common._title(channel.getName()));
+				"channel.name", Common._title(bbCodeParser, channel.getName()));
 
 		t.setVar("show.read", 1);
 		if (!channel.isReadable(user, this))
@@ -244,11 +252,11 @@ public class ComNetController extends Controller
 
 		int i = 0;
 
-		List<?> postList = db.createQuery("from ComNetEntry where channel= :channel order by post desc")
-				.setEntity("channel", channel)
+		List<?> postList = em.createQuery("from ComNetEntry where channel= :channel order by post desc", ComNetEntry.class)
+				.setParameter("channel", channel)
 				.setFirstResult(back)
 				.setMaxResults(10)
-				.list();
+				.getResultList();
 		for (Object aPostList : postList)
 		{
 			ComNetEntry post = (ComNetEntry) aPostList;
@@ -258,7 +266,7 @@ public class ComNetController extends Controller
 			String head = post.getHead();
 			String text = post.getText();
 
-			text = Smilie.parseSmilies(Common._text(text));
+			text = Smilie.parseSmilies(Common._text(bbCodeParser, text));
 
 			if (head.length() == 0)
 			{
@@ -266,14 +274,14 @@ public class ComNetController extends Controller
 			}
 			else
 			{
-				head = Common._title(head);
+				head = Common._title(bbCodeParser, head);
 			}
 
 			t.setVar("post", post,
-					"post.user.rang.name", Medals.get().rang(post.getUser().getRang()).getName(),
-					"post.user.rang.image", Medals.get().rang(post.getUser().getRang()).getImage(),
+					"post.user.rang.name", medalService.rang(post.getUser().getRang()).getName(),
+					"post.user.rang.image", medalService.rang(post.getUser().getRang()).getImage(),
 					"post.postid", postNumber,
-					"post.name", Common._title(post.getName()),
+					"post.name", Common._title(bbCodeParser, post.getName()),
 					"post.time", Common.date("d.m.Y H:i:s", post.getTime()),
 					"post.title", head,
 					"post.text", text,
@@ -300,10 +308,9 @@ public class ComNetController extends Controller
 
 		User user = (User) getUser();
 		TemplateEngine t = templateViewResultFactory.createFor(this);
-		org.hibernate.Session db = getDB();
 
 		t.setVar("channel.id", channel.getId(),
-				"channel.name", Common._title(channel.getName()));
+				"channel.name", Common._title(bbCodeParser, channel.getName()));
 
 		if (!channel.isWriteable(user, this))
 		{
@@ -314,7 +321,7 @@ public class ComNetController extends Controller
 		ComNetEntry entry = new ComNetEntry(user, channel);
 		entry.setHead(head);
 		entry.setText(text);
-		db.persist(entry);
+		em.persist(entry);
 
 		t.setVar("show.submit", 1);
 		return t;
@@ -333,7 +340,7 @@ public class ComNetController extends Controller
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 
 		t.setVar("channel.id", channel.getId(),
-				"channel.name", Common._title(channel.getName()));
+				"channel.name", Common._title(bbCodeParser, channel.getName()));
 
 		if (!channel.isWriteable(user, this))
 		{
@@ -362,20 +369,20 @@ public class ComNetController extends Controller
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 
 		t.setVar("channel.id", channel.getId(),
-				"channel.name", Common._title(channel.getName()));
+				"channel.name", Common._title(bbCodeParser, channel.getName()));
 
 		if (!channel.isWriteable(user, this))
 		{
 			throw new ValidierungException("Sie sind nicht berechtigt auf dieser Frequenz zu senden", Common.buildUrl("default", "channel", channel.getId()));
 		}
 
-		String tmpText = Smilie.parseSmilies(Common._text(text));
-		String tmpHead = Common._title(head);
+		String tmpText = Smilie.parseSmilies(Common._text(bbCodeParser, text));
+		String tmpHead = Common._title(bbCodeParser, head);
 
 		//Aktuellen Tick ermitteln
 		int tick = getContext().get(ContextCommon.class).getTick();
 
-		Rang userRank = Medals.get().rang(user.getRang());
+		Rang userRank = medalService.rang(user.getRang());
 		t.setVar("show.vorschau", 1,
 				"show.inputform", 1,
 				"post.title", tmpHead,
@@ -386,7 +393,7 @@ public class ComNetController extends Controller
 				"user", user,
 				"user.rang.name", userRank.getName(),
 				"user.rang.image", userRank.getImage(),
-				"post.name", Common._title(user.getName()),
+				"post.name", Common._title(bbCodeParser, user.getName()),
 				"post.id", user.getId(),
 				"post.pic", user.getId(),
 				"post.allypic", user.getAlly() != null ? user.getAlly().getId() : 0,
@@ -403,16 +410,15 @@ public class ComNetController extends Controller
 	public TemplateEngine defaultAction(ComNetChannel channel)
 	{
 		TemplateEngine t = templateViewResultFactory.createFor(this);
-		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 
 		if (channel == null)
 		{
-			channel = (ComNetChannel) db.get(ComNetChannel.class, 1);
+			channel = em.find(ComNetChannel.class, 1);
 		}
 
 		t.setVar("channel.id", channel.getId(),
-				"channel.name", Common._title(channel.getName()));
+				"channel.name", Common._title(bbCodeParser, channel.getName()));
 
 		t.setVar("show.channellist", 1);
 
@@ -429,9 +435,9 @@ public class ComNetController extends Controller
 		// Letzte "Besuche" auslesen
 		Map<ComNetChannel, ComNetVisit> visits = new HashMap<>();
 
-		List<?> visitList = db.createQuery("from ComNetVisit where user= :user")
-				.setEntity("user", user)
-				.list();
+		List<ComNetVisit> visitList = em.createQuery("from ComNetVisit where user= :user", ComNetVisit.class)
+				.setParameter("user", user)
+				.getResultList();
 		for (Object aVisitList : visitList)
 		{
 			ComNetVisit avisit = (ComNetVisit) aVisitList;
@@ -442,11 +448,9 @@ public class ComNetController extends Controller
 
 		Ally lastowner = null;
 
-		Iterator<?> chnlIter = db.createQuery("from ComNetChannel order by allyOwner.id").iterate();
-		while (chnlIter.hasNext())
+		List<ComNetChannel> channels = em.createQuery("from ComNetChannel order by allyOwner.id", ComNetChannel.class).getResultList();
+		for(ComNetChannel achannel: channels)
 		{
-			ComNetChannel achannel = (ComNetChannel) chnlIter.next();
-
 			t.start_record();
 
 			if (!achannel.isReadable(user, this))
@@ -474,15 +478,15 @@ public class ComNetController extends Controller
 			{
 				visit = new ComNetVisit(user, achannel);
 				visit.setTime(0);
-				db.persist(visit);
+				em.persist(visit);
 			}
 
 			t.setVar("thischannel.id", achannel.getId(),
-					"thischannel.name", Common._title(achannel.getName()));
+					"thischannel.name", Common._title(bbCodeParser, achannel.getName()));
 
-			Long lastpost = (Long) db.createQuery("select max(time) from ComNetEntry where channel= :channel")
-					.setEntity("channel", achannel)
-					.iterate().next();
+			Long lastpost = em.createQuery("select max(time) from ComNetEntry where channel= :channel", Long.class)
+					.setParameter("channel", achannel)
+					.getSingleResult();
 
 			if (lastpost == null)
 			{

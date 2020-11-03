@@ -21,14 +21,25 @@ package net.driftingsouls.ds2.server.bases;
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
-import net.driftingsouls.ds2.server.cargo.*;
+import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.ResourceEntry;
+import net.driftingsouls.ds2.server.cargo.ResourceID;
+import net.driftingsouls.ds2.server.cargo.ResourceList;
+import net.driftingsouls.ds2.server.cargo.Resources;
+import net.driftingsouls.ds2.server.cargo.Transfer;
+import net.driftingsouls.ds2.server.cargo.Transfering;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.entities.*;
+import net.driftingsouls.ds2.server.entities.Academy;
+import net.driftingsouls.ds2.server.entities.Factory;
+import net.driftingsouls.ds2.server.entities.Feeding;
+import net.driftingsouls.ds2.server.entities.Forschungszentrum;
+import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
+import net.driftingsouls.ds2.server.entities.Offizier;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.units.BaseUnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargoEntry;
@@ -36,16 +47,39 @@ import net.driftingsouls.ds2.server.werften.BaseWerft;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.CallbackException;
 import org.hibernate.Session;
-import org.hibernate.annotations.*;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+import org.hibernate.annotations.Type;
 import org.hibernate.classic.Lifecycle;
 
 import javax.persistence.CascadeType;
-import javax.persistence.*;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.persistence.Version;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -55,13 +89,13 @@ import java.util.stream.Collectors;
  * @author Christopher Jung
  */
 @Entity
-@Table(name="bases")
+@Table(name="bases", indexes = {
+	@Index(name = "owner", columnList = "owner, id"),
+	@Index(name = "coords", columnList = "x, y, system"),
+	@Index(name="idx_feeding", columnList = "isfeeding")
+})
 @Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 @BatchSize(size=50)
-@org.hibernate.annotations.Table(
-	appliesTo = "bases",
-	indexes = {@Index(name="owner", columnNames = {"owner", "id"}), @Index(name="coords", columnNames = {"x", "y", "system"})}
-)
 public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feeding
 {
 	@Id @GeneratedValue
@@ -69,8 +103,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	@Column(nullable = false)
 	private String name;
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
-	@JoinColumn(name="owner", nullable=false)
-	@ForeignKey(name="bases_fk_users")
+	@JoinColumn(name="owner", nullable=false, foreignKey = @ForeignKey(name="bases_fk_users"))
 	private User owner;
 	private int x;
 	private int y;
@@ -87,12 +120,10 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	@Column(name="maxcargo", nullable = false)
 	private long maxCargo;
 	@ManyToOne
-	@JoinColumn
-	@ForeignKey(name="bases_fk_core")
+	@JoinColumn(foreignKey = @ForeignKey(name="bases_fk_core"))
 	private Core core;
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
-	@JoinColumn(name="klasse", nullable=false)
-	@ForeignKey(name="bases_fk_basetypes")
+	@JoinColumn(name="klasse", nullable=false, foreignKey = @ForeignKey(name="bases_fk_basetypes"))
 	private BaseType klasse;
 	private int width;
 	private int height;
@@ -118,20 +149,16 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	@Lob
 	private String spawnressavailable;
 	private boolean isloading;
-	@Index(name="idx_feeding")
 	private boolean isfeeding;
 
 	@OneToOne(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH, CascadeType.REMOVE})
-	@JoinColumn
-	@ForeignKey(name="bases_fk_academy")
+	@JoinColumn(foreignKey = @ForeignKey(name="bases_fk_academy"))
 	private Academy academy;
 	@OneToOne(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH, CascadeType.REMOVE})
-	@JoinColumn
-	@ForeignKey(name="bases_fk_fz")
+	@JoinColumn(foreignKey = @ForeignKey(name="bases_fk_fz"))
 	private Forschungszentrum forschungszentrum;
 	@OneToOne(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH, CascadeType.REMOVE})
-	@JoinColumn
-	@ForeignKey(name="bases_fk_werften")
+	@JoinColumn(foreignKey = @ForeignKey(name="bases_fk_werften"))
 	private BaseWerft werft;
 	@OneToMany(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH, CascadeType.REMOVE})
 	@JoinColumn(name="col")
@@ -1171,34 +1198,6 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	}
 
 	/**
-	 * Transfers crew from the asteroid to a ship.
-	 *
-	 * @param ship Ship that gets the crew.
-	 * @param amount People that should be transfered.
-	 * @return People that where transfered.
-	 */
-	public int transferCrew(Ship ship, int amount)
-	{
-		//Check ship position
-		if( !getLocation().sameSector(this.size, ship, 0))
-		{
-			return 0;
-		}
-
-		//Only workless people can be transfered, when there is enough space on the ship
-		int maxAmount = ship.getTypeData().getCrew() - ship.getCrew();
-		int workless = Math.max(getBewohner() - getArbeiter(), 0);
-		amount = Math.min(amount, maxAmount);
-		amount = Math.min(amount, workless);
-		ship.setCrew(ship.getCrew() + amount);
-		setBewohner(getBewohner() - amount);
-
-		ship.recalculateShipStatus();
-
-		return amount;
-	}
-
-	/**
 	 * Gibt die Werft der Basis zurueck.
 	 *
 	 * @return <code>null</code>, wenn die Basis keine Werft hat, ansonsten das Objekt.
@@ -1216,49 +1215,6 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	public boolean hasShipyard()
 	{
 		return getShipyard() != null;
-	}
-
-	/**
-	 * Gibt das userspezifische Bild der Basis zurueck. Falls es kein spezielles Bild
-	 * fuer den angegebenen Benutzer gibt wird <code>null</code> zurueckgegeben.
-	 *
-	 * @param location Koordinate fuer die das Bild der Basis ermittelt werden soll.
-	 * @param user Aktueller Spieler.
-	 * @param scanned <code>true</code>, wenn die Basis derzeit von einem Schiff des Spielers gescannt werden kann.
-	 * @return Der Bildstring der Basis oder <code>null</code>
-	 */
-	public String getOverlayImage(Location location, User user, boolean scanned)
-	{
-		if(!location.sameSector(0, getLocation(), size))
-		{
-			return null;
-		}
-
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		User nobody = (User)db.get(User.class, -1);
-		User zero = (User)db.get(User.class, 0);
-
-		if(size > 0)
-		{
-			return null;
-		}
-		else if(getOwner().getId() == user.getId())
-		{
-			return "data/starmap/asti_own/asti_own.png";
-		}
-		else if(((getOwner().getId() != 0) && (user.getAlly() != null) && (getOwner().getAlly() == user.getAlly()) && user.getAlly().getShowAstis()) ||
-				user.getRelations().isOnly(owner, User.Relation.FRIEND))
-		{
-			return "data/starmap/asti_ally/asti_ally.png";
-		}
-		else if(scanned && !getOwner().equals(nobody) && !getOwner().equals(zero))
-		{
-			return "data/starmap/asti_enemy/asti_enemy.png";
-		}
-		else
-		{
-			return null;
-		}
 	}
 
 	/**
@@ -1297,8 +1253,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	@Override
 	public long getNahrungCargo()
 	{
-		Cargo cargo = this.getCargo();
-		return cargo.getResourceCount(Resources.NAHRUNG);
+		return getCargo().getResourceCount(Resources.NAHRUNG);
 	}
 
 	/**
@@ -1309,9 +1264,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	@Override
 	public void setNahrungCargo(long newFood)
 	{
-		Cargo cargo = this.getCargo();
 		cargo.setResource(Resources.NAHRUNG, newFood);
-		this.setCargo(cargo);
 	}
 
 	/**
@@ -1336,39 +1289,6 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		Cargo produktion = status.getProduction();
 
 		return produktion.getResourceCount( Resources.NAHRUNG );
-	}
-
-	/**
-	 * Gibt zurueck, wie viel diese Basis an Nahrung bei sich behalten muss um alle Schiffe im Sektor versorgen zu koennen.
-	 * @return Die Nahrung die die Basis behalten muss
-	 */
-	public long getSaveNahrung()
-	{
-		if(!isLoading())
-		{
-			return cargo.getResourceCount(Resources.NAHRUNG);
-		}
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		long savenahrung = 0;
-
-		List<?> ships = db.createQuery("from Ship fetch all properties where owner=:owner and system=:sys and x=:x and y=:y")
-								.setEntity("owner", getOwner())
-								.setInteger("sys", getSystem())
-								.setInteger("x", getX())
-								.setInteger("y", getY())
-								.list();
-
-		for (Object ship1 : ships)
-		{
-			Ship ship = (Ship) ship1;
-			savenahrung += ship.getFoodConsumption();
-		}
-
-		if(savenahrung > cargo.getResourceCount(Resources.NAHRUNG))
-		{
-			savenahrung = cargo.getResourceCount(Resources.NAHRUNG);
-		}
-		return savenahrung;
 	}
 
 	/**

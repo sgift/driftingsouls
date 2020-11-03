@@ -19,20 +19,27 @@
 package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.services.PmService;
+import net.driftingsouls.ds2.server.services.ShipActionService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 
 /**
@@ -41,14 +48,22 @@ import java.util.List;
  * @author Christopher Jung
  */
 @Module(name = "tc")
+@Component
 public class TCController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
 
-	@Autowired
-	public TCController(TemplateViewResultFactory templateViewResultFactory)
+	@PersistenceContext
+	private EntityManager em;
+
+	private final PmService pmService;
+	private final ShipActionService shipActionService;
+
+	public TCController(TemplateViewResultFactory templateViewResultFactory, PmService pmService, ShipActionService shipActionService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.pmService = pmService;
+		this.shipActionService = shipActionService;
 
 		setPageTitle("Offizierstransfer");
 	}
@@ -111,7 +126,6 @@ public class TCController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine shipToShipAction(Ship ship, String conf, int off, @UrlParam(name = "target") Ship tarShip)
 	{
-		org.hibernate.Session db = getDB();
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
 
@@ -142,11 +156,10 @@ public class TCController extends Controller
 			throw new ValidierungException("Das Zielschiff befindet sich in einer Schlacht", Common.buildUrl("default", "module", "schiffe"));
 		}
 
-		long officount = ((Number) db.createQuery("select count(*) from Offizier where stationiertAufSchiff=:dest AND owner=:owner")
-				.setEntity("dest", ship)
-				.setEntity("owner", user)
-				.iterate().next()
-		).longValue();
+		long officount = em.createQuery("select count(*) from Offizier where stationiertAufSchiff=:dest AND owner=:owner", Long.class)
+				.setParameter("dest", ship)
+				.setParameter("owner", user)
+				.getSingleResult();
 
 		if (officount == 0)
 		{
@@ -175,11 +188,10 @@ public class TCController extends Controller
 			maxoffis = tarShipType.getCrew();
 		}
 
-		long tarOffiCount = ((Number) db.createQuery("select count(*) from Offizier where stationiertAufSchiff=:dest AND owner=:owner")
-				.setEntity("dest", tarShip)
-				.setEntity("owner", tarShip.getOwner())
-				.iterate().next()
-		).longValue();
+		long tarOffiCount =  em.createQuery("select count(*) from Offizier where stationiertAufSchiff=:dest AND owner=:owner", Long.class)
+		.setParameter("dest", tarShip)
+		.setParameter("owner", tarShip.getOwner())
+		.getSingleResult();
 		if (tarOffiCount >= maxoffis)
 		{
 			throw new ValidierungException("Das Schiff hat bereits die maximale Anzahl Offiziere an Bord", errorurl);
@@ -229,12 +241,12 @@ public class TCController extends Controller
 		offizier.stationierenAuf(tarShip);
 		offizier.setOwner(tarUser);
 
-		ship.recalculateShipStatus();
-		tarShip.recalculateShipStatus();
+		shipActionService.recalculateShipStatus(ship);
+		shipActionService.recalculateShipStatus(tarShip);
 		
 		if(tarUser != user){
 			String msg = "Die " + ship.getName() + " ("+ship.getId()+") hat den Offizier " + offizier.getName() + " (" + offizier.getID() + ") an die [ship="+tarShip.getId()+"]"+tarShip.getName() + " ("+tarShip.getId()+")[/ship] &uuml;bergeben.";
-			PM.send(user, tarUser.getId(), "Offizier &uuml;bergeben", msg);
+			pmService.send(user, tarUser.getId(), "Offizier &uuml;bergeben", msg);
 		}
 
 		return t;
@@ -251,7 +263,6 @@ public class TCController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine shipToBaseAction(Ship ship, int off, String conf, @UrlParam(name = "target") Base tarBase)
 	{
-		org.hibernate.Session db = getDB();
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
 
@@ -273,11 +284,10 @@ public class TCController extends Controller
 			throw new ValidierungException("Schiff und Basis befinden sich nicht im selben Sektor", errorurl);
 		}
 
-		long officount = ((Number) db.createQuery("select count(*) from Offizier where stationiertAufSchiff=:dest AND owner=:owner")
-				.setEntity("dest", ship)
-				.setEntity("owner", user)
-				.iterate().next()
-		).longValue();
+		long officount  = em.createQuery("select count(*) from Offizier where stationiertAufSchiff=:dest AND owner=:owner", Long.class)
+			.setParameter("dest", ship)
+			.setParameter("owner", user)
+			.getSingleResult();
 		if (officount == 0)
 		{
 			throw new ValidierungException("Das Schiff hat keinen Offizier an Bord", errorurl);
@@ -327,7 +337,7 @@ public class TCController extends Controller
 		offizier.stationierenAuf(tarBase);
 		offizier.setOwner(tarUser);
 
-		ship.recalculateShipStatus();
+		shipActionService.recalculateShipStatus(ship);
 
 		return t;
 	}
@@ -342,7 +352,6 @@ public class TCController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine baseToFleetAction(Ship ship, @UrlParam(name = "target") Base upBase)
 	{
-		org.hibernate.Session db = getDB();
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
 
@@ -378,18 +387,17 @@ public class TCController extends Controller
 
 		int shipcount = 0;
 
-		List<?> shiplist = db.createQuery("from Ship where fleet=:fleet and owner=:owner and system=:sys and x=:x and y=:y and " +
-				"locate('offizier',status)=0")
-				.setEntity("fleet", ship.getFleet())
-				.setEntity("owner", user)
-				.setInteger("sys", ship.getSystem())
-				.setInteger("x", ship.getX())
-				.setInteger("y", ship.getY())
+		List<Ship> shiplist = em.createQuery("from Ship where fleet=:fleet and owner=:owner and system=:sys and x=:x and y=:y and " +
+				"locate('offizier',status)=0", Ship.class)
+				.setParameter("fleet", ship.getFleet())
+				.setParameter("owner", user)
+				.setParameter("sys", ship.getSystem())
+				.setParameter("x", ship.getX())
+				.setParameter("y", ship.getY())
 				.setMaxResults(offilist.size())
-				.list();
-		for (Object aShiplist : shiplist)
+				.getResultList();
+		for (Ship aship: shiplist)
 		{
-			Ship aship = (Ship) aShiplist;
 			ShipTypeData shipType = aship.getTypeData();
 			if (shipType.getSize() <= ShipType.SMALL_SHIP_MAXSIZE)
 			{
@@ -399,7 +407,7 @@ public class TCController extends Controller
 			Offizier offi = offilist.remove(0);
 			offi.stationierenAuf(aship);
 
-			aship.recalculateShipStatus();
+			shipActionService.recalculateShipStatus(aship);
 
 			shipcount++;
 		}
@@ -419,7 +427,6 @@ public class TCController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine baseToShipAction(Ship ship, int off, @UrlParam(name = "target") Base upBase)
 	{
-		org.hibernate.Session db = getDB();
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
 
@@ -459,15 +466,14 @@ public class TCController extends Controller
 
 			if (ship.getFleet() != null)
 			{
-				long count = ((Number) db.createQuery("select count(*) from Ship where fleet=:fleet and owner=:owner and system=:sys and x=:x and " +
-						"y=:y and locate('offizier',status)=0")
-						.setEntity("fleet", ship.getFleet())
-						.setEntity("owner", user)
-						.setInteger("sys", ship.getSystem())
-						.setInteger("x", ship.getX())
-						.setInteger("y", ship.getY())
-						.iterate().next()
-				).longValue();
+				long count = em.createQuery("select count(*) from Ship where fleet=:fleet and owner=:owner and system=:sys and x=:x and " +
+						"y=:y and locate('offizier',status)=0", Long.class)
+						.setParameter("fleet", ship.getFleet())
+						.setParameter("owner", user)
+						.setParameter("sys", ship.getSystem())
+						.setParameter("x", ship.getX())
+						.setParameter("y", ship.getY())
+						.getSingleResult();
 				if (count > 1)
 				{
 					t.setVar("show.fleetupload", 1,
@@ -478,7 +484,7 @@ public class TCController extends Controller
 		//ein Offizier wurde ausgewaehlt -> transferieren
 		else
 		{
-			Offizier offizier = (Offizier) getDB().get(Offizier.class, off);
+			Offizier offizier = em.find(Offizier.class, off);
 			if (offizier == null)
 			{
 				throw new ValidierungException("Der angegebene Offizier existiert nicht", errorurl);
@@ -492,10 +498,9 @@ public class TCController extends Controller
 			// Check ob noch fuer einen weiteren Offi platz ist
 			ShipTypeData tarShipType = ship.getTypeData();
 
-			long offi = ((Number) getDB().createQuery("select count(*) from Offizier where stationiertAufSchiff=:dest")
-					.setEntity("dest", ship)
-					.iterate().next()
-			).longValue();
+			long offi = em.createQuery("select count(*) from Offizier where stationiertAufSchiff=:dest", Long.class)
+					.setParameter("dest", ship)
+					.getSingleResult();
 
 			int maxoffis = 1;
 			if (tarShipType.hasFlag(ShipTypeFlag.OFFITRANSPORT))
@@ -512,7 +517,7 @@ public class TCController extends Controller
 
 			offizier.stationierenAuf(ship);
 
-			ship.recalculateShipStatus();
+			shipActionService.recalculateShipStatus(ship);
 		}
 
 		return t;

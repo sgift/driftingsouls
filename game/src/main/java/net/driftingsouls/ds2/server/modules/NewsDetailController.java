@@ -2,6 +2,7 @@ package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.entities.NewsEntry;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
@@ -11,8 +12,6 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.KeinLoginNotw
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.io.IOException;
 
 /**
  * Ein einzelner Newseintrag.
@@ -24,11 +23,13 @@ import java.io.IOException;
 public class NewsDetailController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
+	private final BBCodeParser bbCodeParser;
 
 	@Autowired
-	public NewsDetailController(TemplateViewResultFactory templateViewResultFactory)
+	public NewsDetailController(TemplateViewResultFactory templateViewResultFactory, BBCodeParser bbCodeParser)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.bbCodeParser = bbCodeParser;
 	}
 
 	/**
@@ -42,7 +43,7 @@ public class NewsDetailController extends Controller
 		{
 			t.setVar("news.headline", newsid.getTitle(),
 					"news.date", Common.date("d.m.Y H:i", newsid.getDate()),
-					"news.text", Common._text(newsid.getNewsText()));
+					"news.text", Common._text(bbCodeParser, newsid.getNewsText()));
 		}
 		else
 		{

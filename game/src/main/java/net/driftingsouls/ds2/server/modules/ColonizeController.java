@@ -36,14 +36,18 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.services.BuildingService;
+import net.driftingsouls.ds2.server.services.DismantlingService;
+import net.driftingsouls.ds2.server.services.UserValueService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
-import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -55,11 +59,20 @@ import java.util.Map;
 public class ColonizeController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
+	private final BuildingService buildingService;
+	private final UserValueService userValueService;
+	private final DismantlingService dismantlingService;
+
+	@PersistenceContext
+	private EntityManager em;
 
 	@Autowired
-	public ColonizeController(TemplateViewResultFactory templateViewResultFactory)
+	public ColonizeController(TemplateViewResultFactory templateViewResultFactory, BuildingService buildingService, UserValueService userValueService, DismantlingService dismantlingService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.buildingService = buildingService;
+		this.userValueService = userValueService;
+		this.dismantlingService = dismantlingService;
 
 		setPageTitle("Kolonisieren");
 	}
@@ -99,7 +112,6 @@ public class ColonizeController extends Controller
 	{
 		validiereSchiffUndBasis(ship, base);
 
-		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 
@@ -120,14 +132,14 @@ public class ColonizeController extends Controller
 		}
 		basecount += base.getMaxTiles();
 
-		if (basecount > user.getUserValue(WellKnownUserValue.GAMEPLAY_BASES_MAXTILES))
+		if (basecount > userValueService.getUserValue(user, WellKnownUserValue.GAMEPLAY_BASES_MAXTILES))
 		{
-			t.setVar("colonize.message", "<span style=\"color:#ff0000; font-weight:bold\">Kolonisierung unzul&auml;ssig, da dies die Gesamtzahl an zul&auml;ssigen Oberfl&auml;chenfeldern " + user.getUserValue(WellKnownUserValue.GAMEPLAY_BASES_MAXTILES) + " &uuml;bersteigen w&uuml;rde.</span>");
+			t.setVar("colonize.message", "<span style=\"color:#ff0000; font-weight:bold\">Kolonisierung unzul&auml;ssig, da dies die Gesamtzahl an zul&auml;ssigen Oberfl&auml;chenfeldern " + userValueService.getUserValue(user, WellKnownUserValue.GAMEPLAY_BASES_MAXTILES) + " &uuml;bersteigen w&uuml;rde.</span>");
 
 			return t;
 		}
 
-		StarSystem system = (StarSystem) db.get(StarSystem.class, base.getSystem());
+		StarSystem system = em.find(StarSystem.class, base.getSystem());
 
 		if ((system.getMaxColonies() >= 0) &&
 				(bases.get(base.getSystem()) >= system.getMaxColonies()))
@@ -146,7 +158,7 @@ public class ColonizeController extends Controller
 		 *
 		 */
 
-		nichtErlaubteGebaeudeEntfernen(base, db, user, bebauung, bebon);
+		nichtErlaubteGebaeudeEntfernen(base, user, bebauung, bebon);
 
 		/*
 		 *
@@ -164,8 +176,8 @@ public class ColonizeController extends Controller
 			t.setVar("res.image", res.getImage(),
 					"res.name", res.getName(),
 					"res.cargo", res.getCargo1(),
-					"user.sounds.mute", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_SOUNDS_MUTE),
-					"user.sounds.volume", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_SOUNDS_VOLUME));
+					"user.sounds.mute", userValueService.getUserValue(user, WellKnownUserValue.GAMEPLAY_USER_SOUNDS_MUTE),
+					"user.sounds.volume", userValueService.getUserValue(user, WellKnownUserValue.GAMEPLAY_USER_SOUNDS_VOLUME));
 			t.parse("res.list", "res.listitem", true);
 		}
 
@@ -177,7 +189,7 @@ public class ColonizeController extends Controller
 			offi.stationierenAuf(base);
 		}
 
-		ship.destroy();
+		dismantlingService.destroy(ship);
 
 		// Die Kommandozentrale setzen
 		bebauung[0] = 1;
@@ -199,7 +211,7 @@ public class ColonizeController extends Controller
 		return t;
 	}
 
-	private void nichtErlaubteGebaeudeEntfernen(Base base, Session db, User user, Integer[] bebauung, Integer[] bebon)
+	private void nichtErlaubteGebaeudeEntfernen(Base base, User user, Integer[] bebauung, Integer[] bebon)
 	{
 		//Anzahl der Gebaeude pro Spieler berechnen
 		Map<Integer, Integer> ownerBuildingCount = new HashMap<>();
@@ -222,11 +234,10 @@ public class ColonizeController extends Controller
 
 		// Problematische Gebaeude ermitteln
 		Map<Integer, Integer> problematicBuildings = new HashMap<>();
-		Iterator<?> buildingIter = db.createQuery("from Building where perOwner>0").iterate();
-		for (; buildingIter.hasNext(); )
+		List<Building> buildings = em.createQuery("from Building where perOwner>0", Building.class).getResultList();
+		for (Building building: buildings)
 		{
-			Building aBuilding = (Building) buildingIter.next();
-			problematicBuildings.put(aBuilding.getId(), aBuilding.getPerUserCount());
+			problematicBuildings.put(building.getId(), building.getPerUserCount());
 		}
 
 		// Nun die Gebaeude auf dem Asti durchlaufen und bei Bedarf einige entfernen
@@ -239,13 +250,10 @@ public class ColonizeController extends Controller
 				bebauung[index] = 0;
 				bebon[index] = 0;
 				Building gebaeude = Building.getBuilding(building);
-				gebaeude.cleanup(getContext(), base, building);
+				buildingService.cleanup(gebaeude, base, building);
 			}
-			if (!ownerBuildingCount.containsKey(building))
-			{
-				ownerBuildingCount.put(building, 0);
-			}
-			ownerBuildingCount.put(building, ownerBuildingCount.get(building) + 1);
+
+			ownerBuildingCount.merge(building, 0, (id, count) -> count + 1);
 		}
 	}
 

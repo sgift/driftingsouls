@@ -9,8 +9,10 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
 
 @AdminMenuEntry(category = "Sonstiges", name = "ComNet Kanal", permission = WellKnownAdminPermission.EDIT_COMNET_CHANNEL)
+@Component
 public class EditComNetChannel implements EntityEditor<ComNetChannel>
 {
 	@Override

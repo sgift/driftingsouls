@@ -18,23 +18,26 @@
  */
 package net.driftingsouls.ds2.server.tasks;
 
-import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.Resources;
-import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeInfo;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeJob;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeType;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.ConfigService;
+import net.driftingsouls.ds2.server.services.DismantlingService;
+import net.driftingsouls.ds2.server.services.PmService;
+import net.driftingsouls.ds2.server.services.UserValueService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,13 +59,24 @@ public class HandleUpgradeJob implements TaskHandler
 	private static final int ITEM_BBS = 182;
 	private static final int ITEM_RE = 6;
 
+	@PersistenceContext
+	private EntityManager em;
+
+	private final PmService pmService;
+	private final UserValueService userValueService;
+	private final TaskManager taskManager;
+	private final DismantlingService dismantlingService;
+
+	public HandleUpgradeJob(PmService pmService, UserValueService userValueService, TaskManager taskManager, DismantlingService dismantlingService) {
+		this.pmService = pmService;
+		this.userValueService = userValueService;
+		this.taskManager = taskManager;
+		this.dismantlingService = dismantlingService;
+	}
+
 	@Override
 	public void handleEvent(Task task, String event)
 	{
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-		Taskmanager tm = Taskmanager.getInstance();
-
 		if( !event.equals("tick_timeout") )
 		{
 			return;
@@ -71,25 +85,25 @@ public class HandleUpgradeJob implements TaskHandler
 		final int faction = Integer.parseInt(task.getData3());
 
 		int orderid = Integer.parseInt(task.getData1());
-		int tick = context.get(ContextCommon.class).getTick();
-		UpgradeJob order = (UpgradeJob) db.get(UpgradeJob.class, orderid);
+		int tick = new ConfigService().getValue(WellKnownConfigValue.TICKS);
+		UpgradeJob order = em.find(UpgradeJob.class, orderid);
 		int preis = order.getPrice();
 		Base base = order.getBase();
 		User user = order.getUser();
 		Ship colonizer = order.getColonizer();
-		User nullUser = (User)db.get(User.class, 0);
+		User nullUser = em.find(User.class, 0);
 
 		// Try-Count ueberschritten?
 		if( Integer.parseInt(task.getData2()) > 35 && order.getEnd() == 0 )
 		{
 			// Es wurde nicht geschafft in 35 Versuchen die Ressourcen fuer den Ausbau bereit zu stellen
-			cancelJob(tm, task, order, faction);
+			cancelJob(taskManager, task, order, faction);
 			return;
 		}
 
 		if( (order.getEnd() == 0) && (colonizer == null) )
 		{
-			cancelJob(tm, task, order, faction);
+			cancelJob(taskManager, task, order, faction);
 			return;
 		}
 
@@ -121,19 +135,19 @@ public class HandleUpgradeJob implements TaskHandler
 
 				basecount += base.getMaxTiles();
 
-				if( basecount > user.getUserValue(WellKnownUserValue.GAMEPLAY_BASES_MAXTILES) ) {
+				if( basecount > userValueService.getUserValue(user, WellKnownUserValue.GAMEPLAY_BASES_MAXTILES) ) {
 
-					sendFinishedWarningMessage(db, order, faction);
+					sendFinishedWarningMessage(order, faction);
 					base.setOwner(nullUser);
 				}
 				else
 				{
-					sendFinishedMessage(db, order, faction);
+					sendFinishedMessage(order, faction);
 					base.setOwner(user);
 				}
 				// Loesche den Auftrag und den Task
-				db.delete(order);
-				tm.removeTask( task.getTaskID() );
+				em.remove(order);
+				taskManager.removeTask( task.getTaskID() );
 
 				return;
 			}
@@ -158,7 +172,7 @@ public class HandleUpgradeJob implements TaskHandler
 			else
 			{
 				// Setze den Try-Counter hoch
-				tm.modifyTask( task.getTaskID(), task.getData1(), (Integer.parseInt(task.getData2()) + 1) + "", Integer.toString(faction) );
+				taskManager.modifyTask( task.getTaskID(), task.getData1(), (Integer.parseInt(task.getData2()) + 1) + "", Integer.toString(faction) );
 			}
 		}
 		// Ausbau noch nicht begonnen
@@ -176,8 +190,8 @@ public class HandleUpgradeJob implements TaskHandler
 				base.getCargo().substractResource( Resources.ERZ, erzRequired );
 
 				// Base "besetzen"
-				base.setOwner((User) db.get(User.class, -19));
-				List<ShipWerft> linkedShipyards = Common.cast(db.createQuery("from ShipWerft where linked=:linked").setParameter("linked", base).list());
+				base.setOwner(em.find(User.class, -19));
+				List<ShipWerft> linkedShipyards = em.createQuery("from ShipWerft where linked=:linked", ShipWerft.class).setParameter("linked", base).getResultList();
 				for(ShipWerft shipyard: linkedShipyards)
 				{
 					shipyard.resetLink();
@@ -185,7 +199,7 @@ public class HandleUpgradeJob implements TaskHandler
 
 				// "Vernichte" den colonizer.
 				order.setColonizer(null);
-				colonizer.destroy();
+				dismantlingService.destroy(colonizer);
 
 				// Setzen wann wir fertig sind
                 int dauer = new Random().nextInt(order.getMaxTicks()-order.getMinTicks()+1)+order.getMinTicks();
@@ -195,22 +209,20 @@ public class HandleUpgradeJob implements TaskHandler
 			else
 			{
 				// Setze den Try-Counter hoch
-				tm.modifyTask( task.getTaskID(), task.getData1(), (Integer.parseInt(task.getData2()) + 1) + "", Integer.toString(faction) );
+				taskManager.modifyTask( task.getTaskID(), task.getData1(), (Integer.parseInt(task.getData2()) + 1) + "", Integer.toString(faction) );
 			}
 		}
 
 		if( Integer.parseInt(task.getData2()) == 6 && order.getEnd() == 0 )
 		{
-			sendWarningMessage(db, order, faction);
+			sendWarningMessage(order, faction);
 		}
 
-		tm.incTimeout(task.getTaskID());
+		taskManager.incTimeout(task.getTaskID());
 	}
 
-	private void cancelJob(Taskmanager tm, Task task, UpgradeJob order, final int faction)
+	private void cancelJob(TaskManager tm, Task task, UpgradeJob order, final int faction)
 	{
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
 		if( order.getBar() && order.getPayed() )
 		{
 			order.getBase().getCargo().addResource(new ItemID(ITEM_RE), order.getPrice());
@@ -221,13 +233,13 @@ public class HandleUpgradeJob implements TaskHandler
 		}
 
 		// Loesche den Auftrag und den Task
-		db.delete(order);
+		em.remove(order);
 		tm.removeTask( task.getTaskID() );
 	}
 
-	private void sendWarningMessage(org.hibernate.Session db, UpgradeJob order, final int factionId)
+	private void sendWarningMessage(UpgradeJob order, final int factionId)
 	{
-		User faction = (User)db.get(User.class, factionId);
+		User faction = em.find(User.class, factionId);
 
 		String message = "Sehr geehrter/geehrte/geehrtes "+order.getUser().getName()+",\n\n"+
 			"gerne führen wir den von Ihnen beauftragten Ausbau des Asteroids '"+order.getBase().getName()+"' ("+order.getBase().getId()+") durch. Bitte stellen Sie die folgenden Dinge sicher: [list]\n";
@@ -247,12 +259,12 @@ public class HandleUpgradeJob implements TaskHandler
 		message += "Mit freundlichen Grüßen\n";
 		message += faction.getPlainname();
 
-		PM.send(faction, order.getUser().getId(), "Ihr bestellter Asteroidenausbau", message);
+		pmService.send(faction, order.getUser().getId(), "Ihr bestellter Asteroidenausbau", message);
 	}
 
-	private void sendFinishedMessage(org.hibernate.Session db, UpgradeJob order, final int factionId)
+	private void sendFinishedMessage(UpgradeJob order, final int factionId)
 	{
-		User faction = (User)db.get(User.class, factionId);
+		User faction = em.find(User.class, factionId);
 
 		String message = "Sehr geehrter/geehrte/geehrtes "+order.getUser().getName()+",\n\n"+
 			"der von Ihnen bestellte Ausbau des Asteroids '"+order.getBase().getName()+"' ("+order.getBase().getId()+") ist nun abgeschlossen. " +
@@ -261,12 +273,12 @@ public class HandleUpgradeJob implements TaskHandler
 		message += "Mit freundlichen Grüßen\n";
 		message += faction.getPlainname();
 
-		PM.send(faction, order.getUser().getId(), "Asteroidenausbau abgeschlossen", message);
+		pmService.send(faction, order.getUser().getId(), "Asteroidenausbau abgeschlossen", message);
 	}
 
-	private void sendFinishedWarningMessage(org.hibernate.Session db, UpgradeJob order, final int factionId)
+	private void sendFinishedWarningMessage(UpgradeJob order, final int factionId)
 	{
-		User faction = (User)db.get(User.class, factionId);
+		User faction = em.find(User.class, factionId);
 
 		String message = "Sehr geehrter/geehrte/geehrtes "+order.getUser().getName()+",\n\n"+
 			"der von Ihnen bestellte Ausbau des Asteroids '"+order.getBase().getName()+"' ("+order.getBase().getId()+") ist nun abgeschlossen. " +
@@ -276,6 +288,6 @@ public class HandleUpgradeJob implements TaskHandler
 		message += "Mit freundlichen Grüßen\n";
 		message += faction.getPlainname();
 
-		PM.send(faction, order.getUser().getId(), "Asteroidenausbau abgeschlossen", message);
+		pmService.send(faction, order.getUser().getId(), "Asteroidenausbau abgeschlossen", message);
 	}
 }

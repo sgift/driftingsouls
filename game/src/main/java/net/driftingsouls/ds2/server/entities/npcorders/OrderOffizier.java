@@ -63,7 +63,7 @@ public class OrderOffizier extends Order
 	 * Setzt den abzuwickelnden Auftragstyp.
 	 * @param type Der Typ
 	 */
-	public final void setType(final int type)
+	public void setType(final int type)
 	{
 		this.type = type;
 	}

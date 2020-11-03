@@ -24,17 +24,20 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleType;
-import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.npcorders.Order;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderOffizier;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderShip;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderableOffizier;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.framework.db.batch.SingleUnitOfWork;
 import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
+import net.driftingsouls.ds2.server.services.LocationService;
+import net.driftingsouls.ds2.server.services.PmService;
+import net.driftingsouls.ds2.server.services.ShipActionService;
+import net.driftingsouls.ds2.server.services.ShipService;
+import net.driftingsouls.ds2.server.services.UserService;
 import net.driftingsouls.ds2.server.ships.SchiffHinzufuegenService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
@@ -43,6 +46,8 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,13 +67,32 @@ public class NPCOrderTick extends TickController {
 
 	private Map<Integer,StringBuilder> pmcache;
 
+	@PersistenceContext
+	private EntityManager em;
+
+	private final SchiffHinzufuegenService schiffHinzufuegenService;
+	private final ShipService shipService;
+	private final UserService userService;
+	private final PmService pmService;
+	private final LocationService locationService;
+	private final ShipActionService shipActionService;
+
+	public NPCOrderTick(SchiffHinzufuegenService schiffHinzufuegenService, ShipService shipService, UserService userService, PmService pmService, LocationService locationService, ShipActionService shipActionService) {
+		this.schiffHinzufuegenService = schiffHinzufuegenService;
+		this.shipService = shipService;
+		this.userService = userService;
+		this.pmService = pmService;
+		this.locationService = locationService;
+		this.shipActionService = shipActionService;
+	}
+
 	@Override
 	protected void prepare() {
 		this.pmcache = new HashMap<>();
 	}
 
 	private String getOffiName(User user) {
-		PersonenNamenGenerator generator = user.getPersonenNamenGenerator();
+		PersonenNamenGenerator generator = userService.getPersonenNamenGenerator(user);
 		if( generator != null ) {
 			return generator.generiere();
 		}
@@ -79,18 +103,14 @@ public class NPCOrderTick extends TickController {
 	@Override
 	protected void tick()
 	{
-		org.hibernate.Session db = getDB();
-
-		List<Integer> orders = Common.cast(db
-				.createQuery("select id from Order order by user.id")
-				.list());
+		List<Integer> orders = em.createQuery("select id from Order order by user.id", Integer.class)
+				.getResultList();
 		new EvictableUnitOfWork<Integer>("NPCOrderTick")
 		{
 			@Override
 			public void doWork(Integer orderId)
 			{
-				org.hibernate.Session db = getDB();
-				Order order = (Order)db.get(Order.class, orderId);
+				Order order = em.find(Order.class, orderId);
 
 				if( order.getTick() != 1 )
 				{
@@ -112,15 +132,15 @@ public class NPCOrderTick extends TickController {
 				}
 				else if( order instanceof OrderOffizier )
 				{
-					newShip = processOrderOffizier(db, order, user, loc);
+					newShip = processOrderOffizier(order, user, loc);
 				}
 
 				if( newShip != null )
 				{
-					newShip.recalculateShipStatus();
+					shipActionService.recalculateShipStatus(newShip);
 				}
 
-				db.delete(order);
+				em.remove(order);
 			}
 		}
 		.setFlushSize(5)
@@ -131,25 +151,23 @@ public class NPCOrderTick extends TickController {
 		{
 			@Override
 			public void doWork() {
-				org.hibernate.Session db = getDB();
-				final User sourceUser = (User)db.get(User.class, -1);
+				final User sourceUser = em.find(User.class, -1);
 				for( Map.Entry<Integer, StringBuilder> entry : pmcache.entrySet() )
 				{
-					PM.send(sourceUser, entry.getKey(), "NPC-Lieferservice", entry.getValue().toString());
+					pmService.send(sourceUser, entry.getKey(), "NPC-Lieferservice", entry.getValue().toString());
 				}
 			}
 		}
 		.execute();
 
 		this.log("Verteile NPC-Punkte...");
-		List<Integer> users = Common.cast(db
-				.createQuery("select id from User where locate('ordermenu',flags)!=0")
-				.list());
+		List<Integer> users = em.createQuery("select id from User where locate('ordermenu',flags)!=0", Integer.class)
+				.getResultList();
 		new EvictableUnitOfWork<Integer>("NPCOrderTick - NPC-Punkte")
 		{
 			@Override
 			public void doWork(Integer userId) {
-				User user = (User)getDB().get(User.class, userId);
+				User user = em.find(User.class, userId);
 				user.setNpcPunkte(user.getNpcPunkte()+1);
 			}
 		}
@@ -181,7 +199,7 @@ public class NPCOrderTick extends TickController {
 		}
 		if( flags.contains("nicht_kaperbar") )
 		{
-			ship.addModule(0, ModuleType.ITEMMODULE, "442");
+			shipService.addModule(ship,0, ModuleType.ITEMMODULE, "442");
 		}
 
 		if( !this.pmcache.containsKey(user.getId()) )
@@ -192,16 +210,16 @@ public class NPCOrderTick extends TickController {
 		pmcache.append("Die von ihnen bestellte ");
 		pmcache.append(shipd.getNickname());
 		pmcache.append(" wurde geliefert\nSie steht bei ");
-		pmcache.append(loc.displayCoordinates(false));
+		pmcache.append(locationService.displayCoordinates(loc, false));
 		pmcache.append("\n\n");
 		return newShip;
 	}
 
-	private Ship processOrderOffizier(org.hibernate.Session db, Order order, User user, Location loc)
+	private Ship processOrderOffizier(Order order, User user, Location loc)
 	{
 		List<Base> bases = Base.byLocationAndBesitzer(loc, user);
 
-		ShipType shipd = (ShipType)db.get(ShipType.class, OFFIZIERSSCHIFF);
+		ShipType shipd = em.find(ShipType.class, OFFIZIERSSCHIFF);
 
 		Ship newShip = null;
 		if( bases.isEmpty() )
@@ -216,7 +234,7 @@ public class NPCOrderTick extends TickController {
 			this.log("* Order "+order.getId()+" ready: Offizier wird zu User "+order.getUser().getId()+" - Basis "+bases.get(0).getId()+" geliefert");
 		}
 
-		OrderableOffizier offizier = (OrderableOffizier)db.get(OrderableOffizier.class, ((OrderOffizier)order).getType());
+		OrderableOffizier offizier = em.find(OrderableOffizier.class, ((OrderOffizier)order).getType());
 		int special = ThreadLocalRandom.current().nextInt(1, 7);
 
 		Offizier offi = new Offizier(user, this.getOffiName(user));
@@ -236,7 +254,7 @@ public class NPCOrderTick extends TickController {
 		}
 		offi.setSpecial(Offizier.Special.values()[special]);
 
-		db.persist(offi);
+		em.persist(offi);
 
 		// PM-Nachricht erstellen
 		if( !this.pmcache.containsKey(user.getId()) )
@@ -261,7 +279,7 @@ public class NPCOrderTick extends TickController {
 			pmcache.append(") im Sektor ");
 		}
 
-		pmcache.append(loc.displayCoordinates(false));
+		pmcache.append(locationService.displayCoordinates(loc, false));
 		pmcache.append("\n\n");
 		return newShip;
 	}
@@ -273,7 +291,6 @@ public class NPCOrderTick extends TickController {
 		cargo.addResource( Resources.URAN, shipd.getRu()*10 );
 		cargo.addResource( Resources.ANTIMATERIE, shipd.getRa()*10 );
 
-		SchiffHinzufuegenService schiffHinzufuegenService = new SchiffHinzufuegenService();
 		Ship ship = schiffHinzufuegenService.erstelle(user, shipd, loc, "[hide]NPC-Order[/hide]");
 		ship.setCargo(cargo);
 		ship.setNahrungCargo(shipd.getNahrungCargo());

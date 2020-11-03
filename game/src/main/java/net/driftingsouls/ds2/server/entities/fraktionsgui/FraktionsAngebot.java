@@ -105,7 +105,7 @@ public class FraktionsAngebot
 	 * Setzt die Fraktion der das Angebot gehoert.
 	 * @param faction Die ID der Fraktion
 	 */
-	public final void setFaction(User faction) {
+	public void setFaction(User faction) {
 		this.faction = faction;
 	}
 
@@ -137,7 +137,7 @@ public class FraktionsAngebot
 	 * Setzt den Titel des Angebots.
 	 * @param title Der Titel
 	 */
-	public final void setTitle(String title) {
+	public void setTitle(String title) {
 		this.title = title;
 	}
 

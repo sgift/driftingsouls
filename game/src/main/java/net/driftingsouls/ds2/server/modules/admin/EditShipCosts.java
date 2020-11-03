@@ -28,11 +28,13 @@ import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import net.driftingsouls.ds2.server.ships.ShipType;
 
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
 
 /**
  * Aktualisierungstool fuer die Kosten von Schiffstypen.
  */
 @AdminMenuEntry(category = "Schiffe", name = "Baukosten", permission = WellKnownAdminPermission.EDIT_SHIP_COSTS)
+@Component
 public class EditShipCosts implements EntityEditor<ShipBaubar>
 {
 	@Override
@@ -54,9 +56,9 @@ public class EditShipCosts implements EntityEditor<ShipBaubar>
 		form.field("Rasse", Rasse.class, Integer.class, ShipBaubar::getRace, ShipBaubar::setRace);
 		form.field("Benötigtige Werftslots", Integer.class, ShipBaubar::getWerftSlots, ShipBaubar::setWerftSlots);
 		form.field("Flagschiff", Boolean.class, ShipBaubar::isFlagschiff, ShipBaubar::setFlagschiff);
-		form.field("Forschung 1", Forschung.class, (sb) -> sb.getRes(1), ShipBaubar::setRes1).withNullOption("[keine]");
-		form.field("Forschung 2", Forschung.class, (sb) -> sb.getRes(2), ShipBaubar::setRes2).withNullOption("[keine]");
-		form.field("Forschung 3", Forschung.class, (sb) -> sb.getRes(3), ShipBaubar::setRes3).withNullOption("[keine]");
+		form.field("Forschung 1", Forschung.class, sb -> sb.getRes(1), ShipBaubar::setRes1).withNullOption("[keine]");
+		form.field("Forschung 2", Forschung.class, sb -> sb.getRes(2), ShipBaubar::setRes2).withNullOption("[keine]");
+		form.field("Forschung 3", Forschung.class, sb -> sb.getRes(3), ShipBaubar::setRes3).withNullOption("[keine]");
 		form.field("Baukosten", Cargo.class, ShipBaubar::getCosts, ShipBaubar::setCosts);
 	}
 }

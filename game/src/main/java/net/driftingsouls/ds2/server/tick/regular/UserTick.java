@@ -20,21 +20,25 @@ package net.driftingsouls.ds2.server.tick.regular;
 
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.comm.Ordner;
-import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.Handel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
+import net.driftingsouls.ds2.server.services.FolderService;
+import net.driftingsouls.ds2.server.services.PmService;
 import net.driftingsouls.ds2.server.tick.TickController;
-import org.hibernate.Session;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Tick fuer Aktionen, die sich auf den gesamten Account beziehen.
@@ -45,29 +49,38 @@ import java.util.List;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class UserTick extends TickController
 {
-	private Session db;
-	
+	@PersistenceContext
+	private EntityManager em;
+
+	private final ConfigService configService;
+	private final PmService pmService;
+	private final FolderService folderService;
+
+	public UserTick(ConfigService configService, PmService pmService, FolderService folderService) {
+		this.configService = configService;
+		this.pmService = pmService;
+		this.folderService = folderService;
+	}
+
 	@Override
 	protected void prepare()
 	{
-		this.db = getDB();
+		//Nothing to do
 	}
 
 	@Override
 	protected void tick()
 	{
-		final long deleteThreshould = Common.time() - 60*60*24*14;
+		final long deleteThreshould = Common.time() - TimeUnit.DAYS.toSeconds(14);
 		log("DeleteThreshould is " + deleteThreshould);
 		
-		List<Integer> users = Common.cast(db.createQuery("select id from User").list());
+		List<Integer> users = em.createQuery("select id from User", Integer.class).getResultList();
 		new EvictableUnitOfWork<Integer>("User Tick")
 		{
 
 			@Override
 			public void doWork(Integer userID) {
-				Session db = getDB();
-				
-				User user = (User)db.get(User.class, userID);
+				User user = em.find(User.class, userID);
 				
 				if(user.isInVacation())
 				{
@@ -81,28 +94,21 @@ public class UserTick extends TickController
 					user.setVacpoints(user.getVacpoints() + pointsPerTick);
 					
 					//Delete all pms older than 14 days from inbox
-					Ordner trashCan = Ordner.getTrash(user);
-					if(trashCan != null)
-					{
-						int trash = trashCan.getId();
-						db.createQuery("update PM set gelesen=2, ordner= :trash where empfaenger= :user and ordner= :ordner and time < :time")
-						  .setInteger("trash", trash)
-						  .setEntity("user", user)
-						  .setInteger("ordner", 0)
-						  .setLong("time", deleteThreshould)
-						  .executeUpdate();
-					}
-					else
-					{
-						log("User hat keinen Muelleimer.");
-					}
+					Ordner trashCan = folderService.getTrash(user);
+					int trashId = trashCan.getId();
+					em.createQuery("update PM set gelesen=2, ordner= :trash where empfaenger= :user and ordner= :ordner and time < :time")
+						.setParameter("trash", trashId)
+						.setParameter("user", user)
+						.setParameter("ordner", 0)
+						.setParameter("time", deleteThreshould)
+						.executeUpdate();
 					
 					//Subtract costs for trade ads
-					long adCount = (Long)db.createQuery("select count(*) from Handel where who=:who")
+					long adCount = em.createQuery("select count(*) from Handel where who=:who", Long.class)
 									 	   .setParameter("who", user)
-									 	   .uniqueResult();
+									 	   .getSingleResult();
 					
-					int adCost = new ConfigService().getValue(WellKnownConfigValue.AD_COST);
+					int adCost = configService.getValue(WellKnownConfigValue.AD_COST);
 					
 					BigInteger account = user.getKonto();
 					
@@ -120,25 +126,22 @@ public class UserTick extends TickController
 							BigInteger adCostBI = BigInteger.valueOf(adCost);
 							int wasteAdCount = adCountBI.subtract(account.divide(adCostBI)).intValue();
 												
-							List<Handel> wasteAds = Common.cast(db.createQuery("from Handel where who=:who order by time asc")
+							List<Handel> wasteAds = em.createQuery("from Handel where who=:who order by time asc", Handel.class)
 																  .setParameter("who", user)
 																  .setMaxResults(wasteAdCount)
-																  .list());
+																  .getResultList();
 							
 							log(wasteAdCount + " ads zu loeschen.");
 							
 							costs = BigInteger.valueOf((adCount - wasteAdCount)*adCost);
-							
-							for(Handel wasteAd: wasteAds)
-							{
-								db.delete(wasteAd);
-							}
-							
-							PM.send(user, user.getId(), "Handelsinserate gel&ouml;scht", wasteAdCount + " Ihrer Handelsinserate wurden gel&ouml;scht, weil Sie die Kosten nicht aufbringen konnten.");
+
+							wasteAds.forEach(em::remove);
+
+							pmService.send(user, user.getId(), "Handelsinserate gel&ouml;scht", wasteAdCount + " Ihrer Handelsinserate wurden gel&ouml;scht, weil Sie die Kosten nicht aufbringen konnten.");
 						}
 						
 						log("Geld f&uuml;r Handelsinserate " + costs);
-						User nobody = (User)db.get(User.class, -1);
+						User nobody = em.find(User.class, -1);
 						nobody.transferMoneyFrom(user.getId(), costs, 
 								"Kosten f&uuml;r Handelsinserate - User: " + user.getName() + " (" + user.getId() + ")", 
 								false, UserMoneyTransfer.Transfer.AUTO);

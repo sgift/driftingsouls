@@ -19,13 +19,7 @@
 package net.driftingsouls.ds2.server;
 
 import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextInstance;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-
-import javax.script.ScriptEngine;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Kontextlokale Operationen.
@@ -35,15 +29,11 @@ import java.util.Map;
 @ContextInstance(ContextInstance.Scope.REQUEST)
 public final class ContextCommon
 {
-	private final Context context;
-
 	/**
 	 * Konstruktur - Wird vom Kontext aufgerufen.
 	 */
 	public ContextCommon()
-	{
-		this.context = ContextMap.getContext();
-	}
+	{}
 
 	/**
 	 * Liefert den aktuellen Tick zurueck.
@@ -54,6 +44,4 @@ public final class ContextCommon
 	{
 		return new ConfigService().getValue(WellKnownConfigValue.TICKS);
 	}
-
-	private Map<String, ScriptEngine> scriptParsers = new HashMap<>();
 }

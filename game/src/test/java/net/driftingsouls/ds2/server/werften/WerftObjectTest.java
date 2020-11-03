@@ -18,19 +18,27 @@
  */
 package net.driftingsouls.ds2.server.werften;
 
-import net.driftingsouls.ds2.server.DBSingleTransactionTest;
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.TestAppConfig;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.BaseType;
-import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.ConfigService;
+import net.driftingsouls.ds2.server.services.ShipyardService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.*;
@@ -41,8 +49,19 @@ import static org.junit.Assert.assertThat;
  * @author Christopher Jung
  *
  */
-public class WerftObjectTest extends DBSingleTransactionTest
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = {
+	TestAppConfig.class
+})
+public class WerftObjectTest
 {
+	@PersistenceContext
+	private EntityManager em;
+	@Autowired
+	private ConfigService configService;
+	@Autowired
+	private ShipyardService shipyardService;
+
 	private ShipType werftType;
 	private BaseWerft werft;
 	private WerftKomplex werftKomplex;
@@ -60,40 +79,56 @@ public class WerftObjectTest extends DBSingleTransactionTest
 	@Before
 	public void loadWerft()
 	{
-		User user = persist(new User("testUser1", "***", 0, "", new Cargo(), "test@localhost"));
-		werftType = persist(new ShipType(ShipClasses.STATION));
+		User user = new User(1, "testUser1", "testUser1", "***", 0, "", "test@localhost", configService);
+		em.persist(user);
+		werftType = new ShipType(ShipClasses.STATION);
+		em.persist(werftType);
 		werftType.setFlags(ShipTypeFlag.WERFTKOMPLEX.getFlag());
 		werftType.setWerft(8);
 
-		BaseType baseType = persist(new BaseType("TestKlasse"));
-		Base base = persist(new Base(new Location(1, 1, 1), user, baseType));
+		BaseType baseType = new BaseType("TestKlasse");
+		em.persist(baseType);
+		Base base = new Base(new Location(1, 1, 1), user, baseType);
+		em.persist(base);
 
-		this.werft = persist(new BaseWerft(base));
-		this.entry1 = persist(new WerftQueueEntry(werft, werftType, 1, 1));
+		this.werft = new BaseWerft(base);
+		em.persist(werft);
+		this.entry1 = new WerftQueueEntry(werft, werftType, 1, 1, shipyardService.getNextEmptyQueuePosition(werft));
+		em.persist(entry1);
 		this.werft.addQueueEntry(this.entry1);
-		this.entry2 = persist(new WerftQueueEntry(werft, werftType, 1, 1));
+		this.entry2 = new WerftQueueEntry(werft, werftType, 1, 1, shipyardService.getNextEmptyQueuePosition(werft));
+		em.persist(entry2);
 		this.werft.addQueueEntry(this.entry2);
 
-		Ship ship1 = persist(new Ship(user, werftType, 1, 1, 1));
-		Ship ship2 = persist(new Ship(user, werftType, 1, 1, 1));
-		Ship ship3 = persist(new Ship(user, werftType, 1, 1, 1));
+		Ship ship1 = new Ship(user, werftType, 1, 1, 1);
+		em.persist(ship1);
+		Ship ship2 = new Ship(user, werftType, 1, 1, 1);
+		em.persist(ship2);
+		Ship ship3 = new Ship(user, werftType, 1, 1, 1);
+		em.persist(ship3);
 
-		this.werftKomplex = persist(new WerftKomplex());
+		this.werftKomplex = new WerftKomplex();
+		em.persist(werftKomplex);
 
-		ShipWerft sWerft1 = persist(new ShipWerft(ship1));
+		ShipWerft sWerft1 = new ShipWerft(ship1);
+		em.persist(sWerft1);
 		sWerft1.addToKomplex(werftKomplex);
-		ShipWerft sWerft2 = persist(new ShipWerft(ship2));
+		ShipWerft sWerft2 = new ShipWerft(ship2);
+		em.persist(sWerft2);
 		sWerft2.addToKomplex(werftKomplex);
-		ShipWerft sWerft3 = persist(new ShipWerft(ship3));
+		ShipWerft sWerft3 = new ShipWerft(ship3);
+		em.persist(sWerft3);
 		sWerft3.addToKomplex(werftKomplex);
 
 		this.werftKomplexPart = sWerft1;
 		this.werftKomplexPart2 = sWerft2;
 		this.werftKomplexPart3 = sWerft3;
 
-		this.entry3 = persist(new WerftQueueEntry(werftKomplex, werftType, 1, 1));
+		this.entry3 = new WerftQueueEntry(werftKomplex, werftType, 1, 1, shipyardService.getNextEmptyQueuePosition(werftKomplex));
+		em.persist(entry3);
 		this.werftKomplex.addQueueEntry(this.entry3);
-		this.entry4 = persist(new WerftQueueEntry(werftKomplex, werftType, 1, 1));
+		this.entry4 = new WerftQueueEntry(werftKomplex, werftType, 1, 1, shipyardService.getNextEmptyQueuePosition(werftKomplex));
+		em.persist(entry4);
 		this.werftKomplex.addQueueEntry(this.entry4);
 	}
 
@@ -102,74 +137,79 @@ public class WerftObjectTest extends DBSingleTransactionTest
 	 * Testet die Destroy-Operation
 	 */
 	@Test
+	@Transactional
 	public void gegebenEineWerftMitZweiZuBauendenSchiffen_destroy_sollteDieWerftUndBeideZuBauendenSchiffeEntfernen()
 	{
 		// setup
 
 		// run
-		this.werft.destroy();
+		shipyardService.destroyShipyard(this.werft);
 
 		// assert
-		assertThat(getEM().contains(this.werft), is(false));
-		assertThat(getEM().contains(this.entry1), is(false));
-		assertThat(getEM().contains(this.entry2), is(false));
+		assertThat(em.contains(this.werft), is(false));
+		assertThat(em.contains(this.entry1), is(false));
+		assertThat(em.contains(this.entry2), is(false));
 	}
 
 	/**
 	 * Testet die Destroy-Operation bei Werftkomplexen
 	 */
 	@Test
+	@Transactional
 	public void gegebenEinWerftKomplexMitZweiZuBauendenSchiffen_destroy_sollteDenKomplexAufloesenUndAlleBauauftraegeVerwerfen()
 	{
 		// setup
-		WerftObject[] members = this.werftKomplex.getMembers();
+		List<WerftObject> members = this.werftKomplex.getMembers();
 
 		// run
-		this.werftKomplex.destroy();
+		shipyardService.destroyShipyard(this.werftKomplex);
 
 		// assert
-		assertThat(getEM().contains(this.werftKomplex), is(false));
+		assertThat(em.contains(this.werftKomplex), is(false));
 		assertThat(this.werftKomplex.getBuildQueue().contains(this.entry3), is(false));
 		assertThat(this.werftKomplex.getBuildQueue().contains(this.entry4), is(false));
-		assertThat(members[0].getBuildQueue().size(), is(0));
-		assertThat(members[1].getBuildQueue().size(), is(0));
-		assertThat(members[2].getBuildQueue().size(), is(0));
+		assertThat(members.get(0).getBuildQueue().size(), is(0));
+		assertThat(members.get(1).getBuildQueue().size(), is(0));
+		assertThat(members.get(2).getBuildQueue().size(), is(0));
 	}
 
 	@Test
+	@Transactional
 	public void gegebenEinWerftKomplexAusDreiWerftenMitZweiZuBauendenSchiffenUndEineDarausZuLoeschendeWerft_destroy_sollteDieseEineWerftEntfernenUndDenKomplexBestehenLassen()
 	{
 		// setup
 
 		// run
-		this.werftKomplexPart.destroy();
+		shipyardService.destroyShipyard(this.werftKomplexPart);
 
 		// assert
-		assertThat(getEM().contains(this.werftKomplexPart), is(false));
+		assertThat(em.contains(this.werftKomplexPart), is(false));
 		assertThat(this.werftKomplex.getBuildQueue().size(), is(2));
-		assertThat(getEM().contains(this.entry3), is(true));
-		assertThat(getEM().contains(this.entry4), is(true));
+		assertThat(em.contains(this.entry3), is(true));
+		assertThat(em.contains(this.entry4), is(true));
 	}
 
 	@Test
+	@Transactional
 	public void gegebenEinWerftKomplexAusZweiWerftenMitZweiZuBauendenSchiffenUndEineDarausZuLoeschendeWerft_destroy_sollteDieseEineWerftEntfernenUndDenKomplexBestehenLassen()
 	{
 		// setup
-		this.werftKomplexPart.destroy();
+		shipyardService.destroyShipyard(this.werftKomplexPart);
 		assertThat(this.werftKomplex.getBuildQueue().size(), is(2));
 
 		// run
-		this.werftKomplexPart2.destroy();
+		shipyardService.destroyShipyard(this.werftKomplexPart2);
 
 		// assert
-		assertThat(getEM().contains(this.werftKomplexPart2), is(false));
-		assertThat(getEM().contains(this.werftKomplex), is(false));
+		assertThat(em.contains(this.werftKomplexPart2), is(false));
+		assertThat(em.contains(this.werftKomplex), is(false));
 		assertThat(this.werftKomplex.getBuildQueue().size(), is(0));
 		assertThat(this.werftKomplexPart2.getBuildQueue().size(), is(0));
 		assertThat(this.werftKomplexPart3.getBuildQueue().size(), is(2));
 	}
 
 	@Test
+	@Transactional
 	public void gegebenEineWerftMitZweiBauauftraegen_getBuildQueue_sollteDieseSortiertNachPositionZurueckgeben()
 	{
 		// setup
@@ -186,6 +226,7 @@ public class WerftObjectTest extends DBSingleTransactionTest
 	}
 
 	@Test
+	@Transactional
 	public void gegebenEineWerftOhneBauauftraege_getBuildQueue_sollteEineLeereListeZurueckgeben()
 	{
 		// setup
@@ -198,6 +239,7 @@ public class WerftObjectTest extends DBSingleTransactionTest
 	}
 
 	@Test
+	@Transactional
 	public void gegebenEineWerftAusEinemWerftKomplex_getKomplex_sollteDiesenKomplexZurueckgeben()
 	{
 		// setup
@@ -208,6 +250,7 @@ public class WerftObjectTest extends DBSingleTransactionTest
 	}
 
 	@Test
+	@Transactional
 	public void gegebenEineBasisWerft_getKomplex_sollteNullZurueckgeben()
 	{
 		// setup
@@ -218,6 +261,7 @@ public class WerftObjectTest extends DBSingleTransactionTest
 	}
 
 	@Test
+	@Transactional
 	public void gegebenEinWerftKomplex_getKomplex_sollteNullZurueckgeben()
 	{
 		// setup
@@ -228,12 +272,13 @@ public class WerftObjectTest extends DBSingleTransactionTest
 	}
 
 	@Test
+	@Transactional
 	public void gegebenEineWerftMitZuBauendenSchiffenUndEineGueltigePosition_getBuildQueueEntry_sollteDasPassendeZuBauendeSchiffZurueckgeben()
 	{
 		// setup
 
 		// run
-		WerftQueueEntry entry = this.werft.getBuildQueueEntry(1);
+		WerftQueueEntry entry = shipyardService.getBuildQueueEntry(this.werft, 1);
 
 		// assert
 		assertThat(entry, not(nullValue()));
@@ -241,12 +286,13 @@ public class WerftObjectTest extends DBSingleTransactionTest
 	}
 
 	@Test
+	@Transactional
 	public void gegebenEineWerftMitZuBauendenSchiffenUndEineUngueltigePosition_getBuildQueueEntry_sollteNullZurueckgeben()
 	{
 		// setup
 
 		// run
-		WerftQueueEntry entry = this.werft.getBuildQueueEntry(3);
+		WerftQueueEntry entry = shipyardService.getBuildQueueEntry(this.werft, 3);
 
 		// assert
 		assertThat(entry, nullValue());

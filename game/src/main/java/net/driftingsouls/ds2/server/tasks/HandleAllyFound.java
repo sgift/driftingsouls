@@ -18,15 +18,21 @@
  */
 package net.driftingsouls.ds2.server.tasks;
 
-import net.driftingsouls.ds2.server.ContextCommon;
-import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
+import net.driftingsouls.ds2.server.services.PmService;
+import net.driftingsouls.ds2.server.services.UserService;
 import org.springframework.stereotype.Service;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 /**
  * TASK_ALLY_FOUND
@@ -39,6 +45,21 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class HandleAllyFound implements TaskHandler {
+
+	@PersistenceContext
+	private EntityManager em;
+
+	private final UserService userService;
+	private final PmService pmService;
+	private final BBCodeParser bbCodeParser;
+	private final TaskManager taskManager;
+
+	public HandleAllyFound(UserService userService, PmService pmService, BBCodeParser bbCodeParser, TaskManager taskManager) {
+		this.userService = userService;
+		this.pmService = pmService;
+		this.bbCodeParser = bbCodeParser;
+		this.taskManager = taskManager;
+	}
 
 	@Override
 	public void handleEvent(Task task, String event) {	
@@ -57,21 +78,22 @@ public class HandleAllyFound implements TaskHandler {
 					User[] allymember = new User[allymemberIds.length];
 					for (int i = 0; i < allymemberIds.length; i++)
 					{
-						allymember[i] = (User) db.get(User.class, allymemberIds[i]);
+						allymember[i] = em.find(User.class, allymemberIds[i]);
 					}
 
-					int ticks = context.get(ContextCommon.class).getTick();
+					int ticks = new ConfigService().getValue(WellKnownConfigValue.TICKS);
 
-					Ally ally = new Ally(allyname, allymember[0]);
+					var plainname = Common._titleNoFormat(bbCodeParser, allyname);
+					Ally ally = new Ally(allyname, plainname, allymember[0], ticks);
 					int allyid = (Integer) db.save(ally);
 
 					Common.copyFile(Configuration.getAbsolutePath() + "data/logos/ally/0.gif", Configuration.getAbsolutePath() + "data/logos/ally" + allyid + ".gif");
 
 					for (User anAllymember : allymember)
 					{
-						User source = (User) ContextMap.getContext().getDB().get(User.class, 0);
+						User source = em.find(User.class, 0);
 
-						PM.send(source, anAllymember.getId(), "Allianzgr&uuml;ndung", "Die Allianz " + allyname + " wurde erfolgreich gegr&uuml;ndet.\n\nHerzlichen Gl&uuml;ckwunsch!");
+						pmService.send(source, anAllymember.getId(), "Allianzgr&uuml;ndung", "Die Allianz " + allyname + " wurde erfolgreich gegr&uuml;ndet.\n\nHerzlichen Gl&uuml;ckwunsch!");
 
 						ally.addUser(anAllymember);
 						anAllymember.setAllyPosten(null);
@@ -85,31 +107,31 @@ public class HandleAllyFound implements TaskHandler {
 								continue;
 							}
 
-							anAllymember1.setRelation(anAllymember.getId(), User.Relation.FRIEND);
-							anAllymember.setRelation(anAllymember1.getId(), User.Relation.FRIEND);
+							userService.setRelation(anAllymember1, anAllymember, User.Relation.FRIEND);
+							userService.setRelation(anAllymember, anAllymember1, User.Relation.FRIEND);
 						}
 					}
 
-					Taskmanager.getInstance().removeTask(task.getTaskID());
+					taskManager.removeTask(task.getTaskID());
 				}
 				else
 				{
 					confcount--;
-					Taskmanager.getInstance().modifyTask(task.getTaskID(), Integer.toString(confcount), task.getData2(), task.getData3());
+					taskManager.modifyTask(task.getTaskID(), Integer.toString(confcount), task.getData2(), task.getData3());
 				}
 				break;
 			case "__conf_dism":
 			{
 				Integer[] allymember = Common.explodeToInteger(",", task.getData3());
-				User source = (User) ContextMap.getContext().getDB().get(User.class, 0);
+				User source = em.find(User.class, 0);
 
-				PM.send(source, allymember[0], "Allianzgr&uuml;ndung", "Die Allianzgr&uuml;ndung ist fehlgeschlagen, da ein Spieler seine Unterst&uuml;tzung verweigert hat.");
-				Taskmanager.getInstance().removeTask(task.getTaskID());
+				pmService.send(source, allymember[0], "Allianzgr&uuml;ndung", "Die Allianzgr&uuml;ndung ist fehlgeschlagen, da ein Spieler seine Unterst&uuml;tzung verweigert hat.");
+				taskManager.removeTask(task.getTaskID());
 
-				Task[] tasklist = Taskmanager.getInstance().getTasksByData(Taskmanager.Types.ALLY_FOUND_CONFIRM, task.getTaskID(), "*", "*");
+				Task[] tasklist = taskManager.getTasksByData(TaskManager.Types.ALLY_FOUND_CONFIRM, task.getTaskID(), "*", "*");
 				for (Task aTasklist : tasklist)
 				{
-					Taskmanager.getInstance().removeTask(aTasklist.getTaskID());
+					taskManager.removeTask(aTasklist.getTaskID());
 				}
 
 				break;
@@ -118,12 +140,12 @@ public class HandleAllyFound implements TaskHandler {
 			{
 				Integer[] allymember = Common.explodeToInteger(",", task.getData3());
 
-				Taskmanager.getInstance().removeTask(task.getTaskID());
-				User source = (User) ContextMap.getContext().getDB().get(User.class, 0);
+				taskManager.removeTask(task.getTaskID());
+				User source = em.find(User.class, 0);
 
 				for (Integer anAllymember : allymember)
 				{
-					PM.send(source, anAllymember, "Allianzgr&uuml;ndung", "Die Allianzgr&uuml;ndung ist fehlgeschlagen, da nicht alle angegebenen Spieler in der notwendigen Zeit ihre Unterst&uuml;tzung signalisiert haben.");
+					pmService.send(source, anAllymember, "Allianzgr&uuml;ndung", "Die Allianzgr&uuml;ndung ist fehlgeschlagen, da nicht alle angegebenen Spieler in der notwendigen Zeit ihre Unterst&uuml;tzung signalisiert haben.");
 				}
 				break;
 			}

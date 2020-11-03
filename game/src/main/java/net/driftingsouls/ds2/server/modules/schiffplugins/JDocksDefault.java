@@ -23,6 +23,8 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.services.CargoService;
+import net.driftingsouls.ds2.server.services.ShipService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import org.springframework.stereotype.Component;
@@ -37,6 +39,14 @@ import java.util.List;
  */
 @Component
 public class JDocksDefault implements SchiffPlugin {
+	private final ShipService shipService;
+	private final CargoService cargoService;
+
+	public JDocksDefault(ShipService shipService, CargoService cargoService) {
+		this.shipService = shipService;
+		this.cargoService = cargoService;
+	}
+
 	@Action(ActionType.DEFAULT)
 	public String action(Parameters caller, String act) {
 		Ship ship = caller.ship;
@@ -48,11 +58,11 @@ public class JDocksDefault implements SchiffPlugin {
 			output += "Entlade J&auml;ger<br />\n";
 			Cargo cargo = ship.getCargo();
 
-			long cargocount = cargo.getMass();
+			long cargocount = cargoService.getMass(cargo);
 
-			for( Ship lship : ship.getLandedShips() ) {
+			for( Ship lship : shipService.getLandedShips(ship) ) {
 				Cargo dcargo = lship.getCargo();
-				long dcargocount = dcargo.getMass();
+				long dcargocount = cargoService.getMass(dcargo);
 
 				if( cargocount + dcargocount > shiptype.getCargo() ) {
 					output += "Kann einige Schiffe nicht entladen - nicht genug Frachtraum<br />\n";
@@ -85,7 +95,7 @@ public class JDocksDefault implements SchiffPlugin {
 		List<Integer> jdockedid = new ArrayList<>();
 		List<Ship> jdockedShip = new ArrayList<>();
 
-		for( Ship aship : data.getLandedShips() ) {
+		for( Ship aship : shipService.getLandedShips(data) ) {
 			jdockedid.add(aship.getId());
 			jdockedShip.add(aship);
 			if( aship.getFleet() != null ) {

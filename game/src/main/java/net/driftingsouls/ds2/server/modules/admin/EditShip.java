@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.ships.Ship_;
 import net.driftingsouls.ds2.server.ships.ShipType;
 
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
 
 /**
  * Aktualisierungstool fuer die Werte eines Schiffes.
@@ -36,6 +37,7 @@ import org.springframework.lang.NonNull;
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Schiffe", name = "Schiff", permission = WellKnownAdminPermission.EDIT_SHIP)
+@Component
 public class EditShip implements EntityEditor<Ship>
 {
 	@Override

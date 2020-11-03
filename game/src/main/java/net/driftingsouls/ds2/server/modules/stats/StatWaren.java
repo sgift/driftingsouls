@@ -30,15 +30,20 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.StatsController;
+import net.driftingsouls.ds2.server.services.LocationService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Zeigt die insgesamt vorkommenden sowie die eigenen Waren an. Bei Items werden zudem,
@@ -46,36 +51,37 @@ import java.util.Map;
  * @author Christopher Jung
  *
  */
+@Component
 public class StatWaren implements Statistic {
 
-    @Override
+	@PersistenceContext
+	private EntityManager em;
+
+	private final LocationService locationService;
+
+	public StatWaren(LocationService locationService) {
+		this.locationService = locationService;
+	}
+
+	@Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
 		User user = (User)context.getActiveUser();
 
 		Writer echo = context.getResponse().getWriter();
 
-		@SuppressWarnings("unchecked")
-		Iterator<Cargo> iterator = db.createQuery("SELECT cargo FROM StatCargo ORDER BY tick DESC").setMaxResults(1).iterate();
-		if( !iterator.hasNext() )
+		List<Cargo> cargos = em.createQuery("SELECT cargo FROM StatCargo ORDER BY tick DESC", Cargo.class).setMaxResults(1).getResultList();
+		if( cargos.isEmpty() )
 		{
 			echo.append("Keine Datenbasis vorhanden");
 			return;
 		}
-		Cargo cargo = new Cargo(iterator.next());
+		Cargo cargo = new Cargo(cargos.get(0));
 
-		StatUserCargo userCargo = (StatUserCargo) db.createQuery("from StatUserCargo where user=:user")
-				.setEntity("user", user)
-				.uniqueResult();
-		Cargo ownCargo = null;
-		if( userCargo != null )
-		{
-			ownCargo = userCargo.getCargo();
-		}
-		if( ownCargo == null ) {
-			ownCargo = new Cargo();
-		}
+		Optional<StatUserCargo> userCargo = em.createQuery("from StatUserCargo where user=:user", StatUserCargo.class)
+				.setParameter("user", user)
+				.getResultStream().findAny();
+		Cargo ownCargo = userCargo.map(StatUserCargo::getCargo).orElse(new Cargo());
 
 		// Ausgabe des Tabellenkopfs
 		echo.append("<table class=\"noBorderX\" cellspacing=\"1\" cellpadding=\"1\">\n");
@@ -90,7 +96,7 @@ public class StatWaren implements Statistic {
 
 		// Itempositionen auslesen
 		Map<Integer,String[]> reslocationlist = new HashMap<>();
-		List<StatItemLocations> modules = Common.cast(db.createQuery("FROM StatItemLocations WHERE user=:user").setEntity("user",user).list());
+		List<StatItemLocations> modules = em.createQuery("FROM StatItemLocations WHERE user=:user", StatItemLocations.class).setParameter("user",user).getResultList();
 		for( StatItemLocations amodule : modules ) {
 			reslocationlist.put(amodule.getUser().getId(), StringUtils.split(amodule.getLocations(), ';'));
 		}
@@ -108,7 +114,7 @@ public class StatWaren implements Statistic {
 		for( ResourceEntry res : reslist ) {
 			// Wenn die Resource ein Item ist, dann pruefen, ob dieses angezeigt werden darf
 			int itemid = res.getId().getItemID();
-			Item item = (Item)db.get(Item.class, itemid);
+			Item item = em.find(Item.class, itemid);
 			if( item == null || !user.canSeeItem(item) ) {
 				continue;
 			}
@@ -143,7 +149,7 @@ public class StatWaren implements Statistic {
 						case 's':
 							if (!shipnamecache.containsKey(objectid))
 							{
-								Ship ship = (Ship) db.get(Ship.class, objectid);
+								Ship ship = em.find(Ship.class, objectid);
 								if (ship == null)
 								{
 									tooltip.append("</tr>");
@@ -158,20 +164,20 @@ public class StatWaren implements Statistic {
 						case 'b':
 							if (!basecache.containsKey(objectid))
 							{
-								Base base = (Base) db.get(Base.class, objectid);
+								Base base = em.find(Base.class, objectid);
 								if (base != null)
 								{
 									basecache.put(objectid, base);
 								}
 							}
-							tooltip.append(baseimage + "<td class='noBorderX'>" + "<a style='font-size:14px' class='forschinfo' " + "href='").append(Common.buildUrl("default", "module", "base", "col", objectid)).append("'>").append(Common._plaintitle(basecache.get(objectid).getName())).append(" - ").append(basecache.get(objectid).getLocation().displayCoordinates(false)).append("</a></td>");
+							tooltip.append(baseimage + "<td class='noBorderX'>" + "<a style='font-size:14px' class='forschinfo' " + "href='").append(Common.buildUrl("default", "module", "base", "col", objectid)).append("'>").append(Common._plaintitle(basecache.get(objectid).getName())).append(" - ").append(locationService.displayCoordinates(basecache.get(objectid).getLocation(),false)).append("</a></td>");
 							break;
 
 						// Positionstyp Gtu-Zwischenlager
 						case 'g':
 							if (!shipnamecache.containsKey(objectid))
 							{
-								Ship ship = (Ship) db.get(Ship.class, objectid);
+								Ship ship = em.find(Ship.class, objectid);
 								if (ship != null)
 								{
 									shipnamecache.put(objectid, Common._plaintitle(ship.getName()));

@@ -22,7 +22,10 @@ import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.services.BattleService;
+import net.driftingsouls.ds2.server.services.ShipActionService;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.List;
@@ -32,7 +35,15 @@ import java.util.List;
  * @author Christopher Jung
  *
  */
+@Component
 public class KSRegenerateShieldsAllAction extends BasicKSAction {
+	private final ShipActionService shipActionService;
+
+	public KSRegenerateShieldsAllAction(BattleService battleService, ShipActionService shipActionService) {
+		super(battleService, null);
+		this.shipActionService = shipActionService;
+	}
+
 	/**
 	 * Prueft, ob das Schiff seine Schilde aufladen soll oder nicht.
 	 * @param ship Das Schiff
@@ -98,7 +109,7 @@ public class KSRegenerateShieldsAllAction extends BasicKSAction {
 				ownShip.getShip().setShields(ownShipType.getShields());
 			}
 
-			battle.logme(ownShip.getName() + ": Schilde bei " + ownShip.getShip().getShields() + "/" + ownShipType.getShields() + "\n");
+			getBattleService().logme(battle,ownShip.getName() + ": Schilde bei " + ownShip.getShip().getShields() + "/" + ownShipType.getShields() + "\n");
 			eshieldlog.append(Battle.log_shiplink(ownShip.getShip())).append(": Schilde aufgeladen\n");
 
 			ownShip.getShip().setBattleAction(true);
@@ -111,13 +122,13 @@ public class KSRegenerateShieldsAllAction extends BasicKSAction {
 			}
 			ownShip.setShields(curShields);
 
-			ownShip.getShip().recalculateShipStatus();
+			shipActionService.recalculateShipStatus(ownShip.getShip());
 
 			shipcount++;
 		}
 
 		if( shipcount > 0 ) {	
-			battle.log(new SchlachtLogAktion(battle.getOwnSide(), eshieldlog.toString()));
+			getBattleService().log(battle, new SchlachtLogAktion(battle.getOwnSide(), eshieldlog.toString()));
 		}
 	
 		return Result.OK;

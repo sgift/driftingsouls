@@ -27,12 +27,14 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import net.driftingsouls.ds2.server.ships.ShipType;
 
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
 
 /**
  * Aktualisierungstool fuer die Systeme.
  *
  */
 @AdminMenuEntry(category = "Schiffe", name = "NPC-Schiffsbestellungen", permission = WellKnownAdminPermission.EDIT_ORDERABLE_SHIPS)
+@Component
 public class EditOrderableShip implements EntityEditor<OrderableShip>
 {
 	@Override

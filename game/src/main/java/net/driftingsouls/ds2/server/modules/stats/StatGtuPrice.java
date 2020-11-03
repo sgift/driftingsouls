@@ -18,39 +18,47 @@
  */
 package net.driftingsouls.ds2.server.modules.stats;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
-import net.driftingsouls.ds2.server.entities.statistik.StatGtu;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.statistik.StatGtu;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.modules.StatsController;
-import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.services.ShipService;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import org.springframework.stereotype.Service;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.List;
 
 /**
  * Zeigt die Liste hoechsten Gebote (welche zur Ersteigerung fuehrten) in der GTU.
  * @author Christopher Jung
  *
  */
+@Service
 public class StatGtuPrice extends AbstractStatistic implements Statistic {
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public StatGtuPrice() {
-		// EMPTY
+	@PersistenceContext
+	private EntityManager em;
+
+	private final BBCodeParser bbCodeParser;
+	private final ShipService shipService;
+
+	public StatGtuPrice(BBCodeParser bbCodeParser, ShipService shipService) {
+        super(bbCodeParser);
+		this.bbCodeParser = bbCodeParser;
+		this.shipService = shipService;
 	}
 
 	@Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
 
 		String url = getUserURL();
 
@@ -61,17 +69,16 @@ public class StatGtuPrice extends AbstractStatistic implements Statistic {
 
 		int a = 1;
 
-		List<StatGtu> gebote = Common.cast(db
-			.createQuery("from StatGtu order by preis desc")
+		List<StatGtu> gebote = em.createQuery("from StatGtu order by preis desc", StatGtu.class)
 			.setMaxResults(size)
-			.list());
+			.getResultList();
 
 		for( StatGtu gebot : gebote )
 		{
 			String name = null;
 
 			if( gebot.getMType() == 1 ) {
-				ShipTypeData shiptype = Ship.getShipType(Integer.parseInt(gebot.getType()));
+				ShipTypeData shiptype = shipService.getShipType(Integer.parseInt(gebot.getType()));
 				name = "<a class=\"forschinfo\" onclick='ShiptypeBox.show("+gebot.getType()+");return false;' href=\"./ds?module=schiffinfo&ship="+gebot.getType()+"\">"+shiptype.getNickname()+"</a>";
 			}
 			else if( gebot.getMType() == 2 ) {
@@ -82,14 +89,14 @@ public class StatGtuPrice extends AbstractStatistic implements Statistic {
 			}
 
 	   		echo.append("<tr><td>").append(Integer.toString(a)).append(".</td>\n");
-	   		User user = (User)db.get(User.class, gebot.getUserId());
+	   		User user = em.find(User.class, gebot.getUserId());
 	   		if( user != null )
 	   		{
-	   			echo.append("<td><a class=\"profile\" href=\"").append(url).append(Integer.toString(user.getId())).append("\">").append(Common._title(user.getName())).append(" (").append(Integer.toString(user.getId())).append(")</a></td>");
+	   			echo.append("<td><a class=\"profile\" href=\"").append(url).append(Integer.toString(user.getId())).append("\">").append(Common._title(bbCodeParser, user.getName())).append(" (").append(Integer.toString(user.getId())).append(")</a></td>");
 	   		}
 	   		else
 	   		{
-	   			echo.append("<td>").append(Common._title(gebot.getUsername())).append(" (").append(Integer.toString(gebot.getUserId())).append(")</td>");
+	   			echo.append("<td>").append(Common._title(bbCodeParser, gebot.getUsername())).append(" (").append(Integer.toString(gebot.getUserId())).append(")</td>");
 		   	}
 	   		echo.append("<td>").append(name).append("</td>\n");
 			echo.append("<td><span class=\"nobr\">").append(Common.ln(gebot.getPrice())).append(" RE</span></td></tr>\n");

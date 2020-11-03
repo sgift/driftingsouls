@@ -22,7 +22,10 @@ import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.services.BattleService;
+import net.driftingsouls.ds2.server.services.ShipActionService;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
@@ -31,12 +34,13 @@ import java.io.IOException;
  * @author Christopher Jung
  *
  */
+@Component
 public class KSRegenerateShieldsSingleAction extends BasicKSAction {
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public KSRegenerateShieldsSingleAction() {
+	private final ShipActionService shipActionService;
+
+	public KSRegenerateShieldsSingleAction(BattleService battleService, ShipActionService shipActionService) {
+		super(battleService, null);
+		this.shipActionService = shipActionService;
 	}
 
 	@Override
@@ -50,17 +54,17 @@ public class KSRegenerateShieldsSingleAction extends BasicKSAction {
 		ShipTypeData ownShipType = ownShip.getTypeData();
 		
 		if( ownShip.getShip().getEnergy() < 1 ) {
-			battle.logme( "Keine Energie um die Schilde zu laden\n" );
+			getBattleService().logme(battle, "Keine Energie um die Schilde zu laden\n" );
 			return Result.ERROR;
 		}
 		
 		if( ownShipType.getShields() < 1 ) {
-			battle.logme( "Das Schiff besitzt keine Schilde\n" );
+			getBattleService().logme(battle,  "Das Schiff besitzt keine Schilde\n" );
 			return Result.ERROR;
 		}
 		
 		if( ownShip.getShip().getShields() >= ownShipType.getShields() ) {
-			battle.logme( "Die Schilde sind bereits vollst&auml;ndig aufgeladen\n" );
+			getBattleService().logme(battle,  "Die Schilde sind bereits vollst&auml;ndig aufgeladen\n" );
 			return Result.ERROR;
 		}
 
@@ -71,7 +75,7 @@ public class KSRegenerateShieldsSingleAction extends BasicKSAction {
 
 		int load = (int)Math.ceil((ownShipType.getShields()-ownShip.getShip().getShields())/(double)shieldfactor);
 		if( ownShip.getShip().getEnergy() < load) {
-			battle.logme( "Nicht genug Energie um die Schilde vollst&auml;ndig aufzuladen\n\n" );
+			getBattleService().logme(battle,  "Nicht genug Energie um die Schilde vollst&auml;ndig aufzuladen\n\n" );
 			load = ownShip.getShip().getEnergy();
 		}
 
@@ -81,8 +85,8 @@ public class KSRegenerateShieldsSingleAction extends BasicKSAction {
 			ownShip.getShip().setShields(ownShipType.getShields());
 		}
 
-		battle.logme( "Schilde nun bei "+ownShip.getShip().getShields()+"/"+ownShipType.getShields()+"\n" );
-		battle.log(new SchlachtLogAktion(battle.getOwnSide(),"Die "+Battle.log_shiplink(ownShip.getShip())+" hat ihre Schilde aufgeladen"));
+		getBattleService().logme(battle,  "Schilde nun bei "+ownShip.getShip().getShields()+"/"+ownShipType.getShields()+"\n" );
+		getBattleService().log(battle, new SchlachtLogAktion(battle.getOwnSide(),"Die "+Battle.log_shiplink(ownShip.getShip())+" hat ihre Schilde aufgeladen"));
 
 		ownShip.getShip().setBattleAction(true);
 
@@ -93,7 +97,7 @@ public class KSRegenerateShieldsSingleAction extends BasicKSAction {
 		}
 		ownShip.setShields(curShields);
 
-		ownShip.getShip().recalculateShipStatus();
+		shipActionService.recalculateShipStatus(ownShip.getShip());
 			
 		return Result.OK;
 	}

@@ -11,6 +11,10 @@ import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
+import net.driftingsouls.ds2.server.services.BaseService;
+import net.driftingsouls.ds2.server.services.BattleService;
+import net.driftingsouls.ds2.server.services.ShipService;
+import net.driftingsouls.ds2.server.services.UserService;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ViewMessage;
 import net.driftingsouls.ds2.server.framework.ViewModel;
@@ -38,8 +42,9 @@ import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import org.apache.commons.io.IOUtils;
-import org.hibernate.Session;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -60,6 +65,25 @@ import java.util.Set;
 @Module(name = "map")
 public class MapController extends Controller
 {
+	@PersistenceContext
+	private EntityManager em;
+
+	private final UserService userService;
+	private final BaseService baseService;
+	private final BattleService battleService;
+	private final Rassen races;
+	private final BBCodeParser bbCodeParser;
+	private final ShipService shipService;
+
+	public MapController(UserService userService, BaseService baseService, BattleService battleService, Rassen races, BBCodeParser bbCodeParser, ShipService shipService) {
+		this.userService = userService;
+		this.baseService = baseService;
+		this.battleService = battleService;
+		this.races = races;
+		this.bbCodeParser = bbCodeParser;
+		this.shipService = shipService;
+	}
+
 	public void validiereSystem(StarSystem system)
 	{
 		User user = (User) getUser();
@@ -80,9 +104,7 @@ public class MapController extends Controller
 			return ViewMessage.error("Du bist nicht berechtigt diese Aktion auszuführen");
 		}
 
-		org.hibernate.Session db = getDB();
-
-		List<StarSystem> systems = Common.cast(db.createCriteria(StarSystem.class).list());
+		List<StarSystem> systems = em.createQuery("from StarSystem", StarSystem.class).getResultList();
 		for (StarSystem system : systems)
 		{
 			Integer x = xWerte.get(system);
@@ -150,19 +172,17 @@ public class MapController extends Controller
 	public SystemauswahlViewModel systemauswahlAction(StarSystem sys)
 	{
 		User user = (User) getUser();
-		org.hibernate.Session db = getDB();
 
 		SystemauswahlViewModel result = createResultObj();
 
-		List<JumpNode> jumpNodes = Common.cast(db
-				.createQuery("from JumpNode jn where " + (!hasPermission(WellKnownAdminPermission.STARMAP_VIEW) ? "jn.hidden=false and " : "") + "jn.system!=jn.systemOut")
-				.list());
+		List<JumpNode> jumpNodes = em.createQuery("from JumpNode jn where " + (!hasPermission(WellKnownAdminPermission.STARMAP_VIEW) ? "jn.hidden=false and " : "") + "jn.system!=jn.systemOut", JumpNode.class)
+				.getResultList();
 
-		Map<Integer, Ally> systemFraktionen = ermittleDominierendeAllianzen(db);
-		Set<Integer> basen = ermittleSystemeMitEigenerBasis(db);
-		Set<Integer> schiffe = ermittleSystemeMitEigenenSchiffen(db);
+		Map<Integer, Ally> systemFraktionen = ermittleDominierendeAllianzen();
+		Set<Integer> basen = ermittleSystemeMitEigenerBasis();
+		Set<Integer> schiffe = ermittleSystemeMitEigenenSchiffen();
 
-		List<StarSystem> systems = Common.cast(db.createQuery("from StarSystem order by id asc").list());
+		List<StarSystem> systems = em.createQuery("from StarSystem order by id asc", StarSystem.class).getResultList();
 		for (StarSystem system : systems)
 		{
 			if (!system.isVisibleFor(user))
@@ -209,8 +229,8 @@ public class MapController extends Controller
 			if (maxAlly != null)
 			{
 				sysObj.allianz = new SystemauswahlViewModel.AllianzViewModel();
-				sysObj.allianz.name = Common._title(maxAlly.getName());
-				sysObj.allianz.plainname = BBCodeParser.getInstance().parse(maxAlly.getName(), new String[]{"all"});
+				sysObj.allianz.name = Common._title(bbCodeParser, maxAlly.getName());
+				sysObj.allianz.plainname = bbCodeParser.parse(maxAlly.getName(), new String[]{"all"});
 				sysObj.allianz.id = maxAlly.getId();
 			}
 
@@ -228,36 +248,33 @@ public class MapController extends Controller
 		return result;
 	}
 
-	private Set<Integer> ermittleSystemeMitEigenenSchiffen(Session db)
+	private Set<Integer> ermittleSystemeMitEigenenSchiffen()
 	{
-		List<Integer> result = Common.cast(db
-										   .createQuery("select s.system from Ship s where s.owner=:user group by s.system")
-										   .setEntity("user", getUser())
-										   .list());
+		List<Integer> result = em.createQuery("select s.system from Ship s where s.owner=:user group by s.system", Integer.class)
+										   .setParameter("user", getUser())
+										   .getResultList();
 
 		return new HashSet<>(result);
 	}
 
-	private Set<Integer> ermittleSystemeMitEigenerBasis(Session db)
+	private Set<Integer> ermittleSystemeMitEigenerBasis()
 	{
-		List<Integer> result = Common.cast(db
-										   .createQuery("select b.system from Base b where b.owner=:user group by b.system")
-										   .setEntity("user", getUser())
-										   .list());
+		List<Integer> result = em.createQuery("select b.system from Base b where b.owner=:user group by b.system", Integer.class)
+										   .setParameter("user", getUser())
+										   .getResultList();
 
 		return new HashSet<>(result);
 	}
 
-	private Map<Integer, Ally> ermittleDominierendeAllianzen(Session db)
+	private Map<Integer, Ally> ermittleDominierendeAllianzen()
 	{
-		List<Object[]> data = Common.cast(db
-										  .createQuery("select s.system,s.owner.ally,sum(s.shiptype.size) " +
+		List<Object[]> data = em.createQuery("select s.system,s.owner.ally,sum(s.shiptype.size) " +
 													   "from Ship s join s.shiptype st left join s.modules sm " +
 													   "where (s.status like :flags or sm.flags like :flags or st.flags like :flags) and s.owner.id<0 and s.owner.ally is not null " +
 													   "group by s.system,s.owner.ally " +
-													   "order by s.system,count(*)")
+													   "order by s.system,count(*)", Object[].class)
 										  .setParameter("flags", "%" + ShipTypeFlag.TRADEPOST.getFlag() + "%")
-										  .list());
+										  .getResultList();
 
 		Map<Integer, Ally> systeme = new HashMap<>();
 		int currentSys = -1;
@@ -390,8 +407,6 @@ public class MapController extends Controller
 
 		MapViewModel json = new MapViewModel();
 
-		org.hibernate.Session db = getDB();
-
 		User user = (User) getUser();
 
 		json.system = new MapViewModel.SystemViewModel();
@@ -437,11 +452,11 @@ public class MapController extends Controller
 		PublicStarmap content;
 		if (admin && hasPermission(WellKnownAdminPermission.STARMAP_VIEW))
 		{
-			content = new AdminStarmap(sys, user, new int[]{xstart, ystart, xend - xstart, yend - ystart});
+			content = new AdminStarmap(sys, user, baseService, new int[]{xstart, ystart, xend - xstart, yend - ystart});
 		}
 		else
 		{
-			content = new PlayerStarmap(user, sys, new int[]{xstart, ystart, xend - xstart, yend - ystart});
+			content = new PlayerStarmap(user, userService, baseService, new int[]{xstart, ystart, xend - xstart, yend - ystart}, sys, shipService);
 		}
 
 		json.size = new MapViewModel.SizeViewModel();
@@ -464,7 +479,7 @@ public class MapController extends Controller
 		}
 
 		// Das Anzeigen sollte keine DB-Aenderungen verursacht haben
-		db.clear();
+		em.clear();
 
 		return json;
 	}
@@ -491,7 +506,7 @@ public class MapController extends Controller
 		else if (scannable)
 		{
 			endTag = true;
-			posObj.bg = new MapViewModel.SectorImageViewModel();//MapViewModel.SectorImageViewModel.map(content.getSectorBaseImage(position));
+			posObj.bg = new MapViewModel.SectorImageViewModel();
 			sectorImage = sectorOverlayImage;
 		}
 		else if (sectorOverlayImage != null)
@@ -625,7 +640,6 @@ public class MapController extends Controller
 		validiereSystem(sys);
 
 		User user = (User) getUser();
-		org.hibernate.Session db = getDB();
 
 		SectorViewModel json = new SectorViewModel();
 
@@ -634,11 +648,11 @@ public class MapController extends Controller
 		FieldView field;
 		if (admin && hasPermission(WellKnownAdminPermission.STARMAP_VIEW))
 		{
-			field = new AdminFieldView(db, loc);
+			field = new AdminFieldView(em, loc);
 		}
 		else
 		{
-			field = new PlayerFieldView(db, user, loc, scanship);
+			field = new PlayerFieldView(em, user, userService, loc, scanship, shipService);
 		}
 
 		json.users.addAll(exportSectorShips(field));
@@ -648,7 +662,7 @@ public class MapController extends Controller
 			SectorViewModel.BaseViewModel baseObj = new SectorViewModel.BaseViewModel();
 			baseObj.id = base.getId();
 			baseObj.name = base.getName();
-			baseObj.username = Common._title(base.getOwner().getName());
+			baseObj.username = Common._title(bbCodeParser, base.getOwner().getName());
 			baseObj.image = base.getKlasse().getLargeImage();
 			baseObj.klasse = base.getKlasse().getId();
 			baseObj.typ = base.getKlasse().getName();
@@ -661,10 +675,10 @@ public class MapController extends Controller
 			SectorViewModel.BaseViewModel brockenObj = new SectorViewModel.BaseViewModel();
 			brockenObj.id = brocken.getId();
 			brockenObj.name = brocken.getName();
-			brockenObj.username = Common._title(brocken.getOwner().getName());
-			brockenObj.image = brocken.getTypeData().getPicture(); //getKlasse().getLargeImage();
-			brockenObj.klasse = brocken.getTypeData().getTypeId();	//getKlasse().getId();
-			brockenObj.typ = brocken.getTypeData().getNickname();  //getKlasse().getName();
+			brockenObj.username = Common._title(bbCodeParser, brocken.getOwner().getName());
+			brockenObj.image = brocken.getTypeData().getPicture();
+			brockenObj.klasse = brocken.getTypeData().getTypeId();
+			brockenObj.typ = brocken.getTypeData().getNickname();
 			brockenObj.eigene = brocken.getOwner().getId() == user.getId();
 
 			json.bases.add(brockenObj);
@@ -675,7 +689,7 @@ public class MapController extends Controller
 			SectorViewModel.JumpNodeViewModel jnObj = new SectorViewModel.JumpNodeViewModel();
 			jnObj.id = jumpNode.getId();
 			jnObj.name = jumpNode.getName();
-			jnObj.blocked = jumpNode.isGcpColonistBlock() && Rassen.get().rasse(user.getRace()).isMemberIn(0);
+			jnObj.blocked = jumpNode.isGcpColonistBlock() && races.rasse(user.getRace()).isMemberIn(0);
 			json.jumpnodes.add(jnObj);
 		}
 
@@ -687,7 +701,7 @@ public class MapController extends Controller
 			json.nebel.image = nebel.getImage();
 		}
 
-		json.battles.addAll(exportSectorBattles(db, field));
+		json.battles.addAll(exportSectorBattles(field));
 
 		json.subraumspaltenCount = field.getSubraumspalten().size();
 		json.roterAlarm = field.isRoterAlarm();
@@ -696,7 +710,7 @@ public class MapController extends Controller
 		return json;
 	}
 
-	private List<SectorViewModel.BattleViewModel> exportSectorBattles(Session db, FieldView field)
+	private List<SectorViewModel.BattleViewModel> exportSectorBattles(FieldView field)
 	{
 		List<SectorViewModel.BattleViewModel> battleListObj = new ArrayList<>();
 		List<Battle> battles = field.getBattles();
@@ -727,16 +741,16 @@ public class MapController extends Controller
 		{
 			SectorViewModel.BattleViewModel battleObj = new SectorViewModel.BattleViewModel();
 			battleObj.id = battle.getId();
-			battleObj.einsehbar = viewable || battle.getSchlachtMitglied(user) != -1;
+			battleObj.einsehbar = viewable || battleService.getSchlachtMitglied(battle, user) != -1;
 
 			for (int i = 0; i < 2; i++)
 			{
 				SectorViewModel.BattleSideViewModel sideObj = new SectorViewModel.BattleSideViewModel();
-				sideObj.commander = UserViewModel.map(battle.getCommander(i));
+				sideObj.commander = UserViewModel.map(bbCodeParser, battle.getCommander(i));
 				if (battle.getAlly(i) != 0)
 				{
-					Ally ally = (Ally) db.get(Ally.class, battle.getAlly(i));
-					sideObj.ally = AllyViewModel.map(ally);
+					Ally ally = em.find(Ally.class, battle.getAlly(i));
+					sideObj.ally = AllyViewModel.map(bbCodeParser, ally);
 				}
 				battleObj.sides.add(sideObj);
 			}
@@ -752,7 +766,7 @@ public class MapController extends Controller
 		for (Map.Entry<User, Map<ShipType, List<Ship>>> owner : field.getShips().entrySet())
 		{
 			SectorViewModel.UserWithShips jsonUser = new SectorViewModel.UserWithShips();
-			jsonUser.name = Common._text(owner.getKey().getName());
+			jsonUser.name = Common._text(bbCodeParser, owner.getKey().getName());
 			jsonUser.id = owner.getKey().getId();
 			jsonUser.race = owner.getKey().getRace();
 
@@ -774,7 +788,7 @@ public class MapController extends Controller
 					if (ownFleet)
 					{
 						SectorViewModel.OwnShipViewModel ownShip = new SectorViewModel.OwnShipViewModel();
-						ownShip.gelandet = ship.getLandedCount();
+						ownShip.gelandet = shipService.getLandedCount(ship);
 						ownShip.maxGelandet = typeData.getJDocks();
 
 						ownShip.energie = ship.getEnergy();
@@ -799,7 +813,7 @@ public class MapController extends Controller
 					}
 					shipObj.id = ship.getId();
 					shipObj.name = ship.getName();
-					shipObj.gedockt = ship.getDockedCount();
+					shipObj.gedockt = shipService.getDockedCount(ship);
 					shipObj.maxGedockt = typeData.getADocks();
 
 

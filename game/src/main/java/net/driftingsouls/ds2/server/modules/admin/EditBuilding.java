@@ -15,6 +15,7 @@ import net.driftingsouls.ds2.server.entities.Rasse;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.stereotype.Component;
 
 /**
  * Editiert die Werte von Gebaeudetypen.
@@ -22,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Asteroiden", name = "Gebäude", permission = WellKnownAdminPermission.EDIT_BUILDING)
+@Component
 public class EditBuilding implements EntityEditor<Building>
 {
 	private static int getEnergiebilanz(Building building)

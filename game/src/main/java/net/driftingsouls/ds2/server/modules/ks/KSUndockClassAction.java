@@ -20,21 +20,30 @@ package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.services.BattleService;
+import net.driftingsouls.ds2.server.services.ShipActionService;
+import net.driftingsouls.ds2.server.services.ShipService;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 
 /**
  * Dockt alle Schiffe vom gerade ausgewaehlten Schiff ab.
  * @author Christopher Jung
  *
  */
+@Component
+@Lazy
 public class KSUndockClassAction extends KSUndockAllAction {
     private final ShipClasses undockclass;
+
     /**
      * Konstruktor.
      *
      */
-    public KSUndockClassAction() {
+    public KSUndockClassAction(BattleService battleService, ShipService shipService, ShipActionService shipActionService) {
+        super(battleService, shipService, shipActionService);
         this.undockclass  = ShipClasses.values()[ContextMap.getContext().getRequest().getParameterInt("undockclass")];
     }
 

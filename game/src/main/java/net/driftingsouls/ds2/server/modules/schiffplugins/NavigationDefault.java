@@ -21,6 +21,10 @@ package net.driftingsouls.ds2.server.modules.schiffplugins;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.services.BaseService;
+import net.driftingsouls.ds2.server.services.LocationService;
+import net.driftingsouls.ds2.server.services.ShipService;
+import net.driftingsouls.ds2.server.services.UserService;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
@@ -37,8 +41,11 @@ import net.driftingsouls.ds2.server.ships.Waypoint;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 import java.util.Set;
 
@@ -48,15 +55,27 @@ import java.util.Set;
  *
  */
 @Component
+@Lazy
 public class NavigationDefault implements SchiffPlugin {
 	private static final Log log = LogFactory.getLog(NavigationDefault.class);
 
+	@PersistenceContext
+	private EntityManager em;
+
 	private final SchiffFlugService schiffFlugService;
+	private final UserService userService;
+	private final BaseService baseService;
+	private final LocationService locationService;
+	private final ShipService shipService;
 
 	@Autowired
-	public NavigationDefault(SchiffFlugService schiffFlugService)
+	public NavigationDefault(SchiffFlugService schiffFlugService, UserService userService, BaseService baseService, LocationService locationService, ShipService shipService)
 	{
 		this.schiffFlugService = schiffFlugService;
+		this.baseService = baseService;
+		this.userService = userService;
+		this.locationService = locationService;
+		this.shipService = shipService;
 	}
 
 	@Action(ActionType.DEFAULT)
@@ -114,7 +133,6 @@ public class NavigationDefault implements SchiffPlugin {
 		ShipTypeData datatype = caller.shiptype;
 		SchiffController controller = caller.controller;
 		User user = (User)controller.getUser();
-		org.hibernate.Session db = controller.getDB();
 
 		TemplateEngine t = caller.t;
 		t.setFile("_PLUGIN_"+pluginid, "schiff.navigation.default.html");
@@ -131,7 +149,7 @@ public class NavigationDefault implements SchiffPlugin {
 
 		if(data.isDocked() || data.isLanded() )
 		{
-			Ship mastership = data.getBaseShip();
+			Ship mastership = shipService.getBaseShip(data);
 
 			if(mastership != null)
 			{
@@ -153,12 +171,12 @@ public class NavigationDefault implements SchiffPlugin {
 			int y = data.getY();
 			int sys = data.getSystem();
 
-			StarSystem system = (StarSystem) db.get(StarSystem.class, sys);
+			StarSystem system = em.find(StarSystem.class, sys);
 			if(system == null) {
 				t.setVar("schiff.navigation.showmessage","Unbekanntes Sternensystem! Wende Dich an einen Admin!");
 				log.error(String.format("ship: %s -- unknown system: %s", data.getId(), sys));
 			} else {
-				PlayerStarmap map = new PlayerStarmap(user, system, new int[]{x - 1, y - 1, 3, 3});
+				PlayerStarmap map = new PlayerStarmap(user, userService, baseService, new int[]{x - 1, y - 1, 3, 3}, system, shipService);
 
 				int tmp = 0;
 
@@ -192,7 +210,7 @@ public class NavigationDefault implements SchiffPlugin {
 							t.setVar("schiff.navigation.nav.sectorimage", "");
 						}
 						t.setVar("schiff.navigation.nav.direction", tmp,
-								"schiff.navigation.nav.location", sector.displayCoordinates(true),
+								"schiff.navigation.nav.location", locationService.displayCoordinates(sector, true),
 								"schiff.navigation.nav.tile", "./ds?module=map&action=tile&sys=" + sys + "&tileX=" + (sector.getX() - 1) / 20 + "&tileY=" + (sector.getY() - 1) / 20,
 								"schiff.navigation.nav.tile.x", ((sector.getX() - 1) % 20) * 25,
 								"schiff.navigation.nav.tile.y", ((sector.getY() - 1) % 20) * 25,

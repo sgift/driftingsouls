@@ -22,14 +22,16 @@ import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Alarmstufe;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
-import org.hibernate.Query;
+import org.springframework.stereotype.Component;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,24 +42,27 @@ import java.util.Map;
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Schiffe", name = "Schiffsgruppe editieren", permission = WellKnownAdminPermission.EDIT_GROUP)
+@Component
 public class EditGroup implements AdminPlugin
 {
 	private static final int MAX_SENSORS = 100;
 	private static final int MAX_COMM = 100;
 	private static final int MAX_ENGINE = 100;
 	private static final int MAX_WEAPONS = 100;
+
+	@PersistenceContext
+	private EntityManager em;
 	
 	@Override
 	public void output(StringBuilder echo) {
 		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-		List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
+		List<Item> items = em.createQuery("from Item", Item.class).getResultList();
 		
 		int shiptypeId = context.getRequest().getParameterInt("shiptype");
 
 		// Update values?
 		boolean update = context.getRequest().getParameterString("change").equals("aktualisieren");
-		List<ShipType> shiptypes = Common.cast(db.createQuery("from ShipType").list());
+		List<ShipType> shiptypes = em.createQuery("from ShipType", ShipType.class).getResultList();
 
 		echo.append("<form action=\"./ds\" method=\"post\">");
 		echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");
@@ -79,11 +84,11 @@ public class EditGroup implements AdminPlugin
 			int x = context.getRequest().getParameterInt("x");
 			int y = context.getRequest().getParameterInt("y");
 			
-			ShipType type = (ShipType)db.get(ShipType.class, shiptypeId);
-			Query query;
+			ShipType type = em.find(ShipType.class, shiptypeId);
+			TypedQuery<Ship> query;
 			if(groupOption == 0)
 			{
-				query = db.createQuery("from Ship where shiptype=:shiptype and owner=:owner and system=:system and x=:x and y=:y")
+				query = em.createQuery("from Ship where shiptype=:shiptype and owner=:owner and system=:system and x=:x and y=:y", Ship.class)
 						  .setParameter("shiptype",type)
 						  .setParameter("owner", context.getActiveUser())
 						  .setParameter("system", system)
@@ -92,20 +97,20 @@ public class EditGroup implements AdminPlugin
 			}
 			else if(groupOption == 1)
 			{
-				query = db.createQuery("from Ship where shiptype=:shiptype and owner=:owner and system=:system")
+				query = em.createQuery("from Ship where shiptype=:shiptype and owner=:owner and system=:system", Ship.class)
 				  		  .setParameter("shiptype",type)
 						  .setParameter("owner", context.getActiveUser())
 				  		  .setParameter("system", system);
 			}
 			else
 			{
-				query = db.createQuery("from Ship where shiptype=:shiptype and owner=:owner")
+				query = em.createQuery("from Ship where shiptype=:shiptype and owner=:owner", Ship.class)
 						  .setParameter("shiptype",type)
 		  		  	      .setParameter("owner", context.getActiveUser());
 			}
 			
 			//Get ships to edit
-			List<Ship> ships = Common.cast(query.list());
+			List<Ship> ships = query.getResultList();
 			for(Ship ship: ships)
 			{				
 				ship.setHull(context.getRequest().getParameterInt("hull"));
@@ -122,7 +127,7 @@ public class EditGroup implements AdminPlugin
 				
 				Cargo cargo = new Cargo();
 				
-				for(Item item: itemlist)
+				for(Item item: items)
 				{
 					long amount = context.getRequest().getParameterInt("i"+item.getID());
 					int uses = context.getRequest().getParameterInt("i" + item.getID() + "uses");
@@ -137,7 +142,7 @@ public class EditGroup implements AdminPlugin
 		
 		if(shiptypeId != 0)
 		{
-			ShipType type = (ShipType)db.get(ShipType.class, shiptypeId);
+			ShipType type = em.find(ShipType.class, shiptypeId);
 			
 			if(type == null)
 			{
@@ -187,7 +192,7 @@ public class EditGroup implements AdminPlugin
 			}
 			echo.append("</select></td></tr>\n");
 			echo.append("<tr><td class=\"noBorderS\"></td><td class=\"noBorderS\">Menge</td><td class=\"noBorderS\">Nutzungen</td></tr>");
-			for(Item item: itemlist)
+			for(Item item: items)
 			{
 				int uses = 0;
 				echo.append("<tr><td class=\"noBorderS\"><img src=\"").append(item.getPicture()).append("\" alt=\"\" />").append(item.getName()).append(": </td><td><input type=\"text\" name=\"i").append(item.getID()).append("\"></td><td><input type=\"text\" name=\"i").append(item.getID()).append("u\" value=\"").append(uses).append("\"></td></tr>");

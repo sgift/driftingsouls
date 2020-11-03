@@ -4,12 +4,12 @@ import com.rometools.rome.feed.synd.*;
 import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.SyndFeedOutput;
 import net.driftingsouls.ds2.server.entities.NewsEntry;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
 import org.apache.log4j.Logger;
-import org.hibernate.Session;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -27,6 +27,9 @@ public class NewsController extends Controller
 {
 	private final Logger log = Logger.getLogger(NewsController.class);
 
+	@PersistenceContext
+	private EntityManager em;
+
 	/**
 	 * Gibt den News RSS Feed aus.
 	 */
@@ -39,9 +42,8 @@ public class NewsController extends Controller
 		feed.setLink("http://ds.drifting-souls.net");
 		feed.setDescription("Drifting-Souls Newsfeed");
 
-		Session db = getDB();
 		List<SyndEntry> entries = new ArrayList<>();
-		List<NewsEntry> allNews = Common.cast(db.createQuery("from NewsEntry").list());
+		List<NewsEntry> allNews = em.createQuery("from NewsEntry", NewsEntry.class).getResultList();
 		for (NewsEntry news : allNews)
 		{
 			SyndEntry entry = new SyndEntryImpl();
