@@ -2240,23 +2240,23 @@ public class AngriffController extends Controller implements ApplicationContextA
     }
 
     private static class GroupEntry {
-        int destcount;
-        int hitcount;
-        int fluchtcount;
-        int joincount;
-        int shotcount;
-        int srcount;
-        int fluchtnextcount;
-        int mangelnahrungcount;
-        int mangelreaktorcount;
-        int landedcount;
-        int dockedcount;
-        int haslandedcount;
-        int hasdockedcount;
-        int adockcount;
-        int jdockcount;
-        int alarmred;
-        int alarmyellow;
+        long destcount;
+        long hitcount;
+        long fluchtcount;
+        long joincount;
+        long shotcount;
+        long srcount;
+        long fluchtnextcount;
+        long mangelnahrungcount;
+        long mangelreaktorcount;
+        long landedcount;
+        long dockedcount;
+        long haslandedcount;
+        long hasdockedcount;
+        long adockcount;
+        long jdockcount;
+        long alarmred;
+        long alarmyellow;
         GroupEntry() {
             //EMPTY
         }

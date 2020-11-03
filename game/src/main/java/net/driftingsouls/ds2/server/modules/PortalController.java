@@ -234,7 +234,7 @@ public class PortalController extends Controller
 	{
 		int systemID = 0;
 		int orderLocationID = 0;
-		int mindistance = 99999;
+		double mindistance = 99999;
 		HashMap<Integer, StartLocation> minsysdistance = new HashMap<>();
 
 		List<StarSystem> systems = em.createQuery("from StarSystem order by id asc", StarSystem.class).getResultList();
@@ -244,7 +244,7 @@ public class PortalController extends Controller
 
 			for (int i = 0; i < locations.length; i++)
 			{
-				int dist = 0;
+				double dist = 0;
 				int count = 0;
 				var distances = em.createQuery("SELECT sqrt((:x-x)*(:x-x)+(:y-y)*(:y-y)) FROM Base WHERE owner.id = 0 AND system = :system AND klasse.id = 1 ORDER BY sqrt((:x-x)*(:x-x)+(:y-y)*(:y-y))", Double.class)
 						.setParameter("x", locations[i].getX())
@@ -265,7 +265,7 @@ public class PortalController extends Controller
 
 				if (!minsysdistance.containsKey(system.getID()) || (minsysdistance.get(system.getID()).distance > dist))
 				{
-					minsysdistance.put(system.getID(), new StartLocation(i, dist));
+					minsysdistance.put(system.getID(), new StartLocation(i, (int)dist));
 
 					if (mindistance > dist)
 					{

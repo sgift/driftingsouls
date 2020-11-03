@@ -203,7 +203,7 @@ public class DeutSammelnController extends Controller
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		t.setVar("deutsammeln.message", redirect != null ? redirect.getMessage() : null);
 
-		int deutfactorSum = 0;
+		long deutfactorSum = 0;
 		int maxE = 0;
 		for (Ship aship : shipList)
 		{

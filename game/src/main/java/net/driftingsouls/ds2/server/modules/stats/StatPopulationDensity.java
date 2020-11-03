@@ -54,8 +54,8 @@ public class StatPopulationDensity implements Statistic {
 		echo.append("<tbody>");
 
 		long insbew=0;
-		int instotal = 0;
-		int insused = 0;
+		long instotal = 0;
+		long insused = 0;
 
 		List<?> systemStats = db.createQuery("SELECT system, count(*), " +
 					"sum(CASE WHEN owner.id!=0 THEN bewohner ELSE 0 END), " +

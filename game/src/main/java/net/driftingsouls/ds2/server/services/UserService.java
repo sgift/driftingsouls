@@ -574,7 +574,7 @@ public class UserService {
      */
     public long getReBalance(User user)
     {
-        int baseRe = 0;
+        long baseRe = 0;
         for(Base base: user.getBases())
         {
             baseRe += base.getBalance();

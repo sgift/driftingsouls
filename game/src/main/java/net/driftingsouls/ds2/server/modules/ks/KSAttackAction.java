@@ -466,7 +466,7 @@ public class KSAttackAction extends BasicKSAction {
 		}
 
 		// Das Objekt kann sich nicht bewegen - also 100% trefferws
-		int trefferWS = 100;
+		long trefferWS = 100;
 
 		// Das Objekt hat einen Antrieb - also TrefferWS anpassen
 		if( ( eShipType.getCost() > 0 ) && ( eShip.getShip().getEngine() > 0 ) ) {
@@ -488,7 +488,7 @@ public class KSAttackAction extends BasicKSAction {
 		}
 
 		// Und nun die TrefferWS anteilig steigern, wenn die Gegnerische Crew/Antrie nicht auf 100 sind
-		int restws = 100-trefferWS;
+		long restws = 100-trefferWS;
 		trefferWS += restws*((100-eShip.getShip().getEngine())/100d);
 		if( eShip.getCrew() < eShipType.getMinCrew() ) {
 			trefferWS += restws*((eShipType.getMinCrew()-eShip.getCrew())/(double)eShipType.getMinCrew());
@@ -501,7 +501,7 @@ public class KSAttackAction extends BasicKSAction {
 			trefferWS = 100;
 		}
 
-		return trefferWS;
+		return (int)trefferWS;
 	}
 
 	private int calcTWSthroughDifference(double defensivskill, double navskill, ShipTypeData eShipType, int defTrefferWS, ShipTypeData ownShipType) {

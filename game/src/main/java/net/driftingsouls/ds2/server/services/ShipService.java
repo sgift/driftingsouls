@@ -1053,7 +1053,7 @@ public class ShipService {
             .setParameter("y", ship.getY())
             .getResultList();
 
-        int basenahrung = 0;
+        long basenahrung = 0;
         for(Base base : bases)
         {
             basenahrung += base.getCargo().getResourceCount(Resources.NAHRUNG);

@@ -485,7 +485,7 @@ public class Offizier extends DSObject {
                 break;
 
 			case NAV: {
-				int fak = difficulty;
+				double fak = difficulty;
 				if( this.spec == 5 ) {
 					fak *= 0.6;
 				}
