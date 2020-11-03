@@ -223,6 +223,7 @@ public class HttpResponse implements Response {
 	{
 		Cookie cookie = new Cookie(name, value);
 		cookie.setMaxAge(expiry);
+		cookie.setSecure(true);
 		response.addCookie(cookie);
 	}
 }
