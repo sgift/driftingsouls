@@ -1828,27 +1828,27 @@ public class KSAttackAction extends BasicKSAction {
 		String answer;
 		if (chance == 0)
 		{
-			answer = "nicht vorhanden";
+			answer = "nicht vorhanden ("+chance+"%)";
 		}
 		else if (chance <=  25)
 		{
-			answer = "gering";
+			answer = "gering ("+chance+"%)";
 		}
 		else if ( chance <= 50)
 		{
-			answer = "ausreichend";
+			answer = "ausreichend ("+chance+"%)";
 		}
 		else if ( chance <= 75)
 		{
-			answer = "gut";
+			answer = "gut ("+chance+"%)";
 		}
 		else if ( chance <= 99)
 		{
-			answer = "hervorragend";
+			answer = "hervorragend ("+chance+"%)";
 		}
 		else
 		{
-			answer = "unfehlbar";
+			answer = "unfehlbar ("+chance+"%)";
 		}
 		return answer;
 	}
