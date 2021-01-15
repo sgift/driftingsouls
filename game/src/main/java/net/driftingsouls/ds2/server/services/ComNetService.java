@@ -94,7 +94,7 @@ public class ComNetService
 				query = db.createQuery("from ComNetEntry entry where entry.text like :input and channel=:channel order by entry.post desc");
 				break;
 			case UserId:
-				query = db.createQuery("from ComNetEntry entry where entry.user.id=:input and channel=:channel order by entry.post desc");
+				query = db.createQuery("from ComNetEntry entry where entry.pic=:input and channel=:channel order by entry.post desc");
 				break;
 			default:
 				throw new IllegalArgumentException("Unbekannter Suchmodus '" + modus + "'");
