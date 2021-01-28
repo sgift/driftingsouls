@@ -5,7 +5,7 @@
 	{
 		fenster1=window.open("./ds?module=fleetmgnt&sess={global.sess}"+params,
 							 "Flotten",
-							"width=370,height=400,locationbar=0,menubar=0,scrollbars=1,statusbar=0,toolbar=0,resizeable=yes,directories=0");
+							"width=410,height=410,locationbar=0,menubar=0,scrollbars=1,statusbar=0,toolbar=0,resizeable=yes,directories=0");
 	}
 // -->
 </script>
@@ -48,7 +48,7 @@
 					<option value="17" {only.kampf.selected17}>Bomber</option>
 				</select>
 				<input type="checkbox" name="showLJaeger" id="form_showLJaeger" value="1" {only.kampf.showljaeger} /><label for="form_showLJaeger">Gelandete Schiffe anzeigen?</label>
-				{!form_create_hidden changeJDocked, only:kampf, low:$global.low, crewless:$global.crewless} 
+				{!form_create_hidden changeJDocked, only:kampf, low:$global.low, crewless:$global.crewless}
 				<input type="submit" value="ok" />
 			</div>
 		</form>
@@ -138,7 +138,7 @@
 			{if ship.spec}
 				<br /><span style="color:red"> 0</span>
 			{/endif}
-		{/endif}		
+		{/endif}
 		</td>
 		<td class="schiffData" nowrap><span style="color:{ship.crewcolor}">{ship.crew}</span>{ship.offi}<br />{if ship.mangel_nahrung}<span style="color:red">{else}<span style="color:green">{/endif}{ship.nahrungcargo}</span><img src="data/resources/Nahrung.gif" alt="" />{if ship.versorger}{if ship.feedingstatus == 1}<img src="data/interface/schiffe/feedingstatus1.gif" />{else}{if ship.feedingstatus == 2}<img src="data/interface/schiffe/feedingstatus2.gif" />{else}<img src="data/interface/schiffe/feedingstatus3.gif" />{/endif}{/endif}{/endif}</td>
 		<td class="schiffData"><div class="alarm {ship.alarm}" ></div></td>
