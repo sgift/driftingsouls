@@ -22,9 +22,13 @@
 		</script>
 </head>
 <body>
-<audio autoplay loop>
+<audio id="audio" autoplay loop>
 	<source src="data/sounds/welcome.mp3" type="audio/mp3">
 </audio>
+<script>
+  var audio = document.getElementById("audio");
+  audio.volume = 0.3;
+</script>
 <div id="header">
 
 		<!-- hier sind die Drifting Souls Bilder der ersten Portalseite-->

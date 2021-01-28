@@ -1484,9 +1484,21 @@ public class FleetMgntController extends Controller
 				}
 			}
 
+			String color = "white";
+			if (ship.getHeat() >= 100)
+			{
+				color = "red";
+			}
+			else if (ship.getHeat() > 70)
+			{
+				color="yellow";
+			}
+
 			t.setVar("ship.id", ship.getId(),
 					"ship.name", Common._plaintitle(ship.getName()),
 					"ship.type.name", shiptype.getNickname(),
+					"ship.heat.color", color,
+					"ship.heat", ship.getHeat(),
 					"ship.offi", offi,
 					"ship.showbattle", ship.getBattle() != null ? ship.getBattle() : 0,
 					"ship.showwarning", !aloc.sameSector(0, loc, 0));
