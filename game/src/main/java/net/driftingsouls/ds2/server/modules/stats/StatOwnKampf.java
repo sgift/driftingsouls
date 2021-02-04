@@ -23,9 +23,14 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.StatsController;
+import net.driftingsouls.ds2.server.services.ShipService;
+import net.driftingsouls.ds2.server.services.UserService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
@@ -35,12 +40,23 @@ import java.util.List;
  * @author Christopher Jung
  *
  */
+@Service
 public class StatOwnKampf implements Statistic {
+	@PersistenceContext
+	private EntityManager em;
+
+	private final UserService userService;
+	private final ShipService shipService;
+
+	public StatOwnKampf(UserService userService, ShipService shipService) {
+		this.userService = userService;
+		this.shipService = shipService;
+	}
+
 	@Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
 		User user = (User)context.getActiveUser();
-		org.hibernate.Session db = context.getDB();
 
 		Writer echo = context.getResponse().getWriter();
 
@@ -52,10 +68,9 @@ public class StatOwnKampf implements Statistic {
 
 		int destpos = context.getRequest().getParameterInt("destpos");
 
-		int destcount = ((Long)db
-				.createQuery("SELECT count(distinct tick) FROM ShipLost WHERE destOwner=:user")
-				.setEntity("user", user)
-				.uniqueResult()).intValue();
+		int destcount = em.createQuery("SELECT count(distinct tick) FROM ShipLost WHERE destOwner=:user", Integer.class)
+				.setParameter("user", user)
+				.getSingleResult();
 		if( destcount > 0 ) {
 			if( destpos > destcount ) {
 				destpos = destcount - 10;
@@ -67,18 +82,17 @@ public class StatOwnKampf implements Statistic {
 
 			echo.append("Zerst&ouml;rte Schiffe:<br />");
 			echo.append("<table class=\"noBorderX\" cellpadding=\"3\" width=\"100%\">\n");
-			List<?> t = db.createQuery("SELECT distinct tick FROM ShipLost WHERE destOwner=:user ORDER BY tick DESC")
-					.setEntity("user", user)
+			List<Integer> t = em.createQuery("SELECT distinct tick FROM ShipLost WHERE destOwner=:user ORDER BY tick DESC", Integer.class)
+					.setParameter("user", user)
 					.setMaxResults(10)
 					.setFirstResult(destpos)
-					.list();
-			for( Object o : t )
+					.getResultList();
+			for( int tick: t )
 			{
-				int tick = (Integer)o;
-				List<?> s = db.createQuery("SELECT distinct count(*),type,owner FROM ShipLost WHERE destOwner=:user AND tick=:tick GROUP BY type,owner")
-						.setEntity("user", user)
-						.setInteger("tick", tick)
-						.list();
+				List<Object[]> s = em.createQuery("SELECT distinct count(*),type,owner FROM ShipLost WHERE destOwner=:user AND tick=:tick GROUP BY type,owner", Object[].class)
+						.setParameter("user", user)
+						.setParameter("tick", tick)
+						.getResultList();
 
 				if( counter == 0 ) {
 					echo.append("<tr>");
@@ -89,10 +103,9 @@ public class StatOwnKampf implements Statistic {
 				echo.append("<td class=\"noBorderX\" style=\"vertical-align:top; text-align:center\">");
 				echo.append(Common.getIngameTime(tick)).append("<br />");
 
-				for( Object o2 : s )
+				for( Object[] data : s )
 				{
-					Object[] data = (Object[])o2;
-					ShipTypeData shiptype = Ship.getShipType( (Integer)data[1] );
+					ShipTypeData shiptype = shipService.getShipType( (Integer)data[1] );
 
 					long count = (Long)data[0];
 
@@ -105,9 +118,9 @@ public class StatOwnKampf implements Statistic {
 						echo.append(data[1].toString());
 					}
 
-					User auser = (User)context.getDB().get(User.class, (Integer)data[2]);
+					User auser = em.find(User.class, data[2]);
 					if( auser != null ) {
-						echo.append(" von: ").append(auser.getProfileLink()).append("<br />");
+						echo.append(" von: ").append(userService.getProfileLink(auser)).append("<br />");
 					}
 					else {
 						echo.append(" von: Unbekannter Spieler (").append(String.valueOf(data[2])).append(")<br />");
@@ -153,10 +166,9 @@ public class StatOwnKampf implements Statistic {
 
 		int lostpos = context.getRequest().getParameterInt("lostpos");
 
-		int lostcount = ((Long)db
-				.createQuery("SELECT count(distinct tick) FROM ShipLost WHERE owner=:user")
-				.setEntity("user", user)
-				.uniqueResult()).intValue();
+		int lostcount = em.createQuery("SELECT count(distinct tick) FROM ShipLost WHERE owner=:user", Integer.class)
+				.setParameter("user", user)
+				.getSingleResult();
 		if( lostcount > 0 ) {
 			if( lostpos > lostcount ) {
 				lostpos = lostcount - 10;
@@ -172,14 +184,13 @@ public class StatOwnKampf implements Statistic {
 
 			echo.append("<br />Verlorene Schiffe:<br />");
 			echo.append("<table class=\"noBorderX\" cellpadding=\"3\" width=\"100%\">\n");
-			List<?> t = db.createQuery("SELECT distinct tick FROM ShipLost WHERE owner=:user ORDER BY tick DESC")
-					.setEntity("user", user)
+			List<Integer> t = em.createQuery("SELECT distinct tick FROM ShipLost WHERE owner=:user ORDER BY tick DESC", Integer.class)
+					.setParameter("user", user)
 					.setMaxResults(10)
 					.setFirstResult(lostpos)
-					.list();
-			for( Object o : t )
+					.getResultList();
+			for( int tick: t )
 			{
-				int tick = (Integer)o;
 				if( counter == 0 ) {
 					echo.append("<tr>");
 				}
@@ -189,15 +200,14 @@ public class StatOwnKampf implements Statistic {
 				echo.append(Common.getIngameTime(tick)).append("<br />");
 
 
-				List<?> s = db.createQuery("SELECT distinct count(*),type,destOwner FROM ShipLost WHERE owner=:user AND tick=:tick GROUP BY type,destOwner")
-						.setEntity("user", user)
-						.setInteger("tick", tick)
-						.list();
+				List<Object[]> s = em.createQuery("SELECT distinct count(*),type,destOwner FROM ShipLost WHERE owner=:user AND tick=:tick GROUP BY type,destOwner", Object[].class)
+						.setParameter("user", user)
+						.setParameter("tick", tick)
+						.getResultList();
 
-				for( Object o2 : s )
+				for( Object[] data : s )
 				{
-					Object[] data = (Object[])o2;
-					ShipTypeData shiptype = Ship.getShipType( (Integer)data[1] );
+					ShipTypeData shiptype = shipService.getShipType( (Integer)data[1] );
 
 					long count = (Long)data[0];
 
@@ -210,10 +220,10 @@ public class StatOwnKampf implements Statistic {
 						echo.append(data[1].toString());
 					}
 
-					User auser = (User)context.getDB().get(User.class, (Integer)data[2]);
+					User auser = em.find(User.class, data[2]);
 
 					if( auser != null ) {
-						echo.append(" durch: ").append(auser.getProfileLink()).append("<br />");
+						echo.append(" durch: ").append(userService.getProfileLink(auser)).append("<br />");
 					}
 					else {
 						echo.append(" durch: Unbekannter Spieler (").append(String.valueOf(data[2])).append(")<br />");

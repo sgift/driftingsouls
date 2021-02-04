@@ -31,23 +31,27 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class HandleAllyFoundConfirm implements TaskHandler {
+	private final TaskManager taskManager;
+
+	public HandleAllyFoundConfirm(TaskManager taskManager) {
+		this.taskManager = taskManager;
+	}
 
 	@Override
 	public void handleEvent(Task task, String event) {	
 		String mastertaskid = task.getData1();
-		Taskmanager tm = Taskmanager.getInstance();
 		switch (event)
 		{
 			case "pm_yes":
-				tm.handleTask(mastertaskid, "__conf_recv");
-				tm.removeTask(task.getTaskID());
+				taskManager.handleTask(mastertaskid, "__conf_recv");
+				taskManager.removeTask(task.getTaskID());
 				break;
 			case "pm_no":
-				tm.handleTask(mastertaskid, "__conf_dism");
-				tm.removeTask(task.getTaskID());
+				taskManager.handleTask(mastertaskid, "__conf_dism");
+				taskManager.removeTask(task.getTaskID());
 				break;
 			case "tick_timeout":
-				tm.removeTask(task.getTaskID());
+				taskManager.removeTask(task.getTaskID());
 				break;
 		}
 	}

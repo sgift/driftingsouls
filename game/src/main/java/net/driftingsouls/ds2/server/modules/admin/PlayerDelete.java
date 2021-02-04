@@ -22,20 +22,24 @@ import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.services.AllianzService;
+import net.driftingsouls.ds2.server.services.BuildingService;
+import net.driftingsouls.ds2.server.services.DismantlingService;
+import net.driftingsouls.ds2.server.services.PmService;
 import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.tasks.Taskmanager;
+import net.driftingsouls.ds2.server.tasks.TaskManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Component;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,14 +50,29 @@ import java.util.List;
  *
  */
 @AdminMenuEntry(category = "Spieler", name = "Spieler löschen", permission = WellKnownAdminPermission.PLAYER_DELETE)
+@Component
 public class PlayerDelete implements AdminPlugin
 {
 	private static final Log log = LogFactory.getLog(PlayerDelete.class);
 
+	@PersistenceContext
+	private EntityManager em;
+
+	private final BuildingService buildingService;
+	private final PmService pmService;
+	private final TaskManager taskManager;
+	private final DismantlingService dismantlingService;
+
+	public PlayerDelete(BuildingService buildingService, PmService pmService, TaskManager taskManager, DismantlingService dismantlingService) {
+		this.buildingService = buildingService;
+		this.pmService = pmService;
+		this.taskManager = taskManager;
+		this.dismantlingService = dismantlingService;
+	}
+
 	@Override
 	public void output(StringBuilder echo) {
 		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
 
 		int userid = context.getRequest().getParameterInt("userid");
 
@@ -80,7 +99,7 @@ public class PlayerDelete implements AdminPlugin
 		log.info("Loesche Spieler "+userid);
 
 		echo.append("<div class='gfxbox' style='width:540px'>");
-		User user = (User)db.get(User.class, userid);
+		User user = em.find(User.class, userid);
 		if( user == null ) {
 			echo.append("Der Spieler existiert nicht.<br />\n");
 			echo.append("</div>");
@@ -130,10 +149,10 @@ public class PlayerDelete implements AdminPlugin
 				count = ally.getMemberCount() - 1;
 				if( count < 2 )
 				{
-					Taskmanager.getInstance().addTask(Taskmanager.Types.ALLY_LOW_MEMBER, 21,
+					taskManager.addTask(TaskManager.Types.ALLY_LOW_MEMBER, 21,
 							Integer.toString(ally.getId()), "", "");
 
-					final User sourceUser = (User)db.get(User.class, 0);
+					final User sourceUser = em.find(User.class, 0);
 
 					AllianzService allianzService = context.getBean(AllianzService.class, null);
 					List<User> supermembers = allianzService.getAllianzfuehrung(ally);
@@ -144,7 +163,7 @@ public class PlayerDelete implements AdminPlugin
 							continue;
 						}
 
-						PM.send(
+						pmService.send(
 							sourceUser,
 							supermember.getId(),
 							"Drohende Allianzauflösung",
@@ -161,75 +180,68 @@ public class PlayerDelete implements AdminPlugin
 		}
 
 		echo.append("Entferne GTU-Zwischenlager...<br />\n");
-		db.createQuery("delete from GtuZwischenlager where user1=:user")
-			.setInteger("user", userid)
+		em.createQuery("delete from GtuZwischenlager where user1=:user")
+			.setParameter("user", userid)
 			.executeUpdate();
-		db.createQuery("delete from GtuZwischenlager where user2=:user")
-			.setInteger("user", userid)
+		em.createQuery("delete from GtuZwischenlager where user2=:user")
+			.setParameter("user", userid)
 			.executeUpdate();
 
 		echo.append("Entferne User-Values...");
-		count = db.createQuery("delete from UserValue where user=:user")
-			.setInteger("user", userid)
+		count = em.createQuery("delete from UserValue where user=:user")
+			.setParameter("user", userid)
 			.executeUpdate();
 		echo.append(count).append("<br />\n");
 
 		echo.append("Entferne Com-Net-visits...");
-		count = db.createQuery("delete from ComNetVisit where user=:user")
-			.setInteger("user", userid)
+		count = em.createQuery("delete from ComNetVisit where user=:user")
+			.setParameter("user", userid)
 			.executeUpdate();
 		echo.append(count).append("<br />\n");
 
 		echo.append("Ordne Com-Net-Posts ID 0 zu...");
-		count = db.createQuery("update ComNetEntry set user=0 where user=:user")
-			.setInteger("user", userid)
+		count = em.createQuery("update ComNetEntry set user=0 where user=:user")
+			.setParameter("user", userid)
 			.executeUpdate();
 		echo.append(count).append("<br />\n");
 
 		echo.append("Entferne User-Ränge...");
-		count = db.createQuery("delete from UserRank where userRankKey.owner=:user")
-				.setInteger("user", userid)
+		count = em.createQuery("delete from UserRank where userRankKey.owner=:user")
+				.setParameter("user", userid)
 				.executeUpdate();
 		echo.append(count).append("<br />\n");
 
 		echo.append("Entferne Fraktionsaktionsmeldungen...");
-		count = db.createQuery("delete from FraktionAktionsMeldung where gemeldetVon=:user")
-				.setInteger("user", userid)
+		count = em.createQuery("delete from FraktionAktionsMeldung where gemeldetVon=:user")
+				.setParameter("user", userid)
 				.executeUpdate();
 		echo.append(count).append("<br />\n");
 
 		// Schiffe
 		echo.append("Entferne Schiffe...\n");
 
-		List<?> ships = db.createQuery("from Ship where owner=:user")
-			.setEntity("user", user)
-			.list();
-		for (Object ship : ships)
+		List<Ship> ships = em.createQuery("from Ship where owner=:user", Ship.class)
+			.setParameter("user", user)
+			.getResultList();
+		for (Ship ship: ships)
 		{
-			Ship aship = (Ship) ship;
-			aship.destroy();
+			dismantlingService.destroy(ship);
 			count++;
 		}
 
 		echo.append(count).append(" Schiffe entfernt<br />\n");
 
 		// Basen
-		List<Base> baselist = new ArrayList<>();
 
-		List<?> baseList = db.createQuery("from Base where owner=:user")
-			.setInteger("user", userid)
-			.list();
-		for (Object aBaseList : baseList)
-		{
-			Base base = (Base) aBaseList;
-			baselist.add(base);
-		}
+		List<Base> baseList = em.createQuery("from Base where owner=:user", Base.class)
+			.setParameter("user", userid)
+			.getResultList();
 
 		echo.append("Übereigne Basen an Spieler 0 (+ reset)...\n");
 
-		User nullUser = (User)db.get(User.class, 0);
+		User nullUser = (User)em.find(User.class, 0);
 
-		for( Base base : baselist )
+		for( Base base : baseList )
 		{
 			Integer[] bebauung = base.getBebauung();
 			for( int i = 0; i < bebauung.length; i++ )
@@ -240,7 +252,7 @@ public class PlayerDelete implements AdminPlugin
 				}
 
 				Building building = Building.getBuilding(bebauung[i]);
-				building.cleanup(context, base, bebauung[i]);
+				buildingService.cleanup(building, base, bebauung[i]);
 				bebauung[i] = 0;
 			}
 			base.setBebauung(bebauung);
@@ -257,49 +269,49 @@ public class PlayerDelete implements AdminPlugin
 			base.setAutoGTUActs(new ArrayList<>());
 		}
 
-		echo.append(baselist.size()).append(" Basen bearbeitet<br />\n");
+		echo.append(baseList.size()).append(" Basen bearbeitet<br />\n");
 
 		echo.append("Entferne Handelseinträge...");
-		count = db.createQuery("delete from Handel where who=:user")
-			.setInteger("user", userid)
+		count = em.createQuery("delete from Handel where who=:user")
+			.setParameter("user", userid)
 			.executeUpdate();
 		echo.append(count).append("<br />\n");
 
 		echo.append("Überstelle GTU-Gebote an die GTU (-2)...<br />");
-		db.createQuery("update Versteigerung set bieter=-2 where bieter=:user")
-			.setInteger("user", userid)
+		em.createQuery("update Versteigerung set bieter=-2 where bieter=:user")
+			.setParameter("user", userid)
 			.executeUpdate();
 
-		db.createQuery("update Versteigerung set owner=-2 where owner=:user")
-			.setInteger("user", userid)
+		em.createQuery("update Versteigerung set owner=-2 where owner=:user")
+			.setParameter("user", userid)
 			.executeUpdate();
 
 		echo.append("Lösche PM's...");
-		count = db.createQuery("delete from PM where empfaenger = :user")
-			.setEntity("user", user)
+		count = em.createQuery("delete from PM where empfaenger = :user")
+			.setParameter("user", user)
 			.executeUpdate();
 		echo.append(count).append("<br />\n");
 
-		db.createQuery("update PM set sender=0 where sender = :user")
-			.setEntity("user", user)
+		em.createQuery("update PM set sender=0 where sender = :user")
+			.setParameter("user", user)
 			.executeUpdate();
 
 		echo.append("Lösche PM-Ordner...");
-		count = db.createQuery("delete from Ordner where owner=:user")
-			.setInteger("user", userid)
+		count = em.createQuery("delete from Ordner where owner=:user")
+			.setParameter("user", userid)
 			.executeUpdate();
 		echo.append(count).append("<br />");
 
 		echo.append("Lösche Diplomatieeinträge...");
-		count = db.createQuery("delete from UserRelation where user=:user1 or target=:user2")
-			.setInteger("user1", userid)
-			.setInteger("user2", userid)
+		count = em.createQuery("delete from UserRelation where user=:user1 or target=:user2")
+			.setParameter("user1", userid)
+			.setParameter("user2", userid)
 			.executeUpdate();
 		echo.append(count).append("<br />\n");
 
 		echo.append("Lösche Kontobewegungen...<br />\n");
-		db.createQuery("delete from UserMoneyTransfer umt where umt.from= :user or umt.to = :user")
-			.setEntity("user", user)
+		em.createQuery("delete from UserMoneyTransfer umt where umt.from= :user or umt.to = :user")
+			.setParameter("user", user)
 			.executeUpdate();
 
 		echo.append("Lösche Userlogo...<br />\n");
@@ -307,38 +319,32 @@ public class PlayerDelete implements AdminPlugin
 				.delete();
 
 		echo.append("Lösche Offiziere...");
-		count = db.createQuery("delete from Offizier where owner=:user")
-			.setInteger("user", userid)
+		count = em.createQuery("delete from Offizier where owner=:user")
+			.setParameter("user", userid)
 			.executeUpdate();
 		echo.append(count).append("<br />");
 
 		echo.append("Lösche Shop-Aufträge...");
-		count = db.createQuery("delete from FactionShopOrder where user=:user")
-			.setInteger("user", userid)
+		count = em.createQuery("delete from FactionShopOrder where user=:user")
+			.setParameter("user", userid)
 			.executeUpdate();
 		echo.append(count).append("<br />\n");
 
 		echo.append("Lösche Statistik 'Item-Locations'...");
-		count = db.createQuery("delete from StatItemLocations where user=:user")
-			.setInteger("user", userid)
+		count = em.createQuery("delete from StatItemLocations where user=:user")
+			.setParameter("user", userid)
 			.executeUpdate();
 		echo.append(count).append("<br />\n");
 
 		echo.append("Lösche Statistik 'User-Cargo'...");
-		count = db.createQuery("delete from StatUserCargo where user=:user")
-			.setInteger("user", userid)
-			.executeUpdate();
-		echo.append(count).append("<br />\n");
-
-		echo.append("Lösche Sessioneintrag...");
-		count = db.createQuery("delete from PermanentSession where user=:user")
-			.setEntity("user", user)
+		count = em.createQuery("delete from StatUserCargo where user=:user")
+			.setParameter("user", userid)
 			.executeUpdate();
 		echo.append(count).append("<br />\n");
 
 		echo.append("Lösche Usereintrag...<br />\n");
-		db.flush();
-		db.delete(user);
+		em.flush();
+		em.remove(user);
 
 		echo.append("<br />Spieler ").append(userid).append(" gelöscht!<br />\n");
 

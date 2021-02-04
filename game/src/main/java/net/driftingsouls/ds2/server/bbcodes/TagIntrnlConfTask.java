@@ -19,7 +19,7 @@
 package net.driftingsouls.ds2.server.bbcodes;
 
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeFunction;
-import net.driftingsouls.ds2.server.tasks.Taskmanager;
+import net.driftingsouls.ds2.server.tasks.TaskManager;
 
 /**
  * BBCode zur Bestaetigung/Ablehung von Tasks.
@@ -28,13 +28,19 @@ import net.driftingsouls.ds2.server.tasks.Taskmanager;
  */
 public class TagIntrnlConfTask implements BBCodeFunction
 {
+	private final TaskManager taskManager;
+
+	public TagIntrnlConfTask(TaskManager taskManager) {
+		this.taskManager = taskManager;
+	}
+
 	@Override
 	public String handleMatch(String content, String... values)
 	{
 		String taskid = values[0];
 		StringBuilder str = new StringBuilder(100);
 
-		if( Taskmanager.getInstance().getTaskByID(taskid) != null )
+		if( taskManager.getTaskByID(taskid) != null )
 		{
 			str.append("<div align=\"center\">");
 			str.append("<table class=\"noBorderX\" width=\"500\"><tr><td class=\"BorderX\" align=\"center\">");

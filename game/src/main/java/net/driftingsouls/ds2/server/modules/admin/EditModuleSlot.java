@@ -6,8 +6,10 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
 
 @AdminMenuEntry(category = "Schiffe", name = "Modulslot", permission = WellKnownAdminPermission.EDIT_MODULE_SLOT)
+@Component
 public class EditModuleSlot implements EntityEditor<ModuleSlot>
 {
 

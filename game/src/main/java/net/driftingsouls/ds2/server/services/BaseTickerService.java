@@ -7,24 +7,32 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
-import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.math.BigInteger;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 public class BaseTickerService
 {
+	@PersistenceContext
+	private EntityManager em;
+
+	private final PmService pmService;
+
+	public BaseTickerService(PmService pmService) {
+		this.pmService = pmService;
+	}
+
 	private void respawnRess(Base base, int itemid)
 	{
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		User sourceUser = (User)db.get(User.class, -1);
+		User sourceUser = em.find(User.class, -1);
 
 		base.setSpawnableRessAmount(itemid, 0);
 
@@ -39,13 +47,13 @@ public class BaseTickerService
 
 		base.setSpawnableRessAmount(item, maxvalue);
 
-		Item olditem = (Item)db.get(Item.class, itemid);
-		Item newitem = (Item)db.get(Item.class, item);
+		Item olditem = em.find(Item.class, itemid);
+		Item newitem = em.find(Item.class, item);
 		String message = "Kolonie: " + base.getName() + " (" + base.getId() + ")\n";
 		message = message + "Ihre Arbeiter melden: Die Ressource " + olditem.getName() + " wurde aufgebraucht!\n";
 		message = message + "Erfreulich ist: Ihre Geologen haben " + newitem.getName() + " gefunden!";
 
-		PM.send(sourceUser, base.getOwner().getId(), "Ressourcen aufgebraucht!", message);
+		pmService.send(sourceUser, base.getOwner().getId(), "Ressourcen aufgebraucht!", message);
 	}
 
 	/**
@@ -102,7 +110,6 @@ public class BaseTickerService
 		Cargo baseCargo = (Cargo)base.getCargo().clone();
 		Cargo nettoproduction = state.getNettoProduction();
 		Cargo nettoconsumption = state.getNettoConsumption();
-		org.hibernate.Session db = ContextMap.getContext().getDB();
 		boolean ok = true;
 
 		if(state.getArbeiter() > base.getBewohner())
@@ -117,7 +124,7 @@ public class BaseTickerService
 		for(ResourceEntry entry : nettoproduction.getResourceList())
 		{
 			// Auf Spawn Resource pruefen und ggf Produktion anpassen
-			Item item = (Item)db.get(Item.class,entry.getId().getItemID());
+			Item item = em.find(Item.class,entry.getId().getItemID());
 			if(item.isSpawnableRess()) {
 				// Genug auf dem Asteroiden vorhanden
 				// und abziehen

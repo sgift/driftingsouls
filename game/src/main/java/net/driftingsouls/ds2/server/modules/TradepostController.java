@@ -19,12 +19,14 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.services.LocationService;
 import net.driftingsouls.ds2.server.ships.SchiffEinstellungen;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.TradepostVisibility;
-import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,11 +38,16 @@ import java.util.Map;
 public class TradepostController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
+	private final LocationService locationService;
+
+	@PersistenceContext
+	private EntityManager em;
 
 	@Autowired
-	public TradepostController(TemplateViewResultFactory templateViewResultFactory)
+	public TradepostController(TemplateViewResultFactory templateViewResultFactory, LocationService locationService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.locationService = locationService;
 
 		setPageTitle("Tradepost");
 	}
@@ -70,11 +77,10 @@ public class TradepostController extends Controller
 	{
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
-		org.hibernate.Session db = getDB();
 
 		validiereSchiff(ship);
 
-		List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
+		List<Item> itemlist = em.createQuery("from Item", Item.class).getResultList();
 
 		t.setBlock("_TRADEPOST", "tradepost.list", "tradepost.post");
 		t.setBlock("_TRADEPOST", "tradepost.items.entry", "tradepost.items.list");
@@ -101,10 +107,11 @@ public class TradepostController extends Controller
 		Cargo buylistgtu = kurse.getKurse();
 
 
+		var location = new Location(ship.getSystem(), ship.getX(), ship.getY());
 		t.setVar("tradepost.id", ship.getId(),
 				"tradepost.image", ship.getTypeData().getPicture(),
 				"tradepost.name", ship.getName(),
-				"tradepost.koords", new Location(ship.getSystem(), ship.getX(), ship.getY()).displayCoordinates(false));
+				"tradepost.koords", locationService.displayCoordinates(location, false));
 
 		// build form
 		for (Item aitem : itemlist)
@@ -192,22 +199,24 @@ public class TradepostController extends Controller
 
 	private GtuWarenKurse ladeAnUndVerkaufsdaten(Ship ship, Map<ResourceID, SellLimit> selllistmap, Map<ResourceID, ResourceLimit> buylistmap)
 	{
-		Session db = getDB();
-
 		// get all SellLimits of this ship
-		List<SellLimit> selllimitlist = Common.cast(db.createQuery("from SellLimit where ship=:ship").setParameter("ship", ship).list());
+		List<SellLimit> sellLimits = em.createQuery("from SellLimit where ship=:ship", SellLimit.class)
+			.setParameter("ship", ship)
+			.getResultList();
 
 		// get all ResourceLimits of this ship
-		List<ResourceLimit> buylimitlist = Common.cast(db.createQuery("from ResourceLimit where ship=:ship").setParameter("ship", ship).list());
+		List<ResourceLimit> buyLimits = em.createQuery("from ResourceLimit where ship=:ship", ResourceLimit.class)
+			.setParameter("ship", ship)
+			.getResultList();
 		// get GtuWarenKurse cause of fucking database structure
 		GtuWarenKurse kurse = ermittleKurseFuerSchiff(ship);
 
-		for (SellLimit limit : selllimitlist)
+		for (SellLimit limit : sellLimits)
 		{
 			// add a sepcific selllimit to the map at position of his id
 			selllistmap.put(limit.getResourceId(), limit);
 		}
-		for (ResourceLimit limit : buylimitlist)
+		for (ResourceLimit limit : buyLimits)
 		{
 			// add a specific buylimit to the map at position of his id
 			buylistmap.put(limit.getResourceId(), limit);
@@ -218,15 +227,14 @@ public class TradepostController extends Controller
 	private GtuWarenKurse ermittleKurseFuerSchiff(Ship ship)
 	{
 		User user = (User) getUser();
-		Session db = getDB();
 
 		Cargo buylistgtu;
-		GtuWarenKurse kurse = (GtuWarenKurse) db.get(GtuWarenKurse.class, "p" + ship.getId());
+		GtuWarenKurse kurse = em.find(GtuWarenKurse.class, "p" + ship.getId());
 		if (kurse == null)
 		{
 			if (user.getRace() == Faction.GTU_RASSE)
 			{
-				GtuWarenKurse tmpKurse = (GtuWarenKurse) db.get(GtuWarenKurse.class, "tradepost");
+				GtuWarenKurse tmpKurse = em.find(GtuWarenKurse.class, "tradepost");
 				buylistgtu = new Cargo(tmpKurse.getKurse());
 			}
 			else
@@ -237,7 +245,7 @@ public class TradepostController extends Controller
 
 			// there's no GtuWarenKurse Object, create one
 			kurse = new GtuWarenKurse("p" + ship.getId(), ship.getName(), buylistgtu);
-			db.persist(kurse);
+			em.persist(kurse);
 
 		}
 
@@ -265,11 +273,10 @@ public class TradepostController extends Controller
 	{
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
-		org.hibernate.Session db = getDB();
 
 		validiereSchiff(ship);
 
-		List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
+		List<Item> items = em.createQuery("from Item", Item.class).getResultList();
 
 		t.setBlock("_TRADEPOST", "tradepost.list", "tradepost.post");
 
@@ -292,10 +299,11 @@ public class TradepostController extends Controller
 
 		GtuWarenKurse kurse = ladeAnUndVerkaufsdaten(ship, selllistmap, buylistmap);
 
+		var location = new Location(ship.getSystem(), ship.getX(), ship.getY());
 		t.setVar("tradepost.id", ship.getId(),
 				"tradepost.image", ship.getTypeData().getPicture(),
 				"tradepost.name", ship.getName(),
-				"tradepost.koords", new Location(ship.getSystem(), ship.getX(), ship.getY()).displayCoordinates(false));
+				"tradepost.koords", locationService.displayCoordinates(location, false));
 
 		// read possible new value of tradepostvisibility and write to ship
 		SchiffEinstellungen einstellungen = ship.getEinstellungen();
@@ -303,7 +311,7 @@ public class TradepostController extends Controller
 		einstellungen.persistIfNecessary(ship);
 
 		// build form
-		for (Item aitem : itemlist)
+		for (Item aitem : items)
 		{
 			if (!user.canSeeItem(aitem))
 			{
@@ -331,7 +339,6 @@ public class TradepostController extends Controller
 							 Map<Integer,Boolean> buybools,
 							 Map<Integer,Boolean> fills)
 	{
-		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 
 		final ItemID rid = new ItemID(aitem.getID());
@@ -399,7 +406,7 @@ public class TradepostController extends Controller
 			if (selllistmap.containsKey(rid))
 			{
 				itemsell = selllistmap.get(rid);
-				db.delete(itemsell);
+				em.remove(itemsell);
 			}
 		}
 		else
@@ -416,7 +423,7 @@ public class TradepostController extends Controller
 			{
 				// create new object
 				itemsell = new SellLimit(ship, rid, salesprice, saleslimit, sellrank);
-				db.persist(itemsell);
+				em.persist(itemsell);
 			}
 
 			if (fill)
@@ -433,7 +440,7 @@ public class TradepostController extends Controller
 			if (buylistmap.containsKey(rid))
 			{
 				itembuy = buylistmap.get(rid);
-				db.delete(itembuy);
+				em.remove(itembuy);
 			}
 		}
 		else
@@ -450,7 +457,7 @@ public class TradepostController extends Controller
 			{
 				// create new object
 				itembuy = new ResourceLimit(ship, rid, buylimit, buyrank);
-				db.persist(itembuy);
+				em.persist(itembuy);
 			}
 			Cargo kcargo = kurse.getKurse();
 			kcargo.setResource(rid, Math.round(buyprice * 1000));

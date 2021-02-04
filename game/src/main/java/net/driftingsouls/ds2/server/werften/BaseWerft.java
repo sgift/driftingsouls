@@ -18,21 +18,20 @@
  */
 package net.driftingsouls.ds2.server.werften;
 
+import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.bases.Building;
+import net.driftingsouls.ds2.server.bases.Werft;
+import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.entities.Offizier;
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
-
-import net.driftingsouls.ds2.server.entities.Offizier;
-import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.bases.Building;
-import net.driftingsouls.ds2.server.bases.Werft;
-import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.ResourceEntry;
-import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 
 /**
  * Repraesentiert eine Werft auf einer Basis in DS.
@@ -93,19 +92,6 @@ public class BaseWerft extends WerftObject {
 	@Override
 	public Cargo getCargo(boolean localonly) {
 		return base.getCargo();
-	}
-
-	@Override
-	public void setCargo(Cargo cargo, boolean localonly) {
-		for (ResourceEntry entry : cargo.getResourceList())
-		{
-			if( entry.getCount1() < 0 )
-			{
-				throw new IllegalArgumentException("Der Cargo kann nicht negativ sein ("+entry.getId()+": "+entry.getCount1());
-			}
-		}
-
-		base.setCargo(cargo);
 	}
 
 	@Override
@@ -248,12 +234,8 @@ public class BaseWerft extends WerftObject {
 		return 1d;
 	}
 
-	@Override
-	public void destroy()
-	{
-		this.base.setWerft(null);
-
-		super.destroy();
+	public Base getBase() {
+		return base;
 	}
 
 	@Override

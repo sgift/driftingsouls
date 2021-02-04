@@ -1,14 +1,30 @@
 package net.driftingsouls.ds2.server.entities;
 
+import net.driftingsouls.ds2.server.TestAppConfig;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.framework.ConfigService;
+import net.driftingsouls.ds2.server.services.DismantlingService;
+import net.driftingsouls.ds2.server.services.ShipService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = {
+    TestAppConfig.class
+})
 public class NebulaTest {
+    @Autowired
+    private ShipService shipService;
+    @Autowired
+    private DismantlingService dismantlingService;
+
     @Test
     public void damage() {
         User user = Mockito.mock(User.class);
@@ -29,7 +45,7 @@ public class NebulaTest {
         ship.setShields(1100);
         ship.setAblativeArmor(1000);
         ship.setHull(100);
-        Nebel.Typ.DAMAGE.damageShip(ship, config);
+        Nebel.Typ.DAMAGE.damageShip(ship, config, shipService, dismantlingService);
 
         Assert.assertEquals(100, ship.getShields());
         Assert.assertEquals(1000, ship.getAblativeArmor());
@@ -39,7 +55,7 @@ public class NebulaTest {
         ship.setShields(900);
         ship.setAblativeArmor(1000);
         ship.setHull(100);
-        Nebel.Typ.DAMAGE.damageShip(ship, config);
+        Nebel.Typ.DAMAGE.damageShip(ship, config, shipService, dismantlingService);
 
         Assert.assertEquals(0, ship.getShields());
         Assert.assertEquals(985, ship.getAblativeArmor());
@@ -53,7 +69,7 @@ public class NebulaTest {
         ship.setEngine(100);
         ship.setSensors(100);
         ship.setWeapons(100);
-        Nebel.Typ.DAMAGE.damageShip(ship, config);
+        Nebel.Typ.DAMAGE.damageShip(ship, config, shipService, dismantlingService);
 
         Assert.assertEquals(0, ship.getShields());
         Assert.assertEquals(0, ship.getAblativeArmor());
@@ -71,7 +87,7 @@ public class NebulaTest {
         ship.setShields(0);
         ship.setAblativeArmor(1000);
         ship.setHull(100);
-        Nebel.Typ.DAMAGE.damageShip(ship, config);
+        Nebel.Typ.DAMAGE.damageShip(ship, config, shipService, dismantlingService);
 
         Assert.assertEquals(0, ship.getShields());
         Assert.assertEquals(850, ship.getAblativeArmor());

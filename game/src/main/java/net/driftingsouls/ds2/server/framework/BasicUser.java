@@ -23,12 +23,12 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.DiscriminatorFormula;
-import org.hibernate.annotations.Index;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.OneToMany;
@@ -46,7 +46,9 @@ import java.util.Set;
  *
  */
 @Entity
-@Table(name="users")
+@Table(name="users", indexes = {
+	@Index(name = "basicuser_un", columnList = "un")
+})
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 @DiscriminatorFormula("'default'")
 @Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
@@ -66,7 +68,6 @@ public abstract class BasicUser {
 	@Id
 	private int id;
 
-	@Index(name="basicuser_un")
 	@Column(nullable = false)
 	private String un;
 	@Column(nullable = false)
@@ -211,16 +212,12 @@ public abstract class BasicUser {
 
 	/**
 	 * Setzt den vollstaendigen Ingame-Namen des Spielers auf den angegebenen
-	 * BBCode-String. Gleichzeitig wird das Feld <code>plainname</code> mit dem neuen
-	 * Namen ohne BBCodes aktuallisiert.
+	 * BBCode-String.
 	 *
 	 * @param name der neue vollstaendige Ingame-Name
 	 */
 	public void setName( String name ) {
-		if( !name.equals(this.name) ) {
-			this.name = name;
-			this.plainname = BBCodeParser.getInstance().parse(name,new String[] {"all"});
-		}
+		this.name = name;
 	}
 
 	/**
@@ -361,7 +358,7 @@ public abstract class BasicUser {
 	 * Setzt den Plaintext-Namen des Spielers.
 	 * @param plainname Der Name
 	 */
-	protected void setPlainname(String plainname) {
+	public void setPlainname(String plainname) {
 		this.plainname = plainname;
 	}
 

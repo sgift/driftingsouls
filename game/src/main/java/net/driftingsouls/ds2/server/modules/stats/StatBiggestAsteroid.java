@@ -27,21 +27,23 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.modules.StatsController;
+import org.springframework.stereotype.Component;
 
 /**
  * Zeigt die Liste der groessten Asteroiden an.
  * @author Christopher Jung
  *
  */
+@Component
 public class StatBiggestAsteroid extends AbstractStatistic implements Statistic {
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public StatBiggestAsteroid() {
-		// EMPTY
-	}
+	private final BBCodeParser bbCodeParser;
+
+	public StatBiggestAsteroid(BBCodeParser bbCodeParser) {
+        super(bbCodeParser);
+        this.bbCodeParser = bbCodeParser;
+    }
 
 	@Override
 	public void show(StatsController contr, int size) throws IOException {
@@ -68,7 +70,7 @@ public class StatBiggestAsteroid extends AbstractStatistic implements Statistic 
 		{
 	   		echo.append("<tr><td>").append(Integer.toString(count + 1)).append(".</td>\n");
 			User owner = base.getOwner();
-			echo.append("<td><a class=\"profile\" href=\"").append(url).append(Integer.toString(owner.getId())).append("\">").append(Common._title(owner.getName())).append(" (").append(Integer.toString(owner.getId())).append(")</a></td>\n");
+			echo.append("<td><a class=\"profile\" href=\"").append(url).append(Integer.toString(owner.getId())).append("\">").append(Common._title(bbCodeParser, owner.getName())).append(" (").append(Integer.toString(owner.getId())).append(")</a></td>\n");
 			echo.append("<td>").append(Common._plaintitle(base.getName())).append(" (").append(Integer.toString(base.getId())).append(")</td>\n");
 			echo.append("<td>").append(Common.ln(base.getBewohner())).append("</td></tr>\n");
 

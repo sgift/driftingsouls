@@ -19,18 +19,22 @@
 package net.driftingsouls.ds2.server.tick.regular;
 
 import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.services.BaseTickerService;
+import net.driftingsouls.ds2.server.services.PmService;
+import net.driftingsouls.ds2.server.services.UserService;
+import net.driftingsouls.ds2.server.services.UserValueService;
 import net.driftingsouls.ds2.server.tick.TickController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import java.util.List;
 
 /**
@@ -43,33 +47,40 @@ import java.util.List;
 public class BaseTick extends TickController 
 {
 	private final BaseTickerService baseTickerService;
+	private final PmService pmService;
+	private final UserValueService userValueService;
+
+	@PersistenceContext
+	private EntityManager em;
 
 	@Autowired
-	public BaseTick(BaseTickerService baseTickerService)
+	public BaseTick(BaseTickerService baseTickerService, PmService pmService, UserValueService userValueService)
 	{
 		this.baseTickerService = baseTickerService;
+		this.pmService = pmService;
+		this.userValueService = userValueService;
 	}
 
 	@Override
 	protected void prepare() 
 	{
+		//Nothing to do
 	}
 
 	private void tickBases() 
 	{
-		org.hibernate.Session db = getDB();
-		
-		List<Integer> userIds = Common.cast(db.createQuery("select u.id from User u where u.id != 0 and (u.vaccount=0 or u.wait4vac>0) order by u.id").list());
+		List<Integer> userIds = em.createQuery("select u.id from User u where u.id != 0 and (u.vaccount=0 or u.wait4vac>0) order by u.id", Integer.class).getResultList();
 		
 		new EvictableUnitOfWork<Integer>("Base Tick")
 		{
 			@Override
 			public void doWork(Integer userId) {
 				// Get all bases, take everything with them - we need it all.
-				List<Base> bases = Common.cast(getDB().createQuery("from Base b fetch all properties where b.owner=:owner")
-						.setInteger("owner", userId)
-						.setFetchSize(5000)
-						.list());	
+				TypedQuery<Base> query = em.createQuery("from Base b fetch all properties where b.owner=:owner", Base.class)
+					.setParameter("owner", userId)
+					.setHint("org.hibernate.fetchSize", 5000);
+
+				List<Base> bases = query.getResultList();
 				
 				log(userId+":");
 
@@ -81,11 +92,12 @@ public class BaseTick extends TickController
 				
 				if(!messages.toString().trim().equals(""))
 				{
-					User sourceUser = (User)getDB().get(User.class, -1);
-                    User baseUser = (User)getDB().get(User.class, userId);
+					User sourceUser = em.find(User.class, -1);
+                    User baseUser = em.find(User.class, userId);
 
-					if(baseUser.getUserValue(WellKnownUserValue.GAMEPLAY_USER_BASE_DOWN_PM)) {
-                        PM.send(sourceUser, userId, "Basis-Tick", messages.toString());
+                    var sendBaseTickMessage = userValueService.getUserValue(baseUser, WellKnownUserValue.GAMEPLAY_USER_BASE_DOWN_PM);
+					if(Boolean.TRUE.equals(sendBaseTickMessage)) {
+						pmService.send(sourceUser, userId, "Basis-Tick", messages.toString());
                     }
 				}
 			}
@@ -98,6 +110,6 @@ public class BaseTick extends TickController
 	protected void tick() 
 	{
 		tickBases();
-		getDB().clear();
+		em.clear();
 	}
 }

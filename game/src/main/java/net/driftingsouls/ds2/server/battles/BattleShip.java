@@ -23,17 +23,15 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import net.driftingsouls.ds2.server.units.UnitCargo;
-import org.hibernate.Session;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
-
 import org.springframework.lang.NonNull;
+
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -43,7 +41,6 @@ import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Version;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -327,10 +324,10 @@ public class BattleShip {
 	/**
 	 * Gibt die Einheiten auf dem Schiff zurueck.
 	 * @return Die Einheiten
-	 * @see net.driftingsouls.ds2.server.ships.Ship#getUnits()
+	 * @see net.driftingsouls.ds2.server.ships.Ship#getUnitCargo()
 	 */
 	public UnitCargo getUnits() {
-		return ship.getUnits();
+		return ship.getUnitCargo();
 	}
 
 	/**
@@ -338,7 +335,7 @@ public class BattleShip {
 	 * @param unitcargo Die neuen Einheiten
      */
 	public void setUnits(UnitCargo unitcargo) {
-		ship.setUnits(unitcargo);
+		ship.setUnitCargo(unitcargo);
 	}
 
 	/**
@@ -481,25 +478,6 @@ public class BattleShip {
 	}
 
 	/**
-	 * Checks, if the ship is in the second row.
-	 *
-	 * @return true, if the ship is in the second row, false otherwise.
-	 */
-	public boolean isSecondRow()
-	{
-		Ship aship = this.getShip();
-		if (aship != null){
-			if ( aship.isDocked() || aship.isLanded() ){
-				BattleShip traeger = this.getBaseShip();
-				if (traeger != null){
-					return traeger.hasFlag(BattleShipFlag.SECONDROW);
-				}
-			}
-		}
-		return hasFlag(BattleShipFlag.SECONDROW);
-	}
-
-	/**
 	 * @return Offensivwert des Schiffes.
 	 */
 	public int getOffensiveValue()
@@ -554,51 +532,5 @@ public class BattleShip {
 		navskill *= (ship.getEngine()/100d);
 
 		return Math.max(1, (int)Math.round(navskill));
-	}
-/**
- * @return Das Traegerschiff
- */
-	public BattleShip getBaseShip()
-	{
-		//gucken, ob das BattleShiff ueberhaupt einen Traeger hat
-		//erst umwandeln vom BattleShip in ein Ship
-		Ship ship = getShip();
-		if (ship.isLanded() ||ship.isDocked())
-		{
-			//OK, es sollte also einen Traeger haben
-			Ship baseShip = ship.getBaseShip();
-			//sicherheitshalber auch hier nochmal eine Null abfangen
-			if(baseShip != null)
-			{
-				int shipid = baseShip.getId();
-				//Schiffe zum durchsuchen laden
-				//dazu erstmal die Seite bestimmen
-				int side = this.getSide();
-				List<BattleShip> ships;
-				Battle battle = this.getBattle();
-
-				if ( side == battle.getOwnSide()){
-					ships = battle.getOwnShips();
-				}
-				else{
-					ships = battle.getEnemyShips();
-				}
-
-				for (BattleShip aship : ships) {
-						if (aship.getId() == shipid) {
-								return aship;
-						}
-				}
-				//nicht in der Schlacht gefunden
-			}
-			//kein Traegerschiff, komisch
-		}
-		//nicht gelandet oder gedockt, also kein Traegerschiff
-		return null;
-	}
-
-	private Session getDB()
-	{
-		return ContextMap.getContext().getDB();
 	}
 }

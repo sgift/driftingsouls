@@ -1,10 +1,9 @@
 package net.driftingsouls.ds2.server.modules;
 
-import net.driftingsouls.ds2.server.DBSingleTransactionTest;
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.TestAppConfig;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.BaseType;
-import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.entities.Rasse;
@@ -14,65 +13,95 @@ import net.driftingsouls.ds2.server.entities.npcorders.OrderOffizier;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderShip;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderableOffizier;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderableShip;
-import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ViewMessage;
-import net.driftingsouls.ds2.server.services.FraktionsGuiEintragService;
+import net.driftingsouls.ds2.server.framework.authentication.JavaSession;
+import net.driftingsouls.ds2.server.services.UserService;
 import net.driftingsouls.ds2.server.ships.ShipType;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import static org.junit.Assert.*;
 
 import static net.driftingsouls.ds2.server.ViewMessageAssert.*;
 
-public class NpcControllerTest extends DBSingleTransactionTest
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = {
+	TestAppConfig.class
+})
+public class NpcControllerTest
 {
+	@PersistenceContext
+	private EntityManager em;
+	@Autowired
+	private ConfigService configService;
+	@Autowired
 	private NpcController controller;
+	@Autowired
+	private JavaSession javaSession;
+	@Autowired
+	private UserService userService;
+
+	private User user;
 
 	@Before
+	@Transactional
 	public void createController() {
-		Rasse rasse = persist(new Rasse("SuperUsers", true));
-		User user = persist(new User("Test", "1234", rasse.getId(), "", new Cargo(), "test@localhost"));
+		Rasse rasse = new Rasse("SuperUsers", true);
+		em.persist(rasse);
+		User user = new User(1, "Test", "Test", "1234", rasse.getId(), "", "test@localhost", configService);
+		em.persist(user);
 		user.setFlag(UserFlag.ORDER_MENU);
 		rasse.setHead(user);
-
-		getContext().setActiveUser(user);
-		controller = new NpcController(new FraktionsGuiEintragService());
+		this.user = user;
+		javaSession.setUser(user);
 	}
 
 	@Test
+	@Transactional
 	public void gegebenEinZuBestellenderOffizier_orderAction_sollteEineEntsprechendeBestellungErzeugen()
 	{
 		// setup
-		OrderableOffizier offi = persist(new OrderableOffizier("Testoffi", 1, 1, 42, 42, 42, 42, 42));
+		OrderableOffizier offi = new OrderableOffizier("Testoffi", 1, 1, 42, 42, 42, 42, 42);
+		em.persist(offi);
 
-		getUser().setNpcPunkte(10);
+		user.setNpcPunkte(10);
 
 		// run
 		ViewMessage message = controller.orderAction(offi, 1);
 
 		// assert
 		assertSuccess(message);
-		assertEquals(9, getUser().getNpcPunkte());
+		assertEquals(9, user.getNpcPunkte());
 
-		OrderOffizier order = (OrderOffizier) getDB().createQuery("from OrderOffizier where user=:user")
-				.setParameter("user", getUser())
-				.uniqueResult();
+		OrderOffizier order = em.createQuery("from OrderOffizier where user=:user", OrderOffizier.class)
+				.setParameter("user", user)
+				.getSingleResult();
 
 		assertNotNull(order);
 		assertEquals(offi.getId(), order.getType());
 	}
 
 	@Test
+	@Transactional
 	public void gegebenEinZuUnbekannterZuBestellenderOffizier_orderAction_sollteEineFehlermeldungZurueckgeben()
 	{
 		// setup
-		getUser().setNpcPunkte(10);
+		user.setNpcPunkte(10);
 
 		// run
 		ViewMessage message = controller.orderAction(null, 1);
@@ -82,36 +111,42 @@ public class NpcControllerTest extends DBSingleTransactionTest
 	}
 
 	@Test
+	@Transactional
 	public void gegebenEinZuBestellenderOffizierUndZuWenigeNpcPunkte_orderAction_sollteEineFehlermeldungZurueckgebenUndKeineBestellungEintragen()
 	{
 		// setup
-		OrderableOffizier offi = persist(new OrderableOffizier("Testoffi", 20, 1, 42, 42, 42, 42, 42));
+		OrderableOffizier offi = new OrderableOffizier("Testoffi", 20, 1, 42, 42, 42, 42, 42);
+		em.persist(offi);
 
-		getUser().setNpcPunkte(10);
+		user.setNpcPunkte(10);
 
 		// run
 		ViewMessage message = controller.orderAction(offi, 1);
 
 		// assert
 		assertFailure(message);
-		assertEquals(10, getUser().getNpcPunkte());
+		assertEquals(10, user.getNpcPunkte());
 
-		OrderOffizier order = (OrderOffizier) getDB().createQuery("from OrderOffizier where user=:user")
-				.setParameter("user", getUser())
-				.uniqueResult();
+		Optional<OrderOffizier> order = em.createQuery("from OrderOffizier where user=:user", OrderOffizier.class)
+				.setParameter("user", user)
+				.getResultStream().findFirst();
 
-		assertNull(order);
+		assertTrue(order.isEmpty());
 	}
 
 	@Test
+	@Transactional
 	public void gegebenEinZuBestellendesSchiff_orderShipsAction_sollteEineEntsprechendeBestellungErzeugen()
 	{
 		// setup
-		ShipType type = persist(new ShipType());
-		Rasse rasse = persist(new Rasse("GCP", true));
-		OrderableShip ship = persist(new OrderableShip(type, rasse, 5));
+		ShipType type = new ShipType();
+		em.persist(type);
+		Rasse rasse = new Rasse("GCP", true);
+		em.persist(rasse);
+		OrderableShip ship = new OrderableShip(type, rasse, 5);
+		em.persist(ship);
 
-		getUser().setNpcPunkte(10);
+		user.setNpcPunkte(10);
 
 		Map<OrderableShip,Integer> shipMap = new HashMap<>();
 		shipMap.put(ship, 1);
@@ -121,11 +156,11 @@ public class NpcControllerTest extends DBSingleTransactionTest
 
 		// assert
 		assertSuccess(message);
-		assertEquals(5, getUser().getNpcPunkte());
+		assertEquals(5, user.getNpcPunkte());
 
-		OrderShip order = (OrderShip) getDB().createQuery("from OrderShip where user=:user")
-				.setParameter("user", getUser())
-				.uniqueResult();
+		OrderShip order = em.createQuery("from OrderShip where user=:user", OrderShip.class)
+				.setParameter("user",user)
+				.getSingleResult();
 
 		assertNotNull(order);
 		assertEquals(ship.getShipType(), order.getShipType());
@@ -133,16 +168,22 @@ public class NpcControllerTest extends DBSingleTransactionTest
 	}
 
 	@Test
+	@Transactional
 	public void gegebenMehrereZuBestellendeSchiffe_orderShipsAction_sollteEntsprechendeBestellungenErzeugen()
 	{
 		// setup
-		ShipType type1 = persist(new ShipType());
-		ShipType type2 = persist(new ShipType());
-		Rasse rasse = persist(new Rasse("GCP", true));
-		OrderableShip ship1 = persist(new OrderableShip(type1, rasse, 5));
-		OrderableShip ship2 = persist(new OrderableShip(type2, rasse, 2));
+		ShipType type1 = new ShipType();
+		em.persist(type1);
+		ShipType type2 = new ShipType();
+		em.persist(type2);
+		Rasse rasse = new Rasse("GCP", true);
+		em.persist(rasse);
+		OrderableShip ship1 = new OrderableShip(type1, rasse, 5);
+		em.persist(ship1);
+		OrderableShip ship2 = new OrderableShip(type2, rasse, 2);
+		em.persist(ship2);
 
-		getUser().setNpcPunkte(10);
+		user.setNpcPunkte(10);
 
 		Map<OrderableShip,Integer> shipMap = new HashMap<>();
 		shipMap.put(ship1, 1);
@@ -153,11 +194,11 @@ public class NpcControllerTest extends DBSingleTransactionTest
 
 		// assert
 		assertSuccess(message);
-		assertEquals(1, getUser().getNpcPunkte());
+		assertEquals(1, user.getNpcPunkte());
 
-		List<OrderShip> order = Common.cast(getDB().createQuery("from OrderShip where user=:user")
-				.setParameter("user", getUser())
-				.list());
+		List<OrderShip> order = em.createQuery("from OrderShip where user=:user", OrderShip.class)
+				.setParameter("user", user)
+				.getResultList();
 
 		assertEquals(3, order.size());
 		assertEquals(1, order.stream().filter(o -> o.getShipType() == type1).count());
@@ -165,10 +206,11 @@ public class NpcControllerTest extends DBSingleTransactionTest
 	}
 
 	@Test
+	@Transactional
 	public void gegebenKeinZuBestellendesSchiff_orderShipsAction_sollteEineFehlermeldungZurueckgeben()
 	{
 		// setup
-		getUser().setNpcPunkte(10);
+		user.setNpcPunkte(10);
 
 		Map<OrderableShip,Integer> shipMap = new HashMap<>();
 
@@ -178,18 +220,19 @@ public class NpcControllerTest extends DBSingleTransactionTest
 		// assert
 		assertFailure(message);
 
-		OrderShip order = (OrderShip) getDB().createQuery("from OrderShip where user=:user")
-				.setParameter("user", getUser())
-				.uniqueResult();
+		Optional<OrderShip> order = em.createQuery("from OrderShip where user=:user", OrderShip.class)
+				.setParameter("user", user)
+				.getResultStream().findFirst();
 
-		assertNull(order);
+		assertTrue(order.isEmpty());
 	}
 
 	@Test
+	@Transactional
 	public void gegebenKeinePosition_changeOrderLocationAction_sollteDieOrderPositionZuruecksetzen()
 	{
 		// setup
-		getUser().setNpcOrderLocation("1:2/3");
+		user.setNpcOrderLocation("1:2/3");
 
 		// run
 		ViewMessage message = controller.changeOrderLocationAction("");
@@ -197,17 +240,20 @@ public class NpcControllerTest extends DBSingleTransactionTest
 		// assert
 		assertSuccess(message);
 
-		assertNull(getUser().getNpcOrderLocation());
+		assertNull(user.getNpcOrderLocation());
 	}
 
 	@Test
+	@Transactional
 	public void gegebenEinePositionMitEinerEigenenBasis_changeOrderLocationAction_sollteDieOrderPositionAendern()
 	{
 		// setup
 		Location loc = new Location(2, 3, 4);
-		BaseType type = persist(new BaseType("Testklasse"));
-		getUser().getBases().add(persist(new Base(loc, getUser(), type)));
-		getUser().setNpcOrderLocation("1:2/3");
+		BaseType type = new BaseType("Testklasse");
+		em.persist(type);
+		var base = new Base(loc, user, type);
+		user.getBases().add(base);
+		user.setNpcOrderLocation("1:2/3");
 
 		// run
 		ViewMessage message = controller.changeOrderLocationAction(loc.asString());
@@ -215,30 +261,34 @@ public class NpcControllerTest extends DBSingleTransactionTest
 		// assert
 		assertSuccess(message);
 
-		assertEquals(loc.asString(), getUser().getNpcOrderLocation());
+		assertEquals(loc.asString(), user.getNpcOrderLocation());
 	}
 
 	@Test
+	@Transactional
 	public void gegebenEinePositionOhneEigeneBasis_changeOrderLocationAction_sollteEinenFehlerZurueckgeben()
 	{
 		// setup
 		Location loc = new Location(2, 3, 4);
-		getUser().setNpcOrderLocation("1:2/3");
+		user.setNpcOrderLocation("1:2/3");
 
 		// run
 		ViewMessage message = controller.changeOrderLocationAction(loc.asString());
 
 		// assert
 		assertFailure(message);
-		assertEquals("1:2/3", getUser().getNpcOrderLocation());
+		assertEquals("1:2/3", user.getNpcOrderLocation());
 	}
 
 	@Test
+	@Transactional
 	public void gegebenEinOrden_awardMedalAction_sollteDenOrdenDemBenutzerHinzufuegenUndEinePmVersenden()
 	{
 		// setup
-		User zielUser = persist(new User("Test2", "1234", 0, "", new Cargo(), "test@localhost"));
-		Medal medal = persist(new Medal("Testorden", "", ""));
+		User zielUser = new User(4, "Test4", "Test4", "1234", 0, "", "test@localhost", configService);
+		em.persist(zielUser);
+		Medal medal = new Medal("Testorden", "", "");
+		em.persist(medal);
 		String reason = "Ein Grund 14242332343222434546";
 
 		// run
@@ -247,25 +297,28 @@ public class NpcControllerTest extends DBSingleTransactionTest
 
 		// assert
 		assertSuccess(message);
-		assertTrue(zielUser.getMedals().contains(medal));
+		assertTrue(userService.getMedals(zielUser).contains(medal));
 		assertTrue(zielUser.getHistory().contains(reason));
 		assertTrue(zielUser.getHistory().contains("[medal]"+medal.getId()+"[/medal]"));
 
-		PM pm = (PM)getDB().createQuery("from PM where sender=:user and empfaenger=:zielUser")
-				.setParameter("user", getUser())
+		PM pm = em.createQuery("from PM where sender=:user and empfaenger=:zielUser", PM.class)
+				.setParameter("user", user)
 				.setParameter("zielUser", zielUser)
-				.uniqueResult();
+				.getSingleResult();
 		assertNotNull(pm);
 		assertTrue(pm.getInhalt().contains(reason));
 		assertTrue(pm.getInhalt().contains("[medal]"+medal.getId()+"[/medal]"));
 	}
 
 	@Test
+	@Transactional
 	public void gegebenEinNurFuerAdminsVerwendbarerOrden_awardMedalAction_sollteEinenFehlerMelden()
 	{
 		// setup
-		User zielUser = persist(new User("Test2", "1234", 0, "", new Cargo(), "test@localhost"));
-		Medal medal = persist(new Medal("Testorden", "", ""));
+		User zielUser = new User(3, "Test3", "Test3", "1234", 0, "", "test@localhost", configService);
+		em.persist(zielUser);
+		Medal medal = new Medal("Testorden", "", "");
+		em.persist(medal);
 		medal.setAdminOnly(true);
 		String reason = "Ein Grund 14242332343222434546";
 
@@ -275,14 +328,16 @@ public class NpcControllerTest extends DBSingleTransactionTest
 
 		// assert
 		assertFailure(message);
-		assertFalse(zielUser.getMedals().contains(medal));
+		assertFalse(userService.getMedals(zielUser).contains(medal));
 	}
 
 	@Test
+	@Transactional
 	public void gegebenEinNichtBekannterBenutzer_awardMedalAction_sollteEinenFehlerMelden()
 	{
 		// setup
-		Medal medal = persist(new Medal("Testorden", "", ""));
+		Medal medal = new Medal("Testorden", "", "");
+		em.persist(medal);
 		String reason = "Ein Grund 14242332343222434546";
 
 		// run
@@ -294,13 +349,16 @@ public class NpcControllerTest extends DBSingleTransactionTest
 	}
 
 	@Test
+	@Transactional
 	public void gegebenEinNpcDerNichtKopfSeinerRasseIst_awardMedalAction_sollteEinenFehlerMelden()
 	{
 		// setup
-		Rasse rasse = (Rasse)getDB().get(Rasse.class,getUser().getRace());
+		Rasse rasse = em.find(Rasse.class, user.getRace());
 		rasse.setHead(null);
-		User zielUser = persist(new User("Test2", "1234", 0, "", new Cargo(), "test@localhost"));
-		Medal medal = persist(new Medal("Testorden", "", ""));
+		User zielUser = new User(2, "Test2", "Test2", "1234", 0, "", "test@localhost", configService);
+		em.persist(zielUser);
+		Medal medal = new Medal("Testorden", "", "");
+		em.persist(medal);
 		String reason = "Ein Grund 14242332343222434546";
 
 		// run

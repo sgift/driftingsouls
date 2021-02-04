@@ -1,9 +1,12 @@
 package net.driftingsouls.ds2.server.modules;
 
+import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
+import net.driftingsouls.ds2.server.services.UserService;
 import net.driftingsouls.ds2.server.uilibs.PlayerList;
 
 import java.io.IOException;
@@ -17,21 +20,22 @@ import java.io.Writer;
 @Module(name = "plist")
 public class PListController extends Controller
 {
+	private final UserService userService;
+	private final Rassen races;
+	private final BBCodeParser bbCodeParser;
 
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public PListController()
+	public PListController(UserService userService, Rassen races, BBCodeParser bbCodeParser)
 	{
 		super();
+		this.userService = userService;
+		this.races = races;
+		this.bbCodeParser = bbCodeParser;
 	}
 
 	/**
 	 * Zeigt die Spielerliste an.
 	 *
 	 * @param compopup {@code true}, falls die Spielerliste als Popup der PM-Verwaltung dient
-	 * @throws IOException
 	 */
 	@Action(ActionType.DEFAULT)
 	public void defaultAction(boolean compopup) throws IOException
@@ -52,7 +56,7 @@ public class PListController extends Controller
 
 		echo.append("<div class='gfxbox' style='width:365px'>");
 
-		new PlayerList().draw(getContext());
+		new PlayerList(userService, races, bbCodeParser).draw(getContext());
 
 		echo.append("</div>");
 	}

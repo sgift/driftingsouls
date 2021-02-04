@@ -9,6 +9,7 @@ import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.services.ShipService;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,14 @@ import java.util.stream.Collectors;
 @Service
 public class SchiffSprungService
 {
+	private final Rassen races;
+	private final ShipService shipService;
+
+	public SchiffSprungService(Rassen races, ShipService shipService) {
+		this.races = races;
+		this.shipService = shipService;
+	}
+
 	/**
 	 * Das Ergebnis eines Sprungbefehls.
 	 */
@@ -90,7 +99,7 @@ public class SchiffSprungService
 
 		String nodetarget = node.getName() + " (" + node.getSystemOut() + ")";
 
-		if ((user.getId() > 0) && node.isGcpColonistBlock() && Rassen.get().rasse(user.getRace()).isMemberIn(0) && !user.hasFlag(UserFlag.NO_JUMPNODE_BLOCK))
+		if ((user.getId() > 0) && node.isGcpColonistBlock() && races.rasse(user.getRace()).isMemberIn(0) && !user.hasFlag(UserFlag.NO_JUMPNODE_BLOCK))
 		{
 			outputbuffer.append("<span style=\"color:red\">Die Administration hat diesen Sprungpunkt für Kolonisten gesperrt.</span><br />\n");
 			return new SprungErgebnis(outputbuffer.toString(), false);
@@ -131,7 +140,7 @@ public class SchiffSprungService
 			ShipTypeData shiptype = ship.getTypeData();
 
 			// Liste der gedockten Schiffe laden
-			List<Ship> docked = ship.getGedockteUndGelandeteSchiffe();
+			List<Ship> docked = shipService.getGedockteUndGelandeteSchiffe(ship);
 
 			if (node.isWeaponBlock() && !user.hasFlag(UserFlag.MILITARY_JUMPS))
 			{
@@ -367,7 +376,7 @@ public class SchiffSprungService
 		for (Ship ship : shiplist)
 		{
 			// Liste der gedockten Schiffe laden
-			List<Ship> docked = ship.getGedockteUndGelandeteSchiffe();
+			List<Ship> docked = shipService.getGedockteUndGelandeteSchiffe(ship);
 
 			if (ship.getEnergy() < 5)
 			{

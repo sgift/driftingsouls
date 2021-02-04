@@ -19,7 +19,9 @@
 package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.services.BattleService;
 import org.apache.commons.text.StringEscapeUtils;
 
 /**
@@ -32,7 +34,8 @@ public abstract class BasicKSMenuAction extends BasicKSAction {
 	 * Konstruktor.
 	 *
 	 */
-	public BasicKSMenuAction() {
+	public BasicKSMenuAction(BattleService battleService, User user) {
+		super(battleService, user);
 		// Diese beiden Dinge ueberprueft das KS automatisch fuer uns
 		// - Vorausgesetzt wir werden als Menue aufgerufen!
 		this.requireCommander(false);

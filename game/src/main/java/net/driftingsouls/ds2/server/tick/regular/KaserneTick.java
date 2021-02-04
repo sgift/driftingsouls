@@ -19,19 +19,22 @@
 package net.driftingsouls.ds2.server.tick.regular;
 
 import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.Kaserne;
 import net.driftingsouls.ds2.server.entities.KaserneEntry;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
+import net.driftingsouls.ds2.server.services.PmService;
+import net.driftingsouls.ds2.server.services.UserService;
+import net.driftingsouls.ds2.server.services.UserValueService;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.units.UnitType;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 
 /**
@@ -43,27 +46,35 @@ import java.util.List;
 @Service
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class KaserneTick extends TickController {
+	@PersistenceContext
+	private EntityManager em;
+
+	private final PmService pmService;
+	private final UserValueService userValueService;
+
+	public KaserneTick(PmService pmService, UserValueService userValueService) {
+		this.pmService = pmService;
+		this.userValueService = userValueService;
+	}
 
 	@Override
 	protected void prepare()
-	{}
+	{
+		//Nothing to do
+	}
 
 	@Override
 	protected void tick()
 	{
-		org.hibernate.Session db = getDB();
+		final User sourceUser = em.find(User.class, -1);
 
-		final User sourceUser = (User)db.get(User.class, -1);
-
-		List<Integer> kasernen = Common.cast(
-				db.createQuery("select k.id from Kaserne k where k.entries is not empty").list()
-		);
+		List<Integer> kasernen = em.createQuery("select k.id from Kaserne k where k.entries is not empty", Integer.class)
+			.getResultList();
 		new EvictableUnitOfWork<Integer>("Kasernen Tick")
 		{
 			@Override
 			public void doWork(Integer object) {
-				org.hibernate.Session db = getDB();
-				Kaserne kaserne = (Kaserne)db.get(Kaserne.class, object);
+				Kaserne kaserne = em.find(Kaserne.class, object);
 				Base base = kaserne.getBase();
 
 				log("Kaserne "+base.getId()+":");
@@ -96,8 +107,9 @@ public class KaserneTick extends TickController {
 				if( build )
 				{
 					// Nachricht versenden
-                    if(base.getOwner().getUserValue(WellKnownUserValue.GAMEPLAY_USER_UNIT_BUILD_PM)) {
-                        PM.send(sourceUser, base.getOwner().getId(), "Ausbildung abgeschlossen", msg.toString());
+					var sendUnitTrainedMessage = userValueService.getUserValue(base.getOwner(), WellKnownUserValue.GAMEPLAY_USER_UNIT_BUILD_PM);
+                    if(Boolean.TRUE.equals(sendUnitTrainedMessage)) {
+                        pmService.send(sourceUser, base.getOwner().getId(), "Ausbildung abgeschlossen", msg.toString());
                     }
 				}
 			}

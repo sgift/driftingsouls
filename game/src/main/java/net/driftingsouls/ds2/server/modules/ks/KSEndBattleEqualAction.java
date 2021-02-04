@@ -26,7 +26,9 @@ import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
 import net.driftingsouls.ds2.server.battles.Side;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.services.BattleService;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,15 +39,14 @@ import java.util.List;
  * @author Christopher Jung
  *
  */
+@Component
 public class KSEndBattleEqualAction extends BasicKSAction {
+	public KSEndBattleEqualAction(BattleService battleService) {
+		super(battleService, null);
+	}
+
 	@Override
 	public Result validate(Battle battle) {
-		/*
-		//Check ob man nicht der Angreifer ist
-		if( battle.getOwnSide() == 0 ) {
-			return Result.ERROR;
-		}
-		*/
 		int endTieModifier = new ConfigService().getValue(WellKnownConfigValue.END_TIE_MODIFIER);
 		if((battle.getBattleValue(Side.ENEMY) == 0) || (battle.getBattleValue(Side.OWN) > (battle.getBattleValue(Side.ENEMY) * endTieModifier)))
 		{
@@ -63,7 +64,7 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 		}
 		
 		if( this.validate(battle) != Result.OK ) {
-			battle.logme("Die Aktion kann nicht ausgeführt werden");
+			getBattleService().logme(battle,"Die Aktion kann nicht ausgeführt werden");
 			return Result.ERROR;
 		}
 		
@@ -88,19 +89,19 @@ public class KSEndBattleEqualAction extends BasicKSAction {
 						!aship.hasFlag(BattleShipFlag.FLUCHT) &&
 						((ashiptype.getMinCrew() == 0) || (aship.getCrew() >= ashiptype.getMinCrew() / 2d)))
 					{
-						battle.removeShip(aship, false);
-						battle.logme(Battle.log_shiplink(aship.getShip()) + " ist durchgebrochen.\n");
+						getBattleService().removeShip(battle, aship, false);
+						getBattleService().logme(battle,Battle.log_shiplink(aship.getShip()) + " ist durchgebrochen.\n");
 						msg.append(Battle.log_shiplink(aship.getShip())).append(" ist durchgebrochen.\n");
 					}
 				}
 			}
 			else
 			{
-				battle.log(new SchlachtLogAktion(battle.getOwnSide(), msg.toString()));
+				getBattleService().log(battle, new SchlachtLogAktion(battle.getOwnSide(), msg.toString()));
 				return Result.OK;
 			}
 		}
-		battle.log(new SchlachtLogAktion(battle.getOwnSide(), msg.toString()));
+		getBattleService().log(battle, new SchlachtLogAktion(battle.getOwnSide(), msg.toString()));
 		return Result.OK;
 		
 	}

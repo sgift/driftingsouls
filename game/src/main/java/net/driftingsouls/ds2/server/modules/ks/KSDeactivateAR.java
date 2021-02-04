@@ -20,7 +20,9 @@ package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.services.BattleService;
 import net.driftingsouls.ds2.server.ships.Alarmstufe;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
@@ -28,8 +30,13 @@ import java.io.IOException;
  * Deaktiviert bei einem Schiff in der Schlacht den roten Alarm.
  *
  */
+@Component
 public class KSDeactivateAR extends BasicKSMenuAction
 {
+    public KSDeactivateAR(BattleService battleService) {
+        super(battleService, null);
+    }
+
     @Override
     public Result validate(Battle battle) {
         if(battle.getOwnShip().getShip().getAlarm() == Alarmstufe.RED)

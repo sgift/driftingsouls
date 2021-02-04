@@ -23,6 +23,8 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.services.CargoService;
+import net.driftingsouls.ds2.server.services.ShipService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import org.springframework.stereotype.Component;
@@ -37,6 +39,14 @@ import java.util.List;
  */
 @Component
 public class ADocksDefault implements SchiffPlugin {
+	private final ShipService shipService;
+	private final CargoService cargoService;
+
+	public ADocksDefault(ShipService shipService, CargoService cargoService) {
+		this.shipService = shipService;
+		this.cargoService = cargoService;
+	}
+
 	@Action(ActionType.DEFAULT)
 	public String action(Parameters caller, String act) {
 		Ship ship = caller.ship;
@@ -48,11 +58,11 @@ public class ADocksDefault implements SchiffPlugin {
 			output += "Entlade gedockte Schiffe<br />\n";
 			Cargo cargo = ship.getCargo();
 
-			long cargocount = cargo.getMass();
+			long cargocount = cargoService.getMass(cargo);
 
-			for( Ship dship : ship.getDockedShips() ) {
+			for( Ship dship : shipService.getDockedShips(ship) ) {
 				Cargo dcargo = dship.getCargo();
-				long dcargocount = dcargo.getMass();
+				long dcargocount = cargoService.getMass(dcargo);
 
 				if( cargocount + dcargocount > shiptype.getCargo() ) {
 					output += "Kann einige Schiffe nicht entladen - nicht genug Frachtraum<br />\n";
@@ -84,7 +94,7 @@ public class ADocksDefault implements SchiffPlugin {
 		List<Ship> dockedShips = new ArrayList<>();
 		List<Integer> dockedids = new ArrayList<>();
 
-		for( Ship aship : ship.getDockedShips() ) {
+		for( Ship aship : shipService.getDockedShips(ship) ) {
 			dockedShips.add(aship);
 			dockedids.add(aship.getId());
 		}

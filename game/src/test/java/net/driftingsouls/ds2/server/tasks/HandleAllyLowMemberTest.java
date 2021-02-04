@@ -18,9 +18,8 @@
  */
 package net.driftingsouls.ds2.server.tasks;
 
-import net.driftingsouls.ds2.server.DBSingleTransactionTest;
+import net.driftingsouls.ds2.server.TestAppConfig;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
-import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
@@ -28,23 +27,47 @@ import net.driftingsouls.ds2.server.entities.ally.AllyPosten;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertThat;
 
 /**
  * Testcase fuer HandleAllyLowMember
  * @author Christopher Jung
  *
  */
-public class HandleAllyLowMemberTest extends DBSingleTransactionTest
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = {
+	TestAppConfig.class
+})
+@WebAppConfiguration
+public class HandleAllyLowMemberTest
 {
+	@PersistenceContext
+	private EntityManager em;
+	@Autowired
+	private ConfigService configService;
+	@Autowired
+	private BBCodeParser bbCodeParser;
+	@Autowired
+	private TaskManager taskManager;
+
 	private User sender;
 	private Ally ally;
 	private AllyPosten posten;
@@ -54,21 +77,28 @@ public class HandleAllyLowMemberTest extends DBSingleTransactionTest
 
 	@Before
 	public void setUp() {
-		this.sender = persist(new User("senderUser", "***", 0, "", new Cargo(), "testSender@localhost"));
-		ConfigValue configValue = new ConfigService().get(WellKnownConfigValue.ALLIANZAUFLOESUNG_PM_SENDER);
+		this.sender = new User(1, "senderUser", "senderUser", "***", 0, "", "testSender@localhost", configService);
+		em.persist(sender);
+		ConfigValue configValue = configService.get(WellKnownConfigValue.ALLIANZAUFLOESUNG_PM_SENDER);
 		configValue.setValue(String.valueOf(sender.getId()));
 
-		this.user1 = persist(new User("testUser1", "***", 0, "", new Cargo(), "test1@localhost"));
-		this.ally = persist(new Ally("TestAlly", this.user1));
+		this.user1 = new User(2, "testUser1", "testUser1", "***", 0, "", "test1@localhost", configService);
+		em.persist(user1);
+		var plainname = Common._titleNoFormat(bbCodeParser, "TestAlly");
+		this.ally = new Ally("TestAlly", plainname, this.user1, 1);
+		em.persist(ally);
 		this.ally.addUser(user1);
 
-		this.posten = persist(new AllyPosten(this.ally, "Testposten"));
+		this.posten = new AllyPosten(this.ally, "Testposten");
+		em.persist(posten);
 
-		this.user2 = persist(new User("testUser2", "***", 0, "", new Cargo(), "test2@localhost"));
+		this.user2 = new User(3, "testUser2", "testUser2", "***", 0, "", "test2@localhost", configService);
+		em.persist(user2);
 		ally.addUser(user2);
 		this.user2.setAllyPosten(posten);
 
-		this.task = persist(new Task(Taskmanager.Types.ALLY_LOW_MEMBER));
+		this.task = new Task(TaskManager.Types.ALLY_LOW_MEMBER);
+		em.persist(task);
 		this.task.setData1(String.valueOf(this.ally.getId()));
 	}
 
@@ -76,15 +106,16 @@ public class HandleAllyLowMemberTest extends DBSingleTransactionTest
 	 * Testet die Task
      */
 	@Test
+	@Transactional
 	public void gegebenEineAllianzUndEineAllyLowMemberTask_handleTask_sollteDieAllianzAufloesen() {
 		// setup
 
 		// run
-		Taskmanager.getInstance().handleTask(task.getTaskID(), "tick_timeout");
+		taskManager.handleTask(task.getTaskID(), "tick_timeout");
 
 		// assert
-		assertThat(getEM().contains(ally), is(false));
-		assertThat(getEM().contains(posten), is(false));
+		assertThat(em.contains(ally), is(false));
+		assertThat(em.contains(posten), is(false));
 
 		for( User user : Arrays.asList(user1, user2) )
 		{
@@ -93,7 +124,7 @@ public class HandleAllyLowMemberTest extends DBSingleTransactionTest
 			assertThat(user.getAllyPosten(), nullValue());
 		}
 
-		List<PM> pms = Common.cast(getDB().createCriteria(PM.class).list());
+		List<PM> pms = em.createQuery("from PM", PM.class).getResultList();
 		assertThat(pms.size(), is(2));
 		for (PM pm : pms)
 		{

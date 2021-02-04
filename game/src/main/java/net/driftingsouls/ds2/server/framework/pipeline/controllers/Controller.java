@@ -23,11 +23,11 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.PermissionDescriptor;
 import net.driftingsouls.ds2.server.framework.PermissionResolver;
+import net.driftingsouls.ds2.server.framework.authentication.JavaSession;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.pipeline.Response;
-import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.persistence.EntityManager;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +43,9 @@ public abstract class Controller implements PermissionResolver
 	private String pageTitle;
 	private final List<PageMenuEntry> pageMenuEntries;
 	private final Context context;
+
+	@Autowired
+	private JavaSession javaSession;
 
 	/**
 	 * Konstruktor.
@@ -76,7 +79,7 @@ public abstract class Controller implements PermissionResolver
 	 *
 	 * @param error Die Beschreibung des Fehlers
 	 */
-	public final void addError( String error ) {
+	public void addError( String error ) {
 		context.addError(error);
 	}
 
@@ -86,7 +89,7 @@ public abstract class Controller implements PermissionResolver
 	 * @param error Die Beschreibung des Fehlers
 	 * @param link Die Ausweich-URL
 	 */
-	public final void addError( String error, String link ) {
+	public void addError( String error, String link ) {
 		context.addError(error, link);
 	}
 
@@ -115,28 +118,12 @@ public abstract class Controller implements PermissionResolver
 	}
 
 	/**
-	 * Gibt die aktuelle Hibernate-Session zurueck.
-	 * @return Die aktuelle Hibernate-Session
-	 */
-	public final Session getDB() {
-		return context.getDB();
-	}
-
-	/**
-	 * Gibt den aktuellen Hibernate-EntityManager zurueck.
-	 * @return Der aktuelle Hibernate-EntityManager
-	 */
-	public final EntityManager getEM() {
-		return context.getEM();
-	}
-
-	/**
 	 * Gibt den aktiven User zurueck. Falls kein User eingeloggt ist
 	 * wird <code>null</code> zurueckgegeben.
 	 * @return Der User oder <code>null</code>
 	 */
 	public final BasicUser getUser() {
-		return getContext().getActiveUser();
+		return javaSession.getUser();
 	}
 
 	@Override
@@ -157,7 +144,7 @@ public abstract class Controller implements PermissionResolver
 	 *
 	 * @param title Die Bezeichnung
 	 */
-	public final void setPageTitle(String title)
+	public void setPageTitle(String title)
 	{
 		this.pageTitle = title;
 	}
@@ -168,7 +155,7 @@ public abstract class Controller implements PermissionResolver
 	 * @param title Die Titel des Eintrags
 	 * @param url Die URL
 	 */
-	public final void addPageMenuEntry(String title, String url)
+	public void addPageMenuEntry(String title, String url)
 	{
 		this.pageMenuEntries.add(new PageMenuEntry(title, url));
 	}

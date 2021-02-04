@@ -6,6 +6,8 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
+import net.driftingsouls.ds2.server.services.ShipService;
+import net.driftingsouls.ds2.server.services.ShipActionService;
 import net.driftingsouls.ds2.server.ships.SchiffstypModifikation;
 import net.driftingsouls.ds2.server.ships.Schiffswaffenkonfiguration;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -14,13 +16,29 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
 @AdminMenuEntry(category = "Items", name = "Schiffstypmodifikation", permission = WellKnownAdminPermission.EDIT_ITEM)
+@Component
 public class EditSchiffstypModifikation implements EntityEditor<SchiffstypModifikation>
 {
+	@PersistenceContext
+	private EntityManager em;
+
+	private final ShipService shipService;
+	private final ShipActionService shipActionService;
+
+	public EditSchiffstypModifikation(ShipService shipService, ShipActionService shipActionService) {
+		this.shipService = shipService;
+		this.shipActionService = shipActionService;
+	}
+
 	@Override
 	public Class<SchiffstypModifikation> getEntityType()
 	{
@@ -88,8 +106,8 @@ public class EditSchiffstypModifikation implements EntityEditor<SchiffstypModifi
 
 	private void aktualisiereSchiff(Integer shipId)
 	{
-		Ship ship = (Ship) ContextMap.getContext().getDB().get(Ship.class, shipId);
-        boolean modules = ship.getModules().length > 0;
+		Ship ship = em.find(Ship.class, shipId);
+        boolean modules = ship.getModuleEntries().length > 0;
         // Clone bei Modulen notwendig. Sonst werden auch die gespeicherten neu berechnet.
         ShipTypeData oldTypeData;
         try{
@@ -99,12 +117,12 @@ public class EditSchiffstypModifikation implements EntityEditor<SchiffstypModifi
         {
             oldTypeData = ship.getTypeData();
         }
-		ship.recalculateModules();
-		ship.postUpdateShipType(oldTypeData);
+		shipService.recalculateModules(ship);
+		shipService.postUpdateShipType(ship, oldTypeData);
 
 		if (ship.getId() >= 0)
 		{
-			ship.recalculateShipStatus();
+			shipActionService.recalculateShipStatus(ship);
 		}
 	}
 }

@@ -19,8 +19,6 @@
 package net.driftingsouls.ds2.server.entities;
 
 import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.cargo.HibernateCargoType;
-import net.driftingsouls.ds2.server.cargo.HibernateLargeCargoType;
 import net.driftingsouls.ds2.server.config.Offiziere;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -28,10 +26,15 @@ import net.driftingsouls.ds2.server.framework.DSObject;
 import net.driftingsouls.ds2.server.ships.Ship;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -40,18 +43,6 @@ import java.util.concurrent.ThreadLocalRandom;
  * @author Christopher Jung
  *
  */
-@TypeDefs(
-	{
-		@TypeDef(
-				name="cargo",
-				typeClass = HibernateCargoType.class
-		),
-		@TypeDef(
-				name="largeCargo",
-				typeClass = HibernateLargeCargoType.class
-		)
-	}
-)
 @Entity
 @Table(name="offiziere")
 @BatchSize(size=50)
@@ -494,7 +485,7 @@ public class Offizier extends DSObject {
                 break;
 
 			case NAV: {
-				int fak = difficulty;
+				double fak = difficulty;
 				if( this.spec == 5 ) {
 					fak *= 0.6;
 				}

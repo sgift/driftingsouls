@@ -18,7 +18,7 @@
  */
 package net.driftingsouls.ds2.server.bbcodes;
 
-import net.driftingsouls.ds2.server.config.Medals;
+import net.driftingsouls.ds2.server.services.MedalService;
 import net.driftingsouls.ds2.server.config.Rang;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeFunction;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -30,6 +30,12 @@ import org.apache.commons.lang3.math.NumberUtils;
  */
 public class TagRang implements BBCodeFunction
 {
+	private final MedalService medalService;
+
+	public TagRang(MedalService medalService) {
+		this.medalService = medalService;
+	}
+
 	@Override
 	public String handleMatch(String content, String... values)
 	{
@@ -38,7 +44,7 @@ public class TagRang implements BBCodeFunction
 			return "Unbekannter Rang (" + content + ")";
 		}
 
-		Rang rang = Medals.get().rang(Integer.parseInt(content));
+		Rang rang = medalService.rang(Integer.parseInt(content));
 
 		if (rang == null)
 		{

@@ -87,7 +87,7 @@ public class AllyPosten {
 	 * Setzt die Allianz, der der Allyposten gehoert.
 	 * @param ally Die neue Allianz
 	 */
-	public final void setAlly(final Ally ally) {
+	public void setAlly(final Ally ally) {
 		this.ally = ally;
 	}
 
@@ -103,7 +103,7 @@ public class AllyPosten {
 	 * Setzt den Namen des Postens.
 	 * @param name Der neue Name
 	 */
-	public final void setName(final String name) {
+	public void setName(final String name) {
 		this.name = name;
 	}
 

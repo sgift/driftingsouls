@@ -21,17 +21,24 @@ package net.driftingsouls.ds2.server.modules;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.services.DismantlingService;
+import net.driftingsouls.ds2.server.services.FleetMgmtService;
+import net.driftingsouls.ds2.server.services.ShipActionService;
+import net.driftingsouls.ds2.server.services.ShipyardService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 import net.driftingsouls.ds2.server.werften.WerftGUI;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.io.Writer;
 
@@ -44,12 +51,25 @@ import java.io.Writer;
 @Module(name = "werft")
 public class WerftController extends Controller
 {
+	@PersistenceContext
+	private EntityManager em;
+
 	private final TemplateViewResultFactory templateViewResultFactory;
+	private final ShipyardService shipyardService;
+	private final BBCodeParser bbCodeParser;
+	private final FleetMgmtService fleetMgmtService;
+	private final DismantlingService dismantlingService;
+	private final ShipActionService shipActionService;
 
 	@Autowired
-	public WerftController(TemplateViewResultFactory templateViewResultFactory)
+	public WerftController(TemplateViewResultFactory templateViewResultFactory, ShipyardService shipyardService, BBCodeParser bbCodeParser, FleetMgmtService fleetMgmtService, DismantlingService dismantlingService, ShipActionService shipActionService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.shipyardService = shipyardService;
+		this.bbCodeParser = bbCodeParser;
+		this.fleetMgmtService = fleetMgmtService;
+		this.dismantlingService = dismantlingService;
+		this.shipActionService = shipActionService;
 
 		setPageTitle("Werft");
 	}
@@ -79,18 +99,15 @@ public class WerftController extends Controller
 	 *
 	 * @param ship Die ID des Schiffes, das die Werft ist
 	 * @param linkedbase Die ID einer Basis, mit der die Werft gekoppelt werden soll oder -1, falls die Kopplung aufgehoben werden soll
-	 * @throws IOException
 	 */
 	@Action(ActionType.DEFAULT)
 	public void defaultAction(Ship ship, int linkedbase) throws IOException
 	{
 		validiereSchiff(ship);
 
-		org.hibernate.Session db = getDB();
-
-		ShipWerft werft = (ShipWerft) db.createQuery("from ShipWerft where ship=:ship")
-				.setEntity("ship", ship)
-				.uniqueResult();
+		ShipWerft werft = em.createQuery("from ShipWerft where ship=:ship", ShipWerft.class)
+				.setParameter("ship", ship)
+				.getSingleResult();
 
 		validiereWerft(ship, werft);
 
@@ -123,7 +140,7 @@ public class WerftController extends Controller
 			else
 			{
 
-                Base base = (Base) db.get(Base.class, linkedbase);
+                Base base = em.find(Base.class, linkedbase);
                 if ((base == null) || (base.getOwner() != ship.getOwner()) ||
                         !base.getLocation().sameSector(base.getSize(), ship.getLocation(), 0))
                 {
@@ -138,7 +155,7 @@ public class WerftController extends Controller
 			echo.append("</span><br />\n");
 		}
 
-		WerftGUI werftgui = new WerftGUI(getContext(), templateViewResultFactory.createEmpty());
+		WerftGUI werftgui = new WerftGUI(getContext(), templateViewResultFactory.createEmpty(), shipyardService, bbCodeParser, fleetMgmtService, dismantlingService, shipActionService);
 		echo.append(werftgui.execute(werft));
 
 		echo.append("<br /><a class=\"back\" href=\"").append(Common.buildUrl("default", "module", "schiff", "ship", ship.getId())).append("\">zurück zum Schiff</a><br />\n");

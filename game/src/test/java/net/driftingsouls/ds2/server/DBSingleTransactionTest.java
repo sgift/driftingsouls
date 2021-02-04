@@ -16,16 +16,6 @@ import javax.persistence.EntityManager;
  */
 public class DBSingleTransactionTest
 {
-	@BeforeClass
-	public static void setUpDatabase()
-	{
-		DBTestUtils.ladeHibernateKonfiguration();
-		DBTestUtils.startDerby();
-		DBTestUtils.erzeugeDbSchema();
-		DBTestUtils.starteHibernate();
-		DBTestUtils.erzeugeContext();
-	}
-
 	@Before
 	public void startTransaction()
 	{
@@ -36,15 +26,6 @@ public class DBSingleTransactionTest
 	public void stoppeTransaktion() {
 		getEM().getTransaction().rollback();
 		getEM().clear();
-	}
-
-	@AfterClass
-	public static void tearDownDB() throws Exception
-	{
-		DBTestUtils.stoppeEntityManager();
-		DBTestUtils.stoppeContext();
-		DBTestUtils.stoppeHibernate();
-		DBTestUtils.stopDerby();
 	}
 
 	/**

@@ -29,6 +29,7 @@ import org.hibernate.StaleObjectStateException;
 import org.hibernate.Transaction;
 import org.hibernate.exception.GenericJDBCException;
 
+import javax.persistence.FlushModeType;
 import java.util.*;
 
 /**
@@ -111,9 +112,9 @@ public abstract class UnitOfWork<T>
 	 */
 	public void executeFor(Collection<T> work)
 	{
-		FlushMode oldMode = db.getFlushMode();
+		FlushModeType oldMode = db.getFlushMode();
 		try {
-			db.setFlushMode(FlushMode.MANUAL);
+			db.setHibernateFlushMode(FlushMode.MANUAL);
 			Transaction transaction = db.beginTransaction();
 
 			List<T> unflushedObjects = new ArrayList<>();

@@ -18,15 +18,19 @@
  */
 package net.driftingsouls.ds2.server.tasks;
 
-import net.driftingsouls.ds2.server.ContextCommon;
-import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.services.PmService;
+import net.driftingsouls.ds2.server.services.UserService;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 
 /**
@@ -41,6 +45,20 @@ import java.util.List;
  */
 @Service
 public class HandleAllyNewMember implements TaskHandler {
+	@PersistenceContext
+	private EntityManager em;
+
+	private final UserService userService;
+	private final PmService pmService;
+	private final ConfigService configService;
+	private final TaskManager taskManager;
+
+	public HandleAllyNewMember(UserService userService, PmService pmService, ConfigService configService, TaskManager taskManager) {
+		this.userService = userService;
+		this.pmService = pmService;
+		this.configService = configService;
+		this.taskManager = taskManager;
+	}
 
 	@Override
 	public void handleEvent(Task task, String event) {
@@ -52,15 +70,15 @@ public class HandleAllyNewMember implements TaskHandler {
 		switch (event)
 		{
 			case "pm_yes":
-				Ally ally = (Ally) context.getDB().get(Ally.class, Integer.valueOf(task.getData1()));
+				Ally ally = em.find(Ally.class, Integer.valueOf(task.getData1()));
 
-				User player = (User) context.getDB().get(User.class, playerID);
+				User player = em.find(User.class, playerID);
 				String newname = ally.getAllyTag();
 				newname = newname.replace("[name]", player.getNickname());
 				ally.addUser(player);
 				player.setName(newname);
 
-				int tick = context.get(ContextCommon.class).getTick();
+				int tick = configService.getValue(WellKnownConfigValue.TICKS);
 				player.addHistory(Common.getIngameTime(tick) + ": Beitritt zur Allianz " + ally.getName());
 
 				int membercount = 1;
@@ -73,39 +91,39 @@ public class HandleAllyNewMember implements TaskHandler {
 					{
 						continue;
 					}
-					allymember.setRelation(player.getId(), User.Relation.FRIEND);
-					player.setRelation(allymember.getId(), User.Relation.FRIEND);
+					userService.setRelation(allymember, player, User.Relation.FRIEND);
+					userService.setRelation(player, allymember, User.Relation.FRIEND);
 
 					membercount++;
 				}
 
-				PM.send(user, player.getId(), "Aufnahmeantrag", "[Automatische Nachricht]\nDu wurdest in die Allianz >" + ally.getName() + "< aufgenommen\n\nHerzlichen Gr&uuml;ckwunsch!");
+				pmService.send(user, player.getId(), "Aufnahmeantrag", "[Automatische Nachricht]\nDu wurdest in die Allianz >" + ally.getName() + "< aufgenommen\n\nHerzlichen Gr&uuml;ckwunsch!");
 
 				// Check, ob wir eine TM_TASK_LOW_MEMBER entfernen muessen
 				if (membercount == 2)
 				{
-					Task[] tasks = Taskmanager.getInstance().getTasksByData(Taskmanager.Types.ALLY_LOW_MEMBER, Integer.toString(ally.getId()), "*", "*");
+					Task[] tasks = taskManager.getTasksByData(TaskManager.Types.ALLY_LOW_MEMBER, Integer.toString(ally.getId()), "*", "*");
 					for (Task task1 : tasks)
 					{
-						Taskmanager.getInstance().removeTask(task1.getTaskID());
+						taskManager.removeTask(task1.getTaskID());
 					}
 				}
 				break;
 			case "pm_no":
 			{
-				User source = (User) ContextMap.getContext().getDB().get(User.class, 0);
-				PM.send(source, playerID, "Aufnahmeantrag", "[Automatische Nachricht]\nDein Antrag wurde leider abgelehnt. Es steht dir nun frei ob du einen neuen Antrag nach absprache mit der Allianz stellen willst oder ob du dich an eine andere Allianz wendest.");
+				User source = em.find(User.class, 0);
+				pmService.send(source, playerID, "Aufnahmeantrag", "[Automatische Nachricht]\nDein Antrag wurde leider abgelehnt. Es steht dir nun frei ob du einen neuen Antrag nach absprache mit der Allianz stellen willst oder ob du dich an eine andere Allianz wendest.");
 				break;
 			}
 			case "tick_timeout":
 			{
-				User source = (User) ContextMap.getContext().getDB().get(User.class, 0);
-				PM.send(source, playerID, "Aufnahmeantrag", "[Automatische Nachricht]\nDein Antrag wurde leider nicht innerhalb der vorgegebenen Zeit bearbeitet und daher entfernt. Du hast jedoch jederzeit die M&ouml;glichkeit einen neuen Antrag zu stellen.");
+				User source = em.find(User.class, 0);
+				pmService.send(source, playerID, "Aufnahmeantrag", "[Automatische Nachricht]\nDein Antrag wurde leider nicht innerhalb der vorgegebenen Zeit bearbeitet und daher entfernt. Du hast jedoch jederzeit die M&ouml;glichkeit einen neuen Antrag zu stellen.");
 				break;
 			}
 		}
 
-		Taskmanager.getInstance().removeTask( task.getTaskID() );
+		taskManager.removeTask( task.getTaskID() );
 	}
 
 }

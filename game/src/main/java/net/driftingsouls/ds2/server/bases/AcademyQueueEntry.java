@@ -18,20 +18,20 @@
  */
 package net.driftingsouls.ds2.server.bases;
 
-import net.driftingsouls.ds2.server.config.Offiziere;
 import net.driftingsouls.ds2.server.entities.Academy;
 import net.driftingsouls.ds2.server.entities.Offizier;
-import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import org.hibernate.Session;
 import org.hibernate.annotations.ForeignKey;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Ein Eintrag in der Produktionsschlange einer Akademie.
@@ -196,97 +196,9 @@ public class AcademyQueueEntry {
 	}
 
 	/**
-	 * Beendet den Trainingsprozess dieses Bauschlangeneintrags erfolgreich.
-	 *
-	 * @return <code>true</code> wenn erfolgreich, ansonsten <code>false</code>
-	 */
-	public boolean finishBuildProcess() {
-		MESSAGE.get().setLength(0);
-
-		Context context = ContextMap.getContext();
-		Session db = context.getDB();
-
-		if( !this.isScheduled() ) {
-			return false;
-		}
-
-		// Speichere alle wichtigen Daten
-		int offizier = this.training;
-		int training = this.trainingtype;
-		User owner = this.academy.getBase().getOwner();
-		int position = this.position;
-
-		// Loesche Eintrag und berechne Queue neu
-		db.delete(this);
-		this.academy.getQueueEntries().remove(this);
-
-		for(AcademyQueueEntry entry: this.academy.getQueueEntries())
-		{
-			if( entry.getPosition() > position )
-			{
-				entry.setPosition(entry.getPosition() - 1);
-			}
-		}
-		db.flush();
-		academy.rescheduleQueue();
-
-		if(training == 0)
-		{
-			/*
-			 * Neuer Offizier wurde ausgebildet
-			 */
-			String offiname = owner.getPersonenNamenGenerator().generiere();
-
-			Offizier offz = new Offizier(owner, offiname);
-
-			if( !Offiziere.LIST.containsKey(-offizier) ) {
-				offizier = -Offiziere.LIST.keySet().iterator().next();
-			}
-
-			Offiziere.Offiziersausbildung offi = Offiziere.LIST.get(-offizier);
-
-			for (Offizier.Ability ability : Offizier.Ability.values())
-			{
-				offz.setAbility(ability, offi.getAbility(ability));
-			}
-
-			int spec = ThreadLocalRandom.current().nextInt(offi.getSpecials().length);
-			spec = offi.getSpecials()[spec];
-
-			offz.setSpecial(Offizier.Special.values()[spec-1]);
-
-			offz.setTraining(false);
-			offz.stationierenAuf(academy.getBase());
-			id = (Integer)db.save(offz);
-		}
-		else
-		{
-			/*
-			 * Offizier wurde weitergebildet
-			 */
-
-			final Offizier.Ability ability = dTrain.get(training);
-
-			final Offizier offz = Offizier.getOffizierByID(offizier);
-			if( offz == null )
-			{
-				return true;
-			}
-			offz.setAbility(ability, offz.getAbility(ability)+10);
-			if( !academy.isOffizierScheduled(offz.getID()) )
-			{
-				offz.setTraining(false);
-			}
-			id = (Integer)db.save(offz);
-		}
-
-		return true;
-	}
-
-	/**
 	 * Dekrementiert die verbliebene Bauzeit um 1.
 	 */
-	public final void decRemainingTime() {
+	public void decRemainingTime() {
 		if( this.getRemainingTime() <= 0 ) {
 			return;
 		}
@@ -310,5 +222,13 @@ public class AcademyQueueEntry {
 	 */
 	public void deleteQueueEntry() {
 		this.getAcademy().getQueueEntries().remove(this);
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public static Map<Integer, Offizier.Ability> getdTrain() {
+		return dTrain;
 	}
 }

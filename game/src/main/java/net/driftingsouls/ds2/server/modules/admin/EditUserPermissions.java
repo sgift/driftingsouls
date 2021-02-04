@@ -28,7 +28,10 @@ import net.driftingsouls.ds2.server.framework.PermissionDescriptor;
 import net.driftingsouls.ds2.server.framework.PermissionResolver;
 import net.driftingsouls.ds2.server.framework.authentication.AccessLevelPermissionResolver;
 import net.driftingsouls.ds2.server.framework.authentication.PermissionDelegatePermissionResolver;
+import org.springframework.stereotype.Component;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.IOException;
 
 /**
@@ -37,12 +40,15 @@ import java.io.IOException;
  * @author Christopher Jung
  */
 @AdminMenuEntry(category = "Spieler", name = "Berechtigungen", permission = WellKnownAdminPermission.EDIT_USER_PERMISSIONS)
+@Component
 public class EditUserPermissions implements AdminPlugin
 {
+	@PersistenceContext
+	private EntityManager em;
+
 	@Override
 	public void output(StringBuilder echo) {
 		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
 
 		int userid = context.getRequest().getParameterInt("userid");
 
@@ -61,7 +67,7 @@ public class EditUserPermissions implements AdminPlugin
 		User user = null;
 		if( userid != 0 )
 		{
-			user = (User) db.get(User.class, userid);
+			user = em.find(User.class, userid);
 			if( user != null )
 			{
 				PermissionResolver userPermissionResolver = new PermissionDelegatePermissionResolver(new AccessLevelPermissionResolver(user.getAccessLevel()), user.getPermissions());
@@ -111,7 +117,7 @@ public class EditUserPermissions implements AdminPlugin
 			}
 			else if( value == null )
 			{
-				user.getPermissions().removeIf((perm) -> perm.getCategory().equals(p.getCategory()) && perm.getAction().equals(p.getAction()));
+				user.getPermissions().removeIf(perm -> perm.getCategory().equals(p.getCategory()) && perm.getAction().equals(p.getAction()));
 			}
 		}
 	}

@@ -9,10 +9,15 @@ import net.driftingsouls.ds2.server.framework.pipeline.ViewResult;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.FlushMode;
-import org.hibernate.Session;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.FlushModeType;
+import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -27,7 +32,7 @@ import java.util.Map;
  * Service zum Aufrufen von Actions von Controllern.
  */
 @Service
-public class ActionMethodInvoker
+public class ActionMethodInvoker implements ApplicationContextAware
 {
 	private static final Log log = LogFactory.getLog(ActionMethodInvoker.class);
 	private static final List<Class<? extends ActionMethodInterceptor>> DEFAULT_INTERCEPTORS = new ArrayList<>();
@@ -35,6 +40,16 @@ public class ActionMethodInvoker
 		DEFAULT_INTERCEPTORS.add(AccountVacationMethodInterceptor.class);
 		DEFAULT_INTERCEPTORS.add(UserAuthenticationMethodInterceptor.class);
 		DEFAULT_INTERCEPTORS.add(TickMethodInterceptor.class);
+	}
+
+	@PersistenceContext
+	private EntityManager em;
+
+	private ApplicationContext applicationContext;
+
+	@Override
+	public void setApplicationContext(@NonNull ApplicationContext applicationContext) throws BeansException {
+		this.applicationContext = applicationContext;
 	}
 
 	private static final class RedirectInvocationException extends RuntimeException
@@ -84,7 +99,7 @@ public class ActionMethodInvoker
 		MethodInvocation methodInvocation = new ActionMethodInvocation(controller, method, params);
 		for (Class<? extends ActionMethodInterceptor> interceptorCls : DEFAULT_INTERCEPTORS)
 		{
-			ActionMethodInterceptor interceptor = ContextMap.getContext().getBean(interceptorCls, null);
+			ActionMethodInterceptor interceptor = applicationContext.getBean(interceptorCls);
 			methodInvocation = new InterceptingActionMethodInvocation(interceptor, methodInvocation);
 		}
 
@@ -119,18 +134,13 @@ public class ActionMethodInvoker
 		}
 	}
 
-	private void doActionOptimizations(final Action actionDescriptor)
-	{
-		final Session db = ContextMap.getContext().getDB();
-		if (actionDescriptor.readOnly())
-		{
+	private void doActionOptimizations(final Action actionDescriptor) {
+		if (actionDescriptor.readOnly()) {
 			// Nur lesender Zugriff -> flushes deaktivieren
-			db.flush();
-			db.setFlushMode(FlushMode.MANUAL);
-		}
-		else
-		{
-			db.setFlushMode(FlushMode.AUTO);
+			em.flush();
+			em.setFlushMode(FlushModeType.COMMIT);
+		} else {
+			em.setFlushMode(FlushModeType.AUTO);
 		}
 	}
 
@@ -215,12 +225,12 @@ public class ActionMethodInvoker
 	 * Ruft die genannte Action auf den entsprechenden Controller auf.
 	 * @param controller Der Controller
 	 * @param action Der Name der aufzurufenden Action
-	 * @throws IOException
 	 */
 	public void rufeActionAuf(Controller controller, String action) throws IOException
 	{
 		Context context = ContextMap.getContext();
-		ParameterReader parameterReader = new ParameterReader(context.getRequest(), context.getDB());
+		ParameterReader parameterReader = new ParameterReader();
+		parameterReader.setRequest(context.getRequest());
 		parameterReader.parameterString("module");
 		parameterReader.parameterString("action");
 
@@ -337,7 +347,8 @@ public class ActionMethodInvoker
 	protected final Object rufeAlsSubActionAuf(String subparam, Object objekt, String methode, Map<String,Object> args) throws ReflectiveOperationException
 	{
 		Context context = ContextMap.getContext();
-		ParameterReader parameterReader = new ParameterReader(context.getRequest(), context.getDB());
+		ParameterReader parameterReader = new ParameterReader();
+		parameterReader.setRequest(context.getRequest());
 		parameterReader.parameterString("module");
 		parameterReader.parameterString("action");
 

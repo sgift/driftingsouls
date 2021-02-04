@@ -1,23 +1,40 @@
 package net.driftingsouls.ds2.server.services;
 
-import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.VersteigerungSchiff;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipType;
+import net.driftingsouls.ds2.server.ships.TradepostVisibility;
 import org.hibernate.Session;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 
 @Service
 public class HandelspostenService
 {
+	@PersistenceContext
+	private EntityManager em;
+
+	private final ConfigService configService;
+	private final UserService userService;
+	private final DismantlingService dismantlingService;
+
+	public HandelspostenService(ConfigService configService, UserService userService, DismantlingService dismantlingService) {
+		this.configService = configService;
+		this.userService = userService;
+		this.dismantlingService = dismantlingService;
+	}
+
 	/**
 	 * Gibt zurueck, ob ein bestimmtes Schiff mit dem angegebenen Handelsposten kommunizieren darf.
 	 * Die Faehigkeit zur Kommunikation ist dabei keine Voraussetzung zum Handeln mit Waren sondern
@@ -44,7 +61,46 @@ public class HandelspostenService
 		}
 
 		User aktiverUser = handelndesSchiff.getOwner();
-		return handelsposten.isTradepostVisible(aktiverUser, aktiverUser.getRelations());
+		return isTradepostVisible(handelsposten, aktiverUser);
+	}
+
+	/**
+	 * returns wether the tradepost is visible or not.
+	 * 0 everybody is able to see the tradepost.
+	 * 1 everybody except enemys is able to see the tradepost.
+	 * 2 every friend is able to see the tradepost.
+	 * 3 the own allymembers are able to see the tradepost.
+	 * 4 nobody except owner is able to see the tradepost.
+	 * @param tradingPost The tradingPost ship object.
+	 * @param observer the user who watches the tradepostlist.
+	 * @return boolean if tradepost is visible
+	 */
+	public boolean isTradepostVisible(Ship tradingPost, User observer)
+	{
+		TradepostVisibility tradepostvisibility = tradingPost.getEinstellungen().getShowtradepost();
+		UserService.Relations relations = userService.getRelations(observer);
+		int ownerid = tradingPost.getOwner().getId();
+		int observerid = observer.getId();
+		switch (tradepostvisibility)
+		{
+			case ALL:
+				return true;
+			case NEUTRAL_AND_FRIENDS:
+				// check whether we are an enemy of the owner
+				return relations.beziehungVon(tradingPost.getOwner()) != User.Relation.ENEMY;
+			case FRIENDS:
+				// check whether we are a friend of the owner
+				return (relations.beziehungVon(tradingPost.getOwner()) == User.Relation.FRIEND) || (ownerid == observerid);
+			case ALLY:
+				// check if we are members of the same ally and if the owner has an ally
+				return ((tradingPost.getOwner().getAlly() != null) && observer.getAlly() != null && (tradingPost.getOwner().getAlly().getId() == observer.getAlly().getId())) || (ownerid == observerid);
+			case NONE:
+				// check if we are the owner of the tradepost
+				return ownerid == observerid;
+			default:
+				// damn it, broken configuration, don't show the tradepost
+				return false;
+		}
 	}
 
 	/**
@@ -56,20 +112,18 @@ public class HandelspostenService
 		if (zuVersteigerndesSchiff.getTypeData().getShipClass() != ShipClasses.SCHUTZSCHILD)
 		{
 			int ticks = 15;
-			int curtick = ContextMap.getContext().get(ContextCommon.class).getTick();
+			int curtick = configService.getValue(WellKnownConfigValue.TICKS);
 			ticks += curtick;
-
-			Session db = ContextMap.getContext().getDB();
 
 			User user = zuVersteigerndesSchiff.getOwner();
 			ShipType st = zuVersteigerndesSchiff.getBaseType();
 
 			VersteigerungSchiff v = new VersteigerungSchiff(user, st, betrag);
-			v.setBieter((User) db.get(User.class, Faction.GTU));
+			v.setBieter(em.find(User.class, Faction.GTU));
 			v.setTick(ticks);
-			db.persist(v);
+			em.persist(v);
 
-			zuVersteigerndesSchiff.destroy();
+			dismantlingService.destroy(zuVersteigerndesSchiff);
 		}
 	}
 
@@ -83,9 +137,9 @@ public class HandelspostenService
 		Location loc = sektor.getLocation();
 		Session db = ContextMap.getContext().getDB();
 		List<?> handel = db.createQuery("from Ship where id>0 and system=:sys and x=:x and y=:y and locate('tradepost',status)!=0")
-				.setInteger("sys", loc.getSystem())
-				.setInteger("x", loc.getX())
-				.setInteger("y", loc.getY())
+				.setParameter("sys", loc.getSystem())
+				.setParameter("x", loc.getX())
+				.setParameter("y", loc.getY())
 				.setMaxResults(1)
 				.list();
 

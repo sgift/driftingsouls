@@ -18,20 +18,18 @@
  */
 package net.driftingsouls.ds2.server.framework.bbcode;
 
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import net.driftingsouls.ds2.server.bbcodes.TagMap;
+import net.driftingsouls.ds2.server.bbcodes.TagMedal;
+import net.driftingsouls.ds2.server.bbcodes.TagRang;
+import net.driftingsouls.ds2.server.bbcodes.TagResource;
+import net.driftingsouls.ds2.server.bbcodes.TagShipType;
+import net.driftingsouls.ds2.server.bbcodes.TagUnit;
+import net.driftingsouls.ds2.server.services.MedalService;
+import net.driftingsouls.ds2.server.services.ShipService;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.net.URL;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -50,98 +48,47 @@ import java.util.Map;
  * @author Christopher Jung
  *
  */
-public class BBCodeParser {
-	private static final Log log = LogFactory.getLog(BBCodeParser.class);
-	private static BBCodeParser instance = null;
-	
-	private final Map<String,BBCodeFunction> replaceFunctions = new HashMap<>();
-	private final Map<String,HashSet<Integer>> tags = new HashMap<>();
+@Service
+@RequestScope
+public class BBCodeParser{
+	private final Map<String, BBCodeFunction> replaceFunctions = new HashMap<>();
+	private final Map<String, HashSet<Integer>> tags = new HashMap<>();
 
-	private BBCodeParser() {
-		try {
-			// Framework-BBCodes registrieren
-			registerHandler( "url", 1, new TagURL() );
-			registerHandler( "url", 2, new TagURL() );
-			registerHandler( "img", 1, "<img style=\"vertical-align:middle; border:0px\" src=\"$1\" alt=\"\" />" );
-			registerHandler( "imglf", 1, "<img style=\"float:right; margin-left: 10px; magin-top: 5px; margin-bottom: 5px; border:0px\" src=\"$1\" alt=\"\" />" );
-			registerHandler( "imgrf", 1, "<img style=\"float:left; margin-right: 10px; magin-top: 5px; margin-bottom: 5px; border:0px\" src=\"$1\" alt=\"\" />" );
-			registerHandler( "b", 1, "<span style=\"font-weight:bold\">$1</span>" );
-			registerHandler( "i", 1, "<span style=\"font-style:italic\">$1</span>" );
-			registerHandler( "email", 1, "<a href=\"mailto:$1\">$1</a>" );
-			registerHandler( "email", 2, "<a href=\"mailto:$2\">$1</a>" );
-			registerHandler( "u", 1, "<span style=\"text-decoration:underline\">$1</span>" );
-			registerHandler( "size", 2, "<span style=\"font-size:$2pt\">$1</span>" );
-			registerHandler( "list", 2, new TagList(TagList.Type.LIST) );
-			registerHandler( "list", 1, new TagList(TagList.Type.LIST) );
-			registerHandler( "sublist", 2, new TagList(TagList.Type.SUBLIST) );
-			registerHandler( "sublist", 1, new TagList(TagList.Type.SUBLIST) );
-			registerHandler( "color", 2, "<span style=\"color:$2\">$1</span>" );
-			registerHandler( "font", 2, "<span style=\"font-family:$2\">$1</span>" );
-			registerHandler( "align", 2, "<div style=\"text-align:$2\">$1</div>" );
-			registerHandler( "mark", 2, "<span style=\"background-color:$2\">$1</span>" );
-			registerHandler( "hr", 0, "<hr style=\"height:1px; border:0px; background-color:#606060; color:#606060\" />" );
-			registerHandler( "hide", 1, "" );
-			
-			// Weitere BBCodes aus META-INF/services/net.driftingsouls.ds2.server.framework.bbcode.BBCodeFunction lesen
-			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder builder = factory.newDocumentBuilder();
-			
-			ClassLoader loader = Thread.currentThread().getContextClassLoader();
-			Enumeration<URL> resources = loader.getResources("META-INF/services/"+BBCodeFunction.class.getName());
-			while( resources.hasMoreElements() ) {
-				URL elem = resources.nextElement();
-				
-				Document doc = builder.parse(elem.openStream());
-				Element root = doc.getDocumentElement();
-				NodeList bbcodes = root.getElementsByTagName("bbcode");
-				for( int i=0; i < bbcodes.getLength(); i++ ) {
-					Element bbcode = (Element)bbcodes.item(i);
-					
-					final String tag = bbcode.getAttribute("tag");
-					final int params = Integer.parseInt(bbcode.getAttribute("params")); 
-					
-					if( bbcode.getAttribute("handler").length() == 0 ) {
-						String text = XMLUtils.firstChildOfType(bbcode, Node.CDATA_SECTION_NODE).getNodeValue();
-						text = Common.trimLines(text).trim();
-						registerHandler(tag, params, text);
-					}
-					else {
-						String cls = bbcode.getAttribute("handler");
-						try {
-							Class<? extends BBCodeFunction> bbcodeCls = Class.forName(cls).asSubclass(BBCodeFunction.class);
-							registerHandler(tag, params, bbcodeCls.getDeclaredConstructor().newInstance());
-						}
-						catch( ClassNotFoundException e ) {
-							log.warn("Konnte BBCode "+tag+"("+params+") nicht laden. Handler-Klasse '"+cls+"' nicht vorhanden");
-						}
-					}
-				}
-			}
-		}
-		catch( Exception e ) {
-			e.printStackTrace();
-		}
-	}
-	
-	/**
-	 * Liefert eine Instanz des BBCodeParsers zurueck.
-	 * 
-	 * @return Eine BBCodeParser-Instanz
-	 */
-	public static BBCodeParser getInstance() {
-		if( instance == null ) {
-			instance = new BBCodeParser();
-		}
-		return instance;
-	}
-	
-	/**
-	 * Gibt explizit eine neue Instanz zurueck. Die
-	 * Instanz wird kein zweites Mal zurueckgegeben.
-	 * @return eine neue Instanz
-	 */
-	public static BBCodeParser getNewInstance() {
-		return new BBCodeParser();
+	public BBCodeParser(MedalService medalService, ShipService shipService) {
+		// Framework-BBCodes registrieren
+		registerHandler( "url", 1, new TagURL() );
+		registerHandler( "url", 2, new TagURL() );
+		registerHandler( "img", 1, "<img style=\"vertical-align:middle; border:0px\" src=\"$1\" alt=\"\" />" );
+		registerHandler( "imglf", 1, "<img style=\"float:right; margin-left: 10px; magin-top: 5px; margin-bottom: 5px; border:0px\" src=\"$1\" alt=\"\" />" );
+		registerHandler( "imgrf", 1, "<img style=\"float:left; margin-right: 10px; magin-top: 5px; margin-bottom: 5px; border:0px\" src=\"$1\" alt=\"\" />" );
+		registerHandler( "b", 1, "<span style=\"font-weight:bold\">$1</span>" );
+		registerHandler( "i", 1, "<span style=\"font-style:italic\">$1</span>" );
+		registerHandler( "email", 1, "<a href=\"mailto:$1\">$1</a>" );
+		registerHandler( "email", 2, "<a href=\"mailto:$2\">$1</a>" );
+		registerHandler( "u", 1, "<span style=\"text-decoration:underline\">$1</span>" );
+		registerHandler( "size", 2, "<span style=\"font-size:$2pt\">$1</span>" );
+		registerHandler( "list", 2, new TagList(TagList.Type.LIST) );
+		registerHandler( "list", 1, new TagList(TagList.Type.LIST) );
+		registerHandler( "sublist", 2, new TagList(TagList.Type.SUBLIST) );
+		registerHandler( "sublist", 1, new TagList(TagList.Type.SUBLIST) );
+		registerHandler( "color", 2, "<span style=\"color:$2\">$1</span>" );
+		registerHandler( "font", 2, "<span style=\"font-family:$2\">$1</span>" );
+		registerHandler( "align", 2, "<div style=\"text-align:$2\">$1</div>" );
+		registerHandler( "mark", 2, "<span style=\"background-color:$2\">$1</span>" );
+		registerHandler( "hr", 0, "<hr style=\"height:1px; border:0px; background-color:#606060; color:#606060\" />" );
+		registerHandler( "hide", 1, "" );
+		registerHandler("medal", 1, new TagMedal(medalService));
+		registerHandler("rang", 1, new TagRang(medalService));
+		registerHandler("map", 1, new TagMap());
+		registerHandler("ship", 2, "<a class=\"profile\" href=\"ds?module=schiff&ship=$2\">$1</a>");
+		registerHandler("base", 2, "<a class=\"profile\" href=\"ds?module=base&col=$2\">$1</a>");
+		registerHandler("userprofile", 2, "<a class=\"profile\" href=\"ds?module=userprofile&user=$2\">$1</a>");
+		registerHandler("userprofile", 3, "<a class=\"$3\" href=\"ds?module=userprofile&user=$2\">$1</a>");
+		registerHandler("unit", 2, new TagUnit());
+		registerHandler("unit", 3, new TagUnit());
+		registerHandler("resource", 2, new TagResource());
+		registerHandler("resource", 3, new TagResource());
+		registerHandler("shiptype", 1, new TagShipType(shipService));
 	}
 	
 	/**

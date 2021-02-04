@@ -26,8 +26,11 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -39,9 +42,13 @@ import java.util.List;
  *
  */
 @AdminMenuEntry(category="Objekte", name="Karte", permission = WellKnownAdminPermission.BASES_MAP)
+@Component
 public class BasesMap implements AdminPlugin 
 {
 	private static final Logger LOG = LogManager.getLogger(BasesMap.class);
+
+	@PersistenceContext
+	private EntityManager em;
 
     @Override
 	public void output(StringBuilder echo) {
@@ -62,8 +69,6 @@ public class BasesMap implements AdminPlugin
 			return;
 		}
 		
-		org.hibernate.Session db = context.getDB();
-		
 		echo.append("Karte:\n");
 		echo.append("<form action=\"./ds\" method=\"post\">");
 		echo.append("<table class=\"noBorder\" width=\"300\">\n");
@@ -81,7 +86,7 @@ public class BasesMap implements AdminPlugin
 		
 		if( sysid != 0 ) 
 		{
-			StarSystem system = (StarSystem)db.get(StarSystem.class, sysid);
+			StarSystem system = em.find(StarSystem.class, sysid);
 			if( system == null )
 			{
 				return;
@@ -116,10 +121,10 @@ public class BasesMap implements AdminPlugin
 
 		g.setColor(green);
 
-		List<Object[]> bases = Common.cast(db.createQuery("select x,y from Base where owner= :user and system= :system")
-				.setInteger("user", user)
-				.setInteger("system", system.getID())
-				.list());
+		List<Object[]> bases = em.createQuery("select x,y from Base where owner= :user and system= :system", Object[].class)
+				.setParameter("user", user)
+				.setParameter("system", system.getID())
+				.getResultList();
 		for( Object[] base : bases )
 		{
 			g.fillRect((Integer)base[0]*scale, (Integer)base[1]*scale, scale, scale);
@@ -128,10 +133,10 @@ public class BasesMap implements AdminPlugin
 		if( otherastis != 0 )
 		{
 			g.setColor(grey);
-			bases = Common.cast(db.createQuery("select x,y from Base where owner!= :user and system= :system")
-					.setInteger("user", user)
-					.setInteger("system", system.getID())
-					.list());
+			bases = db.createQuery("select x,y from Base where owner!= :user and system= :system", Object[].class)
+					.setParameter("user", user)
+					.setParameter("system", system.getID())
+					.getResultList();
 			for( Object[] base : bases )
 			{
 				g.fillRect((Integer)base[0]*scale, (Integer)base[1]*scale, scale, scale);
@@ -139,18 +144,18 @@ public class BasesMap implements AdminPlugin
 		}
 
 		g.setColor(red);
-		List<Object[]> nebel = Common.cast(db.createQuery("select loc.x,loc.y from Nebel where loc.system= :system")
-				.setInteger("system", system.getID())
-				.list());
+		List<Object[]> nebel = em.createQuery("select loc.x,loc.y from Nebel where loc.system= :system", Object[].class)
+				.setParameter("system", system.getID())
+				.getResultList();
 		for( Object[] aNebel : nebel )
 		{
 			g.fillRect((Integer)aNebel[0]*scale, (Integer)aNebel[1]*scale, scale, scale);
 		}
 
 		g.setColor(yellow);
-		List<Object[]> jns = Common.cast(db.createQuery("select x,y from JumpNode where system= :system")
-				.setInteger("system", system.getID())
-				.list());
+		List<Object[]> jns = db.createQuery("select x,y from JumpNode where system= :system", Object[].class)
+				.setParameter("system", system.getID())
+				.getResultList();
 		for( Object[] jn : jns )
 		{
 			g.fillRect((Integer)jn[0]*scale, (Integer)jn[1]*scale, scale, scale);

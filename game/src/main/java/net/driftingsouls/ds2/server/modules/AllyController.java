@@ -30,22 +30,30 @@ import net.driftingsouls.ds2.server.entities.ally.AllyRangDescriptor;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.DynamicContentManager;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.RedirectViewResult;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.services.AllianzService;
 import net.driftingsouls.ds2.server.services.AllyPostenService;
-import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.services.PmService;
+import net.driftingsouls.ds2.server.services.ShipService;
+import net.driftingsouls.ds2.server.services.UserService;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tasks.Task;
-import net.driftingsouls.ds2.server.tasks.Taskmanager;
+import net.driftingsouls.ds2.server.tasks.TaskManager;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.File;
 import java.util.HashSet;
 import java.util.List;
@@ -64,16 +72,32 @@ public class AllyController extends Controller
 	private final AllianzService allianzService;
 	private final TemplateViewResultFactory templateViewResultFactory;
 	private final AllyPostenService allyPostenService;
+	private final PmService pmService;
+	private final BBCodeParser bbCodeParser;
+	private final UserService userService;
+	private final AllianzService allyService;
+	private final ShipService shipService;
+	private final TaskManager taskManager;
+
 	private Ally ally = null;
+
+	@PersistenceContext
+	private EntityManager em;
 
 	@Autowired
 	public AllyController(AllianzService allianzService,
-			TemplateViewResultFactory templateViewResultFactory,
-			AllyPostenService allyPostenService)
+		TemplateViewResultFactory templateViewResultFactory,
+		AllyPostenService allyPostenService, PmService pmService, BBCodeParser bbCodeParser, UserService userService, AllianzService allyService, ShipService shipService, TaskManager taskManager)
 	{
 		this.allianzService = allianzService;
 		this.templateViewResultFactory = templateViewResultFactory;
 		this.allyPostenService = allyPostenService;
+		this.pmService = pmService;
+		this.bbCodeParser = bbCodeParser;
+		this.userService = userService;
+		this.allyService = allyService;
+		this.shipService = shipService;
+		this.taskManager = taskManager;
 
 		setPageTitle("Allianz");
 	}
@@ -115,7 +139,7 @@ public class AllyController extends Controller
 		if (this.ally != null)
 		{
 			t.setVar(
-					"ally.name", Common._title(this.ally.getName()),
+					"ally.name", Common._title(bbCodeParser, this.ally.getName()),
 					"user.president", (user.getId() == this.ally.getPresident().getId()),
 					"user.president.npc", (user.getId() == this.ally.getPresident().getId() && user.isNPC()),
 					"ally.id", this.ally.getId());
@@ -146,9 +170,7 @@ public class AllyController extends Controller
 			return new RedirectViewResult("default").withMessage("Fehler: Sie sind bereits Mitglied in einer Allianz und können daher keine neue Allianz gründen");
 		}
 
-		Taskmanager taskmanager = Taskmanager.getInstance();
-
-		Task[] tasks = taskmanager.getTasksByData(Taskmanager.Types.ALLY_NEW_MEMBER, "*", Integer.toString(user.getId()), "*");
+		Task[] tasks = taskManager.getTasksByData(TaskManager.Types.ALLY_NEW_MEMBER, "*", Integer.toString(user.getId()), "*");
 		if (tasks.length > 0)
 		{
 			return new RedirectViewResult("defaultNoAlly").withMessage("Fehler: Sie haben bereits einen Aufnahmeantrag bei einer Allianz gestellt");
@@ -166,7 +188,7 @@ public class AllyController extends Controller
 		}
 		else
 		{
-			tasks = taskmanager.getTasksByData(Taskmanager.Types.ALLY_NEW_MEMBER, "*",
+			tasks = taskManager.getTasksByData(TaskManager.Types.ALLY_NEW_MEMBER, "*",
 					Integer.toString(confuser1.getId()), "*");
 			if (tasks.length > 0)
 			{
@@ -179,14 +201,14 @@ public class AllyController extends Controller
 			return new RedirectViewResult("showCreateAlly").withMessage("<span style=\"color:red\">Der angegebene Unterstützer versucht bereits in einer anderen Allianz Mitglied zu werden.</span>\n");
 		}
 
-		String mastertaskid = taskmanager.addTask(
-				Taskmanager.Types.ALLY_FOUND, 21,
+		String mastertaskid = taskManager.addTask(
+				TaskManager.Types.ALLY_FOUND, 21,
 				"1", name, user.getId() + "," + confuser1.getId() );
-		String conf1taskid = taskmanager.addTask(
-				Taskmanager.Types.ALLY_FOUND_CONFIRM, 21,
+		String conf1taskid = taskManager.addTask(
+				TaskManager.Types.ALLY_FOUND_CONFIRM, 21,
 				mastertaskid, Integer.toString(confuser1.getId()), "");
 
-		PM.send(user, confuser1.getId(), "Allianzgründung", "[automatische Nachricht]\nIch habe vor, die Allianz " + name + " zu gründen. Da mindestens ein Spieler dieses Vorhaben unterstützen muss, habe ich mich an Dich gewendet.\nAchtung: Durch die Unterstützung wirst Du automatisch Mitglied der neuen Allianz!\n\n[_intrnlConfTask=" + conf1taskid + "]Willst Du die Allianzgründung unterstützen?[/_intrnlConfTask]", PM.FLAGS_IMPORTANT);
+		pmService.send(user, confuser1.getId(), "Allianzgründung", "[automatische Nachricht]\nIch habe vor, die Allianz " + name + " zu gründen. Da mindestens ein Spieler dieses Vorhaben unterstützen muss, habe ich mich an Dich gewendet.\nAchtung: Durch die Unterstützung wirst Du automatisch Mitglied der neuen Allianz!\n\n[_intrnlConfTask=" + conf1taskid + "]Willst Du die Allianzgründung unterstützen?[/_intrnlConfTask]", PM.FLAGS_IMPORTANT);
 
 		return new RedirectViewResult("defaultNoAlly").withMessage("Der angegebene Spieler wurden via PM benachrichtigt. Sollten er sich zur Unterstützung entschlossen haben, wird die Allianz augenblicklich gegründet. Du wirst dann außerdem via PM benachrichtigt.");
 	}
@@ -219,19 +241,16 @@ public class AllyController extends Controller
 			return new RedirectViewResult("defaultNoAlly").withMessage("Es gibt eine oder mehrere Anfragen an Sie zwecks Unterstützung einer Allianzgründung. Sie müssen diese Anfragen erst bearbeiten, bevor Sie einer Allianz beitreten können.");
 		}
 
-		Session db = getDB();
-		long battlesAgainstAlly = (Long) db.createQuery("select count(battle) from Battle battle where (commander1=:user and commander2.ally=:ally) or (commander1.ally=:ally and commander2=:user)")
+		long battlesAgainstAlly = em.createQuery("select count(battle) from Battle battle where (commander1=:user and commander2.ally=:ally) or (commander1.ally=:ally and commander2=:user)", Long.class)
 				.setParameter("user", user)
 				.setParameter("ally", ally)
-				.uniqueResult();
+				.getSingleResult();
 		if (battlesAgainstAlly > 0)
 		{
 			return new RedirectViewResult("defaultNoAlly").withMessage("Sie können keiner Allianz beitreten, gegen die Sie kämpfen.");
 		}
 
-		Taskmanager taskmanager = Taskmanager.getInstance();
-
-		Task[] tasks = taskmanager.getTasksByData(Taskmanager.Types.ALLY_NEW_MEMBER, "*", Integer.toString(user.getId()), "*");
+		Task[] tasks = taskManager.getTasksByData(TaskManager.Types.ALLY_NEW_MEMBER, "*", Integer.toString(user.getId()), "*");
 		if (tasks.length > 0)
 		{
 			return new RedirectViewResult("defaultNoAlly").withMessage("Fehler: Sie haben bereits einen Aufnahmeantrag bei einer Allianz gestellt.");
@@ -242,19 +261,19 @@ public class AllyController extends Controller
 			TemplateEngine t = templateViewResultFactory.createFor(this);
 			setDefaultTemplateVars(t);
 			t.setVar("show", show);
-			t.setVar("ally.statusmessage", "Wollen Sie der Allianz &gt;" + Common._title(zielAllianz.getName()) + "&lt; wirklich beitreten?",
+			t.setVar("ally.statusmessage", "Wollen Sie der Allianz &gt;" + Common._title(bbCodeParser, zielAllianz.getName()) + "&lt; wirklich beitreten?",
 					"ally.statusmessage.ask.url1", "&amp;action=join&amp;join=" + zielAllianz.getId() + "&amp;conf=ok",
 					"ally.statusmessage.ask.url2", "");
 
 			return t;
 		}
 
-		String taskid = taskmanager.addTask(Taskmanager.Types.ALLY_NEW_MEMBER, 35, Integer.toString(zielAllianz.getId()), Integer.toString(user.getId()), "");
+		String taskid = taskManager.addTask(TaskManager.Types.ALLY_NEW_MEMBER, 35, Integer.toString(zielAllianz.getId()), Integer.toString(user.getId()), "");
 
 		List<User> supermembers = allianzService.getAllianzfuehrung(zielAllianz);
 		for (User supermember : supermembers)
 		{
-			PM.send(user, supermember.getId(),
+			pmService.send(user, supermember.getId(),
 					"Aufnahmeantrag", "[Automatische Nachricht]\nHiermit beantrage ich die Aufnahme in die Allianz.\n\n[_intrnlConfTask=" + taskid + "]Wollen Sie dem Aufnahmeantrag zustimmen?[/_intrnlConfTask]", PM.FLAGS_IMPORTANT);
 		}
 
@@ -285,7 +304,7 @@ public class AllyController extends Controller
 			{
 				DynamicContentManager.remove(rang.getCustomImg());
 			}
-			getDB().delete(rang);
+			em.remove(rang);
 			this.ally.getRangDescriptors().remove(rang);
 
 			message = "Rang gelöscht";
@@ -334,7 +353,7 @@ public class AllyController extends Controller
 		if (rang == null)
 		{
 			rang = new AllyRangDescriptor(this.ally, rangnr, rangname);
-			getDB().persist(rang);
+			em.persist(rang);
 			this.ally.getRangDescriptors().add(rang);
 		}
 		else
@@ -482,16 +501,15 @@ public class AllyController extends Controller
 	public RedirectViewResult createChannelAction(String name, String read, String readids, String write, String writeids, String show)
 	{
 		User user = (User) getUser();
-		org.hibernate.Session db = getDB();
 
 		if (this.ally.getPresident().getId() != user.getId())
 		{
 			return new RedirectViewResult("showAllySettings").withMessage("Fehler: Nur der Anführer der Allianz kann diese Aktion durchführen.");
 		}
 
-		int count = ((Number) db.createQuery("select count(*) from ComNetChannel where allyOwner=:owner")
-				.setInteger("owner", this.ally.getId())
-				.iterate().next()).intValue();
+		int count = em.createQuery("select count(*) from ComNetChannel where allyOwner=:owner", Integer.class)
+				.setParameter("owner", this.ally)
+				.getSingleResult();
 
 		if (count >= 2)
 		{
@@ -531,9 +549,9 @@ public class AllyController extends Controller
 				channel.setWritePlayer(Common.explodeToInt(",", writeids));
 				break;
 		}
-		db.persist(channel);
+		em.persist(channel);
 
-		return new RedirectViewResult("showAllySettings").withMessage("Frequenz " + Common._title(name) + " hinzugefügt.");
+		return new RedirectViewResult("showAllySettings").withMessage("Frequenz " + Common._title(bbCodeParser, name) + " hinzugefügt.");
 	}
 
 	/**
@@ -612,7 +630,6 @@ public class AllyController extends Controller
 	public Object deleteChannelAction(ComNetChannel channel, String conf, String show)
 	{
 		User user = (User) getUser();
-		org.hibernate.Session db = getDB();
 
 		if (this.ally.getPresident().getId() != user.getId())
 		{
@@ -629,21 +646,21 @@ public class AllyController extends Controller
 			TemplateEngine t = templateViewResultFactory.createFor(this);
 			setDefaultTemplateVars(t);
 			t.setVar("show", show);
-			t.setVar("ally.statusmessage", "Wollen Sie die Frequenz \"" + Common._title(channel.getName()) + "\" wirklich löschen?",
+			t.setVar("ally.statusmessage", "Wollen Sie die Frequenz \"" + Common._title(bbCodeParser, channel.getName()) + "\" wirklich löschen?",
 					"ally.statusmessage.ask.url1", "&amp;action=deleteChannel&amp;channel=" + channel.getId() + "&amp;conf=ok&amp;show=" + show,
 					"ally.statusmessage.ask.url2", "&amp;show=" + show);
 			return t;
 		}
 
-		db.createQuery("delete from ComNetVisit where channel=:channel")
-				.setEntity("channel", channel)
+		em.createQuery("delete from ComNetVisit where channel=:channel")
+				.setParameter("channel", channel)
 				.executeUpdate();
 
-		db.createQuery("delete from ComNetEntry where channel=:channel")
-				.setEntity("channel", channel)
+		em.createQuery("delete from ComNetEntry where channel=:channel")
+				.setParameter("channel", channel)
 				.executeUpdate();
 
-		db.delete(channel);
+		em.remove(channel);
 
 		return new RedirectViewResult("showAllySettings").withMessage("Die Frequenz wurde gelöscht.");
 	}
@@ -665,7 +682,7 @@ public class AllyController extends Controller
 		}
 
 		List<FileItem> list = getContext().getRequest().getUploadedFiles();
-		if (list.size() == 0)
+		if (list.isEmpty())
 		{
 			return new RedirectViewResult("showAllySettings");
 		}
@@ -731,6 +748,7 @@ public class AllyController extends Controller
 		}
 
 		this.ally.setName(name);
+		this.ally.setPlainname(Common._titleNoFormat(bbCodeParser, name));
 		this.ally.setDescription(desc);
 		this.ally.setHp(hp);
 		this.ally.setAllyTag(allytag);
@@ -748,6 +766,7 @@ public class AllyController extends Controller
 			if (!newname.equals(auser.getName()))
 			{
 				auser.setName(newname);
+				auser.setPlainname(bbCodeParser.parse(name,new String[] {"all"}));
 			}
 		}
 
@@ -780,7 +799,7 @@ public class AllyController extends Controller
 			return t;
 		}
 
-		PM.send(user, this.ally.getPresident().getId(), "Allianz verlassen",
+		pmService.send(user, this.ally.getPresident().getId(), "Allianz verlassen",
 				"Ich habe die Allianz verlassen");
 
 		allianzService.entferneMitglied(ally, user);
@@ -817,7 +836,7 @@ public class AllyController extends Controller
 		}
 		else
 		{
-			PM.sendToAlly(user, this.ally, "Allianz aufgelöst", "Die Allianz wurde mit sofortiger Wirkung aufgelöst.");
+			pmService.sendToAlly(user, this.ally, "Allianz aufgelöst", "Die Allianz wurde mit sofortiger Wirkung aufgelöst.");
 
 			allianzService.loeschen(this.ally);
 			this.ally = null;
@@ -841,16 +860,16 @@ public class AllyController extends Controller
 			return new RedirectViewResult("showMembers").withMessage("Fehler: Nur der Anführer der Allianz kann diese Aktion durchführen.");
 		}
 
-		User presnuser = (User) getContext().getDB().get(User.class, presn);
+		User presnuser = em.find(User.class, presn);
 		if (presnuser.getAlly() != this.ally)
 		{
 			return new RedirectViewResult("showMembers").withMessage("Dieser Spieler ist nicht Mitglied Ihrer Allianz.");
 		}
 
 		this.ally.setPresident(presnuser);
-		PM.send(this.ally.getPresident(), presnuser.getId(), "Zum Anführer ernannt", "Ich habe dich zum Präsidenten der Allianz ernannt.");
+		pmService.send(this.ally.getPresident(), presnuser.getId(), "Zum Anführer ernannt", "Ich habe dich zum Präsidenten der Allianz ernannt.");
 
-		return new RedirectViewResult("showMembers").withMessage(presnuser.getProfileLink() + " zum Anführer ernannt");
+		return new RedirectViewResult("showMembers").withMessage(userService.getProfileLink(presnuser) + " zum Anführer ernannt");
 	}
 
 	/**
@@ -873,7 +892,7 @@ public class AllyController extends Controller
 			return new RedirectViewResult("showMembers").withMessage("Sie können sich nicht selber aus der Allianz werfen.");
 		}
 
-		User kickuser = (User) getContext().getDB().get(User.class, kick);
+		User kickuser = em.find(User.class, kick);
 		if (!this.ally.equals(kickuser.getAlly()))
 		{
 			return new RedirectViewResult("showMembers").withMessage("Dieser Spieler ist nicht Mitglied Ihrer Allianz.");
@@ -881,9 +900,9 @@ public class AllyController extends Controller
 
 		this.allianzService.entferneMitglied(ally, kickuser);
 
-		PM.send(this.ally.getPresident(), kickuser.getId(), "Aus der Allianz geworfen", "Ich habe dich aus der Allianz geworfen.");
+		pmService.send(this.ally.getPresident(), kickuser.getId(), "Aus der Allianz geworfen", "Ich habe dich aus der Allianz geworfen.");
 
-		return new RedirectViewResult("showMembers").withMessage(Common._title(kickuser.getName()) + " aus der Allianz geworfen.");
+		return new RedirectViewResult("showMembers").withMessage(Common._title(bbCodeParser, kickuser.getName()) + " aus der Allianz geworfen.");
 	}
 
 	/**
@@ -902,13 +921,11 @@ public class AllyController extends Controller
 		t.setVar("show.join", 1);
 		t.setBlock("_ALLY", "show.join.allylist.listitem", "show.join.allylist.list");
 
-		List<?> al = getDB().createQuery("from Ally order by founded").list();
-		for (Object anAl : al)
+		List<Ally> alliances = em.createQuery("from Ally order by founded", Ally.class).getResultList();
+		for (Ally alliance : alliances)
 		{
-			Ally aAlly = (Ally) anAl;
-
-			t.setVar("show.join.allylist.allyid", aAlly.getId(),
-					"show.join.allylist.name", Common._title(aAlly.getName()));
+			t.setVar("show.join.allylist.allyid", alliance.getId(),
+					"show.join.allylist.name", Common._title(bbCodeParser, alliance.getName()));
 
 			t.parse("show.join.allylist.list", "show.join.allylist.listitem", true);
 		}
@@ -976,7 +993,7 @@ public class AllyController extends Controller
 			t.setVar(
 					"show.raenge.modify.rangname", allyRang.getName(),
 					"show.raenge.modify.rangnr", allyRang.getRang(),
-					"show.raenge.modify.rangimg", allyRang.getImage());
+					"show.raenge.modify.rangimg", allyService.getAllyRangDescriptorImage(allyRang));
 
 			t.parse("show.raenge.modify.list", "show.raenge.modify.listitem", true);
 		}
@@ -1032,7 +1049,7 @@ public class AllyController extends Controller
 			for (User member : allymember)
 			{
 				t.setVar("show.posten.modify.userlist.id", member.getId(),
-						"show.posten.modify.userlist.name", Common._title(member.getNickname()),
+						"show.posten.modify.userlist.name", Common._title(bbCodeParser, member.getNickname()),
 						"show.posten.modify.userlist.selected", aposten.getUser() != null && (aposten.getUser().getId() == member.getId()));
 
 				t.parse("show.posten.modify.userlist.list", "show.posten.modify.userlist.listitem", true);
@@ -1048,7 +1065,7 @@ public class AllyController extends Controller
 			for (User member : allymember)
 			{
 				t.setVar("show.posten.addposten.userlist.id", member.getId(),
-						"show.posten.addposten.userlist.name", Common._title(member.getNickname()));
+						"show.posten.addposten.userlist.name", Common._title(bbCodeParser, member.getNickname()));
 
 				t.parse("show.posten.addposten.userlist.list", "show.posten.addposten.userlist.listitem", true);
 			}
@@ -1073,7 +1090,6 @@ public class AllyController extends Controller
 			return new RedirectViewResult("defaultNoAlly");
 		}
 
-		org.hibernate.Session db = getDB();
 
 		/////////////////////////////
 		// Zerstoerte Schiffe
@@ -1081,9 +1097,9 @@ public class AllyController extends Controller
 
 		int counter = 0;
 
-		long destcount = (Long) db.createQuery("select count(distinct tick) from ShipLost where destAlly=:ally")
-				.setInteger("ally", this.ally.getId())
-				.iterate().next();
+		long destcount = em.createQuery("select count(distinct tick) from ShipLost where destAlly=:ally", Long.class)
+				.setParameter("ally", this.ally.getId())
+				.getSingleResult();
 		if (destpos > destcount)
 		{
 			destpos = destcount - 10;
@@ -1109,18 +1125,17 @@ public class AllyController extends Controller
 				"show.destpos.back", destpos - 10,
 				"show.destpos.forward", destpos + 10);
 
-        List<?> ticks = db.createQuery("SELECT distinct tick FROM ShipLost WHERE destAlly=:ally ORDER BY tick DESC")
-                .setInteger("ally", this.ally.getId())
+        List<Integer> ticks = em.createQuery("SELECT distinct tick FROM ShipLost WHERE destAlly=:ally ORDER BY tick DESC", Integer.class)
+                .setParameter("ally", this.ally)
                 .setMaxResults(10)
                 .setFirstResult((int) destpos)
-                .list();
-        for( Object o : ticks )
+                .getResultList();
+        for(int tick: ticks )
         {
-            int tick = (Integer)o;
-            List<?> s = db.createQuery("SELECT distinct count(*),type,owner FROM ShipLost WHERE destAlly=:ally AND tick=:tick GROUP BY type,owner")
-                    .setInteger("ally", ally.getId())
-                    .setInteger("tick", tick)
-                    .list();
+            List<Object[]> s = em.createQuery("SELECT distinct count(*),type,owner FROM ShipLost WHERE destAlly=:ally AND tick=:tick GROUP BY type,owner", Object[].class)
+                    .setParameter("ally", ally)
+                    .setParameter("tick", tick)
+                    .getResultList();
 
 			counter++;
 
@@ -1128,10 +1143,9 @@ public class AllyController extends Controller
                      "show.destships.newrow", (counter % 5) == 0,
                      "show.destships.ships.list", "");
 
-            for( Object o2 : s ) {
-                Object[] data = (Object[]) o2;
-                ShipTypeData shiptype = Ship.getShipType((Integer) data[1]);
-                User auser = (User) db.get(User.class, (Integer) data[2]);
+            for(Object[] data : s ) {
+                ShipTypeData shiptype = shipService.getShipType((Integer) data[1]);
+                User auser = em.find(User.class, data[2]);
 
                 long count = (Long) data[0];
                 String shiptypename;
@@ -1158,7 +1172,7 @@ public class AllyController extends Controller
                         "show.destships.ships.type.name", shiptypename,
                         "show.destships.ships.type", data[1],
                         "show.destships.ships.type.picture", shiptypepicture,
-                        "show.destships.ships.owner", Common._title(ownername));
+                        "show.destships.ships.owner", Common._title(bbCodeParser, ownername));
 
 
                 t.parse("show.destships.ships.list", "show.destships.ships.listitem", true);
@@ -1178,9 +1192,9 @@ public class AllyController extends Controller
 
 		counter = 0;
 
-        long lostcount = (Long) db.createQuery("select count(distinct tick) from ShipLost where ally=:ally")
-                .setInteger("ally", this.ally.getId())
-                .iterate().next();
+        long lostcount = em.createQuery("select count(distinct tick) from ShipLost where ally=:ally", Long.class)
+                .setParameter("ally", this.ally)
+                .getSingleResult();
         if (lostpos > lostcount)
         {
             lostpos = lostcount - 10;
@@ -1199,18 +1213,17 @@ public class AllyController extends Controller
                 "show.lostpos.back", lostpos - 10,
                 "show.lostpos.forward", lostpos + 10);
 
-        ticks = db.createQuery("SELECT distinct tick FROM ShipLost WHERE ally=:ally ORDER BY tick DESC")
-                .setInteger("ally", this.ally.getId())
+        ticks = em.createQuery("SELECT distinct tick FROM ShipLost WHERE ally=:ally ORDER BY tick DESC", Integer.class)
+                .setParameter("ally", this.ally)
                 .setMaxResults(10)
                 .setFirstResult((int) lostpos)
-                .list();
-        for( Object o : ticks )
+                .getResultList();
+        for(int tick: ticks )
         {
-            int tick = (Integer)o;
-            List<?> s = db.createQuery("SELECT distinct count(*),type,destOwner FROM ShipLost WHERE ally=:ally AND tick=:tick GROUP BY type,destOwner")
-                    .setInteger("ally", ally.getId())
-                    .setInteger("tick", tick)
-                    .list();
+            List<Object[]> s = em.createQuery("SELECT distinct count(*),type,destOwner FROM ShipLost WHERE ally=:ally AND tick=:tick GROUP BY type,destOwner", Object[].class)
+                    .setParameter("ally", ally)
+                    .setParameter("tick", tick)
+                    .getResultList();
 
             counter++;
 
@@ -1218,10 +1231,9 @@ public class AllyController extends Controller
                     "show.lostships.newrow", (counter % 5) == 0,
                     "show.lostships.ships.list", "");
 
-            for( Object o2 : s ) {
-                Object[] data = (Object[]) o2;
-                ShipTypeData shiptype = Ship.getShipType((Integer) data[1]);
-                User auser = (User) db.get(User.class, (Integer) data[2]);
+            for( Object[] data : s ) {
+                ShipTypeData shiptype = shipService.getShipType((Integer) data[1]);
+                User auser = em.find(User.class, data[2]);
 
                 long count = (Long) data[0];
                 String shiptypename;
@@ -1248,7 +1260,7 @@ public class AllyController extends Controller
                         "show.lostships.ships.type.name", shiptypename,
                         "show.lostships.ships.type", data[1],
                         "show.lostships.ships.type.picture", shiptypepicture,
-                        "show.lostships.ships.owner", Common._title(ownername));
+                        "show.lostships.ships.owner", Common._title(bbCodeParser, ownername));
 
                 t.parse("show.lostships.ships.list", "show.lostships.ships.listitem", true);
             }
@@ -1287,8 +1299,6 @@ public class AllyController extends Controller
 
 		t.setVar("ally.message", redirect != null ? redirect.getMessage() : null);
 
-		org.hibernate.Session db = getDB();
-
 		t.setVar("show.einstellungen", 1,
 				"ally.plainname", this.ally.getName(),
 				"ally.description", this.ally.getDescription(),
@@ -1301,11 +1311,10 @@ public class AllyController extends Controller
 				"show.einstellungen.channels.list", "");
 
 		// Zuerst alle vorhandenen Channels dieser Allianz auslesen (max 2)
-		List<?> channelList = db.createQuery("from ComNetChannel where allyOwner=:ally")
-				.setEntity("ally", this.ally)
+		List<ComNetChannel> channels = em.createQuery("from ComNetChannel where allyOwner=:ally", ComNetChannel.class)
+				.setParameter("ally", this.ally)
 				.setMaxResults(2)
-				.list();
-		List<ComNetChannel> channels = channelList.stream().map(aChannelList -> (ComNetChannel) aChannelList).collect(Collectors.toList());
+				.getResultList();
 		channels.add(null);
 
 		t.setBlock("_ALLY", "show.einstellungen.channels.listitem", "show.einstellungen.channels.list");
@@ -1366,7 +1375,6 @@ public class AllyController extends Controller
 
 		t.setVar("ally.message", redirect != null ? redirect.getMessage() : null);
 		User user = (User) getUser();
-		org.hibernate.Session db = getDB();
 
 		t.setVar("show.members", 1,
 				"user.president", (user.getId() == this.ally.getPresident().getId()));
@@ -1374,46 +1382,45 @@ public class AllyController extends Controller
 		t.setBlock("_ALLY", "show.members.listitem", "show.members.list");
 
 		//Mitglieder auflisten
-		List<?> memberList = db.createQuery("from User where ally=:ally order by name")
-				.setEntity("ally", this.ally)
-				.list();
-		for (Object aMemberList : memberList)
+		List<User> memberList = em.createQuery("from User where ally=:ally order by name", User.class)
+				.setParameter("ally", ally)
+				.getResultList();
+		for (User member : memberList)
 		{
-			User member = (User) aMemberList;
 
-			t.setVar("show.members.name", Common._title(member.getName()),
+			t.setVar("show.members.name", Common._title(bbCodeParser, member.getName()),
 					"show.members.id", member.getId());
 
 			if (user.getId() == this.ally.getPresident().getId())
 			{
-				String inakt_status;
+				String activityStatus;
 				int inakt = member.getInactivity();
 				if (inakt <= 14)
 				{
-					inakt_status = "<span style=\\'color:#00FF00\\'>aktiv</span>";
+					activityStatus = "<span style=\\'color:#00FF00\\'>aktiv</span>";
 				}
 				else if (inakt <= 49)
 				{
-					inakt_status = "<span style=\\'color:#22AA22\\'>weniger aktiv</span>";
+					activityStatus = "<span style=\\'color:#22AA22\\'>weniger aktiv</span>";
 				}
 				else if (inakt <= 98)
 				{
-					inakt_status = "<span style=\\'color:#668822\\'>selten aktiv</span>";
+					activityStatus = "<span style=\\'color:#668822\\'>selten aktiv</span>";
 				}
 				else if (inakt <= 196)
 				{
-					inakt_status = "<span style=\\'color:#884422\\'>inaktiv</span>";
+					activityStatus = "<span style=\\'color:#884422\\'>inaktiv</span>";
 				}
 				else if (inakt <= 300)
 				{
-					inakt_status = "<span style=\\'color:#AA4422\\'>scheintot</span>";
+					activityStatus = "<span style=\\'color:#AA4422\\'>scheintot</span>";
 				}
 				else
 				{
-					inakt_status = "<span style=\\'color:#FF2222\\'>bald gelöscht</span>";
+					activityStatus = "<span style=\\'color:#FF2222\\'>bald gelöscht</span>";
 				}
 
-				t.setVar("show.members.inaktstatus", inakt_status);
+				t.setVar("show.members.inaktstatus", activityStatus);
 			}
 
 			t.parse("show.members.list", "show.members.listitem", true);
@@ -1448,7 +1455,7 @@ public class AllyController extends Controller
 		long membercount = this.ally.getMemberCount();
 
 		t.setVar("show.allgemein", 1,
-				"ally.description", Common._text(this.ally.getDescription()),
+				"ally.description", Common._text(bbCodeParser, this.ally.getDescription()),
 				"ally.founded", this.ally.getFounded().toString(),
 				"ally.wonBattles", this.ally.getWonBattles(),
 				"ally.lostBattles", this.ally.getLostBattles(),
@@ -1457,7 +1464,7 @@ public class AllyController extends Controller
 				"ally.membercount", membercount,
 				"ally.pname", Common._plaintitle(this.ally.getPname()),
 				"ally.president.id", this.ally.getPresident().getId(),
-				"ally.president.name", Common._title(presi.getName()),
+				"ally.president.name", Common._title(bbCodeParser, presi.getName()),
 				"ally.posten.list", "");
 
 		if (ally.getItems().length() > 0)
@@ -1478,21 +1485,21 @@ public class AllyController extends Controller
 				continue;
 			}
 
-			t.setVar("ally.posten.name", Common._title(aposten.getName()),
-					"ally.posten.user.name", Common._title(aposten.getUser().getName()),
+			t.setVar("ally.posten.name", Common._title(bbCodeParser, aposten.getName()),
+					"ally.posten.user.name", Common._title(bbCodeParser, aposten.getUser().getName()),
 					"ally.posten.user.id", aposten.getUser().getId());
 
 			t.parse("ally.posten.list", "ally.posten.listitem", true);
 		}
 
-		List<?> allymembers = getDB().createQuery("from User " +
+		List<?> allymembers = em.createQuery("from User " +
 				"where ally= :ally and " +
 				"id!= :presidentId and " +
 				"allyposten is null")
-				.setEntity("ally", this.ally)
-				.setInteger("presidentId", this.ally.getPresident().getId())
-				.list();
-		if (allymembers.size() > 0)
+				.setParameter("ally", ally)
+				.setParameter("presidentId", ally.getPresident().getId())
+				.getResultList();
+		if (!allymembers.isEmpty())
 		{
 			t.setVar("ally.addmembers.list", "");
 			t.setBlock("_ALLY", "ally.addmembers.listitem", "ally.addmembers.list");
@@ -1500,7 +1507,7 @@ public class AllyController extends Controller
 			for (Object allymember1 : allymembers)
 			{
 				User allymember = (User) allymember1;
-				t.setVar("ally.addmembers.name", Common._title(allymember.getName()),
+				t.setVar("ally.addmembers.name", Common._title(bbCodeParser, allymember.getName()),
 						"ally.addmembers.id", allymember.getId());
 
 				t.parse("ally.addmembers.list", "ally.addmembers.listitem", true);

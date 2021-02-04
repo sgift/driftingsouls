@@ -16,6 +16,12 @@ import org.springframework.stereotype.Service;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class TicksperreAufhebenTick extends TickController
 {
+	private final ConfigService configService;
+
+	public TicksperreAufhebenTick(ConfigService configService) {
+		this.configService = configService;
+	}
+
 	@Override
 	protected void prepare()
 	{
@@ -28,7 +34,7 @@ public class TicksperreAufhebenTick extends TickController
 		new SingleUnitOfWork("Hebe Accountblock auf") {
 			@Override
 			public void doWork() {
-				ConfigValue value = new ConfigService().get(WellKnownConfigValue.TICK);
+				ConfigValue value = configService.get(WellKnownConfigValue.TICK);
 				value.setValue("0");
 			}
 		}

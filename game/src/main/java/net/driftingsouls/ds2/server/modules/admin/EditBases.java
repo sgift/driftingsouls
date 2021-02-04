@@ -30,6 +30,8 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import org.apache.commons.lang3.StringUtils;
 
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +41,7 @@ import java.util.List;
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Asteroiden", name = "Basis", permission = WellKnownAdminPermission.EDIT_BASES)
+@Component
 public class EditBases implements EntityEditor<Base>
 {
 	@Override
@@ -66,13 +69,13 @@ public class EditBases implements EntityEditor<Base>
 		form.field("Höhe", Integer.class, Base::getHeight, Base::setHeight);
 		form.field("Feldanzahl für Ausbauten", Integer.class, Base::getMaxTiles, Base::setMaxTiles);
 		form.field("Größe auf Sternenkarte", Integer.class, Base::getSize, Base::setSize);
-		form.field("Terrain", String.class, (base) -> Common.implode("|", base.getTerrain()) , (base,s) -> base.setTerrain(convertAndCapTileList(base, s)));
-		form.field("Bebauung", String.class, (base) -> Common.implode("|", base.getBebauung()) , (base,s) -> base.setBebauung(convertAndCapTileList(base, s)));
-		form.field("Aktive Gebäude", String.class, (base) -> Common.implode("|", base.getActive()) , (base,s) -> base.setActive(convertAndCapTileList(base, s)));
+		form.field("Terrain", String.class, base -> Common.implode("|", base.getTerrain()) , (base,s) -> base.setTerrain(convertAndCapTileList(base, s)));
+		form.field("Bebauung", String.class, base -> Common.implode("|", base.getBebauung()) , (base,s) -> base.setBebauung(convertAndCapTileList(base, s)));
+		form.field("Aktive Gebäude", String.class, base -> Common.implode("|", base.getActive()) , (base,s) -> base.setActive(convertAndCapTileList(base, s)));
 		form.field("Core aktiv", Boolean.class, Base::isCoreActive, Base::setCoreActive);
 		form.field("Zum Spawn freigegebene Ressourcen", String.class, Base::getSpawnableRess, Base::setSpawnableRess);
 		form.field("Aktuell verfügbare Ressourcen", String.class, Base::getAvailableSpawnableRess, Base::setAvailableSpawnableRess);
-		form.field("Automatischer Verkauf", String.class, (base) -> Common.implode(";", base.getAutoGTUActs()) , this::updateAutoGtuActs);
+		form.field("Automatischer Verkauf", String.class, base -> Common.implode(";", base.getAutoGTUActs()) , this::updateAutoGtuActs);
 
 		form.postUpdateTask("Sternenkarten-Cache leeren", (orgbase,base) -> {
 			TileCache.forSystem(orgbase.getSystem()).resetCache();

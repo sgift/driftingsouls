@@ -20,11 +20,11 @@ package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.entities.GlobalSectorTemplate;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import org.springframework.stereotype.Component;
 
-import java.io.IOException;
+import javax.persistence.EntityManager;
 import java.util.List;
 
 /**
@@ -33,7 +33,10 @@ import java.util.List;
  *
  */
 @AdminMenuEntry(category="Quests", name="Sectortemplates", permission = WellKnownAdminPermission.QUESTS_STM)
+@Component
 public class QuestsSTM implements AdminPlugin {
+	private EntityManager em;
+
 	@Override
 	public void output(StringBuilder echo) {
 		Context context = ContextMap.getContext();
@@ -48,8 +51,6 @@ public class QuestsSTM implements AdminPlugin {
 		int scriptid = context.getRequest().getParameterInt("scriptid");
 		int newstm = context.getRequest().getParameterInt("newstm");
 		
-		org.hibernate.Session db = context.getDB();
-		
 		if( stmid.length() != 0 ) {
 			switch (stmaction)
 			{
@@ -57,7 +58,7 @@ public class QuestsSTM implements AdminPlugin {
 				{
 					echo.append("<div class='gfxbox' style='width:590px'>");
 					GlobalSectorTemplate newtemplate = new GlobalSectorTemplate(stmid, x, y, w, h, 0);
-					db.persist(newtemplate);
+					em.persist(newtemplate);
 
 					echo.append("Sectortemplate hinzugef&uuml;gt");
 					echo.append("</div>");
@@ -66,7 +67,7 @@ public class QuestsSTM implements AdminPlugin {
 				}
 				case "edit1":
 				{
-					GlobalSectorTemplate template = (GlobalSectorTemplate) db.get(GlobalSectorTemplate.class, stmid);
+					GlobalSectorTemplate template = em.find(GlobalSectorTemplate.class, stmid);
 
 					echo.append("<div class='gfxbox' style='width:590px'>");
 					echo.append("<div align=\"center\">STM-ID bearbeiten:</div><br />\n");
@@ -88,12 +89,12 @@ public class QuestsSTM implements AdminPlugin {
 				}
 				case "edit2":
 				{
-					GlobalSectorTemplate template = (GlobalSectorTemplate) db.get(GlobalSectorTemplate.class, stmid);
+					GlobalSectorTemplate template = em.find(GlobalSectorTemplate.class, stmid);
 
 					GlobalSectorTemplate newtemplate = new GlobalSectorTemplate(newstmid, x, y, w, h, scriptid);
 
-					db.delete(template);
-					db.persist(newtemplate);
+					em.remove(template);
+					em.persist(newtemplate);
 
 					echo.append("<div class='gfxbox' style='width:590px'>");
 					echo.append("Update durchgef&uuml;hrt<br />");
@@ -113,8 +114,8 @@ public class QuestsSTM implements AdminPlugin {
 				{
 					echo.append("<div class='gfxbox' style='width:590px'>");
 
-					GlobalSectorTemplate template = (GlobalSectorTemplate) db.get(GlobalSectorTemplate.class, stmid);
-					db.delete(template);
+					GlobalSectorTemplate template = em.find(GlobalSectorTemplate.class, stmid);
+					em.remove(template);
 					echo.append("Sectortemplate '").append(stmid).append("' gel&ouml;scht");
 
 					echo.append("</div>");
@@ -142,7 +143,7 @@ public class QuestsSTM implements AdminPlugin {
 		}
 		
 		echo.append("<div class='gfxbox' style='width:590px'>");
-		List<GlobalSectorTemplate> templates = Common.cast(db.createQuery("from GlobalSectorTemplate").list());
+		List<GlobalSectorTemplate> templates = em.createQuery("from GlobalSectorTemplate", GlobalSectorTemplate.class).getResultList();
 		
 		for(GlobalSectorTemplate template : templates ) {
 			echo.append("* <a class=\"forschinfo\" href=\"./ds?module=admin&namedplugin=").append(getClass().getName()).append("&stmid=").append(template.getId()).append("&stmaction=edit1\">");

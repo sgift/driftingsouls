@@ -34,12 +34,25 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
-import org.hibernate.Criteria;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
+import net.driftingsouls.ds2.server.services.CargoService;
+import net.driftingsouls.ds2.server.services.UserValueService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.*;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.ParameterExpression;
+import javax.persistence.criteria.Root;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Die Basenliste.
@@ -58,11 +71,18 @@ public class BasenController extends Controller
 		ordmapper.put("e", Collections.singletonList("energy"));
 	}
 
-	private TemplateViewResultFactory templateViewResultFactory;
+	private final TemplateViewResultFactory templateViewResultFactory;
+	private final UserValueService userValueService;
+	private final CargoService cargoService;
+
+	@PersistenceContext
+	private EntityManager em;
 
 	@Autowired
-	public BasenController(TemplateViewResultFactory templateViewResultFactory) {
+	public BasenController(TemplateViewResultFactory templateViewResultFactory, UserValueService userValueService, CargoService cargoService) {
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.userValueService = userValueService;
+		this.cargoService = cargoService;
 
 		setPageTitle("Basen");
 	}
@@ -77,14 +97,13 @@ public class BasenController extends Controller
 	public TemplateEngine defaultAction(Integer l, String ord, Integer order) {
 		User user = (User)getUser();
 		TemplateEngine t = templateViewResultFactory.createFor(this);
-		org.hibernate.Session db = getDB();
 
-		String ordSetting = user.getUserValue(WellKnownUserValue.TBLORDER_BASEN_ORDER);
-		int orderSetting = user.getUserValue(WellKnownUserValue.TBLORDER_BASEN_ORDER_MODE);
-		int lSetting = user.getUserValue(WellKnownUserValue.TBLORDER_BASEN_SHOWCARGO);
+		String ordSetting = userValueService.getUserValue(user, WellKnownUserValue.TBLORDER_BASEN_ORDER);
+		int orderSetting = userValueService.getUserValue(user, WellKnownUserValue.TBLORDER_BASEN_ORDER_MODE);
+		int lSetting = userValueService.getUserValue(user, WellKnownUserValue.TBLORDER_BASEN_SHOWCARGO);
 		if (ord != null && !ord.isEmpty())
 		{
-			user.setUserValue(WellKnownUserValue.TBLORDER_BASEN_ORDER, ord);
+			userValueService.setUserValue(user, WellKnownUserValue.TBLORDER_BASEN_ORDER, ord);
 		}
 		else
 		{
@@ -93,7 +112,7 @@ public class BasenController extends Controller
 
 		if (order != null)
 		{
-			user.setUserValue(WellKnownUserValue.TBLORDER_BASEN_ORDER_MODE, order);
+			userValueService.setUserValue(user, WellKnownUserValue.TBLORDER_BASEN_ORDER_MODE, order);
 		}
 		else
 		{
@@ -102,7 +121,7 @@ public class BasenController extends Controller
 
 		if (l != null)
 		{
-			user.setUserValue(WellKnownUserValue.TBLORDER_BASEN_SHOWCARGO, l);
+			userValueService.setUserValue(user, WellKnownUserValue.TBLORDER_BASEN_SHOWCARGO, l);
 		}
 		else
 		{
@@ -130,15 +149,30 @@ public class BasenController extends Controller
 		t.setBlock("bases.listitem", "bases.cargo.listitem", "bases.cargo.list");
 		t.setBlock("bases.listitem", "bases.units.listitem", "bases.units.list");
 
-		Criteria criteria = db.createCriteria(Base.class).add(Restrictions.eq("owner", user));
-		for (String s : ow)
-		{
-			criteria.addOrder(order == 1 ? Order.desc(s) : Order.asc(s));
-		}
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		ParameterExpression<User> owner = builder.parameter(User.class);
+		CriteriaQuery<Base> baseCriteria = builder.createQuery(Base.class);
 
-		for (Object aList : criteria.list())
+		Root<Base> baseRoot = baseCriteria.from(Base.class);
+		baseCriteria.select(baseRoot).where(builder.equal(owner, user));
+
+		Function<Expression<?>, javax.persistence.criteria.Order> orderDirection;
+		if(order == 1) {
+			orderDirection = builder::desc;
+		} else {
+			orderDirection = builder::asc;
+		}
+		var orders = ow.stream()
+			.map(baseRoot::get)
+			.map(orderDirection)
+			.collect(toList());
+		baseCriteria.orderBy(orders);
+
+		var bases = em.createQuery(baseCriteria)
+			.setParameter(owner, user)
+			.getResultList();
+		for (Base base : bases)
 		{
-			Base base = (Base) aList;
 			BaseStatus basedata = Base.getStatus(base);
 
 			t.setVar("base.id", base.getId(),
@@ -184,7 +218,7 @@ public class BasenController extends Controller
 
 			if (l == 1)
 			{
-				t.setVar("bases.cargo.empty", Common.ln(base.getMaxCargo() - cargo.getMass()));
+				t.setVar("bases.cargo.empty", Common.ln(base.getMaxCargo() - cargoService.getMass(cargo)));
 
 				reslist = cargo.getResourceList();
 				Resources.echoResList(t, reslist, "bases.cargo.list");

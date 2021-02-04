@@ -2,7 +2,6 @@ package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.DynamicContent;
@@ -12,8 +11,9 @@ import org.apache.commons.fileupload.FileItem;
 import org.hibernate.Session;
 
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.IOException;
-import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -28,6 +28,8 @@ import java.util.List;
  */
 public abstract class AbstractEditPlugin<T> implements AdminPlugin
 {
+	@PersistenceContext
+	private EntityManager em;
 	private final Class<T> clazz;
 
 	protected AbstractEditPlugin(Class<T> clazz)
@@ -36,10 +38,8 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 	}
 
 	@Override
-	public final void output(StringBuilder echo) {
+	public void output(StringBuilder echo) {
 		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-
 		Request request = context.getRequest();
 		int entityId = request.getParameterInt("entityId");
 
@@ -47,7 +47,7 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 		{
 			try
 			{
-				@SuppressWarnings("unchecked") T entity = (T) db.get(this.clazz, entityId);
+				T entity = em.find(this.clazz, entityId);
 				if (isUpdatePossible(entity))
 				{
 					update(new DefaultStatusWriter(echo), entity);
@@ -63,7 +63,7 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 		{
 			try
 			{
-				@SuppressWarnings("unchecked") T entity = (T) db.get(this.clazz, entityId);
+				T entity = em.find(this.clazz, entityId);
 				reset(new DefaultStatusWriter(echo), entity);
 				echo.append("<p>Update abgeschlossen.</p>");
 			}
@@ -73,18 +73,18 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 			}
 		}
 
-		List<Building> entities = Common.cast(db.createCriteria(clazz).list());
+		List<Building> entities = em.createQuery("from Building", Building.class).getResultList();
 
 		beginSelectionBox(echo);
 		for (Object entity : entities)
 		{
-			addSelectionOption(echo, db.getIdentifier(entity), generateLabelFor(null, entity));
+			addSelectionOption(echo, em.getEntityManagerFactory().getPersistenceUnitUtil().getIdentifier(entity), generateLabelFor(entity));
 		}
 		endSelectionBox(echo);
 
 		if (entityId != 0)
 		{
-			@SuppressWarnings("unchecked") T entity = (T) db.get(clazz, entityId);
+			T entity = em.find(clazz, entityId);
 			if (entity == null)
 			{
 				return;
@@ -136,14 +136,12 @@ public abstract class AbstractEditPlugin<T> implements AdminPlugin
 		return true;
 	}
 
-	private static String generateLabelFor(Serializable identifier, Object entity)
+	private String generateLabelFor(Object entity)
 	{
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-
-		if (identifier == null && entity.getClass().isAnnotationPresent(Entity.class))
+		Object identifier = null;
+		if (entity.getClass().isAnnotationPresent(Entity.class))
 		{
-			identifier = db.getIdentifier(entity);
+			identifier = em.getEntityManagerFactory().getPersistenceUnitUtil().getIdentifier(entity);
 		}
 
 		if( entity instanceof User)

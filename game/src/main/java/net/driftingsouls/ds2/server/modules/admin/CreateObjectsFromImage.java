@@ -28,19 +28,21 @@ import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.framework.db.batch.UnitOfWork;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.map.TileCache;
+import net.driftingsouls.ds2.server.services.BuildingService;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.hibernate.Session;
+import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -54,11 +56,18 @@ import java.util.*;
  * @author Christopher Jung
  */
 @AdminMenuEntry(category = "Objekte", name = "hinzufügen aus Grafik", permission = WellKnownAdminPermission.CREATE_OBJECTS_FROM_IMAGE)
+@Component
 public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> implements AdminPlugin
 {
-	public CreateObjectsFromImage()
+	@PersistenceContext
+	private EntityManager em;
+
+	private final BuildingService buildingService;
+
+	public CreateObjectsFromImage(BuildingService buildingService)
 	{
 		super(StarSystem.class);
+		this.buildingService = buildingService;
 	}
 
 	private static class SystemImg
@@ -210,11 +219,11 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 		}
 		else
 		{
-			List<BaseType> baseTypes = Common.cast(getDB().createCriteria(BaseType.class).list());
+			List<BaseType> baseTypes = em.createQuery("from BaseType", BaseType.class).getResultList();
 
 			for (Integer color : img.getErkannteFarben())
 			{
-				form.custom(new ColorFieldGenerator(baseTypes, color));
+				form.custom(new ColorFieldGenerator(em, baseTypes, color));
 			}
 
 			form.field("Alte Basen/Nebel entfernen", "clearSystem", Boolean.class, clearsystem);
@@ -248,13 +257,15 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 		}
 	}
 
-	private static class ColorFieldGenerator implements EditorForm.CustomFieldGenerator
+	private class ColorFieldGenerator implements EditorForm.CustomFieldGenerator
 	{
+		private final EntityManager em;
 		private final List<BaseType> baseTypes;
 		private final Integer color;
 
-		public ColorFieldGenerator(List<BaseType> baseTypes, Integer color)
+		public ColorFieldGenerator(EntityManager em, List<BaseType> baseTypes, Integer color)
 		{
+			this.em = em;
 			this.baseTypes = baseTypes;
 			this.color = color;
 		}
@@ -303,7 +314,7 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 				BaseType bt = parseBaseTypeFromRequest(ContextMap.getContext(), color);
 				if (bt == null)
 				{
-					bt = parseBaseType(ContextMap.getContext(), curvalue);
+					bt = parseBaseType(curvalue);
 				}
 				echo.append("Breite: <input type='text' name='color").append(color).append("_width' value='").append(bt.getWidth()).append("' /><br />");
 				echo.append("Höhe: <input type='text' name='color").append(color).append("_height' value='").append(bt.getHeight()).append("' /><br />");
@@ -315,36 +326,30 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 			echo.append("</td></tr>\n");
 		}
 
-		private BaseType parseBaseType(Context context, String objectType)
+		private BaseType parseBaseType(String objectType)
 		{
 			int baseType = Integer.parseInt(objectType.substring(objectType.indexOf('_') + 1));
-			return (BaseType) context.getDB().get(BaseType.class, baseType);
+			return em.find(BaseType.class, baseType);
 		}
 	}
 
 	private void clearSystem(StatusWriter echo, int systemid) {
 		Context context = ContextMap.getContext();
-		Session db = context.getDB();
 
-		List<Nebel> nebelList = Common.cast(db
-											.createQuery("from Nebel where loc.system=:sys")
-											.setInteger("sys", systemid)
-											.list());
-		nebelList.forEach(db::delete);
+		List<Nebel> nebelList = em.createQuery("from Nebel where loc.system=:sys", Nebel.class)
+									.setParameter("sys", systemid)
+									.getResultList();
+		nebelList.forEach(em::remove);
 
-		db.getTransaction().commit();
-
-		List<Integer> baseList = Common.cast(db
-											 .createQuery("select id from Base where system=:sys")
-											 .setInteger("sys", systemid)
-											 .list());
+		List<Integer> baseList = em.createQuery("select id from Base where system=:sys", Integer.class)
+									 .setParameter("sys", systemid)
+									 .getResultList();
 
 		UnitOfWork<Integer> euw = new EvictableUnitOfWork<Integer>(this.getClass().getName() + ": delete bases")
 		{
 			@Override
 			public void doWork(Integer baseId) {
-				Session db = getDB();
-				Base base = (Base) db.get(Base.class, baseId);
+				Base base = em.find(Base.class, baseId);
 				Integer[] bebauung = base.getBebauung();
 				for (int i = 0; i < bebauung.length; i++)
 				{
@@ -354,13 +359,13 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 					}
 
 					Building building = Building.getBuilding(bebauung[i]);
-					building.cleanup(ContextMap.getContext(), base, bebauung[i]);
+					buildingService.cleanup(building, base, bebauung[i]);
 					bebauung[i] = 0;
 				}
 
-				Offizier.getOffiziereByDest(base).forEach(db::delete);
+				Offizier.getOffiziereByDest(base).forEach(em::remove);
 
-				db.delete(base);
+				em.remove(base);
 			}
 		}.setFlushSize(1);
 
@@ -371,8 +376,6 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 		}
 
 		echo.append("<p>Alte Basen/Nebel entfernt.</p>");
-
-		context.getDB().beginTransaction();
 	}
 
 	private void executeColorAt(int system, int x, int y, int color)
@@ -390,7 +393,7 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 		else if (objectType.startsWith("nebel_"))
 		{
 			String nebel = objectType.substring(objectType.indexOf('_') + 1);
-			createNebula(context.getDB(), loc, Nebel.Typ.valueOf(nebel));
+			createNebula(loc, Nebel.Typ.valueOf(nebel));
 		}
 	}
 
@@ -398,13 +401,13 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 	{
 		BaseType bt = parseBaseTypeFromRequest(context, color);
 
-		User user = (User) context.getDB().get(User.class, 0);
+		User user = em.find(User.class, 0);
 		Base base = new Base(loc, user, bt);
 		base.setAvailableSpawnableRess(null);
-		context.getDB().persist(base);
+		em.persist(base);
 	}
 
-	private static BaseType parseBaseTypeFromRequest(Context context, int color)
+	private BaseType parseBaseTypeFromRequest(Context context, int color)
 	{
 		Request request = context.getRequest();
 
@@ -417,7 +420,7 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 		}
 
 		int baseType = Integer.parseInt(objectType.substring(objectType.indexOf('_') + 1));
-		BaseType base = (BaseType) context.getDB().get(BaseType.class, baseType);
+		BaseType base = em.find(BaseType.class, baseType);
 		BaseType bt = new BaseType(base);
 		if (request.getParameter(param + "_width") != null &&
 			!request.getParameter(param + "_width").trim().isEmpty())
@@ -447,15 +450,14 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 		return bt;
 	}
 
-	private void createNebula(Session db, Location loc, Nebel.Typ type)
+	private void createNebula(Location loc, Nebel.Typ type)
 	{
-		Nebel nebel = (Nebel) db.get(Nebel.class, new MutableLocation(loc));
+		Nebel nebel = em.find(Nebel.class, new MutableLocation(loc));
 		if (nebel != null)
 		{
-			db.delete(nebel);
-            db.flush();
+			em.remove(nebel);
 		}
 		nebel = new Nebel(new MutableLocation(loc), type);
-		db.persist(nebel);
+		em.persist(nebel);
 	}
 }

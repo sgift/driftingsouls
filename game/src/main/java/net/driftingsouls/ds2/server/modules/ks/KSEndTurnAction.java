@@ -21,6 +21,8 @@ package net.driftingsouls.ds2.server.modules.ks;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.SchlachtLogRundeBeendet;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.services.BattleService;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
@@ -29,7 +31,12 @@ import java.io.IOException;
  * @author Christopher Jung
  *
  */
+@Component
 public class KSEndTurnAction extends BasicKSAction {
+	public KSEndTurnAction(BattleService battleService) {
+		super(battleService, null);
+	}
+
 	@Override
 	public Result execute(TemplateEngine t, Battle battle) throws IOException {
 		Result result = super.execute(t, battle);
@@ -39,18 +46,18 @@ public class KSEndTurnAction extends BasicKSAction {
 
 		if( battle.isReady(battle.getEnemySide()) )
 		{
-			if( !battle.endTurn(true) ) {
+			if( !getBattleService().endTurn(battle,true) ) {
 				return Result.HALT;
 			}
 
-			battle.log(new SchlachtLogRundeBeendet(battle.getOwnSide(), SchlachtLogRundeBeendet.Modus.ALLE));
-			battle.logme( "++++ Runde beendet ++++" );
+			getBattleService().log(battle, new SchlachtLogRundeBeendet(battle.getOwnSide(), SchlachtLogRundeBeendet.Modus.ALLE));
+			getBattleService().logme(battle, "++++ Runde beendet ++++" );
 		}
 		else
 		{
-			battle.log(new SchlachtLogRundeBeendet(battle.getOwnSide(), SchlachtLogRundeBeendet.Modus.EIGENE));
+			getBattleService().log(battle, new SchlachtLogRundeBeendet(battle.getOwnSide(), SchlachtLogRundeBeendet.Modus.EIGENE));
 
-			battle.logme("Zug beendet - warte auf Gegner");
+			getBattleService().logme(battle,"Zug beendet - warte auf Gegner");
 			
 			battle.setReady(battle.getOwnSide(), true);
 		}

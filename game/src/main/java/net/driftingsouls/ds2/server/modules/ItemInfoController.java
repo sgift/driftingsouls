@@ -20,7 +20,11 @@ package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.cargo.*;
+import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.ItemID;
+import net.driftingsouls.ds2.server.cargo.ResourceEntry;
+import net.driftingsouls.ds2.server.cargo.ResourceList;
+import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.ModuleSlots;
 import net.driftingsouls.ds2.server.config.NoSuchSlotException;
 import net.driftingsouls.ds2.server.config.Rassen;
@@ -28,7 +32,12 @@ import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.Schiffsmodul;
 import net.driftingsouls.ds2.server.config.items.SchiffsmodulSet;
-import net.driftingsouls.ds2.server.config.items.effects.*;
+import net.driftingsouls.ds2.server.config.items.effects.IEAmmo;
+import net.driftingsouls.ds2.server.config.items.effects.IEDisableShip;
+import net.driftingsouls.ds2.server.config.items.effects.IEDraftShip;
+import net.driftingsouls.ds2.server.config.items.effects.IEModule;
+import net.driftingsouls.ds2.server.config.items.effects.IEModuleSetMeta;
+import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.Munitionsdefinition;
 import net.driftingsouls.ds2.server.entities.User;
@@ -37,17 +46,33 @@ import net.driftingsouls.ds2.server.entities.statistik.StatItemLocations;
 import net.driftingsouls.ds2.server.entities.statistik.StatUserCargo;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ViewModel;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.RedirectViewResult;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.modules.viewmodels.ItemViewModel;
-import net.driftingsouls.ds2.server.ships.*;
+import net.driftingsouls.ds2.server.services.LocationService;
+import net.driftingsouls.ds2.server.services.ShipService;
+import net.driftingsouls.ds2.server.ships.SchiffstypModifikation;
+import net.driftingsouls.ds2.server.ships.Schiffswaffenkonfiguration;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.*;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -59,11 +84,21 @@ import java.util.stream.Collectors;
 public class ItemInfoController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
+	private final Rassen races;
+	private final BBCodeParser bbCodeParser;
+	private final LocationService locationService;
+	private final ShipService shipService;
 
-	@Autowired
-	public ItemInfoController(TemplateViewResultFactory templateViewResultFactory)
+	@PersistenceContext
+	private EntityManager em;
+
+	public ItemInfoController(TemplateViewResultFactory templateViewResultFactory, Rassen races, BBCodeParser bbCodeParser, LocationService locationService, ShipService shipService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.races = races;
+		this.bbCodeParser = bbCodeParser;
+		this.locationService = locationService;
+		this.shipService = shipService;
 
 		setPageTitle("Item");
 	}
@@ -300,7 +335,6 @@ public class ItemInfoController extends Controller
 	{
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
-		org.hibernate.Session db = getDB();
 
 		if( itemlistStr != null && !itemlistStr.trim().isEmpty() )
 		{
@@ -317,7 +351,7 @@ public class ItemInfoController extends Controller
 			itemid = Integer.parseInt(itemStr);
 		}
 
-		Item item = (Item) db.get(Item.class, itemid);
+		Item item = em.find(Item.class, itemid);
 
 		if (item == null)
 		{
@@ -355,7 +389,7 @@ public class ItemInfoController extends Controller
 				"item.allyitem", item.getEffect().hasAllyEffect(),
 				"item.class", item.getEffect().getType().getName(),
 				"item.isspawnable", item.isSpawnableRess(),
-				"item.description", Common._text(item.getDescription()));
+				"item.description", Common._text(bbCodeParser, item.getDescription()));
 
 		t.setBlock("_ITEMINFO", "itemdetails.entry", "itemdetails.entrylist");
 
@@ -370,7 +404,7 @@ public class ItemInfoController extends Controller
 			{
 				IEDraftShip effect = (IEDraftShip) item.getEffect();
 
-				ShipTypeData shiptype = Ship.getShipType(effect.getShipType());
+				ShipTypeData shiptype = shipService.getShipType(effect.getShipType());
 
 				StringBuilder data = new StringBuilder(100);
 				if (shiptype == null)
@@ -399,7 +433,7 @@ public class ItemInfoController extends Controller
 				t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 
 				t.setVar("entry.name", "Rasse",
-						"entry.data", Rassen.get().rasse(effect.getRace()).getName());
+						"entry.data", races.rasse(effect.getRace()).getName());
 
 				t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 
@@ -533,7 +567,7 @@ public class ItemInfoController extends Controller
 				{
 					int setcount = 0;
 
-					List<Schiffsmodul> itemlist = Common.cast(db.createQuery("from Schiffsmodul").list());
+					List<Schiffsmodul> itemlist = em.createQuery("from Schiffsmodul", Schiffsmodul.class).getResultList();
 
 					for (Schiffsmodul aitem : itemlist)
 					{
@@ -693,7 +727,7 @@ public class ItemInfoController extends Controller
 				}
 				Cargo setitemlist = new Cargo();
 
-				List<Schiffsmodul> itemlist = Common.cast(db.createQuery("from Schiffsmodul ").list());
+				List<Schiffsmodul> itemlist = em.createQuery("from Schiffsmodul", Schiffsmodul.class).getResultList();
 
 				for (Schiffsmodul thisitem : itemlist)
 				{
@@ -733,12 +767,11 @@ public class ItemInfoController extends Controller
 	{
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
-		org.hibernate.Session db = getDB();
-		List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
+		List<Item> itemlist = em.createQuery("from Item", Item.class).getResultList();
 
-		StatUserCargo ownCargoRow = (StatUserCargo) db.createQuery("from StatUserCargo where user=:user")
-				.setEntity("user", user)
-				.uniqueResult();
+		StatUserCargo ownCargoRow = em.createQuery("from StatUserCargo where user=:user", StatUserCargo.class)
+				.setParameter("user", user)
+				.getSingleResult();
 		Cargo owncargo;
 		if (ownCargoRow != null)
 		{
@@ -754,13 +787,12 @@ public class ItemInfoController extends Controller
 		t.setBlock("_ITEMINFO", "knownlist.listitem", "knownlist.list");
 
 		Map<Integer, String[]> reslocations = new HashMap<>();
-		List<?> modules = db.createQuery("from StatItemLocations where user=:user")
-						  .setEntity("user", user)
-						  .list();
-		for (Object module : modules)
+		List<StatItemLocations> modules = em.createQuery("from StatItemLocations where user=:user", StatItemLocations.class)
+						  .setParameter("user", user)
+						  .getResultList();
+		for (StatItemLocations module: modules)
 		{
-			StatItemLocations amodule = (StatItemLocations) module;
-			reslocations.put(amodule.getItemId(), StringUtils.split(amodule.getLocations(), ';'));
+			reslocations.put(module.getItemId(), StringUtils.split(module.getLocations(), ';'));
 		}
 
 		final String shipimage = "<td class='noBorderX' style='text-align:right'><img style='vertical-align:middle' src='./data/interface/schiffe/" + user.getRace() + "/icon_schiff.gif' alt='' title='Schiff' /></td>";
@@ -797,7 +829,7 @@ public class ItemInfoController extends Controller
 					{
 						case 's':
 						{
-							Ship ship = (Ship) db.get(Ship.class, objectid);
+							Ship ship = em.find(Ship.class, objectid);
 							if (ship == null)
 							{
 								continue;
@@ -807,17 +839,17 @@ public class ItemInfoController extends Controller
 						}
 						case 'b':
 						{
-							Base base = (Base) db.get(Base.class, objectid);
+							Base base = em.find(Base.class, objectid);
 							if (base == null)
 							{
 								continue;
 							}
-							tooltiptext.append(baseimage + "<td class='noBorderX'><a style='font-size:14px' class='forschinfo' href='").append(Common.buildUrl("default", "module", "base", "col", objectid)).append("'>").append(base.getName()).append(" - ").append(base.getLocation().displayCoordinates(false)).append("</a></td>");
+							tooltiptext.append(baseimage + "<td class='noBorderX'><a style='font-size:14px' class='forschinfo' href='").append(Common.buildUrl("default", "module", "base", "col", objectid)).append("'>").append(base.getName()).append(" - ").append(locationService.displayCoordinates(base.getLocation(), false)).append("</a></td>");
 							break;
 						}
 						case 'g':
 						{
-							Ship ship = (Ship) db.get(Ship.class, objectid);
+							Ship ship = em.find(Ship.class, objectid);
 							if (ship == null)
 							{
 								continue;
@@ -862,8 +894,7 @@ public class ItemInfoController extends Controller
 	public AjaxViewModel ajaxAction()
 	{
 		User user = (User) getUser();
-		org.hibernate.Session db = getDB();
-		List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
+		List<Item> itemlist = em.createQuery("from Item", Item.class).getResultList();
 
 		AjaxViewModel result = new AjaxViewModel();
 

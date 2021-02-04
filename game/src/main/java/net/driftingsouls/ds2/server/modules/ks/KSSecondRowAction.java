@@ -25,8 +25,11 @@ import net.driftingsouls.ds2.server.battles.BattleShipFlag;
 import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
 import net.driftingsouls.ds2.server.battles.Side;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.services.BattleService;
+import net.driftingsouls.ds2.server.services.ShipService;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.List;
@@ -36,12 +39,13 @@ import java.util.List;
  * @author Christopher Jung
  *
  */
+@Component
 public class KSSecondRowAction extends BasicKSAction {
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public KSSecondRowAction() {
+	private final ShipService shipService;
+
+	public KSSecondRowAction(BattleService battleService, ShipService shipService) {
+		super(battleService, null);
+		this.shipService = shipService;
 		this.requireOwnShipReady(true);
 	}
 	
@@ -122,7 +126,7 @@ public class KSSecondRowAction extends BasicKSAction {
 		//Does a first row exist without this ship?
 		for(BattleShip ship: battle.getShips(Side.OWN))
 		{
-			if(!ship.equals(ownShip) && !ship.isSecondRow())
+			if(!ship.equals(ownShip) && !getBattleService().isSecondRow(ship))
 			{
 				return Result.OK;
 			}
@@ -139,14 +143,14 @@ public class KSSecondRowAction extends BasicKSAction {
 		}
 		
 		if( this.validate(battle) != Result.OK ) {
-			battle.logme("Die Aktion kann nicht ausgef&uuml;hrt werden");
+			getBattleService().logme(battle, "Die Aktion kann nicht ausgef&uuml;hrt werden");
 			return Result.ERROR;
 		}
 		
 		BattleShip ownShip = battle.getOwnShip();
 
-		battle.logme( ownShip.getName()+" fliegt in die zweite Reihe\n" );
-		battle.log(new SchlachtLogAktion(battle.getOwnSide(), Battle.log_shiplink(ownShip.getShip())+" fliegt in die zweite Reihe"));
+		getBattleService().logme(battle,  ownShip.getName()+" fliegt in die zweite Reihe\n" );
+		getBattleService().log(battle, new SchlachtLogAktion(battle.getOwnSide(), Battle.log_shiplink(ownShip.getShip())+" fliegt in die zweite Reihe"));
 
 		ownShip.addFlag(BattleShipFlag.SECONDROW);
 		ownShip.addFlag(BattleShipFlag.SECONDROW_BLOCKED);
@@ -156,7 +160,7 @@ public class KSSecondRowAction extends BasicKSAction {
 		List<BattleShip> ownShips = battle.getOwnShips();
 		for (BattleShip s : ownShips)
 		{
-			if (s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == ownShip.getId())
+			if (shipService.getBaseShip(s.getShip()) != null && shipService.getBaseShip(s.getShip()).getId() == ownShip.getId())
 			{
 				if(!s.getShip().isLanded()){
 					s.addFlag(BattleShipFlag.SECONDROW);
@@ -167,7 +171,7 @@ public class KSSecondRowAction extends BasicKSAction {
 		}
 		
 		if( remove > 1 ) {
-			battle.logme( (remove-1)+" an "+ownShip.getName()+" gedockte Schiffe fliegen in die zweite Reihe\n" );
+			getBattleService().logme(battle,  (remove-1)+" an "+ownShip.getName()+" gedockte Schiffe fliegen in die zweite Reihe\n" );
 		}
 
 		return Result.OK;

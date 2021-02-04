@@ -26,13 +26,15 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.VersteigerungResource;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.VersteigerungSchiff;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.admin.editoren.HtmlUtils;
+import net.driftingsouls.ds2.server.services.AuctionService;
 import net.driftingsouls.ds2.server.ships.ShipType;
+import org.springframework.stereotype.Component;
 
-import java.io.IOException;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,7 +44,17 @@ import java.util.stream.Collectors;
  *
  */
 @AdminMenuEntry(category="GTU", name="Versteigern", permission = WellKnownAdminPermission.ADD_GTU)
+@Component
 public class AddGtu implements AdminPlugin {
+	@PersistenceContext
+	private EntityManager em;
+
+	private final AuctionService auctionService;
+
+	public AddGtu(AuctionService auctionService) {
+		this.auctionService = auctionService;
+	}
+
 	@Override
 	public void output(StringBuilder echo) {
 		Context context = ContextMap.getContext();
@@ -52,8 +64,7 @@ public class AddGtu implements AdminPlugin {
 		int dauer = context.getRequest().getParameterInt("dauer");
 		int preis = context.getRequest().getParameterInt("preis");
 		int menge = context.getRequest().getParameterInt("menge");
-		
-		org.hibernate.Session db = context.getDB();
+
 		
 		if( (ship == 0) && ((resource.length() == 0) || resource.equals("-1") ) ) {
 			echo.append("<div class='gfxbox adminEditor' style='width:700px'>");
@@ -61,7 +72,7 @@ public class AddGtu implements AdminPlugin {
 			echo.append("<form action=\"./ds\" method=\"post\">");
 			echo.append("<table width=\"300\">\n");
 			echo.append("<tr><td width=\"60\">Schifftyp:</td><td>");
-			List<ShipType> shipTypes = Common.cast(db.createQuery("from ShipType").list());
+			List<ShipType> shipTypes = em.createQuery("from ShipType", ShipType.class).getResultList();
 			HtmlUtils.select(echo, "ship", false, shipTypes.stream().collect(Collectors.toMap(ShipType::getId, (st) -> st)), null);
 			echo.append("</td></tr>\n");
 			echo.append("<tr><td>Dauer:</td><td>");
@@ -104,29 +115,11 @@ public class AddGtu implements AdminPlugin {
 			echo.append("</div>");
 		}
 		else if( ship != 0 ) {
-			int tick = context.get(ContextCommon.class).getTick();
-
-			User gtu = (User)db.get(User.class, -2);
-			ShipType type = (ShipType)db.get(ShipType.class, ship);
-			
-			VersteigerungSchiff verst = new VersteigerungSchiff(gtu, type, preis);
-			verst.setTick(tick+dauer);
-			db.persist(verst);
-
+			auctionService.auctionShip(ship, preis, dauer);
 			echo.append("Schiff eingef&uuml;gt<br />");
 		}
 		else {
-			int tick = context.get(ContextCommon.class).getTick();
-
-			Cargo cargo = new Cargo();
-			cargo.addResource( new ItemID(Integer.parseInt(resource)), menge );
-
-			User gtu = (User)db.get(User.class, -2);
-			
-			VersteigerungResource verst = new VersteigerungResource(gtu, cargo, preis);
-			verst.setTick(tick+dauer);
-			db.persist(verst);
-
+			auctionService.auctionResource(Integer.parseInt(resource), menge, preis, dauer);
 			echo.append("Resource eingef&uuml;gt<br />");
 		}	
 	}

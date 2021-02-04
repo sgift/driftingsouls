@@ -10,8 +10,10 @@ import net.driftingsouls.ds2.server.namegenerator.SchiffsKlassenNamenGenerator;
 import net.driftingsouls.ds2.server.namegenerator.SchiffsNamenGenerator;
 
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
 
 @AdminMenuEntry(category = "Spieler", name = "Rasse", permission = WellKnownAdminPermission.EDIT_RASSE)
+@Component
 public class EditRasse implements EntityEditor<Rasse>
 {
 	@Override

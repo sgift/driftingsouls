@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.entities;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -32,7 +33,6 @@ import javax.persistence.Version;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import org.hibernate.annotations.ForeignKey;
 
 /**
  * <p>Ein Post im ComNet.</p>
@@ -47,8 +47,7 @@ public class ComNetEntry {
 	@Id @GeneratedValue
 	private int post;
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
-	@JoinColumn(name="userid", nullable=false)
-	@ForeignKey(name="skn_fk_users")
+	@JoinColumn(name="userid", nullable=false, foreignKey = @ForeignKey(name="skn_fk_users"))
 	private User user;
 	private long time;
 	@Column(nullable = false)
@@ -64,8 +63,7 @@ public class ComNetEntry {
 	private int tick;
 
 	@ManyToOne(fetch=FetchType.LAZY, optional = false)
-	@JoinColumn(name="channel", nullable=false)
-	@ForeignKey(name="skn_fk_skn_channels")
+	@JoinColumn(name="channel", nullable=false, foreignKey = @ForeignKey(name="skn_fk_skn_channels"))
 	private ComNetChannel channel;
 	
 	@Version
@@ -108,7 +106,7 @@ public class ComNetEntry {
 	 * Setzt die Nummer des Ally-Pics.
 	 * @param allyPic Die Nummer
 	 */
-	public final void setAllyPic(int allyPic) {
+	public void setAllyPic(int allyPic) {
 		this.allyPic = allyPic;
 	}
 
@@ -124,7 +122,7 @@ public class ComNetEntry {
 	 * Setzt den ComNet-Kanal, in dem sich der Post befindet.
 	 * @param channel Der ComNet-Kanal
 	 */
-	public final void setChannel(ComNetChannel channel) {
+	public void setChannel(ComNetChannel channel) {
 		this.channel = channel;
 	}
 
@@ -172,7 +170,7 @@ public class ComNetEntry {
 	 * Setzt die Nummer des Spieler-Pics.
 	 * @param pic Die Nummer
 	 */
-	public final void setPic(int pic) {
+	public void setPic(int pic) {
 		this.pic = pic;
 	}
 
@@ -204,7 +202,7 @@ public class ComNetEntry {
 	 * Setzt den Tick, an dem der Post erstellt wurde.
 	 * @param tick Der Tick
 	 */
-	public final void setTick(int tick) {
+	public void setTick(int tick) {
 		this.tick = tick;
 	}
 
@@ -236,7 +234,7 @@ public class ComNetEntry {
 	 * Setzt den User, der den Post erstellt hat.
 	 * @param user Der User
 	 */
-	public final void setUser(final User user) {
+	public void setUser(final User user) {
 		this.user = user;
 	}
 

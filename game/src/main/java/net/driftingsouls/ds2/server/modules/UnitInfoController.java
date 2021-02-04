@@ -24,6 +24,7 @@ import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
@@ -32,8 +33,9 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.units.UnitType;
-import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 
 /**
@@ -43,11 +45,15 @@ import java.util.List;
 public class UnitInfoController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
+	private final BBCodeParser bbCodeParser;
 
-	@Autowired
-	public UnitInfoController(TemplateViewResultFactory templateViewResultFactory)
+	@PersistenceContext
+	private EntityManager em;
+
+	public UnitInfoController(TemplateViewResultFactory templateViewResultFactory, BBCodeParser bbCodeParser)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.bbCodeParser = bbCodeParser;
 
 		setPageTitle("Einheit");
 	}
@@ -59,9 +65,8 @@ public class UnitInfoController extends Controller
 	public TemplateEngine listAction()
 	{
 		TemplateEngine t = templateViewResultFactory.createFor(this);
-		org.hibernate.Session db = getDB();
 		User user = (User) ContextMap.getContext().getActiveUser();
-		List<UnitType> unitlist = Common.cast(db.createCriteria(UnitType.class).list());
+		List<UnitType> unitlist = em.createQuery("from UnitType", UnitType.class).getResultList();
 
 		t.setVar("unitinfo.list", 1);
 
@@ -137,7 +142,7 @@ public class UnitInfoController extends Controller
 				"unit.nahrungcost", Common.ln(unittype.getNahrungCost()),
 				"unit.recost", Common.ln(unittype.getReCost()),
 				"unit.kapervalue", Common.ln(unittype.getKaperValue()),
-				"unit.description", Common._text(unittype.getDescription()),
+				"unit.description", Common._text(bbCodeParser, unittype.getDescription()),
 				"unit.baukosten", buildcosts.toString(),
 				"unit.forschung", forschungstring);
 

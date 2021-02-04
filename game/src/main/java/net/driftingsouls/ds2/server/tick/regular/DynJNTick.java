@@ -25,6 +25,8 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 
 /**
@@ -34,6 +36,8 @@ import java.util.List;
 @Service
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class DynJNTick extends TickController {
+    @PersistenceContext
+    private EntityManager em;
 
     @Override
     protected void prepare() {
@@ -41,9 +45,7 @@ public class DynJNTick extends TickController {
     }
 
     private void decreaseRemainingTime() {
-        org.hibernate.Session db = getDB();
-        @SuppressWarnings("unchecked")
-        List<DynamicJumpNode> dynamicJumpNodes = db.createQuery("from DynamicJumpNode").list();
+        List<DynamicJumpNode> dynamicJumpNodes = em.createQuery("from DynamicJumpNode", DynamicJumpNode.class).getResultList();
 
         new EvictableUnitOfWork<DynamicJumpNode>("DynJNTick - decreaseRemainingTime") {
             @Override
@@ -58,9 +60,7 @@ public class DynJNTick extends TickController {
     }
 
     private void moveDynJN() {
-        org.hibernate.Session db = getDB();
-        @SuppressWarnings("unchecked")
-        List<DynamicJumpNode> dynamicJumpNodes = db.createQuery("from DynamicJumpNode").list();
+        List<DynamicJumpNode> dynamicJumpNodes = em.createQuery("from DynamicJumpNode", DynamicJumpNode.class).getResultList();
 
         new EvictableUnitOfWork<DynamicJumpNode>("DynJNTick - moveDynJN") {
             @Override

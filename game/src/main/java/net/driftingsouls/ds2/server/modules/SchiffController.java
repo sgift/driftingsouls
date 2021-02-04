@@ -25,7 +25,6 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.cargo.modules.Module;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleItemModule;
-import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Offizier;
@@ -53,7 +52,15 @@ import net.driftingsouls.ds2.server.modules.schiffplugins.SchiffPlugin;
 import net.driftingsouls.ds2.server.modules.schiffplugins.SensorsDefault;
 import net.driftingsouls.ds2.server.modules.schiffplugins.UnitsDefault;
 import net.driftingsouls.ds2.server.modules.schiffplugins.WerftDefault;
+import net.driftingsouls.ds2.server.services.ConsignService;
+import net.driftingsouls.ds2.server.services.DismantlingService;
+import net.driftingsouls.ds2.server.services.FleetMgmtService;
 import net.driftingsouls.ds2.server.services.HandelspostenService;
+import net.driftingsouls.ds2.server.services.LocationService;
+import net.driftingsouls.ds2.server.services.PmService;
+import net.driftingsouls.ds2.server.services.ShipService;
+import net.driftingsouls.ds2.server.services.ShipActionService;
+import net.driftingsouls.ds2.server.services.UserService;
 import net.driftingsouls.ds2.server.ships.Alarmstufe;
 import net.driftingsouls.ds2.server.ships.SchiffSprungService;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -64,8 +71,10 @@ import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -83,21 +92,40 @@ import java.util.stream.Collectors;
  * @author Christopher Jung
  */
 @net.driftingsouls.ds2.server.framework.pipeline.Module(name = "schiff")
+@Component
 public class SchiffController extends Controller
 {
 	private final Log log = LogFactory.getLog(SchiffController.class);
 	private final TemplateViewResultFactory templateViewResultFactory;
 	private final SchiffSprungService schiffSprungService;
 	private final HandelspostenService handelspostenService;
+	private final ShipService shipService;
+	private final UserService userService;
+	private final PmService pmService;
+	private final LocationService locationService;
+	private final ConsignService consignService;
+	private final FleetMgmtService fleetMgmtService;
+	private final DismantlingService dismantlingService;
+	private final ShipActionService shipActionService;
 
-	@Autowired
+	@PersistenceContext
+	private EntityManager em;
+
 	public SchiffController(TemplateViewResultFactory templateViewResultFactory,
-							SchiffSprungService schiffSprungService,
-							HandelspostenService handelspostenService)
+		SchiffSprungService schiffSprungService,
+		HandelspostenService handelspostenService, ShipService shipService, UserService userService, PmService pmService, LocationService locationService, ConsignService consignService, FleetMgmtService fleetMgmtService, DismantlingService dismantlingService, ShipActionService shipActionService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
 		this.schiffSprungService = schiffSprungService;
 		this.handelspostenService = handelspostenService;
+		this.shipService = shipService;
+		this.userService = userService;
+		this.pmService = pmService;
+		this.locationService = locationService;
+		this.consignService = consignService;
+		this.fleetMgmtService = fleetMgmtService;
+		this.dismantlingService = dismantlingService;
+		this.shipActionService = shipActionService;
 
 		setPageTitle("Schiff");
 	}
@@ -189,7 +217,7 @@ public class SchiffController extends Controller
 		validiereSchiff(ship);
 
 		User user = (User)getUser();
-		if (user.isNoob())
+		if (userService.isNoob(user))
 		{
 			return new RedirectViewResult("default");
 		}
@@ -208,7 +236,7 @@ public class SchiffController extends Controller
 			message = "Alarmstufe erfolgreich geändert.<br />";
 		}
 
-		ship.recalculateShipStatus();
+		shipActionService.recalculateShipStatus(ship);
 
 		return new RedirectViewResult("default").withMessage(message);
 	}
@@ -224,10 +252,9 @@ public class SchiffController extends Controller
 	{
 		validiereSchiff(ship);
 
-		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 
-		User newowner = User.lookupByIdentifier(newownerID);
+		User newowner = userService.lookupByIdentifier(newownerID);
 		if (newowner == null)
 		{
 			return new RedirectViewResult("default").withMessage("<span style=\"color:red\">Der Spieler existiert nicht.</span><br />");
@@ -235,7 +262,7 @@ public class SchiffController extends Controller
 
 		if (conf == 0)
 		{
-			String text = "<span style=\"color:white\">Wollen Sie das Schiff " + Common._plaintitle(ship.getName()) + " (" + ship.getId() + ") wirklich an " + newowner.getProfileLink() + " &uuml;bergeben?</span><br />";
+			String text = "<span style=\"color:white\">Wollen Sie das Schiff " + Common._plaintitle(ship.getName()) + " (" + ship.getId() + ") wirklich an " + userService.getProfileLink(newowner) + " &uuml;bergeben?</span><br />";
 			text += "<a class=\"ok\" href=\"" + Common.buildUrl("consign", "ship", ship.getId(), "conf", 1, "newowner", newowner.getId()) + "\">&Uuml;bergeben!</a></span><br />";
 
 			return new RedirectViewResult("default").withMessage(text);
@@ -243,7 +270,7 @@ public class SchiffController extends Controller
 
 		ShipFleet fleet = ship.getFleet();
 
-		boolean result = ship.consign(newowner, false);
+		boolean result = consignService.consign(ship, newowner, false);
 
 		if (result)
 		{
@@ -254,25 +281,25 @@ public class SchiffController extends Controller
 			TemplateEngine t = templateViewResultFactory.createFor(this);
 
 			ShipTypeData shiptype = ship.getTypeData();
-			String msg = "Ich habe Dir die [ship="+ship.getId()+"]" + ship.getName() + "[/ship], ein Schiff der " + shiptype.getNickname() + "-Klasse, übergeben\nSie steht bei " + ship.getLocation().displayCoordinates(false);
-			PM.send(user, newowner.getId(), "Schiff übergeben", msg);
+			String msg = "Ich habe Dir die [ship="+ship.getId()+"]" + ship.getName() + "[/ship], ein Schiff der " + shiptype.getNickname() + "-Klasse, übergeben\nSie steht bei " + locationService.displayCoordinates(ship.getLocation(), false);
+			pmService.send(user, newowner.getId(), "Schiff übergeben", msg);
 
 			String consMessage = Ship.MESSAGE.getMessage();
-			t.setVar("ship.message", (!consMessage.equals("") ? consMessage + "<br />" : "") + "<span style=\"color:green\">Das Schiff wurde erfolgreich an " + newowner.getProfileLink() + " übergeben</span><br />");
+			t.setVar("ship.message", (!consMessage.equals("") ? consMessage + "<br />" : "") + "<span style=\"color:green\">Das Schiff wurde erfolgreich an " + userService.getProfileLink(newowner) + " übergeben</span><br />");
 
 			if (fleet != null)
 			{
-				long fleetcount = (Long) db.createQuery("select count(*) from Ship where id>0 and fleet=:fleet")
-						.setEntity("fleet", fleet)
-						.iterate().next();
+				long fleetcount = em.createQuery("select count(*) from Ship where id>0 and fleet=:fleet", Long.class)
+						.setParameter("fleet", fleet)
+						.getSingleResult();
 
 				if (fleetcount < 3)
 				{
-					db.createQuery("update Ship set fleet=null where id>0 and fleet=:fleet")
-							.setEntity("fleet", fleet)
+					em.createQuery("update Ship set fleet=null where id>0 and fleet=:fleet")
+							.setParameter("fleet", fleet)
 							.executeUpdate();
 
-					db.delete(fleet);
+					em.remove(fleet);
 				}
 			}
 
@@ -302,7 +329,7 @@ public class SchiffController extends Controller
 			return new RedirectViewResult("default").withMessage(text);
 		}
 
-		ship.destroy();
+		dismantlingService.destroy(ship);
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		t.setVar("ship.message", "<span style=\"color:white\">Das Schiff hat sich selbst zerstört.</span><br />");
@@ -436,7 +463,7 @@ public class SchiffController extends Controller
 		Ship[] shiplist = new Ship[shipidlist.length];
 		for (int i = 0; i < shipidlist.length; i++)
 		{
-			Ship aship = (Ship) getDB().get(Ship.class, shipidlist[i]);
+			Ship aship = em.find(Ship.class, shipidlist[i]);
 			if (aship == null)
 			{
 				addError("Eines der angegebenen Schiffe existiert nicht.");
@@ -445,7 +472,7 @@ public class SchiffController extends Controller
 			shiplist[i] = aship;
 		}
 
-		ship.land(shiplist);
+		shipService.land(ship, shiplist);
 
 		return new RedirectViewResult("default").withMessage(Ship.MESSAGE.getMessage());
 	}
@@ -469,7 +496,7 @@ public class SchiffController extends Controller
 		Ship[] shiplist = new Ship[shipidlist.length];
 		for (int i = 0; i < shipidlist.length; i++)
 		{
-			Ship aship = (Ship) getDB().get(Ship.class, shipidlist[i]);
+			Ship aship = em.find(Ship.class, shipidlist[i]);
 			if (aship == null)
 			{
 				addError("Eines der angegebenen Schiffe existiert nicht.");
@@ -478,7 +505,7 @@ public class SchiffController extends Controller
 			shiplist[i] = aship;
 		}
 
-		ship.start(shiplist);
+		shipService.start(ship, shiplist);
 
 		return new RedirectViewResult("default").withMessage(Ship.MESSAGE.getMessage());
 	}
@@ -502,29 +529,26 @@ public class SchiffController extends Controller
 
 		int[] shipidlist = Common.explodeToInt("|", shipIdList);
 
-		org.hibernate.Session db = getDB();
-
-		List<?> dockedList = db.createQuery("from Ship where id>0 and id in (" + Common.implode(",", shipidlist) + ") and docked!=''")
-				.list();
-		for (Object aDockedList : dockedList)
+		List<Ship> dockedShips = em.createQuery("from Ship where id>0 and id in :shipIds and docked!=''", Ship.class)
+			.setParameter("shipIds", shipidlist)
+			.getResultList();
+		for (Ship dockedShip: dockedShips)
 		{
-			Ship docked = (Ship) aDockedList;
-
-			if (docked.getOwner() != user)
+			if (dockedShip.getOwner() != user)
 			{
 				addError("Eines der Schiffe gehört nicht Ihnen.");
 				return new RedirectViewResult("default");
 			}
 
-			Ship targetShip = docked.getBaseShip();
+			Ship targetShip = shipService.getBaseShip(dockedShip);
 
-			targetShip.undock(docked);
+			shipService.undock(targetShip, dockedShip);
 		}
 
 		Ship[] shiplist = new Ship[shipidlist.length];
 		for (int i = 0; i < shipidlist.length; i++)
 		{
-			Ship aship = (Ship) getDB().get(Ship.class, shipidlist[i]);
+			Ship aship = em.find(Ship.class, shipidlist[i]);
 			if (aship == null)
 			{
 				addError("Eines der angegebenen Schiffe existiert nicht.");
@@ -533,7 +557,7 @@ public class SchiffController extends Controller
 			shiplist[i] = aship;
 		}
 
-		ship.dock(shiplist);
+		shipService.dock(ship, shiplist);
 
 		return new RedirectViewResult("default").withMessage(Ship.MESSAGE.getMessage());
 	}
@@ -557,7 +581,7 @@ public class SchiffController extends Controller
 		Ship[] shiplist = new Ship[shipidlist.length];
 		for (int i = 0; i < shipidlist.length; i++)
 		{
-			Ship aship = (Ship) getDB().get(Ship.class, shipidlist[i]);
+			Ship aship = em.find(Ship.class, shipidlist[i]);
 			if (aship == null)
 			{
 				addError("Eines der angegebenen Schiffe existiert nicht.");
@@ -566,7 +590,7 @@ public class SchiffController extends Controller
 			shiplist[i] = aship;
 		}
 
-		ship.undock(shiplist);
+		shipService.undock(ship, shiplist);
 
 		return new RedirectViewResult("default").withMessage(Ship.MESSAGE.getMessage());
 	}
@@ -581,21 +605,20 @@ public class SchiffController extends Controller
 	{
 		validiereSchiff(ship);
 
-		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 
 		String message;
 		// Austreten
 		if (join == 0)
 		{
-			ship.removeFromFleet();
+			fleetMgmtService.removeShip(ship.getFleet(), ship);
 
 			message = "<span style=\"color:green\">" + Ship.MESSAGE.getMessage() + "</span><br />";
 		}
 		// Beitreten
 		else
 		{
-			Ship fleetship = (Ship) db.get(Ship.class, join);
+			Ship fleetship = em.find(Ship.class, join);
 			if ((fleetship == null) || (fleetship.getId() < 0))
 			{
 				return new RedirectViewResult("default");
@@ -659,7 +682,7 @@ public class SchiffController extends Controller
 
 		ship.setEnergy(ship.getEnergy() - shup);
 
-		ship.recalculateShipStatus();
+		shipActionService.recalculateShipStatus(ship);
 
 		return new RedirectViewResult("default").withMessage(message);
 	}
@@ -736,9 +759,8 @@ public class SchiffController extends Controller
 
 		User user = (User) getUser();
 		TemplateEngine t = templateViewResultFactory.createFor(this);
-		org.hibernate.Session db = getDB();
 
-		db.flush();
+		em.flush();
 
 		t.setVar("ship.message", redirect != null ? redirect.getMessage() : null);
 
@@ -749,7 +771,7 @@ public class SchiffController extends Controller
 			throw new ValidierungException("Das Schiff ist in einen Kampf verwickelt (hier klicken, um zu diesem zu gelangen)!", Common.buildUrl("default", "module", "angriff", "battle", ship.getBattle().getId(), "ship", ship.getId()));
 		}
 
-		ship.recalculateShipStatus();
+		shipActionService.recalculateShipStatus(ship);
 		Offizier offizier = ship.getOffizier();
 
 		t.setVar("ship.showui", 1,
@@ -757,8 +779,8 @@ public class SchiffController extends Controller
 				"ship.id", ship.getId(),
 				"ship.location.system", ship.getLocation().getSystem(),
 				"ship.name", Common._plaintitle(ship.getName()),
-				"ship.location", ship.getLocation().displayCoordinates(false),
-				"ship.location.url", ship.getLocation().urlFragment(),
+				"ship.location", locationService.displayCoordinates( ship.getLocation(), false),
+				"ship.location.url", locationService.urlFragment(ship.getLocation()),
 				"ship.type", ship.getType(),
 				"shiptype.picture", shiptype.getPicture(),
 				"shiptype.name", shiptype.getNickname(),
@@ -791,7 +813,7 @@ public class SchiffController extends Controller
 				"ship.s", ship.getHeat(),
 				"ship.fleet", ship.getFleet() != null ? ship.getFleet().getId() : 0,
 				"shiptype.werft", shiptype.getWerft(),
-				"ship.showalarm", !user.isNoob() && (shiptype.getShipClass() != ShipClasses.GESCHUETZ) && shiptype.isMilitary());
+				"ship.showalarm", !userService.isNoob(user) && (shiptype.getShipClass() != ShipClasses.GESCHUETZ) && shiptype.isMilitary());
 
 		if (ship.getHeat() >= 100)
 		{
@@ -856,13 +878,13 @@ public class SchiffController extends Controller
 		}
 
 		// Tooltip: Module
-		final ModuleEntry[] modulelist = ship.getModules();
+		final ModuleEntry[] modulelist = ship.getModuleEntries();
 		if ((modulelist.length > 0) && shiptype.getTypeModules().length() > 0)
 		{
 			List<String> tooltiplines = new ArrayList<>();
 			tooltiplines.add("<h1>Module</h1>");
 
-			ShipTypeData type = Ship.getShipType(ship.getType());
+			ShipTypeData type = shipService.getShipType(ship.getType());
 			ShipTypeData basetype = type;
 
 			Map<Integer, String[]> slotlist = new HashMap<>();

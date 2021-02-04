@@ -19,9 +19,13 @@
 package net.driftingsouls.ds2.server.modules.stats;
 
 import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.StatsController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -32,7 +36,14 @@ import java.util.List;
  * @author Christopher Jung
  *
  */
+@Component
 public class StatShipCount implements Statistic {
+	private final ConfigService configService;
+
+	public StatShipCount(ConfigService configService) {
+		this.configService = configService;
+	}
+
 	@Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
@@ -43,10 +54,10 @@ public class StatShipCount implements Statistic {
 		echo.append("<div id='shipstats'></div><script type='text/javascript'>$(document).ready(function(){\n");
 		echo.append("DS.plot('shipstats', [[");
 
-		int curTick = context.get(ContextCommon.class).getTick();
+		int curTick = configService.getValue(WellKnownConfigValue.TICKS);
 		boolean first = true;
 		List<?> result = db.createQuery("SELECT tick,shipCount FROM StatShips WHERE tick>=:mintick ORDER BY tick ASC")
-				.setInteger("mintick", curTick-49)
+				.setParameter("mintick", curTick-49)
 				.list();
 		for (Object o : result)
 		{

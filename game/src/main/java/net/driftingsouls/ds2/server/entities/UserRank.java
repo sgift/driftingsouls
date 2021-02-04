@@ -11,7 +11,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
-import net.driftingsouls.ds2.server.config.Medals;
+import net.driftingsouls.ds2.server.services.MedalService;
 import org.hibernate.annotations.ForeignKey;
 
 /**
@@ -98,6 +98,10 @@ public class UserRank
 				return rankGiver.equals(other.rankGiver);
 			}
 		}
+
+		public User getRankGiver() {
+			return rankGiver;
+		}
 	}
 
 	@Id
@@ -161,18 +165,7 @@ public class UserRank
 		this.rank = rank;
 	}
 
-	/**
-	 * Gibt den Anzeigenamen des Rangs zurueck.
-	 *
-	 * @return Der Anzeigename
-	 */
-	public String getName()
-	{
-		String rangName = Medals.get().rang(this.rank).getName();
-		if( this.userRankKey.rankGiver.getAlly() != null )
-		{
-			rangName = this.userRankKey.rankGiver.getAlly().getRangName(rank);
-		}
-		return rangName;
-    }
+	public UserRankKey getUserRankKey() {
+		return userRankKey;
+	}
 }

@@ -25,131 +25,137 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.services.BattleService;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Zeigt das Menue fuer die verschiedenen Fluchtaktionen.
- * @author Christopher Jung
  *
+ * @author Christopher Jung
  */
+@Component
 public class KSMenuFluchtAction extends BasicKSMenuAction {
-	@Override
-	public Result execute(TemplateEngine t, Battle battle) throws IOException {
-		Result result = super.execute(t, battle);
-		if( result != Result.OK ) {
-			return result;
-		}
-		
-		Context context = ContextMap.getContext();
-		
-		BattleShip ownShip = battle.getOwnShip();
-		ShipTypeData ownShipType = ownShip.getTypeData();
-		
-		BattleShip enemyShip = battle.getEnemyShip();
-		
-		String fluchtmode = context.getRequest().getParameterString("fluchtmode");
-		
-		if(!fluchtmode.equals("next")) 
-		{
-			fluchtmode = "next";	
-		}
-		
-		Map<String,String> fluchtmodes = new HashMap<>();
-		fluchtmodes.put("next", "N&auml;chste Runde");
-							
-		Map<String,String> nextfluchtmode = new HashMap<>();
-		nextfluchtmode.put("next", "current");
-							  
-		this.menuEntry(t, "<span style=\"font-size:3px\">&nbsp;<br /></span>Fluchtzeitpunkt: "+fluchtmodes.get(fluchtmode)+"<br />\n"+
-						"<span style=\"font-size:12px\">&lt; Klicken um Fluchtzeitpunkt zu &auml;ndern &gt;</span><span style=\"font-size:4px\"><br />&nbsp;</span>",
-						"ship",		ownShip.getId(),
-						"attack",	enemyShip.getId(),
-						"ksaction",	"flucht",
-						"fluchtmode",	nextfluchtmode.get(fluchtmode) );
+    public KSMenuFluchtAction(BattleService battleService) {
+        super(battleService, null);
+    }
+
+    @Override
+    public Result execute(TemplateEngine t, Battle battle) throws IOException {
+        Result result = super.execute(t, battle);
+        if (result != Result.OK) {
+            return result;
+        }
+
+        Context context = ContextMap.getContext();
+
+        BattleShip ownShip = battle.getOwnShip();
+        ShipTypeData ownShipType = ownShip.getTypeData();
+
+        BattleShip enemyShip = battle.getEnemyShip();
+
+        String fluchtmode = context.getRequest().getParameterString("fluchtmode");
+
+        if (!fluchtmode.equals("next")) {
+            fluchtmode = "next";
+        }
+
+        Map<String, String> fluchtmodes = new HashMap<>();
+        fluchtmodes.put("next", "N&auml;chste Runde");
+
+        Map<String, String> nextfluchtmode = new HashMap<>();
+        nextfluchtmode.put("next", "current");
+
+        this.menuEntry(t, "<span style=\"font-size:3px\">&nbsp;<br /></span>Fluchtzeitpunkt: " + fluchtmodes.get(fluchtmode) + "<br />\n" +
+                "<span style=\"font-size:12px\">&lt; Klicken um Fluchtzeitpunkt zu &auml;ndern &gt;</span><span style=\"font-size:4px\"><br />&nbsp;</span>",
+            "ship", ownShip.getId(),
+            "attack", enemyShip.getId(),
+            "ksaction", "flucht",
+            "fluchtmode", nextfluchtmode.get(fluchtmode));
 
         boolean gotone = false;
-        if( ownShipType.hasFlag(ShipTypeFlag.DROHNE) ) {
+        if (ownShipType.hasFlag(ShipTypeFlag.DROHNE)) {
             List<BattleShip> ownShips = battle.getOwnShips();
-            for (BattleShip aship : ownShips)
-            {
+            for (BattleShip aship : ownShips) {
                 ShipTypeData ashiptype = aship.getTypeData();
-                if (ashiptype.hasFlag(ShipTypeFlag.DROHNEN_CONTROLLER))
-                {
+                if (ashiptype.hasFlag(ShipTypeFlag.DROHNEN_CONTROLLER)) {
                     gotone = true;
                     break;
                 }
             }
-        }
-        else {
+        } else {
             gotone = true;
         }
 
-        if(!ownShip.hasFlag(BattleShipFlag.JOIN) && !ownShip.hasFlag(BattleShipFlag.DESTROYED) && !ownShip.hasFlag(BattleShipFlag.FLUCHT) && !ownShip.getShip().isLanded() && !ownShip.getShip().isDocked() && ownShip.getShip().getEngine() > 0 && gotone && !ownShip.hasFlag(BattleShipFlag.FLUCHTNEXT)) {
+        if (!ownShip.hasFlag(BattleShipFlag.JOIN) && !ownShip.hasFlag(BattleShipFlag.DESTROYED) && !ownShip.hasFlag(BattleShipFlag.FLUCHT) && !ownShip.getShip().isLanded() && !ownShip.getShip().isDocked() && ownShip.getShip().getEngine() > 0 && gotone && !ownShip.hasFlag(BattleShipFlag.FLUCHTNEXT)) {
 
-            if( ownShip.getEngine() > 0 ) {
+            if (ownShip.getEngine() > 0) {
                 this.menuEntry(t, "Flucht",
-                        "ship",		ownShip.getId(),
-                        "attack",	enemyShip.getId(),
-                        "ksaction",	"flucht_single",
-                        "fluchtmode",	fluchtmode );
+                    "ship", ownShip.getId(),
+                    "attack", enemyShip.getId(),
+                    "ksaction", "flucht_single",
+                    "fluchtmode", fluchtmode);
             }
         }
 
         int fluchtidlist = 0;
-        Map<ShipClasses,Integer> fluchtclasslist = new HashMap<>();
+        Map<ShipClasses, Integer> fluchtclasslist = new EnumMap<>(ShipClasses.class);
 
         List<BattleShip> ownShips = battle.getOwnShips();
-        for (BattleShip aship : ownShips)
-        {
+        for (BattleShip aship : ownShips) {
             ShipTypeData ashiptype = aship.getTypeData();
 
-            if (!aship.hasFlag(BattleShipFlag.FLUCHT) && !aship.hasFlag(BattleShipFlag.DESTROYED) &&
-                    !aship.hasFlag(BattleShipFlag.FLUCHT) && !ownShip.getShip().isLanded() && !ownShip.getShip().isDocked() && (aship.getShip().getEngine() > 0) &&
-                    !aship.getShip().isBattleAction() && gotone)
-            {
+            if (!aship.hasFlag(BattleShipFlag.FLUCHT)
+                && !aship.hasFlag(BattleShipFlag.DESTROYED)
+                && !ownShip.getShip().isLanded()
+                && !ownShip.getShip().isDocked()
+                && (aship.getShip().getEngine() > 0) &&
+                !aship.getShip().isBattleAction()
+                && gotone) {
 
                 fluchtidlist++;
                 Common.safeIntInc(fluchtclasslist, ashiptype.getShipClass());
             }
         }
 
-        if( fluchtidlist > 0 ) {
+        if (fluchtidlist > 0) {
             this.menuEntryAsk(t, "Alle Fl&uuml;chten",
-                    new Object[] {
-                        "ship",		ownShip.getId(),
-                        "attack",	enemyShip.getId(),
-                        "ksaction",	"flucht_all",
-                        "fluchtmode",	fluchtmode  },
-                    "Wollen sie wirklich mit allen Schiffen fl&uuml;chten?" );
+                new Object[]{
+                    "ship", ownShip.getId(),
+                    "attack", enemyShip.getId(),
+                    "ksaction", "flucht_all",
+                    "fluchtmode", fluchtmode},
+                "Wollen sie wirklich mit allen Schiffen fl&uuml;chten?");
         }
 
-        for( Map.Entry<ShipClasses, Integer> entry: fluchtclasslist.entrySet()) {
+        for (Map.Entry<ShipClasses, Integer> entry : fluchtclasslist.entrySet()) {
             ShipClasses classID = entry.getKey();
             int idlist = entry.getValue();
-            if( idlist == 0 ) {
+            if (idlist == 0) {
                 continue;
             }
-            this.menuEntryAsk(t, "Alle "+classID.getPlural()+" fl&uuml;chten lassen",
-                    new Object[] {
-                        "ship",		ownShip.getId(),
-                        "attack",	enemyShip.getId(),
-                        "ksaction",	"flucht_class",
-                        "fluchtclass",	classID.ordinal(),
-                        "fluchtmode",	fluchtmode },
-                    "Wollen sie wirklich mit allen Schiffen der Klasse '"+classID.getSingular()+"' fl&uuml;chten?" );
+            this.menuEntryAsk(t, "Alle " + classID.getPlural() + " fl&uuml;chten lassen",
+                new Object[]{
+                    "ship", ownShip.getId(),
+                    "attack", enemyShip.getId(),
+                    "ksaction", "flucht_class",
+                    "fluchtclass", classID.ordinal(),
+                    "fluchtmode", fluchtmode},
+                "Wollen sie wirklich mit allen Schiffen der Klasse '" + classID.getSingular() + "' fl&uuml;chten?");
         }
-				
-		this.menuEntry(t, "zur&uuml;ck",
-				"ship",		ownShip.getId(),
-				"attack",	enemyShip.getId() );
-												
-		return Result.OK;
-	}
+
+        this.menuEntry(t, "zur&uuml;ck",
+            "ship", ownShip.getId(),
+            "attack", enemyShip.getId());
+
+        return Result.OK;
+    }
 }

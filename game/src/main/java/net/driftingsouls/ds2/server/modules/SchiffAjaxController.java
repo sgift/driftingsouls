@@ -27,6 +27,9 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
+import net.driftingsouls.ds2.server.services.LocationService;
+import net.driftingsouls.ds2.server.services.ShipActionService;
+import net.driftingsouls.ds2.server.services.UserService;
 import net.driftingsouls.ds2.server.ships.Alarmstufe;
 import net.driftingsouls.ds2.server.ships.RouteFactory;
 import net.driftingsouls.ds2.server.ships.SchiffFlugService;
@@ -35,7 +38,7 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.Waypoint;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -45,6 +48,7 @@ import java.util.List;
  * @author Christopher Jung
  */
 @net.driftingsouls.ds2.server.framework.pipeline.Module(name = "schiffAjax")
+@Component
 public class SchiffAjaxController extends Controller
 {
 	@ViewModel
@@ -55,12 +59,17 @@ public class SchiffAjaxController extends Controller
 
 	private final SchiffFlugService schiffFlugService;
 	private final SchiffSprungService schiffSprungService;
+	private final UserService userService;
+	private final LocationService locationService;
+	private final ShipActionService shipActionService;
 
-	@Autowired
-	public SchiffAjaxController(SchiffFlugService schiffFlugService, SchiffSprungService schiffSprungService)
+	public SchiffAjaxController(SchiffFlugService schiffFlugService, SchiffSprungService schiffSprungService, UserService userService, LocationService locationService, ShipActionService shipActionService)
 	{
 		this.schiffFlugService = schiffFlugService;
 		this.schiffSprungService = schiffSprungService;
+		this.userService = userService;
+		this.locationService = locationService;
+		this.shipActionService = shipActionService;
 	}
 
 	private void validiereSchiff(Ship ship)
@@ -90,7 +99,7 @@ public class SchiffAjaxController extends Controller
 		validiereSchiff(schiff);
 
 		User user = (User) getUser();
-		if (user.isNoob())
+		if (userService.isNoob(user))
 		{
 			return ViewMessage.failure("Du kannst die Alarmstufe nicht ändern solange Du unter Neuspieler-Schutz stehst.");
 		}
@@ -104,7 +113,7 @@ public class SchiffAjaxController extends Controller
 		if (alarm != null)
 		{
 			schiff.setAlarm(alarm);
-			schiff.recalculateShipStatus();
+			shipActionService.recalculateShipStatus(schiff);
 		}
 
 		return ViewMessage.success("Alarmstufe erfolgreich geändert");
@@ -185,7 +194,7 @@ public class SchiffAjaxController extends Controller
 		List<Waypoint> route = router.findRoute(from, to);
 		if (route.isEmpty())
 		{
-			return ViewMessage.error("Es wurde keine Route nach " + to.displayCoordinates(false) + " gefunden");
+			return ViewMessage.error("Es wurde keine Route nach " + locationService.displayCoordinates(to, false) + " gefunden");
 		}
 
 		if (route.size() > 1 || route.iterator().next().distance > 1)

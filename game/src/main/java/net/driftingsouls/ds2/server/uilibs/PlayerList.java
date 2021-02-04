@@ -24,6 +24,8 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
+import net.driftingsouls.ds2.server.services.UserService;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -36,6 +38,16 @@ import java.util.List;
  *
  */
 public class PlayerList {
+	private final UserService userService;
+	private final Rassen races;
+	private final BBCodeParser bbCodeParser;
+
+	public PlayerList(UserService userService, Rassen races, BBCodeParser bbCodeParser) {
+		this.userService = userService;
+		this.races = races;
+		this.bbCodeParser = bbCodeParser;
+	}
+
 	/**
 	 * Gibt die Spielerliste im angegebenen Kontext aus.
 	 * @param context Der Kontext
@@ -139,25 +151,25 @@ public class PlayerList {
 			query += "u.id";
 		}
 
-		User.Relations relationlist = null;
+		UserService.Relations relationlist = null;
 		if( user != null ) {
-			relationlist = user.getRelations();
+			relationlist = userService.getRelations(user);
 		}
 
 		List<User> userlist = Common.cast(db.createQuery(query).list());
 		for( User aUser : userlist ) {
 			String race = "???";
-			if( Rassen.get().rasse(aUser.getRace()) != null ) {
-				race = Rassen.get().rasse(aUser.getRace()).getName();
+			if( races.rasse(aUser.getRace()) != null ) {
+				race = races.rasse(aUser.getRace()).getName();
 			}
 
 			String ally = "&nbsp;";
 			if( aUser.getAlly() != null ) {
 				if( user != null ) {
-					ally = "<a class=\"profile\" href=\""+Common.buildUrl("details", "module", "allylist", "details", aUser.getAlly().getId()) +"\">"+Common._title(aUser.getAlly().getName())+"</a>";
+					ally = "<a class=\"profile\" href=\""+Common.buildUrl("details", "module", "allylist", "details", aUser.getAlly().getId()) +"\">"+Common._title(bbCodeParser, aUser.getAlly().getName())+"</a>";
 				}
 				else {
-					ally = Common._title(aUser.getAlly().getName());
+					ally = Common._title(bbCodeParser, aUser.getAlly().getName());
 				}
 			}
 
@@ -202,10 +214,10 @@ public class PlayerList {
 
 				// Spielername
 				if( context.getActiveUser() != null ) {
-					echo.append("<td class=\"noBorderX\"><a class=\"profile\" href=\"").append(Common.buildUrl("default", "module", "userprofile", "user", aUser.getId())).append("\">").append(Common._title(aUser.getName())).append("</a>");
+					echo.append("<td class=\"noBorderX\"><a class=\"profile\" href=\"").append(Common.buildUrl("default", "module", "userprofile", "user", aUser.getId())).append("\">").append(Common._title(bbCodeParser, aUser.getName())).append("</a>");
 				}
 				else {
-					echo.append("<td class=\"noBorderX\">").append(Common._title(aUser.getName()));
+					echo.append("<td class=\"noBorderX\">").append(Common._title(bbCodeParser, aUser.getName()));
 				}
 				if( aUser.hasFlag(UserFlag.HIDE) ) {
 					echo.append(" <span style=\"color:red;font-style:italic\" title=\"hidden\">[h]</span>");
@@ -244,7 +256,7 @@ public class PlayerList {
 				}
 			}
 			else {
-				echo.append("<td class=\"noBorderX\"><a style=\"font-size:14px;color:#c7c7c7\" href=\"javascript:playerPM(").append(Integer.toString(aUser.getId())).append(");\">").append(Common._title(aUser.getName())).append("</a></td>\n");
+				echo.append("<td class=\"noBorderX\"><a style=\"font-size:14px;color:#c7c7c7\" href=\"javascript:playerPM(").append(Integer.toString(aUser.getId())).append(");\">").append(Common._title(bbCodeParser, aUser.getName())).append("</a></td>\n");
 			}
 
 			echo.append("</tr>\n");

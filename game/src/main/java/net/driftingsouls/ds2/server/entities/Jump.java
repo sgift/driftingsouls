@@ -85,7 +85,7 @@ public class Jump implements Locatable {
 	 * Setzt das springende Schiff.
 	 * @param ship Das Schiff
 	 */
-	public final void setShip(final Ship ship) {
+	public void setShip(final Ship ship) {
 		this.ship = ship;
 	}
 
@@ -101,7 +101,7 @@ public class Jump implements Locatable {
 	 * Setzt das Zielsystem.
 	 * @param system Das System
 	 */
-	public final void setSystem(final int system) {
+	public void setSystem(final int system) {
 		this.system = system;
 	}
 
@@ -117,7 +117,7 @@ public class Jump implements Locatable {
 	 * Setzt die Ziel-X-Koordinate.
 	 * @param x Die Ziel-X-Koordinate
 	 */
-	public final void setX(final int x) {
+	public void setX(final int x) {
 		this.x = x;
 	}
 
@@ -133,7 +133,7 @@ public class Jump implements Locatable {
 	 * Setzt die Ziel-Y-Koordinate.
 	 * @param y Die Ziel-Y-Koordinate
 	 */
-	public final void setY(final int y) {
+	public void setY(final int y) {
 		this.y = y;
 	}
 

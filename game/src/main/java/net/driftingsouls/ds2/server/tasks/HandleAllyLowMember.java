@@ -19,15 +19,16 @@
 package net.driftingsouls.ds2.server.tasks;
 
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
-import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.services.AllianzService;
+import net.driftingsouls.ds2.server.services.PmService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 /**
  * TASK_ALLY_LOW_MEMBER
@@ -42,33 +43,40 @@ import org.springframework.stereotype.Service;
 @Service
 public class HandleAllyLowMember implements TaskHandler {
 	private final AllianzService allianzService;
+	private final PmService pmService;
+	private final TaskManager taskManager;
+	private final ConfigService configService;
+
+	@PersistenceContext
+	private EntityManager em;
 
 	@Autowired
-	public HandleAllyLowMember(AllianzService allianzService)
+	public HandleAllyLowMember(AllianzService allianzService, PmService pmService, TaskManager taskManager, ConfigService configService)
 	{
 		this.allianzService = allianzService;
+		this.pmService = pmService;
+		this.taskManager = taskManager;
+		this.configService = configService;
 	}
 
 	@Override
 	public void handleEvent(Task task, String event) {
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
 		if( event.equals("tick_timeout") ) {
 			int allyid = Integer.parseInt(task.getData1());
 
-			Ally ally = (Ally)db.get(Ally.class, allyid);
+			Ally ally = em.find(Ally.class, allyid);
 			if( ally == null ) {
-				Taskmanager.getInstance().removeTask( task.getTaskID() );
+				taskManager.removeTask( task.getTaskID() );
 				return;
 			}
 
-			User source = (User)db.get(User.class, new ConfigService().getValue(WellKnownConfigValue.ALLIANZAUFLOESUNG_PM_SENDER));
+			User source = em.find(User.class, configService.getValue(WellKnownConfigValue.ALLIANZAUFLOESUNG_PM_SENDER));
 
-			PM.sendToAlly(source, ally, "Allianzauflösung", "[Automatische Nachricht]\n\nDeine Allianz wurde mit sofortiger Wirkung aufgel&ouml;st. Der Grund ist Spielermangel. Grunds&auml;tzlich m&uuml;ssen Allianzen mindestens 2 Mitglieder haben um bestehen zu k&ouml;nnen. Da deine Allianz in der vorgegebenen Zeit dieses Ziel nicht erreichen konnte war die Aufl&ouml;sung unumg&auml;nglich.");
+			pmService.sendToAlly(source, ally, "Allianzauflösung", "[Automatische Nachricht]\n\nDeine Allianz wurde mit sofortiger Wirkung aufgel&ouml;st. Der Grund ist Spielermangel. Grunds&auml;tzlich m&uuml;ssen Allianzen mindestens 2 Mitglieder haben um bestehen zu k&ouml;nnen. Da deine Allianz in der vorgegebenen Zeit dieses Ziel nicht erreichen konnte war die Aufl&ouml;sung unumg&auml;nglich.");
 
 			allianzService.loeschen(ally);
 
-			Taskmanager.getInstance().removeTask( task.getTaskID() );
+			taskManager.removeTask( task.getTaskID() );
 		}
 	}
 

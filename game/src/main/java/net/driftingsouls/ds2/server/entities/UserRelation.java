@@ -84,7 +84,7 @@ public class UserRelation {
 	 * Gibt den Beziehungsstatus zurueck.
 	 * @return Der Beziehungsstatus
 	 */
-	public final int getStatus() {
+	public int getStatus() {
 		return status;
 	}
 
@@ -92,7 +92,7 @@ public class UserRelation {
 	 * Setzt den Beziehungsstatus.
 	 * @param status Der neue Status
 	 */
-	public final void setStatus(final int status) {
+	public void setStatus(final int status) {
 		this.status = status;
 	}
 
@@ -108,7 +108,7 @@ public class UserRelation {
 	 * Setzt den Zieluser.
 	 * @param target Der Zieluser
 	 */
-	public final void setTarget(final User target) {
+	public void setTarget(final User target) {
 		this.target = target;
 	}
 

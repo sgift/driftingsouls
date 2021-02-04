@@ -18,31 +18,22 @@
  */
 package net.driftingsouls.ds2.server.framework.authentication;
 
-import java.io.Serializable;
-
 import net.driftingsouls.ds2.server.framework.BasicUser;
-import net.driftingsouls.ds2.server.framework.ContextInstance;
-import net.driftingsouls.ds2.server.framework.ContextMap;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 /**
  * Sessionobjekt fuer Java-Sessions.
  * @author Christopher Jung
  *
  */
-@ContextInstance(ContextInstance.Scope.SESSION)
-class JavaSession implements Serializable {
-	private static final long serialVersionUID = 1513402479401819226L;
-	
+public class JavaSession {
 	private Integer id;
 	private Integer attachedUser;
 
-	private String ip;
-	
-	/**
-	 * Konstruktor.
-	 */
-	public JavaSession() {
-	}
+	@PersistenceContext
+	private EntityManager em;
 	
 	/**
 	 * Setzt den mit der Session verknuepften User.
@@ -65,9 +56,7 @@ class JavaSession implements Serializable {
 		if( id == null ) {
 			return null;
 		}
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
-		return (BasicUser)db.get(BasicUser.class, this.id);
+		return em.find(BasicUser.class, this.id);
 	}
 
 	/**
@@ -78,9 +67,7 @@ class JavaSession implements Serializable {
 		if( this.attachedUser == null ) {
 			return null;
 		}
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
-		return (BasicUser)db.get(BasicUser.class, this.attachedUser);
+		return em.find(BasicUser.class, this.attachedUser);
 	}
 
 	/**
@@ -94,30 +81,5 @@ class JavaSession implements Serializable {
 		else {
 			this.attachedUser = null;
 		}
-	}
-	
-	/**
-	 * Gibt die Liste der gueltigen IPs zurueck.
-	 * @return Die Liste der gueltigen IPs
-	 */
-	public String getIP() {
-		return ip;
-	}
-
-	/**
-	 * Setzt die Liste der gueltigen IPs.
-	 * @param ip Die neue Liste
-	 */
-	public void setIP(String ip) {
-		this.ip = ip;
-	}
-	
-	/**
-	 * Prueft, ob die angegebene IP-Adresse in der Liste der IP-Adressen vorkommt.
-	 * @param ip Die IP-Adresse
-	 * @return <code>true</code>, falls die IP-Adresse in der Liste vorkommt
-	 */
-	public boolean isValidIP(String ip) {
-		return getIP().contains("<"+ip+">");
 	}
 }

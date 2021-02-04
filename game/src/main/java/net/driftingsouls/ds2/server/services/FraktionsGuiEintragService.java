@@ -2,13 +2,14 @@ package net.driftingsouls.ds2.server.services;
 
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintrag;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import org.hibernate.Session;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 
 /**
@@ -17,13 +18,15 @@ import java.util.List;
 @Service
 public class FraktionsGuiEintragService
 {
+	@PersistenceContext
+	private EntityManager em;
+
 	/**
 	 * Findet alle GUI-Daten fuer die Fraktionsmaske.
 	 * @return Die Liste der GUI-Daten
 	 */
-	public List<FraktionsGuiEintrag> findeAlle()
-	{
-		return Common.cast(ContextMap.getContext().getDB().createCriteria(FraktionsGuiEintrag.class).list());
+	public List<FraktionsGuiEintrag> findeAlle() {
+		return em.createQuery("from FraktionsGuiEintrag", FraktionsGuiEintrag.class).getResultList();
 	}
 
 	/**
@@ -31,11 +34,11 @@ public class FraktionsGuiEintragService
 	 * @param user Der Benutzer
 	 * @return Die GUI-Daten oder <code>null</code>
 	 */
-	public @Nullable FraktionsGuiEintrag findeNachUser(@NonNull User user)
-	{
-		Session db = ContextMap.getContext().getDB();
-		return (FraktionsGuiEintrag)db.createQuery("from FraktionsGuiEintrag where user=:user")
+	public @Nullable FraktionsGuiEintrag findeNachUser(@NonNull User user) {
+		var result = em.createQuery("from FraktionsGuiEintrag where user=:user", FraktionsGuiEintrag.class)
 				.setParameter("user", user)
-				.uniqueResult();
+				.getResultStream();
+
+		return result.findFirst().orElse(null);
 	}
 }

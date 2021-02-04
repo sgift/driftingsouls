@@ -70,20 +70,6 @@ public class VersteigerungResource extends Versteigerung {
 		}
 		
 		this.type = res.save();
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-
-		User niemand = (User)db.get(User.class, -2);
-		List<Integer> userIDs = Common.cast(db.createQuery("select id from User").list());
-		
-		for(Integer userID : userIDs)
-		{
-			User user = (User)db.get(User.class, userID);
-			//Abfrage, ob der user eine PM moechte
-			if(user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_AUKTION_PM)) {
-				PM.send(niemand, user.getId(), "Neue Versteigerung eingestellt.", "Versteigert werden "+res.getResourceList().iterator().next().getCount1()+" " +res.getResourceList().iterator().next().getPlainName() +". Aktueller Preis: "+price+" RE");
-			}
-		}
 	}
 	
 	/**

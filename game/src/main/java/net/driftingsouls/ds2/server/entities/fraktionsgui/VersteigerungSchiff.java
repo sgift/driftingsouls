@@ -57,23 +57,7 @@ public class VersteigerungSchiff extends Versteigerung {
 	 */
 	public VersteigerungSchiff(User owner, ShipType type, long price) {
 		super(owner, price);
-		
 		this.type = Integer.toString(type.getTypeId());
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-		//das macht vermutlich probleme, weil keine richtigen user erzeugt werden
-		//List<User> users = Common.cast(db.createQuery("from User").list());
-		User niemand = (User)db.get(User.class, -2);
-		List<Integer> userIDs = Common.cast(db.createQuery("select id from User").list());
-		
-		for(Integer userID : userIDs)
-		{
-			User user = (User)db.get(User.class, userID);
-			//Abfrage, ob der user eine PM moechte
-			if(user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_AUKTION_PM)) {
-				PM.send(niemand, user.getId(), "Neue Versteigerung eingestellt.", "Versteigert wird eine "+type.getNickname()+". Aktueller Preis: "+price+" RE");
-			}
-		}
 	}
 	
 	/**

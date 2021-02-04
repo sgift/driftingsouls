@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.Weapon;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderableShip;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
@@ -37,9 +38,10 @@ import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -54,11 +56,18 @@ import java.util.TreeSet;
 public class SchiffInfoController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
+	private final Rassen races;
+	private final BBCodeParser bbCodeParser;
+
+	@PersistenceContext
+	private EntityManager em;
 
 	@Autowired
-	public SchiffInfoController(TemplateViewResultFactory templateViewResultFactory)
+	public SchiffInfoController(TemplateViewResultFactory templateViewResultFactory, Rassen races, BBCodeParser bbCodeParser)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.races = races;
+		this.bbCodeParser = bbCodeParser;
 
 		setPageTitle("Schiffstyp");
 	}
@@ -75,12 +84,12 @@ public class SchiffInfoController extends Controller
 		}
 	}
 
-	private ShipBaubar ermittleBauInformationen(Session db, int ship)
+	private ShipBaubar ermittleBauInformationen(int ship)
 	{
-		return (ShipBaubar) db.createQuery("from ShipBaubar where type=:type")
-				.setInteger("type", ship)
+		return em.createQuery("from ShipBaubar where type=:type", ShipBaubar.class)
+				.setParameter("type", ship)
 				.setMaxResults(1)
-				.uniqueResult();
+				.getSingleResult();
 	}
 
 	private void outPrerequisites(TemplateEngine t, ShipBaubar shipBuildData)
@@ -101,7 +110,7 @@ public class SchiffInfoController extends Controller
 					}
 
 					t.setVar("shiptype.tr" + i, research.getID(),
-							"shiptype.tr" + i + ".name", Common._title(research.getName()),
+							"shiptype.tr" + i + ".name", Common._title(bbCodeParser, research.getName()),
 							"shiptype.tr" + i + ".status", cssClass);
 				}
 			}
@@ -115,7 +124,7 @@ public class SchiffInfoController extends Controller
 					Forschung f = shipBuildData.getRes(i);
 
 					t.setVar("shiptype.tr" + i, f.getID(),
-							"shiptype.tr" + i + ".name", Common._title(f.getName()));
+							"shiptype.tr" + i + ".name", Common._title(bbCodeParser, f.getName()));
 				}
 			}
 		}
@@ -126,7 +135,7 @@ public class SchiffInfoController extends Controller
 		}
 		else
 		{
-			race = Rassen.get().rasse(shipBuildData.getRace()).getName();
+			race = races.rasse(shipBuildData.getRace()).getName();
 		}
 
 		t.setVar("shiptype.race", race);
@@ -157,7 +166,6 @@ public class SchiffInfoController extends Controller
 	{
 		validiereSchiffstype(ship);
 
-		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 
@@ -168,7 +176,7 @@ public class SchiffInfoController extends Controller
 			t.setVar("shiptype.showinvisible", 1);
 		}
 
-		ShipBaubar shipBuildData = ermittleBauInformationen(db, ship.getTypeId());
+		ShipBaubar shipBuildData = ermittleBauInformationen(ship.getTypeId());
 
 		//Kann der User sehen, dass das Schiff baubar ist?
 		Forschung visible = ermittleSichtbarkeitDesSchiffstyps(user, shipBuildData);
@@ -186,10 +194,10 @@ public class SchiffInfoController extends Controller
 
 		if ((user != null) && hasPermission(WellKnownPermission.SCHIFFSTYP_NPCKOSTEN_SICHTBAR))
 		{
-			OrderableShip order = (OrderableShip) db.createQuery("from OrderableShip where shipType=:type")
-				.setEntity("type", ship)
+			OrderableShip order = em.createQuery("from OrderableShip where shipType=:type", OrderableShip.class)
+				.setParameter("type", ship)
 				.setMaxResults(1)
-				.uniqueResult();
+				.getSingleResult();
 
 			if (order != null)
 			{
@@ -266,11 +274,11 @@ public class SchiffInfoController extends Controller
 
 		if (ship.getDescrip().length() == 0)
 		{
-			t.setVar("shiptype.description", Common._text("Keine Beschreibung verf&uuml;gbar"));
+			t.setVar("shiptype.description", Common._text(bbCodeParser, "Keine Beschreibung verf&uuml;gbar"));
 		}
 		else
 		{
-			t.setVar("shiptype.description", Common._text(ship.getDescrip()));
+			t.setVar("shiptype.description", Common._text(bbCodeParser, ship.getDescrip()));
 		}
 
 		if (ship.getUnitSpace() > 0)

@@ -145,7 +145,7 @@ public class FactionShopOrder {
 	 * Setzt das Datum des Kaufs.
 	 * @param date Das Datum
 	 */
-	public final void setDate(final long date) {
+	public void setDate(final long date) {
 		this.date = date;
 	}
 
@@ -177,7 +177,7 @@ public class FactionShopOrder {
 	 * Setzt den Shopeintrag, der gekauft wurde.
 	 * @param shopEntry Der Shopeintrag
 	 */
-	public final void setShopEntry(final FactionShopEntry shopEntry) {
+	public void setShopEntry(final FactionShopEntry shopEntry) {
 		this.shopEntry = shopEntry;
 	}
 
@@ -209,7 +209,7 @@ public class FactionShopOrder {
 	 * Setzt den Kaeufer.
 	 * @param user Der Kaeufer
 	 */
-	public final void setUser(final User user) {
+	public void setUser(final User user) {
 		this.user = user;
 	}
 

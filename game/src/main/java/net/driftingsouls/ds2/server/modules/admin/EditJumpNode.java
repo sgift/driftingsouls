@@ -7,8 +7,10 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
 
 @AdminMenuEntry(category = "Systeme", name="Sprungpunkt", permission = WellKnownAdminPermission.EDIT_JUMPNODE)
+@Component
 public class EditJumpNode implements EntityEditor<JumpNode>
 {
 	@Override
@@ -37,6 +39,6 @@ public class EditJumpNode implements EntityEditor<JumpNode>
 			TileCache.forSystem(orgjumpnode.getSystem()).resetCache();
 			TileCache.forSystem(jumpnode.getSystem()).resetCache();
 		});
-		form.preDeleteTask("Sternenkarten-Cache leeren", (jumpnode) -> TileCache.forSystem(jumpnode.getSystem()).resetCache());
+		form.preDeleteTask("Sternenkarten-Cache leeren", jumpNode -> TileCache.forSystem(jumpNode.getSystem()).resetCache());
 	}
 }

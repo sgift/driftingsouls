@@ -40,7 +40,7 @@ import net.driftingsouls.ds2.server.map.TileCache;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import org.apache.commons.beanutils.BeanUtils;
-import org.hibernate.Session;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -48,12 +48,13 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.imageio.ImageIO;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.xml.parsers.ParserConfigurationException;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -66,7 +67,51 @@ import java.util.concurrent.ThreadLocalRandom;
  *
  */
 @AdminMenuEntry(category="Objekte", name="hinzufügen", permission = WellKnownAdminPermission.CREATE_OBJECTS)
+@Component
 public class CreateObjects implements AdminPlugin {
+	private final Map<String,DialogEntry[]> options = new LinkedHashMap<>();
+
+	public CreateObjects() {
+		options.put("Base", new DialogEntry[] {
+			new TextEntry("Anzahl", "anzahl", 18, "0"),
+			new EntityEntry<>("Klasse", "klasse", BaseType.class, "name"),
+			new TextEntry("Vorhandene Spawn-Ressourcen", "availspawnress", 18, "0"),
+			new TextEntry("System", "system", 18, "0"),
+			new TextEntry("Min X", "minX", 18, "0"),
+			new TextEntry("Min Y", "minY", 18, "0"),
+			new TextEntry("Max X", "maxX", 18, "0"),
+			new TextEntry("Max Y", "maxY", 18, "0")
+		});
+
+		options.put("Nebel", new DialogEntry[] {
+			new TextEntry("Anzahl", "anzahl", 18, "0"),
+			new EnumEntry<>("Typ", "type", Nebel.Typ.values()),
+			new TextEntry("System", "system", 18, "0"),
+			new TextEntry("Min X", "minX", 18, "0"),
+			new TextEntry("Min Y", "minY", 18, "0"),
+			new TextEntry("Max X", "maxX", 18, "0"),
+			new TextEntry("Max Y", "maxY", 18, "0")
+		});
+
+		options.put("Jumpnode", new DialogEntry[] {
+			new TextEntry("System", "system", 18, "0"),
+			new TextEntry("X", "minX", 18, "0"),
+			new TextEntry("Y", "minY", 18, "0"),
+			new TextEntry("Austritts-X", "maxX", 18, "0"),
+			new TextEntry("Austritts-Y", "maxY", 18, "0"),
+			new TextEntry("Austritts-System", "systemout", 18, "0"),
+			new TextEntry("Austritts-Name", "systemname", 18, "0")
+		});
+
+		options.put("SystemXML", new DialogEntry[] {
+			new TextEntry("Pfad", "xmlpath", 50, ""),
+			new TextEntry("System", "system", 18, "0")
+		});
+	}
+
+	@PersistenceContext
+	private EntityManager em;
+
 	private interface DialogEntry {
 		/**
 		 * Wandelt den Eintrag in HTML um.
@@ -74,24 +119,6 @@ public class CreateObjects implements AdminPlugin {
 		 * @return Der HTML-Code
 		 */
 		String toHtml(Request request);
-	}
-	
-	private static class LabelEntry implements DialogEntry {
-		final String title;
-		final String desc;
-		
-		LabelEntry(String title, String desc) {
-			this.title = title;
-			this.desc = desc;
-		}
-		
-		@Override
-		public String toHtml(Request request) {
-			String out = "<tr><td class=\"noBorderX\">"+this.title+"</td>\n";
-			out += "<td class=\"noBorderX\">"+this.desc.replace("\n", "<br />")+"</td></tr>\n";
-		
-			return out;
-		}
 	}
 	
 	private static class TextEntry implements DialogEntry {
@@ -122,7 +149,7 @@ public class CreateObjects implements AdminPlugin {
 		}
 	}
 
-	private static class EnumEntry<T extends Enum> implements DialogEntry {
+	private static class EnumEntry<T extends Enum<?>> implements DialogEntry {
 		final String title;
 		final String name;
 		final T[] values;
@@ -158,7 +185,7 @@ public class CreateObjects implements AdminPlugin {
 		}
 	}
 
-	private static class EntityEntry<T> implements DialogEntry {
+	private class EntityEntry<T> implements DialogEntry {
 		final String title;
 		final String name;
 		final Class<T> entityCls;
@@ -180,11 +207,10 @@ public class CreateObjects implements AdminPlugin {
 			boolean first = true;
 
 			out.append("<td class=\"noBorderX\"><select name=\"").append(this.name).append("\">");
-			Session db = ContextMap.getContext().getDB();
-			List<T> results = Common.cast(db.createCriteria(this.entityCls).list());
+			List<T> results = em.createQuery("from " + this.entityCls.getName(), entityCls).getResultList();
 			for( T value :  results )
 			{
-				Serializable id = db.getIdentifier(value);
+				Object id = em.getEntityManagerFactory().getPersistenceUnitUtil().getIdentifier(value);
 				if( id == null )
 				{
 					continue;
@@ -224,45 +250,6 @@ public class CreateObjects implements AdminPlugin {
 		}
 	}
 	
-	private static final Map<String,DialogEntry[]> OPTIONS = new LinkedHashMap<>();
-	static {
-		OPTIONS.put("Base", new DialogEntry[] {
-				new TextEntry("Anzahl", "anzahl", 18, "0"),
-				new EntityEntry<>("Klasse", "klasse", BaseType.class, "name"),
-				new TextEntry("Vorhandene Spawn-Ressourcen", "availspawnress", 18, "0"),
-				new TextEntry("System", "system", 18, "0"),
-				new TextEntry("Min X", "minX", 18, "0"),
-				new TextEntry("Min Y", "minY", 18, "0"),
-				new TextEntry("Max X", "maxX", 18, "0"),
-				new TextEntry("Max Y", "maxY", 18, "0")
-		});
-		
-		OPTIONS.put("Nebel", new DialogEntry[] {
-				new TextEntry("Anzahl", "anzahl", 18, "0"),
-				new EnumEntry<>("Typ", "type", Nebel.Typ.values()),
-				new TextEntry("System", "system", 18, "0"),
-				new TextEntry("Min X", "minX", 18, "0"),
-				new TextEntry("Min Y", "minY", 18, "0"),
-				new TextEntry("Max X", "maxX", 18, "0"),
-				new TextEntry("Max Y", "maxY", 18, "0")
-		});
-		
-		OPTIONS.put("Jumpnode", new DialogEntry[] {
-				new TextEntry("System", "system", 18, "0"),
-				new TextEntry("X", "minX", 18, "0"),
-				new TextEntry("Y", "minY", 18, "0"),
-				new TextEntry("Austritts-X", "maxX", 18, "0"),
-				new TextEntry("Austritts-Y", "maxY", 18, "0"),
-				new TextEntry("Austritts-System", "systemout", 18, "0"),
-				new TextEntry("Austritts-Name", "systemname", 18, "0")
-		});
-
-		OPTIONS.put("SystemXML", new DialogEntry[] {
-				new TextEntry("Pfad", "xmlpath", 50, ""),
-				new TextEntry("System", "system", 18, "0")
-		});
-	}
-	
 	@Override
 	public void output(StringBuilder echo) throws IOException {
 		Context context = ContextMap.getContext();
@@ -270,8 +257,8 @@ public class CreateObjects implements AdminPlugin {
 		String objekt = context.getRequest().getParameterString("objekt");
 		int system = context.getRequest().getParameterInt("system");
 		
-		if( !OPTIONS.containsKey(objekt) ) {
-			objekt = OPTIONS.keySet().iterator().next();
+		if( !options.containsKey(objekt) ) {
+			objekt = options.keySet().iterator().next();
 		}
 		
 		echo.append("<script type=\"text/javascript\">\n");
@@ -288,7 +275,7 @@ public class CreateObjects implements AdminPlugin {
 		echo.append("<td class=\"noBorderX\">Objekt</td>\n");
 		echo.append("<td class=\"noBorderX\">\n");
 		echo.append("<select name=\"objekt\" onChange=\"Go(this.form.objekt.options[this.form.objekt.options.selectedIndex].value)\">\n");
-		for( String key : OPTIONS.keySet() ) {
+		for( String key : options.keySet() ) {
 			if( objekt.equals(key) ) {
 				echo.append("<option selected=\"selected\" value=\"").append(key).append("\">").append(key).append("</option>\n");
 			}
@@ -299,7 +286,7 @@ public class CreateObjects implements AdminPlugin {
 		
 		echo.append("</select></td></tr>");
 
-		DialogEntry[] entries = OPTIONS.get(objekt);
+		DialogEntry[] entries = options.get(objekt);
 		for (DialogEntry entry : entries)
 		{
 			echo.append(entry.toHtml(context.getRequest()));
@@ -338,8 +325,6 @@ public class CreateObjects implements AdminPlugin {
 	}
 
 	private void handleSystemXML(Context context, StringBuilder echo, int system) {
-		org.hibernate.Session db = context.getDB();
-		
 		final String xmlpath = context.getRequest().getParameterString("xmlpath");
 		
 		File xml = new File(xmlpath);
@@ -361,7 +346,7 @@ public class CreateObjects implements AdminPlugin {
 					
 					String file = layerElement.getAttribute("file");
 					
-					parsePngFile(db, echo, system, new File(xml.getParent()+File.separatorChar+file));
+					parsePngFile(echo, system, new File(xml.getParent()+File.separatorChar+file));
 				}
 			}
 			
@@ -380,7 +365,7 @@ public class CreateObjects implements AdminPlugin {
 				Location target = parseLocation(system, jmpElement.getAttribute("target"));
 				
 				JumpNode jn = new JumpNode(source, target, name);
-				db.persist(jn);
+				em.persist(jn);
 			}
 			
 			// Grosse Objekte
@@ -399,13 +384,13 @@ public class CreateObjects implements AdminPlugin {
 				int owner = Integer.parseInt(object.getAttribute("owner"));
 				String name = object.getAttribute("name");
 				
-				User ownerObj = (User)db.get(User.class, owner);
+				User ownerObj = em.find(User.class, owner);
 				if( ownerObj == null ) {
 					echo.append("Fehler: large-object Besitzer '").append(owner).append("' existiert nicht");
 					return;
 				}
 
-				BaseType type = (BaseType) db.get(BaseType.class, klasse);
+				BaseType type = em.find(BaseType.class, klasse);
 				Base base = new Base(source, ownerObj, type);
 				base.setSize(size);
 				base.setName(name);
@@ -415,7 +400,7 @@ public class CreateObjects implements AdminPlugin {
 				base.setMaxTiles(100);
 				base.setMaxEnergy(10000);
 				base.setEnergy(10000);
-				db.persist(base);
+				em.persist(base);
 			}
 			
 			// Schiffe
@@ -434,13 +419,13 @@ public class CreateObjects implements AdminPlugin {
 				int typeId = Integer.parseInt(ship.getAttribute("type"));
 				boolean tradepost = Boolean.parseBoolean(ship.getAttribute("tradepost"));
 				
-				User ownerObj = (User)db.get(User.class, owner);
+				User ownerObj = em.find(User.class, owner);
 				if( ownerObj == null ) {
 					echo.append("Fehler: Schiff Besitzer '").append(owner).append("' existiert nicht");
 					return;
 				}
 				
-				ShipType type = (ShipType)db.get(ShipType.class, typeId);
+				ShipType type = em.find(ShipType.class, typeId);
 				if( type == null ) {
 					echo.append("Fehler: Schiff Typ '").append(typeId).append("' existiert nicht");
 					return;
@@ -468,7 +453,7 @@ public class CreateObjects implements AdminPlugin {
 				shipObj.setWeapons(100);
 				shipObj.setComm(100);
 				shipObj.setSensors(100);
-				db.save(shipObj);
+				em.persist(shipObj);
 				
 				// Offizier
 				Element offiElement = (Element)XMLUtils.firstNodeByTagName(ship, "offizier");
@@ -494,7 +479,7 @@ public class CreateObjects implements AdminPlugin {
 					offizier.setRang(rang);
 					offizier.stationierenAuf(shipObj);
 
-					db.persist(offizier);
+					em.persist(offizier);
 				}
 			}
 		}
@@ -516,10 +501,10 @@ public class CreateObjects implements AdminPlugin {
 		return Location.fromString(system+":"+location);
 	}
 
-	private void parsePngFile(Session db, StringBuilder echo, int system, File png) throws IOException {
+	private void parsePngFile(StringBuilder echo, int system, File png) throws IOException {
 		BufferedImage image = ImageIO.read(new FileInputStream(png));
 
-		StarSystem thissystem = (StarSystem)db.get(StarSystem.class, system);
+		StarSystem thissystem = em.find(StarSystem.class, system);
 
 		for( int x=0; x < thissystem.getWidth(); x++ ) {
 			for( int y=0; y < thissystem.getHeight(); y++ ) {
@@ -533,62 +518,62 @@ public class CreateObjects implements AdminPlugin {
 
 				// Deut-Nebel Normal
 				case 0xffFF0000:
-					createNebula(db, loc, Nebel.Typ.MEDIUM_DEUT);
+					createNebula(loc, Nebel.Typ.MEDIUM_DEUT);
 					break;
 
 				// Deut-Nebel Schwach
 				case 0xffCB0000:
-					createNebula(db, loc, Nebel.Typ.LOW_DEUT);
+					createNebula(loc, Nebel.Typ.LOW_DEUT);
 					break;
 
 				// Deut-Nebel Stark
 				case 0xffFF00AE:
-					createNebula(db, loc, Nebel.Typ.STRONG_DEUT);
+					createNebula(loc, Nebel.Typ.STRONG_DEUT);
 					break;
 
 				// EMP-Nebel Schwach
 				case 0xff3B9400:
-					createNebula(db, loc, Nebel.Typ.LOW_EMP);
+					createNebula(loc, Nebel.Typ.LOW_EMP);
 					break;
 
 				// EMP-Nebel Mittel
 				case 0xff4FC500:
-					createNebula(db, loc, Nebel.Typ.MEDIUM_EMP);
+					createNebula(loc, Nebel.Typ.MEDIUM_EMP);
 					break;
 
 				// EMP-Nebel Stark
 				case 0xff66FF00:
-					createNebula(db, loc, Nebel.Typ.STRONG_EMP);
+					createNebula(loc, Nebel.Typ.STRONG_EMP);
 					break;
 
 				// Schadensnebel
 				case 0xffFFBA00:
-					createNebula(db, loc, Nebel.Typ.DAMAGE);
+					createNebula(loc, Nebel.Typ.DAMAGE);
 					break;
 
 				// Normaler Asteroid
 				case 0xff0000FF:
-					createPlanet(db, loc, (BaseType)db.get(BaseType.class, 1));
+					createPlanet(loc, em.find(BaseType.class, 1));
 					break;
 
 				// Grosser Asteroid
 				case 0xff0000AF:
-					createPlanet(db, loc, (BaseType)db.get(BaseType.class, 3));
+					createPlanet(loc, em.find(BaseType.class, 3));
 					break;
 
 				// Kleiner Asteroid
 				case 0xff00006F:
-					createPlanet(db, loc, (BaseType)db.get(BaseType.class, 4));
+					createPlanet(loc, em.find(BaseType.class, 4));
 					break;
 
 				// Sehr kleiner Asteroid
 				case 0xff40406F:
-					createPlanet(db, loc, (BaseType)db.get(BaseType.class, 5));
+					createPlanet(loc, em.find(BaseType.class, 5));
 					break;
 
 				// Sehr grosser Asteroid
 				case 0xff4040AF:
-					createPlanet(db, loc, (BaseType)db.get(BaseType.class, 2));
+					createPlanet(loc, em.find(BaseType.class, 2));
 					break;
 
 				default:
@@ -598,21 +583,19 @@ public class CreateObjects implements AdminPlugin {
 		}
 	}
 
-	private void createPlanet( org.hibernate.Session db, Location loc, BaseType klasse ) {
+	private void createPlanet(Location loc, BaseType klasse) {
 		int height = klasse.getHeight();
 		int width = klasse.getWidth();
 
-		User nullUser = (User)db.get(User.class, 0);
+		User nullUser = em.find(User.class, 0);
 
 		Base base = new Base(loc, nullUser, klasse);
 		base.setMaxTiles(width*height);
 		base.setMaxEnergy(1000);
-		db.persist(base);
+		em.persist(base);
 	}
 
 	private void handleJumpnode(Context context, StringBuilder echo, int system) {
-		org.hibernate.Session db = context.getDB();
-		
 		final int minX = context.getRequest().getParameterInt("minX");
 		final int minY = context.getRequest().getParameterInt("minY");
 		final int maxX = context.getRequest().getParameterInt("maxX");
@@ -623,12 +606,10 @@ public class CreateObjects implements AdminPlugin {
 		echo.append("Erstelle Jumpnode...<br />\n");
 
 		JumpNode jn = new JumpNode(new Location(system, minX, minY), new Location(systemout, maxX, maxY), systemname);
-		db.persist(jn);
+		em.persist(jn);
 	}
 
 	private void handleNebel(Context context, int system) {
-		org.hibernate.Session db = context.getDB();
-		
 		final Nebel.Typ type = Nebel.Typ.valueOf(context.getRequest().getParameterString("type"));
 		final int anzahl = context.getRequest().getParameterInt("anzahl");
 		final int minX = context.getRequest().getParameterInt("minX");
@@ -640,13 +621,11 @@ public class CreateObjects implements AdminPlugin {
 			int x = ThreadLocalRandom.current().nextInt(minX,maxX+1);
 			int y = ThreadLocalRandom.current().nextInt(minY,maxY+1);
 
-			createNebula(db, new Location(system, x, y), type);
+			createNebula(new Location(system, x, y), type);
 		}
 	}
 
 	private void handleBase(Context context, StringBuilder echo, int system) {
-		org.hibernate.Session db = context.getDB();
-		
 		final int anzahl = context.getRequest().getParameterInt("anzahl");
 		final int klasse = context.getRequest().getParameterInt("klasse");
 		final String availablespawnableress = context.getRequest().getParameterString("availspawnress");
@@ -655,8 +634,8 @@ public class CreateObjects implements AdminPlugin {
 		final int maxX = context.getRequest().getParameterInt("maxX");
 		final int maxY = context.getRequest().getParameterInt("maxY");
 
-		final User nullUser = (User)db.get(User.class, 0);
-		BaseType type = (BaseType)db.get(BaseType.class, klasse);
+		final User nullUser = em.find(User.class, 0);
+		BaseType type = em.find(BaseType.class, klasse);
 		
 		if(type == null)
 		{
@@ -670,18 +649,18 @@ public class CreateObjects implements AdminPlugin {
 
 			Base base = new Base(new Location(system, x, y), nullUser, type);
 			base.setAvailableSpawnableRess(availablespawnableress);
-			db.persist(base);
+			em.persist(base);
 
 			echo.append("Erstelle Kolonie...<br />\n");
 		}
 	}
 
-	private void createNebula( org.hibernate.Session db, Location loc, Nebel.Typ type ) {
-		Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(loc));
+	private void createNebula(Location loc, Nebel.Typ type) {
+		Nebel nebel = em.find(Nebel.class, new MutableLocation(loc));
 		if( nebel != null ) {
-			db.delete(nebel);
+			em.remove(nebel);
 		}
 		nebel = new Nebel(new MutableLocation(loc), type);
-		db.persist(nebel);
+		em.persist(nebel);
 	}
 }

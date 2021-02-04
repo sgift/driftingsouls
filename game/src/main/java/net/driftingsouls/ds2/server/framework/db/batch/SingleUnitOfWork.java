@@ -19,7 +19,7 @@ public abstract class SingleUnitOfWork extends UnitOfWork<Void>
 	}
 
 	@Override
-	public final void doWork(Void object) throws Exception
+	public void doWork(Void object) throws Exception
 	{
 		doWork();
 	}

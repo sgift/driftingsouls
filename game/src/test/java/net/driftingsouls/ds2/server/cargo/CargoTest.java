@@ -31,7 +31,7 @@ public class CargoTest
 	{
 		Cargo cargo = new Cargo();
 		assertThat(cargo.save(), is(""));
-		assertThat(cargo.getItems().size(), is(0));
+		assertThat(cargo.getItemEntries().size(), is(0));
 		assertThat(cargo.getItemArray().size(), is(0));
 	}
 

@@ -19,7 +19,6 @@
 package net.driftingsouls.ds2.server.framework;
 
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
-import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -52,16 +51,7 @@ public class DriftingSouls {
 		Configuration.init(configdir);
 
 		LOG.info("Initializing Hibernate");
-		HibernateUtil.initConfiguration(Configuration.getConfigPath()+"hibernate.xml", Configuration.getDbUrl(), Configuration.getDbUser(), Configuration.getDbPassword());
-		HibernateUtil.createFactories();
-		if( !Configuration.isProduction() )
-		{
-			HibernateUtil.writeSchemaToDisk(Configuration.getConfigPath() + "schema.sql");
-		}
 
 		Common.setLocale(Locale.GERMAN);
-
-		// Init BBCodeParser
-		BBCodeParser.getInstance();
 	}
 }

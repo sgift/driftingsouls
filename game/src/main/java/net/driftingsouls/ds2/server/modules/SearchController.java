@@ -23,12 +23,16 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ViewModel;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
+import net.driftingsouls.ds2.server.services.LocationService;
 import net.driftingsouls.ds2.server.ships.Ship;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,13 +46,17 @@ public class SearchController extends Controller
 {
 	private static final int MAX_OBJECTS = 25;
 
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public SearchController()
+	@PersistenceContext
+	private EntityManager em;
+
+	private final BBCodeParser bbCodeParser;
+	private final LocationService locationService;
+
+	public SearchController(BBCodeParser bbCodeParser, LocationService locationService)
 	{
 		super();
+		this.bbCodeParser = bbCodeParser;
+		this.locationService = locationService;
 	}
 
 	@ViewModel
@@ -100,7 +108,6 @@ public class SearchController extends Controller
 	@Action(ActionType.AJAX)
 	public SearchViewModel searchAction(String search, String only, int max)
 	{
-		org.hibernate.Session db = getDB();
 		SearchViewModel result = new SearchViewModel();
 
 		if (max <= 0 || max > MAX_OBJECTS)
@@ -117,15 +124,14 @@ public class SearchController extends Controller
 
 		if (only.isEmpty() || "bases".equals(only))
 		{
-			List<?> baseList = findBases(db, search, max - count);
-			for (Object aBaseList : baseList)
+			List<Base> baseList = findBases(search, max - count);
+			for (Base base: baseList)
 			{
-				Base base = (Base) aBaseList;
 				SearchViewModel.BaseViewModel baseObj = new SearchViewModel.BaseViewModel();
 
 				baseObj.id = base.getId();
 				baseObj.name = Common._plaintitle(base.getName());
-				baseObj.location = base.getLocation().displayCoordinates(false);
+				baseObj.location = locationService.displayCoordinates(base.getLocation(), false);
 				baseObj.klasse = base.getKlasse().getId();
 				baseObj.image = base.getKlasse().getSmallImage();
 
@@ -139,16 +145,15 @@ public class SearchController extends Controller
 		{
 			if (count < max)
 			{
-				List<?> shipList = findShips(db, search, max - count);
-				for (Object aShipList : shipList)
+				List<Ship> shipList = findShips(search, max - count);
+				for (Ship ship: shipList)
 				{
-					Ship ship = (Ship) aShipList;
 
 					SearchViewModel.ShipViewModel shipObj = new SearchViewModel.ShipViewModel();
 
 					shipObj.id = ship.getId();
 					shipObj.name = Common._plaintitle(ship.getName());
-					shipObj.location = ship.getLocation().displayCoordinates(false);
+					shipObj.location = locationService.displayCoordinates(ship.getLocation(), false);
 
 					shipObj.type = new SearchViewModel.ShipTypeViewModel();
 					shipObj.type.name = ship.getTypeData().getNickname();
@@ -165,14 +170,12 @@ public class SearchController extends Controller
 		{
 			if (count < max)
 			{
-				List<?> userList = findUsers(db, search, max - count);
-				for (Object anUserList : userList)
+				List<User> userList = findUsers(search, max - count);
+				for (User auser: userList)
 				{
-					User auser = (User) anUserList;
-
 					SearchViewModel.UserViewModel userObj = new SearchViewModel.UserViewModel();
 					userObj.id = auser.getId();
-					userObj.name = Common._title(auser.getName());
+					userObj.name = Common._title(bbCodeParser, auser.getName());
 					userObj.plainname = auser.getPlainname();
 
 					result.users.add(userObj);
@@ -193,33 +196,33 @@ public class SearchController extends Controller
 		return searchAction(search, only, max);
 	}
 
-	private List<?> findUsers(org.hibernate.Session db, final String search, int count)
+	private List<User> findUsers(final String search, int count)
 	{
-		return db.createQuery("from User where " + (hasPermission(WellKnownPermission.USER_VERSTECKTE_SICHTBAR) ? "" : "locate('hide',flags)=0 and ") +
-				" (plainname like :search or id like :searchid)")
-				.setString("search", "%" + search + "%")
-				.setString("searchid", search + "%")
+		return em.createQuery("from User where " + (hasPermission(WellKnownPermission.USER_VERSTECKTE_SICHTBAR) ? "" : "locate('hide',flags)=0 and ") +
+				" (plainname like :search or id like :searchid)", User.class)
+				.setParameter("search", "%" + search + "%")
+				.setParameter("searchid", search + "%")
 				.setMaxResults(count)
-				.list();
+				.getResultList();
 	}
 
-	private List<?> findShips(org.hibernate.Session db, final String search, int count)
+	private List<Ship> findShips(final String search, int count)
 	{
-		return db.createQuery("from Ship as s left join fetch s.modules where s.owner= :user and (s.name like :search or s.id like :searchid)")
-				.setEntity("user", getUser())
-				.setString("search", "%" + search + "%")
-				.setString("searchid", search + "%")
+		return em.createQuery("from Ship as s left join fetch s.modules where s.owner= :user and (s.name like :search or s.id like :searchid)", Ship.class)
+				.setParameter("user", getUser())
+				.setParameter("search", "%" + search + "%")
+				.setParameter("searchid", search + "%")
 				.setMaxResults(count)
-				.list();
+				.getResultList();
 	}
 
-	private List<?> findBases(org.hibernate.Session db, final String search, int count)
+	private List<Base> findBases(final String search, int count)
 	{
-		return db.createQuery("from Base where owner= :user and (name like :search or id like :searchid)")
-				.setEntity("user", getUser())
-				.setString("search", "%" + search + "%")
-				.setString("searchid", search + "%")
+		return em.createQuery("from Base where owner= :user and (name like :search or id like :searchid)", Base.class)
+				.setParameter("user", getUser())
+				.setParameter("search", "%" + search + "%")
+				.setParameter("searchid", search + "%")
 				.setMaxResults(count)
-				.list();
+				.getResultList();
 	}
 }

@@ -1,27 +1,49 @@
 package net.driftingsouls.ds2.server.framework.pipeline.controllers;
 
-import net.driftingsouls.ds2.server.DBSingleTransactionTest;
+import net.driftingsouls.ds2.server.TestAppConfig;
 import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.entities.Rasse;
 import net.driftingsouls.ds2.server.framework.TestRequest;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Map;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
-import static org.junit.Assert.*;
-
-public class ParameterReaderTest extends DBSingleTransactionTest
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = {
+	TestAppConfig.class
+})
+@WebAppConfiguration
+public class ParameterReaderTest
 {
+	@PersistenceContext
+	private EntityManager em;
+
+	@Autowired
+	private ParameterReader reader;
+
+
 	@Test
 	public void gegebenEinStringAlsZieltypUndEineLeereRequest_readParameterAsType_sollteEinenLeerstringZurueckgeben()
 	{
 		// setup
 		Request req = new TestRequest();
-		ParameterReader reader = new ParameterReader(req, getDB());
+		reader.setRequest(req);
 		Type type = String.class;
 
 		// run
@@ -36,7 +58,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	{
 		// setup
 		Request req = new TestRequest("test", "123").addParameter("nichtRelevant", "foobar");
-		ParameterReader reader = new ParameterReader(req, getDB());
+		reader.setRequest(req);
 		Type type = String.class;
 
 		// run
@@ -51,7 +73,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	{
 		// setup
 		Request req = new TestRequest();
-		ParameterReader reader = new ParameterReader(req, getDB());
+		reader.setRequest(req);
 		Type type = new DummyParameterizedType(Map.class, String.class, String.class);
 
 		// run
@@ -60,7 +82,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 		// assert
 		assertNotNull(result);
 		assertTrue(result instanceof Map);
-		assertEquals(0, ((Map)result).size());
+		assertEquals(0, ((Map<?,?>)result).size());
 	}
 
 	@Test
@@ -68,7 +90,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	{
 		// setup
 		Request req = new TestRequest();
-		ParameterReader reader = new ParameterReader(req, getDB());
+		reader.setRequest(req);
 		Type type = Integer.TYPE;
 
 		// run
@@ -83,7 +105,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	{
 		// setup
 		Request req = new TestRequest("test", "123").addParameter("nichtRelevant", "foobar");
-		ParameterReader reader = new ParameterReader(req, getDB());
+		reader.setRequest(req);
 		Type type = Integer.TYPE;
 
 		// run
@@ -98,7 +120,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	{
 		// setup
 		Request req = new TestRequest();
-		ParameterReader reader = new ParameterReader(req, getDB());
+		reader.setRequest(req);
 		Type type = Integer.class;
 
 		// run
@@ -113,7 +135,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	{
 		// setup
 		Request req = new TestRequest("test", "123").addParameter("nichtRelevant", "foobar");
-		ParameterReader reader = new ParameterReader(req, getDB());
+		reader.setRequest(req);
 		Type type = Integer.class;
 
 		// run
@@ -128,7 +150,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	{
 		// setup
 		Request req = new TestRequest("test", "1").addParameter("nichtRelevant", "foobar");
-		ParameterReader reader = new ParameterReader(req, getDB());
+		reader.setRequest(req);
 		Type type = Boolean.TYPE;
 
 		// run
@@ -143,7 +165,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	{
 		// setup
 		Request req = new TestRequest("test", "0").addParameter("nichtRelevant", "foobar");
-		ParameterReader reader = new ParameterReader(req, getDB());
+		reader.setRequest(req);
 		Type type = Boolean.TYPE;
 
 		// run
@@ -158,7 +180,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	{
 		// setup
 		Request req = new TestRequest();
-		ParameterReader reader = new ParameterReader(req, getDB());
+		reader.setRequest(req);
 		Type type = Boolean.TYPE;
 
 		// run
@@ -173,7 +195,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	{
 		// setup
 		Request req = new TestRequest();
-		ParameterReader reader = new ParameterReader(req, getDB());
+		reader.setRequest(req);
 		Type type = Boolean.class;
 
 		// run
@@ -188,7 +210,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	{
 		// setup
 		Request req = new TestRequest("test", "0").addParameter("nichtRelevant", "foobar");
-		ParameterReader reader = new ParameterReader(req, getDB());
+		reader.setRequest(req);
 		Type type = Boolean.class;
 
 		// run
@@ -203,7 +225,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	{
 		// setup
 		Request req = new TestRequest("test", "1").addParameter("nichtRelevant", "foobar");
-		ParameterReader reader = new ParameterReader(req, getDB());
+		reader.setRequest(req);
 		Type type = Boolean.class;
 
 		// run
@@ -214,12 +236,14 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	}
 
 	@Test
+	@Transactional
 	public void gegebenEineEntityAlsZieltypUndEineRequestMitPassendemWert_readParameterAsType_sollteDenTransformiertenWertZurueckgeben()
 	{
 		// setup
-		Rasse rasse = persist(new Rasse("test", false));
+		Rasse rasse = new Rasse("test", false);
+		em.persist(rasse);
 		Request req = new TestRequest("test", Integer.toString(rasse.getId())).addParameter("nichtRelevant", "foobar");
-		ParameterReader reader = new ParameterReader(req, getDB());
+		reader.setRequest(req);
 		Type type = Rasse.class;
 
 		// run
@@ -234,7 +258,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	{
 		// setup
 		Request req = new TestRequest("test", "1").addParameter("nichtRelevant", "foobar");
-		ParameterReader reader = new ParameterReader(req, getDB());
+		reader.setRequest(req);
 		Type type = Rasse.class;
 
 		// run
@@ -249,7 +273,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	{
 		// setup
 		Request req = new TestRequest();
-		ParameterReader reader = new ParameterReader(req, getDB());
+		reader.setRequest(req);
 		Type type = Rasse.class;
 
 		// run
@@ -264,7 +288,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	{
 		// setup
 		Request req = new TestRequest("testABC", "1").addParameter("testDEF", "2").addParameter("testGHI", "3");
-		ParameterReader reader = new ParameterReader(req, getDB());
+		reader.setRequest(req);
 		Type type = new DummyParameterizedType(Map.class, String.class, String.class);
 
 		// run
@@ -285,7 +309,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	{
 		// setup
 		Request req = new TestRequest("testABC", "1").addParameter("testDEF", "2").addParameter("testGHI", "3").addParameter("test", "FEHLER");
-		ParameterReader reader = new ParameterReader(req, getDB());
+		reader.setRequest(req);
 		Type type = new DummyParameterizedType(Map.class, String.class, String.class);
 
 		// run
@@ -306,7 +330,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	{
 		// setup
 		Request req = new TestRequest("testABC", "1").addParameter("testDEF", "2").addParameter("testGHI", "3").addParameter("abc", "PASST NICHT").addParameter("def", "PASST NICHT");
-		ParameterReader reader = new ParameterReader(req, getDB());
+		reader.setRequest(req);
 		Type type = new DummyParameterizedType(Map.class, String.class, String.class);
 
 		// run
@@ -327,7 +351,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	{
 		// setup
 		Request req = new TestRequest("testABC42", "1").addParameter("testDEF42", "2").addParameter("testGHI42", "3");
-		ParameterReader reader = new ParameterReader(req, getDB());
+		reader.setRequest(req);
 		Type type = new DummyParameterizedType(Map.class, String.class, String.class);
 
 		// run
@@ -348,7 +372,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	{
 		// setup
 		Request req = new TestRequest("ABC42", "1").addParameter("DEF42", "2").addParameter("GHI42", "3");
-		ParameterReader reader = new ParameterReader(req, getDB());
+		reader.setRequest(req);
 		Type type = new DummyParameterizedType(Map.class, String.class, String.class);
 
 		// run
@@ -369,7 +393,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	{
 		// setup
 		Request req = new TestRequest("ABC", "1").addParameter("DEF", "2").addParameter("GHI", "3");
-		ParameterReader reader = new ParameterReader(req, getDB());
+		reader.setRequest(req);
 		Type type = new DummyParameterizedType(Map.class, String.class, String.class);
 
 		// run
@@ -390,7 +414,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	{
 		// setup
 		Request req = new TestRequest("testABC", "1").addParameter("testDEF", "2").addParameter("testGHI", "3");
-		ParameterReader reader = new ParameterReader(req, getDB());
+		reader.setRequest(req);
 		Type type = new DummyParameterizedType(Map.class, String.class, Integer.class);
 
 		// run
@@ -411,7 +435,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	{
 		// setup
 		Request req = new TestRequest("test2", "1").addParameter("test3", "2").addParameter("test42", "3");
-		ParameterReader reader = new ParameterReader(req, getDB());
+		reader.setRequest(req);
 		Type type = new DummyParameterizedType(Map.class, Integer.class, Integer.class);
 
 		// run
@@ -432,7 +456,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	{
 		// setup
 		Request req = new TestRequest("testTEST1", "TEST2").addParameter("testTEST2", "TEST3").addParameter("testTEST3", "TEST1");
-		ParameterReader reader = new ParameterReader(req, getDB());
+		reader.setRequest(req);
 		Type type = new DummyParameterizedType(Map.class, TestEnum.class, TestEnum.class);
 
 		// run
@@ -449,20 +473,27 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	}
 
 	@Test
+	@Transactional
 	public void gegebenEineEntityEntityMapAlsZieltypUndPassendeRequestParameter_readParameterAsType_sollteEineMapMitDenTransformiertenParameternZurueckgeben()
 	{
 		// setup
-		Rasse rasse1 = persist(new Rasse("Test1", false));
-		Rasse rasse2 = persist(new Rasse("Test2", false));
-		Rasse rasse3 = persist(new Rasse("Test3", false));
-		Medal medal1 = persist(new Medal("M1", "", ""));
-		Medal medal2 = persist(new Medal("M2", "", ""));
-		Medal medal3 = persist(new Medal("M3", "", ""));
+		Rasse rasse1 = new Rasse("Test1", false);
+		em.persist(rasse1);
+		Rasse rasse2 = new Rasse("Test2", false);
+		em.persist(rasse2);
+		Rasse rasse3 = new Rasse("Test3", false);
+		em.persist(rasse3);
+		Medal medal1 = new Medal("M1", "", "");
+		em.persist(medal1);
+		Medal medal2 = new Medal("M2", "", "");
+		em.persist(medal2);
+		Medal medal3 = new Medal("M3", "", "");
+		em.persist(medal3);
 
 		Request req = new TestRequest("test"+rasse1.getId(), Integer.toString(medal3.getId()))
 				.addParameter("test"+rasse2.getId(), Integer.toString(medal2.getId()))
 				.addParameter("test"+rasse3.getId(), Integer.toString(medal1.getId()));
-		ParameterReader reader = new ParameterReader(req, getDB());
+		reader.setRequest(req);
 		Type type = new DummyParameterizedType(Map.class, Rasse.class, Medal.class);
 
 		// run
@@ -478,7 +509,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 		assertEquals(medal1, resultMap.get(rasse3));
 	}
 
-	private static enum TestEnum {
+	private enum TestEnum {
 		TEST1,
 		TEST2,
 		TEST3

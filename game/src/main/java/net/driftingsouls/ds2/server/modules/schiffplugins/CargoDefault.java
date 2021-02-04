@@ -25,6 +25,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.services.CargoService;
 import net.driftingsouls.ds2.server.ships.SchiffEinstellungen;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -39,6 +40,12 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class CargoDefault implements SchiffPlugin {
+	private final CargoService cargoService;
+
+	public CargoDefault(CargoService cargoService) {
+		this.cargoService = cargoService;
+	}
+
 	@Action(ActionType.DEFAULT)
 	public String action(Parameters caller,
 			String max,
@@ -63,58 +70,6 @@ public class CargoDefault implements SchiffPlugin {
 
 		StringBuilder output = new StringBuilder();
 
-		/*if( act.equals("load") ) {
-			if( !max.equals("") ) {
-				load = 10000;
-			}
-
-			Cargo cargo = ship.getCargo();
-
-			int e = ship.getEnergy();
-			if( load > e ) {
-				load = e;
-			}
-			if( load > cargo.getResourceCount( Resources.LBATTERIEN ) ) {
-				load = cargo.getResourceCount( Resources.LBATTERIEN );
-			}
-			if( load < 0 ) {
-				load = 0;
-			}
-
-			output += Common._plaintitle(ship.getName())+" l&auml;dt "+load+" "+Cargo.getResourceName(Resources.BATTERIEN)+" auf<br /><br />\n";
-			cargo.addResource( Resources.BATTERIEN, load );
-			cargo.substractResource( Resources.LBATTERIEN, load );
-
-			ship.setEnergy((int)(ship.getEnergy() - load));
-			ship.setCargo(cargo);
-		}
-		else if( act.equals("unload") ) {
-			if( !max.equals("") ) {
-				unload = 10000;
-			}
-
-			int maxeps = caller.shiptype.getEps();
-
-			Cargo cargo = ship.getCargo();
-
-			int e = ship.getEnergy();
-			if( (unload + e) > maxeps ) {
-				unload = maxeps - e;
-			}
-			if( unload > cargo.getResourceCount( Resources.BATTERIEN ) ) {
-				unload = cargo.getResourceCount( Resources.BATTERIEN );
-			}
-			if( unload < 0 ) {
-				unload = 0;
-			}
-
-			output += ship.getName()+" entl&auml;dt "+unload+" "+Cargo.getResourceName(Resources.BATTERIEN)+"<br /><br />\n";
-			cargo.substractResource( Resources.BATTERIEN, unload );
-			cargo.addResource( Resources.LBATTERIEN, unload );
-
-			ship.setEnergy((int)(ship.getEnergy() + unload));
-			ship.setCargo(cargo);
-		}*/
 		if( act.equals("usenahrung"))
 		{
 			if( !max.equals("") )
@@ -253,11 +208,9 @@ public class CargoDefault implements SchiffPlugin {
 		ResourceList reslist = cargo.getResourceList();
 		Resources.echoResList( t, reslist, "schiff.cargo.reslist.list" );
 
-		t.setVar(	"schiff.cargo.empty",					Common.ln(shiptype.getCargo()-cargo.getMass()),
+		t.setVar(	"schiff.cargo.empty",					Common.ln(shiptype.getCargo()-cargoService.getMass(cargo)),
 					"global.pluginid",						pluginid,
 					"ship.id",								ship.getId(),
-					//"schiff.cargo.batterien",				cargo.hasResource( Resources.BATTERIEN ),
-					//"schiff.cargo.lbatterien",				cargo.hasResource( Resources.LBATTERIEN ),
 					"schiff.cargo.tanker",					shiptype.getDeutFactor(),
 					"schiff.cargo.tanker.autodeut",			ship.getEinstellungen().getAutoDeut(),
 					"schiff.cargo.miner",					      ship.getTypeData().getShipClass() == ShipClasses.MINER,

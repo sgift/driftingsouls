@@ -23,6 +23,7 @@ import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.Rasse;
 import net.driftingsouls.ds2.server.framework.DynamicContentManager;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Map;
@@ -33,16 +34,20 @@ import java.util.Map;
  * @author Christopher Jung
  */
 @AdminMenuEntry(category = "Asteroiden", name = "Gebäudegrafiken editieren", permission = WellKnownAdminPermission.EDIT_BUILDING_PICTURE)
+@Component
 public class EditBuildingPicture extends AbstractEditPlugin<Building> implements AdminPlugin
 {
-	public EditBuildingPicture()
+	private final Rassen races;
+
+	public EditBuildingPicture(Rassen races)
 	{
 		super(Building.class);
+		this.races = races;
 	}
 
 	@Override
 	protected void reset(StatusWriter writer, Building building) {
-		for( Rasse rasse : Rassen.get() )
+		for(Rasse rasse: races)
 		{
 			if( isResetted("rasse"+rasse.getId()) )
 			{
@@ -72,7 +77,7 @@ public class EditBuildingPicture extends AbstractEditPlugin<Building> implements
 				DynamicContentManager.remove(oldImg);
 			}
 		}
-		for( Rasse rasse : Rassen.get() )
+		for(Rasse rasse : races)
 		{
 			String rasseImg = processDynamicContent("rasse"+rasse.getId(), altBilder.get(rasse.getId()));
 			if( rasseImg != null )
@@ -94,7 +99,7 @@ public class EditBuildingPicture extends AbstractEditPlugin<Building> implements
 		form.dynamicContentField("Bild", "picture", building.getDefaultPicture());
 
 		Map<Integer,String> altBilder = building.getAlternativeBilder();
-		for( Rasse rasse : Rassen.get() )
+		for(Rasse rasse : races)
 		{
 			form.dynamicContentField(rasse.getName(), "rasse" + rasse.getId(), altBilder.get(rasse.getId())).withRemove();
 		}

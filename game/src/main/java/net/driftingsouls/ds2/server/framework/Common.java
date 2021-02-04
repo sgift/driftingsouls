@@ -702,8 +702,8 @@ public class Common {
 	 * @param text Der zu formatierende Text
 	 * @return Der formatierte Text als HTML-Code
 	 */
-	public static String _text( String text ) {
-		return _text(text, null );
+	public static String _text(BBCodeParser bbCodeParser, String text ) {
+		return _text(bbCodeParser, text, null );
 	}
 	
 	/**
@@ -715,13 +715,13 @@ public class Common {
 	 * @param ignore zu ignorierende BBCode-Tags (Namensformat: {@link net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser#parse(String, String[])})
 	 * @return Der formatierte Text als HTML-Code
 	 */
-	public static String _text( String text, String[] ignore ) {
+	public static String _text(BBCodeParser parser,  String text, String[] ignore ) {
 		if( text == null ) {
 			return null;
 		}
 		String result = escapeHTML(text);
 		
-		result = BBCodeParser.getInstance().parse(result,ignore);
+		result = parser.parse(result,ignore);
 
 		result = result.replace("\r\n", "<br />");
 		result = result.replace("\n", "<br />");
@@ -768,8 +768,8 @@ public class Common {
 	 * @return Der formatierte Text
 	 * @see #_TITLE_NAME
 	 */
-	public static String _title( String text ) {
-		return _title(text, _TITLE_NAME);
+	public static String _title(BBCodeParser bbCodeParser, String text ) {
+		return _title(bbCodeParser, text, _TITLE_NAME);
 	}
 	
 	/**
@@ -780,13 +780,13 @@ public class Common {
 	 * @return Der formatierte Text
 	 * @see #_TITLE_NAME
 	 */
-	public static String _title( String text, String[] ignore ) {
+	public static String _title(BBCodeParser parser, String text, String[] ignore ) {
 		if( text == null ) {
 			return null;
 		}
 		String result = escapeHTML(text);
 				
-		result = BBCodeParser.getInstance().parse(result,ignore);
+		result = parser.parse(result,ignore);
 
 		return result;
 	}
@@ -799,10 +799,10 @@ public class Common {
 	 * @return Der formatierte Text
 	 * @see #_plaintitle(String)
 	 */
-	public static String _titleNoFormat( String text ) {
+	public static String _titleNoFormat(BBCodeParser parser, String text ) {
 		String result = escapeHTML(text);
 		
-		result = BBCodeParser.getInstance().parse(result,new String[] {"all"});
+		result = parser.parse(result,new String[] {"all"});
 		
 		return result;
 	}
@@ -813,7 +813,7 @@ public class Common {
 	 * 
 	 * @param text der zu formatierende Text
 	 * @return Der formatierte Text
-	 * @see #_titleNoFormat(String)
+	 * @see #_titleNoFormat(BBCodeParser, String)
 	 */
 	public static String _plaintitle( String text ) {
 		return escapeHTML(text);

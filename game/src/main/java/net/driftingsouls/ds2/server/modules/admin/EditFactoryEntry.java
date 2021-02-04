@@ -26,6 +26,8 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
+
 import java.math.BigDecimal;
 
 /**
@@ -34,6 +36,7 @@ import java.math.BigDecimal;
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Items", name = "Fabrikeintrag", permission = WellKnownAdminPermission.EDIT_FACTORY_ENTRY)
+@Component
 public class EditFactoryEntry implements EntityEditor<FactoryEntry>
 {
 	@Override

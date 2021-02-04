@@ -7,15 +7,23 @@ import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.services.SchlachtErstellenService;
-import org.springframework.beans.factory.annotation.Autowired;
+import net.driftingsouls.ds2.server.services.BattleService;
+import net.driftingsouls.ds2.server.services.DismantlingService;
+import net.driftingsouls.ds2.server.services.FleetMgmtService;
+import net.driftingsouls.ds2.server.services.LocationService;
+import net.driftingsouls.ds2.server.services.NebulaService;
+import net.driftingsouls.ds2.server.services.ShipService;
+import net.driftingsouls.ds2.server.services.ShipActionService;
+import net.driftingsouls.ds2.server.services.UserService;
 import org.springframework.stereotype.Service;
 
 import org.springframework.lang.NonNull;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,14 +38,30 @@ import java.util.concurrent.ThreadLocalRandom;
 @Service
 public class SchiffFlugService
 {
-	private final SchlachtErstellenService schlachtErstellenService;
-	private final ConfigService configService;
+	@PersistenceContext
+	private EntityManager em;
 
-	@Autowired
-	public SchiffFlugService(SchlachtErstellenService schlachtErstellenService, ConfigService configService)
+	private final BattleService battleService;
+	private final ConfigService configService;
+	private final UserService userService;
+	private final ShipService shipService;
+	private final NebulaService nebulaService;
+	private final LocationService locationService;
+	private final FleetMgmtService fleetMgmtService;
+	private final DismantlingService dismantlingService;
+	private final ShipActionService shipActionService;
+
+	public SchiffFlugService(BattleService battleService, ConfigService configService, UserService userService, ShipService shipService, NebulaService nebulaService, LocationService locationService, FleetMgmtService fleetMgmtService, DismantlingService dismantlingService, ShipActionService shipActionService)
 	{
-		this.schlachtErstellenService = schlachtErstellenService;
+		this.battleService = battleService;
 		this.configService = configService;
+		this.userService = userService;
+		this.shipService = shipService;
+		this.nebulaService = nebulaService;
+		this.locationService = locationService;
+		this.fleetMgmtService = fleetMgmtService;
+		this.dismantlingService = dismantlingService;
+		this.shipActionService = shipActionService;
 	}
 
 	/**
@@ -83,15 +107,11 @@ public class SchiffFlugService
 
 
 
-	private MovementResult moveSingle(Ship ship, ShipTypeData shiptype, Offizier offizier, int direction, int distance, long adocked, boolean forceLowHeat, boolean verbose, StringBuilder out) {
+	private MovementResult moveSingle(Ship ship, ShipTypeData shiptype, Offizier offizier, int direction, int distance, long adocked, boolean forceLowHeat, StringBuilder out) {
 		boolean moved = false;
 		FlugStatus status = FlugStatus.SUCCESS;
-		org.hibernate.Session db = ContextMap.getContext().getDB();
 
 		if( ship.getEngine() <= 0 ) {
-			if(verbose) {
-				out.append("<span style=\"color:#ff0000\">Antrieb defekt</span><br />\n");
-			}
 			distance = 0;
 
 			return new MovementResult(distance, false, FlugStatus.SHIP_FAILURE);
@@ -103,9 +123,6 @@ public class SchiffFlugService
 		newe -= adocked;
 		if( shiptype.getMinCrew() > ship.getCrew() ) {
 			newe--;
-			if(verbose) {
-				out.append("<span style=\"color:red\">Geringe Besatzung erh&ouml;ht Flugkosten</span><br />\n");
-			}
 		}
 
 		// Antrieb teilweise beschaedigt?
@@ -120,11 +137,8 @@ public class SchiffFlugService
 		}
 
 		if( newe < 0 ) {
-			if(!verbose)
-			{
-				out.append(ship.getName()).append(" (").append(ship.getId()).append("): ");
-			}
-			out.append("<span style=\"color:#ff0000\">Keine Energie. Stoppe bei ").append(ship.getLocation().displayCoordinates(true)).append("</span><br />\n");
+			out.append(ship.getName()).append(" (").append(ship.getId()).append("): ");
+			out.append("<span style=\"color:#ff0000\">Keine Energie. Stoppe bei ").append(locationService.displayCoordinates(ship.getLocation(), true)).append("</span><br />\n");
 			distance = 0;
 
 			return new MovementResult(distance, false, FlugStatus.SHIP_FAILURE);
@@ -138,9 +152,6 @@ public class SchiffFlugService
 				if( newe > ship.getEnergy()-1 ) {
 					newe = ship.getEnergy() - 1;
 				}
-				if(verbose) {
-					out.append(offizier.getName()).append(" verringert Flugkosten<br />\n");
-				}
 			}
 			// Ueberhitzung
 			success = offizier.useAbility( Offizier.Ability.ING, 200 );
@@ -149,24 +160,16 @@ public class SchiffFlugService
 				if( news < ship.getHeat()+2 ) {
 					news = ship.getHeat()+2;
 				}
-				if( verbose ) {
-					out.append(offizier.getName()).append(" verringert &Uuml;berhitzung<br />\n");
-				}
-			}
-			if( verbose ) {
-				out.append(offizier.MESSAGE.getMessage().replace("\n", "<br />"));
 			}
 		}
 
 		// Grillen wir uns bei dem Flug eventuell den Antrieb?
 		if( news > 100 )  {
 			if(forceLowHeat && distance > 0) {
-				if( !verbose ) {
-					out.append(ship.getName()).append(" (").append(ship.getId()).append("): ");
-				}
+				out.append(ship.getName()).append(" (").append(ship.getId()).append("): ");
 				out.append("<span style=\"color:#ff0000\">Triebwerk w&uuml;rde &uuml;berhitzen</span><br />\n");
 
-				out.append("<span style=\"color:#ff0000\">Autopilot bricht ab bei ").append(ship.getLocation().displayCoordinates(true)).append("</span><br />\n");
+				out.append("<span style=\"color:#ff0000\">Autopilot bricht ab bei ").append(locationService.displayCoordinates(ship.getLocation(), true)).append("</span><br />\n");
 				out.append("</span></td></tr>\n");
 				distance = 0;
 				return new MovementResult(distance, false, FlugStatus.SHIP_FAILURE);
@@ -185,7 +188,7 @@ public class SchiffFlugService
 		else if( direction == 8 ) { y++; }
 		else if( direction == 9 ) { x++; y++; }
 
-		StarSystem sys = (StarSystem)db.get(StarSystem.class, ship.getSystem());
+		StarSystem sys = em.find(StarSystem.class, ship.getSystem());
 
 		if( x > sys.getWidth()) {
 			x = sys.getWidth();
@@ -208,9 +211,7 @@ public class SchiffFlugService
 			moved = true;
 
 			if( ship.getHeat() >= 100 ) {
-				if( !verbose ) {
-					out.append(ship.getName()).append(" (").append(ship.getId()).append("): ");
-				}
+				out.append(ship.getName()).append(" (").append(ship.getId()).append("): ");
 				out.append("<span style=\"color:#ff0000\">Triebwerke &uuml;berhitzt</span><br />\n");
 
 				if( (ThreadLocalRandom.current().nextInt(101)) < 3*(news-100) ) {
@@ -221,33 +222,30 @@ public class SchiffFlugService
 						ship.setEngine(0);
 					}
 					if( distance > 0 ) {
-						out.append("<span style=\"color:#ff0000\">Autopilot bricht ab bei ").append(ship.getLocation().displayCoordinates(true)).append("</span><br />\n");
+						out.append("<span style=\"color:#ff0000\">Autopilot bricht ab bei ").append(locationService.displayCoordinates(ship.getLocation(), true)).append("</span><br />\n");
 						status = FlugStatus.SHIP_FAILURE;
 						distance = 0;
 					}
 				}
 			}
 
-			Nebel.Typ nebula = Nebel.getNebula(new Location(ship.getSystem(), x, y));
+			Nebel.Typ nebula = nebulaService.getNebula(new Location(ship.getSystem(), x, y));
 			if(nebula != null) {
-				nebula.damageShip(ship, configService);
+				nebula.damageShip(ship, configService, shipService, dismantlingService);
 			}
 
 			ship.setX(x);
 			ship.setY(y);
 			ship.setEnergy(newe);
 			ship.setHeat(news);
-			if( verbose ) {
-				out.append(ship.getName()).append(" fliegt in ").append(ship.getLocation().displayCoordinates(true)).append(" ein<br />\n");
-			}
 
 			if(ship.isDestroyed()) {
-				out.append("<span style=\"color:#ff0000\">Das Schiff wurde beim Einflug in den Sektor ").append(ship.getLocation().displayCoordinates(true)).append(" durch ein Raumphänomen zerstört</span><br />\n");
+				out.append("<span style=\"color:#ff0000\">Das Schiff wurde beim Einflug in den Sektor ").append(locationService.displayCoordinates(ship.getLocation(), true)).append(" durch ein Raumphänomen zerstört</span><br />\n");
 				status = FlugStatus.SHIP_FAILURE;
 				distance = 0;
 			} else if(ship.getEngine() == 0) {
 				out.append("<span style=\"color:#ff0000\">Die Triebwerke sind zerstört</span><br />\n");
-				out.append("<span style=\"color:#ff0000\">Autopilot bricht ab bei ").append(ship.getLocation().displayCoordinates(true)).append("</span><br />\n");
+				out.append("<span style=\"color:#ff0000\">Autopilot bricht ab bei ").append(locationService.displayCoordinates(ship.getLocation(), true)).append("</span><br />\n");
 				status = FlugStatus.SHIP_FAILURE;
 				distance = 0;
 			}
@@ -284,41 +282,32 @@ public class SchiffFlugService
 	}
 
 
-	private boolean initFleetData(Ship schiff, boolean verbose, StringBuilder out) {
+	private boolean initFleetData(Ship schiff, StringBuilder out) {
 		Context context = ContextMap.getContext();
 		boolean error = false;
-		boolean firstEntry = true;
 
-		FleetMovementData fleetdata = (FleetMovementData)context.getVariable(Ships.class, "fleetdata");
+		FleetMovementData fleetdata = (FleetMovementData)context.getVariable(Ship.class, "fleetdata");
 		if( fleetdata != null ) {
 			return false;
 		}
 
 		fleetdata = new FleetMovementData();
 
-		context.putVariable(Ships.class, "fleetdata", fleetdata);
+		context.putVariable(Ship.class, "fleetdata", fleetdata);
 
-		org.hibernate.Session db = context.getDB();
-
-		List<?> fleetships = db.createQuery("from Ship s left join fetch s.modules " +
+		List<Ship> fleetships = em.createQuery("from Ship s left join fetch s.modules " +
 				"where s.id>0 and s.fleet=:fleet and s.x=:x and s.y=:y and s.system=:sys and s.owner=:owner and " +
-				"s.docked='' and s.id!=:id and s.e>0 and s.battle is null")
-				.setEntity("fleet", schiff.getFleet())
-				.setInteger("x", schiff.getX())
-				.setInteger("y", schiff.getY())
-				.setInteger("sys", schiff.getSystem())
-				.setEntity("owner", schiff.getOwner())
-				.setInteger("id", schiff.getId())
-				.list();
+				"s.docked='' and s.id!=:id and s.e>0 and s.battle is null", Ship.class)
+				.setParameter("fleet", schiff.getFleet())
+				.setParameter("x", schiff.getX())
+				.setParameter("y", schiff.getY())
+				.setParameter("sys", schiff.getSystem())
+				.setParameter("owner", schiff.getOwner())
+				.setParameter("id", schiff.getId())
+				.getResultList();
 
-		for (Object fleetship1 : fleetships)
+		for (Ship fleetship : fleetships)
 		{
-			if (verbose && firstEntry)
-			{
-				firstEntry = false;
-				out.append("<table class=\"noBorder\">\n");
-			}
-			Ship fleetship = (Ship) fleetship1;
 			ShipTypeData shiptype = fleetship.getTypeData();
 
 			StringBuilder outpb = new StringBuilder();
@@ -349,10 +338,10 @@ public class SchiffFlugService
 				if ((shiptype.getJDocks() > 0) || (shiptype.getADocks() > 0))
 				{
 
-					dockedcount = fleetship.getAnzahlGedockterUndGelandeterSchiffe();
+					dockedcount = shipService.getAnzahlGedockterUndGelandeterSchiffe(fleetship);
 					if (shiptype.getADocks() > 0)
 					{
-						adockedcount = fleetship.getDockedCount();
+						adockedcount = shipService.getDockedCount(fleetship);
 					}
 				}
 
@@ -371,36 +360,23 @@ public class SchiffFlugService
 		return error;
 	}
 
-	private FlugStatus moveFleet(int direction, boolean forceLowHeat, boolean verbose, StringBuilder out)  {
+	private FlugStatus moveFleet(int direction, boolean forceLowHeat, StringBuilder out)  {
 		FlugStatus status = FlugStatus.SUCCESS;
 
 		boolean firstEntry = true;
 		Context context = ContextMap.getContext();
-		FleetMovementData fleetdata = (FleetMovementData)context.getVariable(Ships.class, "fleetdata");
+		FleetMovementData fleetdata = (FleetMovementData)context.getVariable(Ship.class, "fleetdata");
 
 		for( Ship fleetship : fleetdata.ships.values() ) {
-			if( verbose && firstEntry ) {
-				firstEntry = false;
-				out.append("<table class=\"noBorder\">\n");
-			}
-
-			if(verbose) {
-				out.append("<tr>\n");
-				out.append("<td valign=\"top\" class=\"noBorderS\"><span style=\"color:orange; font-size:12px\"> ").append(fleetship.getName()).append(" (").append(fleetship.getId()).append("):</span></td><td class=\"noBorderS\"><span style=\"font-size:12px\">\n");
-			}
 			Offizier offizierf = fleetdata.offiziere.get(fleetship.getId());
 
 			ShipTypeData shiptype = fleetship.getTypeData();
 
-			MovementResult result = moveSingle(fleetship, shiptype, offizierf, direction, 1, fleetdata.aDockedCount.get(fleetship.getId()), forceLowHeat, verbose, out);
+			MovementResult result = moveSingle(fleetship, shiptype, offizierf, direction, 1, fleetdata.aDockedCount.get(fleetship.getId()), forceLowHeat, out);
 
 			//Einen einmal gesetzten Fehlerstatus nicht wieder aufheben
 			if( status == FlugStatus.SUCCESS ) {
 				status = result.status;
-			}
-
-			if(verbose) {
-				out.append("</span></td></tr>\n");
 			}
 		}
 
@@ -412,12 +388,11 @@ public class SchiffFlugService
 		return status;
 	}
 
-	private static void saveFleetShips() {
+	private void saveFleetShips() {
 		Context context = ContextMap.getContext();
-		FleetMovementData fleetdata = (FleetMovementData)context.getVariable(Ships.class, "fleetdata");
+		FleetMovementData fleetdata = (FleetMovementData)context.getVariable(Ship.class, "fleetdata");
 
 		if( fleetdata != null ) {
-			org.hibernate.Session db = context.getDB();
 
 			Map<Location,List<String>> shipDockIds = new HashMap<>();
 			for( Ship fleetship : fleetdata.ships.values() ) {
@@ -431,18 +406,17 @@ public class SchiffFlugService
 
 			for( Map.Entry<Location, List<String>> entry : shipDockIds.entrySet() ) {
 				final Location loc = entry.getKey();
-				List<?> dockedList = db.createQuery("from Ship s left join fetch s.modules where s.id>0 and s.docked in (:dockedIds)")
-						.setParameterList("dockedIds", entry.getValue())
-						.list();
-				for (Object aDockedList : dockedList)
+				List<Ship> dockedList = em.createQuery("from Ship s left join fetch s.modules where s.id>0 and s.docked in :dockedIds", Ship.class)
+						.setParameter("dockedIds", entry.getValue())
+						.getResultList();
+				for (Ship dockedShip: dockedList)
 				{
-					Ship dockedShip = (Ship) aDockedList;
 					dockedShip.setLocation(loc);
 				}
 			}
 		}
-		context.putVariable(Ships.class, "fleetships", null);
-		context.putVariable(Ships.class, "fleetoffiziere", null);
+		context.putVariable(Ship.class, "fleetships", null);
+		context.putVariable(Ship.class, "fleetoffiziere", null);
 	}
 
 	/**
@@ -490,14 +464,12 @@ public class SchiffFlugService
 	public FlugErgebnis fliege(Ship schiff, List<Waypoint> route, boolean forceLowHeat) {
 		StringBuilder out = new StringBuilder();
 
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
 		//We want to fly the slowest ship first, so the fleet cannot be seperated
 		if(schiff.getFleet() != null && route.size() > 1)
 		{
 			Ship moving = schiff;
 
-			List<Ship> ships = schiff.getFleet().getShips();
+			List<Ship> ships = fleetMgmtService.getShips(schiff.getFleet());
 			for(Ship ship: ships)
 			{
 				if(getSafeTravelDistance(ship) < getSafeTravelDistance(moving))
@@ -550,10 +522,10 @@ public class SchiffFlugService
 		FlugStatus status = FlugStatus.SUCCESS;
 
 		if( (shiptype.getJDocks() > 0) || (shiptype.getADocks() > 0) ) {
-			docked = schiff.getAnzahlGedockterUndGelandeterSchiffe();
+			docked = shipService.getAnzahlGedockterUndGelandeterSchiffe(schiff);
 
 			if( shiptype.getADocks() > 0 ) {
-				adocked = (int)schiff.getDockedCount();
+				adocked = (int)shipService.getDockedCount(schiff);
 			}
 		}
 
@@ -588,30 +560,30 @@ public class SchiffFlugService
 				xoffset++;
 			}
 
-			List<Ship> sectorList = Common.cast(db.createQuery("from Ship " +
-					"where owner!=:owner and system=:system and x between :lowerx and :upperx and y between :lowery and :uppery")
-					.setEntity("owner", schiff.getOwner())
-					.setInteger("system", schiff.getSystem())
-					.setInteger("lowerx", (waypoint.direction - 1) % 3 == 0 ? schiff.getX() - waypoint.distance : schiff.getX())
-					.setInteger("upperx", (waypoint.direction) % 3 == 0 ? schiff.getX() + waypoint.distance : schiff.getX())
-					.setInteger("lowery", waypoint.direction <= 3 ? schiff.getY() - waypoint.distance : schiff.getY())
-					.setInteger("uppery", waypoint.direction >= 7 ? schiff.getY() + waypoint.distance : schiff.getY())
-					.list());
+			List<Ship> sectorList = em.createQuery("from Ship " +
+					"where owner!=:owner and system=:system and x between :lowerx and :upperx and y between :lowery and :uppery", Ship.class)
+					.setParameter("owner", schiff.getOwner())
+					.setParameter("system", schiff.getSystem())
+					.setParameter("lowerx", (waypoint.direction - 1) % 3 == 0 ? schiff.getX() - waypoint.distance : schiff.getX())
+					.setParameter("upperx", (waypoint.direction) % 3 == 0 ? schiff.getX() + waypoint.distance : schiff.getX())
+					.setParameter("lowery", waypoint.direction <= 3 ? schiff.getY() - waypoint.distance : schiff.getY())
+					.setParameter("uppery", waypoint.direction >= 7 ? schiff.getY() + waypoint.distance : schiff.getY())
+					.getResultList();
 
-			Map<Location, List<Ship>> alertList = Ship.alertCheck(schiff.getOwner(), sectorList.stream().map(Ship::getLocation).toArray(Location[]::new));
+			Map<Location, List<Ship>> alertList = userService.alertCheck(schiff.getOwner(), sectorList.stream().map(Ship::getLocation).toArray(Location[]::new));
 
 			// Alle potentiell relevanten Sektoren mit EMP- oder Schadensnebeln (ok..und ein wenig ueberfluessiges Zeug bei schraegen Bewegungen) auslesen
 			Set<Nebel.Typ> nebulaTypes = new HashSet<>(Nebel.Typ.getEmpNebula());
 			nebulaTypes.addAll(Nebel.Typ.getDamageNebula());
-			List<Nebel> sectorNebelList = Common.cast(db.createQuery("from Nebel " +
-					"where type in (:nebulaTypes) and loc.system=:system and loc.x between :lowerx and :upperx and loc.y between :lowery and :uppery")
-					.setInteger("system", schiff.getSystem())
-					.setInteger("lowerx", (waypoint.direction - 1) % 3 == 0 ? schiff.getX() - waypoint.distance : schiff.getX())
-					.setInteger("upperx", (waypoint.direction) % 3 == 0 ? schiff.getX() + waypoint.distance : schiff.getX())
-					.setInteger("lowery", waypoint.direction <= 3 ? schiff.getY() - waypoint.distance : schiff.getY())
-					.setInteger("uppery", waypoint.direction >= 7 ? schiff.getY() + waypoint.distance : schiff.getY())
-					.setParameterList("nebulaTypes", nebulaTypes)
-					.list());
+			List<Nebel> sectorNebelList = em.createQuery("from Nebel " +
+					"where type in :nebulaTypes and loc.system=:system and loc.x between :lowerx and :upperx and loc.y between :lowery and :uppery", Nebel.class)
+					.setParameter("system", schiff.getSystem())
+					.setParameter("lowerx", (waypoint.direction - 1) % 3 == 0 ? schiff.getX() - waypoint.distance : schiff.getX())
+					.setParameter("upperx", (waypoint.direction) % 3 == 0 ? schiff.getX() + waypoint.distance : schiff.getX())
+					.setParameter("lowery", waypoint.direction <= 3 ? schiff.getY() - waypoint.distance : schiff.getY())
+					.setParameter("uppery", waypoint.direction >= 7 ? schiff.getY() + waypoint.distance : schiff.getY())
+					.setParameter("nebulaTypes", nebulaTypes)
+					.getResultList();
 
 			Set<Location> empLocations = new HashSet<>();
 			Set<Location> damageLocations = new HashSet<>();
@@ -630,7 +602,7 @@ public class SchiffFlugService
 			}
 
 			if( schiff.getFleet() != null ) {
-				initFleetData(schiff, false, out);
+				initFleetData(schiff, out);
 			}
 
 			long starttime = System.currentTimeMillis();
@@ -641,8 +613,8 @@ public class SchiffFlugService
 			while( waypoint.distance > 0 ) {
 				final Location nextLocation = new Location(schiff.getSystem(),schiff.getX()+xoffset, schiff.getY()+yoffset);
 
-				if(alertList.containsKey(nextLocation) && user.isNoob()){
-					List<Ship> attackers = Ship.alertCheck(user, nextLocation)
+				if(alertList.containsKey(nextLocation) && userService.isNoob(user)){
+					List<Ship> attackers = userService.alertCheck(user, nextLocation)
 							.values().iterator().next();
 					if( !attackers.isEmpty() ) {
 						out.append("<span style=\"color:#ff0000\">Sie stehen unter dem Schutz des Commonwealth.</span><br />Ihnen ist der Einflug in gesicherte Gebiete untersagt<br />\n");
@@ -654,7 +626,7 @@ public class SchiffFlugService
 
 				// Schauen wir mal ob wir vor Alarm warnen muessen
 				if( !inAlarmRotEinfliegen && alertList.containsKey(nextLocation) ) {
-					List<Ship> attackers = Ship.alertCheck(user, nextLocation)
+					List<Ship> attackers = userService.alertCheck(user, nextLocation)
 							.values().iterator().next();
 					if( !attackers.isEmpty() ) {
 						out.append("<span style=\"color:#ff0000\">Feindliche Schiffe in Alarmbereitschaft im n&auml;chsten Sektor geortet</span><br />\n");
@@ -686,7 +658,7 @@ public class SchiffFlugService
 				// ACHTUNG: Ob das ganze hier noch sinnvoll funktioniert, wenn distance > 1 ist, ist mehr als fraglich...
 				if( empLocations.contains(nextLocation) &&
 						(ThreadLocalRandom.current().nextDouble() < schiff.getTypeData().getLostInEmpChance()) ) {
-					Nebel.Typ nebel = Nebel.getNebula(schiff.getLocation());
+					Nebel.Typ nebel = nebulaService.getNebula(schiff.getLocation());
 					if( nebel == Nebel.Typ.STRONG_EMP ) {
 						waypoint.direction = ThreadLocalRandom.current().nextInt(1,10);
 					}
@@ -711,18 +683,18 @@ public class SchiffFlugService
 						tmpxoff++;
 					}
 
-					alertList.putAll(Ship.alertCheck(schiff.getOwner(), new Location(schiff.getSystem(), schiff.getX() + tmpxoff, schiff.getY() + tmpyoff)));
+					alertList.putAll(userService.alertCheck(schiff.getOwner(), new Location(schiff.getSystem(), schiff.getX() + tmpxoff, schiff.getY() + tmpyoff)));
 				}
 
 				waypoint.distance--;
-				MovementResult result = moveSingle(schiff, shiptype, offizier, waypoint.direction, waypoint.distance, adocked, forceLowHeat, false, out);
+				MovementResult result = moveSingle(schiff, shiptype, offizier, waypoint.direction, waypoint.distance, adocked, forceLowHeat, out);
 				status = result.status;
 				waypoint.distance = result.distance;
 
 				if( result.moved ) {
 					// Jetzt, da sich unser Schiff korrekt bewegt hat, fliegen wir auch die Flotte ein stueck weiter
 					if( schiff.getFleet() != null ) {
-						FlugStatus fleetResult = moveFleet(waypoint.direction, forceLowHeat, false, out);
+						FlugStatus fleetResult = moveFleet(waypoint.direction, forceLowHeat, out);
 						if( fleetResult != FlugStatus.SUCCESS  ) {
 							status = fleetResult;
 							waypoint.distance = 0;
@@ -734,11 +706,11 @@ public class SchiffFlugService
 					if( alertList.containsKey(schiff.getLocation()) ) {
 						schiff.setDocked("");
 						if( docked != 0 ) {
-							for( Ship dship : schiff.getDockedShips() )
+							for( Ship dship : shipService.getDockedShips(schiff) )
 							{
 								dship.setLocation(schiff);
 							}
-							for( Ship dship : schiff.getLandedShips() )
+							for( Ship dship : shipService.getLandedShips(schiff) )
 							{
 								dship.setLocation(schiff);
 							}
@@ -762,25 +734,25 @@ public class SchiffFlugService
 		} // while !error && route.size() > 0
 
 		if( moved ) {
-			out.append("Ankunft bei ").append(schiff.getLocation().displayCoordinates(true)).append("<br />\n");
+			out.append("Ankunft bei ").append(locationService.displayCoordinates(schiff.getLocation(), true)).append("<br />\n");
 
 			schiff.setDocked("");
 			if( docked != 0 ) {
-				for (Ship dockedShip : schiff.getGedockteUndGelandeteSchiffe())
+				for (Ship dockedShip : shipService.getGedockteUndGelandeteSchiffe(schiff))
 				{
 					dockedShip.setLocation(schiff);
 				}
 			}
             if(schiff.getFleet() != null)
             {
-                for(Ship ship : schiff.getFleet().getShips())
+                for(Ship ship : fleetMgmtService.getShips(schiff.getFleet()))
                 {
-                    ship.recalculateShipStatus(false);
+                    shipActionService.recalculateShipStatus(ship, false);
                 }
             }
             else
             {
-                schiff.recalculateShipStatus(false);
+				shipActionService.recalculateShipStatus(schiff,false);
             }
 		}
 		saveFleetShips();
@@ -791,7 +763,7 @@ public class SchiffFlugService
 	private void handleAlert(Ship schiff)
 	{
 		User owner = schiff.getOwner();
-		List<Ship> attackShips = Ship.alertCheck(owner, schiff.getLocation()).values().iterator().next();
+		List<Ship> attackShips = userService.alertCheck(owner, schiff.getLocation()).values().iterator().next();
 
 		if(attackShips.isEmpty())
 		{
@@ -802,24 +774,23 @@ public class SchiffFlugService
 		{
 			if(ship.getBattle() != null)
 			{
-				org.hibernate.Session db = ContextMap.getContext().getDB();
-				BattleShip bship = (BattleShip)db.get(BattleShip.class, ship.getId());
+				BattleShip bship = em.find(BattleShip.class, ship.getId());
 				int oside = (bship.getSide() + 1) % 2 + 1;
 				Battle battle = ship.getBattle();
-				battle.load(schiff.getOwner(), null, null, oside);
+				battleService.load(battle, schiff.getOwner(), null, null, oside);
 
-				for(Ship aship: schiff.getDockedShips())
+				for(Ship aship: shipService.getDockedShips(schiff))
 				{
-					battle.addShip(schiff.getOwner().getId(), aship.getId());
+					battleService.addShip(battle, schiff.getOwner().getId(), aship.getId());
 				}
-				battle.addShip(schiff.getOwner().getId(), schiff.getId());
+				battleService.addShip(battle, schiff.getOwner().getId(), schiff.getId());
 
 				return;
 			}
 		}
 
 		Ship ship = attackShips.get(0); //Take some ship .. no special mechanism here.
-		schlachtErstellenService.erstelle(ship.getOwner(), ship, schiff, true);
+		battleService.erstelle(ship.getOwner(), ship, schiff, true);
 	}
 
 	/**

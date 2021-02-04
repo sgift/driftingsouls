@@ -21,7 +21,11 @@ package net.driftingsouls.ds2.server.config;
 import net.driftingsouls.ds2.server.entities.Rasse;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.Iterator;
 
 /**
@@ -29,31 +33,19 @@ import java.util.Iterator;
  *
  * @author Christopher Jung
  */
+@Service
+@Lazy
 public class Rassen implements Iterable<Rasse>
 {
-	private static final Rassen rassenList = new Rassen();
-
-	private Rassen()
-	{
-		// EMPTY
-	}
-
-	/**
-	 * Liefert eine Instanz der Rassenliste.
-	 *
-	 * @return Eine Instanz der Rassenliste
-	 */
-	public static Rassen get()
-	{
-		return rassenList;
-	}
+	@PersistenceContext
+	private EntityManager em;
 
 	@NotNull
 	@SuppressWarnings("unchecked")
 	@Override
 	public Iterator<Rasse> iterator()
 	{
-		return ContextMap.getContext().getDB().createCriteria(Rasse.class).list().iterator();
+		return em.createQuery("from Rasse").getResultList().iterator();
 	}
 
 	/**
@@ -64,6 +56,6 @@ public class Rassen implements Iterable<Rasse>
 	 */
 	public Rasse rasse(int id)
 	{
-		return (Rasse) ContextMap.getContext().getDB().get(Rasse.class, id);
+		return em.find(Rasse.class, id);
 	}
 }

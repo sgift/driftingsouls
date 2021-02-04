@@ -23,11 +23,11 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipType;
+import org.springframework.stereotype.Component;
 
-import java.io.IOException;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 
 /**
@@ -36,14 +36,13 @@ import java.util.List;
  *
  */
 @AdminMenuEntry(category="GTU", name="Preisliste", permission = WellKnownAdminPermission.GTU_PRICES)
+@Component
 public class GtuPrices implements AdminPlugin {
+	@PersistenceContext
+	private EntityManager em;
 
 	@Override
 	public void output(StringBuilder echo) {
-		Context context = ContextMap.getContext();
-
-		org.hibernate.Session db = context.getDB();
-
 		echo.append("<div class='gfxbox' style='width:700px'>");
 		echo.append("<table>\n");
 		echo.append("<thead>");
@@ -54,15 +53,13 @@ public class GtuPrices implements AdminPlugin {
 		echo.append("<tbody>");
 		echo.append("<tr><td colspan=\"4\">Artefakte</td></tr>\n");
 
-		List<?> rt = db
-			.createQuery("select type,sum(preis)/count(preis) as avprice, count(preis) as menge " +
-					"from StatGtu " +
-					"where mType=2 " +
-					"group by type order by sum(preis)/count(preis) desc" )
-			.list();
-		for( Object obj : rt )
+		List<Object[]> rt = em.createQuery("select type,sum(preis)/count(preis) as avprice, count(preis) as menge " +
+			"from StatGtu " +
+			"where mType=2 " +
+			"group by type order by sum(preis)/count(preis) desc", Object[].class)
+			.getResultList();
+		for(Object[] row: rt)
 		{
-			Object[] row = (Object[])obj;
 
 			echo.append("<tr><td>");
 			Cargo cargo = new Cargo( Cargo.Type.AUTO, (String)row[0]);
@@ -89,15 +86,13 @@ public class GtuPrices implements AdminPlugin {
 
 		//Schiffe
 		echo.append("<tr><td colspan=\"4\">Schiffe</td></tr>\n");
-		List<?> st = db
-			.createQuery("select st,sum(sg.preis)/count(sg.preis) as avprice, count(sg.preis) as menge "+
+		List<Object[]> st = em.createQuery("select st,sum(sg.preis)/count(sg.preis) as avprice, count(sg.preis) as menge "+
 					"from ShipType st, StatGtu sg "+
 					"where st.id=sg.type and sg.mType=1 "+
-					"group by sg.type order by sum(sg.preis)/count(sg.preis) desc" )
-			.list();
-		for( Object obj : st )
+					"group by sg.type order by sum(sg.preis)/count(sg.preis) desc",Object[].class)
+			.getResultList();
+		for(Object[] row: st)
 		{
-			Object[] row = (Object[])obj;
 			ShipType type = (ShipType)row[0];
 
 			echo.append("<tr><td></td><td><a class=\"forschinfo\" " + "href=\"./ds?module=schiffinfo&sess=$sess&ship=").append(type.getId()).append("\">").append(type.getNickname()).append("</a> (").append(type.getId()).append(")</td>\n");

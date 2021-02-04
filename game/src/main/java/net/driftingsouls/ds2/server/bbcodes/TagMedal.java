@@ -19,7 +19,7 @@
 package net.driftingsouls.ds2.server.bbcodes;
 
 import net.driftingsouls.ds2.server.config.Medal;
-import net.driftingsouls.ds2.server.config.Medals;
+import net.driftingsouls.ds2.server.services.MedalService;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeFunction;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -30,6 +30,12 @@ import org.apache.commons.lang3.math.NumberUtils;
  */
 public class TagMedal implements BBCodeFunction
 {
+	private final MedalService medalService;
+
+	public TagMedal(MedalService medalService) {
+		this.medalService = medalService;
+	}
+
 	@Override
 	public String handleMatch(String content, String... values)
 	{
@@ -38,7 +44,7 @@ public class TagMedal implements BBCodeFunction
 			return "Unbekannter Orden (" + content + ")";
 		}
 
-		Medal medal = Medals.get().medal(Integer.parseInt(content));
+		Medal medal = medalService.medal(Integer.parseInt(content));
 
 		if (medal == null)
 		{

@@ -61,7 +61,7 @@ public class UnmodifiableCargo extends Cargo {
 
 	@SuppressWarnings("MethodDoesntCallSuperMethod")
 	@Override
-	public Object clone() {
+	public Cargo clone() {
 		return innerCargo.clone();
 	}
 
@@ -70,14 +70,9 @@ public class UnmodifiableCargo extends Cargo {
 		return innerCargo.compare(cargoObj, echoBothSides);
 	}
   
-  @Override
-  public ResourceList compare(Cargo cargoObj, boolean echoBothSides, boolean baukosten) {
-    return innerCargo.compare(cargoObj, echoBothSides, false, baukosten);
-  }
-
 	@Override
-	public Cargo cutCargo(long mass) {
-		throw new UnsupportedOperationException("cutCargo nicht erlaubt");
+	public ResourceList compare(Cargo cargoObj, boolean echoBothSides, boolean baukosten) {
+	return innerCargo.compare(cargoObj, echoBothSides, false, baukosten);
 	}
 
 	@Override
@@ -98,11 +93,6 @@ public class UnmodifiableCargo extends Cargo {
 	}
 
 	@Override
-	public long getMass() {
-		return innerCargo.getMass();
-	}
-
-	@Override
 	public long getResourceCount(ResourceID resourceid) {
 		return innerCargo.getResourceCount(resourceid);
 	}
@@ -113,8 +103,8 @@ public class UnmodifiableCargo extends Cargo {
 	}
 
 	@Override
-	public List<ItemCargoEntry<Item>> getItems() {
-		return innerCargo.getItems();
+	public List<ItemCargoEntry<Item>> getItemEntries() {
+		return innerCargo.getItemEntries();
 	}
 
 	@Override
@@ -173,7 +163,7 @@ public class UnmodifiableCargo extends Cargo {
 	}
 
 	@Override
-	protected List<Long[]> getItemArray() {
+	public List<Long[]> getItemArray() {
 		return new ArrayList<>(innerCargo.getItemArray());
 	}
 

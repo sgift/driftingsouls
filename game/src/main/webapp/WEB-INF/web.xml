@@ -49,11 +49,6 @@
 	</filter>
 
 	<filter>
-		<filter-name>OpenSessionInView</filter-name>
-		<filter-class>net.driftingsouls.ds2.server.framework.db.HibernateSessionRequestFilter</filter-class>
-	</filter>
-
-	<filter>
 		<filter-name>Context</filter-name>
 		<filter-class>net.driftingsouls.ds2.server.framework.ContextFilter</filter-class>
 	</filter>
@@ -65,11 +60,6 @@
 
 	<filter-mapping>
 		<filter-name>ErrorHandler</filter-name>
-		<url-pattern>/*</url-pattern>
-	</filter-mapping>
-
-	<filter-mapping>
-		<filter-name>OpenSessionInView</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
 

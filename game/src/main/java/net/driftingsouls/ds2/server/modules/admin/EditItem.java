@@ -43,13 +43,18 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import net.driftingsouls.ds2.server.modules.admin.editoren.MapEntryRef;
+import net.driftingsouls.ds2.server.services.ShipService;
+import net.driftingsouls.ds2.server.services.ShipActionService;
 import net.driftingsouls.ds2.server.ships.SchiffstypModifikation;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import org.hibernate.Session;
 
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -60,8 +65,19 @@ import java.util.stream.Collectors;
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Items", name = "Item", permission = WellKnownAdminPermission.EDIT_ITEM)
+@Component
 public class EditItem implements EntityEditor<Item>
 {
+	@PersistenceContext
+	private EntityManager em;
+
+	private final ShipService shipService;
+	private final ShipActionService shipActionService;
+
+	public EditItem(ShipService shipService, ShipActionService shipActionService) {
+		this.shipService = shipService;
+		this.shipActionService = shipActionService;
+	}
 
 	@Override
 	public Class<Item> getEntityType()
@@ -85,11 +101,9 @@ public class EditItem implements EntityEditor<Item>
 		form.field("Unbekanntes Item?", Boolean.class, Item::isUnknownItem, Item::setUnknownItem);
 		form.field("Darf auf Basen spawnen", Boolean.class, Item::isSpawnableRess, Item::setSpawnableRess);
 		form.textArea("Beschreibung", Item::getDescription, Item::setDescription);
-		form.label("~ im Spielerbesitz", (item) -> {
-			Session db = ContextMap.getContext().getDB();
-			StatCargo statCargo = (StatCargo) db.createQuery("from StatCargo order by tick desc").setMaxResults(1).uniqueResult();
-			if( statCargo == null )
-			{
+		form.label("~ im Spielerbesitz", item -> {
+			StatCargo statCargo = em.createQuery("from StatCargo order by tick desc", StatCargo.class).setMaxResults(1).getSingleResult();
+			if( statCargo == null ) {
 				return 0;
 			}
 			return statCargo.getCargo().getResourceCount(new ItemID(item));
@@ -110,7 +124,7 @@ public class EditItem implements EntityEditor<Item>
 		form.ifEntityClass(Schiffsbauplan.class).field("Werftslots", Integer.class, Schiffsbauplan::getWerftSlots, Schiffsbauplan::setWerftSlots);
 		form.ifEntityClass(Schiffsbauplan.class).multiSelection("Forschungen", Forschung.class, Schiffsbauplan::getBenoetigteForschungen, Schiffsbauplan::setBenoetigteForschungen);
 
-		List<ModuleSlot> list = Common.cast(ContextMap.getContext().getDB().createCriteria(ModuleSlot.class).list());
+		List<ModuleSlot> list = em.createQuery("from ModuleSlot", ModuleSlot.class).getResultList();
 		form.ifEntityClass(Schiffsmodul.class).multiSelection("Slots", String.class, Schiffsmodul::getSlots, Schiffsmodul::setSlots)
 				.withOptions(list.stream().collect(Collectors.toMap(ModuleSlot::getSlotType, ModuleSlot::getName)));
 		form.ifEntityClass(Schiffsmodul.class).field("Modifikation", SchiffstypModifikation.class, Schiffsmodul::getMods, Schiffsmodul::setMods).dbColumn(Schiffsmodul_.mods);
@@ -136,8 +150,8 @@ public class EditItem implements EntityEditor<Item>
 			return;
 		}
 
-		Ship ship = (Ship) ContextMap.getContext().getDB().get(Ship.class, shipId);
-        boolean modules = ship.getModules().length > 0;
+		Ship ship = em.find(Ship.class, shipId);
+        boolean modules = ship.getModuleEntries().length > 0;
         // Clone bei Modulen notwendig. Sonst werden auch die gespeicherten neu berechnet.
         ShipTypeData oldTypeData;
         try{
@@ -147,12 +161,12 @@ public class EditItem implements EntityEditor<Item>
         {
             oldTypeData = ship.getTypeData();
         }
-		ship.recalculateModules();
-		ship.postUpdateShipType(oldTypeData);
+		shipService.recalculateModules(ship);
+		shipService.postUpdateShipType(ship, oldTypeData);
 
 		if (ship.getId() >= 0)
 		{
-			ship.recalculateShipStatus();
+			shipActionService.recalculateShipStatus(ship);
 		}
 	}
 }

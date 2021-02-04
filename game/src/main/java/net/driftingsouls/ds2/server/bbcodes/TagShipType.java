@@ -22,7 +22,7 @@ import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeFunction;
-import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.services.ShipService;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -33,6 +33,12 @@ import org.apache.commons.lang3.math.NumberUtils;
  */
 public class TagShipType implements BBCodeFunction
 {
+	private final ShipService shipService;
+
+	public TagShipType(ShipService shipService) {
+		this.shipService = shipService;
+	}
+
 	@Override
 	public String handleMatch(String content, String... values)
 	{
@@ -43,7 +49,7 @@ public class TagShipType implements BBCodeFunction
 			return "Unbekannter Schiffstyp (" + content + ")";
 		}
 
-		ShipTypeData shiptype = Ship.getShipType(Integer.parseInt(content));
+		ShipTypeData shiptype = shipService.getShipType(Integer.parseInt(content));
 
 		User user = (User) ContextMap.getContext().getActiveUser();
 

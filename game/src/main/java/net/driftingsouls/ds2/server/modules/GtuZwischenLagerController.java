@@ -26,6 +26,7 @@ import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
@@ -35,11 +36,14 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.services.CargoService;
 import net.driftingsouls.ds2.server.services.HandelspostenService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 
 /**
@@ -64,13 +68,20 @@ public class GtuZwischenLagerController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
 	private final HandelspostenService handelspostenService;
+	private final BBCodeParser bbCodeParser;
+	private final CargoService cargoService;
+
+	@PersistenceContext
+	private EntityManager em;
 
 	@Autowired
 	public GtuZwischenLagerController(TemplateViewResultFactory templateViewResultFactory,
-									  HandelspostenService handelspostenService)
+		HandelspostenService handelspostenService, BBCodeParser bbCodeParser, CargoService cargoService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
 		this.handelspostenService = handelspostenService;
+		this.bbCodeParser = bbCodeParser;
+		this.cargoService = cargoService;
 
 		setPageTitle("GTU-Lager");
 	}
@@ -93,7 +104,6 @@ public class GtuZwischenLagerController extends Controller
 	@Action(ActionType.DEFAULT)
 	public Object transportOwnAction(Ship ship, @UrlParam(name = "entry") GtuZwischenlager tradeentry, Ship handelsposten)
 	{
-		org.hibernate.Session db = getDB();
 		User user = (User) this.getUser();
 
 		validiereSchiff(ship);
@@ -127,7 +137,7 @@ public class GtuZwischenLagerController extends Controller
 		ShipTypeData shiptype = ship.getTypeData();
 
 		Cargo shipCargo = new Cargo(ship.getCargo());
-		long freecargo = shiptype.getCargo() - shipCargo.getMass();
+		long freecargo = shiptype.getCargo() - cargoService.getMass(shipCargo);
 
 		Cargo transportcargo;
 		if (freecargo <= 0)
@@ -135,9 +145,9 @@ public class GtuZwischenLagerController extends Controller
 			addError("Sie verf&uuml;gen nicht über genug freien Cargo um Waren abholen zu k&ouml;nnen");
 			return new RedirectViewResult("viewEntry");
 		}
-		else if (freecargo < tradecargo.getMass())
+		else if (freecargo < cargoService.getMass(tradecargo))
 		{
-			transportcargo = new Cargo(tradecargo).cutCargo(freecargo);
+			transportcargo = cargoService.cutCargo(new Cargo(tradecargo), freecargo);
 		}
 		else
 		{
@@ -154,7 +164,7 @@ public class GtuZwischenLagerController extends Controller
 
 		if (tradecargoneed.isEmpty() && owncargo.isEmpty())
 		{
-			db.delete(tradeentry);
+			em.remove(tradeentry);
 
 			TemplateEngine t = templateViewResultFactory.createFor(this);
 			t.setVar("global.shipid", ship.getId());
@@ -215,7 +225,7 @@ public class GtuZwischenLagerController extends Controller
 
 		if( redirect != null )
 		{
-			t.setVar("global.message", Common._text(redirect.getMessage()));
+			t.setVar("global.message", Common._text(bbCodeParser, redirect.getMessage()));
 		}
 		t.setVar("global.shipid", ship.getId());
 		t.setVar("global.handelsposten", handelsposten.getId());
@@ -243,7 +253,7 @@ public class GtuZwischenLagerController extends Controller
 		}
 
 		t.setVar("tradeentry.id", tradeentry.getId(),
-				"tradeentry.partner", Common._title(tradepartner.getName()),
+				"tradeentry.partner", Common._title(bbCodeParser, tradepartner.getName()),
 				"tradeentry.missingcargo", "",
 				"tradeentry.waren", "");
 
@@ -271,7 +281,6 @@ public class GtuZwischenLagerController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine defaultAction(Ship ship, Ship handelsposten)
 	{
-		org.hibernate.Session db = getDB();
 		User user = (User) this.getUser();
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 
@@ -286,13 +295,12 @@ public class GtuZwischenLagerController extends Controller
 
 		validiereHandelspostenKontaktierbar(handelsposten, ship);
 
-		List<?> tradelist = db.createQuery("from GtuZwischenlager where posten=:posten and (user1= :user or user2= :user)")
-				.setEntity("posten", handelsposten)
-				.setEntity("user", user)
-				.list();
-		for (Object aTradelist : tradelist)
+		List<GtuZwischenlager> tradelist = em.createQuery("from GtuZwischenlager where posten=:posten and (user1= :user or user2= :user)", GtuZwischenlager.class)
+				.setParameter("posten", handelsposten)
+				.setParameter("user", user)
+				.getResultList();
+		for (GtuZwischenlager tradeentry : tradelist)
 		{
-			GtuZwischenlager tradeentry = (GtuZwischenlager) aTradelist;
 
 			User tradepartner = tradeentry.getUser2();
 			Cargo tradecargo = tradeentry.getCargo1();
@@ -308,7 +316,7 @@ public class GtuZwischenLagerController extends Controller
 			}
 
 			t.setVar("list.entryid", tradeentry.getId(),
-					"list.user", Common._title(tradepartner.getName()),
+					"list.user", Common._title(bbCodeParser, tradepartner.getName()),
 					"res.list", "",
 					"list.cargoreq.list", "",
 					"list.status", "bereit");
@@ -317,7 +325,7 @@ public class GtuZwischenLagerController extends Controller
 			ResourceList reslist = tradecargo.getResourceList();
 			Resources.echoResList(t, reslist, "res.list");
 
-			List<ItemCargoEntry<Item>> itemlist = tradecargo.getItems();
+			List<ItemCargoEntry<Item>> itemlist = tradecargo.getItemEntries();
 			for (ItemCargoEntry<Item> item : itemlist)
 			{
 				Item itemobject = item.getItem();

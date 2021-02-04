@@ -10,8 +10,8 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.BasicUser;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
-import org.hibernate.Session;
 
+import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,18 +24,18 @@ import java.util.TreeMap;
 public class AdminFieldView implements FieldView
 {
 	private final Field field;
-	private final Session db;
+	private final EntityManager em;
 
 	/**
 	 * Legt eine neue Sicht an.
 	 *
-	 * @param db Ein aktives Hibernate Sessionobjekt.
+	 * @param em Ein aktiver EntityManager.
 	 * @param position Der gesuchte Sektor.
 	 */
-	public AdminFieldView(Session db, Location position)
+	public AdminFieldView(EntityManager em, Location position)
 	{
-		this.field = new Field(db, position);
-		this.db = db;
+		this.field = new Field(em, position);
+		this.em = em;
 	}
 
 	@Override
@@ -62,7 +62,7 @@ public class AdminFieldView implements FieldView
 				continue;
 			}
 
-			final ShipType type = (ShipType) db.get(ShipType.class, viewableShip.getType());
+			final ShipType type = em.find(ShipType.class, viewableShip.getType());
 			final User owner = viewableShip.getOwner();
 
 			if (!ships.containsKey(owner))

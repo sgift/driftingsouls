@@ -29,8 +29,12 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.RedirectViewR
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.services.ShipActionService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 /**
  * Transfer von Crew von Schiffen zu Schiffen/Basen (und umgekehrt).
@@ -40,6 +44,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Module(name = "crewtausch")
 public class CrewtauschController extends Controller
 {
+	@PersistenceContext
+	private EntityManager em;
+
+	private final ShipActionService shipActionService;
+
 	/**
 	 * Das Ziel fuer einen Crewtransfer.
 	 */
@@ -98,17 +107,19 @@ public class CrewtauschController extends Controller
 	 */
 	private static class ShipTarget implements Target
 	{
+		private final ShipActionService shipActionService;
 		private final Ship ship;
 
-		ShipTarget(Ship ship)
+		ShipTarget(ShipActionService shipActionService, Ship ship)
 		{
+			this.shipActionService = shipActionService;
 			this.ship = ship;
 		}
 
 		@Override
 		public void finishTransfer()
 		{
-			ship.recalculateShipStatus();
+			shipActionService.recalculateShipStatus(ship);
 		}
 
 		@Override
@@ -206,8 +217,9 @@ public class CrewtauschController extends Controller
 	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
-	public CrewtauschController(TemplateViewResultFactory templateViewResultFactory)
+	public CrewtauschController(ShipActionService shipActionService, TemplateViewResultFactory templateViewResultFactory)
 	{
+		this.shipActionService = shipActionService;
 		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("Crewtransfer");
@@ -232,13 +244,12 @@ public class CrewtauschController extends Controller
 
 	private Target ladeCrewtauschZiel(String mode, int tar, Ship ship)
 	{
-		org.hibernate.Session db = getDB();
 		Target datat;
 
 		switch (mode)
 		{
 			case "ss":
-				Ship aship = (Ship) db.get(Ship.class, tar);
+				Ship aship = em.find(Ship.class, tar);
 
 				if ((aship == null) || (aship.getId() < 0) || !ship.getLocation().sameSector(0, aship, 0))
 				{
@@ -253,10 +264,10 @@ public class CrewtauschController extends Controller
 				}
 
 
-				datat = new ShipTarget(aship);
+				datat = new ShipTarget(shipActionService, aship);
 				break;
 			case "sb":
-				Base abase = (Base) db.get(Base.class, tar);
+				Base abase = em.find(Base.class, tar);
 
 				if ((abase == null) || !ship.getLocation().sameSector(0, abase, abase.getSize()))
 				{
@@ -312,7 +323,7 @@ public class CrewtauschController extends Controller
 			ship.setCrew(ship.getCrew() - send);
 			datat.setCrew(datat.getCrew() + send);
 			datat.finishTransfer();
-			ship.recalculateShipStatus();
+			shipActionService.recalculateShipStatus(ship);
 		}
 
 		return new RedirectViewResult("default").withMessage(message);
@@ -355,7 +366,7 @@ public class CrewtauschController extends Controller
 			ship.setCrew(ship.getCrew() + rec);
 			datat.setCrew(datat.getCrew() - rec);
 			datat.finishTransfer();
-			ship.recalculateShipStatus();
+			shipActionService.recalculateShipStatus(ship);
 		}
 
 		return new RedirectViewResult("default").withMessage(message);

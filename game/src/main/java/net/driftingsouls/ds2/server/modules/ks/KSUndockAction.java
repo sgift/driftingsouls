@@ -22,6 +22,10 @@ import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.services.BattleService;
+import net.driftingsouls.ds2.server.services.ShipService;
+import net.driftingsouls.ds2.server.services.ShipActionService;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
@@ -29,19 +33,22 @@ import java.io.IOException;
  * Dockt das Schiff von seinem Mutterschiff ab.
  *
  */
+@Component
 public class KSUndockAction extends BasicKSAction {
-    /**
-     * Konstruktor.
-     *
-     */
-    public KSUndockAction() {
+    private final ShipService shipService;
+    private final ShipActionService shipActionService;
+
+    public KSUndockAction(BattleService battleService, ShipService shipService, ShipActionService shipActionService) {
+        super(battleService, null);
+        this.shipService = shipService;
+        this.shipActionService = shipActionService;
     }
 
     @Override
     public Result validate(Battle battle) {
         BattleShip ownShip = battle.getOwnShip();
 
-        if(ownShip.getShip().getBaseShip() != null)
+        if(shipService.getBaseShip(ownShip.getShip()) != null)
         {
             return Result.OK;
         }
@@ -57,7 +64,7 @@ public class KSUndockAction extends BasicKSAction {
         }
 
         if( this.validate(battle) != Result.OK ) {
-            battle.logme( "Validation failed\n" );
+            getBattleService().logme(battle,  "Validation failed\n" );
             return Result.ERROR;
         }
 
@@ -67,17 +74,17 @@ public class KSUndockAction extends BasicKSAction {
 
         if(ownShip.getShip().isLanded())
         {
-            ownShip.getShip().getBaseShip().start(ownShip.getShip());
+            shipService.start(shipService.getBaseShip(ownShip.getShip()), ownShip.getShip());
         }
         else
         {
-            ownShip.getShip().getBaseShip().undock(ownShip.getShip());
+            shipService.undock(shipService.getBaseShip(ownShip.getShip()), ownShip.getShip());
         }
 
-        battle.logme("Die "+Battle.log_shiplink(ownShip.getShip())+" wurde abgedockt");
-		battle.log(new SchlachtLogAktion(battle.getOwnSide(), "Die "+Battle.log_shiplink(ownShip.getShip())+" wurde abgedockt"));
+        getBattleService().logme(battle, "Die "+Battle.log_shiplink(ownShip.getShip())+" wurde abgedockt");
+        getBattleService().log(battle, new SchlachtLogAktion(battle.getOwnSide(), "Die "+Battle.log_shiplink(ownShip.getShip())+" wurde abgedockt"));
 
-        ownShip.getShip().recalculateShipStatus();
+        shipActionService.recalculateShipStatus(ownShip.getShip());
 
         return Result.OK;
     }

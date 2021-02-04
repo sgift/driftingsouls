@@ -25,12 +25,14 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
 
 /**
  * Aktualisierungstool fuer die Konfiguration der dynamischen JNs.
  *
  */
 @AdminMenuEntry(category = "Dyn JN", name = "Config", permission = WellKnownAdminPermission.EDIT_DYN_JN)
+@Component
 public class EditDynJNConfig implements EntityEditor<DynamicJumpNodeConfig>
 {
 	@Override

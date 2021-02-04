@@ -25,9 +25,8 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.xml.sax.SAXException;
+import net.driftingsouls.ds2.server.services.BattleService;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -38,25 +37,28 @@ import java.util.Map;
  * @author Christopher Jung
  *
  */
+@Component
 public class KSMenuHistoryAction extends BasicKSMenuAction {
-	private static final Log log = LogFactory.getLog(KSMenuHistoryAction.class);
 	private String text;
 	private boolean showOK;
 	private boolean showTakeCommand;
-	
-	private final StringBuilder history_text = new StringBuilder();
+
 	private int historyPage = -1;
 	private int historyCurrentpage = 0;
 	private int historyMaxpage = 0;
-	private final Map<Integer,String> historySides = new HashMap<>();
 
+	private final StringBuilder historyText = new StringBuilder();
+	private final Map<Integer,String> historySides = new HashMap<>();
 	private final Map<Integer,Boolean> filter = new HashMap<>();
+	private final BBCodeParser bbCodeParser;
 
 	/**
 	 * Konstruktor.
 	 *
 	 */
-	public KSMenuHistoryAction() {
+	public KSMenuHistoryAction(BattleService battleService, BBCodeParser bbCodeParser) {
+		super(battleService, null);
+		this.bbCodeParser = bbCodeParser;
 		this.historySides.put( -1, "Das Tickscript" );
 		
 		this.text = "";
@@ -172,8 +174,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction {
 			parseLog(battle.getSchlachtLog());
 		}
 
-		BBCodeParser bbcodeparser = BBCodeParser.getNewInstance();
-		bbcodeparser.registerHandler( "tooltip", 2, "<a class='tooltip' href=\"#\">$1<span class='ttcontent'>$2</span></a>" );
+		bbCodeParser.registerHandler( "tooltip", 2, "<a class='tooltip' href=\"#\">$1<span class='ttcontent'>$2</span></a>" );
 
 		for( int i=0; i <= this.historyMaxpage; i++ ) {
 			t.setVar(	"global.showlog.turnlist.pageid",	i,
@@ -181,7 +182,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction {
 			t.parse("global.showlog.turnlist.list", "global.showlog.turnlist.item", true);
 		}
 
-		t.setVar("global.showlog.log", bbcodeparser.parse(this.history_text.toString()).replace("\n", "<br />"));
+		t.setVar("global.showlog.log", bbCodeParser.parse(this.historyText.toString()).replace("\n", "<br />"));
 
 		return Result.OK;
 	}
@@ -212,9 +213,9 @@ public class KSMenuHistoryAction extends BasicKSMenuAction {
 		}
 
 		if( showCurrentPage() ) {
-			this.history_text.append("[tooltip=").append(Common.date("d.m.Y H:i:s", eintrag.getZeitpunkt())).append("][img]./data/interface/ks/icon_side").append(eintrag.getSeite()).append(".png[/img][/tooltip] ");
-			this.history_text.append(eintrag.getText().trim());
-			this.history_text.append("\n\n");
+			this.historyText.append("[tooltip=").append(Common.date("d.m.Y H:i:s", eintrag.getZeitpunkt())).append("][img]./data/interface/ks/icon_side").append(eintrag.getSeite()).append(".png[/img][/tooltip] ");
+			this.historyText.append(eintrag.getText().trim());
+			this.historyText.append("\n\n");
 		}
 	}
 
@@ -225,11 +226,11 @@ public class KSMenuHistoryAction extends BasicKSMenuAction {
 		User auser = (User)context.getDB().get(User.class, eintrag.getUserId());
 		if( auser == null )
 		{
-			this.historySides.put(thisSide, Common._titleNoFormat(eintrag.getName())+" ("+eintrag.getUserId()+")");
+			this.historySides.put(thisSide, Common._titleNoFormat(bbCodeParser, eintrag.getName())+" ("+eintrag.getUserId()+")");
 		}
 		else
 		{
-			this.historySides.put(thisSide, "<a class=\"profile\" style=\"color:#000050\" href=\""+Common.buildUrl("default", "module", "userprofile", "user", auser.getId())+"\">"+Common._titleNoFormat(auser.getName())+"</a>");
+			this.historySides.put(thisSide, "<a class=\"profile\" style=\"color:#000050\" href=\""+Common.buildUrl("default", "module", "userprofile", "user", auser.getId())+"\">"+Common._titleNoFormat(bbCodeParser, auser.getName())+"</a>");
 		}
 	}
 
@@ -241,17 +242,17 @@ public class KSMenuHistoryAction extends BasicKSMenuAction {
 			{
 				if( (rbEintrag.getSeite() == -1) || this.filter.get(rbEintrag.getSeite()) )
 				{
-					this.history_text.append("[tooltip=").append(Common.date("d.m.Y H:i:s", rbEintrag.getZeitpunkt())).append("]");
-					this.history_text.append("[img]./data/interface/ks/icon_side").append(rbEintrag.getSeite()).append(".png[/img][/tooltip] ");
-					this.history_text.append(this.historySides.get(rbEintrag.getSeite())).append(" hat die Runde beendet\n");
-					this.history_text.append("\n\n");
+					this.historyText.append("[tooltip=").append(Common.date("d.m.Y H:i:s", rbEintrag.getZeitpunkt())).append("]");
+					this.historyText.append("[img]./data/interface/ks/icon_side").append(rbEintrag.getSeite()).append(".png[/img][/tooltip] ");
+					this.historyText.append(this.historySides.get(rbEintrag.getSeite())).append(" hat die Runde beendet\n");
+					this.historyText.append("\n\n");
 				}
 			}
 			this.historyCurrentpage++;
 			this.historyMaxpage++;
 			if( this.historyPage == -1 )
 			{
-				this.history_text.setLength(0);
+				this.historyText.setLength(0);
 			}
 		}
 		else
@@ -262,9 +263,9 @@ public class KSMenuHistoryAction extends BasicKSMenuAction {
 				{
 					return;
 				}
-				this.history_text.append("[tooltip=").append(Common.date("d.m.Y H:i:s", rbEintrag.getZeitpunkt())).append("][img]./data/interface/ks/icon_side").append(rbEintrag.getSeite()).append(".png[/img][/tooltip] ");
-				this.history_text.append(this.historySides.get(rbEintrag.getSeite())).append(" hat die Runde beendet\n");
-				this.history_text.append("\n\n");
+				this.historyText.append("[tooltip=").append(Common.date("d.m.Y H:i:s", rbEintrag.getZeitpunkt())).append("][img]./data/interface/ks/icon_side").append(rbEintrag.getSeite()).append(".png[/img][/tooltip] ");
+				this.historyText.append(this.historySides.get(rbEintrag.getSeite())).append(" hat die Runde beendet\n");
+				this.historyText.append("\n\n");
 			}
 		}
 	}

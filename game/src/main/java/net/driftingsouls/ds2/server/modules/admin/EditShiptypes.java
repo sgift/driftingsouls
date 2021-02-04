@@ -20,15 +20,23 @@ package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.battles.BattleShip;
+import net.driftingsouls.ds2.server.config.ConfigFelsbrocken;
 import net.driftingsouls.ds2.server.config.Weapons;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.config.items.Schiffsbauplan;
+import net.driftingsouls.ds2.server.config.items.Schiffsverbot;
+import net.driftingsouls.ds2.server.entities.npcorders.OrderShip;
+import net.driftingsouls.ds2.server.entities.npcorders.OrderableShip;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
+import net.driftingsouls.ds2.server.services.ShipService;
+import net.driftingsouls.ds2.server.services.ShipActionService;
 import net.driftingsouls.ds2.server.ships.*;
 
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -42,8 +50,20 @@ import java.util.stream.Collectors;
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Schiffe", name = "Typ", permission = WellKnownAdminPermission.EDIT_SHIPTYPES)
+@Component
 public class EditShiptypes implements EntityEditor<ShipType>
 {
+	@PersistenceContext
+	private EntityManager em;
+
+	private final ShipService shipService;
+	private final ShipActionService shipActionService;
+
+	public EditShiptypes(ShipService shipService, ShipActionService shipActionService) {
+		this.shipService = shipService;
+		this.shipActionService = shipActionService;
+	}
+
 	@Override
 	public Class<ShipType> getEntityType()
 	{
@@ -55,14 +75,9 @@ public class EditShiptypes implements EntityEditor<ShipType>
 	{
 		form.allowAdd();
 		form.allowDelete(this::isDeleteAllowed);
-		form.ifUpdating().label("Anzahl vorhandener Schiffe", (ship) -> {
-			Context context = ContextMap.getContext();
-			org.hibernate.Session db = context.getDB();
-			return (long) db
-					.createQuery("select count(*) from Ship s where s.shiptype=:type")
-					.setEntity("type", ship)
-					.uniqueResult();
-		});
+		form.ifUpdating().label("Anzahl vorhandener Schiffe", ship -> em.createQuery("select count(*) from Ship s where s.shiptype=:type", Long.class)
+				.setParameter("type", ship)
+				.getSingleResult());
 		form.field("Name", String.class, ShipType::getNickname, ShipType::setNickname);
 		form.picture("Bild", ShipType::getPicture);
 		form.field("Uranreaktor", Integer.class, ShipType::getRu, ShipType::setRu);
@@ -79,8 +94,8 @@ public class EditShiptypes implements EntityEditor<ShipType>
 		form.field("Crew", Integer.class, ShipType::getCrew, ShipType::setCrew);
 		form.field("maximale Größe für Einheiten", Integer.class, ShipType::getMaxUnitSize, ShipType::setMaxUnitSize);
 		form.field("Laderaum für Einheiten", Integer.class, ShipType::getUnitSpace, ShipType::setUnitSpace);
-		form.field("Waffen", String.class, (st) -> Weapons.packWeaponList(st.getWeapons()), (st,s) -> st.setWeapons(Weapons.parseWeaponList(s)));
-		form.field("Maximale Hitze", String.class, (st) -> Weapons.packWeaponList(st.getMaxHeat()), (st,s) -> st.setMaxHeat(Weapons.parseWeaponList(s)));
+		form.field("Waffen", String.class, st -> Weapons.packWeaponList(st.getWeapons()), (st,s) -> st.setWeapons(Weapons.parseWeaponList(s)));
+		form.field("Maximale Hitze", String.class, st -> Weapons.packWeaponList(st.getMaxHeat()), (st,s) -> st.setMaxHeat(Weapons.parseWeaponList(s)));
 		form.field("Torpedoabwehr", Integer.class, ShipType::getTorpedoDef, ShipType::setTorpedoDef);
 		form.field("Schilde", Integer.class, ShipType::getShields, ShipType::setShields);
 		form.field("Größe", Integer.class, ShipType::getSize, ShipType::setSize);
@@ -92,10 +107,10 @@ public class EditShiptypes implements EntityEditor<ShipType>
 		form.textArea("Beschreibung", ShipType::getDescrip, ShipType::setDescrip);
 		form.field("Deuteriumsammeln", Integer.class, ShipType::getDeutFactor, ShipType::setDeutFactor);
 
-		Map<ShipClasses, String> shipClasses = Arrays.stream(ShipClasses.values()).collect(Collectors.toMap((sc) -> sc, ShipClasses::getSingular));
+		Map<ShipClasses, String> shipClasses = Arrays.stream(ShipClasses.values()).collect(Collectors.toMap(sc -> sc, ShipClasses::getSingular));
 		form.field("Schiffsklasse", ShipClasses.class, ShipType::getShipClass, ShipType::setShipClass).withOptions(shipClasses).dbColumn(ShipType_.shipClass);
 		form.multiSelection("Flags", ShipTypeFlag.class, ShipType::getFlags, (st, flags) -> st.setFlags(flags.stream().map(ShipTypeFlag::getFlag).collect(Collectors.joining(" "))))
-			.withOptions(Arrays.stream(ShipTypeFlag.values()).collect(Collectors.toMap((f) -> f, ShipTypeFlag::getLabel)));
+			.withOptions(Arrays.stream(ShipTypeFlag.values()).collect(Collectors.toMap(f -> f, ShipTypeFlag::getLabel)));
 		form.field("Groupwrap", Integer.class, ShipType::getGroupwrap, ShipType::setGroupwrap);
 		form.field("Werft (Slots)", Integer.class, ShipType::getWerft, ShipType::setWerft);
 		form.field("Einmalwerft", ShipType.class, ShipType::getOneWayWerft, ShipType::setOneWayWerft).withNullOption("Deaktiviert");
@@ -109,102 +124,98 @@ public class EditShiptypes implements EntityEditor<ShipType>
 		form.field("Kopfgeld", BigInteger.class, ShipType::getBounty, ShipType::setBounty);
 
 		form.postUpdateTask("Schiffe aktualisieren",
-				(ShipType shiptype) -> Common.cast(ContextMap.getContext().getDB()
-						.createQuery("select s.id from Ship s where s.shiptype= :type")
-						.setEntity("type", shiptype)
-						.list()),
+				(ShipType shiptype) -> em.createQuery("select s.id from Ship s where s.shiptype= :type", Integer.class)
+						.setParameter("type", shiptype)
+						.getResultList(),
 				(ShipType oldShiptype, ShipType shipType, Integer shipId) -> aktualisiereSchiff(oldShiptype, shipId)
 		);
 	}
 
 	private boolean isDeleteAllowed(ShipType st)
 	{
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-		long count = (long) db
-				.createQuery("select count(*) from Ship s where s.shiptype=:type")
-				.setEntity("type", st)
-				.uniqueResult();
+		long count = em.createQuery("select count(*) from Ship s where s.shiptype=:type", Long.class)
+				.setParameter("type", st)
+				.getSingleResult();
 
 		if( count > 0 )
 		{
 			return false;
 		}
 
-		Object type = db.createQuery("from ShipBaubar where type=:type")
+		var shipBaubar = em.createQuery("from ShipBaubar where type=:type", ShipBaubar.class)
 				.setMaxResults(1)
-				.setEntity("type", st)
-				.uniqueResult();
-		if( type != null )
+				.setParameter("type", st)
+				.getSingleResult();
+		if( shipBaubar != null )
 		{
 			return false;
 		}
 
-		type = db.createQuery("from ConfigFelsbrocken where shiptype=:type")
+		var configFelsBrocken = em.createQuery("from ConfigFelsbrocken where shiptype=:type", ConfigFelsbrocken.class)
 				.setMaxResults(1)
-				.setEntity("type", st)
-				.uniqueResult();
-		if( type != null )
+				.setParameter("type", st)
+				.getSingleResult();
+		if( configFelsBrocken != null )
 		{
 			return false;
 		}
 
-		type = db.createQuery("from Schiffsbauplan where schiffstyp=:type")
+		var blueprint = em.createQuery("from Schiffsbauplan where schiffstyp=:type", Schiffsbauplan.class)
 				.setMaxResults(1)
-				.setEntity("type", st)
-				.uniqueResult();
-		if( type != null )
+				.setParameter("type", st)
+				.getSingleResult();
+		if( blueprint != null )
 		{
 			return false;
 		}
 
-		type = db.createQuery("from Schiffsverbot where schiffstyp=:type")
+		var shipBan = em.createQuery("from Schiffsverbot where schiffstyp=:type", Schiffsverbot.class)
 				.setMaxResults(1)
-				.setEntity("type", st)
-				.uniqueResult();
-		if( type != null )
+				.setParameter("type", st)
+				.getSingleResult();
+		if( shipBan != null )
 		{
 			return false;
 		}
 
-		type = db.createQuery("from OrderableShip where shipType=:type")
+		var orderableShip = em.createQuery("from OrderableShip where shipType=:type", OrderableShip.class)
 				.setMaxResults(1)
-				.setEntity("type", st)
-				.uniqueResult();
-		if( type != null )
+				.setParameter("type", st)
+				.getSingleResult();
+		if( orderableShip != null )
 		{
 			return false;
 		}
 
-		type = db.createQuery("from OrderShip where shipType=:type")
+		var orderShip = em.createQuery("from OrderShip where shipType=:type", OrderShip.class)
 				.setMaxResults(1)
-				.setEntity("type", st)
-				.uniqueResult();
-		if( type != null )
+				.setParameter("type", st)
+				.getSingleResult();
+		if( orderShip != null )
 		{
 			return false;
 		}
 
-		type = db.createQuery("from ShipType where oneWayWerft=:type")
+		var shipType = em.createQuery("from ShipType where oneWayWerft=:type", ShipType.class)
 				.setMaxResults(1)
-				.setEntity("type", st)
-				.uniqueResult();
-		if( type != null )
+				.setParameter("type", st)
+				.getSingleResult();
+		if( shipType != null )
 		{
 			return false;
 		}
 
-		type = db.createQuery("from ShipModules where oneWayWerft=:type")
+		var shipModules = em.createQuery("from ShipModules where oneWayWerft=:type", ShipModules.class)
 				.setMaxResults(1)
-				.setEntity("type", st)
-				.uniqueResult();
-		return type == null;
+				.setParameter("type", st)
+				.getResultList();
+		return shipModules == null;
 	}
 
 	private void aktualisiereSchiff(ShipType oldShiptype, Integer shipId)
 	{
-		Ship ship = (Ship) ContextMap.getContext().getDB().get(Ship.class, shipId);
-		boolean modules = ship.getModules().length > 0;
+		Ship ship = em.find(Ship.class, shipId);
+		boolean modules = ship.getModuleEntries().length > 0;
         // Clone bei Modulen notwendig. Sonst werden auch die gespeicherten neu berechnet.
         ShipTypeData oldType;
         try{
@@ -215,7 +226,7 @@ public class EditShiptypes implements EntityEditor<ShipType>
             oldType = oldShiptype;
         }
 
-		ship.recalculateModules();
+		shipService.recalculateModules(ship);
 		ShipTypeData type = ship.getTypeData();
 
 		ship.setEnergy((int) Math.floor(type.getEps() * (ship.getEnergy() / (double) oldType.getEps())));
@@ -226,9 +237,9 @@ public class EditShiptypes implements EntityEditor<ShipType>
 		ship.setNahrungCargo((long) Math.floor(type.getNahrungCargo() * (ship.getNahrungCargo() / (double) oldType.getNahrungCargo())));
 
 		int fighterDocks = ship.getTypeData().getJDocks();
-		if (ship.getLandedCount() > fighterDocks)
+		if (shipService.getLandedCount(ship) > fighterDocks)
 		{
-			List<Ship> fighters = ship.getLandedShips();
+			List<Ship> fighters = shipService.getLandedShips(ship);
 			long toStart = fighters.size() - fighterDocks;
 			int fighterCount = 0;
 
@@ -243,9 +254,9 @@ public class EditShiptypes implements EntityEditor<ShipType>
 
 		//Docked
 		int outerDocks = ship.getTypeData().getADocks();
-		if (ship.getDockedCount() > outerDocks)
+		if (shipService.getDockedCount(ship) > outerDocks)
 		{
-			List<Ship> outerDocked = ship.getDockedShips();
+			List<Ship> outerDocked = shipService.getDockedShips(ship);
 			long toStart = outerDocked.size() - outerDocks;
 			int dockedCount = 0;
 
@@ -260,12 +271,12 @@ public class EditShiptypes implements EntityEditor<ShipType>
 
 		if (ship.getId() >= 0)
 		{
-			ship.recalculateShipStatus();
+			shipActionService.recalculateShipStatus(ship);
 		}
 
         if(ship.getBattle() != null)
         {
-            BattleShip battleShip = (BattleShip) ContextMap.getContext().getDB().get(BattleShip.class, shipId);
+            BattleShip battleShip = em.find(BattleShip.class, shipId);
             battleShip.setHull((int) Math.floor(type.getHull() * (battleShip.getHull() / (double) oldType.getHull())));
             battleShip.setShields((int) Math.floor(type.getShields() * (battleShip.getShields() / (double) oldType.getShields())));
             battleShip.setAblativeArmor((int) Math.floor(type.getAblativeArmor() * (battleShip.getAblativeArmor() / (double) oldType.getAblativeArmor())));

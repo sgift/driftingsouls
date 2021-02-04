@@ -21,36 +21,48 @@ package net.driftingsouls.ds2.server.entities;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.comm.Ordner;
 import net.driftingsouls.ds2.server.config.Medal;
-import net.driftingsouls.ds2.server.config.Medals;
-import net.driftingsouls.ds2.server.config.Rang;
-import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.entities.ally.AllyPosten;
-import net.driftingsouls.ds2.server.framework.*;
+import net.driftingsouls.ds2.server.framework.BasicUser;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigService;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.framework.utils.StringToTypeConverter;
 import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
 import net.driftingsouls.ds2.server.namegenerator.SchiffsKlassenNamenGenerator;
 import net.driftingsouls.ds2.server.namegenerator.SchiffsNamenGenerator;
-import net.driftingsouls.ds2.server.ships.SchiffsReKosten;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.units.UnitType;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.annotations.*;
-import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Index;
 
 import javax.persistence.CascadeType;
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -61,7 +73,6 @@ import java.util.stream.Collectors;
  */
 @Entity
 @DiscriminatorValue("default")
-@Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @BatchSize(size=50)
 @org.hibernate.annotations.Table(
 	appliesTo = "users",
@@ -90,92 +101,6 @@ public class User extends BasicUser {
 		FRIEND		// 2
 	}
 
-	/**
-	 * Klasse, welche die Beziehungen eines Spielers zu anderen
-	 * Spielern enthaelt.
-	 * @author Christopher Jung
-	 *
-	 */
-	public static class Relations {
-		/**
-		 * Die Beziehungen des Spielers zu anderen Spielern.
-		 * Schluessel ist die Spieler-ID
-		 */
-		protected final Map<Integer,Relation> toOther = new HashMap<>();
-		/**
-		 * Die Beziehungen von anderen Spielern zum Spieler selbst.
-		 * Schluessel ist die Spieler-ID.
-		 */
-		protected final Map<Integer,Relation> fromOther = new HashMap<>();
-
-		private final User user;
-
-		protected Relations(User user) {
-			this.user = user;
-		}
-
-		/**
-		 * Gibt zurueck, ob die Beziehung zu einem gegebenen anderen Spieler
-		 * in beide Richtungen den angegebenen Beziehungtyp hat.
-		 * @param otherUser Der andere Spieler
-		 * @param relation Der Beziehungstyp
-		 * @return <code>true</code>, falls in beide Richtungen der Beziehungstyp gilt
-		 */
-		public boolean isOnly(User otherUser, Relation relation)
-		{
-			return beziehungZu(otherUser) == relation && beziehungVon(otherUser) == relation;
-		}
-
-		/**
-		 * Gibt die Beziehung des Spielers zu einem anderen Spieler zurueck.
-		 * @param otherUser Der andere Spieler
-		 * @return Der Beziehungstyp
-		 */
-		public Relation beziehungZu(User otherUser)
-		{
-			if( user.getAlly() != null && user.getAlly().getMembers().contains(otherUser) )
-			{
-				// Allianzen sind immer befreundet
-				return Relation.FRIEND;
-			}
-
-			Relation relation = this.toOther.get(otherUser.getId());
-			if( relation != null )
-			{
-				return relation;
-			}
-			relation = this.toOther.get(0);
-			if( relation != null )
-			{
-				return relation;
-			}
-			// Keine Default-Beziehung definiert -> Neutral
-			return Relation.NEUTRAL;
-		}
-
-		/**
-		 * Gibt die Beziehung eines anderen Spielers zu diesem Spieler zurueck.
-		 * @param otherUser Der andere Spieler
-		 * @return Der Beziehungstyp
-		 */
-		public Relation beziehungVon(User otherUser)
-		{
-			if( user.getAlly() != null && user.getAlly().getMembers().contains(otherUser) )
-			{
-				// Allianzen sind immer befreundet
-				return Relation.FRIEND;
-			}
-
-			Relation relation = this.fromOther.get(otherUser.getId());
-			if( relation != null )
-			{
-				return relation;
-			}
-			// Keine Default-Beziehung definiert -> Neutral
-			return Relation.NEUTRAL;
-		}
-	}
-
 	private int race;
 	@Lob
 	private String history;
@@ -183,14 +108,12 @@ public class User extends BasicUser {
 	private int rang;
 	private String ApiKey;
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="ally")
-	@ForeignKey(name="users_fk_ally")
+	@JoinColumn(name="ally", foreignKey = @ForeignKey(name="users_fk_ally"))
 	private Ally ally;
 	private BigInteger konto;
 	private int npcpunkte;
 	@OneToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="allyposten", unique = true)
-	@ForeignKey(name="users_fk_ally_posten")
+	@JoinColumn(name="allyposten", unique = true, foreignKey = @ForeignKey(name="users_fk_ally_posten"))
 	private AllyPosten allyposten;
 	private int gtudropzone;
 	private String npcorderloc;
@@ -217,8 +140,7 @@ public class User extends BasicUser {
     private Set<Loyalitaetspunkte> loyalitaetspunkte;
 
 	@ManyToMany
-	@JoinTable
-	@ForeignKey(name="users_fk_forschungen", inverseName = "users_forschungen_fk_users")
+	@JoinTable(foreignKey = @ForeignKey(name="users_fk_forschungen"))
 	private Set<Forschung> forschungen;
 
 	@OneToMany(cascade = {CascadeType.DETACH,CascadeType.REFRESH})
@@ -232,6 +154,7 @@ public class User extends BasicUser {
 	@BatchSize(size=1)
 	private Set<Ship> ships;
 
+	@Index(name = "vaccount", columnNames = {"vaccount", "wait4vac"})
 	private int vaccount;
 	private int wait4vac;
 
@@ -258,15 +181,14 @@ public class User extends BasicUser {
 	 * @param password Passwort - md5-verschluesselt.
 	 * @param race Rasse des Spielers.
 	 * @param history Bisherige Geschichte des Spielers.
-	 * @param cargo Ressourcen im Spielercargo.
 	 * @param email E-Mailadresse des Spielers.
 	 */
-	public User(String name, String password, int race, String history, Cargo cargo, String email) {
+	public User(int newUserId, String name, String plainname, String password, int race, String history, String email, ConfigService configService) {
 		super();
 		context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
 		setPassword(password);
 		setName("Kolonist");
+		setPlainname(plainname);
 		this.race = race;
 		this.history = history;
 		setEmail(email);
@@ -275,7 +197,7 @@ public class User extends BasicUser {
 		setSignup((int) Common.time());
 		setInactivity(0);
 		this.medals = "";
-		this.rang = (int) Byte.parseByte("0");
+		this.rang = Byte.parseByte("0");
 		this.konto = BigInteger.valueOf(0);
 		setLoginFailedCount(0);
 		setAccesslevel(0);
@@ -290,14 +212,9 @@ public class User extends BasicUser {
 		this.lostShips = 0;
 		this.wonBattles = Short.parseShort("0");
 		this.destroyedShips = 0;
-		Integer newUserId = (Integer)db.createQuery("SELECT max(id) from User").uniqueResult();
-		setId(newUserId != null ? ++newUserId : 1);
+		setId(newUserId);
 		this.knownItems = "";
         bounty = BigInteger.ZERO;
-		db.persist(this);
-		@SuppressWarnings("ConstantConditions")
-		Ordner trash = Ordner.createNewOrdner("Papierkorb", Ordner.getOrdnerByID(0, this), this);
-		trash.setFlags(Ordner.FLAG_TRASH);
 		this.forschungen = new HashSet<>();
 		this.specializationPoints = 15;
 		this.loyalitaetspunkte = new HashSet<>();
@@ -305,7 +222,7 @@ public class User extends BasicUser {
 		this.ships = new HashSet<>();
 		this.ApiKey = "";
 
-		int defaultDropZone = new ConfigService().getValue(WellKnownConfigValue.GTU_DEFAULT_DROPZONE);
+		int defaultDropZone = configService.getValue(WellKnownConfigValue.GTU_DEFAULT_DROPZONE);
 		setGtuDropZone(defaultDropZone);
 	}
 
@@ -349,7 +266,7 @@ public class User extends BasicUser {
 	 */
 	public PersonenNamenGenerator getPersonenNamenGenerator()
 	{
-		return this.personenNamenGenerator == null ? Rassen.get().rasse(this.race).getPersonenNamenGenerator() : this.personenNamenGenerator;
+		return this.personenNamenGenerator;
 	}
 
 	/**
@@ -358,7 +275,7 @@ public class User extends BasicUser {
 	 */
 	public void setPersonenNamenGenerator(PersonenNamenGenerator personenNamenGenerator)
 	{
-		this.personenNamenGenerator = Rassen.get().rasse(this.race).getPersonenNamenGenerator() == personenNamenGenerator ? null : personenNamenGenerator;
+		this.personenNamenGenerator = personenNamenGenerator;
 	}
 
 	/**
@@ -367,7 +284,7 @@ public class User extends BasicUser {
 	 */
 	public SchiffsKlassenNamenGenerator getSchiffsKlassenNamenGenerator()
 	{
-		return this.schiffsKlassenNamenGenerator == null ? Rassen.get().rasse(this.race).getSchiffsKlassenNamenGenerator() : this.schiffsKlassenNamenGenerator;
+		return this.schiffsKlassenNamenGenerator;
 	}
 
 	/**
@@ -376,7 +293,7 @@ public class User extends BasicUser {
 	 */
 	public void setSchiffsKlassenNamenGenerator(SchiffsKlassenNamenGenerator schiffsKlassenNamenGenerator)
 	{
-		this.schiffsKlassenNamenGenerator = Rassen.get().rasse(this.race).getSchiffsKlassenNamenGenerator() == schiffsKlassenNamenGenerator ? null : schiffsKlassenNamenGenerator;
+		this.schiffsKlassenNamenGenerator = schiffsKlassenNamenGenerator;
 	}
 
 	/**
@@ -385,7 +302,7 @@ public class User extends BasicUser {
 	 */
 	public SchiffsNamenGenerator getSchiffsNamenGenerator()
 	{
-		return this.schiffsNamenGenerator == null ? Rassen.get().rasse(this.race).getSchiffsNamenGenerator() : this.schiffsNamenGenerator;
+		return this.schiffsNamenGenerator;
 	}
 
 	/**
@@ -394,7 +311,7 @@ public class User extends BasicUser {
 	 */
 	public void setSchiffsNamenGenerator(SchiffsNamenGenerator schiffsNamenGenerator)
 	{
-		this.schiffsNamenGenerator = Rassen.get().rasse(this.race).getSchiffsNamenGenerator() == schiffsNamenGenerator ? null : schiffsNamenGenerator;
+		this.schiffsNamenGenerator = schiffsNamenGenerator;
 	}
 
 	/**
@@ -433,236 +350,6 @@ public class User extends BasicUser {
 		this.ships = ships;
 	}
 
-	/**
-	 * Liefert einen Profile-Link zu den Benutzer zurueck (als HTML).
-	 * Als CSS-Klasse fuer den Link wird die angegebene Klasse verwendet.
-	 * @param username Der anzuzeigende Spielername
-	 * @return Der Profile-Link
-	 */
-	public String getProfileLink(String username) {
-		if( username == null || username.equals("") ) {
-			username = Common._title(this.getName());
-		}
-
-		return "<a class=\"profile\" href=\""+Common.buildUrl("default", "module", "userprofile", "user", this.getId())+"\">"+username+"</a>";
-	}
-
-	/**
-	 * Liefert einen vollstaendigen Profile-Link zu den Benutzer zurueck (als HTML).
-	 * Der Linkt enthaelt einen &lt;a&gt;-Tag sowie den Benutzernamen als HTML.
-	 * @return Der Profile-Link
-	 */
-	public String getProfileLink() {
-		return getProfileLink("");
-	}
-
-	@Transient
-	private Relations relations = null;
-
-	/**
-	 * Liefert alle Beziehungen vom Spieler selbst zu anderen Spielern und umgekehrt.
-	 *
-	 * @return Gibt ein Array zurueck.
-	 * 	Position 0 enthaelt alle Beziehungen von einem selbst ($userid => $beziehung).
-	 * 	Position 1 enthaelt alle Beziehungen zu einem selbst ($userid => $beziehung).
-	 *
-	 * 	Beziehungen zu Spieler 0 betreffen grundsaetzlich alle Spieler ohne eigene Regelung
-	 */
-	public Relations getRelations() {
-		if( this.relations == null ) {
-			Relations relations = new Relations(this);
-
-			org.hibernate.Session db = context.getDB();
-
-			Map<User,Relation> defaults = new HashMap<>();
-
-			List<?> relationlist = db.createQuery("from UserRelation " +
-					"where user= :user OR target= :user OR (user!= :user AND target.id=0) " +
-					"order by abs(target.id) desc")
-				.setEntity("user", this)
-				.list();
-
-			for (Object aRelationlist : relationlist)
-			{
-				UserRelation relation = (UserRelation) aRelationlist;
-				if (relation.getUser().getId() == this.getId())
-				{
-					relations.toOther.put(relation.getTarget().getId(), Relation.values()[relation.getStatus()]);
-				}
-				else if( relation.getTarget().getId() == 0 )
-				{
-					defaults.put(relation.getUser(), Relation.values()[relation.getStatus()]);
-				}
-				else
-				{
-					relations.fromOther.put(relation.getUser().getId(), Relation.values()[relation.getStatus()]);
-				}
-			}
-
-			for (Map.Entry<User, Relation> userRelationEntry : defaults.entrySet())
-			{
-				if( relations.fromOther.containsKey(userRelationEntry.getKey().getId()) )
-				{
-					continue;
-				}
-				relations.fromOther.put(userRelationEntry.getKey().getId(), userRelationEntry.getValue());
-			}
-
-
-			if( !relations.toOther.containsKey(0) ) {
-				relations.toOther.put(0, Relation.NEUTRAL);
-			}
-
-			relations.toOther.put(this.getId(), Relation.FRIEND);
-			relations.fromOther.put(this.getId(), Relation.FRIEND);
-
-			this.relations = relations;
-		}
-
-		Relations rel = new Relations(this);
-		rel.fromOther.putAll(relations.fromOther);
-		rel.toOther.putAll(relations.toOther);
-		return rel;
-	}
-
-	/**
-	 * Gibt den Status der Beziehung des Spielers zu einem anderen Spieler zurueck.
-	 * @param user Der andere Spieler oder <code>null</code>, falls die Standardbeziehung abgefragt werden soll
-	 * @return Der Status der Beziehungen zu dem anderen Spieler
-	 */
-	public Relation getRelation(User user)
-	{
-		if( user == this )
-		{
-			return Relation.FRIEND;
-		}
-
-		if( user == null ) {
-			user = (User)context.getDB().get(User.class, 0);
-		}
-
-		if( this.ally != null && this.ally.getMembers().contains(user) )
-		{
-			return Relation.FRIEND;
-		}
-
-		Relation rel = Relation.NEUTRAL;
-
-		if( relations == null ) {
-			UserRelation currelation = (UserRelation)context.getDB()
-				.createQuery("from UserRelation WHERE user=:user AND target=:userid")
-				.setInteger("user", this.getId())
-				.setInteger("userid", user.getId())
-				.uniqueResult();
-
-			if( currelation == null ) {
-				currelation = (UserRelation)context.getDB()
-					.createQuery("from UserRelation WHERE user=:user AND target.id=0")
-					.setInteger("user", this.getId())
-					.uniqueResult();
-			}
-
-			if( currelation != null ) {
-				rel = Relation.values()[currelation.getStatus()];
-			}
-		}
-		else {
-			if( relations.toOther.containsKey(user.getId()) ) {
-				rel = relations.toOther.get(user.getId());
-			}
-		}
-		return rel;
-	}
-
-	/**
-	 * Setzt die Beziehungen des Spielers zu einem anderen Spieler auf den angegebenen
-	 * Wert.
-	 * @param userid Die ID des anderen Spielers
-	 * @param relation Der neue Status der Beziehungen
-	 */
-	public void setRelation( int userid, Relation relation ) {
-		org.hibernate.Session db = context.getDB();
-
-		if( userid == this.getId() ) {
-			return;
-		}
-
-		UserRelation currelation = (UserRelation)db
-			.createQuery("from UserRelation WHERE user=:user AND target=:targetid")
-			.setInteger("user", this.getId())
-			.setInteger("targetid", userid)
-			.uniqueResult();
-		if( userid != 0 ) {
-			if( (relation != Relation.FRIEND) && (getAlly() != null) ) {
-				User targetuser = (User)context.getDB().get(User.class, userid);
-				if( targetuser.getAlly() == getAlly() ) {
-					log.warn("Versuch die allyinterne Beziehung von User "+this.getId()+" zu "+userid+" auf "+relation+" zu aendern", new Throwable());
-					return;
-				}
-			}
-			UserRelation defrelation = (UserRelation)db
-				.createQuery("from UserRelation WHERE user=:user AND target.id=0")
-				.setInteger("user", this.getId())
-				.uniqueResult();
-
-			if( defrelation == null ) {
-				User nullUser = (User)db.get(User.class, 0);
-
-				defrelation = new UserRelation(this, nullUser, Relation.NEUTRAL.ordinal());
-			}
-
-			if( relation.ordinal() == defrelation.getStatus() ) {
-				if( (currelation != null) && (currelation.getTarget().getId() != 0) ) {
-					if( relations != null ) {
-						relations.toOther.remove(userid);
-					}
-
-					db.delete(currelation);
-				}
-			}
-			else {
-				if( relations != null ) {
-					relations.toOther.put(userid, relation);
-				}
-				if( currelation != null ) {
-					currelation.setStatus(relation.ordinal());
-				}
-				else {
-					User user = (User)db.get(User.class, userid);
-					currelation = new UserRelation(this, user, relation.ordinal());
-					db.persist(currelation);
-				}
-			}
-		}
-		else {
-			if( relation == Relation.NEUTRAL ) {
-				if( relations != null ) {
-					relations.toOther.put(0, Relation.NEUTRAL);
-				}
-				db.createQuery("delete from UserRelation where user=:user and target.id=0")
-					.setInteger("user", this.getId())
-					.executeUpdate();
-			}
-			else {
-				if( relations != null ) {
-					relations.toOther.put(0, relation);
-				}
-				if( currelation != null ) {
-					currelation.setStatus(relation.ordinal());
-				}
-				else {
-					User nullUser = (User)db.get(User.class, 0);
-
-					currelation = new UserRelation(this, nullUser, relation.ordinal());
-					db.persist(currelation);
-				}
-			}
-			db.createQuery("delete from UserRelation where user=:user and status=:status AND target.id!=0")
-				.setInteger("user", this.getId())
-				.setInteger("status", relation.ordinal())
-				.executeUpdate();
-		}
-	}
 	/**
 	 * Transferiert einen bestimmten Geldbetrag (RE) von einem anderen Benutzer zum aktuellen.
 	 * Der Transfer kann entweder ein echter Transfer sein (Geld wird abgebucht) oder ein gefakter
@@ -891,14 +578,6 @@ public class User extends BasicUser {
 	}
 
 	/**
-	 * Prueft, ob der Spieler noch unter Noob-Schutz steht.
-	 * @return <code>true</code>, falls der Spieler noch ein Noob ist
-	 */
-	public boolean isNoob() {
-		return new ConfigService().getValue(WellKnownConfigValue.NOOB_PROTECTION) && hasFlag(UserFlag.NOOB);
-	}
-
-	/**
 	 * Gibt die ID der Rasse des Spielers zurueck.
 	 * @return Die ID der Rasse
 	 */
@@ -919,10 +598,8 @@ public class User extends BasicUser {
 	 * Die einzelnen Orden-IDs sind mittels ; verbunden
 	 * @return Die Liste aller Orden
 	 */
-	public Set<Medal> getMedals() {
-		int[] medals = Common.explodeToInt(";", this.medals);
-
-		return Arrays.stream(medals).boxed().map((id) -> Medals.get().medal(id)).filter(Objects::nonNull).collect(Collectors.toSet());
+	public String getMedals() {
+		return this.medals;
 	}
 
 	/**
@@ -1283,86 +960,6 @@ public class User extends BasicUser {
 	}
 
 	/**
-	 * Gibt die Nahrungs- und RE-Bilanz zurueck.
-	 * @return die Bilanzen
-	 */
-	public long[] getFullBalance()
-	{
-		return new long[] {
-				!hasFlag(UserFlag.NO_FOOD_CONSUMPTION) ? this.getNahrungBalance() : 0,
-				!hasFlag(UserFlag.NO_DESERTEUR) ? getReBalance() : 0,
-		};
-	}
-
-	/**
-	 * Gibt die RE-Bilanz zurueck. Ein negativer Wert bedeutet,
-	 * dass der Benutzer jeden Tick RE Zahlen muss. Ein positiver,
-	 * dass er jeden Tick RE erwirtschaftet.
-	 * @return die Bilanzen in RE
-	 */
-	public long getReBalance()
-	{
-		int baseRe = 0;
-		for(Base base: this.bases)
-		{
-			baseRe += base.getBalance();
-		}
-
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
-		// Kosten der Schiffe ermitteln
-		Long schiffsKosten = (Long)db
-			.createQuery("select sum(coalesce(sm.reCost,st.reCost)) " +
-				"from Ship s join s.shiptype st left join s.modules sm " +
-				"where s.owner=:user and s.docked not like 'l %'")
-			.setParameter("user", this)
-			.iterate().next();
-
-		// Kosten der auf den Schiffen stationierten Einheiten ermitteln
-		Long einheitenKosten = (Long)db
-			.createQuery("select sum(ceil(u.amount*u.unittype.recost)) " +
-				"from Ship s join s.units u "+
-				"where s.owner=:user and s.docked not like 'l %'")
-			.setParameter("user", this)
-			.iterate().next();
-
-		if( schiffsKosten == null )
-		{
-			schiffsKosten = 0L;
-		}
-		if( einheitenKosten == null )
-		{
-			einheitenKosten = 0L;
-		}
-
-		return baseRe - SchiffsReKosten.berecheKosten(schiffsKosten, einheitenKosten).longValue();
-	}
-
-	private long getNahrungBalance()
-	{
-		long balance = 0;
-		for(Base base: this.bases)
-		{
-			balance += base.getNahrungsBalance();
-		}
-
-		for( Ship ship : this.ships )
-		{
-			if( ship.getId() <= 0 )
-			{
-				continue;
-			}
-			if( ship.getBattle() != null )
-			{
-				continue;
-			}
-			balance -= ship.getNahrungsBalance();
-		}
-
-		return balance;
-	}
-
-	/**
 	 * returns a Set of all systems the user has a colony in.
 	 * @return the set of all systems the user has a colony in.
 	 */
@@ -1549,37 +1146,6 @@ public class User extends BasicUser {
 	}
 
 	/**
-	 * Gibt alle durch den NPC vergebbaren Raenge zurueck.
-	 * @return Die Raenge
-	 */
-	public SortedSet<Rang> getOwnGrantableRanks()
-	{
-		if( this.ally != null )
-		{
-			return this.ally.getFullRangNameList();
-		}
-		return new TreeSet<>(Medals.get().raenge().values());
-	}
-
-	/**
-	 * Gibt einen durch den NPC vergebbaren Rang zurueck. Falls der Rang unbekannt ist
-	 * wird <code>null</code> zurueckgegeben.
-	 * @param rank Die Nummer des Rangs
-	 * @return Der Rang oder <code>null</code>
-	 */
-	public Rang getOwnGrantableRank(int rank)
-	{
-		for( Rang r : this.getOwnGrantableRanks() )
-		{
-			if( r.getId() == rank )
-			{
-				return r;
-			}
-		}
-		return null;
-	}
-
-	/**
 	 * Gibt alle an den Nutzer vergebenen Loyalitaetspunkte zurueck.
 	 * @return Die Liste
 	 */
@@ -1603,122 +1169,6 @@ public class User extends BasicUser {
 			}
 		}
 		return total;
-	}
-
-	/**
-	 * <p>Ermittelt zu einem gegebenen Identifier den Benutzer. Ein Identifier
-	 * kann die ID des Benutzers oder sein (unformatierter) Name sein.
-	 * Beim Namen werden auch teilweise Matches beruecksichtigt.</p>
-	 * <p>Es wird nur dann ein User-Objekt zurueckgegeben, wenn
-	 * zu dem gegebenen Identifier genau ein Benutzer ermittelt
-	 * werden kann (Eindeutigkeit).</p>
-	 * @param identifier Der Identifier
-	 * @return Der passende Benutzer oder <code>null</code>
-	 */
-	public static User lookupByIdentifier(String identifier)
-	{
-		if( identifier.isEmpty() )
-		{
-			return null;
-		}
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		if( NumberUtils.isCreatable(identifier) )
-		{
-			try
-			{
-				User user = (User)db.get(User.class, Integer.parseInt(identifier));
-				if( user != null && user.getId() != 0 )
-				{
-					return user;
-				}
-			}
-			catch( NumberFormatException e )
-			{
-				// Keine gueltige ID - anders weiter versuchen
-			}
-		}
-
-		List<User> users = Common.cast(
-			db.createQuery("select u from User u where plainname like :name and id<>0")
-				.setParameter("name", "%"+identifier+"%")
-				.setMaxResults(2)
-				.list());
-
-		if( users.size() == 1 )
-		{
-			// Nur bei Eindeutigkeit den User zurueckgeben
-			// um "Unfaelle" zu vermeiden
-			return users.iterator().next();
-		}
-
-		return null;
-	}
-
-	/**
-	 * Liefert den Wert einer Benutzereinstellung zurueck. Sofern mehrere Eintraege zu diesem
-	 * User-Value existieren wird der aelteste zurueckgegeben.
-	 *
-	 * @param valueDesc Die Beschreibung der Einstellung
-	 * @return Wert des User-Values
-	 */
-	public <T> T getUserValue( WellKnownUserValue<T> valueDesc ) {
-		UserValue value = (UserValue)context.getDB()
-				.createQuery("from UserValue where user=:user and name=:name order by id")
-				.setEntity("user", this)
-				.setString("name", valueDesc.getName())
-				.setMaxResults(1)
-				.uniqueResult();
-
-		return StringToTypeConverter.convert(valueDesc.getType(), value != null ? value.getValue() : valueDesc.getDefaultValue());
-	}
-
-	/**
-	 * Liefert alle Werte eines User-Values zurueck.
-	 * User-Values sind die Eintraege, welche sich in der Tabelle user_values befinden.
-	 *
-	 * @param valueDesc Die Beschreibung der Einstellung
-	 * @return Werte des User-Values
-	 */
-	public <T> List<T> getUserValues( WellKnownUserValue<T> valueDesc ) {
-		List<UserValue> values = Common.cast(context.getDB()
-				.createQuery("from UserValue where user=:user and name=:name order by id")
-				.setEntity("user", this)
-				.setString("name", valueDesc.getName())
-				.list());
-
-		if( values.isEmpty() )
-		{
-			return Collections.singletonList(StringToTypeConverter.convert(valueDesc.getType(), valueDesc.getDefaultValue()));
-		}
-
-		return values.stream().map(UserValue::getValue).map(v -> StringToTypeConverter.convert(valueDesc.getType(), v)).collect(Collectors.toList());
-	}
-
-	/**
-	 * Setzt ein User-Value auf einen bestimmten Wert. Sollten mehrere Eintraege
-	 * existieren wird nur der aelteste aktualisiert.
-	 * @see #getUserValue(WellKnownUserValue)
-	 *
-	 * @param valueDesc Die Beschreibung der Einstellung
-	 * @param newvalue neuer Wert des User-Values
-	 */
-	public <T> void setUserValue( WellKnownUserValue<T> valueDesc, T newvalue ) {
-		UserValue valuen = (UserValue)context.getDB().createQuery("from UserValue where user=:user and name=:name order by id")
-				.setEntity("user", this)
-				.setString("name", valueDesc.getName())
-				.uniqueResult();
-
-		// Existiert noch kein Eintag?
-		if( valuen == null && newvalue != null) {
-			valuen = new UserValue(this, valueDesc.getName(), newvalue.toString());
-			context.getDB().persist(valuen);
-		}
-		else if( newvalue != null ) {
-			valuen.setValue(newvalue.toString());
-		}
-		else {
-			context.getDB().delete(valuen);
-		}
 	}
 
 	/**
@@ -1797,25 +1247,5 @@ public class User extends BasicUser {
 	public void setFlags(Set<UserFlag> flags)
 	{
 		this.flags = flags.stream().map(UserFlag::getFlag).collect(Collectors.joining(" "));
-	}
-	/**
-	 * Gibt die ApiKey des Benutzers zurueck.
-	 * @return Die ApiKey
-	 */
-	public String getApiKey()
-	{
-		this.ApiKey = this.getUserValue(WellKnownUserValue.APIKEY);
-		return this.ApiKey;
-	}
-
-	/**
-	 * Setzt die ApiKey des Benutzers.
-	 * @param ApiKey Die ApiKey
-	 */
-	public void setApiKey(String ApiKey)
-	{
-		this.ApiKey = ApiKey;
-		this.setUserValue(WellKnownUserValue.APIKEY, ApiKey);
-		
 	}
 }

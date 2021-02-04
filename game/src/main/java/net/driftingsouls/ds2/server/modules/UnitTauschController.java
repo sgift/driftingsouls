@@ -20,14 +20,21 @@ package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.RedirectViewResult;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.services.PmService;
+import net.driftingsouls.ds2.server.services.ShipActionService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -53,6 +60,9 @@ import java.util.stream.Collectors;
 @Module(name = "unittausch")
 public class UnitTauschController extends Controller
 {
+	private final PmService pmService;
+	private final BBCodeParser bbCodeParser;
+
 	private static class MultiTarget
 	{
 		private final String name;
@@ -130,9 +140,10 @@ public class UnitTauschController extends Controller
 
 	private static class ShipTransportFactory extends TransportFactory
 	{
-		ShipTransportFactory()
-		{
-			// EMPTY
+		private final ShipActionService shipActionService;
+
+		ShipTransportFactory(ShipActionService shipActionService) {
+			this.shipActionService = shipActionService;
 		}
 
 		@Override
@@ -168,14 +179,14 @@ public class UnitTauschController extends Controller
 							.list();
 					for (Object aFleetlist : fleetlist)
 					{
-						ShipTransportTarget shiphandler = new ShipTransportTarget();
+						ShipTransportTarget shiphandler = new ShipTransportTarget(shipActionService);
 						shiphandler.create(role, (Ship) aFleetlist);
 						list.add(shiphandler);
 					}
 				}
 				else
 				{
-					ShipTransportTarget handler = new ShipTransportTarget();
+					ShipTransportTarget handler = new ShipTransportTarget(shipActionService);
 					handler.create(role, Integer.parseInt(aFromlist));
 					if (list.size() > 0)
 					{
@@ -363,12 +374,13 @@ public class UnitTauschController extends Controller
 	{
 		private Ship ship;
 
+		private final ShipActionService shipActionService;
+
 		/**
 		 * Konstruktor.
 		 */
-		public ShipTransportTarget()
-		{
-			// EMPTY
+		public ShipTransportTarget(ShipActionService shipActionService) {
+			this.shipActionService = shipActionService;
 		}
 
 		void create(int role, Ship ship)
@@ -405,7 +417,7 @@ public class UnitTauschController extends Controller
 			setMaxUnitSpace(tmptype.getUnitSpace());
 			setMaxUnitSize(tmptype.getMaxUnitSize());
 			this.ship = ship;
-			setUnitCargo(ship.getUnits());
+			setUnitCargo(ship.getUnitCargo());
 		}
 
 		@Override
@@ -439,20 +451,20 @@ public class UnitTauschController extends Controller
 		@Override
 		void write()
 		{
-			this.ship.setUnits(getUnits());
-			this.ship.recalculateShipStatus();
+			ship.setUnitCargo(getUnits());
+			shipActionService.recalculateShipStatus(ship);
 		}
 
 		@Override
 		Location getLocation()
 		{
-			return this.ship.getLocation();
+			return ship.getLocation();
 		}
 
 		@Override
 		String getObjectName()
 		{
-			return this.ship.getName();
+			return ship.getName();
 		}
 
 		@Override
@@ -468,7 +480,7 @@ public class UnitTauschController extends Controller
 		 */
 		ShipFleet getFleet()
 		{
-			return this.ship.getFleet();
+			return ship.getFleet();
 		}
 	}
 
@@ -546,14 +558,16 @@ public class UnitTauschController extends Controller
 	private final Map<String, TransportFactory> wayhandler;
 
 	@Autowired
-	public UnitTauschController(TemplateViewResultFactory templateViewResultFactory)
+	public UnitTauschController(PmService pmService, BBCodeParser bbCodeParser, ShipActionService shipActionService, TemplateViewResultFactory templateViewResultFactory)
 	{
+		this.pmService = pmService;
+		this.bbCodeParser = bbCodeParser;
 		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("Einheitentransfer");
 
 		wayhandler = new HashMap<>();
-		wayhandler.put("s", new ShipTransportFactory());
+		wayhandler.put("s", new ShipTransportFactory(shipActionService));
 		wayhandler.put("b", new BaseTransportFactory());
 	}
 
@@ -921,7 +935,7 @@ public class UnitTauschController extends Controller
 					}
 
 					String tmpmsg = Common.implode(",", sourceshiplist) + " l&auml;dt Waren auf " + Common.implode(",", shiplist) + "\n" + msg.get(toTarget.getOwner());
-					PM.send((User) getUser(), toTarget.getOwner(), "Waren transferiert", tmpmsg);
+					pmService.send((User) getUser(), toTarget.getOwner(), "Waren transferiert", tmpmsg);
 
 					ownerpmlist.put(toTarget.getOwner(), msg.get(toTarget.getOwner()).toString());
 				}
@@ -970,7 +984,7 @@ public class UnitTauschController extends Controller
 
 		if( redirect != null )
 		{
-			t.setVar("unittausch.message", Common._text(redirect.getMessage()));
+			t.setVar("unittausch.message", Common._text(bbCodeParser, redirect.getMessage()));
 		}
 
 		t.setVar("global.rawway", rawWay,

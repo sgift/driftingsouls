@@ -22,14 +22,22 @@ import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.Resources;
-import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.services.BaseService;
+import net.driftingsouls.ds2.server.services.ConsignService;
+import net.driftingsouls.ds2.server.services.FleetMgmtService;
+import net.driftingsouls.ds2.server.services.LocationService;
+import net.driftingsouls.ds2.server.services.PmService;
+import net.driftingsouls.ds2.server.services.ShipActionService;
+import net.driftingsouls.ds2.server.services.ShipService;
+import net.driftingsouls.ds2.server.services.ShipyardService;
 import net.driftingsouls.ds2.server.ships.*;
 import net.driftingsouls.ds2.server.werften.SchiffBauinformationen;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
@@ -37,7 +45,12 @@ import net.driftingsouls.ds2.server.werften.WerftObject;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import java.util.*;
+
+import static java.util.stream.Collectors.*;
 
 /**
  * Die Flottenverwaltung.
@@ -49,25 +62,46 @@ public class FleetMgntController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
 
+	@PersistenceContext
+	private EntityManager em;
+
+	private final FleetMgmtService fleetMgmtService;
+	private final BaseService baseService;
+	private final ShipyardService shipyardService;
+	private final PmService pmService;
+	private final BBCodeParser bbCodeParser;
+	private final LocationService locationService;
+	private final ConsignService consignService;
+	private final ShipService shipService;
+	private final ShipActionService shipActionService;
+
 	@Autowired
-	public FleetMgntController(TemplateViewResultFactory templateViewResultFactory)
+	public FleetMgntController(TemplateViewResultFactory templateViewResultFactory, FleetMgmtService fleetMgmtService, BaseService baseService, ShipyardService shipyardService, PmService pmService, BBCodeParser bbCodeParser, LocationService locationService, ConsignService consignService, ShipService shipService, ShipActionService shipActionService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.fleetMgmtService = fleetMgmtService;
+		this.baseService = baseService;
+		this.shipyardService = shipyardService;
+		this.pmService = pmService;
+		this.bbCodeParser = bbCodeParser;
+		this.locationService = locationService;
+		this.consignService = consignService;
+		this.shipService = shipService;
+		this.shipActionService = shipActionService;
 	}
 
 	private int ermittleIdEinesGeeignetenSchiffsDerFlotte(ShipFleet fleet)
 	{
 		User user = (User)getUser();
-		org.hibernate.Session db = getDB();
 		int shipid = 0;
 		// Nun brauchen wir die ID eines der Schiffe aus der Flotte fuer den javascript-code....
 		if (fleet != null)
 		{
-			Ship aship = (Ship) db.createQuery("from Ship where id>0 and owner= :user and fleet= :fleet")
-					.setEntity("user", user)
-					.setEntity("fleet", fleet)
+			Ship aship = em.createQuery("from Ship where id>0 and owner= :user and fleet= :fleet", Ship.class)
+					.setParameter("user", user)
+					.setParameter("fleet", fleet)
 					.setMaxResults(1)
-					.uniqueResult();
+					.getSingleResult();
 
 			if (aship != null)
 			{
@@ -88,12 +122,11 @@ public class FleetMgntController extends Controller
 		{
 			throw new ValidierungException("Die angegebene Flotte existiert nicht.");
 		}
-		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 
-		User owner = (User) db.createQuery("select owner from Ship where id>0 and fleet=:fleet")
-				.setEntity("fleet", fleet)
-				.iterate().next();
+		User owner = em.createQuery("select owner from Ship where id>0 and fleet=:fleet", User.class)
+				.setParameter("fleet", fleet)
+				.getSingleResult();
 
 		if (user.getId() != owner.getId())
 		{
@@ -101,9 +134,9 @@ public class FleetMgntController extends Controller
 		}
 
 		// Falls sich doch ein Schiff eines anderen Spielers eingeschlichen hat
-		db.createQuery("update Ship set fleet=null where fleet= :fleet and owner!= :user")
-				.setEntity("fleet", fleet)
-				.setEntity("user", user)
+		em.createQuery("update Ship set fleet=null where fleet= :fleet and owner!= :user")
+				.setParameter("fleet", fleet)
+				.setParameter("user", user)
 				.executeUpdate();
 	}
 
@@ -121,19 +154,18 @@ public class FleetMgntController extends Controller
 	{
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
-		org.hibernate.Session db = getDB();
 
-		long shipcount = (Long) db.createQuery("select count(*) from Ship " +
+		long shipCount = em.createQuery("select count(*) from Ship " +
 				"where owner= :user and system= :sys and " +
-				"x= :x and y= :y and shiptype= :type and docked=''")
-				.setEntity("user", user)
-				.setInteger("sys", sector.getSystem())
-				.setInteger("x", sector.getX())
-				.setInteger("y", sector.getY())
-				.setInteger("type", type)
-				.iterate().next();
+				"x= :x and y= :y and shiptype= :type and docked=''", Long.class)
+				.setParameter("user", user)
+				.setParameter("sys", sector.getSystem())
+				.setParameter("x", sector.getX())
+				.setParameter("y", sector.getY())
+				.setParameter("type", type)
+				.getSingleResult();
 
-		if ((count < 1) || (shipcount < count))
+		if ((count < 1) || (shipCount < count))
 		{
 			t.setVar("fleetmgnt.message", "Es gibt nicht genug Schiffe im Sektor.");
 			return t;
@@ -154,7 +186,6 @@ public class FleetMgntController extends Controller
 	{
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
-		org.hibernate.Session db = getDB();
 
 		Integer[] shiplist = Common.explodeToInteger("|", shiplistStr);
 
@@ -166,10 +197,11 @@ public class FleetMgntController extends Controller
 
 		t.setVar("fleetmgnt.message", redirect != null ? redirect.getMessage() : null);
 
-		boolean nonEmpty = db.createQuery("from Ship where id in (:shipIds) and owner!=:user")
-				.setParameterList("shipIds", shiplist)
-				.setEntity("user", user)
-				.iterate().hasNext();
+		boolean nonEmpty = !em.createQuery("from Ship where id in :shipIds and owner!=:user")
+				.setParameter("shipIds", shiplist)
+				.setParameter("user", user)
+				.setMaxResults(1)
+				.getResultList().isEmpty();
 
 		if (nonEmpty)
 		{
@@ -193,7 +225,6 @@ public class FleetMgntController extends Controller
 	public RedirectViewResult create2Action(String fleetname, String shiplist)
 	{
 		User user = (User) getUser();
-		org.hibernate.Session db = getDB();
 
 		Integer[] shiplistInt;
 
@@ -210,10 +241,11 @@ public class FleetMgntController extends Controller
 				throw new ValidierungException("Sie haben keine Schiffe angegeben.");
 			}
 
-			boolean nonEmpty = db.createQuery("from Ship where id in (:shipIds) and (owner!=:user or id < 0)")
-					.setParameterList("shipIds", shiplistInt)
-					.setEntity("user", user)
-					.iterate().hasNext();
+			boolean nonEmpty = !em.createQuery("from Ship where id in (:shipIds) and (owner!=:user or id < 0)")
+					.setParameter("shipIds", shiplistInt)
+					.setParameter("user", user)
+					.setMaxResults(1)
+					.getResultList().isEmpty();
 			if (nonEmpty)
 			{
 				throw new ValidierungException("Alle Schiffe müssen Ihrem Kommando unterstehen.");
@@ -225,42 +257,41 @@ public class FleetMgntController extends Controller
 			int sector = Integer.parseInt(tmp[1]);
 			int type = Integer.parseInt(tmp[2]);
 			int count = Integer.parseInt(tmp[3]);
-			Ship sectorShip = (Ship) db.get(Ship.class, sector);
+			Ship sectorShip = em.find(Ship.class, sector);
 			if ((sectorShip == null) || (sectorShip.getOwner() != user) || (sectorShip.getId() < 0))
 			{
 				throw new ValidierungException("Das Schiff untersteht nicht Ihrem Kommando.");
 			}
 
-			List<?> ships = db.createQuery("from Ship where id>0 and owner=:owner and system=:sys and x=:x and y=:y and shiptype=:type and docked='' order by fleet.id,id asc")
-					.setEntity("owner", user)
-					.setInteger("sys", sectorShip.getSystem())
-					.setInteger("x", sectorShip.getX())
-					.setInteger("y", sectorShip.getY())
-					.setInteger("type", type)
+			List<Ship> ships = em.createQuery("from Ship where id>0 and owner=:owner and system=:sys and x=:x and y=:y and shiptype=:type and docked='' order by fleet.id,id asc", Ship.class)
+					.setParameter("owner", user)
+					.setParameter("sys", sectorShip.getSystem())
+					.setParameter("x", sectorShip.getX())
+					.setParameter("y", sectorShip.getY())
+					.setParameter("type", type)
 					.setMaxResults(count)
-					.list();
+					.getResultList();
 			shiplistInt = new Integer[ships.size()];
 			int i = 0;
-			for (Object ship : ships)
+			for (Ship ship: ships)
 			{
-				Ship s = (Ship) ship;
 
-				if (s.getFleet() != null)
+				if (ship.getFleet() != null)
 				{
-					s.removeFromFleet();
+					fleetMgmtService.removeShip(ship.getFleet(), ship);
 				}
-				shiplistInt[i++] = s.getId();
+				shiplistInt[i++] = ship.getId();
 			}
 		}
 
 		if (fleetname.length() > 0)
 		{
 			ShipFleet fleet = new ShipFleet(fleetname);
-			db.persist(fleet);
+			em.persist(fleet);
 
 			for (Integer aShiplistInt : shiplistInt)
 			{
-				Ship s = (Ship) db.get(Ship.class, aShiplistInt);
+				Ship s = em.find(Ship.class, aShiplistInt);
 				if (s == null)
 				{
 					continue;
@@ -287,7 +318,6 @@ public class FleetMgntController extends Controller
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
-		org.hibernate.Session db = getDB();
 
 		t.setVar("fleet.id", fleet.getId());
 
@@ -297,38 +327,37 @@ public class FleetMgntController extends Controller
 			return t;
 		}
 
-		long shipcount = (Long) db.createQuery("select count(*) from Ship where owner=:owner and system=:sys and x=:x and y=:y and shiptype=:type and docked='' and (fleet is null or fleet!=:fleet)")
-				.setEntity("owner", user)
-				.setInteger("sys", sectorShip.getSystem())
-				.setInteger("x", sectorShip.getX())
-				.setInteger("y", sectorShip.getY())
-				.setInteger("type", type)
-				.setEntity("fleet", fleet)
-				.iterate().next();
+		long shipCount = em.createQuery("select count(*) from Ship where owner=:owner and system=:sys and x=:x and y=:y and shiptype=:type and docked='' and (fleet is null or fleet!=:fleet)", Long.class)
+				.setParameter("owner", user)
+				.setParameter("sys", sectorShip.getSystem())
+				.setParameter("x", sectorShip.getX())
+				.setParameter("y", sectorShip.getY())
+				.setParameter("type", type)
+				.setParameter("fleet", fleet)
+				.getSingleResult();
 
-		if ((count < 1) || (shipcount < count))
+		if ((count < 1) || (shipCount < count))
 		{
 			t.setVar("fleetmgnt.message", "Es gibt nicht genug Schiffe im Sektor.");
 			return t;
 		}
 
 		List<Ship> shiplist = new ArrayList<>();
-		List<?> slist = db.createQuery("from Ship where owner=:owner and system=:sys and x=:x and y=:y and shiptype=:type and " +
-				"docked='' and (fleet is null or fleet!=:fleet) order by fleet.id,id asc")
-				.setEntity("owner", user)
-				.setInteger("sys", sectorShip.getSystem())
-				.setInteger("x", sectorShip.getX())
-				.setInteger("y", sectorShip.getY())
-				.setInteger("type", type)
-				.setEntity("fleet", fleet)
+		List<Ship> slist = em.createQuery("from Ship where owner=:owner and system=:sys and x=:x and y=:y and shiptype=:type and " +
+				"docked='' and (fleet is null or fleet!=:fleet) order by fleet.id,id asc", Ship.class)
+				.setParameter("owner", user)
+				.setParameter("sys", sectorShip.getSystem())
+				.setParameter("x", sectorShip.getX())
+				.setParameter("y", sectorShip.getY())
+				.setParameter("type", type)
+				.setParameter("fleet", fleet)
 				.setMaxResults(count)
-				.list();
-		for (Object aSlist : slist)
+				.getResultList();
+		for (Ship s : slist)
 		{
-			Ship s = (Ship) aSlist;
 			if (s.getFleet() != null)
 			{
-				s.removeFromFleet();
+				fleetMgmtService.removeShip(s.getFleet(), s);
 			}
 			shiplist.add(s);
 		}
@@ -422,14 +451,13 @@ public class FleetMgntController extends Controller
 		validiereGueltigeFlotteVorhanden(fleet);
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
-		org.hibernate.Session db = getDB();
 
 		int shipid = ermittleIdEinesGeeignetenSchiffsDerFlotte(fleet);
 
-		db.createQuery("update Ship set fleet=null where fleet=:fleet")
-				.setEntity("fleet", fleet)
+		em.createQuery("update Ship set fleet=null where fleet=:fleet")
+				.setParameter("fleet", fleet)
 				.executeUpdate();
-		db.delete(fleet);
+		em.remove(fleet);
 
 		t.setVar("fleet.id", fleet.getId());
 		t.setVar("jscript.reloadmain.ship", shipid);
@@ -475,7 +503,7 @@ public class FleetMgntController extends Controller
 			t.setVar("fleet.id", fleet.getId());
 
 			t.setVar("show.newowner2", 1,
-					"newowner.name", Common._title(newowner.getName()),
+					"newowner.name", Common._title(bbCodeParser, newowner.getName()),
 					"newowner.id", newowner.getId(),
 					"fleet.id", fleet.getId(),
 					"fleet.name", Common._plaintitle(fleet.getName()));
@@ -499,24 +527,23 @@ public class FleetMgntController extends Controller
 		validiereGueltigeFlotteVorhanden(fleet);
 
 		User user = (User) this.getUser();
-		org.hibernate.Session db = getDB();
 
 		if (newowner != null)
 		{
-			if (fleet.consign(newowner))
+			if (consignService.consign(fleet, newowner))
 			{
 				TemplateEngine t = templateViewResultFactory.createFor(this);
 				t.setVar("fleet.id", fleet.getId());
 
-				Ship coords = (Ship) db.createQuery("from Ship where owner=:owner and fleet=:fleet")
-						.setEntity("owner", newowner)
-						.setEntity("fleet", fleet)
+				Ship coords = em.createQuery("from Ship where owner=:owner and fleet=:fleet", Ship.class)
+						.setParameter("owner", newowner)
+						.setParameter("fleet", fleet)
 						.setMaxResults(1)
-						.uniqueResult();
+						.getSingleResult();
 
 				if (coords != null)
 				{
-					PM.send(user, newowner.getId(), "Flotte übergeben", "Ich habe Dir die Flotte " + Common._plaintitle(fleet.getName()) + " übergeben. Sie steht bei " + coords.getLocation().displayCoordinates(false));
+					pmService.send(user, newowner.getId(), "Flotte übergeben", "Ich habe Dir die Flotte " + Common._plaintitle(fleet.getName()) + " übergeben. Sie steht bei " + locationService.displayCoordinates(coords.getLocation(), false));
 					t.setVar("fleetmgnt.message", ShipFleet.MESSAGE.getMessage() + "Die Flotte wurde übergeben.");
 				}
 				else
@@ -545,127 +572,38 @@ public class FleetMgntController extends Controller
 	{
 		validiereGueltigeFlotteVorhanden(fleet);
 
-		org.hibernate.Session db = getDB();
 
 		StringBuilder message = new StringBuilder(100);
-		List<?> ships = db.createQuery("select s from Ship as s left join s.modules m " +
-				"where s.fleet=:fleet and (s.shields < s.shiptype.shields or s.shields < m.shields) and s.battle is null")
-				.setEntity("fleet", fleet)
-				.list();
-		for (Object ship : ships)
+		List<Ship> ships = em.createQuery("select s from Ship as s left join s.modules m " +
+				"where s.fleet=:fleet and (s.shields < s.shiptype.shields or s.shields < m.shields) and s.battle is null", Ship.class)
+				.setParameter("fleet", fleet)
+				.getResultList();
+		for (Ship ship: ships)
 		{
-			Ship s = (Ship) ship;
-			ShipTypeData stype = s.getTypeData();
+			ShipTypeData shipType = ship.getTypeData();
 
 			int shieldfactor = 100;
-			if (stype.getShields() < 1000)
+			if (shipType.getShields() < 1000)
 			{
 				shieldfactor = 10;
 			}
 
-			int shup = (int) Math.ceil((stype.getShields() - s.getShields()) / (double) shieldfactor);
-			if (shup > s.getEnergy())
+			int shup = (int) Math.ceil((shipType.getShields() - ship.getShields()) / (double) shieldfactor);
+			if (shup > ship.getEnergy())
 			{
-				shup = s.getEnergy();
-				message.append(s.getName()).append(" (").append(s.getId()).append(") - ").append("<span style=\"color:orange\">Schilde bei ").append(Math.round((s.getShields() + shup * shieldfactor) / (double) stype.getShields() * 100)).append("%</span><br />");
+				shup = ship.getEnergy();
+				message.append(ship.getName()).append(" (").append(ship.getId()).append(") - ").append("<span style=\"color:orange\">Schilde bei ").append(Math.round((ship.getShields() + shup * shieldfactor) / (double) shipType.getShields() * 100)).append("%</span><br />");
 			}
-			s.setShields(s.getShields() + shup * shieldfactor);
-			if (s.getShields() > stype.getShields())
+			ship.setShields(ship.getShields() + shup * shieldfactor);
+			if (ship.getShields() > shipType.getShields())
 			{
-				s.setShields(stype.getShields());
+				ship.setShields(shipType.getShields());
 			}
-			s.setEnergy(s.getEnergy() - shup);
+			ship.setEnergy(ship.getEnergy() - shup);
 		}
 
 		return new RedirectViewResult("default").withMessage(message + " Die Schilde wurden aufgeladen.");
 	}
-
-	/**
-	 * Entlaedt die Batterien auf den Schiffen der Flotte, um die EPS wieder aufzuladen.
-	 */
-/*	@Action(ActionType.DEFAULT)
-	public RedirectViewResult dischargeBatteriesAction(ShipFleet fleet)
-	{
-		validiereGueltigeFlotteVorhanden(fleet);
-
-		org.hibernate.Session db = getDB();
-
-		StringBuilder message = new StringBuilder(100);
-
-		List<?> ships = db.createQuery("select s from Ship as s left join s.modules m " +
-				"where s.fleet=:fleet and (s.e < s.shiptype.eps or (s.e < m.eps)) and s.battle is null")
-				.setEntity("fleet", fleet)
-				.list();
-		for (Object ship : ships)
-		{
-			Ship s = (Ship) ship;
-			ShipTypeData stype = s.getTypeData();
-
-			if (s.getEnergy() >= stype.getEps())
-			{
-				continue;
-			}
-
-			Cargo cargo = s.getCargo();
-
-			long unload = stype.getEps() - s.getEnergy();
-			if (unload > cargo.getResourceCount(Resources.BATTERIEN))
-			{
-				unload = cargo.getResourceCount(Resources.BATTERIEN);
-
-				message.append(s.getName()).append(" (").append(s.getId()).append(") - <span style=\"color:orange\">Energie bei ").append(Math.round((s.getEnergy() + unload) / (double) stype.getEps() * 100)).append("%</span><br />");
-			}
-			cargo.substractResource(Resources.BATTERIEN, unload);
-			cargo.addResource(Resources.LBATTERIEN, unload);
-
-			s.setEnergy((int) (s.getEnergy() + unload));
-			s.setCargo(cargo);
-		}
-
-		return new RedirectViewResult("default").withMessage(message + "Batterien wurden entladen");
-	}*/
-
-	/**
-	 * Laedt die Batterien auf den Schiffen der Flotte auf.
-	 */
-	/*@Action(ActionType.DEFAULT)
-	public RedirectViewResult chargeBatteriesAction(ShipFleet fleet)
-	{
-		validiereGueltigeFlotteVorhanden(fleet);
-
-		org.hibernate.Session db = getDB();
-
-		StringBuilder message = new StringBuilder(100);
-
-		List<?> ships = db.createQuery("from Ship as s WHERE s.fleet=:fleet and s.battle is null")
-				.setEntity("fleet", fleet)
-				.list();
-		for (Object ship : ships)
-		{
-			Ship s = (Ship) ship;
-
-			Cargo cargo = new Cargo(s.getCargo());
-			if (!cargo.hasResource(Resources.LBATTERIEN))
-			{
-				continue;
-			}
-
-			long load = cargo.getResourceCount(Resources.LBATTERIEN);
-			if (load > s.getEnergy())
-			{
-				load = s.getEnergy();
-
-				message.append(s.getName()).append(" (").append(s.getId()).append(") - <span style=\"color:orange\">").append(load).append("/").append(cargo.getResourceCount(Resources.LBATTERIEN)).append(" Batterien aufgeladen</span><br />");
-			}
-			cargo.substractResource(Resources.LBATTERIEN, load);
-			cargo.addResource(Resources.BATTERIEN, load);
-
-			s.setEnergy((int) (s.getEnergy() - load));
-			s.setCargo(cargo);
-		}
-
-		return new RedirectViewResult("default").withMessage(message + "Batterien wurden aufgeladen");
-	}*/
 
 	/**
 	 * Exportiert die Schiffsliste der Flotte.
@@ -676,7 +614,6 @@ public class FleetMgntController extends Controller
 		validiereGueltigeFlotteVorhanden(fleet);
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
-		org.hibernate.Session db = getDB();
 
 		t.setVar("fleet.id", fleet.getId());
 
@@ -685,15 +622,14 @@ public class FleetMgntController extends Controller
 
 		t.setBlock("_FLEETMGNT", "exportships.listitem", "exportships.list");
 
-		List<?> ships = db.createQuery("from Ship where id>0 and fleet=:fleet")
-				.setEntity("fleet", fleet)
-				.list();
-		for (Object ship : ships)
+		List<Ship> ships = em.createQuery("from Ship where id>0 and fleet=:fleet", Ship.class)
+				.setParameter("fleet", fleet)
+				.getResultList();
+		for (Ship ship: ships)
 		{
-			Ship aship = (Ship) ship;
 
-			t.setVar("ship.id", aship.getId(),
-					"ship.name", Common._plaintitle(aship.getName()));
+			t.setVar("ship.id", ship.getId(),
+					"ship.name", Common._plaintitle(ship.getName()));
 
 			t.parse("exportships.list", "exportships.listitem", true);
 		}
@@ -709,7 +645,7 @@ public class FleetMgntController extends Controller
 	{
 		validiereGueltigeFlotteVorhanden(fleet);
 
-		fleet.undockContainers();
+		fleetMgmtService.undockContainers(fleet);
 
 		return new RedirectViewResult("default").withMessage("Alle gedockten Schiffe wurden gestartet.");
 	}
@@ -724,7 +660,7 @@ public class FleetMgntController extends Controller
 
 		User user = (User) getUser();
 
-		fleet.collectContainers(user);
+		collectContainers(fleet, user);
 
 		return new RedirectViewResult("default").withMessage("Container wurden aufgesammelt.");
 	}
@@ -739,7 +675,7 @@ public class FleetMgntController extends Controller
 
 		User user = (User) getUser();
 
-		fleet.collectGeschuetze(user);
+		collectGunPlatforms(fleet, user);
 
 		return new RedirectViewResult("default").withMessage("Geschütze wurden aufgesammelt.");
 	}
@@ -752,7 +688,7 @@ public class FleetMgntController extends Controller
 	{
 		validiereGueltigeFlotteVorhanden(fleet);
 
-		fleet.startFighters();
+		fleetMgmtService.startFighters(fleet);
 
 		return new RedirectViewResult("default").withMessage("Alle Jäger/Bomber sind gestartet.");
 	}
@@ -767,7 +703,7 @@ public class FleetMgntController extends Controller
 
 		User user = (User) getUser();
 
-		fleet.collectFightersByType(user, jaegertype);
+		collectFightersByType(fleet, user, jaegertype);
 
 		return new RedirectViewResult("default").withMessage("Jäger/Bomber wurden aufgesammelt.");
 	}
@@ -790,14 +726,14 @@ public class FleetMgntController extends Controller
 			return new RedirectViewResult("default");
 		}
 
-		User aowner = targetFleet.getOwner();
+		User aowner = fleetMgmtService.getOwner(targetFleet);
 		if (aowner == null || (aowner != user))
 		{
 			addError("Die angegebene Flotte geh&ouml;rt nicht ihnen!");
 			return new RedirectViewResult("default");
 		}
 
-		fleet.joinFleet(targetFleet);
+		fleetMgmtService.joinFleet(fleet, targetFleet);
 
 		return new RedirectViewResult("default").withMessage("Alle Schiffe der Flotte '" + Common._plaintitle(targetFleet.getName()) + "' sind beigetreten.");
 	}
@@ -812,7 +748,7 @@ public class FleetMgntController extends Controller
 	{
 		validiereGueltigeFlotteVorhanden(fleet);
 
-		fleet.setAlarm(alarm);
+		fleetMgmtService.setAlarm(fleet, alarm);
 
 		return new RedirectViewResult("default").withMessage("Die Alarmstufe wurde geändert.");
 	}
@@ -840,7 +776,6 @@ public class FleetMgntController extends Controller
 	 * Baut ein Schiffstyp n-mal in allen Werften der Flotte, die dazu in der Lage sind.
 	 */
 	@Action(ActionType.DEFAULT)
-	@SuppressWarnings("unchecked")
 	public RedirectViewResult buildAction(ShipFleet fleet, int buildcount, String buildid)
 	{
 		validiereGueltigeFlotteVorhanden(fleet);
@@ -850,12 +785,11 @@ public class FleetMgntController extends Controller
 			return new RedirectViewResult("default");
 		}
 
-		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
-		List<Ship> shipyards = db.createQuery("from Ship where id>0 and owner=:owner and fleet=:fleet and shiptype.werft > 0 order by id")
-				.setEntity("owner", user)
-				.setEntity("fleet", fleet)
-				.list();
+		List<Ship> shipyards = em.createQuery("from Ship where id>0 and owner=:owner and fleet=:fleet and shiptype.werft > 0 order by id", Ship.class)
+				.setParameter("owner", user)
+				.setParameter("fleet", fleet)
+				.getResultList();
 
 		shipyards.removeIf(ship -> ship.getTypeData().getWerft() == 0);
 
@@ -870,14 +804,14 @@ public class FleetMgntController extends Controller
 			int couldNotBuild = 0;
 			for (Ship ship : shipyards)
 			{
-				WerftObject shipyard = (WerftObject) db.createQuery("from ShipWerft where ship=:ship")
-						.setInteger("ship", ship.getId())
-						.uniqueResult();
+				WerftObject shipyard = em.createQuery("from ShipWerft where ship=:ship", WerftObject.class)
+						.setParameter("ship", ship.getId())
+						.getSingleResult();
 				if (shipyard.getKomplex() != null)
 				{
 					shipyard = shipyard.getKomplex();
 				}
-				if (shipyard.buildShip(SchiffBauinformationen.fromId(buildid), false, false))
+				if (shipActionService.buildShip(shipyard, SchiffBauinformationen.fromId(buildid), false, false))
 				{
 					buildcount--;
 				}
@@ -910,33 +844,31 @@ public class FleetMgntController extends Controller
 	public RedirectViewResult fillFoodAction(ShipFleet fleet) {
 		validiereGueltigeFlotteVorhanden(fleet);
 
-		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 
-		List<?> ships = db.createQuery("from Ship as s WHERE s.id>0 and s.owner=:owner and s.fleet=:fleet and s.battle is null")
-				.setEntity("owner", user)
-				.setEntity("fleet", fleet)
-				.list();
+		List<Ship> ships = em.createQuery("from Ship as s WHERE s.id>0 and s.owner=:owner and s.fleet=:fleet and s.battle is null", Ship.class)
+				.setParameter("owner", user)
+				.setParameter("fleet", fleet)
+				.getResultList();
 
 		StringBuilder message = new StringBuilder(100);
-		for (Object ship : ships) {
-			Ship s = (Ship) ship;
-			Cargo cargo = new Cargo(s.getCargo());
+		for (Ship ship: ships) {
+			Cargo cargo = new Cargo(ship.getCargo());
 
-			long usenahrung = s.getTypeData().getNahrungCargo() - s.getNahrungCargo();
+			long usenahrung = ship.getTypeData().getNahrungCargo() - ship.getNahrungCargo();
 			if(usenahrung > cargo.getResourceCount(Resources.NAHRUNG)) {
 				usenahrung = cargo.getResourceCount(Resources.NAHRUNG);
 			}
 
-			s.setNahrungCargo(s.getNahrungCargo()+usenahrung);
+			ship.setNahrungCargo(ship.getNahrungCargo()+usenahrung);
 			cargo.substractResource(Resources.NAHRUNG, usenahrung);
-			s.setCargo(cargo);
+			ship.setCargo(cargo);
 
 			if(usenahrung > 0) {
-				message.append(s.getName()).append(" (").append(s.getId()).append(") - <span style=\"color:orange\">")
+				message.append(ship.getName()).append(" (").append(ship.getId()).append(") - <span style=\"color:orange\">")
 					.append(usenahrung).append(" Nahrung transferiert</span><br />");
 			}
-			s.setCargo(cargo);
+			ship.setCargo(cargo);
 		}
 		return new RedirectViewResult("default").withMessage(message.append("Nahrung erfolgreich in den Nahrungsspeicher transferiert.").toString());
 	}
@@ -1115,17 +1047,14 @@ public class FleetMgntController extends Controller
 	{
 		validiereGueltigeFlotteVorhanden(fleet);
 
-		org.hibernate.Session db = getDB();
 		List<NamePatternElement> nameParts = parseNamePattern(name);
 
-		List<?> ships = db.createQuery("from Ship where id>0 and fleet=:fleet")
-				.setEntity("fleet", fleet)
-				.list();
+		List<Ship> ships = em.createQuery("from Ship where id>0 and fleet=:fleet", Ship.class)
+				.setParameter("fleet", fleet)
+				.getResultList();
 
-		for (Object ship1 : ships)
+		for (Ship ship: ships)
 		{
-			Ship ship = (Ship) ship1;
-
 			ship.setName(generateNextShipName(nameParts));
 		}
 
@@ -1143,7 +1072,6 @@ public class FleetMgntController extends Controller
 	{
 		validiereGueltigeFlotteVorhanden(fleet);
 
-		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 
 		crewinpercent = Math.min(crewinpercent, 100);
@@ -1151,18 +1079,18 @@ public class FleetMgntController extends Controller
 
 		double crewInPercent = crewinpercent / 100.0;
 
-		List<Ship> ships = Common.cast(db.createQuery("from Ship " +
-				"where id>0 and owner=:owner and fleet=:fleet order by id")
-				.setEntity("owner", user)
-				.setEntity("fleet", fleet)
-				.list());
+		List<Ship> ships = em.createQuery("from Ship " +
+				"where id>0 and owner=:owner and fleet=:fleet order by id", Ship.class)
+				.setParameter("owner", user)
+				.setParameter("fleet", fleet)
+				.getResultList();
 
 		for (Ship ship : ships)
 		{
 			int amount = (int) (Math.round((ship.getTypeData().getCrew() * crewInPercent)) - ship.getCrew());
 			for (Base base : user.getBases())
 			{
-				amount -= base.transferCrew(ship, amount);
+				amount -= baseService.transferCrew(base, ship, amount);
 			}
 		}
 
@@ -1196,16 +1124,15 @@ public class FleetMgntController extends Controller
 
 		List<WerftObject> shipyards = new ArrayList<>();
 
-		org.hibernate.Session db = getDB();
 		if (getGanymedCount(fleet) > 0)
 		{
 			Ship aship = getOneFleetShip(fleet);
-			shipyards = Common.cast(db.createQuery("from ShipWerft where ship.system=:system and ship.x=:x and ship.y=:y and ship.owner=:owner")
+			shipyards = em.createQuery("from ShipWerft where ship.system=:system and ship.x=:x and ship.y=:y and ship.owner=:owner", WerftObject.class)
 					.setParameter("system", aship.getSystem())
 					.setParameter("x", aship.getX())
 					.setParameter("y", aship.getY())
 					.setParameter("owner", aship.getOwner())
-					.list());
+					.getResultList();
 		}
 
 		List<Base> bases = getOwnerAsteroids(fleet);
@@ -1225,7 +1152,7 @@ public class FleetMgntController extends Controller
 		{
 			for (WerftObject shipyard : shipyards)
 			{
-				if (fleet.dismantleFleet(shipyard))
+				if (fleetMgmtService.dismantleFleet(shipyard, fleet))
 				{
 					TemplateEngine t = templateViewResultFactory.createFor(this);
 					int shipid = ermittleIdEinesGeeignetenSchiffsDerFlotte(fleet);
@@ -1273,22 +1200,21 @@ public class FleetMgntController extends Controller
 
         List<WerftObject> shipyards = new ArrayList<>();
 
-        org.hibernate.Session db = getDB();
         if (getGanymedCount(fleet) > 0)
         {
             Ship aship = getOneFleetShip(fleet);
-            List<ShipWerft> tshipyards = Common.cast(db.createQuery("from ShipWerft where ship.system=:system and ship.x=:x and ship.y=:y and ship.owner=:owner")
+            List<ShipWerft> tshipyards = em.createQuery("from ShipWerft where ship.system=:system and ship.x=:x and ship.y=:y and ship.owner=:owner", ShipWerft.class)
                     .setParameter("system", aship.getSystem())
                     .setParameter("x", aship.getX())
                     .setParameter("y", aship.getY())
                     .setParameter("owner", aship.getOwner())
-                    .list());
+                    .getResultList();
 
             for(ShipWerft shipyard : tshipyards)
             {
                 if(shipyard.getKomplex() != null && !shipyards.contains(shipyard.getKomplex()))
                 {
-                    shipyards.add(shipyard.getKomplex());
+					shipyards.add(shipyard.getKomplex());
                 }
                 else if(shipyard.getKomplex() == null)
                 {
@@ -1296,8 +1222,6 @@ public class FleetMgntController extends Controller
                 }
             }
         }
-
-
 
         List<Base> bases = getOwnerAsteroids(fleet);
         if (!bases.isEmpty())
@@ -1307,7 +1231,7 @@ public class FleetMgntController extends Controller
                 WerftObject shipyard = base.getShipyard();
                 if (shipyard != null)
                 {
-                    shipyards.add(shipyard);
+					shipyards.add(shipyard);
                 }
             }
         }
@@ -1315,26 +1239,26 @@ public class FleetMgntController extends Controller
         if (!shipyards.isEmpty())
         {
             TemplateEngine t = templateViewResultFactory.createFor(this);
-            int repaired = 0;
 
-            for (Ship aship : fleet.getShips())
-            {
-                if(aship.needRepair())
-                {
-                    for (WerftObject shipyard : shipyards)
-                    {
-                        if (shipyard.repairShip(aship, false))
-                        {
-                            repaired++;
-                        }
-                    }
-                }
-            }
+
+
+            List<Ship> shipsToRepair = fleetMgmtService.getShips(fleet).stream()
+				.filter(Ship::needRepair)
+				.collect(toList());
+
+			int repairedShips = 0;
+            for(Ship shipToRepair: shipsToRepair) {
+				for(WerftObject shipyard: shipyards) {
+					if (shipActionService.repairShip(shipyard, shipToRepair, false)) {
+						repairedShips++;
+					}
+				}
+			}
 
             int shipid = ermittleIdEinesGeeignetenSchiffsDerFlotte(fleet);
 
             t.setVar("jscript.reloadmain.ship", shipid);
-            t.setVar("fleetmgnt.message", "Es wurden " + repaired + " Schiffe repariert.");
+            t.setVar("fleetmgnt.message", "Es wurden " + repairedShips + " Schiffe repariert.");
 
             return t;
         }
@@ -1351,14 +1275,13 @@ public class FleetMgntController extends Controller
     {
         validiereGueltigeFlotteVorhanden(fleet);
 
-        org.hibernate.Session db = getDB();
         User user = (User) getUser();
 
-        List<Ship> ships = Common.cast(db.createQuery("from Ship " +
-                "where id>0 and owner=:owner and fleet=:fleet order by id")
-                .setEntity("owner", user)
-                .setEntity("fleet", fleet)
-                .list());
+        List<Ship> ships = em.createQuery("from Ship " +
+                "where id>0 and owner=:owner and fleet=:fleet order by id", Ship.class)
+                .setParameter("owner", user)
+                .setParameter("fleet", fleet)
+                .getResultList();
 
         for(Ship ship : ships)
         {
@@ -1377,16 +1300,15 @@ public class FleetMgntController extends Controller
     {
         validiereGueltigeFlotteVorhanden(fleet);
 
-        org.hibernate.Session db = getDB();
         User user = (User) getUser();
 
-        List<Ship> ships = Common.cast(db.createQuery("from Ship " +
-                "where id>0 and owner=:owner and fleet=:fleet order by id")
-                .setEntity("owner", user)
-                .setEntity("fleet", fleet)
-                .list());
+        List<Ship> ships = em.createQuery("from Ship " +
+                "where id>0 and owner=:owner and fleet=:fleet order by id", Ship.class)
+                .setParameter("owner", user)
+                .setParameter("fleet", fleet)
+                .getResultList();
 
-        for(Ship ship : ships)
+        for(Ship ship: ships)
         {
             if(ship.getTypeData().getDeutFactor() > 0)
             {
@@ -1403,7 +1325,6 @@ public class FleetMgntController extends Controller
 	{
 		validiereGueltigeFlotteVorhanden(fleet);
 
-		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 
@@ -1437,26 +1358,24 @@ public class FleetMgntController extends Controller
 
 		Location aloc = aship.getLocation();
 
-		List<?> ships = db.createQuery("from Ship where id>0 and owner=:owner and fleet=:fleet order by id")
-				.setEntity("owner", user)
-				.setEntity("fleet", fleet)
-				.list();
+		List<Ship> ships = em.createQuery("from Ship where id>0 and owner=:owner and fleet=:fleet order by id", Ship.class)
+				.setParameter("owner", user)
+				.setParameter("fleet", fleet)
+				.getResultList();
 
 		Set<WerftObject> werften = new HashSet<>();
         boolean hasTanker = false;
-		for (Object ship1 : ships)
+		for (Ship ship: ships)
 		{
-			Ship ship = (Ship) ship1;
-
 			ShipTypeData shiptype = ship.getTypeData();
 			Location loc = ship.getLocation();
 
 			//Find shipyards
 			if (shiptype.getWerft() > 0)
 			{
-				WerftObject werft = (WerftObject) db.createQuery("from ShipWerft where ship=:ship")
-						.setInteger("ship", ship.getId())
-						.uniqueResult();
+				WerftObject werft = em.createQuery("from ShipWerft where ship=:ship", WerftObject.class)
+						.setParameter("ship", ship.getId())
+						.getSingleResult();
 				if (werft != null && werft.getKomplex() != null)
 				{
 					werften.add(werft.getKomplex());
@@ -1515,7 +1434,7 @@ public class FleetMgntController extends Controller
 		Set<SchiffBauinformationen> buildableShips = new TreeSet<>();
 		for (WerftObject werft : werften)
 		{
-			buildableShips.addAll(werft.getBuildShipList());
+			buildableShips.addAll(shipyardService.getBuildShipList(werft));
 		}
 
 		//List of buildable ships
@@ -1532,14 +1451,14 @@ public class FleetMgntController extends Controller
 		}
 
 		//Find asteroids in sector
-		long asteroidcount = (Long) db.createQuery("select count(id) from Base where system=:system and x=:x and y=:y and owner=:owner")
+		long asteroidCount = em.createQuery("select count(id) from Base where system=:system and x=:x and y=:y and owner=:owner", Long.class)
 				.setParameter("system", aship.getSystem())
 				.setParameter("x", aship.getX())
 				.setParameter("y", aship.getY())
 				.setParameter("owner", user)
-				.uniqueResult();
+				.getSingleResult();
 
-		if (asteroidcount > 0)
+		if (asteroidCount > 0)
 		{
 			t.setVar("astiinsector", 1);
 		}
@@ -1558,7 +1477,7 @@ public class FleetMgntController extends Controller
 		else
 		{
 			//Find shipyards on asteroids
-			if (asteroidcount > 0)
+			if (asteroidCount > 0)
 			{
 				List<Base> bases = getOwnerAsteroids(fleet);
 
@@ -1578,16 +1497,16 @@ public class FleetMgntController extends Controller
 
 		t.setBlock("_FLEETMGNT", "jaegertypes.listitem", "jaegertypes.list");
 
-		List<?> shiptypes = db.createQuery("select s.shiptype,count(*) " +
+		List<Object[]> shiptypes = em.createQuery("select s.shiptype,count(*) " +
 				"from Ship as s " +
 				"where s.owner=:owner and locate(:flag,s.shiptype.flags)!=0 and s.docked='' and (" + sectorstring + ") " +
-				"group by s.shiptype")
-				.setEntity("owner", user)
-				.setString("flag", ShipTypeFlag.JAEGER.getFlag())
-				.list();
-		for (Object shiptype1 : shiptypes)
+				"group by s.shiptype", Object[].class)
+				.setParameter("owner", user)
+				.setParameter("flag", ShipTypeFlag.JAEGER.getFlag())
+				.getResultList();
+		for (Object[] shiptype1 : shiptypes)
 		{
-			ShipType shiptype = (ShipType) ((Object[]) shiptype1)[0];
+			ShipType shiptype = (ShipType)shiptype1[0];
 
 			t.setVar("jaegertype.id", shiptype.getId(),
 					"jaegertype.name", shiptype.getNickname());
@@ -1597,22 +1516,21 @@ public class FleetMgntController extends Controller
 
 		// Flottenliste bauen
 		t.setBlock("_FLEETMGNT", "fleetcombine.listitem", "fleetcombine.list");
-		List<?> fleetList = db.createQuery("select distinct s.fleet from Ship as s " +
-				"where s.system=:sys and s.x=:x and s.y=:y AND docked='' AND owner=:owner AND s.fleet!=:fleet")
-				.setInteger("sys", aship.getSystem())
-				.setInteger("x", aship.getX())
-				.setInteger("y", aship.getY())
-				.setEntity("owner", user)
-				.setEntity("fleet", fleet)
-				.list();
+		List<ShipFleet> fleets = em.createQuery("select distinct s.fleet from Ship as s " +
+				"where s.system=:sys and s.x=:x and s.y=:y AND docked='' AND owner=:owner AND s.fleet!=:fleet", ShipFleet.class)
+				.setParameter("sys", aship.getSystem())
+				.setParameter("x", aship.getX())
+				.setParameter("y", aship.getY())
+				.setParameter("owner", user)
+				.setParameter("fleet", fleet)
+				.getResultList();
 
-		for (Object aFleetList : fleetList)
+		for (ShipFleet afleet : fleets)
 		{
-			ShipFleet afleet = (ShipFleet) aFleetList;
 
-			long count = (Long) db.createQuery("select count(*) from Ship where fleet=:fleet")
-					.setEntity("fleet", afleet)
-					.iterate().next();
+			long count = em.createQuery("select count(*) from Ship where fleet=:fleet", Long.class)
+					.setParameter("fleet", afleet)
+					.getSingleResult();
 
 			t.setVar("fleetcombine.id", afleet.getId(),
 					"fleetcombine.name", Common._plaintitle(afleet.getName()),
@@ -1631,14 +1549,13 @@ public class FleetMgntController extends Controller
 	 */
 	private List<Base> getOwnerAsteroids(ShipFleet fleet)
 	{
-		org.hibernate.Session db = getDB();
-		Ship aship = getOneFleetShip(fleet);
-		return Common.cast(db.createQuery("from Base where system=:system and x=:x and y=:y and owner=:owner")
-				.setParameter("system", aship.getSystem())
-				.setParameter("x", aship.getX())
-				.setParameter("y", aship.getY())
-				.setParameter("owner", aship.getOwner())
-				.list());
+		Ship ship = getOneFleetShip(fleet);
+		return em.createQuery("from Base where system=:system and x=:x and y=:y and owner=:owner", Base.class)
+				.setParameter("system", ship.getSystem())
+				.setParameter("x", ship.getX())
+				.setParameter("y", ship.getY())
+				.setParameter("owner", ship.getOwner())
+				.getResultList();
 	}
 
 	/**
@@ -1648,11 +1565,10 @@ public class FleetMgntController extends Controller
 	 */
 	private Ship getOneFleetShip(ShipFleet fleet)
 	{
-		org.hibernate.Session db = getDB();
-		return (Ship) db.createQuery("from Ship where id>0 and fleet=:fleet")
-				.setEntity("fleet", fleet)
+		return em.createQuery("from Ship where id>0 and fleet=:fleet", Ship.class)
+				.setParameter("fleet", fleet)
 				.setMaxResults(1)
-				.uniqueResult();
+				.getSingleResult();
 	}
 
 	/**
@@ -1662,12 +1578,143 @@ public class FleetMgntController extends Controller
 	 */
 	private long getGanymedCount(ShipFleet fleet)
 	{
-		org.hibernate.Session db = getDB();
-		Ship aship = getOneFleetShip(fleet);
-		return (Long) db.createQuery("select count(id) from ShipWerft where ship.system=:system and ship.x=:x and ship.y=:y")
-				.setParameter("system", aship.getSystem())
-				.setParameter("x", aship.getX())
-				.setParameter("y", aship.getY())
-				.uniqueResult();
+		Ship ship = getOneFleetShip(fleet);
+		return em.createQuery("select count(id) from ShipWerft where ship.system=:system and ship.x=:x and ship.y=:y", Long.class)
+				.setParameter("system", ship.getSystem())
+				.setParameter("x", ship.getX())
+				.setParameter("y", ship.getY())
+				.getSingleResult();
+	}
+
+	/**
+	 * Sammelt alle Container auf und dockt sie an Schiffe der Flotte.
+	 *
+	 * @param user Der Besitzer der Flotte/Container
+	 */
+	private void collectContainers(ShipFleet fleet, User user) {
+		List<Ship> ships = em.createQuery("from Ship where id>0 and fleet=:fleet and battle is null", Ship.class)
+			.setParameter("fleet", fleet)
+			.getResultList();
+
+		for (Ship ship : ships) {
+			ShipTypeData shiptype = ship.getTypeData();
+
+			if (shiptype.getADocks() == 0) {
+				continue;
+			}
+
+			int free = shiptype.getADocks() - (int) shipService.getDockedCount(ship);
+			if (free == 0) {
+				continue;
+			}
+
+			List<Ship> containers = em.createQuery("from Ship as s " +
+				"where s.owner=:owner and s.system=:sys and s.x=:x and s.y=:y and s.docked='' and " +
+				"s.shiptype.shipClass=:cls and s.battle is null " +
+				"order by s.fleet.id,s.shiptype.id", Ship.class)
+				.setParameter("owner", user)
+				.setParameter("sys", ship.getSystem())
+				.setParameter("x", ship.getX())
+				.setParameter("y", ship.getY())
+				.setParameter("cls", ShipClasses.CONTAINER)
+				.getResultList();
+
+			if (containers.isEmpty()) {
+				break;
+			}
+
+			shipService.dock(ship, containers.subList(0, Math.min(free, containers.size())).toArray(new Ship[0]));
+		}
+	}
+
+	/**
+	 * Sammelt alle Geschütze auf und dockt sie an Schiffe der Flotte.
+	 *
+	 * @param user Der Besitzer der Flotte/Geschütze
+	 */
+	public void collectGunPlatforms(ShipFleet fleet, User user) {
+		List<Ship> ships = em.createQuery("from Ship where id>0 and fleet=:fleet and battle is null", Ship.class)
+			.setParameter("fleet", fleet)
+			.getResultList();
+
+		for (Ship ship : ships) {
+			ShipTypeData shiptype = ship.getTypeData();
+
+			if (shiptype.getADocks() == 0) {
+				continue;
+			}
+
+			int free = shiptype.getADocks() - (int) shipService.getDockedCount(ship);
+			if (free == 0) {
+				continue;
+			}
+
+			List<Ship> gunPlatforms = em.createQuery("from Ship as s " +
+				"where s.owner=:owner and s.system=:sys and s.x=:x and s.y=:y and s.docked='' and " +
+				"s.shiptype.shipClass=:cls and s.battle is null " +
+				"order by s.fleet.id,s.shiptype.id", Ship.class)
+				.setParameter("owner", user)
+				.setParameter("sys", ship.getSystem())
+				.setParameter("x", ship.getX())
+				.setParameter("y", ship.getY())
+				.setParameter("cls", ShipClasses.GESCHUETZ)
+				.getResultList();
+
+			if (gunPlatforms.isEmpty()) {
+				break;
+			}
+
+			shipService.dock(ship, gunPlatforms.subList(0, Math.min(free, gunPlatforms.size())).toArray(new Ship[0]));
+		}
+	}
+
+	/**
+	 * Sammelt alle Jaeger eines Typs auf und landet sie auf den Schiffen
+	 * der Flotte. Sollen alle Jaeger aufgesammelt werden, so muss als Typ
+	 * <code>0</code> angegeben werden.
+	 *
+	 * @param user         Der Besitzer der Flotte/Jaeger
+	 * @param jaegertypeID Der Typ der Jaeger oder <code>null</code>
+	 */
+	public void collectFightersByType(ShipFleet fleet, User user, int jaegertypeID) {
+		List<Ship> ships = em.createQuery("from Ship where id>0 and fleet=:fleet and battle is null", Ship.class)
+			.setParameter("fleet", fleet)
+			.getResultList();
+
+		for (Ship ship : ships) {
+			ShipTypeData shiptype = ship.getTypeData();
+
+			if (shiptype.getJDocks() == 0) {
+				continue;
+			}
+			int free = shiptype.getJDocks() - (int) shipService.getLandedCount(ship);
+			if (free == 0) {
+				continue;
+			}
+
+			TypedQuery<Ship> fighterQuery = em.createQuery("select s from Ship as s left join s.modules m " +
+				"where " + (jaegertypeID > 0 ? "s.shiptype=:shiptype and " : "") + "s.owner=:user and s.system=:system and " +
+				"s.x=:x and s.y=:y and s.docked='' and " +
+				"(locate(:jaegerFlag,s.shiptype.flags)!=0 or locate(:jaegerFlag,m.flags)!=0) and " +
+				"s.battle is null " +
+				"order by s.fleet.id,s.shiptype.id ", Ship.class)
+				.setParameter("user", user)
+				.setParameter("system", ship.getSystem())
+				.setParameter("x", ship.getX())
+				.setParameter("y", ship.getY())
+				.setParameter("jaegerFlag", ShipTypeFlag.JAEGER.getFlag());
+
+			if (jaegertypeID > 0) {
+				fighterQuery.setParameter("shiptype", jaegertypeID);
+			}
+			List<Ship> fighters = fighterQuery.getResultList();
+
+			if (fighters.isEmpty()) {
+				break;
+			}
+
+			fighters = fighters.subList(0, Math.min(free, fighters.size()));
+			shipService.land(ship, fighters.toArray(new Ship[0]));
+		}
 	}
 }

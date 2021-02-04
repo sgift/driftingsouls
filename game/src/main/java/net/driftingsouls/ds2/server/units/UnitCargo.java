@@ -460,14 +460,14 @@ public abstract class UnitCargo implements Cloneable {
 			return 0;
 		}
 
-		int kapervalue = 0;
+		long kapervalue = 0;
 		for(UnitCargoEntry aunit : units)
 		{
 			UnitType unittype = aunit.getUnitType();
 			kapervalue += unittype.getKaperValue() * aunit.getAmount();
 		}
 
-		return kapervalue;
+		return (int)kapervalue;
 	}
 
 	/**

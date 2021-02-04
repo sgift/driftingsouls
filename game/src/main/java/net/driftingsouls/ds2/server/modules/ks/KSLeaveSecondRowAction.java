@@ -23,8 +23,11 @@ import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.battles.BattleShipFlag;
 import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.services.BattleService;
+import net.driftingsouls.ds2.server.services.ShipService;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.List;
@@ -34,12 +37,13 @@ import java.util.List;
  * @author Christopher Jung
  *
  */
+@Component
 public class KSLeaveSecondRowAction extends BasicKSAction {
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public KSLeaveSecondRowAction() {
+	private final ShipService shipService;
+
+	public KSLeaveSecondRowAction(BattleService battleService, ShipService shipService) {
+		super(battleService, null);
+		this.shipService = shipService;
 		this.requireOwnShipReady(true);
 	}
 	
@@ -103,14 +107,14 @@ public class KSLeaveSecondRowAction extends BasicKSAction {
 		}
 		
 		if( this.validate(battle) != Result.OK ) {
-			battle.logme("Die Aktion kann nicht ausgef&uuml;hrt werden");
+			getBattleService().logme(battle,"Die Aktion kann nicht ausgef&uuml;hrt werden");
 			return Result.ERROR;
 		}
 		
 		BattleShip ownShip = battle.getOwnShip();
 
-		battle.logme( ownShip.getName()+" fliegt zur Front\n" );
-		battle.log(new SchlachtLogAktion(battle.getOwnSide(), Battle.log_shiplink(ownShip.getShip())+" fliegt zur Front\n"));
+		getBattleService().logme(battle, ownShip.getName()+" fliegt zur Front\n" );
+		getBattleService().log(battle, new SchlachtLogAktion(battle.getOwnSide(), Battle.log_shiplink(ownShip.getShip())+" fliegt zur Front\n"));
 
 		ownShip.removeFlag(BattleShipFlag.SECONDROW);
 		ownShip.addFlag(BattleShipFlag.SECONDROW_BLOCKED);
@@ -119,7 +123,7 @@ public class KSLeaveSecondRowAction extends BasicKSAction {
 		for(BattleShip ship: battle.getOwnShips())
 		{
 			if((ship.getShip().isLanded() || ship.getShip().isDocked()) &&
-					ship.getShip().getBaseShip().getId() == ownShip.getShip().getId() &&
+					shipService.getBaseShip(ship.getShip()).getId() == ownShip.getShip().getId() &&
 					ship.hasFlag(BattleShipFlag.SECONDROW) )
 			{
 				ship.removeFlag(BattleShipFlag.SECONDROW);
@@ -130,7 +134,7 @@ public class KSLeaveSecondRowAction extends BasicKSAction {
 		
 		if( remove > 0 ) 
 		{
-			battle.logme(remove +" an "+ownShip.getName()+" gedockte Schiffe fliegen zur Front\n");
+			getBattleService().logme(battle,remove +" an "+ownShip.getName()+" gedockte Schiffe fliegen zur Front\n");
 		}
 
 		return Result.OK;

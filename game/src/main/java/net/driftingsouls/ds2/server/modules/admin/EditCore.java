@@ -10,6 +10,7 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
 
 /**
  * Editiert die Werte von Cores.
@@ -17,6 +18,7 @@ import org.springframework.lang.NonNull;
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Asteroiden", name = "Core", permission = WellKnownAdminPermission.EDIT_CORE)
+@Component
 public class EditCore implements EntityEditor<Core>
 {
 	@Override

@@ -6,8 +6,10 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
 
 @AdminMenuEntry(category = "Sonstiges", name="Tutorial", permission = WellKnownAdminPermission.EDIT_INT_TUTORIAL)
+@Component
 public class EditIntTutorial implements EntityEditor<IntTutorial>
 {
 	@Override

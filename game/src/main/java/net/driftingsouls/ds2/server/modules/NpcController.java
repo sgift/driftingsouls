@@ -1,11 +1,13 @@
 package net.driftingsouls.ds2.server.modules;
 
-import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Medal;
-import net.driftingsouls.ds2.server.config.Medals;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
+import net.driftingsouls.ds2.server.services.AllianzService;
+import net.driftingsouls.ds2.server.services.MedalService;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.Loyalitaetspunkte;
 import net.driftingsouls.ds2.server.entities.User;
@@ -14,6 +16,7 @@ import net.driftingsouls.ds2.server.entities.UserRank;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.FactionShopOrder;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionAktionsMeldung;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintrag;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.services.FraktionsGuiEintragService;
 import net.driftingsouls.ds2.server.entities.npcorders.Order;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderOffizier;
@@ -34,13 +37,17 @@ import net.driftingsouls.ds2.server.modules.viewmodels.LoyalitaetspunkteViewMode
 import net.driftingsouls.ds2.server.modules.viewmodels.MedalViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.RangViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.UserViewModel;
+import net.driftingsouls.ds2.server.services.PmService;
+import net.driftingsouls.ds2.server.services.UserService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tasks.Task;
-import net.driftingsouls.ds2.server.tasks.Taskmanager;
+import net.driftingsouls.ds2.server.tasks.TaskManager;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -60,17 +67,37 @@ import java.util.stream.Collectors;
 @Module(name = "npc")
 public class NpcController extends Controller
 {
-	private final FraktionsGuiEintragService fraktionsGuiEintragService;
 	private boolean isHead = false;
 	private boolean shop = false;
+
+	@PersistenceContext
+	private EntityManager em;
+
+	private final FraktionsGuiEintragService fraktionsGuiEintragService;
+	private final Rassen races;
+	private final UserService userService;
+	private final ConfigService configService;
+	private final PmService pmService;
+	private final BBCodeParser bbCodeParser;
+	private final MedalService medalService;
+	private final AllianzService allyService;
+	private final TaskManager taskManager;
 
 	/**
 	 * Konstruktor.
 	 */
 	@Autowired
-	public NpcController(FraktionsGuiEintragService fraktionsGuiEintragService)
+	public NpcController(FraktionsGuiEintragService fraktionsGuiEintragService, Rassen races, UserService userService, ConfigService configService, PmService pmService, MedalService medalService, BBCodeParser bbCodeParser, AllianzService allyService, TaskManager taskManager)
 	{
 		this.fraktionsGuiEintragService = fraktionsGuiEintragService;
+		this.races = races;
+		this.userService = userService;
+		this.configService = configService;
+		this.pmService = pmService;
+		this.medalService = medalService;
+		this.bbCodeParser = bbCodeParser;
+		this.allyService = allyService;
+		this.taskManager = taskManager;
 	}
 
 	@Override
@@ -83,7 +110,7 @@ public class NpcController extends Controller
 			throw new ValidierungException("Nur NPCs können dieses Script nutzen.", Common.buildUrl("default", "module", "ueber"));
 		}
 
-		if (Rassen.get().rasse(user.getRace()).isHead(user))
+		if (races.rasse(user.getRace()).isHead(user))
 		{
 			this.isHead = true;
 		}
@@ -141,7 +168,6 @@ public class NpcController extends Controller
 	@Action(ActionType.AJAX)
 	public ShopMenuViewModel shopMenuAction()
 	{
-		org.hibernate.Session db = getDB();
 		User user = (User) this.getUser();
 
 		if (!this.shop)
@@ -152,27 +178,25 @@ public class NpcController extends Controller
 		ShopMenuViewModel result = new ShopMenuViewModel();
 		fillCommonMenuResultData(result);
 
-		List<?> ships = db.createQuery("from Ship s where s.owner=:user and locate('#!/tm gany_transport',s.einstellungen.destcom)!=0")
-						.setEntity("user", user)
-						.list();
-		for (Object ship : ships)
+		List<Ship> ships = em.createQuery("from Ship s where s.owner=:user and locate('#!/tm gany_transport',s.einstellungen.destcom)!=0", Ship.class)
+						.setParameter("user", user)
+						.getResultList();
+		for (Ship ship: ships)
 		{
-			Ship aship = (Ship) ship;
-			ShipTypeData ashiptype = aship.getTypeData();
+			ShipTypeData ashiptype = ship.getTypeData();
 
 			ShopMenuViewModel.TransporterViewModel transObj = new ShopMenuViewModel.TransporterViewModel();
 			transObj.status = "lageweile";
 			transObj.auftrag = "-";
 
 			ShopMenuViewModel.ShipViewModel shipObj = new ShopMenuViewModel.ShipViewModel();
-			shipObj.id = aship.getId();
-			shipObj.name = aship.getName();
+			shipObj.id = ship.getId();
+			shipObj.name = ship.getName();
 			shipObj.picture = ashiptype.getPicture();
 
 			transObj.ship = shipObj;
 
-			Taskmanager taskmanager = Taskmanager.getInstance();
-			Task[] tasks = taskmanager.getTasksByData(Taskmanager.Types.GANY_TRANSPORT, "*", Integer.toString(aship.getId()), "*");
+			Task[] tasks = taskManager.getTasksByData(TaskManager.Types.GANY_TRANSPORT, "*", Integer.toString(ship.getId()), "*");
 			if (tasks.length == 0)
 			{
 				continue;
@@ -195,11 +219,11 @@ public class NpcController extends Controller
 
 			transObj.status = status;
 
-			FactionShopOrder order = (FactionShopOrder) db.get(FactionShopOrder.class, Integer.parseInt(task.getData1()));
+			FactionShopOrder order = em.find(FactionShopOrder.class, Integer.parseInt(task.getData1()));
 
 			if (order == null)
 			{
-				db.delete(task);
+				em.remove(task);
 				continue;
 			}
 
@@ -209,9 +233,10 @@ public class NpcController extends Controller
 			{
 				orderuser = new User();
 				orderuser.setName("deleted user");
+				orderuser.setPlainname("deleted user");
 			}
 
-			transObj.auftrag = order.getId() + ": " + Common._title(orderuser.getName()) + "\n" + order.getAddData();
+			transObj.auftrag = order.getId() + ": " + Common._title(bbCodeParser, orderuser.getName()) + "\n" + order.getAddData();
 
 			result.transporter.add(transObj);
 		}
@@ -236,7 +261,7 @@ public class NpcController extends Controller
 			return ViewMessage.failure("Sie sind nicht berechtigt auf dieses Menü zuzugreifen");
 		}
 
-		User edituser = User.lookupByIdentifier(edituserID);
+		User edituser = userService.lookupByIdentifier(edituserID);
 
 		if (edituser == null)
 		{
@@ -258,17 +283,17 @@ public class NpcController extends Controller
 			return ViewMessage.failure("Sie müssen einen Grund angeben.");
 		}
 
-		Set<Medal> medallist = edituser.getMedals();
+		Set<Medal> medallist = userService.getMedals(user);
 		medallist.add(medal);
 		edituser.setMedals(medallist);
 
-		int ticks = getContext().get(ContextCommon.class).getTick();
+		int ticks = configService.getValue(WellKnownConfigValue.TICKS);
 
 		edituser.addHistory(Common.getIngameTime(ticks) + ": Der Orden [medal]"+medal.getId()+"[/medal]" +
 							" wurde von [userprofile=" + user.getId() + "]" +
 							user.getName() + "[/userprofile] verliehen Aufgrund der " + reason);
 
-		PM.send(user, edituser.getId(), "Orden '" + medal.getName() + "' verliehen",
+		pmService.send(user, edituser.getId(), "Orden '" + medal.getName() + "' verliehen",
 			   "Ich habe Dir den Orden [medal]" + medal.getId() + "[/medal]" +
 			   " verliehen Aufgrund deiner " + reason);
 
@@ -288,7 +313,7 @@ public class NpcController extends Controller
 	{
 		User user = (User) this.getUser();
 
-		User edituser = User.lookupByIdentifier(edituserID);
+		User edituser = userService.lookupByIdentifier(edituserID);
 
 		if (edituser == null)
 		{
@@ -308,7 +333,7 @@ public class NpcController extends Controller
 	@Action(ActionType.AJAX)
 	public ViewMessage deleteLpAction(@UrlParam(name = "edituser") String edituserID, @UrlParam(name = "lp") int lpId)
 	{
-		User edituser = User.lookupByIdentifier(edituserID);
+		User edituser = userService.lookupByIdentifier(edituserID);
 		if (edituser == null)
 		{
 			return ViewMessage.failure("Der Spieler existiert nicht.");
@@ -329,9 +354,7 @@ public class NpcController extends Controller
 			return ViewMessage.failure("Der LP-Eintrag wurde nicht gefunden.");
 		}
 
-		org.hibernate.Session db = getDB();
-
-		db.delete(lp);
+		em.remove(lp);
 		edituser.getLoyalitaetspunkte().remove(lp);
 
 		return ViewMessage.success("Eintrag gelöscht!");
@@ -352,7 +375,7 @@ public class NpcController extends Controller
 	{
 		User user = (User) this.getUser();
 
-		User edituser = User.lookupByIdentifier(edituserID);
+		User edituser = userService.lookupByIdentifier(edituserID);
 		if (edituser == null)
 		{
 			return ViewMessage.failure("Benutzer nicht gefunden.");
@@ -363,13 +386,11 @@ public class NpcController extends Controller
 			return ViewMessage.failure("Sie müssen den Grund und die Anzahl der Punkte angeben.");
 		}
 
-		org.hibernate.Session db = getDB();
-
 		Loyalitaetspunkte lp = new Loyalitaetspunkte(edituser, user, grund, punkte);
 		lp.setAnmerkungen(anmerkungen);
 		edituser.getLoyalitaetspunkte().add(lp);
 
-		db.persist(lp);
+		em.persist(lp);
 
 		if (pm)
 		{
@@ -377,7 +398,7 @@ public class NpcController extends Controller
 							"Du hast soeben " + punkte + " Loyalitätspunkte erhalten. " +
 							"Du verfügst nun insgesamt über " + edituser.getLoyalitaetspunkteTotalBeiNpc(user) + " Loyalitätspunkte bei mir.\n\n";
 			pmText += "Grund für die Vergabe: " + grund;
-			PM.send(user, edituser.getId(), "Loyalitätspunkte erhalten", pmText, PM.FLAGS_AUTOMATIC);
+			pmService.send(user, edituser.getId(), "Loyalitätspunkte erhalten", pmText, PM.FLAGS_AUTOMATIC);
 		}
 
 		return ViewMessage.success(punkte + " LP vergeben");
@@ -437,44 +458,42 @@ public class NpcController extends Controller
 		List<FraktionAktionsMeldung> meldungen;
 		if (alleMeldungen)
 		{
-			meldungen = Common.cast(getDB()
-									.createQuery("from FraktionAktionsMeldung where bearbeitetAm is null or bearbeitetAm>:maxBearbeitet order by bearbeitetAm,gemeldetAm")
-									.setDate("maxBearbeitet", cal.getTime())
-									.list());
+			meldungen = em.createQuery("from FraktionAktionsMeldung where bearbeitetAm is null or bearbeitetAm>:maxBearbeitet order by bearbeitetAm,gemeldetAm", FraktionAktionsMeldung.class)
+							.setParameter("maxBearbeitet", cal.getTime())
+							.getResultList();
 		}
 		else
 		{
-			meldungen = Common.cast(getDB()
-									.createQuery("from FraktionAktionsMeldung where fraktion=:user and (bearbeitetAm is null or bearbeitetAm>:maxBearbeitet) order by bearbeitetAm,gemeldetAm")
-									.setEntity("user", user)
-									.setDate("maxBearbeitet", cal.getTime())
-									.list());
+			meldungen = em.createQuery("from FraktionAktionsMeldung where fraktion=:user and (bearbeitetAm is null or bearbeitetAm>:maxBearbeitet) order by bearbeitetAm,gemeldetAm", FraktionAktionsMeldung.class)
+							.setParameter("user", user)
+							.setParameter("maxBearbeitet", cal.getTime())
+							.getResultList();
 		}
 
-		result.meldungen.addAll(meldungen.stream().map(FraktionAktionsMeldungViewModel::map).collect(Collectors.toList()));
+		result.meldungen.addAll(meldungen.stream()
+			.map(meldung -> FraktionAktionsMeldungViewModel.map(bbCodeParser, meldung))
+			.collect(Collectors.toList()));
 
-		User edituser = User.lookupByIdentifier(edituserID);
+		User edituser = userService.lookupByIdentifier(edituserID);
 
 		if (edituser == null)
 		{
 			return result;
 		}
 
-		result.user = UserViewModel.map(edituser);
+		result.user = UserViewModel.map(bbCodeParser, edituser);
 
 		UserRank rank = edituser.getRank(user);
-
-		//DateFormat format = new SimpleDateFormat("dd.MM.yy HH:mm");
 
 		for (Loyalitaetspunkte lp : new TreeSet<>(edituser.getLoyalitaetspunkte()))
 		{
 			LpMenuViewModel.LpMenuLoyalitaetspunkteViewModel lpObj = new LpMenuViewModel.LpMenuLoyalitaetspunkteViewModel();
 			LoyalitaetspunkteViewModel.map(lp, lpObj);
-			lpObj.verliehenDurch = UserViewModel.map(lp.getVerliehenDurch());
+			lpObj.verliehenDurch = UserViewModel.map(bbCodeParser, lp.getVerliehenDurch());
 
 			result.lpListe.add(lpObj);
 		}
-		result.rang = rank.getName();
+		result.rang = allyService.getRankName(rank);
 		result.lpBeiNpc = edituser.getLoyalitaetspunkteTotalBeiNpc(user);
 
 		return result;
@@ -497,7 +516,7 @@ public class NpcController extends Controller
 	{
 		User user = (User) this.getUser();
 
-		User edituser = User.lookupByIdentifier(edituserID);
+		User edituser = userService.lookupByIdentifier(edituserID);
 
 		RaengeMenuViewModel result = new RaengeMenuViewModel();
 		fillCommonMenuResultData(result);
@@ -507,14 +526,14 @@ public class NpcController extends Controller
 			return result;
 		}
 
-		result.user = UserViewModel.map(edituser);
+		result.user = UserViewModel.map(bbCodeParser, edituser);
 
 		UserRank rank = edituser.getRank(user);
 		result.aktiverRang = rank.getRank();
 
-		result.raenge.addAll(user.getOwnGrantableRanks().stream().map(RangViewModel::map).collect(Collectors.toList()));
+		result.raenge.addAll(userService.getOwnGrantableRanks(user).stream().map(RangViewModel::map).collect(Collectors.toList()));
 
-		for (Medal medal : Medals.get().medals())
+		for (Medal medal : medalService.medals())
 		{
 			if (medal.isAdminOnly())
 			{
@@ -566,7 +585,6 @@ public class NpcController extends Controller
 									   @UrlParam(name = "shipflag_nichtkaperbar") boolean flagNichtKaperbar,
 									   @UrlParam(name = "ship#_count") Map<OrderableShip, Integer> shipCounts)
 	{
-		org.hibernate.Session db = getDB();
 		User user = (User) this.getUser();
 
 		int costs = 0;
@@ -614,7 +632,7 @@ public class NpcController extends Controller
 				return ViewMessage.failure("Nicht genug Kommandopunkte!");
 			}
 
-			orderList.forEach(db::persist);
+			orderList.forEach(em::persist);
 
 			user.setNpcPunkte(user.getNpcPunkte() - costs);
 
@@ -633,7 +651,6 @@ public class NpcController extends Controller
 	@Action(ActionType.AJAX)
 	public ViewMessage orderAction(OrderableOffizier order, int count)
 	{
-		org.hibernate.Session db = getDB();
 		User user = (User) this.getUser();
 
 		int costs;
@@ -659,7 +676,7 @@ public class NpcController extends Controller
 			{
 				Order orderObj = new OrderOffizier(user, order.getId());
 				orderObj.setTick(1);
-				db.persist(orderObj);
+				em.persist(orderObj);
 			}
 
 			user.setNpcPunkte(user.getNpcPunkte() - costs);
@@ -710,7 +727,6 @@ public class NpcController extends Controller
 	@Action(ActionType.AJAX)
 	public OrderMenuViewModel orderMenuAction()
 	{
-		org.hibernate.Session db = getDB();
 		User user = (User) this.getUser();
 
 		Map<ShipType, Integer> shiporders = new HashMap<>();
@@ -719,12 +735,11 @@ public class NpcController extends Controller
 		OrderMenuViewModel result = new OrderMenuViewModel();
 		fillCommonMenuResultData(result);
 
-		List<?> orderList = db.createQuery("from Order where user= :user")
-							.setInteger("user", user.getId())
-							.list();
-		for (Object anOrderList : orderList)
+		List<Order> orders = em.createQuery("from Order where user= :user", Order.class)
+							.setParameter("user", user.getId())
+							.getResultList();
+		for (Order order: orders)
 		{
-			Order order = (Order) anOrderList;
 			if (order instanceof OrderShip)
 			{
 				Common.safeIntInc(shiporders, ((OrderShip) order).getShipType());
@@ -739,12 +754,10 @@ public class NpcController extends Controller
 			Schiffe
 		*/
 
-		List<?> shipOrders = db.createQuery("from OrderableShip order by shipType.shipClass,shipType.id").list();
-		for (Object shipOrder : shipOrders)
+		List<OrderableShip> shipOrders = em.createQuery("from OrderableShip order by shipType.shipClass,shipType.id", OrderableShip.class).getResultList();
+		for (OrderableShip ship: shipOrders)
 		{
-			OrderableShip ship = (OrderableShip) shipOrder;
-
-			if (!Rassen.get().rasse(user.getRace()).isMemberIn(ship.getRasse()))
+			if (!races.rasse(user.getRace()).isMemberIn(ship.getRasse()))
 			{
 				continue;
 			}
@@ -767,11 +780,9 @@ public class NpcController extends Controller
 			Offiziere
 		*/
 
-		List<?> offizierOrders = db.createQuery("from OrderableOffizier where cost > 0 order by id").list();
-		for (Object offizierOrder : offizierOrders)
+		List<OrderableOffizier> offizierOrders = em.createQuery("from OrderableOffizier where cost > 0 order by id", OrderableOffizier.class).getResultList();
+		for (OrderableOffizier offizier : offizierOrders)
 		{
-			OrderableOffizier offizier = (OrderableOffizier) offizierOrder;
-
 			offiorders.putIfAbsent(-offizier.getId(), 0);
 
 			OrderMenuViewModel.OrderableOffizierViewModel resOffizier = new OrderMenuViewModel.OrderableOffizierViewModel();

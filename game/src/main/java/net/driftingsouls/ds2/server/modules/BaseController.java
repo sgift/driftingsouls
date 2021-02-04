@@ -40,6 +40,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactor
 import net.driftingsouls.ds2.server.modules.viewmodels.GebaeudeAufBasisViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.ResourceEntryViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.UnitCargoEntryViewModel;
+import net.driftingsouls.ds2.server.services.CargoService;
 import net.driftingsouls.ds2.server.units.UnitCargoEntry;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -57,10 +58,12 @@ import java.util.TreeMap;
 public class BaseController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
+	private final CargoService cargoService;
 
 	@Autowired
-	public BaseController(TemplateViewResultFactory templateViewResultFactory) {
+	public BaseController(TemplateViewResultFactory templateViewResultFactory, CargoService cargoService) {
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.cargoService = cargoService;
 
 		setPageTitle("Basis");
 	}
@@ -294,8 +297,8 @@ public class BaseController extends Controller
 			baseObj.einheiten.add(UnitCargoEntryViewModel.map(unitCargoEntry));
 		}
 
-		baseObj.cargoBilanz = -basedata.getProduction().getMass();
-		baseObj.cargoFrei = base.getMaxCargo() - base.getCargo().getMass();
+		baseObj.cargoBilanz = -cargoService.getMass(basedata.getProduction());
+		baseObj.cargoFrei = base.getMaxCargo() - cargoService.getMass(base.getCargo());
 		baseObj.energyProduced = basedata.getEnergy();
 		baseObj.energy = base.getEnergy();
 		baseObj.bewohner = base.getBewohner();
@@ -384,7 +387,7 @@ public class BaseController extends Controller
 				"base.isloading", base.isLoading(),
 				"base.map.width", base.getWidth()*39+20,
 				"base.cargo.height", (mapheight < 280 ? "280" : mapheight),
-				"base.cargo.empty",	Common.ln(base.getMaxCargo() - base.getCargo().getMass()),
+				"base.cargo.empty",	Common.ln(base.getMaxCargo() - cargoService.getMass(base.getCargo())),
 				"base.message", redirect != null ? redirect.getMessage() : null);
 
 		BaseStatus basedata = Base.getStatus(base);
@@ -480,7 +483,7 @@ public class BaseController extends Controller
 			t.parse("base.cargo.list", "base.cargo.listitem", true);
 		}
 
-		long cstat = -basedata.getProduction().getMass();
+		long cstat = -cargoService.getMass(basedata.getProduction());
 
 		t.setVar(	"base.cstat",		Common.ln(cstat),
 					"base.e",			Common.ln(base.getEnergy()),

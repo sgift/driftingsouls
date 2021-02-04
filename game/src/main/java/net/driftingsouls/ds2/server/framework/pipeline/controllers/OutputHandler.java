@@ -48,7 +48,7 @@ public abstract class OutputHandler
 	 * @param key Der Schluessel
 	 * @param value Der Wert
 	 */
-	public final void setAttribute(String key, Object value) {
+	public void setAttribute(String key, Object value) {
 		this.attributes.put(key, value);
 	}
 

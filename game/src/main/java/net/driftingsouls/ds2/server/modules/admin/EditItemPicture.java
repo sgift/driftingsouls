@@ -24,13 +24,15 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
 
-/**
+/*
  * Aktualisierungstool fuer Itemgrafiken.
  *
  * @author Christopher Jung
  */
 @AdminMenuEntry(category = "Items", name = "Itemgrafik", permission = WellKnownAdminPermission.EDIT_ITEM_PICTURE)
+@Component
 public class EditItemPicture implements EntityEditor<Item>
 {
 	@Override

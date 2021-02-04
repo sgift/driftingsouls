@@ -25,7 +25,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.AngriffController;
-
+import net.driftingsouls.ds2.server.services.BattleService;
 import java.io.IOException;
 
 /**
@@ -34,6 +34,24 @@ import java.io.IOException;
  *
  */
 public abstract class BasicKSAction {
+	private final BattleService battleService;
+	private boolean requireCommander;
+	private boolean requireActive;
+	private boolean requireOwnShipReady;
+	private AngriffController controller;
+	private final User commander;
+
+	public BasicKSAction(BattleService battleService, User user) {
+		this.battleService = battleService;
+
+		this.controller = null;
+
+		this.requireCommander(true);
+		this.requireActive(true);
+		this.requireOwnShipReady(false);
+		this.commander = user;
+	}
+
 	/**
 	 * Das Ergebnis einer KS-Aktion. Dies entscheidet darueber wie das KS nach der Aktion weiter
 	 * verfaehrt.
@@ -54,31 +72,6 @@ public abstract class BasicKSAction {
 		 */
 		HALT
 	}
-	
-	private boolean requireCommander;
-	private boolean requireActive;
-	private boolean requireOwnShipReady;
-	private AngriffController controller;
-    private final User commander;
-	
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public BasicKSAction()
-	{
-		this.controller = null;
-		
-		this.requireCommander(true);
-		this.requireActive(true);
-		this.requireOwnShipReady(false);
-        this.commander = null;
-	}
-    
-    public BasicKSAction(User user)
-    {
-        this.commander = user;
-    }
 	
 	/**
 	 * Setzt den KS-Controller.
@@ -142,14 +135,14 @@ public abstract class BasicKSAction {
 		
 		if( this.requireCommander ) {
 			if( !battle.isCommander(user, battle.getOwnSide()) ) {
-				battle.logme( "Sie k&ouml;nnen diese Aktion nicht durchf&uuml;hren, da sie ihre Seite nicht kommandieren\n" );
+				battleService.logme(battle, "Sie k&ouml;nnen diese Aktion nicht durchf&uuml;hren, da sie ihre Seite nicht kommandieren\n" );
 				return Result.ERROR;
 			}
 		}
 		
 		if( this.requireActive ) {
 			if( battle.isReady(battle.getOwnSide()) ) {
-				battle.logme( "Sie haben ihren Zug bereits beendet\n" );
+				battleService.logme(battle, "Sie haben ihren Zug bereits beendet\n" );
 				return Result.ERROR;
 			}
 		}
@@ -158,16 +151,20 @@ public abstract class BasicKSAction {
 			BattleShip ownShip = battle.getOwnShip();
 	
 			if( ownShip.hasFlag(BattleShipFlag.FLUCHT) ) {
-				battle.logme( "Das Schiff flieht gerade\n" );
+				battleService.logme(battle, "Das Schiff flieht gerade\n" );
 				return Result.ERROR;
 			}
 	
 			if( ownShip.hasFlag(BattleShipFlag.JOIN) ) {
-				battle.logme( "Das Schiff tritt erst gerade der Schlacht bei\n" );
+				battleService.logme(battle, "Das Schiff tritt erst gerade der Schlacht bei\n" );
 				return Result.ERROR;
 			}	
 		}
 		
 		return Result.OK;
+	}
+
+	protected BattleService getBattleService() {
+		return battleService;
 	}
 }

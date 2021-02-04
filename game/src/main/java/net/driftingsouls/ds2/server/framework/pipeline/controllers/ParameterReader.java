@@ -5,17 +5,20 @@ import io.github.classgraph.AnnotationInfo;
 import io.github.classgraph.ClassInfo;
 import net.driftingsouls.ds2.server.framework.AnnotationUtils;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.utils.StringToTypeConverter;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-import org.hibernate.Session;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.text.ParseException;
@@ -25,47 +28,22 @@ import java.util.Map;
 /**
  * Klasse zum Parsen und Konvertieren von Requestparametern.
  */
-public class ParameterReader
+@Service
+@RequestScope
+public class ParameterReader implements ApplicationContextAware
 {
-	private static final Logger LOG = LogManager.getLogger(ParameterReader.class);
-
 	private static final Map<Class<?>, UrlParamKonverter<?>> konverter = new HashMap<>();
 
-	static
-	{
-		try(var scanResult = AnnotationUtils.INSTANCE.scanDsClasses()) {
-			//Classes need the UrlParamKonverterFuer annotation and need to implement UrlParamKonverter
-			var urlParamKonverterInfo = scanResult.getClassInfo(UrlParamKonverter.class.getName());
-			var classInfo = scanResult.getClassesWithAnnotation(UrlParamKonverterFuer.class.getName())
-				.getAssignableTo(urlParamKonverterInfo);
-			for (ClassInfo cls : classInfo)
-			{
-				try
-				{
-					AnnotationInfo annotationInfo = cls.getAnnotationInfo(UrlParamKonverterFuer.class.getName());
-					konverter.put(((AnnotationClassRef)annotationInfo.getParameterValues().getValue("value")).loadClass(), cls.loadClass(UrlParamKonverter.class).getDeclaredConstructor().newInstance());
-				}
-				catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e)
-				{
-					LOG.warn("Konnte Konverterklasse " + cls.getName() + " nicht instantiieren", e);
-				}
-			}
-		}
-
-	}
-
-	private final Request request;
 	private final Map<String, Object> parameter = new HashMap<>();
-	private final org.hibernate.Session session;
 
-	private String subParameter;
+	@PersistenceContext
+	private EntityManager em;
 
-	public ParameterReader(Request request, Session session)
-	{
+	private String subParameter = "";
+	private Request request;
+
+	public void setRequest(Request request) {
 		this.request = request;
-		this.session = session;
-		this.subParameter = "";
-
 	}
 
 	protected void parseSubParameter(String subparam)
@@ -239,13 +217,15 @@ public class ParameterReader
 
 	private Object readEntity(String paramName, Class<?> type)
 	{
-		Class<?> idClass = this.session.getSessionFactory().getClassMetadata(type).getIdentifierType().getReturnedClass();
-		Serializable id = (Serializable) readParameterAsType(paramName, idClass);
+		var metaModel = em.getEntityManagerFactory().getMetamodel();
+		var managedType = metaModel.managedType(type);
+
+		Serializable id = (Serializable) readParameterAsType(paramName, managedType.getAttribute("id").getJavaType());
 		if (id == null)
 		{
 			return null;
 		}
-		return this.session.get(type, id);
+		return em.find(type, id);
 	}
 
 	private Object readMap(String paramName, ParameterizedType typeDescription)
@@ -283,9 +263,10 @@ public class ParameterReader
 	{
 		if(firstParamType.isAnnotationPresent(Entity.class))
 		{
-			Session db = ContextMap.getContext().getDB();
-			Class<?> idClass = db.getSessionFactory().getClassMetadata(firstParamType).getIdentifierType().getReturnedClass();
-			return db.get(firstParamType, (Serializable)StringToTypeConverter.convert(idClass, mapKey));
+			var metaModel = em.getEntityManagerFactory().getMetamodel();
+			var managedType = metaModel.managedType(firstParamType).getAttribute("id");
+			Class<?> idClass = managedType.getJavaType();
+			return em.find(firstParamType, StringToTypeConverter.convert(idClass, mapKey));
 		}
 
 		return StringToTypeConverter.convert(firstParamType, mapKey);
@@ -302,5 +283,27 @@ public class ParameterReader
 			return (Class<?>) ((ParameterizedType) typeDescription).getRawType();
 		}
 		throw new IllegalArgumentException("Kann Klasse fuer Typ " + typeDescription + " nicht ermitteln");
+	}
+
+	@Override
+	public void setApplicationContext(@NonNull ApplicationContext applicationContext) throws BeansException {
+		if (!konverter.isEmpty()) {
+			return;
+		}
+
+		try (var scanResult = AnnotationUtils.INSTANCE.scanDsClasses()) {
+			//Classes need the UrlParamKonverterFuer annotation and need to implement UrlParamKonverter
+			var urlParamKonverterInfo = scanResult.getClassInfo(UrlParamKonverter.class.getName());
+			var classInfo = scanResult.getClassesWithAnnotation(UrlParamKonverterFuer.class.getName())
+				.getAssignableTo(urlParamKonverterInfo);
+			for (ClassInfo cls : classInfo) {
+				AnnotationInfo annotationInfo = cls.getAnnotationInfo(UrlParamKonverterFuer.class.getName());
+				@SuppressWarnings("unchecked")
+				var clazz = (Class<?>) ((AnnotationClassRef) annotationInfo.getParameterValues().getValue("value")).loadClass();
+				@SuppressWarnings("unchecked")
+				var converter = (Class<UrlParamKonverter<?>>)cls.loadClass();
+				konverter.put(clazz, applicationContext.getBean(converter));
+			}
+		}
 	}
 }

@@ -18,7 +18,7 @@
  */
 package net.driftingsouls.ds2.server.entities.ally;
 
-import net.driftingsouls.ds2.server.config.Medals;
+import net.driftingsouls.ds2.server.services.MedalService;
 import org.hibernate.annotations.ForeignKey;
 import org.jetbrains.annotations.NotNull;
 
@@ -138,18 +138,5 @@ public class AllyRangDescriptor implements Comparable<AllyRangDescriptor>
 	public String getCustomImg()
 	{
 		return this.customImg;
-	}
-	
-	/**
-	 * Gibt das Bild (Pfad) des Ranges zurueck.
-	 * @return Der Bildpfad
-	 */
-	public String getImage()
-	{
-		if( customImg != null )
-		{
-			return "data/dynamicContent/"+this.customImg;
-		}
-		return Medals.get().rang(this.rang).getImage();
 	}
 }

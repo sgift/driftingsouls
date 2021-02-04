@@ -20,12 +20,17 @@ package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.authentication.JavaSession;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.services.BattleService;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +40,15 @@ import java.util.Map;
  * @author Christopher Jung
  *
  */
+@Component
 public class KSMenuShieldsAction extends BasicKSMenuAction {
+	private final BattleService battleService;
+
+	public KSMenuShieldsAction(BattleService battleService, JavaSession javaSession) {
+		super(battleService, (User) javaSession.getUser());
+		this.battleService = battleService;
+	}
+
 	@Override
 	public Result validate(Battle battle) {
 		boolean showshields = false;
@@ -66,7 +79,7 @@ public class KSMenuShieldsAction extends BasicKSMenuAction {
 		}
 		
 		if( this.validate(battle) != Result.OK ) {
-			battle.logme("Die Aktion kann nicht ausgef&uuml;hrt werden");
+			battleService.logme(battle, "Die Aktion kann nicht ausgef&uuml;hrt werden");
 			return Result.ERROR;
 		}
 		
@@ -82,7 +95,7 @@ public class KSMenuShieldsAction extends BasicKSMenuAction {
 		}
 				
 		int shieldidlist = 0;
-		Map<ShipClasses,Integer> shieldclasslist = new HashMap<>();
+		Map<ShipClasses,Integer> shieldclasslist = new EnumMap<>(ShipClasses.class);
 		
 		List<BattleShip> ownShips = battle.getOwnShips();
 		for (BattleShip aship : ownShips)

@@ -2,6 +2,7 @@ package net.driftingsouls.ds2.server.modules.viewmodels;
 
 import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionAktionsMeldung;
 import net.driftingsouls.ds2.server.framework.ViewModel;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 
 /**
  * Standard-ViewModel fuer Fraktionsaktionsmeldungen ({@link net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionAktionsMeldung}).
@@ -21,13 +22,13 @@ public class FraktionAktionsMeldungViewModel
 	 * @param model Die zu mappende Entity
 	 * @return Das ViewModel
 	 */
-	public static FraktionAktionsMeldungViewModel map(FraktionAktionsMeldung model)
+	public static FraktionAktionsMeldungViewModel map(BBCodeParser bbCodeParser, FraktionAktionsMeldung model)
 	{
 		FraktionAktionsMeldungViewModel viewModel = new FraktionAktionsMeldungViewModel();
 		viewModel.id = model.getId();
-		viewModel.von = UserViewModel.map(model.getGemeldetVon());
+		viewModel.von = UserViewModel.map(bbCodeParser, model.getGemeldetVon());
 		viewModel.am = model.getGemeldetAm().getTime();
-		viewModel.fraktion = UserViewModel.map(model.getFraktion());
+		viewModel.fraktion = UserViewModel.map(bbCodeParser, model.getFraktion());
 		viewModel.meldungstext = model.getMeldungstext();
 		viewModel.bearbeitetAm = model.getBearbeitetAm() != null ? model.getBearbeitetAm().getTime() : null;
 

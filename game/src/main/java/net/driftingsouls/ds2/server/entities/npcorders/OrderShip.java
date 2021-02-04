@@ -20,10 +20,10 @@ package net.driftingsouls.ds2.server.entities.npcorders;
 
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.ships.ShipType;
-import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
@@ -37,8 +37,7 @@ import javax.persistence.ManyToOne;
 public class OrderShip extends Order
 {
 	@ManyToOne
-	@JoinColumn
-	@ForeignKey(name="order_ship_fk_ship_type")
+	@JoinColumn(foreignKey = @ForeignKey(name="order_ship_fk_ship_type"))
 	private ShipType shipType;
 	private String flags;
 	
@@ -72,7 +71,7 @@ public class OrderShip extends Order
 	 * Setzt den bestellten Schiffstyp.
 	 * @param type Der Schiffstyp
 	 */
-	public final void setShipType(final ShipType type)
+	public void setShipType(final ShipType type)
 	{
 		this.shipType = type;
 	}

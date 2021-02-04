@@ -32,11 +32,22 @@ import net.driftingsouls.ds2.server.entities.npcorders.OrderableOffizier;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.ships.*;
+import net.driftingsouls.ds2.server.framework.authentication.JavaSession;
+import net.driftingsouls.ds2.server.services.ShipActionService;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
+import net.driftingsouls.ds2.server.ships.ShipFleet;
+import net.driftingsouls.ds2.server.ships.ShipType;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
+import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.util.*;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -45,18 +56,28 @@ import java.util.concurrent.ThreadLocalRandom;
  *
  */
 @AdminMenuEntry(category="Schiffe", name="hinzufügen", permission = WellKnownAdminPermission.ADD_SHIPS)
+@Component
 public class AddShips implements AdminPlugin {
-    @Override
+	@PersistenceContext
+	private EntityManager em;
+
+	private final JavaSession javaSession;
+	private final ShipActionService shipActionService;
+
+	public AddShips(JavaSession javaSession, ShipActionService shipActionService) {
+		this.javaSession = javaSession;
+		this.shipActionService = shipActionService;
+	}
+
+	@Override
 	public void output(StringBuilder echo) {
 		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-		User user = (User)context.getActiveUser();
+		User user = (User)javaSession.getUser();
 
 		int shipTypeId = context.getRequest().getParameterInt("ship");
 		int count = context.getRequest().getParameterInt("count");
 
 		if( shipTypeId == 0 ) {
-			List<ShipType> stlist = new ArrayList<>();
 
 			echo.append("<script type=\"text/javascript\">\n");
 			echo.append("<!--\n");
@@ -64,18 +85,15 @@ public class AddShips implements AdminPlugin {
 
 			Set<String> knownwpntypes = new HashSet<>();
 
-			final Iterator<?> shipTypeIter = db.createQuery("from ShipType order by id").iterate();
-			while( shipTypeIter.hasNext() ) {
-				ShipType st = (ShipType)shipTypeIter.next();
-
-				stlist.add(st);
-				echo.append("shipdata[").append(st.getId()).append("] = Array();\n");
-				echo.append("shipdata[").append(st.getId()).append("][0] = ").append(st.getJDocks()).append(";\n");
-				echo.append("shipdata[").append(st.getId()).append("][1] = Array();\n");
+			List<ShipType> shipTypes = em.createQuery("from ShipType order by id", ShipType.class).getResultList();
+			for(ShipType shipType: shipTypes) {
+				echo.append("shipdata[").append(shipType.getId()).append("] = Array();\n");
+				echo.append("shipdata[").append(shipType.getId()).append("][0] = ").append(shipType.getJDocks()).append(";\n");
+				echo.append("shipdata[").append(shipType.getId()).append("][1] = Array();\n");
 
 				Set<String> thisammolist = new HashSet<>();
 				int i = 0;
-				Map<String,Integer> weapons = st.getWeapons();
+				Map<String,Integer> weapons = shipType.getWeapons();
 				for( String weapon : weapons.keySet() ) {
 					try {
 						Weapons.get().weapon(weapon);
@@ -88,7 +106,7 @@ public class AddShips implements AdminPlugin {
 						knownwpntypes.add(ammotype);
 						if( !thisammolist.contains(ammotype) ) {
 							thisammolist.add(ammotype);
-							echo.append("shipdata[").append(st.getId()).append("][1][").append(i++).append("] = \"").append(ammotype).append("\";\n");
+							echo.append("shipdata[").append(shipType.getId()).append("][1][").append(i++).append("] = \"").append(ammotype).append("\";\n");
 						}
 					}
 				}
@@ -111,8 +129,8 @@ public class AddShips implements AdminPlugin {
 			echo.append("<td class=\"noBorderX\" style=\"width:80px\">Schifftyp:</td>");
 			echo.append("<td class=\"noBorderX\">");
 			echo.append("<select name=\"ship\" size=\"1\" onchange=\"Admin_AddShips.shipSelectChange(this.options[this.options.selectedIndex].value)\">");
-			for( i=0; i < stlist.size(); i++ ) {
-				echo.append("<option value=\"").append(stlist.get(i).getId()).append("\">").append(Common._plaintitle(stlist.get(i).getNickname())).append(" (").append(stlist.get(i).getId()).append(")</option>\n");
+			for( i=0; i < shipTypes.size(); i++ ) {
+				echo.append("<option value=\"").append(shipTypes.get(i).getId()).append("\">").append(Common._plaintitle(shipTypes.get(i).getNickname())).append(" (").append(shipTypes.get(i).getId()).append(")</option>\n");
 			}
 			echo.append("</select>\n");
 			echo.append("</td>\n");
@@ -143,11 +161,10 @@ public class AddShips implements AdminPlugin {
 				echo.append("<div style=\"margin:0px;border:0px;padding:0px;display:inline;position:absolute;top:0px;left:0px\" id=\"select_ammo_").append(ammo).append("\">\n");
 				echo.append("<select id=\"select_ammo_").append(ammo).append("_element\" name=\"ammo_").append(ammo).append("\" size=\"1\">\n");
 				echo.append("<option id=\"0\">[Nichts]</option>\n");
-				final Iterator<?> ammoIter = db.createQuery("from Munition where munitionsdefinition.type = :ammo")
-					.setString("ammo", ammo)
-					.iterate();
-				while( ammoIter.hasNext() ) {
-					Munition ammoObj = (Munition)ammoIter.next();
+				List<Munition> ammos = em.createQuery("from Munition where munitionsdefinition.type = :ammo", Munition.class)
+					.setParameter("ammo", ammo)
+					.getResultList();
+				for(Munition ammoObj: ammos) {
 					echo.append("<option value=\"").append(ammoObj.getID()).append("\">").append(Common._plaintitle(ammoObj.getName())).append("</option>\n");
 				}
 				echo.append("</select>\n");
@@ -161,9 +178,8 @@ public class AddShips implements AdminPlugin {
 			echo.append("<td class=\"noBorderX\">\n");
 			echo.append("<select name=\"offitype\" size=\"1\">\n");
 			echo.append("<option value=\"-1\" selected=\"selected\">keiner</option>\n");
-			List<?> orderOffiList = db.createQuery("from OrderableOffizier").list();
-			for (Object anOrderOffiList : orderOffiList)
-			{
+			List<OrderableOffizier> orderOffiList = em.createQuery("from OrderableOffizier", OrderableOffizier.class).getResultList();
+			for (Object anOrderOffiList : orderOffiList) {
 				OrderableOffizier offi = (OrderableOffizier) anOrderOffiList;
 				echo.append("<option value=\"").append(offi.getId()).append("\">").append(offi.getName()).append("</option>\n");
 			}
@@ -176,11 +192,10 @@ public class AddShips implements AdminPlugin {
 			echo.append("<td class=\"noBorderX\">\n");
 			echo.append("<select name=\"jaeger\" size=\"1\" onchange=\"Admin_AddShips.jaegerSelectChange(this.options[this.options.selectedIndex].value)\">\n");
 			echo.append("<option id=\"0\">[Nichts]</option>\n");
-			final Iterator<?> jaegerIter = db.createQuery("from ShipType where locate(:jaeger, flags)!=0")
-				.setString("jaeger", ShipTypeFlag.JAEGER.getFlag())
-				.iterate();
-			while( jaegerIter.hasNext() ) {
-				ShipType st = (ShipType)jaegerIter.next();
+			List<ShipType> fighter = em.createQuery("from ShipType where locate(:jaeger, flags)!=0", ShipType.class)
+				.setParameter("jaeger", ShipTypeFlag.JAEGER.getFlag())
+				.getResultList();
+			for(ShipType st: fighter) {
 				echo.append("<option value=\"").append(st.getId()).append("\">").append(Common._plaintitle(st.getNickname())).append(" (").append(st.getId()).append(")</option>\n");
 			}
 			echo.append("</select>\n");
@@ -194,11 +209,10 @@ public class AddShips implements AdminPlugin {
 				echo.append("<div style=\"margin:0px;border:0px;padding:0px;display:inline;position:absolute;top:0px;left:0px\" id=\"select_jaeger_ammo_").append(ammo).append("\">\n");
 				echo.append("<select name=\"jaeger_ammo_").append(ammo).append("\" size=\"1\">\n");
 				echo.append("<option id=\"0\">[Nichts]</option>\n");
-				final Iterator<?> ammoIter = db.createQuery("from Munition where munitionsdefinition.type= :ammo")
-					.setString("ammo", ammo)
-					.iterate();
-				while( ammoIter.hasNext() ) {
-					Munition ammoObj = (Munition)ammoIter.next();
+				List<Munition> ammos = em.createQuery("from Munition where munitionsdefinition.type = :ammo", Munition.class)
+					.setParameter("ammo", ammo)
+					.getResultList();
+				for(Munition ammoObj: ammos) {
 					echo.append("<option value=\"").append(ammoObj.getID()).append("\">").append(Common._plaintitle(ammoObj.getName())).append("</option>\n");
 				}
 				echo.append("</select>\n");
@@ -252,11 +266,11 @@ public class AddShips implements AdminPlugin {
 
 			String currentTime = Common.getIngameTime(context.get(ContextCommon.class).getTick());
 
-			ShipType shiptype = (ShipType)db.get(ShipType.class, shipTypeId);
+			ShipType shiptype = em.find(ShipType.class, shipTypeId);
 			Cargo cargo = new Cargo();
-			cargo.addResource( Resources.DEUTERIUM, shiptype.getRd()*10 );
-			cargo.addResource( Resources.URAN, shiptype.getRu()*10 );
-			cargo.addResource( Resources.ANTIMATERIE, shiptype.getRa()*10 );
+			cargo.addResource( Resources.DEUTERIUM, shiptype.getRd() * 10L );
+			cargo.addResource( Resources.URAN, shiptype.getRu() * 10L );
+			cargo.addResource( Resources.ANTIMATERIE, shiptype.getRa() * 10L );
 
 			Map<String,Integer> weapons = shiptype.getWeapons();
 			for( String weapon : weapons.keySet() ) {
@@ -266,12 +280,12 @@ public class AddShips implements AdminPlugin {
 					{
 						cargo.addResource(
 								new ItemID(context.getRequest().getParameterInt("ammo_" + ammotype)),
-								weapons.get(weapon) * 10);
+								weapons.get(weapon) * 10L);
 					}
 				}
 			}
 			for( int i=0; i < count; i++ ) {
-				User auser = (User)context.getDB().get(User.class, ownerId);
+				User auser = em.find(User.class, ownerId);
 				String history = "Indienststellung am "+currentTime+" durch "+auser.getName()+" ("+auser.getId()+") [hide]Admin: "+user.getId()+"[/hide]";
 
 				Ship ship = new Ship(auser, shiptype, system, x, y);
@@ -296,17 +310,17 @@ public class AddShips implements AdminPlugin {
 						shouldId = 1;
 					}
 
-					int shipid = (Integer)db.createSQLQuery("select newIntelliShipId( ? )")
-						.setInteger(0, shouldId)
-						.uniqueResult();
+					int shipid = (Integer)em.createNativeQuery("select newIntelliShipId(:shouldId)", Integer.class)
+						.setParameter("shouldId", shouldId)
+						.getSingleResult();
 
 					ship.setId(shipid);
 				}
-				db.save(ship);
+				em.persist(ship);
 
 				if( shiptype.getWerft() != 0 ) {
 					ShipWerft werft = new ShipWerft(ship);
-					db.persist(werft);
+					em.persist(werft);
 				}
 
 				echo.append("<a href='ds?module=schiff&action=default&ship=").append(ship.getId()).append("'>Schiff (").append(ship.getId()).append(")</a> hinzugef&uuml;gt<br />");
@@ -315,7 +329,7 @@ public class AddShips implements AdminPlugin {
 				if( (offitype > 0) && (offiname.length() > 0) &&
 						((ship.getTypeData().getSize() > ShipType.SMALL_SHIP_MAXSIZE) ||
 								ship.getTypeData().getShipClass() == ShipClasses.RETTUNGSKAPSEL) ) {
-					OrderableOffizier offi = (OrderableOffizier)db.get(OrderableOffizier.class, offitype);
+					OrderableOffizier offi = em.find(OrderableOffizier.class, offitype);
 					if( offi != null ) {
 						Offizier offizier = new Offizier(auser, offiname);
 						offizier.setRang(offi.getRang());
@@ -326,26 +340,26 @@ public class AddShips implements AdminPlugin {
 						offizier.setAbility(Offizier.Ability.COM, offi.getCom());
 						offizier.stationierenAuf(ship);
 						offizier.setSpecial(Offizier.Special.values()[ThreadLocalRandom.current().nextInt(Offizier.Special.values().length)]);
-						db.persist(offizier);
+						em.persist(offizier);
 
 						echo.append("Offizier '").append(offiname).append("' hinzugef&uuml;gt<br />\n");
 					}
 				}
 
-				ship.recalculateShipStatus();
+				shipActionService.recalculateShipStatus(ship);
 
 				// Jaeger einfuegen
 				if( (jaegerTypeId > 0) && (shiptype.getJDocks()>0) ) {
 					echo.append("F&uuml;ge J&auml;ger ein:<br />\n");
-					ShipType jshiptype = (ShipType)db.get(ShipType.class, jaegerTypeId);
+					ShipType jshiptype = em.find(ShipType.class, jaegerTypeId);
 
 					ShipFleet fleet = new ShipFleet(name+"-Staffel");
-					db.persist(fleet);
+					em.persist(fleet);
 
 					Cargo jcargo = new Cargo();
-					jcargo.addResource( Resources.DEUTERIUM, jshiptype.getRd()*10 );
-					jcargo.addResource( Resources.URAN, jshiptype.getRu()*10 );
-					jcargo.addResource( Resources.ANTIMATERIE, jshiptype.getRa()*10 );
+					jcargo.addResource( Resources.DEUTERIUM, jshiptype.getRd()*10L );
+					jcargo.addResource( Resources.URAN, jshiptype.getRu()*10L );
+					jcargo.addResource( Resources.ANTIMATERIE, jshiptype.getRa()*10L );
 
 					weapons = jshiptype.getWeapons();
 					for( String weapon : weapons.keySet() ) {
@@ -354,7 +368,7 @@ public class AddShips implements AdminPlugin {
 							if( context.getRequest().getParameterInt("jaeger_ammo_"+ammotype) > 0 )	{
 								jcargo.addResource(
 										new ItemID(context.getRequest().getParameterInt("jaeger_ammo_"+ammotype)),
-										weapons.get(weapon)*10 );
+										weapons.get(weapon) * 10L);
 							}
 						}
 					}
@@ -388,9 +402,9 @@ public class AddShips implements AdminPlugin {
 
 							jaeger.setId(shouldId);
 						}
-						db.save(jaeger);
+						em.persist(jaeger);
 
-						jaeger.recalculateShipStatus();
+						shipActionService.recalculateShipStatus(jaeger);
 
 						echo.append("J&auml;ger (").append(jaeger.getId()).append(") hinzugef&uuml;gt<br />");
 					} // For jdocks

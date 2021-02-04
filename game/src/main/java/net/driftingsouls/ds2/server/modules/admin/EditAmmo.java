@@ -24,6 +24,7 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
 
 /**
  * Adminpanel zum Bearbeiten der Munitionswerte.
@@ -31,6 +32,7 @@ import org.springframework.lang.NonNull;
  *
  */
 @AdminMenuEntry(category = "Items", name = "Munition", permission = WellKnownAdminPermission.EDIT_AMMO)
+@Component
 public class EditAmmo implements EntityEditor<Munitionsdefinition>
 {
 	@Override

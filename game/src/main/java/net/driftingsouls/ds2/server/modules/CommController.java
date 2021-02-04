@@ -33,12 +33,18 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.services.FolderService;
+import net.driftingsouls.ds2.server.services.PmService;
+import net.driftingsouls.ds2.server.services.UserService;
+import net.driftingsouls.ds2.server.services.UserValueService;
+import net.driftingsouls.ds2.server.tasks.TaskManager;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.IOException;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,11 +63,28 @@ public class CommController extends Controller
 	private static final Log log = LogFactory.getLog(CommController.class);
 
 	private final TemplateViewResultFactory templateViewResultFactory;
+	private final Rassen races;
+	private final UserService userService;
+	private final PmService pmService;
+	private final FolderService folderService;
+	private final BBCodeParser bbCodeParser;
+	private final UserValueService userValueService;
+	private final TaskManager taskManager;
+
+	@PersistenceContext
+	private EntityManager em;
 
 	@Autowired
-	public CommController(TemplateViewResultFactory templateViewResultFactory)
+	public CommController(TemplateViewResultFactory templateViewResultFactory, Rassen races, UserService userService, PmService pmService, FolderService folderService, BBCodeParser bbCodeParser, UserValueService userValueService, TaskManager taskManager)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.races = races;
+		this.userService = userService;
+		this.pmService = pmService;
+		this.folderService = folderService;
+		this.bbCodeParser = bbCodeParser;
+		this.userValueService = userValueService;
+		this.taskManager = taskManager;
 
 		setPageTitle("PMs");
 		addPageMenuEntry("Neue Nachricht", Common.buildUrl("default", "to", 0));
@@ -77,7 +100,7 @@ public class CommController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult readAllAction(Ordner ordner)
 	{
-		ordner.markAllAsRead();
+		folderService.markAllAsRead(ordner);
 
 		return new RedirectViewResult("showInbox").withMessage("<span style=\"color:red\">Alle Nachrichten als gelesen markiert</span>");
 	}
@@ -90,7 +113,7 @@ public class CommController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult deleteAllAction(Ordner ordner)
 	{
-		ordner.deleteAllPms();
+		folderService.deleteAllPms(ordner);
 
 		return new RedirectViewResult("showInbox").withMessage("<span style=\"color:red\">Alle Nachrichten gelöscht</span>");
 	}
@@ -103,26 +126,25 @@ public class CommController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult deleteAction(int delete, Ordner delord)
 	{
-		org.hibernate.Session db = getContext().getDB();
 		User user = (User) getUser();
 
 		int result = 0;
 		if ((delord != null) && (delete == 0))
 		{
-			result = delord.deleteOrdner();
-			db.flush();
+			result = folderService.deleteOrdner(delord);
+			em.flush();
 		}
 		else
 		{
-			PM pm = (PM) db.get(PM.class, delete);
+			PM pm = em.find(PM.class, delete);
 			if (pm == null)
 			{
 				return new RedirectViewResult("showInbox").withMessage("<span style=\"color:red\">Die angegebene Nachricht existiert nicht</span>");
 			}
 			if (pm.getEmpfaenger() == user)
 			{
-				result = pm.delete();
-				db.flush();
+				result = folderService.delete(pm);
+				em.flush();
 			}
 		}
 
@@ -159,7 +181,7 @@ public class CommController extends Controller
 			return new RedirectViewResult("showInbox");
 		}
 
-		Ordner.createNewOrdner(ordnername, ordner, user);
+		folderService.createNewOrdner(ordnername, ordner, user);
 
 		return new RedirectViewResult("showInbox");
 	}
@@ -177,7 +199,7 @@ public class CommController extends Controller
 
 		if ((moveto != null) && (ordner != null))
 		{
-			PM.moveAllToOrdner(ordner, moveto, user);
+			folderService.moveAllToOrdner(ordner, moveto, user);
 		}
 
 		return new RedirectViewResult("showInbox");
@@ -207,9 +229,9 @@ public class CommController extends Controller
 		String message;
 		if (player != null)
 		{
-			ordner.deletePmsByUser(player);
+			folderService.deletePmsByUser(ordner, player);
 
-			message = "<span style=\"color:red\">Alle Nachrichten von " + Common._title(player.getName()) + " gelöscht</span>";
+			message = "<span style=\"color:red\">Alle Nachrichten von " + Common._title(bbCodeParser, player.getName()) + " gelöscht</span>";
 		}
 		else
 		{
@@ -228,15 +250,12 @@ public class CommController extends Controller
 	public RedirectViewResult readSelectedAction(@UrlParam(name = "pm_#") Map<Integer, Integer> pms)
 	{
 		User user = (User) getUser();
-		org.hibernate.Session db = getDB();
 
-		List<?> pmList = db.createQuery("from PM where empfaenger=:user and gelesen < 1")
-				.setEntity("user", user)
-				.list();
-		for (Object aPmList : pmList)
+		List<PM> pmList = em.createQuery("from PM where empfaenger=:user and gelesen < 1", PM.class)
+				.setParameter("user", user)
+				.getResultList();
+		for (PM pm: pmList)
 		{
-			PM pm = (PM) aPmList;
-
 			Integer pmParam = pms.get(pm.getId());
 
 			if (pmParam != null && (pmParam == pm.getId()) && !pm.hasFlag(PM.FLAGS_IMPORTANT))
@@ -260,20 +279,21 @@ public class CommController extends Controller
 	public String moveAjaxAct(Ordner moveto, @UrlParam(name = "ordner") Ordner source, @UrlParam(name = "ordner_#") Map<Integer, Ordner> ordnerMap, @UrlParam(name = "pm_#") Map<Integer, Integer> pmMap) {
 		User user = (User) getUser();
 
-		Ordner trash = Ordner.getTrash(user);
+		Ordner trash = folderService.getTrash(user);
 
 		if (moveto == null || source == null)
 		{
 			return "Der angegebene Ordner existiert nicht";
 		}
 
+
 		if (trash == moveto)
 		{
 			return "ERROR: Es duerfen keine Nachrichten/Ordner in den Papierkorb verschoben werden";
 		}
 
-		List<PM> pms = source.getPms();
-		List<Ordner> ordners = source.getChildren();
+		List<PM> pms = folderService.getPms(source);
+		List<Ordner> ordners = folderService.getChildren(source);
 
 		int counter = 0;
 		for (Ordner ordner : ordners)
@@ -289,7 +309,7 @@ public class CommController extends Controller
 				continue;
 			}
 
-			if (tomove.getAllChildren().contains(moveto))
+			if (folderService.getAllChildren(tomove).contains(moveto))
 			{
 				return "ERROR: Es duerfen keine Ordner in ihre eignen Unterordner verschoben werden";
 			}
@@ -327,20 +347,20 @@ public class CommController extends Controller
 	{
 		User user = (User) getUser();
 
-		Ordner trash = Ordner.getTrash(user);
+		Ordner trash = folderService.getTrash(user);
 
 		if (moveto == null || source == null)
 		{
 			return new RedirectViewResult("showInbox").withMessage("<span style=\"color:red\">Der angegebene Ordner existiert nicht</span>");
 		}
 
-		if (trash.getId() == moveto.getId())
+		if (trash == moveto)
 		{
 			return new RedirectViewResult("showInbox").withMessage("<span style=\"color:red\">Es dürfen keine Nachrichten/Ordner in den Papierkorb verschoben werden.</span>");
 		}
 
-		List<PM> pms = source.getPms();
-		List<Ordner> ordners = source.getChildren();
+		List<PM> pms = folderService.getPms(source);
+		List<Ordner> ordners = folderService.getChildren(source);
 
 		for (Ordner ordner : ordners)
 		{
@@ -360,7 +380,7 @@ public class CommController extends Controller
 				continue;
 			}
 
-			if (tomove.getAllChildren().contains(moveto))
+			if (folderService.getAllChildren(moveto).contains(moveto))
 			{
 				return new RedirectViewResult("showInbox").withMessage("<span style=\"color:red\">Es dürfen keine Ordner in ihre eignen Unterordner verschoben werden.</span>");
 			}
@@ -395,8 +415,8 @@ public class CommController extends Controller
 	{
 		User user = (User) getUser();
 
-		List<PM> pms = ordner.getPms();
-		List<Ordner> ordners = ordner.getChildren();
+		List<PM> pms = folderService.getPms(ordner);
+		List<Ordner> ordners = folderService.getChildren(ordner);
 
 		for (Ordner ordner1 : ordners)
 		{
@@ -409,7 +429,7 @@ public class CommController extends Controller
 
 			if (delordner != null && delordner.getId() == ordner1.getId())
 			{
-				delordner.deleteOrdner();
+				folderService.deleteOrdner(delordner);
 			}
 		}
 
@@ -423,7 +443,7 @@ public class CommController extends Controller
 				{
 					continue;
 				}
-				pm.delete();
+				folderService.delete(pm);
 			}
 		}
 
@@ -489,7 +509,7 @@ public class CommController extends Controller
 		{
 			t.setVar("show.message", "<span style=\"color:#00ff55\">Antwort verarbeitet</span>");
 
-			PM.send(user, PM.TASK, title, msg, flags);
+			pmService.send(user, PM.TASK, title, msg, flags);
 		}
 		else if ("ally".equals(to) || "ally".equals(sendeziel))
 		{
@@ -501,9 +521,9 @@ public class CommController extends Controller
 			}
 
 			t.setVar("show.message",
-					"<span style=\"color:#00ff55\">Nachricht versendet an</span> " + Common._title(user.getAlly().getName()));
+					"<span style=\"color:#00ff55\">Nachricht versendet an</span> " + Common._title(bbCodeParser, user.getAlly().getName()));
 
-			PM.sendToAlly(user, user.getAlly(), title, msg, flags);
+			pmService.sendToAlly(user, user.getAlly(), title, msg, flags);
 		}
 		else if("all".equals(to))
 		{
@@ -512,19 +532,19 @@ public class CommController extends Controller
 				return t;
 			}
 
-			PM.sendToAll(user, title, msg, flags);
+			pmService.sendToAll(user, title, msg, flags);
 		}
 		else
 		{
-			User auser = User.lookupByIdentifier(to);
+			User auser = userService.lookupByIdentifier(to);
 			if (auser == null)
 			{
 				t.setVar("show.message", "<span style=\"color:#ff0000\">Sie müssen einen gültigen Empfänger angeben</span>");
 				return t;
 			}
-			t.setVar("show.message", "<span style=\"color:#00ff55\">Nachricht versendet an</span> " + Common._title(auser.getName()));
+			t.setVar("show.message", "<span style=\"color:#00ff55\">Nachricht versendet an</span> " + Common._title(bbCodeParser, auser.getName()));
 
-			PM.send(user, auser.getId(), title, msg, flags);
+			pmService.send(user, auser.getId(), title, msg, flags);
 		}
 
 		return t;
@@ -540,9 +560,6 @@ public class CommController extends Controller
 	{
 		User user = (User) getUser();
 		TemplateEngine t = templateViewResultFactory.createFor(this);
-
-		BBCodeParser bbcodeparser = BBCodeParser.getNewInstance();
-
 		t.setVar("show.pm", 1);
 
 		if ((pm == null) || (!user.equals(pm.getEmpfaenger()) && !user.equals(pm.getSender())))
@@ -556,7 +573,7 @@ public class CommController extends Controller
 		{
 			try
 			{
-				bbcodeparser.registerHandler("_intrnlConfTask", 2, "<div style=\"text-align:center\"><table class=\"noBorderX\" width=\"500\"><tr><td class=\"BorderX\" align=\"center\">Entscheidungsm&ouml;glichkeit in der Orginal-PM</td></tr></table></div>");
+				bbCodeParser.registerHandler("_intrnlConfTask", 2, "<div style=\"text-align:center\"><table class=\"noBorderX\" width=\"500\"><tr><td class=\"BorderX\" align=\"center\">Entscheidungsm&ouml;glichkeit in der Orginal-PM</td></tr></table></div>");
 			}
 			catch (Exception e)
 			{
@@ -574,7 +591,7 @@ public class CommController extends Controller
 			if (empfaenger != null)
 			{
 				t.setVar("pm.empfaenger", empfaenger.getId(),
-						"pm.empfaenger.name", Common._title(empfaenger.getName()));
+						"pm.empfaenger.name", Common._title(bbCodeParser, empfaenger.getName()));
 			}
 			else
 			{
@@ -586,7 +603,7 @@ public class CommController extends Controller
 		{
 			try
 			{
-				bbcodeparser.registerHandler("_intrnlConfTask", 2, new TagIntrnlConfTask());
+				bbCodeParser.registerHandler("_intrnlConfTask", 2, new TagIntrnlConfTask(taskManager));
 			}
 			catch (Exception e)
 			{
@@ -604,7 +621,7 @@ public class CommController extends Controller
 			if (sender != null)
 			{
 				t.setVar("pm.sender", sender.getId(),
-						"pm.sender.name", Common._title(sender.getName()),
+						"pm.sender.name", Common._title(bbCodeParser, sender.getName()),
 						"ordner.parent", ordner != null ? ordner.getId() : 0);
 			}
 			else
@@ -623,12 +640,12 @@ public class CommController extends Controller
 		}
 		else if (sender != null && pm.hasFlag(PM.FLAGS_OFFICIAL))
 		{
-			bgimg = "pm_" + Rassen.get().rasse(sender.getRace()).getName() + "bg.png";
+			bgimg = "pm_" + races.rasse(sender.getRace()).getName() + "bg.png";
 		}
 
 		String text = pm.getInhalt();
 		text = Common.escapeHTML(text);
-		text = bbcodeparser.parse(text);
+		text = bbCodeParser.parse(text);
 
 		text = text.replace("\r\n", "<br />");
 		text = text.replace("\n", "<br />");
@@ -640,7 +657,7 @@ public class CommController extends Controller
 				"pm.bgimage", bgimg,
 				"pm.time", Common.date("j.n.Y G:i", pm.getTime()),
 				"pm.text", Smilie.parseSmilies(text),
-				"pm.kommentar", Smilie.parseSmilies(Common._text(pm.getKommentar())));
+				"pm.kommentar", Smilie.parseSmilies(Common._text(bbCodeParser, pm.getKommentar())));
 
 		return t;
 	}
@@ -657,7 +674,7 @@ public class CommController extends Controller
 
 		if (recover != null && recover.getEmpfaenger() == user)
 		{
-			recover.recover();
+			folderService.recover(recover);
 		}
 
 		return new RedirectViewResult("showInbox");
@@ -671,7 +688,7 @@ public class CommController extends Controller
 	{
 		User user = (User) getUser();
 
-		PM.recoverAll(user);
+		folderService.recoverAll(user);
 
 		return new RedirectViewResult("showInbox").withMessage("<span style=\"color:red\">Nachrichten wiederhergestellt</span>");
 	}
@@ -684,7 +701,6 @@ public class CommController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine showInboxAction(Ordner ordner, RedirectViewResult redirect)
 	{
-		org.hibernate.Session db = getDB();
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
 
@@ -704,13 +720,11 @@ public class CommController extends Controller
 
 		t.parse("availordner.list", "availordner.listitem", true);
 
-		List<?> ordnerList = db.createQuery("from Ordner where owner= :user order by name asc")
-				.setEntity("user", user)
-				.list();
-		for (Object anOrdnerList : ordnerList)
+		List<Ordner> ordnerList = em.createQuery("from Ordner where owner= :user order by name asc", Ordner.class)
+				.setParameter("user", user)
+				.getResultList();
+		for (Ordner aOrdner: ordnerList)
 		{
-			Ordner aOrdner = (Ordner) anOrdnerList;
-
 			t.setVar("availordner.id", aOrdner.getId(),
 					"availordner.name", aOrdner.getName());
 
@@ -720,10 +734,10 @@ public class CommController extends Controller
 		// Link zum uebergeordneten Ordner erstellen
 		if (ordner.getId() != 0)
 		{
-			t.setVar("ordner.id", ordner.getParent().getId(),
+			t.setVar("ordner.id", ordner.getParent(),
 					"ordner.name", "..",
 					"ordner.parent", ordner.getId(),
-					"ordner.pms", ordner.getParent().getPmCount(),
+					"ordner.pms", folderService.getPmCount(folderService.getParent(ordner)),
 					"ordner.flags.up", 1,
 					"ordner.flags.trash", (ordner.getFlags() & Ordner.FLAG_TRASH),
 					"ordner.name.real", ordner.getName());
@@ -731,17 +745,17 @@ public class CommController extends Controller
 			t.parse("ordner.list", "ordner.listitem", true);
 		}
 
-		Map<Ordner, Integer> ordners = ordner.getPmCountPerSubOrdner();
+		Map<Ordner, Integer> ordners = folderService.getPmCountPerSubOrdner(ordner);
 
 		// Ordnerliste im aktuellen Ordner ausgeben
-		List<Ordner> children = ordner.getChildren();
+		List<Ordner> children = folderService.getChildren(ordner);
 		for (Ordner aOrdner : children)
 		{
 			Integer count = ordners.get(aOrdner);
 
 			t.setVar("ordner.id", aOrdner.getId(),
 					"ordner.name", aOrdner.getName(),
-					"ordner.parent", aOrdner.getParent().getId(),
+					"ordner.parent", aOrdner.getParent(),
 					"ordner.pms", count != null ? count : 0,
 					"ordner.flags.up", 0,
 					"ordner.flags.trash", aOrdner.hasFlag(Ordner.FLAG_TRASH));
@@ -750,7 +764,7 @@ public class CommController extends Controller
 		}
 
 		// PMs im aktuellen Ordner ausgeben
-		List<PM> pms = ordner.getPms();
+		List<PM> pms = folderService.getPms(ordner);
 		for (PM pm : pms)
 		{
 			String title = pm.getTitle();
@@ -763,7 +777,7 @@ public class CommController extends Controller
 					"pm.flags.admin", pm.hasFlag(PM.FLAGS_ADMIN),
 					"pm.highlight", pm.hasFlag(PM.FLAGS_ADMIN) || pm.hasFlag(PM.FLAGS_OFFICIAL),
 					"pm.title", Common._plaintitle(title),
-					"pm.sender.name", Common._title(pm.getSender().getName()),
+					"pm.sender.name", Common._title(bbCodeParser, pm.getSender().getName()),
 					"pm.sender.id", pm.getSender().getId(),
 					"pm.time", Common.date("j.n.Y G:i", pm.getTime()),
 					"pm.trash", (pm.getGelesen() > 1) ? 1 : 0,
@@ -781,7 +795,6 @@ public class CommController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine showOutboxAction()
 	{
-		org.hibernate.Session db = getDB();
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 
 		User user = (User) getUser();
@@ -789,14 +802,12 @@ public class CommController extends Controller
 		t.setVar("show.outbox", 1);
 		t.setBlock("_COMM", "pms.out.listitem", "pms.out.list");
 
-		List<?> pms = db.createQuery("from PM as pm inner join fetch pm.empfaenger " +
-				"where pm.sender= :user order by pm.id desc")
-				.setEntity("user", user)
-				.list();
-		for (Object pm1 : pms)
+		List<PM> pms = em.createQuery("from PM as pm inner join fetch pm.empfaenger " +
+				"where pm.sender= :user order by pm.id desc", PM.class)
+				.setParameter("user", user)
+				.getResultList();
+		for (PM pm: pms)
 		{
-			PM pm = (PM) pm1;
-
 			String title = pm.getTitle();
 			if (title == null || title.trim().isEmpty())
 			{
@@ -807,7 +818,7 @@ public class CommController extends Controller
 					"pm.flags.admin", pm.hasFlag(PM.FLAGS_ADMIN),
 					"pm.highlight", pm.hasFlag(PM.FLAGS_ADMIN) || pm.hasFlag(PM.FLAGS_OFFICIAL),
 					"pm.title", Common._plaintitle(title),
-					"pm.empfaenger.name", Common._title(pm.getEmpfaenger().getName()),
+					"pm.empfaenger.name", Common._title(bbCodeParser, pm.getEmpfaenger().getName()),
 					"pm.time", Common.date("j.n.Y G:i", pm.getTime()),
 					"pm.empfaenger", pm.getEmpfaenger().getId());
 
@@ -866,13 +877,13 @@ public class CommController extends Controller
 		}
 		else if ("official".equals(special))
 		{
-			bgimg = "pm_" + Rassen.get().rasse(user.getRace()).getName() + "bg.png";
+			bgimg = "pm_" + races.rasse(user.getRace()).getName() + "bg.png";
 		}
 
-		t.setVar("pm.text", Smilie.parseSmilies(Common._text(msg)),
+		t.setVar("pm.text", Smilie.parseSmilies(Common._text(bbCodeParser, msg)),
 				"pm.title", title,
 				"pm.sender", user.getId(),
-				"pm.sender.name", Common._title(user.getName()),
+				"pm.sender.name", Common._title(bbCodeParser, user.getName()),
 				"pm.time", Common.date("j.n.Y G:i", Common.time()),
 				"pm.bgimage", bgimg,
 				"write.to", to,
@@ -907,11 +918,11 @@ public class CommController extends Controller
 			t.setVar("pm.id", pm.getId());
 			t.setVar("ordner.id", ordner != null ? ordner.getId() : 0);
 			t.setVar("pm.title", pm.getTitle());
-			t.setVar("pm.empfaenger.name", Common._title(pm.getEmpfaenger().getName()));
-			t.setVar("pm.sender.name", Common._title(pm.getSender().getName()));
-			t.setVar("pm.text", Smilie.parseSmilies(Common._text(pm.getInhalt())));
+			t.setVar("pm.empfaenger.name", Common._title(bbCodeParser, pm.getEmpfaenger().getName()));
+			t.setVar("pm.sender.name", Common._title(bbCodeParser, pm.getSender().getName()));
+			t.setVar("pm.text", Smilie.parseSmilies(Common._text(bbCodeParser, pm.getInhalt())));
 			t.setVar("system.time", Common.getIngameTime(getContext().get(ContextCommon.class).getTick()));
-			t.setVar("user.signature", user.getUserValue(WellKnownUserValue.PMS_SIGNATURE));
+			t.setVar("user.signature", userValueService.getUserValue(user, WellKnownUserValue.PMS_SIGNATURE));
 		}
 
 		return t;
@@ -977,22 +988,22 @@ public class CommController extends Controller
 				depth++;
 			}
 
-			String[] msg_lines = StringUtils.split(msg, '\n'); //Text Zeilenweise auftrennen
-			for (int i = 0; i < msg_lines.length; i++)
+			String[] messageLines = StringUtils.split(msg, '\n'); //Text Zeilenweise auftrennen
+			for (int i = 0; i < messageLines.length; i++)
 			{
-				msg_lines[i] = Common.wordwrap(msg_lines[i], 65 - depth, "\t\n");    //Zeilen umbrechen
+				messageLines[i] = Common.wordwrap(messageLines[i], 65 - depth, "\t\n");    //Zeilen umbrechen
 
-				if (Pattern.compile("/\\(Nachricht am \\d{1,2}\\.\\d{1,2}\\.\\d{4,4} \\d{1,2}:\\d{2,2} empfangen\\.\\)/").matcher(msg_lines[i]).find())
+				if (Pattern.compile("/\\(Nachricht am \\d{1,2}\\.\\d{1,2}\\.\\d{4,4} \\d{1,2}:\\d{2,2} empfangen\\.\\)/").matcher(messageLines[i]).find())
 				{
 					//beginn einer neuen Verschachtelung
-					for (int j = i + 1; j < msg_lines.length; j++)
+					for (int j = i + 1; j < messageLines.length; j++)
 					{
 						//in Jede zeile ein ">" am Anfang einfuegen
-						msg_lines[j] = ">" + msg_lines[j];
+						messageLines[j] = ">" + messageLines[j];
 					}
 				}
 			}
-			msg = Common.implode("\n", msg_lines); //Text wieder zusammenfuegen
+			msg = Common.implode("\n", messageLines); //Text wieder zusammenfuegen
 			msg += "\n\n"; // Zwei Leerzeilen koennen am Ende nicht schaden...
 
 			toStr = Integer.toString(to.getId());
@@ -1028,7 +1039,7 @@ public class CommController extends Controller
 				"write.message", msg,
 				"write.to", toStr,
 				"system.time", Common.getIngameTime(getContext().get(ContextCommon.class).getTick()),
-				"user.signature", user.getUserValue(WellKnownUserValue.PMS_SIGNATURE));
+				"user.signature", userValueService.getUserValue(user, WellKnownUserValue.PMS_SIGNATURE));
 
 		t.setBlock("_COMM", "write.specialui.listitem", "write.specialui.list");
 		if (specialuilist.size() > 1)

@@ -5,7 +5,6 @@ import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
@@ -18,7 +17,10 @@ import net.driftingsouls.ds2.server.ships.ShipType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,11 +35,16 @@ import java.util.TreeSet;
 public class ShipsInfoController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
+	private final Rassen races;
+
+	@PersistenceContext
+	private EntityManager em;
 
 	@Autowired
-	public ShipsInfoController(TemplateViewResultFactory templateViewResultFactory)
+	public ShipsInfoController(TemplateViewResultFactory templateViewResultFactory, Rassen races)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.races = races;
 		setPageTitle("Schiffsliste");
 	}
 
@@ -46,15 +53,15 @@ public class ShipsInfoController extends Controller
 	{
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) ContextMap.getContext().getActiveUser();
-		org.hibernate.Session db = getDB();
-
-		List<ShipType> ships = Common.cast(db.createQuery("from ShipType where hide=:hide").setParameter("hide", false).list());
-		if (ships.size() == 0)
+		List<ShipType> ships = em.createQuery("from ShipType where hide=:hide", ShipType.class)
+			.setParameter("hide", false)
+			.getResultList();
+		if (ships.isEmpty())
 		{
 			return t;
 		}
 
-		List<ShipBaubar> buildableShipList = Common.cast(db.createCriteria(ShipBaubar.class).list());
+		List<ShipBaubar> buildableShipList = em.createQuery("from ShipBaubar", ShipBaubar.class).getResultList();
 		Map<Integer, ShipBaubar> buildableShips = new HashMap<>();
 		for (ShipBaubar buildable : buildableShipList)
 		{
@@ -100,7 +107,7 @@ public class ShipsInfoController extends Controller
 	{
 		int slotsOnAsteroids = berechneMaxWerftSlotsAufBasen(user);
 
-		Map<BuildKind, Set<ShipType>> sortedShipTypes = new HashMap<>();
+		Map<BuildKind, Set<ShipType>> sortedShipTypes = new EnumMap<>(BuildKind.class);
 		sortedShipTypes.put(BuildKind.ASTEROID, new TreeSet<>(sortTypeByName));
 		sortedShipTypes.put(BuildKind.GANYMED, new TreeSet<>(sortTypeByName));
 		sortedShipTypes.put(BuildKind.LACKING_RESEARCH, new TreeSet<>(sortTypeByName));
@@ -112,7 +119,7 @@ public class ShipsInfoController extends Controller
 			ShipBaubar buildData = buildableShips.get(shipType.getId());
 			if (buildData != null)
 			{
-				if (Rassen.get().rasse(user.getRace()).isMemberIn(buildData.getRace()))
+				if (races.rasse(user.getRace()).isMemberIn(buildData.getRace()))
 				{
 					boolean researched = user.hasResearched(buildData.getBenoetigteForschungen());
 					if (researched)

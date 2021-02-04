@@ -56,11 +56,12 @@ public class StatShips {
 	
 	/**
 	 * Erstellt einen neuen Statistikeintrag fuer den aktuellen Tick.
+	 * @param tick Der aktuelle Tick
 	 * @param shipCount Die Schiffsanzahl
 	 * @param crewCount Die Crewanzahl
 	 */
-	public StatShips(long shipCount, long crewCount) {
-		this.tick = ContextMap.getContext().get(ContextCommon.class).getTick();
+	public StatShips(int tick, long shipCount, long crewCount) {
+		this.tick = tick;
 		this.shipCount = shipCount;
 		this.crewCount = crewCount;
 	}

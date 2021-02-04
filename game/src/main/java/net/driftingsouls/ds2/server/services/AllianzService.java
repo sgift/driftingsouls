@@ -1,25 +1,27 @@
 package net.driftingsouls.ds2.server.services;
 
-import net.driftingsouls.ds2.server.ContextCommon;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.battles.Battle;
-import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.config.Rang;
 import net.driftingsouls.ds2.server.entities.ComNetChannel;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserRank;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.entities.ally.AllyPosten;
+import net.driftingsouls.ds2.server.entities.ally.AllyRangDescriptor;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.ConfigService;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.tasks.Task;
-import net.driftingsouls.ds2.server.tasks.Taskmanager;
-import org.hibernate.Query;
-import org.hibernate.Session;
+import net.driftingsouls.ds2.server.tasks.TaskManager;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
-import org.springframework.lang.NonNull;
-import java.util.LinkedHashSet;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
-import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * Service fuer Allianzen.
@@ -27,60 +29,71 @@ import java.util.Set;
 @Service
 public class AllianzService
 {
+	@PersistenceContext
+	private EntityManager em;
+
+	private final ConfigService configService;
+	private final PmService pmService;
+	private final BBCodeParser bbCodeParser;
+	private final MedalService medalService;
+	private final TaskManager taskManager;
+
+	public AllianzService(ConfigService configService, PmService pmService, BBCodeParser bbCodeParser, MedalService medalService, TaskManager taskManager) {
+		this.configService = configService;
+		this.pmService = pmService;
+		this.bbCodeParser = bbCodeParser;
+		this.medalService = medalService;
+		this.taskManager = taskManager;
+	}
+
 	public void loeschen(@NonNull Ally allianz)
 	{
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
-		List<?> chnList = db.createQuery("from ComNetChannel where allyOwner=:owner")
+		List<ComNetChannel> chnList = em.createQuery("from ComNetChannel where allyOwner=:owner", ComNetChannel.class)
 				.setParameter("owner", allianz)
-				.list();
-		for (Object aChnList : chnList)
+				.getResultList();
+		for (ComNetChannel channel: chnList)
 		{
-			ComNetChannel channel = (ComNetChannel) aChnList;
-
-			db.createQuery("delete from ComNetVisit where channel=:channel")
-					.setEntity("channel", channel)
+			em.createQuery("delete from ComNetVisit where channel=:channel")
+					.setParameter("channel", channel)
 					.executeUpdate();
 
-			db.createQuery("delete from ComNetEntry where channel=:channel")
-					.setEntity("channel", channel)
+			em.createQuery("delete from ComNetEntry where channel=:channel")
+					.setParameter("channel", channel)
 					.executeUpdate();
 
-			db.delete(channel);
+			em.remove(channel);
 		}
 
-		int tick = ContextMap.getContext().get(ContextCommon.class).getTick();
+		int tick = configService.getValue(WellKnownConfigValue.TICKS);
 
-		List<?> uids = db.createQuery("from User where ally=:ally")
-				.setEntity("ally", allianz)
-				.list();
-		for (Object uid : uids)
+		List<User> uids = em.createQuery("from User where ally=:ally", User.class)
+				.setParameter("ally", allianz)
+				.getResultList();
+		for (User auser: uids)
 		{
-			User auser = (User) uid;
-
 			auser.addHistory(Common.getIngameTime(tick) + ": Verlassen der Allianz " + allianz.getName() + " im Zuge der Aufl&ouml;sung dieser Allianz");
 			auser.setAlly(null);
 			if (auser.getAllyPosten() != null)
 			{
 				AllyPosten posten = auser.getAllyPosten();
 				auser.setAllyPosten(null);
-				db.delete(posten);
+				em.remove(posten);
 			}
 			auser.setName(auser.getNickname());
+			auser.setPlainname(bbCodeParser.parse(auser.getNickname(), new String[] {"all"}));
 		}
 
-		db.createQuery("delete from AllyPosten where ally=:ally")
-				.setEntity("ally", allianz)
+		em.createQuery("delete from AllyPosten where ally=:ally")
+				.setParameter("ally", allianz)
 				.executeUpdate();
 
 		// Delete Ally from running Battles
 
-		Query battleQuery = db.createQuery("from Battle " +
-				"where ally1 = :ally or ally2 = :ally")
+		var battleQuery = em.createQuery("from Battle " +
+				"where ally1 = :ally or ally2 = :ally", Battle.class)
 				.setParameter("ally", allianz.getId());
 
-		Set<Battle> battles = new LinkedHashSet<>(Common.cast(battleQuery.list(), Battle.class));
-		for (Battle battle : battles)
+		for (Battle battle : battleQuery.getResultList())
 		{
 			if (battle.getAlly(0) == allianz.getId())
 			{
@@ -93,7 +106,7 @@ public class AllianzService
 		}
 
 		allianz.removeAllMembers();
-		db.delete(allianz);
+		em.remove(allianz);
 	}
 
 	/**
@@ -105,25 +118,23 @@ public class AllianzService
 	public void entferneMitglied(@NonNull Ally allianz, User mitglied)
 	{
 
-		final Context context = ContextMap.getContext();
-		final org.hibernate.Session db = context.getDB();
-
 		allianz.removeMember(mitglied);
 		mitglied.setAlly(null);
 		mitglied.setAllyPosten(null);
 		mitglied.setName(mitglied.getNickname());
+		mitglied.setPlainname(bbCodeParser.parse(mitglied.getNickname(), new String[] {"all"}));
 
-		db.createQuery("update Battle set ally1=0 where commander1= :user and ally1= :ally")
-				.setEntity("user", mitglied)
+		em.createQuery("update Battle set ally1=0 where commander1= :user and ally1= :ally")
+				.setParameter("user", mitglied)
 				.setParameter("ally", allianz.getId())
 				.executeUpdate();
 
-		db.createQuery("update Battle set ally2=0 where commander2= :user and ally2= :ally")
-				.setEntity("user", mitglied)
+		em.createQuery("update Battle set ally2=0 where commander2= :user and ally2= :ally")
+				.setParameter("user", mitglied)
 				.setParameter("ally", allianz.getId())
 				.executeUpdate();
 
-		int tick = context.get(ContextCommon.class).getTick();
+		int tick = configService.getValue(WellKnownConfigValue.TICKS);
 		mitglied.addHistory(Common.getIngameTime(tick) + ": Verlassen der Allianz " + allianz.getName());
 
 		pruefeAufZuWenigMitglieder(allianz);
@@ -139,22 +150,20 @@ public class AllianzService
 	 */
 	public void pruefeAufZuWenigMitglieder(@NonNull Ally allianz)
 	{
-		final org.hibernate.Session db = ContextMap.getContext().getDB();
-
 		// Ist der Praesident kein NPC (negative ID) ?
 		if (allianz.getPresident().getId() > 0)
 		{
 			long count = allianz.getMemberCount();
 			if (count < 3)
 			{
-				Taskmanager.getInstance().addTask(Taskmanager.Types.ALLY_LOW_MEMBER, 21, Integer.toString(allianz.getId()), "", "");
+				taskManager.addTask(TaskManager.Types.ALLY_LOW_MEMBER, 21, Integer.toString(allianz.getId()), "", "");
 
-				final User nullUser = (User) db.get(User.class, 0);
+				final User nullUser = em.find(User.class, 0);
 
 				List<User> supermembers = getAllianzfuehrung(allianz);
 				for (User supermember : supermembers)
 				{
-					PM.send(nullUser, supermember.getId(), "Drohende Allianzauflösung",
+					pmService.send(nullUser, supermember.getId(), "Drohende Allianzauflösung",
 							"[Automatische Nachricht]\n" +
 									"Achtung!\n" +
 									"Durch den jüngsten Weggang eines Allianzmitglieds hat deine Allianz zu wenig Mitglieder, um weiterhin zu bestehen. " +
@@ -171,9 +180,7 @@ public class AllianzService
 	 */
 	public boolean isUserAnAllianzgruendungBeteiligt(@NonNull User user)
 	{
-		Taskmanager taskmanager = Taskmanager.getInstance();
-
-		Task[] tasks = taskmanager.getTasksByData(Taskmanager.Types.ALLY_FOUND, "*", "*", "*");
+		Task[] tasks = taskManager.getTasksByData(TaskManager.Types.ALLY_FOUND, "*", "*", "*");
 		if (tasks.length > 0)
 		{
 			for (Task task : tasks)
@@ -200,12 +207,75 @@ public class AllianzService
 	 */
 	public List<User> getAllianzfuehrung(@NonNull Ally allianz)
 	{
-		Session db = ContextMap.getContext().getDB();
-		List<?> userList = db
-				.createQuery("select distinct u from User u join u.ally a " +
-						"where a.id= :allyId and (u.allyposten is not null or a.president.id=u.id)")
-				.setInteger("allyId", allianz.getId())
-				.list();
-		return Common.cast(userList);
+		return em.createQuery("select distinct u from User u join u.ally a " +
+						"where a.id= :allyId and (u.allyposten is not null or a.president.id=u.id)", User.class)
+				.setParameter("allyId", allianz.getId())
+				.getResultList();
+	}
+
+	/**
+	 * Gibt die Liste aller bekannten Raenge dieser Allianz zurueck. Dies umfasst sowohl
+	 * die spezifischen Raenge dieser Allianz als auch alle allgemeinen Raenge ({@link MedalService#raenge()}).
+	 * @return Die nach Rangnummer sortierte Liste der Rangbezeichnungen
+	 */
+	public SortedSet<Rang> getFullRangNameList(Ally ally)
+	{
+		SortedSet<Rang> result = new TreeSet<>();
+		for( AllyRangDescriptor rang : ally.getRangDescriptors() )
+		{
+			result.add(new Rang(rang.getRang(), rang.getName(), getAllyRangDescriptorImage(rang)));
+		}
+
+		result.addAll(medalService.raenge().values());
+
+		return result;
+	}
+
+	/**
+	 * Gibt das Bild (Pfad) des Ranges zurueck.
+	 * @return Der Bildpfad
+	 */
+	public String getAllyRangDescriptorImage(AllyRangDescriptor allyRangDescriptor)
+	{
+		if( allyRangDescriptor.getCustomImg() != null )
+		{
+			return "data/dynamicContent/"+allyRangDescriptor.getCustomImg();
+		}
+		return medalService.rang(allyRangDescriptor.getRang()).getImage();
+	}
+
+	/**
+	 * Gibt den Anzeigenamen fuer die angegebene Rangnummer zurueck.
+	 * Sofern die Allianz ueber eine eigene Bezeichnung verfuegt wird diese zurueckgegeben.
+	 * Andernfalls wird die globale Bezeichnung verwendet.
+	 * @param rangNr Die Rangnummer
+	 * @return Der Anzeigename
+	 */
+	public String getRangName(Ally ally, int rangNr)
+	{
+		for( AllyRangDescriptor rang : ally.getRangDescriptors() )
+		{
+			if( rang.getRang() == rangNr )
+			{
+				return rang.getName();
+			}
+		}
+
+		return medalService.rang(rangNr).getName();
+	}
+
+	/**
+	 * Gibt den Anzeigenamen des Rangs zurueck.
+	 *
+	 * @return Der Anzeigename
+	 */
+	public String getRankName(UserRank rank)
+	{
+		String rangName = medalService.rang(rank.getRank()).getName();
+		if( rank.getUserRankKey().getRankGiver().getAlly() != null )
+		{
+			rangName = getRangName(rank.getUserRankKey().getRankGiver().getAlly(), rank.getRank());
+		}
+		return rangName;
 	}
 }

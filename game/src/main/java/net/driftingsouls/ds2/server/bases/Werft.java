@@ -20,10 +20,7 @@ package net.driftingsouls.ds2.server.bases;
 
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.werften.BaseWerft;
-import net.driftingsouls.ds2.server.werften.WerftGUI;
 import net.driftingsouls.ds2.server.werften.WerftObject;
 import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
 
@@ -71,15 +68,7 @@ public class Werft extends DefaultBuilding {
 
 	@Override
 	public void cleanup(Context context, Base base, int building) {
-		super.cleanup(context, base, building);
-
-		BaseWerft werft = base.getWerft();
-
-		if( werft != null ) {
-			werft.destroy();
-		}
-
-		base.setWerft(null);
+		throw new IllegalArgumentException("shouldn't be called!");
 	}
 
 	@Override
@@ -148,23 +137,8 @@ public class Werft extends DefaultBuilding {
 
 	@Override
 	public String output(Context context, Base base, int field, int building) {
-		StringBuilder response = new StringBuilder(500);
-
-		BaseWerft werft = base.getWerft();
-		if( werft == null ) {
-	   		response.append("<a href=\"./ds?module=basen\"><span style=\"color:#ff0000; font-weight:bold\">Fehler: Die angegebene Kolonie hat keine Werft</span></a>\n");
-			return response.toString();
-		}
-
-		werft.setBaseField(field);
-
-		TemplateViewResultFactory templateViewResultFactory = context.getBean(TemplateViewResultFactory.class, null);
-		TemplateEngine t = templateViewResultFactory.createEmpty();
-		WerftGUI werftgui = new WerftGUI( context, t );
-		response.append(werftgui.execute( werft ));
-
-		response.append("<br /></div>\n");
-		return response.toString();
+		//TODO: REMOVE
+		return null;
 	}
 
 	@Override

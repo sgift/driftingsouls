@@ -24,8 +24,10 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.modules.stats.AjaxStatistic;
+import net.driftingsouls.ds2.server.modules.stats.StatBiggestAllianceFleet;
+import net.driftingsouls.ds2.server.modules.stats.StatBiggestAlliancePopulation;
 import net.driftingsouls.ds2.server.modules.stats.StatBiggestAsteroid;
-import net.driftingsouls.ds2.server.modules.stats.StatBiggestFleet;
+import net.driftingsouls.ds2.server.modules.stats.StatBiggestUserFleet;
 import net.driftingsouls.ds2.server.modules.stats.StatBiggestPopulation;
 import net.driftingsouls.ds2.server.modules.stats.StatBiggestTrader;
 import net.driftingsouls.ds2.server.modules.stats.StatData;
@@ -37,6 +39,7 @@ import net.driftingsouls.ds2.server.modules.stats.StatOwnKampf;
 import net.driftingsouls.ds2.server.modules.stats.StatOwnOffiziere;
 import net.driftingsouls.ds2.server.modules.stats.StatPlayerList;
 import net.driftingsouls.ds2.server.modules.stats.StatPopulationDensity;
+import net.driftingsouls.ds2.server.modules.stats.StatRichestAlly;
 import net.driftingsouls.ds2.server.modules.stats.StatRichestUser;
 import net.driftingsouls.ds2.server.modules.stats.StatShipCount;
 import net.driftingsouls.ds2.server.modules.stats.StatShips;
@@ -44,6 +47,7 @@ import net.driftingsouls.ds2.server.modules.stats.StatSpieleraktivitaet;
 import net.driftingsouls.ds2.server.modules.stats.StatWaren;
 import net.driftingsouls.ds2.server.modules.stats.StatWarenentwicklung;
 import net.driftingsouls.ds2.server.modules.stats.Statistic;
+import net.driftingsouls.ds2.server.modules.stats.StatsBiggestTradingAlliance;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -82,37 +86,43 @@ public class StatsController extends Controller
 	/**
 	 * Konstruktor.
 	 */
-	public StatsController() {
+	public StatsController(StatSpieleraktivitaet spieleraktivitaet, StatShipCount shipCount,
+		StatBiggestPopulation biggestPopulation, StatBiggestAlliancePopulation biggestAlliancePopulation,
+		StatWarenentwicklung warenentwicklung, StatPlayerList playerList, StatOwnKampf ownKampf,
+		StatMemberCount statMemberCount, StatRichestUser richestUser, StatRichestAlly richestAlly,
+		StatGtuPrice highestBidding, StatBiggestAsteroid biggestAsteroid, StatBiggestUserFleet biggestUserFleet,
+		StatBiggestAllianceFleet biggestAllianceFleet, StatOwnOffiziere statOwnOffiziere, StatBiggestTrader biggestTrader,
+		StatsBiggestTradingAlliance biggestTradingAlliance, StatWaren statWaren) {
 		super();
 
 		setPageTitle("Statistik");
 
 		registerStat( "Spieler", new StatOwnCiv(), "meine Zivilisation", 0 );
-		registerStat( "Spieler", new StatBiggestFleet(false), "größte Flotten", 60 );
-		registerStat( "Spieler", new StatBiggestTrader(false), "größte Handelsflotten", 60);
-		registerStat( "Spieler", new StatRichestUser(false), "reichste Siedler", 60);
-		registerStat( "Spieler", new StatBiggestPopulation(false), "größte Völker", 30 );
-		registerStat( "Spieler", new StatBiggestAsteroid(), "größte Asteroiden", 100 );
-		registerStat( "Spieler", new StatGtuPrice(), "höchste Gebote", 60 );
+		registerStat( "Spieler", biggestUserFleet, "größte Flotten", 60 );
+		registerStat( "Spieler", biggestTrader, "größte Handelsflotten", 60);
+		registerStat( "Spieler", richestUser, "reichste Siedler", 60);
+		registerStat( "Spieler", biggestPopulation, "größte Völker", 30 );
+		registerStat( "Spieler", biggestAsteroid, "größte Asteroiden", 100 );
+		registerStat( "Spieler", highestBidding, "höchste Gebote", 60 );
 
-		registerStat( "Allianzen", new StatBiggestFleet(true), "größte Flotten", 60 );
-		registerStat( "Allianzen", new StatBiggestTrader(true), "größte Handelsflotten", 60);
-		registerStat( "Allianzen", new StatRichestUser(true), "reichste Allianzen", 60);
-		registerStat( "Allianzen", new StatBiggestPopulation(true), "größte Völker", 30 );
-		registerStat( "Allianzen", new StatMemberCount(), "größte Allianzen", 30 );
+		registerStat( "Allianzen", biggestAllianceFleet, "größte Flotten", 60 );
+		registerStat( "Allianzen", biggestTradingAlliance, "größte Handelsflotten", 60);
+		registerStat( "Allianzen", richestAlly, "reichste Allianzen", 60);
+		registerStat( "Allianzen", biggestAlliancePopulation, "größte Völker", 30 );
+		registerStat( "Allianzen", statMemberCount, "größte Allianzen", 30 );
 
 		registerStat( "Sonstiges", new StatPopulationDensity(), "Siedlungsdichte", 0 );
 		registerStat( "Sonstiges", new StatShips(), "Schiffe", 0 );
-		registerStat( "Sonstiges", new StatShipCount(), "Schiffsentwicklung", 0 );
-		registerStat( "Sonstiges", new StatSpieleraktivitaet(), "Spieleraktivität", 0 );
-		registerStat( "Sonstiges", new StatWarenentwicklung(), "Warenentwicklung", 0 );
-		registerStat( "Sonstiges", new StatWaren(), "Waren", 0 );
+		registerStat( "Sonstiges", shipCount, "Schiffsentwicklung", 0 );
+		registerStat( "Sonstiges", spieleraktivitaet, "Spieleraktivität", 0 );
+		registerStat( "Sonstiges", warenentwicklung, "Warenentwicklung", 0 );
+		registerStat( "Sonstiges", statWaren, "Waren", 0 );
 		registerStat( "Sonstiges", new StatEinheiten(), "Einheiten", 0);
 		registerStat( "Sonstiges", new StatData(), "diverse Daten", 0 );
 
-		registerStat( "Eigene K&auml;mpfe", new StatOwnKampf(), "eigene Kämpfe", 0 );
-		registerStat( "Offiziere", new StatOwnOffiziere(), "Offiziere", 0 );
-		registerStat( "Spielerliste", new StatPlayerList(), "Spielerliste", 0 );
+		registerStat( "Eigene K&auml;mpfe", ownKampf, "eigene Kämpfe", 0 );
+		registerStat( "Offiziere", statOwnOffiziere, "Offiziere", 0 );
+		registerStat( "Spielerliste", playerList, "Spielerliste", 0 );
 	}
 
 	protected int ermittleAnzuzeigendeStatistikkategorie(int show) {
@@ -208,7 +218,6 @@ public class StatsController extends Controller
 	 * Anzeige der Statistiken.
 	 * @param stat Die ID der Statistik in der ausgewaehlten Kategorie
 	 * @param show die ID der ausgeaehlten Kategorie
-	 * @throws IOException
 	 */
 	@Action(ActionType.DEFAULT)
 	public void defaultAction(int stat, int show) throws IOException {

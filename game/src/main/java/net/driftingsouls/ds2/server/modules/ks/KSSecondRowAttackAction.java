@@ -25,8 +25,10 @@ import net.driftingsouls.ds2.server.battles.BattleShipFlag;
 import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
 import net.driftingsouls.ds2.server.battles.Side;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.services.BattleService;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
@@ -35,12 +37,10 @@ import java.io.IOException;
  * @author Christopher Jung
  *
  */
+@Component
 public class KSSecondRowAttackAction extends BasicKSAction {
-	/**
-	 * Konstruktor.
-	 *
-	 */
-	public KSSecondRowAttackAction() {
+	public KSSecondRowAttackAction(BattleService battleService) {
+		super(battleService, null);
 	}
 	
 	@Override
@@ -93,7 +93,7 @@ public class KSSecondRowAttackAction extends BasicKSAction {
 		}
 		
 		if( this.validate(battle) != Result.OK ) {
-			battle.logme("Die Aktion kann nicht ausgef&uuml;hrt werden");
+			getBattleService().logme(battle, "Die Aktion kann nicht ausgef&uuml;hrt werden");
 			return Result.ERROR;
 		}
 
@@ -104,8 +104,8 @@ public class KSSecondRowAttackAction extends BasicKSAction {
 			battle.setFlag(BattleFlag.DROP_SECONDROW_0, true);
 		}
 		
-		battle.logme( "Ihre Schiffe r&uuml;cken vor und dr&auml;ngen die feindlichen Linien unter schwerem Feuer langsam zur&uuml;ck");
-		battle.log(new SchlachtLogAktion(battle.getOwnSide(), "Die feindlichen Schiffe rücken unter schwerem Feuer langsam vor und drängen trotz heftigsten Widerstands die Linien zurück\n"));
+		getBattleService().logme(battle,  "Ihre Schiffe r&uuml;cken vor und dr&auml;ngen die feindlichen Linien unter schwerem Feuer langsam zur&uuml;ck");
+		getBattleService().log(battle, new SchlachtLogAktion(battle.getOwnSide(), "Die feindlichen Schiffe rücken unter schwerem Feuer langsam vor und drängen trotz heftigsten Widerstands die Linien zurück\n"));
 
 		return Result.OK;
 	}

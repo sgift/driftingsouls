@@ -25,6 +25,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.framework.*;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
@@ -32,17 +33,13 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.services.ComNetService;
+import net.driftingsouls.ds2.server.services.LocationService;
+import net.driftingsouls.ds2.server.services.UserValueService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.CacheMode;
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
-import org.hibernate.Session;
-import org.hibernate.Query;
-import org.hibernate.annotations.*;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import java.io.IOException;
 import java.util.*;
 
@@ -57,11 +54,20 @@ public class MainController extends Controller {
 
 	private final Version version;
 	private final TemplateViewResultFactory templateViewResultFactory;
+	private final BBCodeParser bbCodeParser;
+	private final UserValueService userValueService;
+	private final LocationService locationService;
+
+	@PersistenceContext
+	private EntityManager em;
 
 	@Autowired
-	public MainController(Version version, TemplateViewResultFactory templateViewResultFactory) {
+	public MainController(Version version, TemplateViewResultFactory templateViewResultFactory, BBCodeParser bbCodeParser, UserValueService userValueService, LocationService locationService) {
 		this.version = version;
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.bbCodeParser = bbCodeParser;
+		this.userValueService = userValueService;
+		this.locationService = locationService;
 	}
 
 	/**
@@ -72,7 +78,7 @@ public class MainController extends Controller {
 	@Action(ActionType.AJAX)
 	public ViewMessage speicherNotizen(String notizen) {
 		User user = (User) getUser();
-		user.setUserValue(WellKnownUserValue.TBLORDER_MAIN_NOTIZEN, notizen.trim());
+		userValueService.setUserValue(user, WellKnownUserValue.TBLORDER_MAIN_NOTIZEN, notizen.trim());
 
 		return ViewMessage.success("gespeichert");
 	}
@@ -91,13 +97,12 @@ public class MainController extends Controller {
 	@Action(ActionType.AJAX)
 	public Status statusUpdateAction() {
 		User user = (User) this.getUser();
-		org.hibernate.Session db = getDB();
 
 		Status status = new Status();
 
-		int pmcount = ((Number) db.createQuery("select count(*) from PM where empfaenger= :user and gelesen=0")
-				.setEntity("user", user)
-				.iterate().next()).intValue();
+		long pmcount = em.createQuery("select count(*) from PM where empfaenger= :user and gelesen=0", Long.class)
+				.setParameter("user", user)
+				.getSingleResult();
 		status.pm = pmcount > 0;
 		status.comNet = new ComNetService().hatAktiverUserUngeleseneComNetNachrichten();
 		status.version = version.getVersion();
@@ -107,13 +112,11 @@ public class MainController extends Controller {
 
 	/**
 	 * Gibt zu einer Seite den Hilfetext zurueck.
-	 *
-	 * @throws IOException
 	 */
 	@Action(ActionType.AJAX)
 	public void getHelpText(GuiHelpText page) throws IOException {
 		if (page != null) {
-			getResponse().getWriter().append(Common._text(page.getText()));
+			getResponse().getWriter().append(Common._text(bbCodeParser, page.getText()));
 		}
 	}
 
@@ -124,7 +127,6 @@ public class MainController extends Controller {
 	public TemplateEngine defaultAction() {
 		User user = (User) getUser();
 		TemplateEngine t = templateViewResultFactory.createFor(this);
-		org.hibernate.Session db = getDB();
 
 		t.setVar("SCRIPT_FORUM", SCRIPT_FORUM);
 
@@ -132,23 +134,22 @@ public class MainController extends Controller {
 				"user.npc", user.hasFlag(UserFlag.ORDER_MENU),
 				"user.adminSichtbar", hasPermission(WellKnownAdminPermission.SICHTBAR),
 				"admin.showconsole", hasPermission(WellKnownAdminPermission.CONSOLE),
-				"user.notizen", user.getUserValue(WellKnownUserValue.TBLORDER_MAIN_NOTIZEN),
-				"user.battle", isUserInBattle(db, user),
-				"user.sound.mute", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_SOUNDS_MUTE),
-				"user.sound.volume", (double)(user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_SOUNDS_VOLUME) / 100.0));//Skalierung auf 0.0-1.0
+				"user.notizen", userValueService.getUserValue(user, WellKnownUserValue.TBLORDER_MAIN_NOTIZEN),
+				"user.battle", isUserInBattle(user),
+				"user.sound.mute", userValueService.getUserValue(user, WellKnownUserValue.GAMEPLAY_USER_SOUNDS_MUTE),
+				"user.sound.volume", userValueService.getUserValue(user, WellKnownUserValue.GAMEPLAY_USER_SOUNDS_VOLUME) / 100.0d);//Skalierung auf 0.0-1.0
 
 		t.setBlock("_MAIN", "bases.listitem", "bases.list");
 
-		@SuppressWarnings("unchecked")
-		List<Base> baseList = db.createQuery("from Base where owner= :user order by system,x,y")
-				.setEntity("user", user)
-				.list();
+		List<Base> baseList = em.createQuery("from Base where owner= :user order by system,x,y", Base.class)
+				.setParameter("user", user)
+				.getResultList();
 		for (Base base : baseList) {
 			t.setVar(
 					"base.id", base.getId(),
 					"base.name", base.getName(),
 					"base.klasse", base.getKlasse().getId(),
-					"base.location", base.getLocation().displayCoordinates(false));
+					"base.location", locationService.displayCoordinates(base.getLocation(), false));
 
 			t.parse("bases.list", "bases.listitem", true);
 		}
@@ -156,14 +157,14 @@ public class MainController extends Controller {
 		return t;
 	}
 
-	private Boolean isUserInBattle(org.hibernate.Session db, User user)
+	private Boolean isUserInBattle(User user)
 	{
 		Set<User> commanderSet = new LinkedHashSet<>();
 		commanderSet.add(user);
-		Boolean isInBattle = false;
+		boolean isInBattle;
 
 		String query = "from Battle " +
-				"where commander1 in (:commanders) or commander2 in (:commanders) ";
+				"where commander1 in :commanders or commander2 in :commanders ";
 
 		//hat der Benutzer eine ally, dann haeng das hier an
 		if (user.getAlly() != null)
@@ -171,15 +172,16 @@ public class MainController extends Controller {
 			query += " or ally1 = :ally or ally2 = :ally";
 		}
 
-		Query battleQuery = db.createQuery(query)
-				.setParameterList("commanders", commanderSet);
+		Query battleQuery = em.createQuery(query)
+				.setParameter("commanders", commanderSet);
 
 		if (user.getAlly() != null)
 		{
-			battleQuery = battleQuery.setInteger("ally", user.getAlly().getId());
+			battleQuery = battleQuery.setParameter("ally", user.getAlly());
 		}
 
-		isInBattle = battleQuery.list().size() > 0;
+		battleQuery.setMaxResults(1);
+		isInBattle = !battleQuery.getResultList().isEmpty();
 
 		return isInBattle;
 	}

@@ -12,11 +12,19 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 
 @AdminMenuEntry(category = "Spieler", name = "Fraktions-GUI", permission = WellKnownAdminPermission.EDIT_FRAKTIONS_GUI_EINTRAG)
+@Component
 public class EditFraktionsGuiEintrag implements EntityEditor<FraktionsGuiEintrag>
 {
+	@PersistenceContext
+	private EntityManager em;
+
 	@Override
 	public Class<FraktionsGuiEintrag> getEntityType()
 	{
@@ -28,10 +36,10 @@ public class EditFraktionsGuiEintrag implements EntityEditor<FraktionsGuiEintrag
 	{
 		form.allowAdd();
 		form.allowDelete();
-		form.preDeleteTask("Angebote im Shop entfernen", (entity) -> {
-			Session db = ContextMap.getContext().getDB();
-			List<FactionShopEntry> entries = Common.cast(db.createCriteria(FactionShopEntry.class).add(Restrictions.eq("faction", entity.getUser())).list());
-			entries.forEach(db::delete);
+		form.preDeleteTask("Angebote im Shop entfernen", entity -> {
+			em.createQuery("from FactionShopEntry where faction=:faction", FactionShopEntry.class)
+				.setParameter("faction", entity.getUser())
+				.executeUpdate();
 		});
 		form.field("Spieler", User.class, FraktionsGuiEintrag::getUser, FraktionsGuiEintrag::setUser);
 		form.multiSelection("Seiten", FraktionsGuiEintrag.Seite.class, FraktionsGuiEintrag::getSeiten, FraktionsGuiEintrag::setSeiten);

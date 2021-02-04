@@ -20,7 +20,8 @@ package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.config.Medal;
-import net.driftingsouls.ds2.server.config.Medals;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
+import net.driftingsouls.ds2.server.services.MedalService;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.Rasse;
 import net.driftingsouls.ds2.server.entities.User;
@@ -29,7 +30,10 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 
+import net.driftingsouls.ds2.server.services.UserService;
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
+
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -40,8 +44,19 @@ import java.util.stream.Collectors;
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Spieler", name = "Spieler", permission = WellKnownAdminPermission.EDIT_USER)
+@Component
 public class EditUser implements EntityEditor<User>
 {
+	private final BBCodeParser bbCodeParser;
+	private final UserService userService;
+	private final MedalService medalService;
+
+	public EditUser(BBCodeParser bbCodeParser, UserService userService, MedalService medalService) {
+		this.bbCodeParser = bbCodeParser;
+		this.userService = userService;
+		this.medalService = medalService;
+	}
+
 	@Override
 	public Class<User> getEntityType()
 	{
@@ -63,11 +78,11 @@ public class EditUser implements EntityEditor<User>
 		form.field("Konto", BigInteger.class, User::getKonto, User::setKonto);
 		form.multiSelection("Flags", UserFlag.class, User::getFlags, User::setFlags)
 				.withOptions(Arrays.stream(UserFlag.values()).collect(Collectors.toMap((f) -> f, UserFlag::getFlag)));
-		form.field("Rang", Integer.class, User::getRang, User::setRang).withOptions(Medals.get().raenge());
+		form.field("Rang", Integer.class, User::getRang, User::setRang).withOptions(medalService.raenge());
 		form.textArea("History", User::getHistory, User::setHistory);
 		form.field("NPC-Punkte", Integer.class, User::getNpcPunkte, User::setNpcPunkte);
-		form.multiSelection("Medaillen", Medal.class, User::getMedals, User::setMedals)
-				.withOptions(Medals.get().medals().stream().collect(Collectors.toMap(Medal::getId, Medal::getName)));
+		form.multiSelection("Medaillen", Medal.class, userService::getMedals, User::setMedals)
+				.withOptions(medalService.medals().stream().collect(Collectors.toMap(Medal::getId, Medal::getName)));
 		form.field("Vac-Punkte", Integer.class, User::getVacpoints, User::setVacpoints);
 		form.field("Spezialisierungspunkte", Integer.class, User::getSpecializationPoints, User::setSpecializationPoints);
 		form.field("Zugang sperren", Boolean.class, User::getDisabled, User::setDisabled);
@@ -85,6 +100,7 @@ public class EditUser implements EntityEditor<User>
 			newname = newname.replace("[name]", name);
 		}
 		user.setName(newname);
+		user.setPlainname(bbCodeParser.parse(name,new String[] {"all"}));
 	}
 
 	private void doVacation(User orguser, User user)
@@ -92,6 +108,7 @@ public class EditUser implements EntityEditor<User>
 		if(user.getVacationCount() == 0)
 		{
 			user.setName(user.getName().replace(" [VAC]", ""));
+			user.setPlainname(bbCodeParser.parse(user.getName().replace(" [VAC]", ""), new String[] {"all"}));
 			user.setNickname(user.getNickname().replace(" [VAC]", ""));
 		}
 		else if(user.getWait4VacationCount() == 0)
@@ -110,6 +127,7 @@ public class EditUser implements EntityEditor<User>
 				}
 
 				user.setName(name+" [VAC]");
+				user.setPlainname(bbCodeParser.parse(name+" [VAC]", new String[] {"all"}));
 				user.setNickname(nickname+" [VAC]");
 			}
 			user.setInactivity(0);

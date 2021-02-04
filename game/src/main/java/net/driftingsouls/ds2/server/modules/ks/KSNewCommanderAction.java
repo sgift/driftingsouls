@@ -22,13 +22,19 @@ import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
 import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
 import net.driftingsouls.ds2.server.battles.SchlachtLogKommandantWechselt;
-import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.services.BattleService;
+import net.driftingsouls.ds2.server.services.LocationService;
+import net.driftingsouls.ds2.server.services.PmService;
+import org.springframework.stereotype.Component;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.util.List;
 
@@ -37,11 +43,20 @@ import java.util.List;
  * @author Christopher Jung
  *
  */
+@Component
 public class KSNewCommanderAction extends BasicKSAction {
-	/**
-	 * Konstruktor.
-	 */
-	public KSNewCommanderAction() {
+	@PersistenceContext
+	private EntityManager em;
+
+	private final PmService pmService;
+	private final BBCodeParser bbCodeParser;
+	private final LocationService locationService;
+
+	public KSNewCommanderAction(BattleService battleService, PmService pmService, BBCodeParser bbCodeParser, LocationService locationService) {
+		super(battleService, null);
+		this.pmService = pmService;
+		this.bbCodeParser = bbCodeParser;
+		this.locationService = locationService;
 		this.requireActive(false);
 	}
 
@@ -56,10 +71,10 @@ public class KSNewCommanderAction extends BasicKSAction {
 		User user = (User)context.getActiveUser();
 
 		int newcom = context.getRequest().getParameterInt("newcom");
-		User com = (User)context.getDB().get(User.class, newcom);
+		User com = em.find(User.class, newcom);
 
 		if( user.getId() == com.getId() ) {
-			battle.logme( "Sie können die Leitung der Schlacht nicht an sich selbst übertragen\n" );
+			getBattleService().logme(battle, "Sie können die Leitung der Schlacht nicht an sich selbst übertragen\n" );
 			return Result.ERROR;
 		}
 
@@ -77,23 +92,23 @@ public class KSNewCommanderAction extends BasicKSAction {
 				}
 			}
 			if( !found ) {
-				battle.logme( "Sie können diesem Spieler nicht die Leitung der Schlacht übertragen!\n" );
+				getBattleService().logme(battle, "Sie können diesem Spieler nicht die Leitung der Schlacht übertragen!\n" );
 				return Result.ERROR;
 			}
 		}
 
 		if( (com.getVacationCount() != 0) && (com.getWait4VacationCount() == 0) ) {
-			battle.logme( "Der Spieler befindet sich im Urlaubsmodus!\n" );
+			getBattleService().logme(battle, "Der Spieler befindet sich im Urlaubsmodus!\n" );
 			return Result.ERROR;
 		}
 
-		PM.send(user, com.getId(), "Schlacht übergeben", "Ich habe Dir die Leitung der Schlacht bei "+battle.getLocation().displayCoordinates(false)+" übergeben.");
+		pmService.send(user, com.getId(), "Schlacht übergeben", "Ich habe Dir die Leitung der Schlacht bei "+locationService.displayCoordinates(battle.getLocation(), false)+" übergeben.");
 
-		battle.log(new SchlachtLogAktion(battle.getOwnSide(), "[userprofile="+com.getId()+",profile_alog]"+Common._titleNoFormat(com.getName())+"[/userprofile] kommandiert nun die Truppen."));
+		getBattleService().log(battle, new SchlachtLogAktion(battle.getOwnSide(), "[userprofile="+com.getId()+",profile_alog]"+Common._titleNoFormat(bbCodeParser, com.getName())+"[/userprofile] kommandiert nun die Truppen."));
 
 		battle.setCommander(battle.getOwnSide(), com);
 
-		battle.log(new SchlachtLogKommandantWechselt(battle.getOwnSide(), battle.getCommander(battle.getOwnSide())));
+		getBattleService().log(battle, new SchlachtLogKommandantWechselt(battle.getOwnSide(), battle.getCommander(battle.getOwnSide())));
 
 		battle.setTakeCommand(battle.getOwnSide(), 0);
 

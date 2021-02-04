@@ -28,9 +28,12 @@ import net.driftingsouls.ds2.server.entities.statistik.StatVerkaeufe;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.services.LocationService;
 import net.driftingsouls.ds2.server.ships.Ship;
+import org.springframework.stereotype.Component;
 
-import java.io.IOException;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 
 /**
@@ -39,17 +42,26 @@ import java.util.List;
  *
  */
 @AdminMenuEntry(category="GTU", name="Verkaufsdaten", permission = WellKnownAdminPermission.GTU_VERKAEUFE)
+@Component
 public class GtuVerkaeufe implements AdminPlugin
 {
+	@PersistenceContext
+	private EntityManager em;
+
+	private final LocationService locationService;
+
+	public GtuVerkaeufe(LocationService locationService) {
+		this.locationService = locationService;
+	}
+
 	@Override
 	public void output(StringBuilder echo) {
 		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
 
 		int system = context.getRequest().getParameterInt("system");
 		String type = context.getRequest().getParameterString("type");
 
-		List<StarSystem> systems = Common.cast(db.createQuery("from StarSystem").list());
+		List<StarSystem> systems = em.createQuery("from StarSystem", StarSystem.class).getResultList();
 
 		if( type.length() == 0  )
 		{
@@ -71,21 +83,20 @@ public class GtuVerkaeufe implements AdminPlugin
 			echo.append("<option value=\"asti\">Basisverkauf</option>\n");
 			echo.append("<option value=\"tradepost\">Handelsposten</option>\n");
 			echo.append("<option>--------------</option>");
-			List<String> places = Common.cast(db
-				.createQuery("select distinct place from StatVerkaeufe where place not in ('asti','tradepost')")
-				.list());
+			List<String> places = em.createQuery("select distinct place from StatVerkaeufe where place not in ('asti','tradepost')", String.class)
+				.getResultList();
 			for( String place : places )
 			{
 				if( !place.startsWith("p") )
 				{
 					continue;
 				}
-				Ship s = (Ship)db.get(Ship.class, Integer.valueOf(place.substring(1)));
+				Ship s = em.find(Ship.class, Integer.valueOf(place.substring(1)));
 				if( s == null )
 				{
 					continue;
 				}
-				echo.append("<option value='").append(place).append("'>").append(s.getName()).append(" (").append(s.getLocation().displayCoordinates(false)).append(")</option>");
+				echo.append("<option value='").append(place).append("'>").append(s.getName()).append(" (").append(locationService.displayCoordinates(s.getLocation(), false)).append(")</option>");
 			}
 			echo.append("</select>\n");
 			echo.append("</td></tr>\n");
@@ -104,11 +115,11 @@ public class GtuVerkaeufe implements AdminPlugin
 			Cargo cargo = new Cargo();
 			final int tick = context.get(ContextCommon.class).getTick();
 
-			List<StatVerkaeufe> entries = Common.cast(db.createQuery("from StatVerkaeufe " +
-					"where system= :system and place= :type")
-				.setInteger("system", system)
-				.setString("type", type)
-				.list());
+			List<StatVerkaeufe> entries = em.createQuery("from StatVerkaeufe " +
+				"where system= :system and place= :type", StatVerkaeufe.class)
+				.setParameter("system", system)
+				.setParameter("type", type)
+				.getResultList();
 			for( StatVerkaeufe entry : entries )
 			{
 				Cargo ecargo = entry.getStats();
