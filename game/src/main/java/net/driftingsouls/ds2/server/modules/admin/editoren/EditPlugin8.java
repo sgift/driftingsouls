@@ -14,9 +14,11 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
-
+import org.springframework.data.jpa.repository.support.JpaEntityInformationSupport;
 import org.springframework.lang.NonNull;
+
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -24,7 +26,12 @@ import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.SingularAttribute;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -40,19 +47,20 @@ public class EditPlugin8<T> implements AdminPlugin
 	private final EntityEditor<T> entityEditor;
 	private Class<? extends T> clazz;
 	private final Class<T> baseClass;
+	private final EntityManager em;
 
-	public EditPlugin8(EntityEditor<T> entityEditor)
+	public EditPlugin8(EntityEditor<T> entityEditor, EntityManager em)
 	{
 		this.entityEditor = entityEditor;
 		this.clazz = entityEditor.getEntityType();
 		this.baseClass = entityEditor.getEntityType();
+		this.em = em;
 	}
 
 	@Override
 	public void output(StringBuilder echo) throws IOException
 	{
 		Context context = ContextMap.getContext();
-		Session db = context.getDB();
 
 		Request request = context.getRequest();
 		String entityId = request.getParameter("entityId");
@@ -71,11 +79,11 @@ public class EditPlugin8<T> implements AdminPlugin
 		{
 			try
 			{
-				@SuppressWarnings("unchecked") T entity = (T) db.get(this.baseClass, toEntityId(this.baseClass, entityId));
+				T entity = em.find(this.baseClass, toEntityId(this.baseClass, entityId));
 				if ( entity != null && form.isUpdateAllowed(entity) && isUpdatePossible(entity))
 				{
-					db.evict(entity);
-					@SuppressWarnings("unchecked") T updatedEntity = (T) db.get(this.baseClass, toEntityId(this.baseClass, entityId));
+					em.detach(entity);
+					T updatedEntity = em.find(this.baseClass, toEntityId(this.baseClass, entityId));
 					form.applyRequestValues(request, updatedEntity);
 					processJobs(echo, entity, updatedEntity, form.getUpdateTasks());
 					echo.append("<p>Update abgeschlossen.</p>");
@@ -96,7 +104,7 @@ public class EditPlugin8<T> implements AdminPlugin
 		{
 			try
 			{
-				@SuppressWarnings("unchecked") T entity = (T) db.get(this.baseClass, toEntityId(this.baseClass, entityId));
+				T entity = em.find(this.baseClass, toEntityId(this.baseClass, entityId));
 				reset(new DefaultStatusWriter(echo), entity);
 				echo.append("<p>Update abgeschlossen.</p>");
 			}
@@ -109,11 +117,11 @@ public class EditPlugin8<T> implements AdminPlugin
 		form = new EditorForm8<>(EditorMode.UPDATE, getPluginClass());
 		configureFor(form);
 
-		outputEntitySelection(db, echo, form);
+		outputEntitySelection(echo, form);
 
 		if (entityId != null && !entityId.isEmpty())
 		{
-			@SuppressWarnings("unchecked") T entity = (T) db.get(baseClass, toEntityId(this.baseClass, entityId));
+			T entity = em.find(baseClass, toEntityId(this.baseClass, entityId));
 			if (entity == null)
 			{
 				return;
@@ -316,10 +324,14 @@ public class EditPlugin8<T> implements AdminPlugin
 		return model;
 	}
 
-	private void outputEntitySelection(Session db, StringBuilder echo, EditorForm8<T> form) throws IOException
+	private void outputEntitySelection(StringBuilder echo, EditorForm8<T> form) throws IOException
 	{
 		echo.append("<div class='gfxbox adminSelection' style='width:390px'>");
-		Long count = (Long)db.createCriteria(baseClass).setProjection(Projections.rowCount()).uniqueResult();
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<Long> cq = builder.createQuery(Long.class);
+
+
+		Long count = em.createQuery(cq.select(builder.count(cq.from(baseClass)))).getSingleResult();
 		if( count != null )
 		{
 			beginSelectionBox(echo, this.getPluginClass());
@@ -332,10 +344,12 @@ public class EditPlugin8<T> implements AdminPlugin
 
 			if (count < 500)
 			{
-				Map<Serializable,Object> options = new HashMap<>();
+				Map<Object,Object> options = new HashMap<>();
 
-				List<T> entities = Common.cast(db.createCriteria(baseClass).list());
-				options.putAll(entities.stream().collect(Collectors.toMap(db::getIdentifier, v -> new ObjectLabelGenerator().generateFor(null, v))));
+				var entityQuery = builder.createQuery(baseClass);
+				var entityRoot = entityQuery.from(baseClass);
+				List<T> entities = em.createQuery(entityQuery.select(entityRoot)).getResultList();
+				options.putAll(entities.stream().collect(Collectors.toMap(this::getIdentifier, v -> new ObjectLabelGenerator().generateFor(null, v))));
 				if (isAddDisplayed())
 				{
 					options.put(null, "[Neu]");
@@ -344,8 +358,8 @@ public class EditPlugin8<T> implements AdminPlugin
 			}
 			else
 			{
-
-				HtmlUtils.textInput(echo, "entityId", isAddDisplayed(), db.getSessionFactory().getClassMetadata(baseClass).getIdentifierType().getReturnedClass(), currentIdStr);
+				var entityInformation = JpaEntityInformationSupport.getEntityInformation(baseClass, em);
+				HtmlUtils.textInput(echo, "entityId", isAddDisplayed(), entityInformation.getIdType(), currentIdStr);
 			}
 
 			endSelectionBox(echo);
@@ -355,6 +369,10 @@ public class EditPlugin8<T> implements AdminPlugin
 			addForm(echo, this.getPluginClass());
 		}
 		echo.append("</div>");
+	}
+
+	private Object getIdentifier(Object entity) {
+		return em.getEntityManagerFactory().getPersistenceUnitUtil().getIdentifier(entity);
 	}
 
 	private Serializable toEntityId(Class<?> entity, String idString)

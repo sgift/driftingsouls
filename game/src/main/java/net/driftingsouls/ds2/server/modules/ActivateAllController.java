@@ -31,6 +31,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.services.BuildingService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -42,10 +43,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class ActivateAllController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
+	private final BuildingService buildingService;
 
 	@Autowired
-	public ActivateAllController(TemplateViewResultFactory templateViewResultFactory) {
+	public ActivateAllController(TemplateViewResultFactory templateViewResultFactory, BuildingService buildingService) {
 		this.templateViewResultFactory = templateViewResultFactory;
+		this.buildingService = buildingService;
 
 		setPageTitle("Alles Aktivieren");
 	}
@@ -104,7 +107,7 @@ public class ActivateAllController extends Controller
 		{
 			if ((base.getBebauung()[i] != 0) && (ondb[i] == 1))
 			{
-				Building building = Building.getBuilding(base.getBebauung()[i]);
+				Building building = buildingService.getBuilding(base.getBebauung()[i]);
 
 				if (building.isDeakAble())
 				{
@@ -149,7 +152,7 @@ public class ActivateAllController extends Controller
 			{
 				if (base.getBebauung()[i] != 0)
 				{
-					Building building = Building.getBuilding(base.getBebauung()[i]);
+					Building building = buildingService.getBuilding(base.getBebauung()[i]);
 
 					if (building.isDeakAble() && (base.getBewohner() >= base.getArbeiter() + building.getArbeiter()))
 					{

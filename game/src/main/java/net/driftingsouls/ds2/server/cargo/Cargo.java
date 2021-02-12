@@ -520,28 +520,6 @@ public class Cargo implements Cloneable {
 	}
 
 	/**
-	 * Gibt die Gesamtmasse aller Waren und Items im <code>Cargo</code>-Objekt zurueck.
-	 * @return Die Gesamtmasse
-	 */
-	public long getMass() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		long tmp = 0;
-
-		for (Long[] item1 : items)
-		{
-			Item item = (Item) db.get(Item.class, item1[0].intValue());
-			if (item == null)
-			{
-				log.warn("Unbekanntes Item " + item1[0] + " geortet");
-				continue;
-			}
-			tmp += item1[1] * item.getCargo();
-		}
-
-		return tmp;
-	}
-
-	/**
 	 * Gibt die Liste der im Cargo vorhandenen Resourcen zurueck. Die Liste
 	 * wird dabei bereit vorformatiert.
 	 * @return Eine Resourcenliste
@@ -634,7 +612,7 @@ public class Cargo implements Cloneable {
 		return reslist;
 	}
 
-	private ResourceID buildItemID(Long[] item) {
+	public ResourceID buildItemID(Long[] item) {
 		return new ItemID(item[0].intValue(), item[2].intValue(), item[3].intValue());
 	}
 

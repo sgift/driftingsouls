@@ -22,24 +22,19 @@ import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
-import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.cargo.Transfer;
 import net.driftingsouls.ds2.server.cargo.Transfering;
-import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.Academy;
 import net.driftingsouls.ds2.server.entities.Factory;
 import net.driftingsouls.ds2.server.entities.Feeding;
 import net.driftingsouls.ds2.server.entities.Forschungszentrum;
-import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.units.BaseUnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargoEntry;
@@ -73,13 +68,11 @@ import javax.persistence.Transient;
 import javax.persistence.Version;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -730,7 +723,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		public final int chance;
 		public final int maxValue;
 
-		SpawnableRess(int itemId, int chance, int maxValue)
+		public SpawnableRess(int itemId, int chance, int maxValue)
 		{
 			this.itemId = itemId;
 			this.chance = chance;
@@ -744,20 +737,20 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		private final Map<Integer,SpawnableRess> itemMap;
 		private int totalChance;
 
-		SpawnableRessMap()
+		public SpawnableRessMap()
 		{
 			this.chanceMap = new LinkedHashMap<>();
 			this.itemMap = new LinkedHashMap<>();
 			this.totalChance = 0;
 		}
 
-		void addSpawnRess(SpawnableRess spawnRess)
+		public void addSpawnRess(SpawnableRess spawnRess)
 		{
 			this.itemMap.put(spawnRess.itemId, spawnRess);
 			this.totalChance += spawnRess.chance;
 		}
 
-		void buildChanceMap()
+		public void buildChanceMap()
 		{
 			final double chancefactor = 100 / (double)this.totalChance;
 			int chances = 1;
@@ -794,96 +787,6 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		{
 			return this.itemMap.containsKey(item.getID());
 		}
-	}
-
-	/**
-	 * Gibt die zum spawn freigegebenen Ressourcen zurueck.
-	 * Beruecksichtigt ebenfalls die Systemvorraussetzungen.
-	 * @return Die zum Spawn freigegebenen Ressourcen
-	 */
-	public SpawnableRessMap getSpawnableRessMap()
-	{
-		org.hibernate.Session db = getDB();
-		StarSystem system = (StarSystem)db.get(StarSystem.class, this.system);
-
-		if(system == null) {
-			return null;
-		}
-
-		if(getSpawnableRess() == null && system.getSpawnableRess() == null && getKlasse().getSpawnableRess() == null)
-		{
-			return null;
-		}
-
-		SpawnableRessMap spawnMap = new SpawnableRessMap();
-
-		if( getSpawnableRess() != null )
-		{
-			String[] spawnableress = StringUtils.split(getSpawnableRess(), ";");
-			for (String spawnableres : spawnableress)
-			{
-				String[] thisress = StringUtils.split(spawnableres, ",");
-				if( thisress.length != 3 )
-				{
-					continue;
-				}
-				int itemid = Integer.parseInt(thisress[0]);
-				int chance = Integer.parseInt(thisress[1]);
-				int maxvalue = Integer.parseInt(thisress[2]);
-
-				// Er soll nur Ressourcen spawnen die noch nicht vorhanden sind
-				if (getSpawnableRessAmount(itemid) <= 0)
-				{
-					spawnMap.addSpawnRess(new SpawnableRess(itemid, chance, maxvalue));
-				}
-			}
-		}
-		if( system.getSpawnableRess() != null )
-		{
-			String[] spawnableresssystem = StringUtils.split(system.getSpawnableRess(), ";");
-			for (String aSpawnableresssystem : spawnableresssystem)
-			{
-				String[] thisress = StringUtils.split(aSpawnableresssystem, ",");
-				if( thisress.length != 3 )
-				{
-					continue;
-				}
-				int itemid = Integer.parseInt(thisress[0]);
-				int chance = Integer.parseInt(thisress[1]);
-				int maxvalue = Integer.parseInt(thisress[2]);
-
-				// Er soll nur Ressourcen spawnen die noch nicht vorhanden sind
-				if (getSpawnableRessAmount(itemid) <= 0)
-				{
-					spawnMap.addSpawnRess(new SpawnableRess(itemid, chance, maxvalue));
-				}
-			}
-		}
-		if( getKlasse().getSpawnableRess() != null && !getKlasse().getSpawnableRess().isEmpty() )
-		{
-			String[] spawnableresstype = StringUtils.split(getKlasse().getSpawnableRess(), ";");
-			for (String aSpawnableresstype : spawnableresstype)
-			{
-				String[] thisress = StringUtils.split(aSpawnableresstype, ",");
-				if( thisress.length != 3 )
-				{
-					continue;
-				}
-				int itemid = Integer.parseInt(thisress[0]);
-				int chance = Integer.parseInt(thisress[1]);
-				int maxvalue = Integer.parseInt(thisress[2]);
-
-				// Er soll nur Ressourcen spawnen die noch nicht vorhanden sind
-				if (getSpawnableRessAmount(itemid) <= 0)
-				{
-					spawnMap.addSpawnRess(new SpawnableRess(itemid, chance, maxvalue));
-				}
-			}
-		}
-
-		spawnMap.buildChanceMap();
-
-		return spawnMap;
 	}
 
 	/**
@@ -948,87 +851,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		this.isfeeding = feeding;
 	}
 
-	/**
-	 * Generiert den aktuellen Verbrauch/Produktion-Status einer Basis.
-	 * @param base die Basis
-	 * @return der aktuelle Verbrauchs/Produktions-Status
-	 */
-	public static BaseStatus getStatus( Base base )
-	{
-
-        Fabrik.ContextVars vars = ContextMap.getContext().get(Fabrik.ContextVars.class);
-        vars.clear();
-
-		Cargo stat = new Cargo();
-        Cargo prodstat = new Cargo();
-        Cargo constat = new Cargo();
-
-		int e = 0;
-		int arbeiter = 0;
-		int bewohner = 0;
-		Map<Integer,Integer> buildinglocs = new TreeMap<>();
-
-		if( (base.getCore() != null) && base.isCoreActive() ) {
-			Core core = base.getCore();
-
-			stat.substractCargo(core.getConsumes());
-            constat.addCargo(core.getConsumes());
-			stat.addCargo(core.getProduces());
-            prodstat.addCargo(core.getProduces());
-
-			e = e - core.getEVerbrauch() + core.getEProduktion();
-			arbeiter += core.getArbeiter();
-			bewohner += core.getBewohner();
-		}
-
-		Integer[] bebauung = base.getBebauung();
-		Integer[] bebon = base.getActive();
-
-		for( int o=0; o < base.getWidth() * base.getHeight(); o++ )
-		{
-			if( bebauung[o] == 0 )
-			{
-				continue;
-			}
-
-			Building building = Building.getBuilding(bebauung[o]);
-
-			if( !buildinglocs.containsKey(building.getId()) ) {
-				buildinglocs.put(building.getId(), o);
-			}
-
-			bebon[o] = building.isActive( base, bebon[o], o ) ? 1 : 0;
-
-			if( bebon[o] == 0 )
-			{
-				continue;
-			}
-
-			building.modifyStats( base, stat, bebauung[o] );
-            building.modifyProductionStats(base, prodstat, bebauung[o]);
-            building.modifyConsumptionStats(base, constat, bebauung[o]);
-
-			stat.substractCargo(building.getConsumes());
-            constat.addCargo(building.getConsumes());
-			stat.addCargo(building.getAllProduces());
-            prodstat.addCargo(building.getProduces());
-
-			e = e - building.getEVerbrauch() + building.getEProduktion();
-			arbeiter += building.getArbeiter();
-			bewohner += building.getBewohner();
-		}
-
-        // Nahrung nicht mit in constat rein. Dies wird im Tick benutzt, der betrachtet Nahrungsverbrauch aber separat.
-		stat.substractResource( Resources.NAHRUNG, (long)Math.ceil(base.getBewohner()/10.0) );
-		stat.substractResource( Resources.NAHRUNG, base.getUnits().getNahrung() );
-        // RE nicht mit in constat rein. Dies wird im Tick benutzt, der betrachtet RE-Verbrauch aber separat.
-		stat.substractResource( Resources.RE, base.getUnits().getRE() );
-
-		return new BaseStatus(stat, prodstat, constat, e, bewohner, arbeiter, Collections.unmodifiableMap(buildinglocs), bebon);
-	}
-
 	@Override
-	public Object clone()
+	public Base clone()
 	{
 		Base base;
 		try {
@@ -1268,30 +1092,6 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	}
 
 	/**
-	 * @return Die Bilanz der Basis.
-	 */
-	public long getBalance()
-	{
-		BaseStatus status = getStatus(this );
-
-		Cargo produktion = status.getProduction();
-
-		return produktion.getResourceCount( Resources.RE );
-	}
-
-	/**
-	 * @return Die Nahrungsbilanz der Basis.
-	 */
-	public long getNahrungsBalance()
-	{
-		BaseStatus status = getStatus(this );
-
-		Cargo produktion = status.getProduction();
-
-		return produktion.getResourceCount( Resources.NAHRUNG );
-	}
-
-	/**
 	 * Gibt alle auf der Basis vorhandenen Fabriken zurueck.
 	 * @return Die Fabriken
 	 */
@@ -1361,123 +1161,6 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	public void setWerft(BaseWerft werft)
 	{
 		this.werft = werft;
-	}
-
-	/**
-	 * Enforces the automatic sale rules of the base.
-	 *
-	 * @return The money for resource sales.
-	 */
-	public long automaticSale()
-	{
-		long money = 0;
-		List<AutoGTUAction> actions = getAutoGTUActs();
-		if(!actions.isEmpty() )
-		{
-			for(AutoGTUAction action: actions)
-			{
-
-				ResourceID resource = action.getResID();
-
-				long sell;
-				switch(action.getActID())
-				{
-					case AutoGTUAction.SELL_ALL:
-						sell = action.getCount();
-						if(sell > cargo.getResourceCount(resource))
-						{
-							sell = cargo.getResourceCount(resource);
-						}
-						break;
-					case AutoGTUAction.SELL_TO_LIMIT:
-						long maximum = action.getCount();
-						sell = cargo.getResourceCount(resource) - maximum;
-						break;
-					default:
-						sell = 0;
-				}
-
-				if(sell > 0)
-				{
-					cargo.substractResource(resource, sell);
-					money += getSalePrice(resource, sell);
-				}
-			}
-		}
-
-		return money;
-	}
-
-	/**
-	 * Enforces the maximum cargo rules.
-	 *
-	 * @param state Der Status der Basis
-	 * @return The money for resource sales.
-	 */
-	public boolean clearOverfullCargo(BaseStatus state)
-	{
-		long maxCargo = getMaxCargo();
-		long surplus = cargo.getMass() - maxCargo;
-
-		if(surplus > 0)
-		{
-			ResourceList production = state.getProduction().getResourceList();
-			production.sortByCargo(true);
-			for(ResourceEntry resource: production)
-			{
-				//Only sell produced resources, not consumed
-				long resourceCount = resource.getCount1();
-				if(resourceCount < 0)
-				{
-					continue;
-				}
-
-				long productionMass = Cargo.getResourceMass(resource.getId(), resourceCount);
-                if(productionMass == 0)
-                {
-                    continue;
-                }
-
-                //Remove only as much as needed, not more
-				long toSell;
-				if(productionMass <= surplus)
-				{
-					toSell = resourceCount;
-				}
-				else
-				{
-					long resourceMass = Cargo.getResourceMass(resource.getId(), 1);
-					toSell = (long)Math.ceil((double)surplus/(double)resourceMass);
-				}
-
-				cargo.substractResource(resource.getId(), toSell);
-				surplus = cargo.getMass() - maxCargo;
-
-				if(cargo.getMass() <= maxCargo)
-				{
-					return true;
-				}
-			}
-
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * Calculates the money using the current gtu price for base sales.
-	 * @param resource Die ID der Ressource
-	 * @param count Die Anzahl
-	 * @return The money for a base sale of the resource.
-	 */
-	private long getSalePrice(ResourceID resource, long count)
-	{
-		GtuWarenKurse kurs = (GtuWarenKurse)getDB().get(GtuWarenKurse.class, "asti");
-		Cargo prices = kurs.getKurse();
-		double price = prices.getResourceCount(resource) / 1000d;
-
-		return Math.round(price * count);
 	}
 
 	public int rebalanceEnergy(BaseStatus state)
@@ -1606,11 +1289,6 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		}
 		baseCargo.setResource(Resources.NAHRUNG, food);
 		return hungryPeople;
-	}
-
-	private Session getDB()
-	{
-		return ContextMap.getContext().getDB();
 	}
 
 	public int getSpawnableRessAmount(int itemid)

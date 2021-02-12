@@ -18,9 +18,9 @@
  */
 package net.driftingsouls.ds2.server.bases;
 
-import java.util.Map;
-
 import net.driftingsouls.ds2.server.cargo.Cargo;
+
+import java.util.Map;
 
 /**
  * <code>BaseStatus</code> repraesentiert den aktuellen Status einer Basis. Dieser beinhaltet
@@ -38,7 +38,7 @@ public class BaseStatus {
 	private final Map<Integer,Integer> blocations;
 	private final Integer[] active;
 	
-	protected BaseStatus(Cargo status, Cargo nettoproductionstatus, Cargo nettoconsumptionstatus, int e, int bewohner, int arbeiter, Map<Integer,Integer> blocations, Integer[] active ) {
+	public BaseStatus(Cargo status, Cargo nettoproductionstatus, Cargo nettoconsumptionstatus, int e, int bewohner, int arbeiter, Map<Integer,Integer> blocations, Integer[] active ) {
 		super();
 		this.status = status;
         this.nettoproductionstatus = nettoproductionstatus;

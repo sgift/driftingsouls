@@ -229,7 +229,7 @@ public class BuildController extends Controller
 			base.setActive(active);
 
 			// Evt. muss das Gebaeude selbst noch ein paar Dinge erledigen
-			build.build(base, build.getId());
+			build.build(base, build);
 		}
 
 		return t;

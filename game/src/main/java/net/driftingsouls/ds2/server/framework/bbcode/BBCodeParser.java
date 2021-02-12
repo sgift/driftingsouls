@@ -24,8 +24,12 @@ import net.driftingsouls.ds2.server.bbcodes.TagRang;
 import net.driftingsouls.ds2.server.bbcodes.TagResource;
 import net.driftingsouls.ds2.server.bbcodes.TagShipType;
 import net.driftingsouls.ds2.server.bbcodes.TagUnit;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.authentication.JavaSession;
 import net.driftingsouls.ds2.server.services.MedalService;
+import net.driftingsouls.ds2.server.services.ResourceService;
 import net.driftingsouls.ds2.server.services.ShipService;
+import net.driftingsouls.ds2.server.services.UnitService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -50,11 +54,11 @@ import java.util.Map;
  */
 @Service
 @RequestScope
-public class BBCodeParser{
+public class BBCodeParser {
 	private final Map<String, BBCodeFunction> replaceFunctions = new HashMap<>();
 	private final Map<String, HashSet<Integer>> tags = new HashMap<>();
 
-	public BBCodeParser(MedalService medalService, ShipService shipService) {
+	public BBCodeParser(MedalService medalService, ShipService shipService, ResourceService resourceService, JavaSession javaSession, UnitService unitService) {
 		// Framework-BBCodes registrieren
 		registerHandler( "url", 1, new TagURL() );
 		registerHandler( "url", 2, new TagURL() );
@@ -84,10 +88,11 @@ public class BBCodeParser{
 		registerHandler("base", 2, "<a class=\"profile\" href=\"ds?module=base&col=$2\">$1</a>");
 		registerHandler("userprofile", 2, "<a class=\"profile\" href=\"ds?module=userprofile&user=$2\">$1</a>");
 		registerHandler("userprofile", 3, "<a class=\"$3\" href=\"ds?module=userprofile&user=$2\">$1</a>");
-		registerHandler("unit", 2, new TagUnit());
-		registerHandler("unit", 3, new TagUnit());
-		registerHandler("resource", 2, new TagResource());
-		registerHandler("resource", 3, new TagResource());
+		//TODO: Remove context later!
+		registerHandler("unit", 2, new TagUnit(unitService, javaSession, ContextMap.getContext()));
+		registerHandler("unit", 3, new TagUnit(unitService, javaSession, ContextMap.getContext()));
+		registerHandler("resource", 2, new TagResource(resourceService, javaSession, ContextMap.getContext()));
+		registerHandler("resource", 3, new TagResource(resourceService, javaSession, ContextMap.getContext()));
 		registerHandler("shiptype", 1, new TagShipType(shipService));
 	}
 	

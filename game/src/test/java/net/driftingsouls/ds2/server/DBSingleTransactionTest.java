@@ -3,9 +3,8 @@ package net.driftingsouls.ds2.server;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-
-import org.hibernate.Session;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
 
 import javax.persistence.EntityManager;
 
@@ -26,15 +25,6 @@ public class DBSingleTransactionTest
 	public void stoppeTransaktion() {
 		getEM().getTransaction().rollback();
 		getEM().clear();
-	}
-
-	/**
-	 * Gibt die aktuelle Hibernate-Session zurueck.
-	 * @return Die Session
-	 */
-	protected Session getDB()
-	{
-		return ContextMap.getContext().getDB();
 	}
 
 	/**

@@ -358,7 +358,7 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 						continue;
 					}
 
-					Building building = Building.getBuilding(bebauung[i]);
+					Building building = buildingService.getBuilding(bebauung[i]);
 					buildingService.cleanup(building, base, bebauung[i]);
 					bebauung[i] = 0;
 				}

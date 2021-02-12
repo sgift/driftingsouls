@@ -33,7 +33,7 @@ public class FieldGenerator<E, T> implements CustomFieldGenerator<E>
 	private final Class<T> dataType;
 	private final Function<E, T> getter;
 	private final BiConsumer<E, T> setter;
-	private final Map<Serializable, Object> selectionOptions = new LinkedHashMap<>();
+	private final Map<Object, Object> selectionOptions = new LinkedHashMap<>();
 	private Function<E,Boolean> readOnly;
 	private SingularAttribute<E, T> dbColumn;
 
@@ -162,7 +162,7 @@ public class FieldGenerator<E, T> implements CustomFieldGenerator<E>
 			if( !this.selectionOptions.isEmpty() )
 			{
 				def.setEditType("select");
-				for (Map.Entry<Serializable, Object> entry : this.selectionOptions.entrySet())
+				for (Map.Entry<Object, Object> entry : this.selectionOptions.entrySet())
 				{
 					def.addEditOption(HtmlUtils.identifierToString(entry.getKey()), HtmlUtils.objectLabelToString(entry.getKey(), entry.getValue()));
 				}

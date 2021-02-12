@@ -48,7 +48,7 @@ public class DefaultBuilding extends Building
 	}
 
 	@Override
-	public void build(Base base, int building)
+	public void build(Base base, Building building)
 	{
 		// EMPTY
 	}

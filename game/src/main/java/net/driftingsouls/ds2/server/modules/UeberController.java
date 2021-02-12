@@ -44,6 +44,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.services.BaseService;
 import net.driftingsouls.ds2.server.services.BattleService;
 import net.driftingsouls.ds2.server.services.LocationService;
 import net.driftingsouls.ds2.server.services.UserService;
@@ -86,13 +87,14 @@ public class UeberController extends Controller
 	private final UserValueService userValueService;
 	private final LocationService locationService;
 	private final UserService userService;
+	private final BaseService baseService;
 
 	@PersistenceContext
 	private EntityManager em;
 
 
 	@Autowired
-	public UeberController(TemplateViewResultFactory templateViewResultFactory, Rassen races, BattleService battleService, BBCodeParser bbCodeParser, UserValueService userValueService, LocationService locationService, UserService userService)
+	public UeberController(TemplateViewResultFactory templateViewResultFactory, Rassen races, BattleService battleService, BBCodeParser bbCodeParser, UserValueService userValueService, LocationService locationService, UserService userService, BaseService baseService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
 		this.races = races;
@@ -101,6 +103,7 @@ public class UeberController extends Controller
 		this.userValueService = userValueService;
 		this.locationService = locationService;
 		this.userService = userService;
+		this.baseService = baseService;
 	}
 
 	/**
@@ -465,7 +468,7 @@ public class UeberController extends Controller
 		{
 			baseCount++;
 
-			BaseStatus basedata = Base.getStatus(base);
+			BaseStatus basedata = baseService.getStatus(base);
 
 			Cargo cargo = new Cargo(base.getCargo());
 			cargo.addResource(Resources.RE, user.getKonto().longValue());

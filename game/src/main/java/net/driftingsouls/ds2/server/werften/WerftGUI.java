@@ -152,7 +152,7 @@ public class WerftGUI {
 			List<WerftQueueEntry> queue = werft.getBuildQueue();
 			t.setVar(
 					"werftgui.name",	werft.getWerftName(),
-					"werftgui.picture",	werft.getWerftPicture(),
+					"werftgui.picture",	shipyardService.getWerftPicture(werft),
 					"werftgui.crew",	werft.getCrew(),
 					"werftgui.werftslots",	werft.getWerftSlots(),
 					"werftgui.totalqueueentries",	queue.size(),
@@ -263,7 +263,7 @@ public class WerftGUI {
 			for (WerftObject member : members)
 			{
 				t.setVar(
-						"komplexpart.type.image", member.getWerftPicture(),
+						"komplexpart.type.image", shipyardService.getWerftPicture(member),
 						"komplexpart.name", member.getWerftName(),
 						"komplexpart.url", member.getObjectUrl(),
 						"komplexpart.id", member.getWerftID(),

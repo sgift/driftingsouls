@@ -8,9 +8,12 @@ import net.driftingsouls.ds2.server.framework.DynamicContentManager;
 import net.driftingsouls.ds2.server.modules.admin.editoren.HtmlUtils;
 
 import javax.persistence.Entity;
-import java.io.IOException;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Klasse zum Erstellen eines Eingabeformulars.
@@ -161,7 +164,7 @@ class EditorForm implements AutoCloseable
 		private final String name;
 		private final Class<?> type;
 		private final Object value;
-		private final Map<Serializable,Object> selectionOptions = new LinkedHashMap<>();
+		private final Map<Object, Object> selectionOptions = new LinkedHashMap<>();
 
 		FieldGenerator(String label, String name, Class<?> type, Object value)
 		{

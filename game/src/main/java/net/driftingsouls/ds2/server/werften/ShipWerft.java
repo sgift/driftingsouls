@@ -378,11 +378,6 @@ public class ShipWerft extends WerftObject {
     }
 
 	@Override
-	public String getWerftPicture() {
-		return this.ship.getTypeData().getPicture();
-	}
-
-	@Override
 	public String getWerftName() {
 		return this.ship.getName();
 	}

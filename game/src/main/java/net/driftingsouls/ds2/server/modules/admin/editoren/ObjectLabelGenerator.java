@@ -15,11 +15,10 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.SchiffstypModifikation;
 import net.driftingsouls.ds2.server.ships.ShipBaubar;
-
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+
 import javax.persistence.Entity;
-import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -63,7 +62,7 @@ public class ObjectLabelGenerator
 	 * @param entity Die Objektinstanz
 	 * @return Das generierte Label
 	 */
-	public String generateFor(@Nullable Serializable identifier, @NonNull Object entity)
+	public String generateFor(@Nullable Object identifier, @NonNull Object entity)
 	{
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();

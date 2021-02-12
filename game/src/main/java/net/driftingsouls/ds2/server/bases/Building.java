@@ -24,17 +24,27 @@ import net.driftingsouls.ds2.server.cargo.UnmodifiableCargo;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.ResourceEntryViewModel;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.*;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Type;
 
-import javax.persistence.*;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.DiscriminatorColumn;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -62,20 +72,6 @@ public abstract class Building
 	 * Die ID des Kommandozentralen-Gebaeudes.
 	 */
 	public static final int KOMMANDOZENTRALE = 1;
-
-	/**
-	 * Gibt eine Instanz der Gebaudeklasse des angegebenen Gebaeudetyps zurueck.
-	 * Sollte kein passender Gebaeudetyp existieren, wird <code>null</code> zurueckgegeben.
-	 *
-	 * @param id Die ID des Gebaudetyps
-	 * @return Eine Instanz der zugehoerigen Gebaeudeklasse
-	 */
-	public static Building getBuilding(int id)
-	{
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
-		return db.get(Building.class, id);
-	}
 
 	@Id @GeneratedValue
 	private int id;
@@ -662,9 +658,9 @@ public abstract class Building
 	 * Wird aufgerufen, wenn das Gebaeude auf einer Basis gebaut wurde.
 	 *
 	 * @param base Die Basis
-	 * @param buildingid Die ID des Gebaeudes auf dem Feld
+	 * @param building Das Gebaeude
 	 */
-	public abstract void build(Base base, int buildingid);
+	public abstract void build(Base base, Building building);
 
 	/**
 	 * Wird aufgerufen, wenn das Gebaeude auf einer Basis abgerissen wurde.

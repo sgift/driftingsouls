@@ -198,22 +198,6 @@ public class BaseWerft extends WerftObject {
 	}
 
 	@Override
-	public String getWerftPicture() {
-		User user = (User)ContextMap.getContext().getActiveUser();
-		if( fieldid != -1 ) {
-			Building building = Building.getBuilding(base.getBebauung()[fieldid]);
-			return building.getPictureForRace(user.getRace());
-		}
-
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		Werft building = (Werft)db.createQuery("from WerftBuilding")
-			.setMaxResults(1)
-			.uniqueResult();
-
-		return building.getPictureForRace(user.getRace());
-	}
-
-	@Override
 	public String getWerftName() {
 		return base.getName();
 	}

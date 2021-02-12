@@ -20,7 +20,6 @@ package net.driftingsouls.ds2.server.modules.schiffplugins;
 
 import net.driftingsouls.ds2.server.MutableLocation;
 import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.bases.Werft;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.config.Rassen;
@@ -33,6 +32,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.SchiffController;
+import net.driftingsouls.ds2.server.services.BuildingService;
 import net.driftingsouls.ds2.server.services.HandelspostenService;
 import net.driftingsouls.ds2.server.services.BattleService;
 import net.driftingsouls.ds2.server.services.LocationService;
@@ -79,9 +79,10 @@ public class SensorsDefault implements SchiffPlugin {
 	private final UserValueService userValueService;
 	private final LocationService locationService;
 	private final ShipService shipService;
+	private final BuildingService buildingService;
 
 	@Autowired
-	public SensorsDefault(HandelspostenService handelspostenService, UserService userService, BattleService battleService, Rassen races, BBCodeParser bbCodeParser, UserValueService userValueService, LocationService locationService, ShipService shipService)
+	public SensorsDefault(HandelspostenService handelspostenService, UserService userService, BattleService battleService, Rassen races, BBCodeParser bbCodeParser, UserValueService userValueService, LocationService locationService, ShipService shipService, BuildingService buildingService)
 	{
 		this.handelspostenService = handelspostenService;
 		this.userService = userService;
@@ -91,6 +92,7 @@ public class SensorsDefault implements SchiffPlugin {
 		this.userValueService = userValueService;
 		this.locationService = locationService;
 		this.shipService = shipService;
+		this.buildingService = buildingService;
 	}
 
 	@Action(ActionType.DEFAULT)
@@ -945,7 +947,7 @@ public class SensorsDefault implements SchiffPlugin {
 						int i;
 						for (i = 0; i < base.getBebauung().length; i++)
 						{
-							if ((base.getBebauung()[i] != 0) && (Building.getBuilding(base.getBebauung()[i]) instanceof Werft))
+							if ((base.getBebauung()[i] != 0) && (buildingService.getBuilding(base.getBebauung()[i]) instanceof Werft))
 							{
 								break;
 							}

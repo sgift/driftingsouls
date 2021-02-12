@@ -178,16 +178,6 @@ public class WerftKomplex extends WerftObject {
 	}
 
 	@Override
-	public String getWerftPicture() {
-		if (!isExistant())
-		{
-			return "";
-		}
-
-		return werften.get(0).getWerftPicture();
-	}
-
-	@Override
 	public int getWerftSlots() {
 		int slots = 0;
 		for (WerftObject aWerften : werften)

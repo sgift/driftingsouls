@@ -43,7 +43,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 	}
 
 	@Override
-	public void build(Base base, int building) {
+	public void build(Base base, Building building) {
 		super.build(base, building);
 
 		buildInternal(base);

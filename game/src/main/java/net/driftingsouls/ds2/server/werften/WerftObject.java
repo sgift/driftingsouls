@@ -315,12 +315,6 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	public abstract String getWerftName();
 
 	/**
-	 * Gibt das Bild der Werft zurueck.
-	 * @return Das Bild
-	 */
-	public abstract String getWerftPicture();
-
-	/**
 	 * Gibt die Anzahl an Werftslots zurueck, die der Werft zur Verfuegung stehen.
 	 * @return Die Werftslots
 	 */

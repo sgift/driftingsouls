@@ -74,7 +74,7 @@ public class ResourceEntry {
 		this.diff = diff;
 	}
 
-	protected void setLargeImages( boolean value ) {
+	public void setLargeImages( boolean value ) {
 		largeImages = value;
 	}
 

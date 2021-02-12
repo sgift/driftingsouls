@@ -57,19 +57,19 @@ public final class HtmlUtils
 	 * @param options Die Auswahloptionen des Selects, Key ist der interne Wert, Value der Anzeigewert
 	 * @param selected Der momentan ausgewaehlte Wert (interner Wert)
 	 */
-	public static void select(StringBuilder echo, String name, boolean readOnly, Map<Serializable,Object> options, Serializable selected)
+	public static void select(StringBuilder echo, String name, boolean readOnly, Map<Object,Object> options, Object selected)
 	{
 		echo.append("<select size=\"1\" ").append(readOnly ? "disabled=\"disabled\" " : "").append("name=\"").append(name).append("\">");
 
 		// TreeMap mag keine null-Keys
-		Map<Serializable,Object> optionsIntrl = new HashMap<>(options);
+		Map<Object,Object> optionsIntrl = new HashMap<>(options);
 		if( optionsIntrl.containsKey(null) )
 		{
 			option(echo, selected, null, optionsIntrl.get(null));
 			optionsIntrl.remove(null);
 		}
 
-		for (Map.Entry<Serializable, Object> entry : new TreeMap<>(optionsIntrl).entrySet())
+		for (Map.Entry<Object, Object> entry : new TreeMap<>(optionsIntrl).entrySet())
 		{
 			option(echo, selected, entry.getKey(), entry.getValue());
 		}
@@ -77,7 +77,7 @@ public final class HtmlUtils
 		echo.append("</select>");
 	}
 
-	private static void option(StringBuilder echo, Serializable selected, Serializable identifier, Object value)
+	private static void option(StringBuilder echo, Object selected, Object identifier, Object value)
 	{
 		echo.append("<option ");
 		echo.append("value=\"").append(identifierToString(identifier)).append("\"");
@@ -90,7 +90,7 @@ public final class HtmlUtils
 		echo.append(">").append(label).append("</option>");
 	}
 
-	public static String objectLabelToString(Serializable identifier, Object value)
+	public static String objectLabelToString(Object identifier, Object value)
 	{
 		String label;
 		if (value instanceof String || identifier == value)
@@ -104,7 +104,7 @@ public final class HtmlUtils
 		return label;
 	}
 
-	public static String identifierToString(Serializable identifier)
+	public static String identifierToString(Object identifier)
 	{
 		if( identifier instanceof Enum )
 		{

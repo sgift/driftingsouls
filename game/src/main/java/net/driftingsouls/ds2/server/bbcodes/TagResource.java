@@ -27,9 +27,10 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.PermissionResolver;
+import net.driftingsouls.ds2.server.framework.authentication.JavaSession;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeFunction;
+import net.driftingsouls.ds2.server.services.ResourceService;
 
 import java.util.Iterator;
 
@@ -39,11 +40,18 @@ import java.util.Iterator;
  *
  */
 public class TagResource implements BBCodeFunction {
+	private final ResourceService resourceService;
+	private final JavaSession javaSession;
+	private final PermissionResolver permissionResolver;
+
+	public TagResource(ResourceService resourceService, JavaSession javaSession, PermissionResolver permissionResolver) {
+		this.resourceService = resourceService;
+		this.javaSession = javaSession;
+		this.permissionResolver = permissionResolver;
+	}
+
 	@Override
 	public String handleMatch(String content, String... values) {
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-
 		try {
 			long count = 0;
 			if( content.length() > 0 ) {
@@ -66,13 +74,13 @@ public class TagResource implements BBCodeFunction {
 				return unknstr;
 			}
 
-			Item item = (Item)db.get(Item.class, rid.getItemID());
+			Item item = resourceService.getItemFromResourceId(rid);
 
 			if( item == null ) {
 				return unknstr;
 			}
 
-			User user = (User)context.getActiveUser();
+			User user = (User)javaSession.getUser();
 			if( (user == null) && (item.getAccessLevel() > 0 || item.isUnknownItem() )) {
 				return unknstr;
 			}
@@ -81,7 +89,7 @@ public class TagResource implements BBCodeFunction {
 					return unknstr;
 				}
 
-				if( item.isUnknownItem() && !user.isKnownItem(item.getID()) && !context.hasPermission(WellKnownPermission.ITEM_UNBEKANNTE_SICHTBAR) ) {
+				if( item.isUnknownItem() && !user.isKnownItem(item.getID()) && !permissionResolver.hasPermission(WellKnownPermission.ITEM_UNBEKANNTE_SICHTBAR) ) {
 					return unknstr;
 				}
 			}

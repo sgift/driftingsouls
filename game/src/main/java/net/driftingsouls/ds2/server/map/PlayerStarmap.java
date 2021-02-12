@@ -149,7 +149,7 @@ public class PlayerStarmap extends PublicStarmap
 						(user.getAlly() != null && user.getAlly().getShowAstis() && user.getAlly().equals(base.getOwner().getAlly())) ||
 						relations.isOnly(base.getOwner(), Relation.FRIEND) )
 				{
-					String img = baseService.getOverlayImage(base, location, user, isScannbar(location));
+					String img = baseService.getOverlayImage(base, location, user, userService.getRelations(user), isScannbar(location));
 					if( img != null ) {
 						return new SectorImage(img, 0, 0);
 					}

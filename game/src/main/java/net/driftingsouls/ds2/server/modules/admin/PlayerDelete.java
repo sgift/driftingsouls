@@ -251,7 +251,7 @@ public class PlayerDelete implements AdminPlugin
 					continue;
 				}
 
-				Building building = Building.getBuilding(bebauung[i]);
+				Building building = buildingService.getBuilding(bebauung[i]);
 				buildingService.cleanup(building, base, bebauung[i]);
 				bebauung[i] = 0;
 			}
