@@ -391,7 +391,7 @@ public class AngriffController extends Controller implements ApplicationContextA
                     menuHistoryAction.setController(this);
 
                     menuHistoryAction.setText("<div style=\"text-align:center\"><span class=\"smallfont\" style=\"color:black\">Zug beendet</span></div><br /> " +
-                        "Bitte warten sie bis ihr Gegner ebenfalls seinen Zug beendet hat. Die Runde wird dann automatisch beendet.");
+                        "Bitte warten Sie, bis Ihr Gegner ebenfalls seinen Zug beendet hat. Die Runde wird dann automatisch beendet.");
                     menuHistoryAction.showOK(false);
 
                     menuHistoryAction.execute(t, battle);
