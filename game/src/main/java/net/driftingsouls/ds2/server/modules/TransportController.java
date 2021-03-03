@@ -1226,7 +1226,7 @@ public class TransportController extends Controller
 			long cargo = 0;
 			for (TransportTarget afromd : from)
 			{
-				cargo = Math.max(afromd.getMaxCargo() - afromd.getCargo().getMass(), cargo);
+				cargo = Math.max(afromd.getMaxCargo() - cargoService.getMass(afromd.getCargo()), cargo);
 			}
 			TransportTarget first = from.get(0);
 

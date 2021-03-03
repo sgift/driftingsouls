@@ -1,21 +1,27 @@
 package net.driftingsouls.ds2.server.services;
 
+import net.driftingsouls.ds2.server.bases.AutoGTUAction;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.BaseStatus;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
+import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.Faction;
+import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.math.BigInteger;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
@@ -25,9 +31,13 @@ public class BaseTickerService
 	private EntityManager em;
 
 	private final PmService pmService;
+	private final BaseService baseService;
+	private final BuildingService buildingService;
 
-	public BaseTickerService(PmService pmService) {
+	public BaseTickerService(PmService pmService, BaseService baseService, BuildingService buildingService) {
 		this.pmService = pmService;
+		this.baseService = baseService;
+		this.buildingService = buildingService;
 	}
 
 	private void respawnRess(Base base, int itemid)
@@ -36,7 +46,7 @@ public class BaseTickerService
 
 		base.setSpawnableRessAmount(itemid, 0);
 
-		Base.SpawnableRessMap spawnableress = base.getSpawnableRessMap();
+		Base.SpawnableRessMap spawnableress = getSpawnableRessMap(base);
 		if(spawnableress == null || spawnableress.isEmpty())
 		{
 			return;
@@ -83,7 +93,7 @@ public class BaseTickerService
 				continue;
 			}
 
-			Building building = Building.getBuilding(bebauung[o]);
+			Building building = buildingService.getBuilding(bebauung[o]);
 
 			if( bebon[o] == 0 )
 			{
@@ -119,7 +129,7 @@ public class BaseTickerService
 
 		baseCargo.addResource(Resources.RE, base.getOwner().getKonto().longValue());
 
-		Base.SpawnableRessMap ressMap = base.getSpawnableRessMap();
+		Base.SpawnableRessMap ressMap = getSpawnableRessMap(base);
 
 		for(ResourceEntry entry : nettoproduction.getResourceList())
 		{
@@ -231,7 +241,7 @@ public class BaseTickerService
 			usefullMessage = true;
 		}
 
-		BaseStatus state = Base.getStatus(base);
+		BaseStatus state = baseService.getStatus(base);
 
 		base.immigrate(state);
 
@@ -251,8 +261,8 @@ public class BaseTickerService
 			}
 			else
 			{
-				long money = base.automaticSale();
-				boolean overfullCargo = base.clearOverfullCargo(state);
+				long money = automaticSale(base);
+				boolean overfullCargo = baseService.clearOverfullCargo(base, state);
 				if(money > 0)
 				{
 					base.getOwner().transferMoneyFrom(Faction.GTU, money, "Automatischer Warenverkauf Asteroid " + base.getName(), false, UserMoneyTransfer.Transfer.AUTO);
@@ -287,5 +297,154 @@ public class BaseTickerService
 		}
 
 		return message;
+	}
+
+	/**
+	 * Gibt die zum spawn freigegebenen Ressourcen zurueck.
+	 * Beruecksichtigt ebenfalls die Systemvorraussetzungen.
+	 * @return Die zum Spawn freigegebenen Ressourcen
+	 */
+	private Base.SpawnableRessMap getSpawnableRessMap(Base base)
+	{
+		StarSystem system = em.find(StarSystem.class, base.getSystem());
+
+		if(system == null) {
+			return null;
+		}
+
+		if(base.getSpawnableRess() == null && system.getSpawnableRess() == null && base.getKlasse().getSpawnableRess() == null)
+		{
+			return null;
+		}
+
+		Base.SpawnableRessMap spawnMap = new Base.SpawnableRessMap();
+
+		if( base.getSpawnableRess() != null )
+		{
+			String[] spawnableress = StringUtils.split(base.getSpawnableRess(), ";");
+			for (String spawnableres : spawnableress)
+			{
+				String[] thisress = StringUtils.split(spawnableres, ",");
+				if( thisress.length != 3 )
+				{
+					continue;
+				}
+				int itemid = Integer.parseInt(thisress[0]);
+				int chance = Integer.parseInt(thisress[1]);
+				int maxvalue = Integer.parseInt(thisress[2]);
+
+				// Er soll nur Ressourcen spawnen die noch nicht vorhanden sind
+				if (base.getSpawnableRessAmount(itemid) <= 0)
+				{
+					spawnMap.addSpawnRess(new Base.SpawnableRess(itemid, chance, maxvalue));
+				}
+			}
+		}
+		if( system.getSpawnableRess() != null )
+		{
+			String[] spawnableresssystem = StringUtils.split(system.getSpawnableRess(), ";");
+			for (String aSpawnableresssystem : spawnableresssystem)
+			{
+				String[] thisress = StringUtils.split(aSpawnableresssystem, ",");
+				if( thisress.length != 3 )
+				{
+					continue;
+				}
+				int itemid = Integer.parseInt(thisress[0]);
+				int chance = Integer.parseInt(thisress[1]);
+				int maxvalue = Integer.parseInt(thisress[2]);
+
+				// Er soll nur Ressourcen spawnen die noch nicht vorhanden sind
+				if (base.getSpawnableRessAmount(itemid) <= 0)
+				{
+					spawnMap.addSpawnRess(new Base.SpawnableRess(itemid, chance, maxvalue));
+				}
+			}
+		}
+		if( base.getKlasse().getSpawnableRess() != null && !base.getKlasse().getSpawnableRess().isEmpty() )
+		{
+			String[] spawnableresstype = StringUtils.split(base.getKlasse().getSpawnableRess(), ";");
+			for (String aSpawnableresstype : spawnableresstype)
+			{
+				String[] thisress = StringUtils.split(aSpawnableresstype, ",");
+				if( thisress.length != 3 )
+				{
+					continue;
+				}
+				int itemid = Integer.parseInt(thisress[0]);
+				int chance = Integer.parseInt(thisress[1]);
+				int maxvalue = Integer.parseInt(thisress[2]);
+
+				// Er soll nur Ressourcen spawnen die noch nicht vorhanden sind
+				if (base.getSpawnableRessAmount(itemid) <= 0)
+				{
+					spawnMap.addSpawnRess(new Base.SpawnableRess(itemid, chance, maxvalue));
+				}
+			}
+		}
+
+		spawnMap.buildChanceMap();
+
+		return spawnMap;
+	}
+
+	/**
+	 * Enforces the automatic sale rules of the base.
+	 *
+	 * @return The money for resource sales.
+	 */
+	private long automaticSale(Base base)
+	{
+		long money = 0;
+		List<AutoGTUAction> actions = base.getAutoGTUActs();
+		if(!actions.isEmpty() )
+		{
+			for(AutoGTUAction action: actions)
+			{
+
+				ResourceID resource = action.getResID();
+
+				long sell;
+				switch(action.getActID())
+				{
+					case AutoGTUAction.SELL_ALL:
+						sell = action.getCount();
+						if(sell > base.getCargo().getResourceCount(resource))
+						{
+							sell = base.getCargo().getResourceCount(resource);
+						}
+						break;
+					case AutoGTUAction.SELL_TO_LIMIT:
+						long maximum = action.getCount();
+						sell = base.getCargo().getResourceCount(resource) - maximum;
+						break;
+					default:
+						sell = 0;
+				}
+
+				if(sell > 0)
+				{
+					base.getCargo().substractResource(resource, sell);
+					money += getSalePrice(resource, sell);
+				}
+			}
+		}
+
+		return money;
+	}
+
+	/**
+	 * Calculates the money using the current gtu price for base sales.
+	 * @param resource Die ID der Ressource
+	 * @param count Die Anzahl
+	 * @return The money for a base sale of the resource.
+	 */
+	private long getSalePrice(ResourceID resource, long count)
+	{
+		GtuWarenKurse kurs = em.find(GtuWarenKurse.class, "asti");
+		Cargo prices = kurs.getKurse();
+		double price = prices.getResourceCount(resource) / 1000d;
+
+		return Math.round(price * count);
 	}
 }

@@ -40,6 +40,8 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactor
 import net.driftingsouls.ds2.server.modules.viewmodels.GebaeudeAufBasisViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.ResourceEntryViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.UnitCargoEntryViewModel;
+import net.driftingsouls.ds2.server.services.BaseService;
+import net.driftingsouls.ds2.server.services.BuildingService;
 import net.driftingsouls.ds2.server.services.CargoService;
 import net.driftingsouls.ds2.server.units.UnitCargoEntry;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,11 +61,15 @@ public class BaseController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
 	private final CargoService cargoService;
+	private final BaseService baseService;
+	private final BuildingService buildingService;
 
 	@Autowired
-	public BaseController(TemplateViewResultFactory templateViewResultFactory, CargoService cargoService) {
+	public BaseController(TemplateViewResultFactory templateViewResultFactory, CargoService cargoService, BaseService baseService, BuildingService buildingService) {
 		this.templateViewResultFactory = templateViewResultFactory;
 		this.cargoService = cargoService;
+		this.baseService = baseService;
+		this.buildingService = buildingService;
 
 		setPageTitle("Basis");
 	}
@@ -144,7 +150,7 @@ public class BaseController extends Controller
 
 		int bebstatus = act ? 1 : 0;
 
-		Building building = Building.getBuilding(buildingonoff);
+		Building building = buildingService.getBuilding(buildingonoff);
 
 		String message = null;
 		// Wenn das Gebaude automatisch abschalten soll und der Besitzer
@@ -283,7 +289,7 @@ public class BaseController extends Controller
 			baseObj.core = coreObj;
 		}
 
-		BaseStatus basedata = Base.getStatus(base);
+		BaseStatus basedata = baseService.getStatus(base);
 
 		ResourceList reslist = base.getCargo().compare(basedata.getProduction(), true,true);
 		reslist.sortByID(false);
@@ -312,14 +318,14 @@ public class BaseController extends Controller
 		// Karte
 		//----------------
 
-		Map<Integer,Integer> buildingonoffstatus = new TreeMap<>(new BuildingComparator());
+		Map<Integer,Integer> buildingonoffstatus = new TreeMap<>(new BuildingComparator(buildingService));
 
 		for( int i = 0; i < base.getWidth() * base.getHeight(); i++ ) {
 			AjaxViewModel.FeldViewModel feld = new AjaxViewModel.FeldViewModel();
 
 			//Leeres Feld
 			if( base.getBebauung()[i] != 0 ) {
-				Building building = Building.getBuilding(base.getBebauung()[i]);
+				Building building = buildingService.getBuilding(base.getBebauung()[i]);
 				base.getActive()[i] = basedata.getActiveBuildings()[i];
 
 				if( !buildingonoffstatus.containsKey(base.getBebauung()[i]) ) {
@@ -349,7 +355,7 @@ public class BaseController extends Controller
 
 		for( Map.Entry<Integer,Integer> entry : buildingonoffstatus.entrySet() ) {
 			int bstatus = entry.getValue();
-			Building building = Building.getBuilding(entry.getKey());
+			Building building = buildingService.getBuilding(entry.getKey());
 
 			AjaxViewModel.GebaeudeStatusViewModel buildingObj = new AjaxViewModel.GebaeudeStatusViewModel();
 			buildingObj.name = Common._plaintitle(building.getName());
@@ -390,7 +396,7 @@ public class BaseController extends Controller
 				"base.cargo.empty",	Common.ln(base.getMaxCargo() - cargoService.getMass(base.getCargo())),
 				"base.message", redirect != null ? redirect.getMessage() : null);
 
-		BaseStatus basedata = Base.getStatus(base);
+		BaseStatus basedata = baseService.getStatus(base);
 
 		//------------------
 		// Core
@@ -405,7 +411,7 @@ public class BaseController extends Controller
 		// Karte
 		//----------------
 
-		Map<Integer,Integer> buildingonoffstatus = new TreeMap<>(new BuildingComparator());
+		Map<Integer,Integer> buildingonoffstatus = new TreeMap<>(new BuildingComparator(buildingService));
 
 		t.setBlock("_BASE", "base.map.listitem", "base.map.list");
 
@@ -420,7 +426,7 @@ public class BaseController extends Controller
 				base.getActive()[i] = 2;
 			}
 			else {
-				Building building = Building.getBuilding(base.getBebauung()[i]);
+				Building building = buildingService.getBuilding(base.getBebauung()[i]);
 				base.getActive()[i] = basedata.getActiveBuildings()[i];
 
 				if( !buildingonoffstatus.containsKey(base.getBebauung()[i]) ) {
@@ -502,7 +508,7 @@ public class BaseController extends Controller
 		for( Map.Entry<Integer,Integer> entry : buildingonoffstatus.entrySet() ) {
 			int bstatus = entry.getValue();
 
-			Building building = Building.getBuilding(entry.getKey());
+			Building building = buildingService.getBuilding(entry.getKey());
 			t.setVar(	"building.name",	Common._plaintitle(building.getName()),
 						"building.id",		entry.getKey(),
 						"building.allowoff",	(bstatus == -1) || (bstatus == 2),
@@ -549,10 +555,15 @@ public class BaseController extends Controller
 	}
 
 	private static class BuildingComparator implements Comparator<Integer> {
+		private final BuildingService buildingService;
+
+		private BuildingComparator(BuildingService buildingService) {
+			this.buildingService = buildingService;
+		}
 
 		@Override
 		public int compare(Integer o1, Integer o2) {
-			int diff = Building.getBuilding(o1).getName().compareTo(Building.getBuilding(o2).getName());
+			int diff = buildingService.getBuilding(o1).getName().compareTo(buildingService.getBuilding(o2).getName());
 			if( diff != 0 )
 			{
 				return diff;

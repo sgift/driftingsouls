@@ -19,7 +19,6 @@
 package net.driftingsouls.ds2.server.bases;
 
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.werften.BaseWerft;
 import net.driftingsouls.ds2.server.werften.WerftObject;
 import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
@@ -54,15 +53,8 @@ public class Werft extends DefaultBuilding {
 	}
 
 	@Override
-	public void build(Base base, int building) {
-		super.build(base, building);
-
-		if( base.getWerft() == null )
-		{
-			BaseWerft werft = new BaseWerft(base);
-			ContextMap.getContext().getDB().persist(werft);
-			base.setWerft(werft);
-		}
+	public void build(Base base, Building building) {
+		throw new IllegalArgumentException("shouldn't be called!");
 	}
 
 

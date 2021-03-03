@@ -106,7 +106,7 @@ public class EntityClassGenerator<E> implements CustomFieldGenerator<E>
 
 	private void editEntityBySelection(StringBuilder echo, String name, Class<? extends E> value) {
 		Serializable selected = value.getName();
-		Map<Serializable,Object> selectionOptions = this.options.stream().collect(Collectors.toMap(Class::getName, this::displayName));
+		Map<Object, Object> selectionOptions = this.options.stream().collect(Collectors.toMap(Class::getName, this::displayName));
 
 		HtmlUtils.select(echo, name, false, selectionOptions, selected);
 	}

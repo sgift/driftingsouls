@@ -1,6 +1,8 @@
 package net.driftingsouls.ds2.server.services;
 
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.bases.Building;
+import net.driftingsouls.ds2.server.bases.Werft;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
@@ -212,7 +214,7 @@ public class ShipyardService {
             }
 
             // Ueberpruefen, ob wir nun zu viel Cargo auf dem Schiff haben
-            long cargocount = cargo.getMass();
+            long cargocount = cargoService.getMass(cargo);
 
             if( cargocount > shiptype.getCargo() ) {
                 Cargo shipcargo = cargoService.cutCargo(cargo, shiptype.getCargo());
@@ -226,7 +228,7 @@ public class ShipyardService {
     }
 
     private void setCargoForShipyardComplex(WerftKomplex shipyardComplex, Cargo cargo, boolean localonly) {
-        if( cargo.getMass() > shipyardComplex.getMaxCargo(localonly) ) {
+        if( cargoService.getMass(cargo) > shipyardComplex.getMaxCargo(localonly) ) {
             cargo = cargoService.cutCargo(cargo, shipyardComplex.getMaxCargo(localonly));
         }
 
@@ -276,7 +278,7 @@ public class ShipyardService {
             for (WerftObject aWerften : shipyardComplex.getWerften())
             {
                 Cargo werftCargo = aWerften.getCargo(localonly);
-                if (werftCargo.getMass() > aWerften.getMaxCargo(localonly))
+                if (cargoService.getMass(werftCargo) > aWerften.getMaxCargo(localonly))
                 {
                     Cargo tmp = cargoService.cutCargo(werftCargo, aWerften.getMaxCargo(localonly));
                     overflow.addCargo(werftCargo);
@@ -284,14 +286,14 @@ public class ShipyardService {
                 }
                 else if (!overflow.isEmpty())
                 {
-                    if (overflow.getMass() + werftCargo.getMass() < aWerften.getMaxCargo(localonly))
+                    if (cargoService.getMass(overflow) + cargoService.getMass(werftCargo) < aWerften.getMaxCargo(localonly))
                     {
                         werftCargo.addCargo(overflow);
                         overflow = new Cargo();
                     }
                     else
                     {
-                        werftCargo.addCargo(cargoService.cutCargo(overflow,aWerften.getMaxCargo(localonly) - werftCargo.getMass()));
+                        werftCargo.addCargo(cargoService.cutCargo(overflow,aWerften.getMaxCargo(localonly) - cargoService.getMass(werftCargo)));
                     }
                     setCargo(aWerften, werftCargo, localonly);
                 }
@@ -461,5 +463,33 @@ public class ShipyardService {
                 }
             }
         }
+    }
+
+    public String getWerftPicture(WerftObject werftObject) {
+
+        if(werftObject instanceof BaseWerft) {
+            if (((BaseWerft) werftObject).getBaseField() != -1) {
+                int buildingId = ((BaseWerft) werftObject).getBase().getBebauung()[((BaseWerft) werftObject).getBaseField()];
+                Building building = em.find(Building.class, buildingId);
+                return building.getPictureForRace(werftObject.getOwner().getRace());
+            }
+
+            Werft building = (Werft) em.createQuery("from WerftBuilding")
+                .setMaxResults(1)
+                .getSingleResult();
+
+            return building.getPictureForRace(werftObject.getOwner().getRace());
+        } else if(werftObject instanceof ShipWerft) {
+            return ((ShipWerft) werftObject).getShip().getTypeData().getPicture();
+        } else if(werftObject instanceof WerftKomplex) {
+            if (!((WerftKomplex) werftObject).isExistant())
+            {
+                return "";
+            }
+
+            return getWerftPicture(((WerftKomplex) werftObject).getWerften().get(0));
+        }
+
+        throw new IllegalArgumentException("Unknown shipyard type");
     }
 }

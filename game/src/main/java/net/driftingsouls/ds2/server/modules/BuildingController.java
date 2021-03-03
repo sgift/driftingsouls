@@ -65,6 +65,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.modules.viewmodels.GebaeudeAufBasisViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.ResourceEntryViewModel;
+import net.driftingsouls.ds2.server.services.BaseService;
 import net.driftingsouls.ds2.server.services.BuildingService;
 import net.driftingsouls.ds2.server.services.CargoService;
 import net.driftingsouls.ds2.server.services.DismantlingService;
@@ -111,6 +112,7 @@ public class BuildingController extends Controller
 	private final CargoService cargoService;
 	private final DismantlingService dismantlingService;
 	private final ShipActionService shipActionService;
+	private final BaseService baseService;
 
 	@ViewModel
 	public static class BuildingActionViewModel
@@ -122,7 +124,7 @@ public class BuildingController extends Controller
 		public String message;
 	}
 
-	public BuildingController(ShipyardService shipyardService, Rassen races, TemplateViewResultFactory templateViewResultFactory, JavaSession javaSession, PmService pmService, BuildingService buildingService, PmService pmService1, BBCodeParser bbCodeParser, UserService userService, FleetMgmtService fleetMgmtService, CargoService cargoService, DismantlingService dismantlingService, ShipActionService shipActionService) {
+	public BuildingController(ShipyardService shipyardService, Rassen races, TemplateViewResultFactory templateViewResultFactory, JavaSession javaSession, PmService pmService, BuildingService buildingService, PmService pmService1, BBCodeParser bbCodeParser, UserService userService, FleetMgmtService fleetMgmtService, CargoService cargoService, DismantlingService dismantlingService, ShipActionService shipActionService, BaseService baseService) {
 		this.shipyardService = shipyardService;
 		this.races = races;
 		this.templateViewResultFactory = templateViewResultFactory;
@@ -135,6 +137,7 @@ public class BuildingController extends Controller
 		this.cargoService = cargoService;
 		this.dismantlingService = dismantlingService;
 		this.shipActionService = shipActionService;
+		this.baseService = baseService;
 		setPageTitle("Gebäude");
 
 		outputHandler = Map.of(
@@ -148,7 +151,7 @@ public class BuildingController extends Controller
 
 	public Building getGebaeudeFuerFeld(Base basis, int feld)
 	{
-		return Building.getBuilding(basis.getBebauung()[feld]);
+		return buildingService.getBuilding(basis.getBebauung()[feld]);
 	}
 
 	public void validiereBasisUndFeld(Base basis, int feld)
@@ -861,7 +864,7 @@ public class BuildingController extends Controller
 			int count = ContextMap.getContext().getRequest().getParameterInt("count");
 
 			if( (actid >= 0) && (actid <= 1 ) && (count != 0 || (actid == 1)) ) {
-				BaseStatus basedata = Base.getStatus(base);
+				BaseStatus basedata = baseService.getStatus(base);
 				Cargo stat = (Cargo)basedata.getProduction().clone();
 				stat.setResource(Resources.NAHRUNG, 0);
 
@@ -1053,7 +1056,7 @@ public class BuildingController extends Controller
 				t.parse("autogtu.acts.list", "autogtu.acts.listitem", true);
 			}
 
-			BaseStatus basedata = Base.getStatus(base);
+			BaseStatus basedata = baseService.getStatus(base);
 			Cargo stat = (Cargo)basedata.getProduction().clone();
 			stat.setResource( Resources.NAHRUNG, 0 );
 			stat.setOption( Cargo.Option.NOHTML, true );

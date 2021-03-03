@@ -112,7 +112,7 @@ public class ResourceList implements Iterable<ResourceEntry> {
 
 	private final List<ResourceEntry> list = new ArrayList<>();
 
-	protected ResourceList() {
+	public ResourceList() {
 		// EMPTY
 	}
 

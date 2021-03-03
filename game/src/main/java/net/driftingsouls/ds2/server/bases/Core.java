@@ -21,7 +21,6 @@ package net.driftingsouls.ds2.server.bases;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.UnmodifiableCargo;
 import net.driftingsouls.ds2.server.entities.Forschung;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.DiscriminatorFormula;
@@ -89,19 +88,6 @@ public abstract class Core {
 		this.buildcosts = new Cargo();
 		this.produces = new Cargo();
 		this.consumes = new Cargo();
-	}
-	
-	/**
-	 * Gibt eine Instanz der Coreklasse des angegebenen Coretyps zurueck.
-	 * Sollte kein passender Coretyp existieren, wird <code>null</code> zurueckgegeben.
-	 * 
-	 * @param id Die ID des Coretyps
-	 * @return Eine Instanz der zugehoerigen Coreklasse
-	 */
-	public static Core getCore(int id) {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		
-		return (Core)db.get(Core.class, id);
 	}
 	
 	/**

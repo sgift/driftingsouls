@@ -249,7 +249,7 @@ public class ColonizeController extends Controller
 			{
 				bebauung[index] = 0;
 				bebon[index] = 0;
-				Building gebaeude = Building.getBuilding(building);
+				Building gebaeude = buildingService.getBuilding(building);
 				buildingService.cleanup(gebaeude, base, building);
 			}
 

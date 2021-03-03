@@ -55,8 +55,9 @@ public class UserService {
     private final AllianzService allyService;
     private final ConfigService configService;
     private final ShipService shipService;
+    private final BaseService baseService;
 
-    public UserService(Rassen races, FolderService folderService, MedalService medalService, BBCodeParser bbCodeParser, AllianzService allyService, ConfigService configService, ShipService shipService) {
+    public UserService(Rassen races, FolderService folderService, MedalService medalService, BBCodeParser bbCodeParser, AllianzService allyService, ConfigService configService, ShipService shipService, BaseService baseService) {
         this.races = races;
         this.folderService = folderService;
         this.medalService = medalService;
@@ -64,6 +65,7 @@ public class UserService {
         this.allyService = allyService;
         this.configService = configService;
         this.shipService = shipService;
+        this.baseService = baseService;
     }
 
     /**
@@ -577,7 +579,7 @@ public class UserService {
         long baseRe = 0;
         for(Base base: user.getBases())
         {
-            baseRe += base.getBalance();
+            baseRe += baseService.getBalance(base);
         }
 
         // Kosten der Schiffe ermitteln
@@ -602,7 +604,7 @@ public class UserService {
         long balance = 0;
         for(Base base: user.getBases())
         {
-            balance += base.getNahrungsBalance();
+            balance += baseService.getFoodBalance(base);
         }
 
         for( Ship ship : user.getShips() )

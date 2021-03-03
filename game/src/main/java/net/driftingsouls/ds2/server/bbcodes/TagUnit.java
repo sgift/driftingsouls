@@ -23,7 +23,10 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.PermissionResolver;
+import net.driftingsouls.ds2.server.framework.authentication.JavaSession;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeFunction;
+import net.driftingsouls.ds2.server.services.UnitService;
 import net.driftingsouls.ds2.server.units.UnitType;
 
 /**
@@ -32,10 +35,19 @@ import net.driftingsouls.ds2.server.units.UnitType;
  *
  */
 public class TagUnit implements BBCodeFunction {
+	private final UnitService unitService;
+	private final JavaSession javaSession;
+	private final PermissionResolver permissionResolver;
+
+	public TagUnit(UnitService unitService, JavaSession javaSession, PermissionResolver permissionResolver) {
+		this.unitService = unitService;
+		this.javaSession = javaSession;
+		this.permissionResolver = permissionResolver;
+	}
+
 	@Override
 	public String handleMatch(String content, String... values) {
 		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
 
 		try {
 			Long count = null;
@@ -54,13 +66,13 @@ public class TagUnit implements BBCodeFunction {
 				unknstr = Common.ln(count)+"x "+unknstr;
 			}
 
-			UnitType unit = (UnitType)db.get(UnitType.class, uid);
+			UnitType unit = unitService.getTypeById(uid);
 
 			if( unit == null ) {
 				return unknstr;
 			}
 
-			User user = (User)context.getActiveUser();
+			User user = (User)javaSession.getUser();
 			if( user == null && unit.isHidden() ) {
 				return unknstr;
 			}

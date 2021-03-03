@@ -34,6 +34,8 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.services.BaseService;
+import net.driftingsouls.ds2.server.services.BuildingService;
 import net.driftingsouls.ds2.server.services.CargoService;
 import net.driftingsouls.ds2.server.services.UserValueService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,15 +76,19 @@ public class BasenController extends Controller
 	private final TemplateViewResultFactory templateViewResultFactory;
 	private final UserValueService userValueService;
 	private final CargoService cargoService;
+	private final BaseService baseService;
+	private final BuildingService buildingService;
 
 	@PersistenceContext
 	private EntityManager em;
 
 	@Autowired
-	public BasenController(TemplateViewResultFactory templateViewResultFactory, UserValueService userValueService, CargoService cargoService) {
+	public BasenController(TemplateViewResultFactory templateViewResultFactory, UserValueService userValueService, CargoService cargoService, BaseService baseService, BuildingService buildingService) {
 		this.templateViewResultFactory = templateViewResultFactory;
 		this.userValueService = userValueService;
 		this.cargoService = cargoService;
+		this.baseService = baseService;
+		this.buildingService = buildingService;
 
 		setPageTitle("Basen");
 	}
@@ -173,7 +179,7 @@ public class BasenController extends Controller
 			.getResultList();
 		for (Base base : bases)
 		{
-			BaseStatus basedata = Base.getStatus(base);
+			BaseStatus basedata = baseService.getStatus(base);
 
 			t.setVar("base.id", base.getId(),
 					"base.klasse", base.getKlasse().getId(),
@@ -237,7 +243,7 @@ public class BasenController extends Controller
 
 			for (Integer bid : basedata.getBuildingLocations().keySet())
 			{
-				Building building = Building.getBuilding(bid);
+				Building building = buildingService.getBuilding(bid);
 
 				shortcuts.append(building.echoShortcut(getContext(), base, basedata.getBuildingLocations().get(bid), bid));
 				shortcuts.append(" ");

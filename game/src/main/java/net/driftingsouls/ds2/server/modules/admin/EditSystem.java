@@ -176,7 +176,7 @@ public class EditSystem implements EntityEditor<StarSystem>
 				continue;
 			}
 
-			Building building = Building.getBuilding(aBebauung);
+			Building building = buildingService.getBuilding(aBebauung);
 			buildingService.cleanup(building, base, aBebauung);
 		}
 

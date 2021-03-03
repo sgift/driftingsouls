@@ -273,22 +273,9 @@ public class Fabrik extends DefaultBuilding
 	}
 
 	@Override
-	public void build(Base base, int buildingid)
+	public void build(Base base, Building building)
 	{
-		super.build(base, buildingid);
-
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		Factory wf = loadFactoryEntity(base, buildingid);
-
-		if (wf != null)
-		{
-			wf.setCount(wf.getCount() + 1);
-		}
-		else
-		{
-			wf = new Factory(base, buildingid);
-			db.persist(wf);
-		}
+		throw new IllegalArgumentException("Shouldn't be called!");
 	}
 
 	@Override

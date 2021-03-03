@@ -559,7 +559,6 @@ public class AdminCommands implements ApplicationContextAware {
 			String fleetLabel = "<fleetId|s<shipId>>";
 			if( command.length > 1 && NumberUtils.isCreatable(command[1]) )
 			{
-				org.hibernate.Session db = ContextMap.getContext().getDB();
 				ShipFleet fleet = em.find(ShipFleet.class, Integer.valueOf(command[1]));
 				if( fleet != null )
 				{
@@ -571,7 +570,6 @@ public class AdminCommands implements ApplicationContextAware {
 				String id = command[1].substring(1);
 				if( NumberUtils.isCreatable(id) )
 				{
-					org.hibernate.Session db = ContextMap.getContext().getDB();
 					Ship ship = em.find(Ship.class, Integer.valueOf(id));
 					if( ship != null && ship.getFleet() != null )
 					{
@@ -587,7 +585,6 @@ public class AdminCommands implements ApplicationContextAware {
 		@Override
 		public String execute( Context context, String[] command ) {
 			String output = "";
-			org.hibernate.Session db = context.getDB();
 
 			if( !NumberUtils.isCreatable(command[1]) ) {
 				throw new CommandFailedException("Ungueltige Schiffs-ID");
@@ -741,7 +738,7 @@ public class AdminCommands implements ApplicationContextAware {
 						if (werft == null)
 						{
 							werft = new ShipWerft(ship);
-							db.persist(werft);
+							em.persist(werft);
 						}
 					}
 
@@ -900,7 +897,6 @@ public class AdminCommands implements ApplicationContextAware {
 			{
 				return "<(b|s)ObjektID>";
 			}
-			org.hibernate.Session db = ContextMap.getContext().getDB();
 
 			String id = command[1].substring(1);
 			if( !NumberUtils.isCreatable(id) )
@@ -1016,8 +1012,6 @@ public class AdminCommands implements ApplicationContextAware {
 			{
 				return "<(b|s)ObjektID>";
 			}
-			org.hibernate.Session db = ContextMap.getContext().getDB();
-
 			String id = command[1].substring(1);
 			if( !NumberUtils.isCreatable(id) )
 			{

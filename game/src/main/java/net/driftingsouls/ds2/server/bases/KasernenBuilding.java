@@ -61,7 +61,7 @@ public class KasernenBuilding extends DefaultBuilding {
 	}
 
 	@Override
-	public void build(Base base, int building) {
+	public void build(Base base, Building building) {
 		super.build(base, building);
 
 		Kaserne kaserne = new Kaserne(base);

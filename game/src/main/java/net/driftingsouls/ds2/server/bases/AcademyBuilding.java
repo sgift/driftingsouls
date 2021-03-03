@@ -19,23 +19,19 @@
 package net.driftingsouls.ds2.server.bases;
 
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
-import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.Resources;
-import net.driftingsouls.ds2.server.config.Offiziere;
 import net.driftingsouls.ds2.server.entities.Academy;
 import net.driftingsouls.ds2.server.entities.Offizier;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Die Akademie.
@@ -69,16 +65,8 @@ public class AcademyBuilding extends DefaultBuilding {
 	}
 
 	@Override
-	public void build(Base base, int building) {
-		super.build(base, building);
-
-		Academy academy = new Academy(base);
-
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
-		db.persist(academy);
-
-		base.setAcademy(academy);
+	public void build(Base base, Building building) {
+		throw new IllegalArgumentException("shouldn't be called anymore");
 	}
 
 	@Override
@@ -93,25 +81,7 @@ public class AcademyBuilding extends DefaultBuilding {
 
 	@Override
 	public void cleanup(Context context, Base base, int building) {
-		super.cleanup(context, base, building);
-		org.hibernate.Session db = context.getDB();
-
-
-		Academy academy = base.getAcademy();
-		if( academy != null )
-		{
-			// Bereinige Queue Eintraege
-			academy.getQueueEntries().clear();
-
-			base.setAcademy(null);
-			db.delete(academy);
-		}
-
-
-		for( Offizier offizier : Offizier.getOffiziereByDest(base) )
-		{
-			offizier.setTraining(false);
-		}
+		throw new IllegalArgumentException("should not be called!");
 	}
 
 	@Override

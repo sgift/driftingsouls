@@ -452,7 +452,7 @@ public class MapController extends Controller
 		PublicStarmap content;
 		if (admin && hasPermission(WellKnownAdminPermission.STARMAP_VIEW))
 		{
-			content = new AdminStarmap(sys, user, baseService, new int[]{xstart, ystart, xend - xstart, yend - ystart});
+			content = new AdminStarmap(sys, user, baseService, userService, new int[]{xstart, ystart, xend - xstart, yend - ystart});
 		}
 		else
 		{

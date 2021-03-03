@@ -510,7 +510,7 @@ public class PortalController extends Controller
 			if (baselayout[i] != 0)
 			{
 				activebuildings[i] = 1;
-				Building building = Building.getBuilding(baselayout[i]);
+				Building building = buildingService.getBuilding(baselayout[i]);
 				bewohner += building.getBewohner();
 				arbeiter += building.getArbeiter();
 			}
@@ -529,7 +529,7 @@ public class PortalController extends Controller
 				continue;
 			}
 
-			Building building = Building.getBuilding(aBebauung);
+			Building building = buildingService.getBuilding(aBebauung);
 			buildingService.cleanup(building, base, aBebauung);
 		}
 
@@ -559,8 +559,8 @@ public class PortalController extends Controller
 		{
 			if (aBaselayout > 0)
 			{
-				Building building = Building.getBuilding(aBaselayout);
-				building.build(base, aBaselayout);
+				Building building = buildingService.getBuilding(aBaselayout);
+				building.build(base, building);
 			}
 		}
 	}

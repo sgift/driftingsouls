@@ -19,7 +19,6 @@
 package net.driftingsouls.ds2.server.modules;
 
 import io.github.classgraph.ClassInfo;
-import io.github.classgraph.ClassInfoList;
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.framework.AnnotationUtils;
 import net.driftingsouls.ds2.server.framework.ViewModel;
@@ -38,11 +37,12 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.JqGridTableDataViewMo
 import net.driftingsouls.ds2.server.modules.admin.editoren.JqGridViewModel;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-
-import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.lang.NonNull;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
@@ -72,6 +72,9 @@ public class AdminController extends Controller implements ApplicationContextAwa
 	private final Set<String> validPlugins = new HashSet<>();
 
 	private ApplicationContext applicationContext;
+
+	@PersistenceContext
+	private EntityManager em;
 
 	static
 	{
@@ -393,7 +396,7 @@ public class AdminController extends Controller implements ApplicationContextAwa
 		}
 
 		EntityEditor<?> editor = aClass.asSubclass(EntityEditor.class).getDeclaredConstructor().newInstance();
-		EditPlugin8<?> plugin = new EditPlugin8<>(editor);
+		EditPlugin8<?> plugin = new EditPlugin8<>(editor, em);
 		getContext().autowireBean(plugin);
 		return plugin;
 	}

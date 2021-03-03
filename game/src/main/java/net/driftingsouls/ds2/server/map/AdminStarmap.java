@@ -7,6 +7,7 @@ import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.services.BaseService;
+import net.driftingsouls.ds2.server.services.UserService;
 import net.driftingsouls.ds2.server.ships.Ship;
 
 import java.util.HashMap;
@@ -22,18 +23,21 @@ public class AdminStarmap extends PublicStarmap
 	private final Map<Location,Ship> scannableLocations;
 	private final User adminUser;
 	private final BaseService baseService;
+	private final UserService userService;
 	/**
 	 * Konstruktor.
-	 *  @param system Die ID des Systems
+	 * @param system Die ID des Systems
 	 * @param baseService BaseService
 	 * @param ausschnitt Der gewaehlte Ausschnitt <code>[x, y, w, h]</code> oder <code>null</code>, falls kein Ausschnitt verwendet werden soll
+	 * @param userService
 	 */
-	public AdminStarmap(StarSystem system, User adminUser, BaseService baseService, int[] ausschnitt)
+	public AdminStarmap(StarSystem system, User adminUser, BaseService baseService, UserService userService, int[] ausschnitt)
 	{
 		super(system, ausschnitt);
 
 		this.adminUser = adminUser;
 		this.baseService = baseService;
+		this.userService = userService;
 		this.scannableLocations = buildScannableLocations();
 	}
 
@@ -56,7 +60,7 @@ public class AdminStarmap extends PublicStarmap
 		if(positionBases != null && !positionBases.isEmpty())
 		{
 			Base base = positionBases.get(0);
-			String img = baseService.getOverlayImage(base, location, adminUser, true);
+			String img = baseService.getOverlayImage(base, location, adminUser, userService.getRelations(adminUser), true);
 			if( img != null ) {
 				return new SectorImage(img, 0, 0);
 			}
