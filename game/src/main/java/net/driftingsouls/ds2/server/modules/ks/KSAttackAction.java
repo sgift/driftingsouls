@@ -578,7 +578,7 @@ public class KSAttackAction extends BasicKSAction {
 				hit = 0;
 			}
 			else {
-				hit -= eShip.getShields()/absSchaden;
+				hit -= Math.ceil(eShip.getShields()/absSchaden);
 				eShip.setShields(0);
 				getBattleService().logme(battle,  "+ Schilde ausgefallen\n" );
 				logMsg.append("+ Schilde ausgefallen\n");
