@@ -461,7 +461,7 @@ public class PortalController extends Controller
 						"nennen.\n" +
 						" Falls Probleme auftreten sollten, gibt es:\n" +
 						"- das [url=https://drifting-souls.fandom.com/de/wiki/Drifting_Souls_Wiki]DriftingSoulsWiki[/url]\n" +
-						"- das [url=http://ds.rnd-it.de]Forum[/url]\n" +
+						"- das [url=ds2forum.de/]Forum[/url]\n" +
 						"- einen [url=https://discord.gg/cpxxAGy]Discord-Chat[/url] und\n" +
 						"- die Möglichkeit via Nachricht/PM an die ID -16 Fragen zu stellen.\n" +
 						"\n" +
