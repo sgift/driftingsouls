@@ -50,7 +50,7 @@ import java.util.*;
  */
 @Module(name = "main")
 public class MainController extends Controller {
-	private static final String SCRIPT_FORUM = "http://ds.rnd-it.de/";
+	private static final String SCRIPT_FORUM = "ds2forum.de/";
 
 	private final Version version;
 	private final TemplateViewResultFactory templateViewResultFactory;
