@@ -46,7 +46,7 @@ public class BBCodeViewController extends Controller
 		codes.add("[img]AdresseDesBildes[/img]<br />");
 		codes.add("[email]Irgendeine@EmailAdresse.de[/email]<br />");
 		codes.add("[email=Irgendeine@EmailAdresse.de]Eine Beschreibung[/email]<br />");
-		codes.add("[size=SchriftGr&ouml;&szlig;e]Irgendein Text[/size]<br />");
+		codes.add("[size=SchriftGr&ouml;&szlig;e]irgendein Text[/size]<br />");
 		codes.add("Eine Auflistung erzeugt man so:");
 		codes.add("[list=ListenTyp]");
 		codes.add("[*]Eintrag1");
