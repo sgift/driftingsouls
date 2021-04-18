@@ -242,9 +242,17 @@ border-radius: 15px;
 /* ENDE NAVIGATION */
 
 /* Content Bereich festlegen mit rechts 45% und links 55% */
-#content #document { 
+.linke-spalte {
 	float: left;
-	width: 43%;
+	width: 50%;
+}
+
+.rechte-spalte {
+	float: right;
+	width: 45%;  
+}
+
+#content #document { 
 	padding: 1em; 
 	background-image : url(../interface/portal/text_back.png);
 	border-radius : 20px;
@@ -253,14 +261,11 @@ border-radius: 15px;
 }
 
 #content #re-inhalt{
-	
-	float: right;
-	width: 40%;
 	top: 50px;
 	border : 1px solid #25346d;
 	border-radius : 20px;
 	margin: 3em 3em 1em 0.5em;
-	}
+}
 	
 /* Ende Content mit Bereichsfestlegung */
 
@@ -339,8 +344,6 @@ a#registerlink {
 
 
 #register-fraktionsbeschreibung{
-	float: right;
-	width: 40%;
 	border : 1px solid #25346d;
 	border-radius : 30px;
 	padding: 2em 1em 1em 1em;
