@@ -756,7 +756,7 @@ public class PortalController extends Controller
 		t.setBlock("_PORTAL", "news.listitem", "news.list");
 
 		List<NewsEntry> allnews = Common.cast(db.createQuery("FROM NewsEntry ORDER BY date DESC")
-											  .setMaxResults(archiv ? 100 : 2)
+											  .setMaxResults(archiv ? 100 : 3)
 											  .list());
 		for (NewsEntry news : allnews)
 		{
