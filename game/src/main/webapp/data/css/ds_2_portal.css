@@ -260,6 +260,14 @@ border-radius: 15px;
 	margin: 1.5em 0.1em 1em 3em;
 }
 
+#content #about { 
+	padding: 1em; 
+	background-image : url(../interface/portal/text_back.png);
+	border-radius : 20px;
+	border : 1px solid #25346d;
+	margin: 1.5em 0.1em 1em 3em;
+}
+
 #content #re-inhalt{
 	top: 50px;
 	border : 1px solid #25346d;

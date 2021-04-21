@@ -373,7 +373,18 @@
 				</p>
 
 		{/endif}
-</div> <!-- Ende ID document -->
+	</div> <!-- Ende ID document -->
+	<!-- Eigene if Bedingung definieren? -->
+	{if show.news}
+	<div id="about">
+		<h2>Über Drifting Souls 2</h2>
+		<p>Drifting Souls 2 (DS2) ist ein komplexes Aufbau-Strategiespiel, welches im Weltraum spielt und in der Zukunft stattfindet. Der geschichtlich-rollenspielerische Hintergrund des Spiels sind die 90er-Jahre-Computerspiele der Freespace-Reihe. DS2 ist komplett kostenlos und zum Spielen braucht es lediglich einen Browser und eine aktive Internetverbindung.</p>
+		<p>In DS2 startet man auf einem kargen Asteroiden, welchen man zunächst ausbauen und erweitern muss. In diesem Part gleicht DS2 den altherbekannten Aufbau-Strategiespielen wie OGame, die Stämme und Ikariam. Doch das ist nur ein kleiner Teil. In DS2 kannst Du Deine Schiffe über 2D-Sternenkarten fliegen, manuell ausstatten, individuell steuern und mit ihnen kämpfen. Du kannst Dich Allianzen und Fraktionen anschließen, Handel treiben und den Weltraum entdecken. Ob Händler, Krieger, ob Einsiedler und Teamplayer, ob viel Zeit oder wenig: Ein Spieler eines jeden Spielstils wird sich wohlfühlen. Ein besonderes Schmankerl ist auch das im Spiel integrierte Schreib-Rollenspiel. Im sogennanten Com-Net, einem universumsweiten Kommunikationsnetzwerk, können Spieler ihre Rollenspiele betreiben. Vom einfachen Notruf bis zur weitgeschmückten RPG-Episode ist hier Platz für jeden, der sich gern schriftstellerisch/kreativ austoben will.</p>
+		<p>Programmiert wird DS2 von ehrenamtlichen Entwicklern, und das seit 2001. Bis heute frischen regelmäßige Updates das Spiel auf. Zudem gibt es keine langweiligen, vorhersehbaren NPC-KIs, denn die NPCs werden von Menschenhand gesteuert und verwaltet.</p>
+		<p>Steige jetzt in Dein Raumschiff und werde vasudanischer Pirat, terranischer Extremist, großzügiger Händler, pazifistischer Kommunist oder spiritueller Fundamentalist.</p>
+		<iframe src="https://youtube.com/embed/QZy3MctfW3I"></iframe>
+	</div> <!-- Ende About -->
+	{/endif}
 	</div> <!-- Ende Linke Spalte -->
 
 	<div class="rechte-spalte">
@@ -411,13 +422,9 @@
 
 	{if show.register.choosesystem}
 	<div id="register-systembeschreibung">
-	<h2>Die Systeme</h2>
-	<p>Hier sind die derzeit besiedelungsfähigen Sternensysteme aufgelistet.</p>
-	<p><ul>
-			<li>Eta Nebular (605)</li>
-	</ul>
-</p>
-	<p>Andere Systeme existieren, sind aber aufgrund verschiedener Ereignisse derzeit nicht (mehr) erreichbar oder nicht zur anfänglichen Besiedelung geeignet.</p>
+		<h2>Die Systeme</h2>
+		<p>In Drifting Souls 2 gibt es keine verschiedenen Spielserver – alle Spieler spielen gemeinsam in einem Universum. Sie sind hierbei jedoch auf verschiedenen <a href="https://drifting-souls.fandom.com/de/wiki/Sternensystem">Sternensysteme</a> verteilt, welche allesamt miteinander verbunden sind und besiedelt werden können; die meisten eignen sich jedoch nicht als Startsystem, weswegen Du Deinen Startpunkt aus der linken Liste wählen musst. Wenn Du dort eines der Systeme auswählst, erhältst Du einige Informationen, die Deine Wahl vereinfachen sollten.</p>
+		<p>Du wirst in den Systemen verschiedenste Nebel, Asteroiden, Planeten, Raumschiffe, Handelsstationen, friedliche Siedler und gefährliche Piraten vorfinden. Es lohnt sich also, sich ein wenig in der neuen Heimat umzuschauen. Viel Spaß!</p>
 	</div>
 	{/endif}
 		{if show.banner}
@@ -560,6 +567,7 @@
 
 	</div>  <!-- Ende class. re-inhalt (gegenstueck "documents") -->
 	</div>	<!-- Ende class. Rechte Spalte -->
+
 </div> <!-- Ende ID Container -->
 
 <!-- hier wird von wo anders der Schluss eingefügt -->
