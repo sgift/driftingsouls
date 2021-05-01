@@ -27,6 +27,7 @@ import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
 import net.driftingsouls.ds2.server.entities.ResourceLimit;
 import net.driftingsouls.ds2.server.entities.SellLimit;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.entities.statistik.StatVerkaeufe;
@@ -265,6 +266,9 @@ public class TradeController extends Controller
 		ResourceList reslist = kurseCargo.getResourceList();
 		long freeSpace = tradepost.getTypeData().getCargo() - tradepost.getCargo().getMass();
 		long reconsumption = -1 * tradepost.getOwner().getReBalance();
+		if(tradepost.getOwner().hasFlag(UserFlag.NO_DESERTEUR)) {
+			reconsumption = 0;
+		}
 		BigInteger konto = tradepost.getOwner().getKonto();
 		for (ResourceEntry res : reslist)
 		{
