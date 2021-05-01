@@ -272,6 +272,7 @@ public class TradeController extends Controller
 
 			if (tmp != null && tmp > 0)
 			{
+				log.info("Selling -- Resource: "+res.getId().toString()+" -- Amount: "+tmp);
 				if (tmp > shipCargo.getResourceCount(res.getId()))
 				{
 					tmp = shipCargo.getResourceCount(res.getId());
@@ -311,6 +312,7 @@ public class TradeController extends Controller
 				}
 
 				BigDecimal get = BigDecimal.valueOf(tmp).multiply(BigDecimal.valueOf(res.getCount1() / 1000d));
+				log.info("Computed price -- Resource: "+res.getId().toString()+" -- Price: " + get);
 
 				//Aufpassen das ich nicht das Konto leerfresse
 				if (reconsumption > 0)
@@ -337,6 +339,7 @@ public class TradeController extends Controller
 				}
 
 				get = BigDecimal.valueOf(tmp).multiply(BigDecimal.valueOf(res.getCount1() / 1000d));
+				log.info("Computed price (after check for no money) -- Resource: "+res.getId().toString()+" -- Price: " + get);
 
 				message.append("[resource=").append(res.getId()).append("]").append(tmp).append("[/resource] für ").append(Common.ln(get)).append(" RE verkauft\n");
 				pmText.append("[resource=").append(res.getId()).append("]").append(tmp).append("[/resource] für ").append(Common.ln(get)).append(" RE\n");
