@@ -318,6 +318,7 @@ public class TradeController extends Controller
 				if (reconsumption > 0)
 				{
 					BigInteger ticks = konto.subtract(get.toBigInteger()).divide(BigInteger.valueOf(reconsumption));
+					log.info("Ticks until no money left: " + ticks);
 					if (ticks.compareTo(BigInteger.valueOf(MIN_TICKS_TO_SURVIVE)) <= 0)
 					{
 						//Konto reicht mit Verkauf nur noch fuer weniger als 7 Ticks => begrenzen.
