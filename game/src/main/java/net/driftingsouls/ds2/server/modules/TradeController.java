@@ -314,7 +314,7 @@ public class TradeController extends Controller
 				BigDecimal get = BigDecimal.valueOf(tmp).multiply(BigDecimal.valueOf(res.getCount1() / 1000d));
 				log.info("Computed price -- Resource: "+res.getId().toString()+" -- Price: " + get);
 
-				//Aufpassen das ich nicht das Konto leerfresse
+				//Aufpassen das ich nicht das Konto leere
 				if (reconsumption > 0)
 				{
 					BigInteger ticks = konto.subtract(get.toBigInteger()).divide(BigInteger.valueOf(reconsumption));
@@ -326,6 +326,11 @@ public class TradeController extends Controller
 								.subtract(BigInteger.valueOf(MIN_TICKS_TO_SURVIVE * reconsumption))
 								.multiply(BigInteger.valueOf(1000))
 								.divide(BigInteger.valueOf(res.getCount1())).longValue();
+
+						if(maximum < 0) {
+							maximum = 0;
+						}
+						log.info("Maximum after re consumption check: " + maximum);
 
 						message.append("[resource=").append(res.getId()).append("]").append(tmp - maximum).append("[/resource] nicht verkauft - Ihr Handelspartner ist pleite\n");
 						pmText.append("[resource=").append(res.getId()).append("]").append(tmp - maximum).append("[/resource] konnten nicht gekauft werden, da du zu wenig Geld hattest\n");
