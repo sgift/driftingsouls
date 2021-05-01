@@ -322,20 +322,20 @@ public class TradeController extends Controller
 					if (ticks.compareTo(BigInteger.valueOf(MIN_TICKS_TO_SURVIVE)) <= 0)
 					{
 						//Konto reicht mit Verkauf nur noch fuer weniger als 7 Ticks => begrenzen.
-						long maximum = konto
+						BigInteger maximum = konto
 								.subtract(BigInteger.valueOf(MIN_TICKS_TO_SURVIVE * reconsumption))
 								.multiply(BigInteger.valueOf(1000))
-								.divide(BigInteger.valueOf(res.getCount1())).longValue();
+								.divide(BigInteger.valueOf(res.getCount1()));
 
-						if(maximum < 0) {
-							maximum = 0;
+						if(maximum.compareTo(BigInteger.ZERO) <= 0) {
+							maximum = BigInteger.ZERO;
 						}
 						log.info("Maximum after re consumption check: " + maximum);
 
-						message.append("[resource=").append(res.getId()).append("]").append(tmp - maximum).append("[/resource] nicht verkauft - Ihr Handelspartner ist pleite\n");
-						pmText.append("[resource=").append(res.getId()).append("]").append(tmp - maximum).append("[/resource] konnten nicht gekauft werden, da du zu wenig Geld hattest\n");
+						message.append("[resource=").append(res.getId()).append("]").append(tmp - maximum.longValue()).append("[/resource] nicht verkauft - Ihr Handelspartner ist pleite\n");
+						pmText.append("[resource=").append(res.getId()).append("]").append(tmp - maximum.longValue()).append("[/resource] konnten nicht gekauft werden, da du zu wenig Geld hattest\n");
 
-						tmp = maximum;
+						tmp = maximum.longValue();
 					}
 				}
 
