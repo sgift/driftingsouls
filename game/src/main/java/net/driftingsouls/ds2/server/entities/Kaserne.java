@@ -89,6 +89,24 @@ public class Kaserne {
 	}
 
 	/**
+	 * Gibt den Bauschlangeneintrag mit der Id zurueck.
+	 * @param id Die Id des Bauschlangeneintrags
+	 * @return Der Bauschlangeneintrag
+	 */
+	public KaserneEntry getEntryById(int queueid)
+	{
+		List<KaserneEntry> entries = this.getQueueEntries();
+
+		for( KaserneEntry entry : entries ) {
+			if( entry.getId() == queueid )
+			{
+				return entry;
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * Gibt die Basis zurueck, auf der diese Kaserne steht.
 	 * @return Die Basis
 	 */

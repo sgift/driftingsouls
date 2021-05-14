@@ -145,7 +145,6 @@ public class KaserneEntry {
 	 */
 	public void finishBuildProcess(Base base)
 	{
-		org.hibernate.Session db = ContextMap.getContext().getDB();
 
 		UnitCargo unitcargo = base.getUnits();
 
@@ -153,6 +152,13 @@ public class KaserneEntry {
 
 		base.setUnits(unitcargo);
 
-		db.delete(this);
+		this.getKaserne().getQueueEntries().remove(this);
+	}
+
+		/**
+	 * Loescht den Eintrag aus der Bauschlange.
+	 */
+	public void deleteQueueEntry() {
+		this.getKaserne().getQueueEntries().remove(this);
 	}
 }

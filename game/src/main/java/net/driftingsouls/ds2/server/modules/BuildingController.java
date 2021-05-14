@@ -42,6 +42,8 @@ import net.driftingsouls.ds2.server.entities.Academy;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.Forschungszentrum;
 import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
+import net.driftingsouls.ds2.server.entities.Kaserne;
+import net.driftingsouls.ds2.server.entities.KaserneEntry;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
@@ -75,6 +77,7 @@ import net.driftingsouls.ds2.server.services.ShipActionService;
 import net.driftingsouls.ds2.server.services.ShipyardService;
 import net.driftingsouls.ds2.server.services.UserService;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.units.UnitType;
 import net.driftingsouls.ds2.server.werften.BaseWerft;
 import net.driftingsouls.ds2.server.werften.WerftGUI;
 
@@ -145,7 +148,8 @@ public class BuildingController extends Controller
 			"net.driftingsouls.ds2.server.bases.DefaultBuilding", this::defaultOutput,
 			"net.driftingsouls.ds2.server.bases.ForschungszentrumBuilding", this::researchCenterOutput,
 			"net.driftingsouls.ds2.server.bases.Kommandozentrale", this::commandPostOutput,
-			"net.driftingsouls.ds2.server.bases.AcademyBuilding", this::academyOutput
+			"net.driftingsouls.ds2.server.bases.AcademyBuilding", this::academyOutput,
+			"net.driftingsouls.ds2.server.bases.Kaserne", this::kasernenOutput
 		);
 	}
 
@@ -661,6 +665,168 @@ public class BuildingController extends Controller
 
 		response.append("<br /></div>\n");
 		return response.toString();
+	}
+
+	private String kasernenOutput(Building building, Base base, int field, int buildingId) {
+		User user = (User)javaSession.getUser();
+		int cancel = getContext().getRequest().getParameterInt("cancel");
+		int queueid = getContext().getRequest().getParameterInt("queueid");
+		int newunit = getContext().getRequest().getParameterInt("unitid");
+		int newcount = getContext().getRequest().getParameterInt("count");
+
+		Kaserne kaserne = base.getKaserne();
+		if( kaserne == null ) {
+			buildInternal(base);
+			kaserne = base.getKaserne();
+		}
+		TemplateViewResultFactory templateViewResultFactory = getContext().getBean(TemplateViewResultFactory.class, null);
+		TemplateEngine t = templateViewResultFactory.createEmpty();
+		if( !t.setFile( "_BUILDING", "buildings.kaserne.html" ) ) {
+			getContext().addError("Konnte das Template-Engine nicht initialisieren");
+			return "";
+		}
+		if( cancel == 1 && queueid > 0 )
+		{
+			KaserneEntry entry = kaserne.getEntryById(queueid);
+			if(entry == null)
+			{
+				int offid = entry.getTraining();
+				entry.deleteQueueEntry();
+			}
+
+		}
+
+		t.setVar(
+				"base.name",	base.getName(),
+				"base.id",		base.getId(),
+				"base.field",	field );
+
+		//---------------------------------
+		// Eine neue Einheit ausbilden
+		//---------------------------------
+
+		if( newunit != 0 && newcount > 0) {
+			UnitType unittype = em.find(UnitType.class, newunit);
+
+			Cargo cargo = new Cargo(base.getCargo());
+			Cargo buildcosts = unittype.getBuildCosts();
+			BigInteger konto = user.getKonto();
+			StringBuilder msg = new StringBuilder();
+
+			boolean ok = true;
+
+			for(ResourceEntry res : buildcosts.getResourceList())
+			{
+				// Wenn nicht alles im eigenen Cargo da ist
+				if( !cargo.hasResource(res.getId(), res.getCount1()*newcount) )
+				{
+					// Handelt es sich um Geld
+					if(res.getId().equals(Resources.RE))
+					{
+						// Genug Geld auf dem Konto
+						if(konto.intValue() >= res.getCount1()*newcount - cargo.getResourceCount(res.getId()))
+						{
+							// Fresse Cargo leer danach das Konto
+							konto = konto.subtract(BigInteger.valueOf( res.getCount1()*newcount - cargo.getResourceCount(res.getId()) ));
+							cargo.setResource(res.getId(), 0);
+						}
+						else
+						{
+							// Mensch sind wir echt sooo pleite?
+							ok = false;
+							msg.append("Sie haben nicht genug ").append(res.getPlainName()).append("<br />");
+						}
+
+					}
+					else
+					{
+						// Es handelt sich nicht um Geld und wir haben nicht genug.
+						ok = false;
+						msg.append("Sie haben nicht genug ").append(res.getName()).append("<br />");
+					}
+				}
+				else
+				{
+					// Wir haben genug
+					cargo.substractResource(res.getId(), res.getCount1()*newcount);
+				}
+			}
+
+			if( ok ) {
+				msg.append(newcount).append(" ").append(unittype.getName()).append(" werden ausgebildet.");
+
+				base.setCargo(cargo);
+				user.setKonto(konto);
+
+				kaserne.addEntry(unittype, newcount);
+			}
+			if(msg.length() > 0)
+			{
+				t.setVar( "kaserne.message", msg.toString());
+			}
+		}
+
+		//-----------------------------------------------
+		// werden gerade Einheiten ausgebildet? Bauschlange anzeigen!
+		//-----------------------------------------------
+
+		if( kaserne.isBuilding() ) {
+			t.setVar(
+					"kaserne.show.training", 1);
+
+			t.setBlock("_BUILDING", "kaserne.training.listitem", "kaserne.training.list");
+
+			for( KaserneEntry entry : kaserne.getQueueEntries() )
+			{
+				UnitType unittype = entry.getUnit();
+
+				if(unittype == null)
+				{
+					t.setVar("kaserne.message", "Unbekannte Einheit gefunden");
+				}
+
+				t.setVar(	"trainunit.id", 		unittype.getId(),
+							"trainunit.name", 		unittype.getName(),
+							"trainunit.menge", 		entry.getCount(),
+							"trainunit.remaining",	entry.getRemaining(),
+							"trainunit.queue.id",	entry.getId() );
+
+				t.parse("kaserne.training.list", "kaserne.training.listitem", true);
+			}
+		}
+
+		//--------------------------------------------------
+		// Ausbildbare Einheiten anzeigen
+		//--------------------------------------------------
+
+		t.setBlock("_BUILDING", "kaserne.unitlist.listitem", "kaserne.unitlist.list");
+
+		List<UnitType> unitlist = em.createQuery("from Unittype ", UnitType.class).getResultList();
+
+		for(UnitType unittype : unitlist)
+		{
+			if(user.hasResearched(unittype.getRes()))
+			{
+				StringBuilder buildingcosts = new StringBuilder();
+				Cargo buildcosts = unittype.getBuildCosts();
+
+				for(ResourceEntry res : buildcosts.getResourceList())
+				{
+					buildingcosts.append(" <span class='nobr'><img style=\"vertical-align:middle\" src=\"").append(res.getImage()).append("\" alt=\"").append(res.getPlainName()).append("\" title=\"").append(res.getPlainName()).append("\" />").append(res.getCargo1()).append("</span>");
+				}
+
+				t.setVar( 	"unit.id", 			unittype.getId(),
+						"unit.name", 		unittype.getName(),
+						"unit.picture", 	unittype.getPicture(),
+						"unit.dauer", 		unittype.getDauer(),
+						"unit.buildcosts", 	buildingcosts.toString().trim());
+
+				t.parse("kaserne.unitlist.list", "kaserne.unitlist.listitem", true);
+			}
+		}
+
+		t.parse( "OUT", "_BUILDING" );
+		return t.getVar("OUT");
 	}
 
 	private String researchCenterOutput(Building building, Base base, int field, int buildingId) {
