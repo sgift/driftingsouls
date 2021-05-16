@@ -122,4 +122,5 @@ public class KasernenBuilding extends DefaultBuilding {
 	@Override
 	public String output(Context context, Base base, int field, int building) {
 		throw new IllegalArgumentException("should not be called!");
+	}
 }

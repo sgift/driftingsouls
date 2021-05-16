@@ -31,6 +31,7 @@ import net.driftingsouls.ds2.server.entities.Academy;
 import net.driftingsouls.ds2.server.entities.Factory;
 import net.driftingsouls.ds2.server.entities.Feeding;
 import net.driftingsouls.ds2.server.entities.Forschungszentrum;
+import net.driftingsouls.ds2.server.entities.Kaserne;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -150,6 +151,9 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	@OneToOne(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH, CascadeType.REMOVE})
 	@JoinColumn(foreignKey = @ForeignKey(name="bases_fk_fz"))
 	private Forschungszentrum forschungszentrum;
+	@OneToOne(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH, CascadeType.REMOVE})
+	@JoinColumn(foreignKey = @ForeignKey(name="bases_fk_kaserne"))
+	private Kaserne kaserne;
 	@OneToOne(fetch=FetchType.LAZY, cascade={CascadeType.REFRESH, CascadeType.DETACH, CascadeType.REMOVE})
 	@JoinColumn(foreignKey = @ForeignKey(name="bases_fk_werften"))
 	private BaseWerft werft;
@@ -1136,6 +1140,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		return forschungszentrum;
 	}
 
+
 	/**
 	 * Setzt das Forschungszentrum auf der Basis.
 	 * @param forschungszentrum Das Forschungszentrum
@@ -1143,6 +1148,24 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	public void setForschungszentrum(Forschungszentrum forschungszentrum)
 	{
 		this.forschungszentrum = forschungszentrum;
+	}
+
+		/**
+	 * Gibt eine evt vorhandene Kaserne zurueck.
+	 * @return das Kaserne oder <code>null</code>
+	 */
+	public Kaserne getKaserne()
+	{
+		return kaserne;
+	}
+
+	/**
+	 * Setzt das Kaserne auf der Basis.
+	 * @param kaserne Das Kaserne
+	 */
+	public void setKaserne(Kaserne kaserne)
+	{
+		this.kaserne = kaserne;
 	}
 
 	/**
