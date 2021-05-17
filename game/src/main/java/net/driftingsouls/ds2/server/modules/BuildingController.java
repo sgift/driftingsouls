@@ -27,6 +27,8 @@ import net.driftingsouls.ds2.server.bases.AutoGTUAction;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.BaseStatus;
 import net.driftingsouls.ds2.server.bases.Building;
+import net.driftingsouls.ds2.server.bases.Fabrik;
+import net.driftingsouls.ds2.server.bases.Fabrik.ContextVars;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.cargo.ItemID;
@@ -38,7 +40,10 @@ import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.Offiziere;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.config.items.Munitionsbauplan;
 import net.driftingsouls.ds2.server.entities.Academy;
+import net.driftingsouls.ds2.server.entities.Factory;
+import net.driftingsouls.ds2.server.entities.FactoryEntry;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.Forschungszentrum;
 import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
@@ -83,14 +88,24 @@ import net.driftingsouls.ds2.server.werften.WerftGUI;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.io.IOException;
 import java.io.Writer;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Die Gebaeudeansicht.
@@ -149,7 +164,8 @@ public class BuildingController extends Controller
 			"net.driftingsouls.ds2.server.bases.ForschungszentrumBuilding", this::researchCenterOutput,
 			"net.driftingsouls.ds2.server.bases.Kommandozentrale", this::commandPostOutput,
 			"net.driftingsouls.ds2.server.bases.AcademyBuilding", this::academyOutput,
-			"net.driftingsouls.ds2.server.bases.Kaserne", this::kasernenOutput
+			"net.driftingsouls.ds2.server.bases.Kaserne", this::kasernenOutput,
+			"net.driftingsouls.ds2.server.bases.Fabrik", this::factoryOutput
 		);
 	}
 
@@ -667,6 +683,495 @@ public class BuildingController extends Controller
 		return response.toString();
 	}
 
+	private String loadAmmoTasks(Base base, ContextVars vars, int buildingid)
+	{
+		Context context = ContextMap.getContext();
+
+		StringBuilder wfreason = new StringBuilder(100);
+
+		if (!vars.getStats().containsKey(buildingid))
+		{
+			vars.getStats().put(buildingid, new Cargo());
+		}
+		if (!vars.getProductionstats().containsKey(buildingid))
+		{
+			vars.getProductionstats().put(buildingid, new Cargo());
+		}
+		if (!vars.getConsumptionstats().containsKey(buildingid))
+		{
+			vars.getConsumptionstats().put(buildingid, new Cargo());
+		}
+
+		boolean ok = true;
+		Set<FactoryEntry> thisitemslist = vars.getOwneritemsbase();
+
+		Cargo cargo = base.getCargo();
+
+		List<ItemCargoEntry<Munitionsbauplan>> list = cargo.getItemsOfType(Munitionsbauplan.class);
+		for (ItemCargoEntry<Munitionsbauplan> item : list)
+		{
+			FactoryEntry entry = item.getItem().getFabrikeintrag();
+
+			thisitemslist.add(entry);
+		}
+
+		Factory wf = loadFactoryEntity(base, buildingid);
+
+		if (wf == null)
+		{
+			vars.getUsedcapacity().put(buildingid, BigDecimal.valueOf(-1));
+
+			Fabrik.getLog().warn("Basis " + base.getId() + " verfügt über keinen Fabrik-Eintrag, obwohl es eine Fabrik hat.");
+			return "Basis " + base.getId() + " verfügt über keinen Fabrik-Eintrag, obwohl es eine Fabrik hat.";
+		}
+
+		Factory.Task[] plist = wf.getProduces();
+		for (int i = 0; i < plist.length; i++)
+		{
+			int id = plist[i].getId();
+			int count = plist[i].getCount();
+
+			FactoryEntry entry = em.find(FactoryEntry.class, id);
+			if (entry == null)
+			{
+				plist = ArrayUtils.remove(plist, i);
+				i--;
+				continue;
+			}
+
+			// Items ohne Plaene melden
+			if ((count > 0) && !thisitemslist.contains(entry))
+			{
+				ok = false;
+				wfreason.append("Es existieren nicht die nötigen Baupläne für ").append(entry.getName()).append("\n");
+				break;
+			}
+		}
+
+		if (ok)
+		{
+			for (Factory.Task aPlist : plist)
+			{
+				int id = aPlist.getId();
+				int count = aPlist.getCount();
+
+				FactoryEntry entry = em.find(FactoryEntry.class, id);
+
+				if (!vars.getUsedcapacity().containsKey(buildingid))
+				{
+					vars.getUsedcapacity().put(buildingid, new BigDecimal(0, MathContext.DECIMAL32));
+				}
+				vars.getUsedcapacity().put(buildingid, vars.getUsedcapacity().get(buildingid).add(entry.getDauer().multiply((new BigDecimal(count)))));
+				if (count > 0)
+				{
+					Cargo tmpcargo = new Cargo(entry.getBuildCosts());
+					if (count > 1)
+					{
+						tmpcargo.multiply(count, Cargo.Round.NONE);
+					}
+					vars.getConsumptionstats().get(buildingid).addCargo(tmpcargo);
+					vars.getStats().get(buildingid).substractCargo(tmpcargo);
+					Cargo addCargo = entry.getProduce();
+					addCargo.multiply(count, Cargo.Round.FLOOR);
+					vars.getStats().get(buildingid).addCargo(addCargo);
+					vars.getProductionstats().get(buildingid).addCargo(addCargo);
+				}
+			}
+		}
+		else
+		{
+			String basename = base.getName();
+			wfreason.insert(0, "[b]" + basename + "[/b] - Die Arbeiten in der Fabrik sind zeitweise eingestellt.\nGrund:\n");
+		}
+
+		if (!vars.getUsedcapacity().containsKey(buildingid) || (vars.getUsedcapacity().get(buildingid).doubleValue() <= 0))
+		{
+			vars.getUsedcapacity().put(buildingid, new BigDecimal(-1));
+		}
+
+		return wfreason.toString();
+	}
+
+	private Factory loadFactoryEntity(Base base, int buildingid)
+	{
+		for (Factory factory : base.getFactories())
+		{
+			if (factory.getBuildingID() == buildingid)
+			{
+				return factory;
+			}
+		}
+		return null;
+	}
+
+	private String loaddata(Base base, int buildingid)
+	{
+		Context context = ContextMap.getContext();
+
+		User user = base.getOwner();
+
+		ContextVars vars = context.get(ContextVars.class);
+
+		if (!vars.isInit())
+		{
+			loadOwnerBase(user, vars);
+            vars.setInit(true);
+		}
+
+        if(!vars.getBuildingidlist().contains(buildingid))
+        {
+            vars.getBuildingidlist().add(buildingid);
+            return loadAmmoTasks(base, vars, buildingid);
+        }
+        return "";
+	}
+
+	private void loadOwnerBase(User user, ContextVars vars)
+	{
+
+		Context context = ContextMap.getContext();
+
+		List<FactoryEntry> entrylist = Common.cast(em.createQuery("from FactoryEntry").list());
+		for (FactoryEntry entry : entrylist)
+		{
+			if (!user.hasResearched(entry.getBenoetigteForschungen()))
+			{
+				continue;
+			}
+			vars.getOwneritemsbase().add(entry);
+		}
+
+		if (user.getAlly() != null)
+		{
+			Cargo itemlist = new Cargo(Cargo.Type.ITEMSTRING, user.getAlly().getItems());
+
+			List<ItemCargoEntry<Munitionsbauplan>> list = itemlist.getItemsOfType(Munitionsbauplan.class);
+			for (ItemCargoEntry<Munitionsbauplan> item : list)
+			{
+				FactoryEntry entry = item.getItem().getFabrikeintrag();
+
+				vars.getOwneritemsbase().add(entry);
+			}
+		}
+	}
+
+	private int findExistingItemTask(FactoryEntry entry, List<Factory.Task> producelist) {
+		int entryId = -1;
+		for (int i = 0; i < producelist.size(); i++)
+		{
+			int aId = producelist.get(i).getId();
+			if(aId == entry.getId()) {
+				entryId = i;
+				break;
+			}
+		}
+		return entryId;
+	}
+
+	private int computeNewBuildCount(int count, List<Factory.Task> producelist, int entryId) {
+		int currentCount;
+		if(entryId == -1) {
+			currentCount = 0;
+		} else {
+			currentCount = producelist.get(entryId).getCount();
+		}
+		return currentCount + count;
+	}
+
+	private void fabrikEintragButton(StringBuilder echo, FactoryEntry entry, Base base, int field, int count, String label)
+	{
+		echo.append("<td class=\"noBorderX\" style=\"vertical-align:top; width:30px\">\n");
+		echo.append("<form action=\"./ds\" method=\"post\">\n");
+		echo.append("<div>\n");
+		echo.append("<input name=\"count\" type=\"hidden\" size=\"2\" value=\"").append(count).append("\" />\n");
+		echo.append("<input name=\"produce\" type=\"hidden\" value=\"").append(entry.getId()).append("\" />\n");
+		echo.append("<input name=\"col\" type=\"hidden\" value=\"").append(base.getId()).append("\" />\n");
+		echo.append("<input name=\"field\" type=\"hidden\" value=\"").append(field).append("\" />\n");
+		echo.append("<input name=\"module\" type=\"hidden\" value=\"building\" />\n");
+		echo.append("<input type=\"submit\" value=\"").append(label).append("\" />\n");
+		echo.append("</div>\n");
+		echo.append("</form></td>\n");
+	}
+
+	private String factoryOutput(Building building, Base base, int field, int buildingId){
+		User user = (User)javaSession.getUser();
+
+		int produce = getContext().getRequest().getParameterInt("produce");
+		int count   = getContext().getRequest().getParameterInt("count");
+
+		StringBuilder echo = new StringBuilder(2000);
+
+		Factory wf = loadFactoryEntity(base, buildingId);
+
+		if (wf == null)
+		{
+			echo.append("<div style=\"color:red\">FEHLER: Diese Fabrik besitzt keinen Eintrag.<br /></div>\n");
+			return echo.toString();
+		}
+		/*
+			Liste der baubaren Items zusammenstellen
+		*/
+
+		Set<FactoryEntry> itemslist = new HashSet<>();
+
+		Iterator<?> itemsIter = em.createQuery("from FactoryEntry").list().iterator();
+		for (; itemsIter.hasNext(); )
+		{
+			FactoryEntry entry = (FactoryEntry) itemsIter.next();
+
+			if (!user.hasResearched(entry.getBenoetigteForschungen()) || !entry.hasBuildingId(buildingId))
+			{
+				continue;
+			}
+
+			itemslist.add(entry);
+		}
+
+		Cargo cargo = base.getCargo();
+
+		// Lokale Ammobauplaene ermitteln
+		List<ItemCargoEntry<Munitionsbauplan>> itemlist = cargo.getItemsOfType(Munitionsbauplan.class);
+		for (ItemCargoEntry<Munitionsbauplan> item : itemlist)
+		{
+			Munitionsbauplan itemobject = item.getItem();
+			final FactoryEntry entry = itemobject.getFabrikeintrag();
+			itemslist.add(entry);
+		}
+
+		// Moegliche Allybauplaene ermitteln
+		if (user.getAlly() != null)
+		{
+			Cargo allyitems = new Cargo(Cargo.Type.ITEMSTRING, user.getAlly().getItems());
+
+			itemlist = allyitems.getItemsOfType(Munitionsbauplan.class);
+			for (ItemCargoEntry<Munitionsbauplan> item : itemlist)
+			{
+				Munitionsbauplan itemobject = item.getItem();
+				final FactoryEntry entry = itemobject.getFabrikeintrag();
+				itemslist.add(entry);
+			}
+		}
+
+		/*
+			Neue Bauauftraege behandeln
+		*/
+
+		echo.append("<div class=\"smallfont\">");
+		if ((produce != 0) && (count != 0))
+		{
+			final FactoryEntry entry = em.find(FactoryEntry.class, produce);
+
+			if (entry == null)
+			{
+				echo.append("<span style=\"color:red\">Fehler: Der angegebene Bauplan existiert nicht.</span>\n");
+				return echo.toString();
+			}
+
+			if (itemslist.contains(entry))
+			{
+				BigDecimal usedcapacity = new BigDecimal(0, MathContext.DECIMAL32);
+
+				Factory.Task[] plist = wf.getProduces();
+				for (Factory.Task aPlist : plist)
+				{
+					final int aId = aPlist.getId();
+					final int aCount = aPlist.getCount();
+
+					final FactoryEntry aEntry = em.find(FactoryEntry.class, aId);
+					usedcapacity = usedcapacity.add(aEntry.getDauer().multiply(new BigDecimal(aCount)));
+				}
+				if (usedcapacity.add(new BigDecimal(count).multiply(entry.getDauer())).doubleValue() > wf.getCount())
+				{
+					BigDecimal availableCap = usedcapacity.multiply(new BigDecimal(-1)).add(new BigDecimal(wf.getCount()));
+					count = availableCap.divide(entry.getDauer(), RoundingMode.DOWN).intValue();
+				}
+
+				if (count != 0)
+				{
+					List<Factory.Task> producelist = new ArrayList<>(Arrays.asList(wf.getProduces()));
+
+					// clean up entries which shouldn't exist anyway
+					producelist.removeIf(task -> {
+						int aId = task.getId();
+						int ammoCount = task.getCount();
+
+						FactoryEntry aEntry = em.find(FactoryEntry.class, aId);
+
+						return aEntry == null || ammoCount <= 0;
+					});
+
+					int entryId = findExistingItemTask(entry, producelist);
+					int newCount = computeNewBuildCount(count, producelist, entryId);
+
+					if (entryId != -1) {
+						producelist.remove(entryId);
+					}
+					if(newCount > 0) {
+						producelist.add(new Factory.Task(entry.getId(), newCount));
+					}
+
+					wf.setProduces(producelist.toArray(new Factory.Task[0]));
+
+					echo.append(Math.abs(count)).append(" ").append(entry.getName()).append(" wurden ").append((count >= 0 ? "hinzugefügt" : "abgezogen")).append("<br /><br />");
+				}
+			}
+			else
+			{
+				echo.append("Sie haben nicht alle benötigten Forschungen für ").append(entry.getName()).append("<br /><br />");
+			}
+		}
+
+		/*
+			Aktuelle Bauauftraege ermitteln
+		*/
+		// Warum BigDecimal? Weil 0.05 eben nicht 0.05000000074505806 ist (Ungenauigkeit von double/float)....
+		BigDecimal usedcapacity = new BigDecimal(0, MathContext.DECIMAL32);
+		Map<FactoryEntry, Integer> productlist = new HashMap<>();
+		Cargo consumes = new Cargo();
+		Cargo produceCargo = new Cargo();
+		consumes.setOption(Cargo.Option.SHOWMASS, false);
+		produceCargo.setOption(Cargo.Option.SHOWMASS, false);
+
+		if (wf.getProduces().length > 0)
+		{
+			Factory.Task[] plist = wf.getProduces();
+			for (Factory.Task aPlist : plist)
+			{
+				final int id = aPlist.getId();
+				final int ammoCount = aPlist.getCount();
+
+				FactoryEntry entry = em.find(FactoryEntry.class, id);
+
+				if (!itemslist.contains(entry))
+				{
+					echo.append("WARNUNG: Ungültiges Item >").append(entry.getId()).append("< (count: ").append(ammoCount).append(") in der Produktionsliste entdeckt.<br />\n");
+					continue;
+				}
+
+				usedcapacity = usedcapacity.add(entry.getDauer().multiply(new BigDecimal(ammoCount)));
+
+				if (ammoCount > 0)
+				{
+					Cargo tmpcargo = new Cargo(entry.getBuildCosts());
+					Cargo prodcargo = new Cargo(entry.getProduce());
+					if (ammoCount > 1)
+					{
+						tmpcargo.multiply(ammoCount, Cargo.Round.NONE);
+						prodcargo.multiply(ammoCount, Cargo.Round.NONE);
+					}
+					consumes.addCargo(tmpcargo);
+					produceCargo.addCargo(prodcargo);
+				}
+				productlist.put(entry, ammoCount);
+			}
+		}
+		echo.append("</div>\n");
+
+		/*
+			Ausgabe: Verbrauch, Auftraege, Liste baubarer Munitionstypen
+		*/
+		echo.append("<div class='gfxbox' style='width:1100px'>");
+
+		echo.append("<img style=\"vertical-align:middle\" src=\"./data/interface/time.gif\" alt=\"Zeiteinheiten\" />").append(Common.ln(usedcapacity)).append("/").append(wf.getCount()).append(" ausgelastet<br />\n");
+		echo.append("Verbrauch: ");
+		ResourceList reslist = consumes.getResourceList();
+		for (ResourceEntry res : reslist)
+		{
+			echo.append("<img style=\"vertical-align:middle\" src=\"").append(res.getImage()).append("\" alt=\"\" />").append(res.getCargo1()).append("&nbsp;");
+		}
+		echo.append("<br/>");
+		echo.append("Produktion: ");
+		reslist = produceCargo.getResourceList();
+		for (ResourceEntry res : reslist)
+		{
+			echo.append("<img style=\"vertical-align:middle\" src=\"").append(res.getImage()).append("\" alt=\"\" />").append(res.getCargo1()).append("&nbsp;");
+		}
+		echo.append("<br /><br />\n");
+		echo.append("<table class=\"noBorderX\" cellpadding=\"2\">");
+		echo.append("<tr>\n");
+		echo.append("<td class=\"noBorderX\" style=\"width:20px\">&nbsp;</td>\n");
+		echo.append("<td class=\"noBorderX\" style=\"font-weight:bold\">Kosten</td>\n");
+		echo.append("<td class=\"noBorderX\" style=\"font-weight:bold\">Produktion</td>\n");
+		echo.append("<td class=\"noBorderX\" style=\"width:130px\">&nbsp;</td>\n");
+		echo.append("<td class=\"noBorderX\" style=\"width:30px\">&nbsp;</td>\n");
+		echo.append("<td class=\"noBorderX\" style=\"width:30px\">&nbsp;</td>\n");
+		echo.append("<td class=\"noBorderX\" style=\"width:30px\">&nbsp;</td>\n");
+		echo.append("<td class=\"noBorderX\" style=\"width:30px\">&nbsp;</td>\n");
+		echo.append("<td class=\"noBorderX\" style=\"width:30px\">&nbsp;</td>\n");
+		echo.append("</tr>");
+
+		List<FactoryEntry> entries = Common.cast(em.createQuery("from FactoryEntry").list());
+
+		for (FactoryEntry entry : entries)
+		{
+			if (!itemslist.contains(entry))
+			{
+				continue;
+			}
+
+
+			echo.append("<tr>\n");
+			if (productlist.containsKey(entry))
+			{
+				echo.append("<td class=\"noBorderX\" valign=\"top\">").append(productlist.get(entry)).append("x</td>\n");
+			}
+			else
+			{
+				echo.append("<td class=\"noBorderX\" valign=\"top\">-</td>\n");
+			}
+
+			echo.append("<td class=\"noBorderX\" valign=\"top\">\n");
+			echo.append("<img style=\"vertical-align:middle\" src=\"./data/interface/time.gif\" alt=\"Dauer\" />").append(Common.ln(entry.getDauer())).append(" \n");
+
+			Cargo buildcosts = new Cargo(entry.getBuildCosts());
+			buildcosts.setOption(Cargo.Option.SHOWMASS, false);
+			reslist = buildcosts.getResourceList();
+			for (ResourceEntry res : reslist)
+			{
+				echo.append("<span class=\"nobr\"><img style=\"vertical-align:middle\" src=\"").append(res.getImage()).append("\" alt=\"\" />").append(res.getCargo1()).append("</span>\n");
+			}
+
+			echo.append("</td>\n");
+			echo.append("<td class=\"noBorderX\" valign=\"top\">\n");
+
+			Cargo produceCosts = new Cargo(entry.getProduce());
+			produceCosts.setOption(Cargo.Option.SHOWMASS, false);
+			reslist = produceCosts.getResourceList();
+			for (ResourceEntry res : reslist)
+			{
+				echo.append("<span class=\"nobr\"><img style=\"vertical-align:middle\" src=\"").append(res.getImage()).append("\" alt=\"\" />").append(res.getCargo1()).append("</span>\n");
+			}
+
+			echo.append("</td>\n");
+			echo.append("<td class=\"noBorderX\" style=\"vertical-align:top; width:130px\">\n");
+			echo.append("<form action=\"./ds\" method=\"post\">\n");
+			echo.append("<div>\n");
+			echo.append("<input name=\"count\" type=\"text\" size=\"2\" value=\"0\" />\n");
+			echo.append("<input name=\"produce\" type=\"hidden\" value=\"").append(entry.getId()).append("\" />\n");
+			echo.append("<input name=\"col\" type=\"hidden\" value=\"").append(base.getId()).append("\" />\n");
+			echo.append("<input name=\"field\" type=\"hidden\" value=\"").append(field).append("\" />\n");
+			echo.append("<input name=\"module\" type=\"hidden\" value=\"building\" />\n");
+			echo.append("<input type=\"submit\" value=\"herstellen\" />\n");
+			echo.append("</div>\n");
+			echo.append("</form></td>\n");
+
+			fabrikEintragButton(echo, entry, base, field, productlist.containsKey(entry) ? -productlist.get(entry) : 0, "reset");
+			fabrikEintragButton(echo, entry, base, field, 1, "+ 1");
+			fabrikEintragButton(echo, entry, base, field, 5, "+ 5");
+			fabrikEintragButton(echo, entry, base, field, -1, "- 1");
+			fabrikEintragButton(echo, entry, base, field, -5, "- 5");
+
+			echo.append("</tr>\n");
+		}
+
+		echo.append("</table><br />\n");
+		echo.append("</div>");
+		echo.append("<div><br /></div>\n");
+
+		return echo.toString();
+	}
+
+
 	private String kasernenOutput(Building building, Base base, int field, int buildingId) {
 		User user = (User)javaSession.getUser();
 		int cancel = getContext().getRequest().getParameterInt("cancel");
@@ -690,7 +1195,6 @@ public class BuildingController extends Controller
 			KaserneEntry entry = kaserne.getEntryById(queueid);
 			if(entry == null)
 			{
-				int offid = entry.getTraining();
 				entry.deleteQueueEntry();
 			}
 

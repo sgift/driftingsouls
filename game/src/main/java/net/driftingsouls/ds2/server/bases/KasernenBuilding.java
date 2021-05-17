@@ -75,7 +75,7 @@ public class KasernenBuilding extends DefaultBuilding {
 	public String echoShortcut(Context context, Base base, int field, int building) {
 
 		StringBuilder result = new StringBuilder(200);
-		Kaserne kaserne = em.find(Kaserne.class,building);
+		Kaserne kaserne = base.getKaserne();
 		if( kaserne != null ) {
 			if( !kaserne.isBuilding() ) {
 				result.append("<a class=\"back tooltip\" href=\"./ds?module=building");
@@ -111,7 +111,7 @@ public class KasernenBuilding extends DefaultBuilding {
 	@Override
 	public boolean isActive(Base base, int status, int field) {
 		int buildingId = base.getBebauung()[field];
-		Kaserne kaserne = em.find(Kaserne.class, buildingId);
+		Kaserne kaserne =base.getKaserne();
 		if( kaserne != null ) {
 			return kaserne.isBuilding();
 		}

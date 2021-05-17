@@ -5,6 +5,7 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.entities.Academy;
 import net.driftingsouls.ds2.server.entities.Factory;
+import net.driftingsouls.ds2.server.entities.FactoryEntry;
 import net.driftingsouls.ds2.server.entities.Forschungszentrum;
 import net.driftingsouls.ds2.server.entities.Kaserne;
 import net.driftingsouls.ds2.server.entities.Offizier;
@@ -12,10 +13,16 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.werften.BaseWerft;
+
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -105,6 +112,17 @@ public class BuildingService {
         base.setWerft(werft);
     }
 
+    private void forschungszentrumBuild(Base base, Building building) {
+        if( base.getForschungszentrum() == null )
+        {
+            return;
+        }
+
+        Forschungszentrum zentrum = new Forschungszentrum(base);
+        em.persist(zentrum);
+        base.setForschungszentrum(zentrum);
+    }
+
     private Factory loadFactoryEntity(Base base, int buildingid)
     {
         return base.getFactories().stream()
@@ -133,6 +151,69 @@ public class BuildingService {
         {
             offizier.setTraining(false);
         }
+    }
+
+    private void factoryCleanup(Building building, Base base, int field){
+		Factory wf = loadFactoryEntity(base, building.getId());
+		if (wf == null)
+		{
+			return;
+		}
+
+		if (wf.getCount() > 1)
+		{
+			BigDecimal usedcapacity = new BigDecimal(0, MathContext.DECIMAL32);
+
+			Factory.Task[] plist = wf.getProduces();
+			for (Factory.Task aPlist : plist)
+			{
+				int id = aPlist.getId();
+				int count = aPlist.getCount();
+
+				FactoryEntry entry = em.find(FactoryEntry.class, id);
+
+				usedcapacity = usedcapacity.add(entry.getDauer().multiply(new BigDecimal(count)));
+			}
+
+			if (usedcapacity.compareTo(new BigDecimal(wf.getCount() - 1)) > 0)
+			{
+				BigDecimal targetCapacity = new BigDecimal(wf.getCount() - 1);
+
+				for (int i = 0; i < plist.length; i++)
+				{
+					int id = plist[i].getId();
+					int count = plist[i].getCount();
+
+					FactoryEntry entry = em.find(FactoryEntry.class, id);
+
+					BigDecimal capUsed = new BigDecimal(count).multiply(entry.getDauer());
+
+					if (usedcapacity.subtract(capUsed).compareTo(targetCapacity) < 0)
+					{
+						BigDecimal capLeft = capUsed.subtract(usedcapacity.subtract(targetCapacity));
+						plist[i] = new Factory.Task(id, capLeft.divide(entry.getDauer(), RoundingMode.DOWN).intValue());
+						break;
+					}
+					plist = ArrayUtils.remove(plist, i);
+					i--;
+
+					usedcapacity = usedcapacity.subtract(capUsed);
+
+					if (usedcapacity.compareTo(targetCapacity) <= 0)
+					{
+						break;
+					}
+				}
+				wf.setProduces(plist);
+			}
+
+			wf.setCount(wf.getCount() - 1);
+		}
+		else
+		{
+			em.remove(wf);
+			base.getFactories().remove(wf);
+		}
     }
 
     private void shipyardCleanup(Building building, Base base, int field) {

@@ -1077,7 +1077,7 @@ public class BattleService {
             }
         }
 
-        context.getDB().flush();
+        em.flush();
 
         // Ist die Schlacht zuende (weil keine Schiffe mehr vorhanden sind?)
         int owncount = battle.getOwnShips().size();
@@ -1255,10 +1255,9 @@ public class BattleService {
      */
     private void destroyShip(Battle battle, BattleShip ship) {
         Context context = ContextMap.getContext();
-        org.hibernate.Session db = context.getDB();
 
         if (!ship.getShip().isDestroyed()) {
-            db.delete(ship);
+            em.delete(ship);
             dismantlingService.destroy(ship.getShip());
         }
 

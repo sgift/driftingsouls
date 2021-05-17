@@ -50,6 +50,10 @@ public class Fabrik extends DefaultBuilding
 {
 	private static final Log log = LogFactory.getLog(Fabrik.class);
 
+	public static Log getLog() {
+		return log;
+	}
+
 	/**
 	 * Daten von einer oder mehreren Fabriken.
 	 */
@@ -88,6 +92,49 @@ public class Fabrik extends DefaultBuilding
             conmodified.clear();
             init = false;
         }
+				public List<Integer> getBuildingidlist() {
+					return buildingidlist;
+				}
+
+				public Set<FactoryEntry> getOwneritemsbase() {
+					return owneritemsbase;
+				}
+
+				public Map<Integer, Cargo> getStats() {
+					return stats;
+				}
+
+				public Map<Integer, Cargo> getProductionstats() {
+					return productionstats;
+				}
+
+				public Map<Integer, Cargo> getConsumptionstats() {
+					return consumptionstats;
+				}
+
+				public Map<Integer, BigDecimal> getUsedcapacity() {
+					return usedcapacity;
+				}
+
+				public List<Integer> getModified() {
+					return modified;
+				}
+
+				public List<Integer> getProdmodified() {
+					return prodmodified;
+				}
+
+				public List<Integer> getConmodified() {
+					return conmodified;
+				}
+
+				public boolean isInit() {
+					return init;
+				}
+
+				public void setInit(boolean init) {
+					this.init = init;
+				}
 	}
 
 	/**
@@ -123,7 +170,6 @@ public class Fabrik extends DefaultBuilding
 	private String loadAmmoTasks(Base base, ContextVars vars, int buildingid)
 	{
 		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
 
 		StringBuilder wfreason = new StringBuilder(100);
 
@@ -169,7 +215,7 @@ public class Fabrik extends DefaultBuilding
 			int id = plist[i].getId();
 			int count = plist[i].getCount();
 
-			FactoryEntry entry = (FactoryEntry) db.get(FactoryEntry.class, id);
+			FactoryEntry entry = em.find(FactoryEntry.class, id);
 			if (entry == null)
 			{
 				plist = ArrayUtils.remove(plist, i);
@@ -193,7 +239,7 @@ public class Fabrik extends DefaultBuilding
 				int id = aPlist.getId();
 				int count = aPlist.getCount();
 
-				FactoryEntry entry = (FactoryEntry) db.get(FactoryEntry.class, id);
+				FactoryEntry entry = em.find(FactoryEntry.class, id);
 
 				if (!vars.usedcapacity.containsKey(buildingid))
 				{
@@ -246,9 +292,8 @@ public class Fabrik extends DefaultBuilding
 	{
 
 		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
 
-		List<FactoryEntry> entrylist = Common.cast(db.createQuery("from FactoryEntry").list());
+		List<FactoryEntry> entrylist = Common.cast(em.createQuery("from FactoryEntry").list());
 		for (FactoryEntry entry : entrylist)
 		{
 			if (!user.hasResearched(entry.getBenoetigteForschungen()))
@@ -293,74 +338,12 @@ public class Fabrik extends DefaultBuilding
 	@Override
 	public void cleanup(Context context, Base base, int buildingid)
 	{
-		org.hibernate.Session db = context.getDB();
-
-		Factory wf = loadFactoryEntity(base, buildingid);
-		if (wf == null)
-		{
-			return;
-		}
-
-		if (wf.getCount() > 1)
-		{
-			BigDecimal usedcapacity = new BigDecimal(0, MathContext.DECIMAL32);
-
-			Factory.Task[] plist = wf.getProduces();
-			for (Factory.Task aPlist : plist)
-			{
-				int id = aPlist.getId();
-				int count = aPlist.getCount();
-
-				FactoryEntry entry = (FactoryEntry) db.get(FactoryEntry.class, id);
-
-				usedcapacity = usedcapacity.add(entry.getDauer().multiply(new BigDecimal(count)));
-			}
-
-			if (usedcapacity.compareTo(new BigDecimal(wf.getCount() - 1)) > 0)
-			{
-				BigDecimal targetCapacity = new BigDecimal(wf.getCount() - 1);
-
-				for (int i = 0; i < plist.length; i++)
-				{
-					int id = plist[i].getId();
-					int count = plist[i].getCount();
-
-					FactoryEntry entry = (FactoryEntry) db.get(FactoryEntry.class, id);
-
-					BigDecimal capUsed = new BigDecimal(count).multiply(entry.getDauer());
-
-					if (usedcapacity.subtract(capUsed).compareTo(targetCapacity) < 0)
-					{
-						BigDecimal capLeft = capUsed.subtract(usedcapacity.subtract(targetCapacity));
-						plist[i] = new Factory.Task(id, capLeft.divide(entry.getDauer(), RoundingMode.DOWN).intValue());
-						break;
-					}
-					plist = ArrayUtils.remove(plist, i);
-					i--;
-
-					usedcapacity = usedcapacity.subtract(capUsed);
-
-					if (usedcapacity.compareTo(targetCapacity) <= 0)
-					{
-						break;
-					}
-				}
-				wf.setProduces(plist);
-			}
-
-			wf.setCount(wf.getCount() - 1);
-		}
-		else
-		{
-			db.delete(wf);
-			base.getFactories().remove(wf);
-		}
+		throw new IllegalArgumentException("Shouldn't be called!");
 	}
 
 	@Override
 	public String echoShortcut(Context context, Base base, int field, int building)
 	{
-		org.hibernate.Session db = context.getDB();
 
 		StringBuilder result = new StringBuilder(200);
 
@@ -374,14 +357,13 @@ public class Fabrik extends DefaultBuilding
 
 			StringBuilder popup = new StringBuilder(200);
 
-			Building buildingobj = (Building) db.get(Building.class, building);
-			popup.append(buildingobj.getName()).append("<br /><br />");
+			popup.append(this.getName()).append("<br /><br />");
 
 			for (Factory.Task aProdlist : prodlist)
 			{
 				int id = aProdlist.getId();
 				int count = aProdlist.getCount();
-				FactoryEntry entry = (FactoryEntry) db.get(FactoryEntry.class, id);
+				FactoryEntry entry = em.find(FactoryEntry.class, id);
 
 				if ((count > 0) && vars.owneritemsbase.contains(entry))
 				{
@@ -472,282 +454,7 @@ public class Fabrik extends DefaultBuilding
 	@Override
 	public String output(Context context, Base base, int field, int building)
 	{
-		org.hibernate.Session db = context.getDB();
-		User user = (User) context.getActiveUser();
-
-		int produce = context.getRequest().getParameterInt("produce");
-		int count = context.getRequest().getParameterInt("count");
-
-		StringBuilder echo = new StringBuilder(2000);
-
-		Factory wf = loadFactoryEntity(base, building);
-
-		if (wf == null)
-		{
-			echo.append("<div style=\"color:red\">FEHLER: Diese Fabrik besitzt keinen Eintrag.<br /></div>\n");
-			return echo.toString();
-		}
-		/*
-			Liste der baubaren Items zusammenstellen
-		*/
-
-		Set<FactoryEntry> itemslist = new HashSet<>();
-
-		Iterator<?> itemsIter = db.createQuery("from FactoryEntry").list().iterator();
-		for (; itemsIter.hasNext(); )
-		{
-			FactoryEntry entry = (FactoryEntry) itemsIter.next();
-
-			if (!user.hasResearched(entry.getBenoetigteForschungen()) || !entry.hasBuildingId(building))
-			{
-				continue;
-			}
-
-			itemslist.add(entry);
-		}
-
-		Cargo cargo = base.getCargo();
-
-		// Lokale Ammobauplaene ermitteln
-		List<ItemCargoEntry<Munitionsbauplan>> itemlist = cargo.getItemsOfType(Munitionsbauplan.class);
-		for (ItemCargoEntry<Munitionsbauplan> item : itemlist)
-		{
-			Munitionsbauplan itemobject = item.getItem();
-			final FactoryEntry entry = itemobject.getFabrikeintrag();
-			itemslist.add(entry);
-		}
-
-		// Moegliche Allybauplaene ermitteln
-		if (user.getAlly() != null)
-		{
-			Cargo allyitems = new Cargo(Cargo.Type.ITEMSTRING, user.getAlly().getItems());
-
-			itemlist = allyitems.getItemsOfType(Munitionsbauplan.class);
-			for (ItemCargoEntry<Munitionsbauplan> item : itemlist)
-			{
-				Munitionsbauplan itemobject = item.getItem();
-				final FactoryEntry entry = itemobject.getFabrikeintrag();
-				itemslist.add(entry);
-			}
-		}
-
-		/*
-			Neue Bauauftraege behandeln
-		*/
-
-		echo.append("<div class=\"smallfont\">");
-		if ((produce != 0) && (count != 0))
-		{
-			final FactoryEntry entry = (FactoryEntry) db.get(FactoryEntry.class, produce);
-
-			if (entry == null)
-			{
-				echo.append("<span style=\"color:red\">Fehler: Der angegebene Bauplan existiert nicht.</span>\n");
-				return echo.toString();
-			}
-
-			if (itemslist.contains(entry))
-			{
-				BigDecimal usedcapacity = new BigDecimal(0, MathContext.DECIMAL32);
-
-				Factory.Task[] plist = wf.getProduces();
-				for (Factory.Task aPlist : plist)
-				{
-					final int aId = aPlist.getId();
-					final int aCount = aPlist.getCount();
-
-					final FactoryEntry aEntry = (FactoryEntry) db.get(FactoryEntry.class, aId);
-					usedcapacity = usedcapacity.add(aEntry.getDauer().multiply(new BigDecimal(aCount)));
-				}
-				if (usedcapacity.add(new BigDecimal(count).multiply(entry.getDauer())).doubleValue() > wf.getCount())
-				{
-					BigDecimal availableCap = usedcapacity.multiply(new BigDecimal(-1)).add(new BigDecimal(wf.getCount()));
-					count = availableCap.divide(entry.getDauer(), RoundingMode.DOWN).intValue();
-				}
-
-				if (count != 0)
-				{
-					List<Factory.Task> producelist = new ArrayList<>(Arrays.asList(wf.getProduces()));
-
-					// clean up entries which shouldn't exist anyway
-					producelist.removeIf(task -> {
-						int aId = task.getId();
-						int ammoCount = task.getCount();
-
-						FactoryEntry aEntry = (FactoryEntry) db.get(FactoryEntry.class, aId);
-
-						return aEntry == null || ammoCount <= 0;
-					});
-
-					int entryId = findExistingItemTask(entry, producelist);
-					int newCount = computeNewBuildCount(count, producelist, entryId);
-
-					if (entryId != -1) {
-						producelist.remove(entryId);
-					}
-					if(newCount > 0) {
-						producelist.add(new Factory.Task(entry.getId(), newCount));
-					}
-
-					wf.setProduces(producelist.toArray(new Factory.Task[0]));
-
-					echo.append(Math.abs(count)).append(" ").append(entry.getName()).append(" wurden ").append((count >= 0 ? "hinzugefügt" : "abgezogen")).append("<br /><br />");
-				}
-			}
-			else
-			{
-				echo.append("Sie haben nicht alle benötigten Forschungen für ").append(entry.getName()).append("<br /><br />");
-			}
-		}
-
-		/*
-			Aktuelle Bauauftraege ermitteln
-		*/
-		// Warum BigDecimal? Weil 0.05 eben nicht 0.05000000074505806 ist (Ungenauigkeit von double/float)....
-		BigDecimal usedcapacity = new BigDecimal(0, MathContext.DECIMAL32);
-		Map<FactoryEntry, Integer> productlist = new HashMap<>();
-		Cargo consumes = new Cargo();
-		Cargo produceCargo = new Cargo();
-		consumes.setOption(Cargo.Option.SHOWMASS, false);
-		produceCargo.setOption(Cargo.Option.SHOWMASS, false);
-
-		if (wf.getProduces().length > 0)
-		{
-			Factory.Task[] plist = wf.getProduces();
-			for (Factory.Task aPlist : plist)
-			{
-				final int id = aPlist.getId();
-				final int ammoCount = aPlist.getCount();
-
-				FactoryEntry entry = (FactoryEntry) db.get(FactoryEntry.class, id);
-
-				if (!itemslist.contains(entry))
-				{
-					echo.append("WARNUNG: Ungültiges Item >").append(entry.getId()).append("< (count: ").append(ammoCount).append(") in der Produktionsliste entdeckt.<br />\n");
-					continue;
-				}
-
-				usedcapacity = usedcapacity.add(entry.getDauer().multiply(new BigDecimal(ammoCount)));
-
-				if (ammoCount > 0)
-				{
-					Cargo tmpcargo = new Cargo(entry.getBuildCosts());
-					Cargo prodcargo = new Cargo(entry.getProduce());
-					if (ammoCount > 1)
-					{
-						tmpcargo.multiply(ammoCount, Cargo.Round.NONE);
-						prodcargo.multiply(ammoCount, Cargo.Round.NONE);
-					}
-					consumes.addCargo(tmpcargo);
-					produceCargo.addCargo(prodcargo);
-				}
-				productlist.put(entry, ammoCount);
-			}
-		}
-		echo.append("</div>\n");
-
-		/*
-			Ausgabe: Verbrauch, Auftraege, Liste baubarer Munitionstypen
-		*/
-		echo.append("<div class='gfxbox' style='width:1100px'>");
-
-		echo.append("<img style=\"vertical-align:middle\" src=\"./data/interface/time.gif\" alt=\"Zeiteinheiten\" />").append(Common.ln(usedcapacity)).append("/").append(wf.getCount()).append(" ausgelastet<br />\n");
-		echo.append("Verbrauch: ");
-		ResourceList reslist = consumes.getResourceList();
-		for (ResourceEntry res : reslist)
-		{
-			echo.append("<img style=\"vertical-align:middle\" src=\"").append(res.getImage()).append("\" alt=\"\" />").append(res.getCargo1()).append("&nbsp;");
-		}
-		echo.append("<br/>");
-		echo.append("Produktion: ");
-		reslist = produceCargo.getResourceList();
-		for (ResourceEntry res : reslist)
-		{
-			echo.append("<img style=\"vertical-align:middle\" src=\"").append(res.getImage()).append("\" alt=\"\" />").append(res.getCargo1()).append("&nbsp;");
-		}
-		echo.append("<br /><br />\n");
-		echo.append("<table class=\"noBorderX\" cellpadding=\"2\">");
-		echo.append("<tr>\n");
-		echo.append("<td class=\"noBorderX\" style=\"width:20px\">&nbsp;</td>\n");
-		echo.append("<td class=\"noBorderX\" style=\"font-weight:bold\">Kosten</td>\n");
-		echo.append("<td class=\"noBorderX\" style=\"font-weight:bold\">Produktion</td>\n");
-		echo.append("<td class=\"noBorderX\" style=\"width:130px\">&nbsp;</td>\n");
-		echo.append("<td class=\"noBorderX\" style=\"width:30px\">&nbsp;</td>\n");
-		echo.append("<td class=\"noBorderX\" style=\"width:30px\">&nbsp;</td>\n");
-		echo.append("<td class=\"noBorderX\" style=\"width:30px\">&nbsp;</td>\n");
-		echo.append("<td class=\"noBorderX\" style=\"width:30px\">&nbsp;</td>\n");
-		echo.append("<td class=\"noBorderX\" style=\"width:30px\">&nbsp;</td>\n");
-		echo.append("</tr>");
-
-		List<FactoryEntry> entries = Common.cast(db.createQuery("from FactoryEntry").list());
-
-		for (FactoryEntry entry : entries)
-		{
-			if (!itemslist.contains(entry))
-			{
-				continue;
-			}
-
-
-			echo.append("<tr>\n");
-			if (productlist.containsKey(entry))
-			{
-				echo.append("<td class=\"noBorderX\" valign=\"top\">").append(productlist.get(entry)).append("x</td>\n");
-			}
-			else
-			{
-				echo.append("<td class=\"noBorderX\" valign=\"top\">-</td>\n");
-			}
-
-			echo.append("<td class=\"noBorderX\" valign=\"top\">\n");
-			echo.append("<img style=\"vertical-align:middle\" src=\"./data/interface/time.gif\" alt=\"Dauer\" />").append(Common.ln(entry.getDauer())).append(" \n");
-
-			Cargo buildcosts = new Cargo(entry.getBuildCosts());
-			buildcosts.setOption(Cargo.Option.SHOWMASS, false);
-			reslist = buildcosts.getResourceList();
-			for (ResourceEntry res : reslist)
-			{
-				echo.append("<span class=\"nobr\"><img style=\"vertical-align:middle\" src=\"").append(res.getImage()).append("\" alt=\"\" />").append(res.getCargo1()).append("</span>\n");
-			}
-
-			echo.append("</td>\n");
-			echo.append("<td class=\"noBorderX\" valign=\"top\">\n");
-
-			Cargo produceCosts = new Cargo(entry.getProduce());
-			produceCosts.setOption(Cargo.Option.SHOWMASS, false);
-			reslist = produceCosts.getResourceList();
-			for (ResourceEntry res : reslist)
-			{
-				echo.append("<span class=\"nobr\"><img style=\"vertical-align:middle\" src=\"").append(res.getImage()).append("\" alt=\"\" />").append(res.getCargo1()).append("</span>\n");
-			}
-
-			echo.append("</td>\n");
-			echo.append("<td class=\"noBorderX\" style=\"vertical-align:top; width:130px\">\n");
-			echo.append("<form action=\"./ds\" method=\"post\">\n");
-			echo.append("<div>\n");
-			echo.append("<input name=\"count\" type=\"text\" size=\"2\" value=\"0\" />\n");
-			echo.append("<input name=\"produce\" type=\"hidden\" value=\"").append(entry.getId()).append("\" />\n");
-			echo.append("<input name=\"col\" type=\"hidden\" value=\"").append(base.getId()).append("\" />\n");
-			echo.append("<input name=\"field\" type=\"hidden\" value=\"").append(field).append("\" />\n");
-			echo.append("<input name=\"module\" type=\"hidden\" value=\"building\" />\n");
-			echo.append("<input type=\"submit\" value=\"herstellen\" />\n");
-			echo.append("</div>\n");
-			echo.append("</form></td>\n");
-
-			fabrikEintragButton(echo, entry, base, field, productlist.containsKey(entry) ? -productlist.get(entry) : 0, "reset");
-			fabrikEintragButton(echo, entry, base, field, 1, "+ 1");
-			fabrikEintragButton(echo, entry, base, field, 5, "+ 5");
-			fabrikEintragButton(echo, entry, base, field, -1, "- 1");
-			fabrikEintragButton(echo, entry, base, field, -5, "- 5");
-
-			echo.append("</tr>\n");
-		}
-
-		echo.append("</table><br />\n");
-		echo.append("</div>");
-		echo.append("<div><br /></div>\n");
-
-		return echo.toString();
+		throw new IllegalArgumentException("should not be called!");
 	}
 
 	private int findExistingItemTask(FactoryEntry entry, List<Factory.Task> producelist) {

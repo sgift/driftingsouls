@@ -33,7 +33,6 @@ public class AcademyService {
         academyQueueEntry.MESSAGE.get().setLength(0);
 
         Context context = ContextMap.getContext();
-        Session db = context.getDB();
 
         if( !academyQueueEntry.isScheduled() ) {
             return false;
@@ -56,7 +55,7 @@ public class AcademyService {
                 entry.setPosition(entry.getPosition() - 1);
             }
         }
-        db.flush();
+        em.flush();
         academyQueueEntry.getAcademy().rescheduleQueue();
 
         if(training == 0)

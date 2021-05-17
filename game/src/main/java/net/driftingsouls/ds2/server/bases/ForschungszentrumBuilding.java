@@ -44,41 +44,17 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 
 	@Override
 	public void build(Base base, Building building) {
-		super.build(base, building);
-
-		buildInternal(base);
+		throw new IllegalArgumentException("should not be called!");
 	}
 
 	private void buildInternal(Base base)
 	{
-		Context context = ContextMap.getContext();
-		if( context == null ) {
-			throw new RuntimeException("No Context available");
-		}
-		if( base.getForschungszentrum() == null )
-		{
-			org.hibernate.Session db = context.getDB();
-
-			Forschungszentrum fz = new Forschungszentrum(base);
-			db.persist(fz);
-
-			base.setForschungszentrum(fz);
-		}
+		throw new IllegalArgumentException("should not be called!");
 	}
 
 	@Override
 	public void cleanup(Context context, Base base, int building) {
-		super.cleanup(context, base, building);
-
-		Forschungszentrum fz = base.getForschungszentrum();
-		if( fz == null )
-		{
-			return;
-		}
-		base.setForschungszentrum(null);
-
-		org.hibernate.Session db = context.getDB();
-		db.delete(fz);
+		throw new IllegalArgumentException("should not be called!");
 	}
 
 	@Override

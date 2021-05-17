@@ -37,10 +37,10 @@ import javax.persistence.PersistenceContext;
 /**
  * TASK_ALLY_FOUND
  * 		Einer Allianz gruenden.
- * 
+ *
  * 	- data1 -> der Name der Allianz
  *  - data2 -> die Anzahl der noch fehlenden Unterstuetzungen (vgl. TASK_ALLY_FOUND_CONFIRM)
- *  - data3 -> die Spieler, die in die neu gegruendete Allianz sollen, jeweils durch ein , getrennt (Pos: 0 -> Praesident/Gruender)  
+ *  - data3 -> die Spieler, die in die neu gegruendete Allianz sollen, jeweils durch ein , getrennt (Pos: 0 -> Praesident/Gruender)
  *  @author Christopher Jung
  */
 @Service
@@ -62,9 +62,8 @@ public class HandleAllyFound implements TaskHandler {
 	}
 
 	@Override
-	public void handleEvent(Task task, String event) {	
+	public void handleEvent(Task task, String event) {
 		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
 
 		switch (event)
 		{
@@ -85,7 +84,7 @@ public class HandleAllyFound implements TaskHandler {
 
 					var plainname = Common._titleNoFormat(bbCodeParser, allyname);
 					Ally ally = new Ally(allyname, plainname, allymember[0], ticks);
-					int allyid = (Integer) db.save(ally);
+					int allyid = (Integer) em.save(ally);
 
 					Common.copyFile(Configuration.getAbsolutePath() + "data/logos/ally/0.gif", Configuration.getAbsolutePath() + "data/logos/ally" + allyid + ".gif");
 
