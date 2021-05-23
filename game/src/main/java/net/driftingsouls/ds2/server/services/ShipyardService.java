@@ -324,17 +324,18 @@ public class ShipyardService {
                 aWerften.setLinkedWerft(null);
             }
 
-            // Die Werftauftraege der groessten Werft zuordnen oder
-            // (falls notwendig) loeschen
+            // Die Werftauftraege der groessten Werft zuordnen
             final WerftObject largest = werften.get(0).getWerftSlots() > werften.get(1).getWerftSlots() ? werften.get(0) : werften.get(1);
 
             List<WerftQueueEntry> entries = komplex.getBuildQueue();
             for (WerftQueueEntry entry : entries)
             {
-                if (entry.getSlots() <= largest.getWerftSlots())
-                {
-                    copyToWerft(entry, largest);
-                }
+                // if (entry.getSlots() <= largest.getWerftSlots())
+                // {
+                //     copyToWerft(entry, largest);
+                // }
+                // Auch zu grosse Eintraege duerfen mitgenommen werden - diese pausieren bis die Werft wieder Teil eines ausreichend großen Komplexes sind
+                copyToWerft(entry, largest);
                 komplex.removeQueueEntry(entry);
             }
 
