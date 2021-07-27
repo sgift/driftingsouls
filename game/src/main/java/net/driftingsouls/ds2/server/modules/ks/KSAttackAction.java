@@ -1008,7 +1008,7 @@ public class KSAttackAction extends BasicKSAction {
 		{
             if(ownfighter != 0)
             {
-                ownfighterdefcount = (int) Math.floor(((ownfighter - (owndocksuse - owndocks)) / (double) ownfighter) * ownfighterdefcount);
+                ownfighterdefcount = Math.max(0, (int) Math.floor(((ownfighter - (owndocksuse - owndocks)) / (double) ownfighter) * ownfighterdefcount));
             }
 		}
 
