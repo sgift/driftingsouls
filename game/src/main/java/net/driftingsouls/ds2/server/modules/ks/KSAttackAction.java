@@ -388,7 +388,7 @@ public class KSAttackAction extends BasicKSAction {
           //Den Offizier des Traegerschiffs identifizieren
           Offizier offizier;
           offizier = s.getShip().getBaseShip().getOffizier();
-          
+
           //testen, ob es ueberhaupt einen Offizier zu retten gibt
           if (offizier != null)
           {
@@ -410,11 +410,11 @@ public class KSAttackAction extends BasicKSAction {
           s.addFlag(BattleShipFlag.FLUCHT);
           s.addFlag(BattleShipFlag.SECONDROW);
 
-               
+
           //und jetzt raeumen wir noch auf
           s.getShip().recalculateShipStatus();
           s.getShip().getBaseShip().recalculateShipStatus();
-		
+
           }
         else
         {
@@ -995,7 +995,8 @@ public class KSAttackAction extends BasicKSAction {
 		{
             if(ownfighter != 0)
             {
-                ownfighterdefcount = (int) Math.floor(((ownfighter - (owndocksuse - owndocks)) / (double) ownfighter) * ownfighterdefcount);
+							  //hier muss noch eine untere Grenze gezogen werden, da sonst eigene Jaeger dem Gegner einen Vorteil bringen koennen
+                ownfighterdefcount = Math.max(0, (int) Math.floor(((ownfighter - (owndocksuse - owndocks)) / (double) ownfighter) * ownfighterdefcount));
             }
 		}
 
