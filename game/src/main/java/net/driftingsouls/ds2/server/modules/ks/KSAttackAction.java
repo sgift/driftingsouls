@@ -1021,7 +1021,7 @@ public class KSAttackAction extends BasicKSAction {
 		int typeCrew = type.getMinCrew();
 		if (typeCrew <= 0)
 		{
-			typeCrew = 1;
+			return 1.0;
 		}
 		double crewFactor = ((double) battleShip.getCrew()) / ((double) typeCrew);
 
