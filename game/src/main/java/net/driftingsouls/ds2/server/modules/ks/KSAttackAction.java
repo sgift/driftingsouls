@@ -961,8 +961,8 @@ public class KSAttackAction extends BasicKSAction {
 			//check if ship has torpdef
 			if (shipHasTorpDef(type))
 			{
-				// check if ship is a GKS
-				if (!shipIsGKS(type))
+				// check if ship is a fighter / bomber. Sentry Guns don't give Malus
+				if (shipNeedsDock(type))
 				{
 					// check if ship is landed
 					if (shipIsNotLanded(selectedShip))
