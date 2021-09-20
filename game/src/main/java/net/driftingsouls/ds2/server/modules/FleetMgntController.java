@@ -858,6 +858,7 @@ public class FleetMgntController extends Controller
 				.list();
 
 		shipyards.removeIf(ship -> ship.getTypeData().getWerft() == 0);
+		shipyards.removeIf(ship -> ship.getTypeData().getOneWayWerft() == null);
 
 		if (shipyards.isEmpty())
 		{
@@ -1452,7 +1453,7 @@ public class FleetMgntController extends Controller
 			Location loc = ship.getLocation();
 
 			//Find shipyards
-			if (shiptype.getWerft() > 0)
+			if (shiptype.getWerft() > 0 && shiptype.getOneWayWerft() == null)
 			{
 				WerftObject werft = (WerftObject) db.createQuery("from ShipWerft where ship=:ship")
 						.setInteger("ship", ship.getId())
