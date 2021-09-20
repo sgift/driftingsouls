@@ -961,8 +961,8 @@ public class KSAttackAction extends BasicKSAction {
 			//check if ship has torpdef
 			if (shipHasTorpDef(type))
 			{
-				// check if ship is a GKS
-				if (!shipIsGKS(type))
+				// check if ship is a fighter / bomber. Sentry Guns don't give Malus
+				if (shipNeedsDock(type))
 				{
 					// check if ship is landed
 					if (shipIsNotLanded(selectedShip))
@@ -1021,7 +1021,7 @@ public class KSAttackAction extends BasicKSAction {
 		int typeCrew = type.getMinCrew();
 		if (typeCrew <= 0)
 		{
-			typeCrew = 1;
+			return 1.0;
 		}
 		double crewFactor = ((double) battleShip.getCrew()) / ((double) typeCrew);
 
