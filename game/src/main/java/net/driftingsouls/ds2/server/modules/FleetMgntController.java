@@ -858,7 +858,7 @@ public class FleetMgntController extends Controller
 				.list();
 
 		shipyards.removeIf(ship -> ship.getTypeData().getWerft() == 0);
-		shipyards.removeIf(ship -> ship.getTypeData().getOneWayWerft() == null);
+		shipyards.removeIf(ship -> ship.getTypeData().getOneWayWerft() != null);
 
 		if (shipyards.isEmpty())
 		{
