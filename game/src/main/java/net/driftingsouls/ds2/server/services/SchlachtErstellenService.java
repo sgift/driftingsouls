@@ -188,6 +188,20 @@ public class SchlachtErstellenService
 		battle.getOwnShips().addAll(ownShips);
 		battle.getEnemyShips().addAll(enemyShips);
 
+		for(BattleShip bship : battle.getOwnShips() ){
+			//Schiff gelandet aber BaseShip nicht in der selben Schlacht, also gehoert das gelandete Schiff hier nicht rein
+			if ( bship.getShip().getBaseShip() != null
+					&& bship.getShip().getBaseShip().getBattle()!=bship.getBattle())
+				battle.removeShip(bship, false);
+		}
+
+		for(BattleShip bship : battle.getEnemyShips() ){
+			//Schiff gelandet aber BaseShip nicht in der selben Schlacht, also gehoert das gelandete Schiff hier nicht rein
+			if ( bship.getShip().getBaseShip() != null
+					&& bship.getShip().getBaseShip().getBattle()!=bship.getBattle())
+				battle.removeShip(bship, false);
+		}
+
 		addToSecondRow(battle, secondRowShips, firstRowExists, firstRowEnemyExists);
 
 		if( enemyBattleShip == null && (battle.getEnemyShips().size() == 0) ) {
