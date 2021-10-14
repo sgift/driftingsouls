@@ -1235,24 +1235,24 @@ public boolean hasFrontRow( int side) {
                     ship.removeFlag(BattleShipFlag.SECONDROW);
                 }
                 else if ((i == 1) && this.hasFlag(BattleFlag.DROP_SECONDROW_1)) {
-					ship.removeFlag(BattleShipFlag.SECONDROW);
+									ship.removeFlag(BattleShipFlag.SECONDROW);
                 }
 
                 if (ship.hasFlag(BattleShipFlag.JOIN)) {
                     ShipTypeData ashipType = ship.getTypeData();
-					if (ashipType.hasFlag(ShipTypeFlag.SECONDROW)) {
-						shipsSecond.add(ship);
-					}
+										if (ashipType.hasFlag(ShipTypeFlag.SECONDROW) && ship.getShip().getEinstellungen().gotoSecondrow()) {
+											shipsSecond.add(ship);
+										}
                     ship.removeFlag(BattleShipFlag.JOIN);
                 }
 
                 Map<String, Integer> heat = ship.getWeaponHeat();
 
-				heat.replaceAll((n, v) -> 0);
+								heat.replaceAll((n, v) -> 0);
 
                 if (ship.hasFlag(BattleShipFlag.FLUCHTNEXT)) {
-					ship.removeFlag(BattleShipFlag.FLUCHTNEXT);
-					ship.addFlag(BattleShipFlag.FLUCHT);
+									ship.removeFlag(BattleShipFlag.FLUCHTNEXT);
+									ship.addFlag(BattleShipFlag.FLUCHT);
                 }
 
                 ship.getShip().setWeaponHeat(heat);
