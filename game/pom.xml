@@ -218,6 +218,38 @@
                     </arguments>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>com.samaxes.maven</groupId>
+                <artifactId>minify-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <id>default-minify</id>
+                        <configuration>
+                            <charset>UTF-8</charset>
+
+                            <cssSourceDir>data/css/common/</cssSourceDir>
+                            <!-- Stylesheet configuration -->
+                            <cssSourceIncludes>
+                                <cssSourceInclude>**</cssSourceInclude>
+                            </cssSourceIncludes>
+                            <cssFinalFile>../format.css</cssFinalFile>
+
+                            <!--
+                            <jsSourceDir>data/javascript/</jsSourceDir>
+                            <jsSourceIncludes>
+                                <jsSourceInclude>**/*.js</jsSourceInclude>
+                            </jsSourceIncludes>
+                            -->
+
+                            <nosuffix>true</nosuffix>
+                        </configuration>
+                        <goals>
+                            <goal>minify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>
