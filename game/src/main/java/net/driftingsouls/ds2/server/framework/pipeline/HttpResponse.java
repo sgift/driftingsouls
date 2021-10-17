@@ -55,7 +55,7 @@ public class HttpResponse implements Response {
 	 * @param response Die HttpServletResponse, welche die gesendeten Daten erhalten soll
 	 */
 	public HttpResponse(HttpServletRequest request, HttpServletResponse response) {
-		response.setContentType("text/html");
+		response.setContentType(request.getContentType());
 		response.setCharacterEncoding("UTF-8");
 		this.charSet = "UTF-8";
 		this.cacheOutput = request.isRequestedSessionIdFromURL();

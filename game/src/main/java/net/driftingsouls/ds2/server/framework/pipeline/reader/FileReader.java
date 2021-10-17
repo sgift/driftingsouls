@@ -25,15 +25,13 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.activation.MimetypesFileTypeMap;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Liesst Dateien von der Festplatte und schreibt sie in die Antwort.
@@ -43,33 +41,6 @@ import java.util.Map;
 public class FileReader implements Reader {
 	private static final Log log = LogFactory.getLog(FileReader.class);
 
-	private final Map<String,String> extensionMap;
-
-	/**
-	 * Konstruktor.
-	 */
-	public FileReader()
-	{
-		this.extensionMap = new HashMap<>();
-		this.extensionMap.put("html", "text/html");
-		this.extensionMap.put("txt", "text/plain");
-		this.extensionMap.put("xml", "text/xml");
-		this.extensionMap.put("js", "text/javascript");
-		this.extensionMap.put("css", "text/css");
-		this.extensionMap.put("png", "image/png");
-		this.extensionMap.put("gif", "image/gif");
-		this.extensionMap.put("jpg", "image/jpg");
-		this.extensionMap.put("svg", "image/svg+xml");
-		this.extensionMap.put("mp3", "audio/mpeg");
-	}
-
-	private String guessMimeType( String extension ) {
-		if( extension == null ) {
-			return null;
-		}
-		return this.extensionMap.get(extension);
-	}
-	
 	@Override
 	public void read(Context context, ReaderPipeline pipeline) throws Exception {
 		String filename = pipeline.getFile();
@@ -96,18 +67,14 @@ public class FileReader implements Reader {
 			
 			return;
 		}
-		
-		int index = path.lastIndexOf('.');
-		if( (index != -1) && (index < path.length()) ) {
-			String type = guessMimeType(path.substring(path.lastIndexOf('.')+1));
-			if( type != null ) {
+
+		if(context.getRequest() instanceof HttpServletRequest) {
+			var req = (HttpServletRequest)context.getRequest();
+			var servletContext = req.getServletContext();
+
+			var type = servletContext.getMimeType(filename);
+			if(type != null) {
 				context.getResponse().setContentType(type);
-			}
-			else {
-				String mimetype = new MimetypesFileTypeMap().getContentType(file);
-				if( mimetype != null ) {
-					context.getResponse().setContentType(mimetype);
-				}
 			}
 		}
 		
