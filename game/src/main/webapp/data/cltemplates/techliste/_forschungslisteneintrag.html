@@ -1,5 +1,5 @@
 <tr>
-	<td><a class="forschinfo" style="font-weight:bold" href="./ds?module=forschinfo&res={{forschung.id}}"><span ng-bind-html-unsafe="forschung.name"></span></a></td>
+	<td><a class="forschinfo" style="font-weight:bold" href="./forschinfo?res={{forschung.id}}"><span ng-bind-html-unsafe="forschung.name"></span></a></td>
 	<td>
 		<span class="kosteneintrag">
 			<img src="data/interface/time.gif" alt="Dauer" />{{forschung.dauer}}
@@ -14,7 +14,7 @@
 	<td>
 		<ul class="benoetigteForschungen">
 			<li ng-repeat="benoetigteForschung in forschung.benoetigteForschungen">
-				<a href="./ds?module=forschinfo&res={{benoetigteForschung.id}}" ng-bind-html-unsafe="benoetigteForschung.name"></a>
+				<a href="./forschinfo?res={{benoetigteForschung.id}}" ng-bind-html-unsafe="benoetigteForschung.name"></a>
 			</li>
 		</ul>
 	</td>

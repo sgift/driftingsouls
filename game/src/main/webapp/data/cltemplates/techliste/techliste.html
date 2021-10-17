@@ -15,13 +15,13 @@
 	</div>
 
 	<div class="gfxbox forschungsboxen" ui-if="viewModel.erforschbar.length > 0">
-		<span style="color:yellow">erforschbar</span><br />
+		<span style="color:yellow">Erforschbar</span><br />
 		<div class="forschungsbox" ng-repeat="forschung in viewModel.erforschbar">
-			<a class="forschinfo" href="./ds?module=forschinfo&res={{forschung.id}}">
+			<a class="forschinfo" href="./forschinfo?res={{forschung.id}}">
 				<img style="border:0" ng-src="{{forschung.image}}" alt="" />
 			</a>
 			<br />
-			<a style="font-weight:bold" href="./ds?module=forschinfo&res={{forschung.id}}" ng-bind-html-unsafe="forschung.name"></a>
+			<a style="font-weight:bold" href="./forschinfo?res={{forschung.id}}" ng-bind-html-unsafe="forschung.name"></a>
 			<br />
 			<div>
 			<span class="kosteneintrag" ui-if="forschung.verbleibendeDauer!=null">
@@ -44,13 +44,13 @@
 	</div>
 
 	<div class="gfxbox forschungsliste" ui-if="viewModel.nichtErforscht.length > 0">
-		<span style="color:red">noch nicht erforschbar</span><br />
+		<span style="color:red">Noch nicht erforschbar</span><br />
 		<table>
 			<thead>
 				<tr>
 					<td>Name</td>
 					<td>Kosten</td>
-					<td>Voraussetzungen</td>
+					<td>Vorraussetzungen</td>
 				</tr>
 			</thead>
 			<tbody ng-repeat="forschung in viewModel.nichtErforscht" ng-include="'data/cltemplates/techliste/_forschungslisteneintrag.html'"></tbody>
@@ -58,13 +58,13 @@
 	</div>
 
 	<div class="gfxbox forschungsliste" ui-if="viewModel.unsichtbar.length > 0">
-		<span style="color:grey">unsichtbar</span><br />
+		<span style="color:grey">Unsichtbar</span><br />
 		<table>
 			<thead>
 			<tr>
 				<td>Name</td>
 				<td>Kosten</td>
-				<td>Voraussetzungen</td>
+				<td>Vorraussetzungen</td>
 			</tr>
 			</thead>
 			<tbody ng-repeat="forschung in viewModel.unsichtbar" ng-include="'data/cltemplates/techliste/_forschungslisteneintrag.html'"></tbody>
@@ -72,13 +72,13 @@
 	</div>
 
 	<div class="gfxbox forschungsliste" ui-if="viewModel.erforscht.length > 0">
-		<span style="color:green">bereits erforscht</span><br />
+		<span style="color:green">Bereits erforscht</span><br />
 		<table>
 			<thead>
 			<tr>
 				<td>Name</td>
 				<td>Kosten</td>
-				<td>Voraussetzungen</td>
+				<td>Vorraussetzungen</td>
 			</tr>
 			</thead>
 			<tbody ng-repeat="forschung in viewModel.erforscht" ng-include="'data/cltemplates/techliste/_forschungslisteneintrag.html'"></tbody>
