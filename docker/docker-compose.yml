@@ -1,0 +1,7 @@
+services:
+  db:
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "ds"
+    ports:
+      - "3306:3306"
