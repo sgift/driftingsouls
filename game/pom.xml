@@ -235,13 +235,13 @@
                             </cssSourceIncludes>
                             <cssFinalFile>../format.css</cssFinalFile>
 
-                            <!--
                             <jsSourceDir>data/javascript/</jsSourceDir>
                             <jsSourceIncludes>
                                 <jsSourceInclude>**/*.js</jsSourceInclude>
                             </jsSourceIncludes>
-                            -->
+                            <jsFinalFile>ds.js</jsFinalFile>
 
+                            <jsEngine>CLOSURE</jsEngine>
                             <nosuffix>true</nosuffix>
                         </configuration>
                         <goals>
