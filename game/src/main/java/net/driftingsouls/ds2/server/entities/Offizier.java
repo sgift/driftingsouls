@@ -126,6 +126,9 @@ public class Offizier extends DSObject {
 		}
 	}
 
+	@PersistenceContext
+	private static EntityManager em;
+
 	@Id @GeneratedValue
 	private int id;
 	@Column(nullable = false)
@@ -628,9 +631,8 @@ public class Offizier extends DSObject {
 	 * @return Der Offizier oder <code>null</code>
 	 */
 	public static Offizier getOffizierByID(int id) {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		return (Offizier)db.get(Offizier.class, id);
+		return em.find(Offizier.class, id);
 	}
 
 	/**
@@ -641,17 +643,16 @@ public class Offizier extends DSObject {
 	 */
 	@SuppressWarnings("unchecked")
 	public static List<Offizier> getOffiziereByDest(Object ziel) throws IllegalArgumentException {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
 
 		if( ziel instanceof Ship )
 		{
-			return db.createQuery("from Offizier where stationiertAufSchiff= :dest")
+			return em.createQuery("from Offizier where stationiertAufSchiff= :dest")
 					.setEntity("dest", ziel)
 					.list();
 		}
 		else if( ziel instanceof Base )
 		{
-			return db.createQuery("from Offizier where stationiertAufBasis= :dest")
+			return em.createQuery("from Offizier where stationiertAufBasis= :dest")
 					.setEntity("dest", ziel)
 					.list();
 		}

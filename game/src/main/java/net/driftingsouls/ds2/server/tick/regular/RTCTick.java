@@ -124,7 +124,7 @@ public class RTCTick extends TickController {
 				User winner = entry.getBieter();
 				long price = entry.getPreis();
 				int dropzone = winner.getGtuDropZone();
-				StarSystem system = em.find(StarSystem.class, dropzone);
+				StarSystem system = StarSystem.getSystem(dropzone);
 				if(system == null) {
 					pmService.send(gtuuser, winner.getId(), "Unbekannte Dropzone", "Dein als Dropzone gewähltes System existiert nicht oder hat keine Dropzone (mehr). Wähle bitte ein anderes. Im nächsten Tick wird erneut versucht dir dein ersteigertes Objekt zuzustellen.");
 					continue;

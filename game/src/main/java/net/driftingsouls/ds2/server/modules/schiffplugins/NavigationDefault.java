@@ -171,7 +171,7 @@ public class NavigationDefault implements SchiffPlugin {
 			int y = data.getY();
 			int sys = data.getSystem();
 
-			StarSystem system = em.find(StarSystem.class, sys);
+			StarSystem system = StarSystem.getSystem(sys);
 			if(system == null) {
 				t.setVar("schiff.navigation.showmessage","Unbekanntes Sternensystem! Wende Dich an einen Admin!");
 				log.error(String.format("ship: %s -- unknown system: %s", data.getId(), sys));

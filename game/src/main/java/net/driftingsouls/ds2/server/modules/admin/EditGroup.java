@@ -38,7 +38,7 @@ import java.util.Map;
 
 /**
  * Ein Menue um mehrere Schiffe mit dem selben Typ zu editieren.
- * 
+ *
  * @author Sebastian Gift
  */
 @AdminMenuEntry(category = "Schiffe", name = "Schiffsgruppe editieren", permission = WellKnownAdminPermission.EDIT_GROUP)
@@ -52,12 +52,12 @@ public class EditGroup implements AdminPlugin
 
 	@PersistenceContext
 	private EntityManager em;
-	
+
 	@Override
 	public void output(StringBuilder echo) {
 		Context context = ContextMap.getContext();
-		List<Item> items = em.createQuery("from Item", Item.class).getResultList();
-		
+		List<Item> items =Item.getItemList();
+
 		int shiptypeId = context.getRequest().getParameterInt("shiptype");
 
 		// Update values?
@@ -75,7 +75,7 @@ public class EditGroup implements AdminPlugin
 		echo.append("</select>");
 		echo.append("<input type=\"submit\" name=\"choose\" value=\"ok\" />");
 		echo.append("</form>");
-		
+
 		if(update && shiptypeId != 0)
 		{
 			//Where to edit the ships?
@@ -83,7 +83,7 @@ public class EditGroup implements AdminPlugin
 			int system = context.getRequest().getParameterInt("system");
 			int x = context.getRequest().getParameterInt("x");
 			int y = context.getRequest().getParameterInt("y");
-			
+
 			ShipType type = em.find(ShipType.class, shiptypeId);
 			TypedQuery<Ship> query;
 			if(groupOption == 0)
@@ -108,11 +108,11 @@ public class EditGroup implements AdminPlugin
 						  .setParameter("shiptype",type)
 		  		  	      .setParameter("owner", context.getActiveUser());
 			}
-			
+
 			//Get ships to edit
 			List<Ship> ships = query.getResultList();
 			for(Ship ship: ships)
-			{				
+			{
 				ship.setHull(context.getRequest().getParameterInt("hull"));
 				ship.setAblativeArmor(context.getRequest().getParameterInt("ablativearmor"));
 				ship.setShields(context.getRequest().getParameterInt("shields"));
@@ -124,42 +124,42 @@ public class EditGroup implements AdminPlugin
 				ship.setWeapons(context.getRequest().getParameterInt("weapons"));
 				ship.setHeat(context.getRequest().getParameterInt("heat"));
 				ship.setAlarm(Alarmstufe.values()[context.getRequest().getParameterInt("alarm")]);
-				
+
 				Cargo cargo = new Cargo();
-				
+
 				for(Item item: items)
 				{
 					long amount = context.getRequest().getParameterInt("i"+item.getID());
 					int uses = context.getRequest().getParameterInt("i" + item.getID() + "uses");
 					cargo.addResource(new ItemID(item.getID(), uses, 0), amount);
 				}
-				
+
 				ship.setCargo(cargo);
 			}
-			
+
 			echo.append("<p>Update abgeschlossen.</p>");
 		}
-		
+
 		if(shiptypeId != 0)
 		{
 			ShipType type = em.find(ShipType.class, shiptypeId);
-			
+
 			if(type == null)
 			{
 				return;
 			}
-			
+
 			Map<Integer, String> alarms = new HashMap<>();
 			alarms.put(0, "Gr&uuml;n");
 			alarms.put(1, "Gelb");
 			alarms.put(2, "Rot");
-			
+
 			//Name -> Klasse
 			Map<Integer, String> groupOptions = new HashMap<>();
 			groupOptions.put(0, "Im Sektor");
 			groupOptions.put(1, "Im System");
 			groupOptions.put(2, "Ueberall");
-			
+
 			echo.append("<form action=\"./ds\" method=\"post\">");
 			echo.append("<table class=\"noBorder\" width=\"100%\">");
 			echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />\n");

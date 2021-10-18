@@ -836,7 +836,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			MESSAGE.get().append("Kein passendes Item vorhanden");
 			return null;
 		}
-		Item item = (Item)db.get(Item.class, itemid);
+		Item item = Item.getItem( itemid);
 		if( item.getEffect().getType() != ItemEffect.Type.DRAFT_SHIP ) {
 		 	MESSAGE.get().append("Bei dem Item handelt es sich um keinen Schiffsbauplan");
 		 	return null;

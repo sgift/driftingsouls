@@ -530,7 +530,7 @@ public class Cargo implements Cloneable {
 
 		if( !items.isEmpty() ) {
 			for( Long[] item : items  ) {
-				Item itemType = (Item)db.get(Item.class, item[0].intValue());
+				Item itemType = Item.getItem(item[0].intValue())
 				if( itemType == null )
 				{
 					log.warn("Unbekanntes Item "+item[0]+" geortet");
@@ -693,7 +693,7 @@ public class Cargo implements Cloneable {
 			itemlist.sort(new ResourceIDComparator(false));
 
 			for( ItemID aitem : itemlist ) {
-				Item item = (Item)db.get(Item.class, aitem.getItemID());
+				Item item = Item.getItem(aitem.getItemID());
 				if( item == null ) {
 					log.warn("Ungueliges Item (Data: "+aitem+") entdeckt");
 					continue;
@@ -976,11 +976,10 @@ public class Cargo implements Cloneable {
 	 */
 	public <T extends Item> ItemCargoEntry<T> getItemOfType( Class<T> itemType )
 	{
-		org.hibernate.Session db = ContextMap.getContext().getDB();
 		for (Long[] aitem : items)
 		{
 			final int itemid = aitem[0].intValue();
-			@SuppressWarnings("unchecked") T item = (T) db.get(Item.class, itemid);
+			@SuppressWarnings("unchecked") T item = (T) Item.getItem(itemid);
 			if (item == null)
 			{
 				throw new RuntimeException("Unbekanntes Item " + itemid);
@@ -1008,7 +1007,7 @@ public class Cargo implements Cloneable {
 		for (Long[] aitem : items)
 		{
 			final int itemid = aitem[0].intValue();
-			@SuppressWarnings("unchecked") T item = (T) db.get(Item.class, itemid);
+			@SuppressWarnings("unchecked") T item = (T) Item.getItem(itemid);
 
 			if (item == null)
 			{
@@ -1117,9 +1116,8 @@ public class Cargo implements Cloneable {
 	 * @return Der Pfad zum Bild
 	 */
 	public static String getResourceImage( ResourceID resid ) {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		Item item = (Item)db.get(Item.class, resid.getItemID());
+		Item item = Item.getItem(resid.getItemID());
 		if( item != null ) {
 			return item.getPicture();
 		}
@@ -1132,9 +1130,8 @@ public class Cargo implements Cloneable {
 	 * @return Der Name
 	 */
 	public static String getResourceName( ResourceID resid ) {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		Item item = (Item)db.get(Item.class, resid.getItemID());
+		Item item = Item.getItem(resid.getItemID());
 		if( item != null ) {
 			return item.getName();
 		}
@@ -1150,9 +1147,9 @@ public class Cargo implements Cloneable {
 	 */
 	public static long getResourceMass( ResourceID resourceid, long count ) {
 		long tmp = 0;
-		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		Item item = (Item)db.get(Item.class, resourceid.getItemID());
+		Item item = Item.getItem(resourceid.getItemID());
+
 		if( item != null ) {
 			tmp = count * item.getCargo();
 		}

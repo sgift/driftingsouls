@@ -31,7 +31,7 @@ public class CargoService {
 
         if( !cargo.getItems().isEmpty() ) {
             for( Long[] item : cargo.getItems()  ) {
-                Item itemType = em.find(Item.class, item[0].intValue());
+                Item itemType = Item.getItem( item[0].intValue());
                 if( itemType == null )
                 {
                     log.warn("Unbekanntes Item "+item[0]+" geortet");
@@ -122,7 +122,7 @@ public class CargoService {
 
         for (Long[] item1 : cargo.getItems())
         {
-            Item item = em.find(Item.class, item1[0].intValue());
+            Item item = Item.getItem( item1[0].intValue());
             if (item == null)
             {
                 log.warn("Unbekanntes Item " + item1[0] + " geortet");
@@ -159,7 +159,7 @@ public class CargoService {
             for( int i=0; i < cargo.getItems().size(); i++ ) {
                 Long[] aitem = cargo.getItems().get(i);
 
-                Item item = em.find(Item.class, aitem[0].intValue());
+                Item item = Item.getItem( aitem[0].intValue());
                 if( item.getCargo()*aitem[1] + currentmass < mass ) {
                     currentmass += item.getCargo()*aitem[1];
                     retcargo.getItemArray().add(aitem);

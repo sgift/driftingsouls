@@ -43,7 +43,7 @@ import java.util.List;
  */
 @AdminMenuEntry(category="Objekte", name="Karte", permission = WellKnownAdminPermission.BASES_MAP)
 @Component
-public class BasesMap implements AdminPlugin 
+public class BasesMap implements AdminPlugin
 {
 	private static final Logger LOG = LogManager.getLogger(BasesMap.class);
 
@@ -58,7 +58,7 @@ public class BasesMap implements AdminPlugin
 		int sysid = context.getRequest().getParameterInt("system");
 		int otherastis = context.getRequest().getParameterInt("otherastis");
 		int scale = context.getRequest().getParameterInt("scale");
-		if( scale == 0 ) 
+		if( scale == 0 )
 		{
 			scale = 2;
 		}
@@ -68,7 +68,7 @@ public class BasesMap implements AdminPlugin
 			outputImage(user, sysid, otherastis, scale);
 			return;
 		}
-		
+
 		echo.append("Karte:\n");
 		echo.append("<form action=\"./ds\" method=\"post\">");
 		echo.append("<table class=\"noBorder\" width=\"300\">\n");
@@ -83,15 +83,15 @@ public class BasesMap implements AdminPlugin
 		echo.append("</table>\n");
 		echo.append("</form>\n");
 		echo.append("<br />\n");
-		
-		if( sysid != 0 ) 
+
+		if( sysid != 0 )
 		{
-			StarSystem system = em.find(StarSystem.class, sysid);
+			StarSystem system = StarSystem.getSystem(sysid);
 			if( system == null )
 			{
 				return;
 			}
-			
+
 			echo.append("<img src=\"./ds?module=admin&namedplugin=").append(this.getClass().getName())
 					.append("&action=binary&doImage=1&user=").append(user)
 					.append("&system=").append(sysid)
@@ -106,7 +106,7 @@ public class BasesMap implements AdminPlugin
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 
-		StarSystem system = (StarSystem)db.get(StarSystem.class, sysid);
+		StarSystem system = StarSystem.getSystem(sysid);
 		BufferedImage image = new BufferedImage(system.getWidth()*scale, system.getHeight()*scale, BufferedImage.TYPE_INT_RGB);
 		Color black = new Color(0, 0, 0);
 		Color blue = new Color(0, 0, 255);

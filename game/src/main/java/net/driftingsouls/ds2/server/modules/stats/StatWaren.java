@@ -114,7 +114,7 @@ public class StatWaren implements Statistic {
 		for( ResourceEntry res : reslist ) {
 			// Wenn die Resource ein Item ist, dann pruefen, ob dieses angezeigt werden darf
 			int itemid = res.getId().getItemID();
-			Item item = em.find(Item.class, itemid);
+			Item item = Item.getItem(itemid);
 			if( item == null || !user.canSeeItem(item) ) {
 				continue;
 			}

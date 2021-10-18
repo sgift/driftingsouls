@@ -22,6 +22,7 @@ import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.entities.DynamicJumpNode;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
+import javax.persistence.EntityManager;
 import javax.persistence.*;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -33,6 +34,10 @@ import java.util.concurrent.ThreadLocalRandom;
 @Table(name="dynamic_jn_config")
 public class DynamicJumpNodeConfig
 {
+
+    @PersistenceContext
+	private EntityManager em;
+
     @Id
     @GeneratedValue
     private int id;
@@ -194,9 +199,8 @@ public class DynamicJumpNodeConfig
     public void setMaxNextMovement(int maxnextmovement) { this.maxNextMovementDelay = maxnextmovement; }
 
     public String getName() {
-        org.hibernate.Session db = ContextMap.getContext().getDB();
-        StarSystem startSystem = (StarSystem)db.get(StarSystem.class, initialStart.getSystem());
-        StarSystem targetSystem = (StarSystem)db.get(StarSystem.class, initialTarget.getSystem());
+        StarSystem startSystem = StarSystem.getSystem(initialStart.getSystem());
+        StarSystem targetSystem = StarSystem.getSystem(initialTarget.getSystem());
         return startSystem.getName()+"->"+targetSystem.getName();
     }
 
@@ -232,7 +236,6 @@ public class DynamicJumpNodeConfig
             timeUntilDeath = ThreadLocalRandom.current().nextInt(1, getMaxLifetime());
         }
 
-        org.hibernate.Session db = ContextMap.getContext().getDB();
 
         int movementDelay = 0;
         if(getMinNextMovementDelay() > 0 && getMaxNextMovementDelay() > 0) {
@@ -244,14 +247,13 @@ public class DynamicJumpNodeConfig
         }
 
         DynamicJumpNode jump = new DynamicJumpNode(this, timeUntilDeath, movementDelay);
-        db.persist(jump.getJumpNode());
-        db.persist(jump);
+        em.persist(jump.getJumpNode());
+        em.persist(jump);
     }
 
     public void removeJumpNode() {
-        org.hibernate.Session db = ContextMap.getContext().getDB();
         @SuppressWarnings("unchecked")
-        List<DynamicJumpNode> dynamicJumpNodes = db.createQuery("from DynamicJumpNode j where config = :config")
+        List<DynamicJumpNode> dynamicJumpNodes = em.createQuery("from DynamicJumpNode j where config = :config")
                 .setParameter("config", this)
                 .list();
 
@@ -261,7 +263,7 @@ public class DynamicJumpNodeConfig
 
         DynamicJumpNode dynamicJumpNode = dynamicJumpNodes.get(0);
 
-        db.delete(dynamicJumpNode.getJumpNode());
-        db.delete(dynamicJumpNode);
+        em.delete(dynamicJumpNode.getJumpNode());
+        em.delete(dynamicJumpNode);
     }
 }

@@ -124,7 +124,7 @@ public class EditItem implements EntityEditor<Item>
 		form.ifEntityClass(Schiffsbauplan.class).field("Werftslots", Integer.class, Schiffsbauplan::getWerftSlots, Schiffsbauplan::setWerftSlots);
 		form.ifEntityClass(Schiffsbauplan.class).multiSelection("Forschungen", Forschung.class, Schiffsbauplan::getBenoetigteForschungen, Schiffsbauplan::setBenoetigteForschungen);
 
-		List<ModuleSlot> list = em.createQuery("from ModuleSlot", ModuleSlot.class).getResultList();
+		List<ModuleSlot> list = ModuleSlot.getModuleSlotList();
 		form.ifEntityClass(Schiffsmodul.class).multiSelection("Slots", String.class, Schiffsmodul::getSlots, Schiffsmodul::setSlots)
 				.withOptions(list.stream().collect(Collectors.toMap(ModuleSlot::getSlotType, ModuleSlot::getName)));
 		form.ifEntityClass(Schiffsmodul.class).field("Modifikation", SchiffstypModifikation.class, Schiffsmodul::getMods, Schiffsmodul::setMods).dbColumn(Schiffsmodul_.mods);

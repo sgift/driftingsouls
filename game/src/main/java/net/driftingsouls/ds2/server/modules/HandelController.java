@@ -118,7 +118,7 @@ public class HandelController extends Controller
 		{
 			String name;
 
-			Item item = em.find(Item.class, res.getId().getItemID());
+			Item item = Item.getItem(res.getId().getItemID());
 			if (!item.isHandel())
 			{
 				continue;
@@ -156,7 +156,7 @@ public class HandelController extends Controller
 
 		User niemand = em.find(User.class, -1);
 		List<Integer> userIDs = em.createQuery("select id from User", Integer.class).getResultList();
-		
+
 		for(Integer userID : userIDs)
 		{
 			User user = em.find(User.class, userID);
@@ -168,9 +168,9 @@ public class HandelController extends Controller
 			}
 
 		}
-		
+
 		em.persist(entry);
-		
+
 
 		return new RedirectViewResult("default");
 	}
@@ -190,7 +190,7 @@ public class HandelController extends Controller
 		ResourceList reslist = Resources.getResourceList().getResourceList();
 		for (ResourceEntry res : reslist)
 		{
-			Item item = em.find(Item.class, res.getId().getItemID());
+			Item item = Item.getItem(res.getId().getItemID());
 			if (!item.isHandel())
 			{
 				continue;

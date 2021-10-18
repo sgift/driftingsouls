@@ -104,7 +104,7 @@ public class ImpObjectsController extends Controller
 
 		if (system == null)
 		{
-			system = em.find(StarSystem.class, 1);
+			system = StarSystem.getSystem( 1);
 		}
 
 		json.system = new JsonViewModel.SystemViewModel();
@@ -123,7 +123,7 @@ public class ImpObjectsController extends Controller
 			for (JumpNode node: jnList)
 			{
 
-				StarSystem systemout = em.find(StarSystem.class, node.getSystemOut());
+				StarSystem systemout = StarSystem.getSystem( node.getSystemOut());
 
 				JsonViewModel.JumpNodeViewModel jn = new JsonViewModel.JumpNodeViewModel();
 				jn.x = node.getX();

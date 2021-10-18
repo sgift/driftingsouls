@@ -61,7 +61,7 @@ public class GtuVerkaeufe implements AdminPlugin
 		int system = context.getRequest().getParameterInt("system");
 		String type = context.getRequest().getParameterString("type");
 
-		List<StarSystem> systems = em.createQuery("from StarSystem", StarSystem.class).getResultList();
+		List<StarSystem> systems = StarSystem.getStarSystemList();
 
 		if( type.length() == 0  )
 		{

@@ -22,6 +22,7 @@ import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.GenericGenerator;
+import net.driftingsouls.ds2.server.framework.Common;
 
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
@@ -32,6 +33,10 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.Lob;
 import javax.persistence.Table;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
+import java.util.List;
 
 /**
  * Repraesentiert einen Item-Typ in DS.
@@ -45,6 +50,10 @@ import javax.persistence.Table;
 @DiscriminatorColumn(name = "typ", length=255)
 @Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 public abstract class Item {
+
+	@PersistenceContext
+	private static EntityManager em;
+
 	@Id @GeneratedValue(generator="ds-itemid")
 	@GenericGenerator(name="ds-itemid", strategy = "net.driftingsouls.ds2.server.config.items.ItemIdGenerator")
 	private int id;
@@ -283,5 +292,22 @@ public abstract class Item {
 	 */
 	public void setSpawnableRess(boolean spawnableress) {
 		this.isspawnable = spawnableress;
+	}
+
+	/**
+	 * Laedt die vollstaendige Itemliste aus der Datenbank
+	 * @return die Itemliste
+	 */
+	public static List<Item> getItemList(){
+		return Common.cast(em.createQuery("from Item").list());
+	}
+
+	/**
+	 * laedt das Item aus der Datenbank
+	 * @param itemid
+	 * @return das Item
+	 */
+	public static Item getItem(int itemid){
+		return em.find(Item.class,itemid);
 	}
 }

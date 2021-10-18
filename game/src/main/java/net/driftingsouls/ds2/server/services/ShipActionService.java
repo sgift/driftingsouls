@@ -357,7 +357,7 @@ public class ShipActionService {
             return;
         }
 
-        Item item = em.find(Item.class, itemid);
+        Item item = Item.getItem(itemid);
         if( !ModuleSlots.get().slot(aslot[1]).isMemberIn( ((IEModule)item.getEffect()).getSlots() ) ) {
             werftObject.MESSAGE.get().append(ship.getName()).append(" - Das Item passt nicht in dieses Slot\n");
             return;

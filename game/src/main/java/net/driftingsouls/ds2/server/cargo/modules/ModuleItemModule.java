@@ -24,8 +24,6 @@ import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.Schiffsmodul;
 import net.driftingsouls.ds2.server.config.items.SchiffsmodulSet;
 import net.driftingsouls.ds2.server.config.items.effects.IEModule;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.SchiffstypModifikation;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import org.apache.commons.lang3.StringUtils;
@@ -58,10 +56,8 @@ public class ModuleItemModule extends Module {
 
 	@Override
 	public ShipTypeData modifyStats(ShipTypeData stats, List<Module> moduleobjlist) {
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
 
-		Schiffsmodul item = (Schiffsmodul)db.get(Schiffsmodul.class, this.itemid);
+		Schiffsmodul item = Schiffsmodul.getSchiffsmodul(this.itemid);
 		if( item == null ) {
 			log.warn("WARNUNG: Ungueltiges Schiffsmodul ("+this.itemid+")");
 			return stats;
@@ -81,7 +77,7 @@ public class ModuleItemModule extends Module {
 				}
 				ModuleItemModule itemModule = (ModuleItemModule)moduleobj;
 
-				Schiffsmodul moduleItem = (Schiffsmodul)db.get(Schiffsmodul.class, itemModule.getItemID().getItemID());
+				Schiffsmodul moduleItem = Schiffsmodul.getSchiffsmodul(itemModule.getItemID().getItemID());
 
 				if( moduleItem.getEffect().getSet() != effect.getSet() ) {
 					continue;
@@ -128,10 +124,8 @@ public class ModuleItemModule extends Module {
 
 	@Override
 	public String getName() {
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
 
-		Item item = (Item)db.get(Item.class, this.itemid);
+		Item item = Item.getItem(this.itemid);
 		if(item == null) {
 			return "Noname";
 		}

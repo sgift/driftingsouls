@@ -254,7 +254,7 @@ public class PluendernController extends Controller
 				if (transt > 0)
 				{
 					int itemid = res.getId().getItemID();
-					Item item = em.find(Item.class, itemid);
+					Item item = Item.getItem(itemid);
 					if (item.isUnknownItem())
 					{
 						User targetUser = shipTo.getOwner();
@@ -301,7 +301,7 @@ public class PluendernController extends Controller
 				if (transf > 0)
 				{
 					int itemid = res.getId().getItemID();
-					Item item = em.find(Item.class, itemid);
+					Item item = Item.getItem(itemid);
 					if (item.isUnknownItem())
 					{
 						user.addKnownItem(itemid);

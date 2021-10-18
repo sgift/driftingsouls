@@ -39,11 +39,11 @@ import java.util.stream.Collectors;
  */
 public class Weapons implements Iterable<Weapon> {
 	private static final Weapons instance = new Weapons();
-	
+
 	private Weapons() {
 		// EMPTY
 	}
-	
+
 	/**
 	 * Gibt eine Instanz der Waffenliste zurueck.
 	 * @return die Instanz der Waffenliste
@@ -55,8 +55,7 @@ public class Weapons implements Iterable<Weapon> {
 	@NotNull
 	@Override
 	public Iterator<Weapon> iterator() {
-		Session db = ContextMap.getContext().getDB();
-		List<Weapon> wpn = Common.cast(db.createCriteria(Weapon.class).list());
+		List<Weapon> wpn = Weapon.getWeaponList();
 		return wpn.iterator();
 	}
 
@@ -68,14 +67,14 @@ public class Weapons implements Iterable<Weapon> {
 	 * @throws NoSuchWeaponException Falls die angeforderte Waffe nicht existiert
 	 */
 	public Weapon weapon(String wpn) throws NoSuchWeaponException {
-		Weapon weapon = (Weapon)ContextMap.getContext().getDB().get(Weapon.class, wpn);
+		Weapon weapon = Weapon.getWeapon(Integer.parseInt(wpn));
 		if( weapon == null )
 		{
 			throw new NoSuchWeaponException(wpn);
 		}
 		return weapon;
 	}
-	
+
 	/**
 	 * Splittet einen Waffen-String in eine Map auf. Schluessel ist der Waffenname.
 	 * @param weaponlist der Waffen-String
@@ -96,7 +95,7 @@ public class Weapons implements Iterable<Weapon> {
 
 		return result;
 	}
-	
+
 	/**
 	 * Packt eine Waffen-Map wieder in einen String zusammen.
 	 * @param weapons die Waffen-Map

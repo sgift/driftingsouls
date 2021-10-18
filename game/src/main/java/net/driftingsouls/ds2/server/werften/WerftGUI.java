@@ -442,7 +442,7 @@ public class WerftGUI {
 					"queueship.cancelpossible", werft.getType() != WerftTyp.EINWEG);
 
 			if( entry.getRequiredItem() != -1 ) {
-				Item item = (Item)db.get(Item.class, entry.getRequiredItem());
+				Item item = Item.getItem(entry.getRequiredItem());
 				t.setVar(
 						"queueship.reqitem",	true,
 						"queueship.item.picture",	item.getPicture(),
@@ -777,7 +777,7 @@ public class WerftGUI {
 
 		// Modul einbauen
 		if( (itemid != 0) && (slot != 0) ) {
-			Item item = db.get(Item.class, itemid);
+			Item item = Item.getItem(itemid);
 			if( item != null) {
 				for (Ship aship : targetShips)
 				{

@@ -43,7 +43,7 @@ public class TileCache
 	 */
 	public static TileCache forSystem(int system)
 	{
-		StarSystem sys = (StarSystem)ContextMap.getContext().getDB().get(StarSystem.class, system);
+		StarSystem sys = StarSystem.getSystem( system);
 		return new TileCache(sys);
 	}
 

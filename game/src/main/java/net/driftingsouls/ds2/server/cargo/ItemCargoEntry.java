@@ -52,19 +52,19 @@ public class ItemCargoEntry<T extends Item> {
 		this.uses = uses;
 		this.data = data;
 	}
-	
+
 	/**
 	 * Benutzt ein Item. Wenn dieses nur eine begrenzte Anzahl an Benutzungen
 	 * hat, wird diese verringert und geprueft ob das Item weiterhin existiert.
-	 * 
+	 *
 	 * @return true, wenn das Item weiterhin existiert
-	 * @throws UnsupportedOperationException (Falls kein CCargo zugeordnet wurde) 
+	 * @throws UnsupportedOperationException (Falls kein CCargo zugeordnet wurde)
 	 */
 	public boolean useItem() throws UnsupportedOperationException {
 		if( (cargo != null) && (uses > 0) ) {
 			cargo.substractResource(getResourceID(), 1);
 			uses--;
-			
+
 			if( uses > 0 ) {
 				cargo.addResource(getResourceID(),1);
 			}
@@ -77,16 +77,16 @@ public class ItemCargoEntry<T extends Item> {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Gibt die Quest-ID zurueck, die den Item zugeordnet ist.
 	 * Wenn dem Item kein Quest zugeordnet ist, wird 0 zurueckgegeben.
 	 * @return die Quest-ID oder 0
 	 */
-	public int getQuestData() {		
+	public int getQuestData() {
 		return data;
 	}
-	
+
 	/**
 	 * Gibt die maximale Anzahl an Benutzungen des Items zurueck.
 	 * Sollte die Anzahl unbegrenzt sein, so wird 0 zurueckgegeben.
@@ -95,24 +95,24 @@ public class ItemCargoEntry<T extends Item> {
 	public int getMaxUses() {
 		return uses;
 	}
-	
+
 	/**
 	 * Gibt die ID des Itemtyps zurueck.
 	 * @return die ID des Itemtyps
 	 */
-	public int getItemID() {		
+	public int getItemID() {
 		return itemid;
 	}
-	
+
 	/**
 	 * Gibt die Resourcen-ID zurueck, die den Eintrag innerhalb
 	 * des Cargos identifiziert.
 	 * @return Die Resourcen-ID
 	 */
 	public ResourceID getResourceID() {
-		return new ItemID(itemid, uses, data);	
+		return new ItemID(itemid, uses, data);
 	}
-	
+
 	/**
 	 * Gibt den Itemtyp als Objekt zurueck.
 	 * @return Der Itemtyp
@@ -124,10 +124,8 @@ public class ItemCargoEntry<T extends Item> {
 			return item;
 		}
 
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-		
-		return (T)db.get(Item.class, itemid);
+		return (T)Item.getItem(itemid);
+
 	}
 
 	/**
@@ -137,7 +135,7 @@ public class ItemCargoEntry<T extends Item> {
 	public long getCount() {
 		return count;
 	}
-	
+
 	/**
 	 * Gibt die Masse zurueck, die die im Cargo vorhandenen Resourcen verbrauchen.
 	 * @return Die Masse

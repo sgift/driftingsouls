@@ -237,7 +237,7 @@ public class PortalController extends Controller
 		double mindistance = 99999;
 		HashMap<Integer, StartLocation> minsysdistance = new HashMap<>();
 
-		List<StarSystem> systems = em.createQuery("from StarSystem order by id asc", StarSystem.class).getResultList();
+		List<StarSystem> systems = StarSystem.getStarSystemList(" order by id asc");
 		for (StarSystem system: systems)
 		{
 			Location[] locations = system.getOrderLocations();
@@ -332,7 +332,7 @@ public class PortalController extends Controller
 			return false;
 		}
 
-		List<StarSystem> systems = em.createQuery("from StarSystem", StarSystem.class).getResultList();
+		List<StarSystem> systems = StarSystem.getStarSystemList();
 
 		if ((system == null) || (system.getOrderLocations().length == 0))
 		{

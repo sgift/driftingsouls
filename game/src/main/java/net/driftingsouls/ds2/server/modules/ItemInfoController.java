@@ -351,7 +351,7 @@ public class ItemInfoController extends Controller
 			itemid = Integer.parseInt(itemStr);
 		}
 
-		Item item = em.find(Item.class, itemid);
+		Item item = Item.getItem(itemid);
 
 		if (item == null)
 		{
@@ -567,7 +567,7 @@ public class ItemInfoController extends Controller
 				{
 					int setcount = 0;
 
-					List<Schiffsmodul> itemlist = em.createQuery("from Schiffsmodul", Schiffsmodul.class).getResultList();
+					List<Schiffsmodul> itemlist = Schiffsmodul.getSchiffsmodulList();
 
 					for (Schiffsmodul aitem : itemlist)
 					{
@@ -727,7 +727,7 @@ public class ItemInfoController extends Controller
 				}
 				Cargo setitemlist = new Cargo();
 
-				List<Schiffsmodul> itemlist = em.createQuery("from Schiffsmodul", Schiffsmodul.class).getResultList();
+				List<Schiffsmodul> itemlist = Schiffsmodul.getSchiffsmodulList();
 
 				for (Schiffsmodul thisitem : itemlist)
 				{
@@ -767,7 +767,7 @@ public class ItemInfoController extends Controller
 	{
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
-		List<Item> itemlist = em.createQuery("from Item", Item.class).getResultList();
+		List<Item> itemlist =Item.getItemList();
 
 		StatUserCargo ownCargoRow = em.createQuery("from StatUserCargo where user=:user", StatUserCargo.class)
 				.setParameter("user", user)
@@ -894,7 +894,7 @@ public class ItemInfoController extends Controller
 	public AjaxViewModel ajaxAction()
 	{
 		User user = (User) getUser();
-		List<Item> itemlist = em.createQuery("from Item", Item.class).getResultList();
+		List<Item> itemlist = Item.getItemList();
 
 		AjaxViewModel result = new AjaxViewModel();
 

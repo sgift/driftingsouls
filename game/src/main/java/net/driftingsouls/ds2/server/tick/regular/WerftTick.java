@@ -135,7 +135,7 @@ public class WerftTick extends TickController
 
 				if (entry.getRequiredItem() > -1)
 				{
-					Item item = em.find(Item.class, entry.getRequiredItem());
+					Item item = Item.getItem( entry.getRequiredItem());
 					this.log("\tItem benoetigt: " + item.getName() + " (" + entry.getRequiredItem() + ")");
 				}
 

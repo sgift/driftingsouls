@@ -36,6 +36,10 @@ import java.util.function.IntConsumer;
 @Entity
 @Table(name="dynamic_jumpnode")
 public class DynamicJumpNode {
+
+    @PersistenceContext
+	private EntityManager em;
+
     @Id
     @GeneratedValue
     private int id;
@@ -131,24 +135,24 @@ public class DynamicJumpNode {
      * Zerstört diesen dynamischen JumpNode.
      */
     public void destroy() {
-        ContextMap.getContext().getDB().delete(this.jumpnode);
-        ContextMap.getContext().getDB().delete(this);
+        em.delete(this.jumpnode);
+        em.delete(this);
     }
 
     /**
      * Bewegt diesen dynamischen JumpNode innerhalb seiner Möglichkeiten.
      */
     public void move() {
-        org.hibernate.Session db = ContextMap.getContext().getDB();
         // Bewege Eingang
         if (config.getMaxDistanceToInitialStart() > 0) {
-            StarSystem system = (StarSystem) db.get(StarSystem.class, jumpnode.getSystem());
+
+            StarSystem system = StarSystem.getSystem(jumpnode.getSystem());
             movePosition(system, config.getInitialStart().getX(), config.getInitialStart().getY(), config.getMaxDistanceToInitialStart(), jumpnode::setX, jumpnode::setY, true);
         }
 
         // Bewege Ausgang
         if (config.getMaxDistanceToInitialTarget() > 0) {
-            StarSystem system = (StarSystem) db.get(StarSystem.class, jumpnode.getSystemOut());
+            StarSystem system = StarSystem.getSystem(jumpnode.getSystemOut());
             movePosition(system, config.getInitialTarget().getX(), config.getInitialTarget().getY(), config.getMaxDistanceToInitialTarget(), jumpnode::setXOut, jumpnode::setYOut, false);
         }
 

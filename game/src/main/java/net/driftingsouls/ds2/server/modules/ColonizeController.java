@@ -139,7 +139,7 @@ public class ColonizeController extends Controller
 			return t;
 		}
 
-		StarSystem system = em.find(StarSystem.class, base.getSystem());
+		StarSystem system = StarSystem.getSystem( base.getSystem());
 
 		if ((system.getMaxColonies() >= 0) &&
 				(bases.get(base.getSystem()) >= system.getMaxColonies()))

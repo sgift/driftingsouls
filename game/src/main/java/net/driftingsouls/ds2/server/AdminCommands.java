@@ -449,7 +449,7 @@ public class AdminCommands implements ApplicationContextAware {
 						throw new CommandFailedException("Item-ID ungueltig");
 					}
 					int itemid = Integer.parseInt(command[4]);
-					Item item = em.find(Item.class, itemid);
+					Item item = Item.getItem(itemid);
 
 					if ((item == null) || (item.getEffect().getType() != ItemEffect.Type.MODULE))
 					{
@@ -546,7 +546,7 @@ public class AdminCommands implements ApplicationContextAware {
 			{
 				return "<itemId (Integer)>";
 			}
-			Item item = em.find(Item.class, Integer.valueOf(command[4]));
+			Item item = Item.getItem(Integer.valueOf(command[4]));
 			if( item == null )
 			{
 				return "<itemId (Integer)>";
@@ -698,7 +698,7 @@ public class AdminCommands implements ApplicationContextAware {
 						throw new CommandFailedException("Item-ID ungueltig");
 					}
 					int itemid = Integer.parseInt(command[4]);
-					Item item = em.find(Item.class, itemid);
+					Item item = Item.getItem(itemid);
 
 					if ((item == null) || (item.getEffect().getType() != ItemEffect.Type.MODULE))
 					{
@@ -790,7 +790,7 @@ public class AdminCommands implements ApplicationContextAware {
 			{
 				return "<itemId (Integer)>";
 			}
-			Item item = em.find(Item.class, Integer.valueOf(command[4]));
+			Item item = Item.getItem(Integer.valueOf(command[4]));
 			if( item == null )
 			{
 				return "<itemId (Integer)>";
@@ -878,7 +878,7 @@ public class AdminCommands implements ApplicationContextAware {
 			try {
 				ResourceID resid = Resources.fromString(command[2]);
 				item = Optional.ofNullable(resid)
-						.map(resourceID -> em.find(Item.class, resourceID.getItemID()))
+						.map(resourceID -> Item.getItem(resourceID.getItemID()))
 						.orElse(null);
 			}
 			catch( RuntimeException e ) {

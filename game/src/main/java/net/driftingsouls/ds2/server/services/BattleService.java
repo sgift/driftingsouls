@@ -864,7 +864,7 @@ public class BattleService {
         Location loc = ship.getShip().getLocation();
 
         if (relocate && !ship.getShip().isLanded() && !ship.getShip().isDocked()) {
-            StarSystem sys = em.find(StarSystem.class, battle.getSystem());
+            StarSystem sys = StarSystem.getSystem(battle.getSystem());
             int maxRetries = 100;
 
             while (((loc.getX() == battle.getX()) && (loc.getY() == battle.getY())) ||

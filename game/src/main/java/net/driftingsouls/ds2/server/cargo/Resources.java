@@ -19,9 +19,6 @@
 package net.driftingsouls.ds2.server.cargo;
 
 import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 
 import java.util.List;
@@ -109,11 +106,11 @@ public class Resources {
 	 * Die Resource RE.
 	 */
 	public static final ResourceID RE = new ItemID(6);
-	
+
 	private static volatile Cargo resourceList;
-	
+
 	/**
-	 * Gibt einen Cargo zurueck, in dem jede Resource genau einmal vorkommt. 
+	 * Gibt einen Cargo zurueck, in dem jede Resource genau einmal vorkommt.
 	 * Items sind in der Form ohne Questbindung und mit unbegrenzter Nutzbarkeit vorhanden.
 	 * @return Der Cargo
 	 */
@@ -130,29 +127,27 @@ public class Resources {
 				}
 			}
 		}
-		
+
 		return resourceList;
 	}
-	
+
 	private static void initResourceList() {
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
 		Cargo resList = new Cargo();
-		
-		List<Item> items = Common.cast(db.createQuery("from Item").list());
-		
+
+		List<Item> items = Item.getItemList();
+
 		for( Item item : items )
 		{
 			resList.addResource(new ItemID(item.getID()), 1);
 		}
-		
+
 		resourceList = new UnmodifiableCargo(resList);
 	}
 
 	/**
 	 * Wandelt einen String in eine Resourcen-ID um.
 	 * Es werden sowohl normale Waren alsauch Items beruecksichtigt.
-	 * 
+	 *
 	 * @param rid Der String
 	 * @return die Resourcen-ID
 	 */
@@ -175,11 +170,11 @@ public class Resources {
 	{
 		return reslist.stream().map(res -> "[resource="+res.getId().toString()+"]"+res.getCount1()+"[/resource]").collect(Collectors.joining(separator));
 	}
-	
+
 	/**
 	 * Gibt die <code>ResourceList</code> via TemplateEngine aus. Ein Item des TemplateBlocks
 	 * muss den Namen templateBlock+"item" haben.
-	 * 
+	 *
 	 * @param t Das TemplateEngine
 	 * @param reslist Die ResourceList
 	 * @param templateblock Der Name des betreffenden TemplateBlocks
@@ -187,7 +182,7 @@ public class Resources {
 	public static void echoResList( TemplateEngine t, ResourceList reslist, String templateblock) {
 		echoResList(t,reslist,templateblock,templateblock+"item");
 	}
-	
+
 	/**
 	 * Gibt die <code>ResourceList</code> via TemplateEngine aus.
 	 * @param t Das TemplateEngine
@@ -197,7 +192,7 @@ public class Resources {
 	 */
 	public static void echoResList( TemplateEngine t, ResourceList reslist, String templateblock, String templateitem ) {
 		t.setVar(templateblock,"");
-		
+
 		for( ResourceEntry res : reslist ) {
 			t.setVar(	"res.image",		res.getImage(),
 						"res.cargo",		res.getCargo1(),
@@ -205,7 +200,7 @@ public class Resources {
 						"res.cargo2",		res.getCargo2(),
 						"res.name",			res.getName(),
 						"res.plainname",	res.getPlainName() );
-			
+
 			t.parse(templateblock,templateitem,true);
 		}
 	}

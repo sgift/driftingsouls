@@ -677,7 +677,7 @@ public class ErsteigernController extends Controller
 	}
 
 	private boolean isSystemVisible(int systemId, User user) {
-		StarSystem sys = em.find(StarSystem.class, systemId);
+		StarSystem sys = StarSystem.getSystem(systemId);
 		return sys.isVisibleFor(user);
 	}
 
@@ -737,7 +737,7 @@ public class ErsteigernController extends Controller
 			}
 
 			boolean buyable = (tradepost.getCargo().getResourceCount(limit.getResourceId()) - limit.getLimit()) > 0;
-			Item resource = em.find(Item.class, limit.getResourceId().getItemID());
+			Item resource = Item.getItem(limit.getResourceId().getItemID());
 			long buyamount = tradepost.getCargo().getResourceCount(limit.getResourceId())-limit.getLimit();
 
 			t.setVar(
@@ -965,7 +965,7 @@ public class ErsteigernController extends Controller
 	private void dropZoneAuswahlAnzeigen(TemplateEngine t, User user)
 	{
 		List<StarSystem> dropZones = ermittleMoeglicheDropZones();
-		StarSystem aktuelleDropZone = em.find(StarSystem.class, user.getGtuDropZone());
+		StarSystem aktuelleDropZone = StarSystem.getSystem(user.getGtuDropZone());
 		if (!dropZones.contains(aktuelleDropZone))
 		{
 			dropZones.add(aktuelleDropZone);
@@ -989,8 +989,7 @@ public class ErsteigernController extends Controller
 
 		int defaultDropZone = configService.getValue(WellKnownConfigValue.GTU_DEFAULT_DROPZONE);
 
-		List<StarSystem> systems = em.createQuery("from StarSystem order by id asc", StarSystem.class)
-			.getResultList();
+		List<StarSystem> systems = StarSystem.getStarSystemList(" order by id asc");
 		for (StarSystem system : systems)
 		{
 			if (system.getDropZone() != null && (user.getAstiSystems().contains(system.getID()) || system.getID() == defaultDropZone))
@@ -1091,7 +1090,7 @@ public class ErsteigernController extends Controller
 					.setParameter("ganymedeid", 0);
 		}
 
-		StarSystem system = em.find(StarSystem.class, targetSystem);
+		StarSystem system = StarSystem.getSystem(targetSystem);
 		if (!system.isVisibleFor(user))
 		{
 			addError("Die angegebene Zielsystem konnte nicht lokalisiert werden.");
@@ -1348,7 +1347,7 @@ public class ErsteigernController extends Controller
 			{
 				t.setVar("sourcesystem.selected", 0);
 			}
-			StarSystem system = em.find(StarSystem.class, asystem);
+			StarSystem system = StarSystem.getSystem(asystem);
 			t.setVar("sourcesystem.id", asystem, "sourcesystem.name", system.getName());
 
 			t.parse("ganytrans.sourcesystem.list", "ganytrans.sourcesystem.listitem", true);
@@ -1392,7 +1391,7 @@ public class ErsteigernController extends Controller
 			t.parse("ganytrans.ganymedes.list", "ganytrans.ganymedes.listitem", true);
 		}
 
-		List<StarSystem> systems = em.createQuery("from StarSystem", StarSystem.class).getResultList();
+		List<StarSystem> systems = StarSystem.getStarSystemList();
 
 		// Zielsysteme ausgeben
 		first = true;

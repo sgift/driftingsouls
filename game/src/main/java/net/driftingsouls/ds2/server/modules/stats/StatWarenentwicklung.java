@@ -104,7 +104,7 @@ public class StatWarenentwicklung implements Statistic, AjaxStatistic
 	{
 		return cargos.entrySet().stream()
 			.filter(entry -> isImportantResource(entry.getValue()))
-			.map(entry -> em.find(Item.class, entry.getKey().getItemID()))
+			.map(entry -> Item.getItem(entry.getKey().getItemID()))
 			.filter(Objects::nonNull)
 			.filter(user::canSeeItem)
 			.map(item -> new WareViewModel(item.getID(), item.getName(), item.getPicture()))
@@ -161,7 +161,7 @@ public class StatWarenentwicklung implements Statistic, AjaxStatistic
 
 		ItemID itemId = new ItemID(ContextMap.getContext().getRequest().getParameterInt("key"));
 
-		Item item = em.find(Item.class, itemId.getItemID());
+		Item item = Item.getItem(itemId.getItemID());
 		if (item == null || !user.canSeeItem(item))
 		{
 			return new DataViewModel();

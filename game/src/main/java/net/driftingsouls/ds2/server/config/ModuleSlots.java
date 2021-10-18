@@ -37,7 +37,7 @@ import java.util.List;
 public class ModuleSlots implements Iterable<ModuleSlot> {
 	private static final Log log = LogFactory.getLog(ModuleSlots.class);
 	private static final ModuleSlots moduleList = new ModuleSlots();
-	
+
 	private ModuleSlots() {
 		// EMPTY
 	}
@@ -49,27 +49,26 @@ public class ModuleSlots implements Iterable<ModuleSlot> {
 	public static ModuleSlots get() {
 		return moduleList;
 	}
-	
+
 	@NotNull
 	@Override
 	public Iterator<ModuleSlot> iterator() {
-		Session db = ContextMap.getContext().getDB();
-		List<ModuleSlot> list = Common.cast(db.createCriteria(ModuleSlot.class).list());
+		List<ModuleSlot> list = ModuleSlot.getModuleSlotList();
 		return list.iterator();
 	}
-	
+
 	/**
 	 * Gibt den Modul-Slot mit der angegebenen ID zurueck.
 	 * Falls kein Modul-Slot mit der ID existiert wird <code>null</code>
 	 * zurueckgegeben.
-	 * 
+	 *
 	 * @param id Die ID des gewuenschten Modul-Slots
 	 * @return Der Modul-Slot oder <code>null</code>
 	 * @throws NoSuchSlotException Falls der angeforderte Slottyp nicht existiert
 	 */
 	public ModuleSlot slot( String id ) throws NoSuchSlotException {
-		Session db = ContextMap.getContext().getDB();
-		ModuleSlot slot = (ModuleSlot) db.get(ModuleSlot.class, id);
+		int slotID = Integer.parseInt(id);
+		ModuleSlot slot = ModuleSlot.getModuleSlot(slotID);
 		if( slot == null ) {
 			throw new NoSuchSlotException(id);
 		}

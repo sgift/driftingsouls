@@ -80,7 +80,7 @@ public class TradepostController extends Controller
 
 		validiereSchiff(ship);
 
-		List<Item> itemlist = em.createQuery("from Item", Item.class).getResultList();
+		List<Item> itemlist = Item.getItemList();
 
 		t.setBlock("_TRADEPOST", "tradepost.list", "tradepost.post");
 		t.setBlock("_TRADEPOST", "tradepost.items.entry", "tradepost.items.list");
@@ -276,7 +276,7 @@ public class TradepostController extends Controller
 
 		validiereSchiff(ship);
 
-		List<Item> items = em.createQuery("from Item", Item.class).getResultList();
+		List<Item> items = Item.getItemList();
 
 		t.setBlock("_TRADEPOST", "tradepost.list", "tradepost.post");
 

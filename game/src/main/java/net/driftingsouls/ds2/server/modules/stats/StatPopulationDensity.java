@@ -68,7 +68,7 @@ public class StatPopulationDensity implements Statistic {
 		{
 			Object[] data = (Object[])o;
 			String systemAddInfo = "";
-			StarSystem system = (StarSystem)database.get(StarSystem.class, (Integer)data[0]);
+			StarSystem system = StarSystem.getSystem((Integer)data[0]);
 			if( system == null ) {
 				log.warn("Asteroiden im ungueltigen System "+data[0]+" vorhanden");
 				continue;

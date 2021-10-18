@@ -104,7 +104,7 @@ public class MapController extends Controller
 			return ViewMessage.error("Du bist nicht berechtigt diese Aktion auszuführen");
 		}
 
-		List<StarSystem> systems = em.createQuery("from StarSystem", StarSystem.class).getResultList();
+		List<StarSystem> systems = StarSystem.getStarSystemList();
 		for (StarSystem system : systems)
 		{
 			Integer x = xWerte.get(system);
@@ -182,7 +182,7 @@ public class MapController extends Controller
 		Set<Integer> basen = ermittleSystemeMitEigenerBasis();
 		Set<Integer> schiffe = ermittleSystemeMitEigenenSchiffen();
 
-		List<StarSystem> systems = em.createQuery("from StarSystem order by id asc", StarSystem.class).getResultList();
+		List<StarSystem> systems = StarSystem.getStarSystemList("order by id asc");
 		for (StarSystem system : systems)
 		{
 			if (!system.isVisibleFor(user))

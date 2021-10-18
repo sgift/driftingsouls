@@ -25,6 +25,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import java.util.Collection;
+import net.driftingsouls.ds2.server.framework.Common;
+import java.util.List;
 
 /**
  * Repraesentiert einen Modulslot-Typ in DS.
@@ -36,6 +38,10 @@ import java.util.Collection;
  */
 @Entity
 public class ModuleSlot {
+
+	@PersistenceContext
+	private EntityManager em;
+
 	@Id
 	private String slottype = null;
 	private String name = null;
@@ -63,7 +69,7 @@ public class ModuleSlot {
 		this.name = name;
 		this.parent = parent;
 	}
-	
+
 	/**
 	 * Gibt die Typen-ID des Slots zurueck.
 	 * @return Die Typen-ID des Slots
@@ -86,7 +92,7 @@ public class ModuleSlot {
 	 * @return der Name/Beschreibung
 	 */
 	public String getName() {
-		return name;	
+		return name;
 	}
 
 	/**
@@ -127,7 +133,7 @@ public class ModuleSlot {
 	public boolean isMemberIn( Collection<String> slottype ) {
 		return isMemberIn(slottype.toArray(new String[0]), "or");
 	}
-	
+
 	/**
 	 * Prueft, ob der Slot kompatibel (d.h., dass Module, die in diesen Slot passen,
 	 * in einen anderen Slot passen) zu einem der aufgelisteten Slots ist.
@@ -137,7 +143,7 @@ public class ModuleSlot {
 	public boolean isMemberIn( String[] slottype ) {
 		return isMemberIn(slottype, "or");
 	}
-	
+
 	/**
 	 * Prueft, ob der Slot kompatibel (d.h., dass Module, die in diesen Slot passen,
 	 * in einen anderen Slot passen) zu einem oder zu allen der aufgelisteten Slots ist.
@@ -160,17 +166,34 @@ public class ModuleSlot {
 				}
 			}
 			if( cmp.equals("and") ) {
-				return true;	
+				return true;
 			}
 			else if( cmp.equals("or") ) {
 				return false;
 			}
 		}
-		
+
 		if( this.slottype.equals(slottype[0]) ) {
 			return true;
 		}
 
 		return parent != null && parent.isMemberIn(slottype);
+	}
+
+	/**
+	 * Laedt die vollstaendige ModuleSlotliste aus der Datenbank
+	 * @return die ModuleSlotliste
+	 */
+	public static List<ModuleSlot> getModuleSlotList(){
+		return Common.cast(em.createCriteria(ModuleSlot.class).list());
+	}
+
+	/**
+	 * laedt das ModuleSlot aus der Datenbank
+	 * @param modulSlotId
+	 * @return das ModuleSlot
+	 */
+	public static ModuleSlot getModuleSlot(int modulSlotId){
+		return em.find(ModuleSlot.class,modulSlotId);
 	}
 }

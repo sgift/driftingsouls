@@ -40,7 +40,7 @@ import java.util.List;
 @DiscriminatorValue("1")
 public class VersteigerungSchiff extends Versteigerung {
 	private String type = "1";
-	
+
 	/**
 	 * Konstruktor.
 	 *
@@ -59,7 +59,7 @@ public class VersteigerungSchiff extends Versteigerung {
 		super(owner, price);
 		this.type = Integer.toString(type.getTypeId());
 	}
-	
+
 	/**
 	 * Gibt den Schiffstyp zurueck.
 	 * @return Der Schiffstyp
@@ -68,7 +68,7 @@ public class VersteigerungSchiff extends Versteigerung {
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		return (ShipType)db.get(ShipType.class, Integer.parseInt(type));
 	}
-	
+
 	/**
 	 * Setzt den Schiffstyp.
 	 * @param type Der Schiffstyp

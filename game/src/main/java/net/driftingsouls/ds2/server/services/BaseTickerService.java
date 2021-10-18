@@ -57,8 +57,8 @@ public class BaseTickerService
 
 		base.setSpawnableRessAmount(item, maxvalue);
 
-		Item olditem = em.find(Item.class, itemid);
-		Item newitem = em.find(Item.class, item);
+		Item olditem = Item.getItem(itemid);
+		Item newitem = Item.getItem(item);
 		String message = "Kolonie: " + base.getName() + " (" + base.getId() + ")\n";
 		message = message + "Ihre Arbeiter melden: Die Ressource " + olditem.getName() + " wurde aufgebraucht!\n";
 		message = message + "Erfreulich ist: Ihre Geologen haben " + newitem.getName() + " gefunden!";
@@ -134,7 +134,7 @@ public class BaseTickerService
 		for(ResourceEntry entry : nettoproduction.getResourceList())
 		{
 			// Auf Spawn Resource pruefen und ggf Produktion anpassen
-			Item item = em.find(Item.class,entry.getId().getItemID());
+			Item item = Item.getItem(entry.getId().getItemID());
 			if(item.isSpawnableRess()) {
 				// Genug auf dem Asteroiden vorhanden
 				// und abziehen
@@ -306,7 +306,7 @@ public class BaseTickerService
 	 */
 	private Base.SpawnableRessMap getSpawnableRessMap(Base base)
 	{
-		StarSystem system = em.find(StarSystem.class, base.getSystem());
+		StarSystem system = StarSystem.getSystem(base.getSystem());
 
 		if(system == null) {
 			return null;

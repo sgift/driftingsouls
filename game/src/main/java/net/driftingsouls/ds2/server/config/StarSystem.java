@@ -27,6 +27,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.List;
 
 /**
  * Repraesentiert ein Sternensystem in DS.
@@ -58,6 +59,9 @@ public class StarSystem {
 		 */
 		ADMIN
 	}
+
+	@PersistenceContext
+	private EntityManager em;
 
 	@Column(name="Name", nullable = false)
 	private String name = "";
@@ -454,6 +458,32 @@ public class StarSystem {
 	public Set<ConfigFelsbrockenSystem> getFelsbrockenKonfigurationen()
 	{
 		return felsbrockenKonfigurationen;
+	}
+
+	/**
+	 * Laedt die vollstaendige StarSystemliste aus der Datenbank
+	 * @param Sortierreihenfolge (bspw " order by id asc")
+	 * @return die StarSystemListe
+	 */
+	public static List<StarSystem> getStarSystemList(String order){
+		return em.createQuery("from StarSystem "+ order, StarSystem.class).getResultList();;
+	}
+
+	/**
+	 * Laedt die vollstaendige StarSystemliste aus der Datenbank
+	 * @return die StarSystemListe
+	 */
+	public static List<StarSystem> getStarSystemList(){
+		return getStarSystemList("");
+	}
+
+	/**
+	 * laedt das StarSystem aus der Datenbank
+	 * @param systemId
+	 * @return das StarSystem
+	 */
+	public static StarSystem getSystem(int systemId){
+		return em.find(StarSystem.class,systemId);
 	}
 
 }

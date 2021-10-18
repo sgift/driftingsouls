@@ -120,31 +120,31 @@ public class CreateObjects implements AdminPlugin {
 		 */
 		String toHtml(Request request);
 	}
-	
+
 	private static class TextEntry implements DialogEntry {
 		final String title;
 		final String name;
 		final int size;
 		final String defaultValue;
-		
+
 		TextEntry(String title, String name, int size, String defaultValue) {
 			this.title = title;
 			this.name = name;
 			this.size = size;
 			this.defaultValue = defaultValue;
 		}
-		
+
 		@Override
 		public String toHtml(Request request) {
 			String out = "<tr><td class=\"noBorderX\">"+this.title+"</td>\n";
-			
+
 			String value = this.defaultValue;
 			if( request.getParameter(this.name) != null ) {
 				value = request.getParameter(this.name);
 			}
-			
+
 			out += "<td class=\"noBorderX\"><input name=\""+this.name+"\" type=\"text\" size=\""+this.size+"\" value=\""+value+"\" /></td></tr>\n";
-		
+
 			return out;
 		}
 	}
@@ -249,18 +249,18 @@ public class CreateObjects implements AdminPlugin {
             return label;
 		}
 	}
-	
+
 	@Override
 	public void output(StringBuilder echo) throws IOException {
 		Context context = ContextMap.getContext();
 
 		String objekt = context.getRequest().getParameterString("objekt");
 		int system = context.getRequest().getParameterInt("system");
-		
+
 		if( !options.containsKey(objekt) ) {
 			objekt = options.keySet().iterator().next();
 		}
-		
+
 		echo.append("<script type=\"text/javascript\">\n");
 		echo.append("<!--\n");
 		echo.append("function Go(x) {\n");
@@ -283,7 +283,7 @@ public class CreateObjects implements AdminPlugin {
 				echo.append("<option value=\"").append(key).append("\">").append(key).append("</option>\n");
 			}
 		}
-		
+
 		echo.append("</select></td></tr>");
 
 		DialogEntry[] entries = options.get(objekt);
@@ -291,7 +291,7 @@ public class CreateObjects implements AdminPlugin {
 		{
 			echo.append(entry.toHtml(context.getRequest()));
 		}
-		
+
 		echo.append("<tr><td class=\"noBorderX\" colspan=\"2\" align=\"center\"><input type=\"submit\" value=\".: create\" />&nbsp");
 		echo.append("<input type=\"reset\" value=\".: reset\" /></td></tr>");
 		echo.append("</table>\n");
@@ -299,9 +299,9 @@ public class CreateObjects implements AdminPlugin {
 		echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 		echo.append("</form>");
 		echo.append("</font>");
-		
+
 		echo.append("</div>");
-		
+
 		if( system != 0 ) {
 			echo.append("Bearbeite System: ").append(system).append("<br />\n");
 
@@ -321,69 +321,69 @@ public class CreateObjects implements AdminPlugin {
 					break;
 			}
 			TileCache.forSystem(system).resetCache();
-		} 
+		}
 	}
 
 	private void handleSystemXML(Context context, StringBuilder echo, int system) {
 		final String xmlpath = context.getRequest().getParameterString("xmlpath");
-		
+
 		File xml = new File(xmlpath);
 		if( !xml.isFile() ) {
 			echo.append("File not found: ").append(xmlpath).append("<br />\n");
 			return;
 		}
-		
+
 		try {
 			Document doc = XMLUtils.readFile(xmlpath);
 			Element systemElement = doc.getDocumentElement();
-			
+
 			// Map
 			Element mapElement = (Element)XMLUtils.firstNodeByTagName(systemElement, "map");
 			if( mapElement != null ) {
 				NodeList layerList = mapElement.getElementsByTagName("layer");
 				for( int i=0; i < layerList.getLength(); i++ ) {
 					Element layerElement = (Element)layerList.item(i);
-					
+
 					String file = layerElement.getAttribute("file");
-					
+
 					parsePngFile(echo, system, new File(xml.getParent()+File.separatorChar+file));
 				}
 			}
-			
+
 			// Jumpnodes
 			NodeList jumpNodeList = systemElement.getElementsByTagName("jumpnode");
 			for( int i=0; i < jumpNodeList.getLength(); i++ ) {
 				Element jmpElement = (Element)jumpNodeList.item(i);
-				
+
 				String name = jmpElement.getAttribute("name");
-				
+
 				Location source = parseLocation(system, jmpElement.getAttribute("location"));
 				if( source.getSystem() != system ) {
 					echo.append("Fehler: Jumpnode liegt nicht im System");
 					return;
 				}
 				Location target = parseLocation(system, jmpElement.getAttribute("target"));
-				
+
 				JumpNode jn = new JumpNode(source, target, name);
 				em.persist(jn);
 			}
-			
+
 			// Grosse Objekte
 			NodeList largeObjects = systemElement.getElementsByTagName("large-object");
 			for( int i=0; i < largeObjects.getLength(); i++ ) {
 				Element object = (Element)largeObjects.item(i);
-				
+
 				Location source = parseLocation(system, object.getAttribute("location"));
 				if( source.getSystem() != system ) {
 					echo.append("Fehler: large-object liegt nicht im System");
 					return;
 				}
-				
+
 				int size = Integer.parseInt(object.getAttribute("size"));
 				int klasse = Integer.parseInt(object.getAttribute("klasse"));
 				int owner = Integer.parseInt(object.getAttribute("owner"));
 				String name = object.getAttribute("name");
-				
+
 				User ownerObj = em.find(User.class, owner);
 				if( ownerObj == null ) {
 					echo.append("Fehler: large-object Besitzer '").append(owner).append("' existiert nicht");
@@ -402,48 +402,48 @@ public class CreateObjects implements AdminPlugin {
 				base.setEnergy(10000);
 				em.persist(base);
 			}
-			
+
 			// Schiffe
 			NodeList ships = systemElement.getElementsByTagName("ship");
 			for( int i=0; i < ships.getLength(); i++ ) {
 				Element ship = (Element)ships.item(i);
-				
+
 				Location source = parseLocation(system, ship.getAttribute("location"));
 				if( source.getSystem() != system ) {
 					echo.append("Fehler: Schiff liegt nicht im System");
 					return;
 				}
-				
+
 				String name = ship.getAttribute("name");
 				int owner = Integer.parseInt(ship.getAttribute("owner"));
 				int typeId = Integer.parseInt(ship.getAttribute("type"));
 				boolean tradepost = Boolean.parseBoolean(ship.getAttribute("tradepost"));
-				
+
 				User ownerObj = em.find(User.class, owner);
 				if( ownerObj == null ) {
 					echo.append("Fehler: Schiff Besitzer '").append(owner).append("' existiert nicht");
 					return;
 				}
-				
+
 				ShipType type = em.find(ShipType.class, typeId);
 				if( type == null ) {
 					echo.append("Fehler: Schiff Typ '").append(typeId).append("' existiert nicht");
 					return;
 				}
-				
+
 				Cargo cargo = new Cargo();
 				Node cargoNode = XMLUtils.firstNodeByTagName(ship, "cargo");
 				if( cargoNode != null ) {
 					cargo = new Cargo(cargoNode);
 				}
-				
+
 				Ship shipObj = new Ship(ownerObj, type, system, source.getX(), source.getY());
 				shipObj.setName(name);
 				shipObj.setCargo(cargo);
 				if( tradepost ) {
 					shipObj.setStatus((shipObj.getStatus()+" tradepost").trim());
 				}
-				
+
 				shipObj.setCrew(type.getCrew());
 				shipObj.setEnergy(type.getEps());
 				shipObj.setHull(type.getHull());
@@ -454,12 +454,12 @@ public class CreateObjects implements AdminPlugin {
 				shipObj.setComm(100);
 				shipObj.setSensors(100);
 				em.persist(shipObj);
-				
+
 				// Offizier
 				Element offiElement = (Element)XMLUtils.firstNodeByTagName(ship, "offizier");
 				if( offiElement != null ) {
 					int rangcount = 0;
-					
+
 					Offizier offizier = new Offizier(ownerObj, offiElement.getAttribute("name"));
 					if( offiElement.getAttribute("all") != null ) {
 						int all = Integer.parseInt(offiElement.getAttribute("all"));
@@ -468,9 +468,9 @@ public class CreateObjects implements AdminPlugin {
 							rangcount += all;
 						}
 					}
-					
+
 					offizier.setSpecial(Offizier.Special.values()[ThreadLocalRandom.current().nextInt(1,7)]);
-					
+
 					int rangf = rangcount/5;
 					int rang = rangf/125;
 					if( rang > Offiziere.MAX_RANG ) {
@@ -496,7 +496,7 @@ public class CreateObjects implements AdminPlugin {
 		if( location.indexOf(':') > -1 ) {
 			return Location.fromString(location);
 		}
-		
+
 		// Position ohne Systemangabe (d.h. innerhalb dieses Systems)
 		return Location.fromString(system+":"+location);
 	}
@@ -504,7 +504,7 @@ public class CreateObjects implements AdminPlugin {
 	private void parsePngFile(StringBuilder echo, int system, File png) throws IOException {
 		BufferedImage image = ImageIO.read(new FileInputStream(png));
 
-		StarSystem thissystem = em.find(StarSystem.class, system);
+		StarSystem thissystem = StarSystem.getSystem(system);
 
 		for( int x=0; x < thissystem.getWidth(); x++ ) {
 			for( int y=0; y < thissystem.getHeight(); y++ ) {
@@ -602,7 +602,7 @@ public class CreateObjects implements AdminPlugin {
 		final int maxY = context.getRequest().getParameterInt("maxY");
 		final int systemout = context.getRequest().getParameterInt("systemout");
 		String systemname = context.getRequest().getParameterString("systemname");
-		
+
 		echo.append("Erstelle Jumpnode...<br />\n");
 
 		JumpNode jn = new JumpNode(new Location(system, minX, minY), new Location(systemout, maxX, maxY), systemname);
@@ -616,7 +616,7 @@ public class CreateObjects implements AdminPlugin {
 		final int minY = context.getRequest().getParameterInt("minY");
 		final int maxX = context.getRequest().getParameterInt("maxX");
 		final int maxY = context.getRequest().getParameterInt("maxY");
-		
+
 		for( int i=1; i <= anzahl; i++ ) {
 			int x = ThreadLocalRandom.current().nextInt(minX,maxX+1);
 			int y = ThreadLocalRandom.current().nextInt(minY,maxY+1);
@@ -636,13 +636,13 @@ public class CreateObjects implements AdminPlugin {
 
 		final User nullUser = em.find(User.class, 0);
 		BaseType type = em.find(BaseType.class, klasse);
-		
+
 		if(type == null)
 		{
 			echo.append("Basis-Klasse nicht gefunden!\n");
 			return;
 		}
-		
+
 		for( int i=1; i <= anzahl; i++ ) {
 			int x = ThreadLocalRandom.current().nextInt(minX,maxX+1);
 			int y = ThreadLocalRandom.current().nextInt(minY,maxY+1);

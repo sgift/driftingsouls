@@ -8,10 +8,12 @@ import javax.persistence.CollectionTable;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.List;
 
 /**
  * Ein Item, dass als Modul in ein Schiff eingebaut werden kann.
@@ -20,6 +22,10 @@ import java.util.Set;
 @DiscriminatorValue("Schiffsmodul")
 public class Schiffsmodul extends Item
 {
+
+	@PersistenceContext
+	private static EntityManager em;
+
 	@ElementCollection
 	@CollectionTable(name = "schiffsmodul_slots")
 	@ForeignKey(name = "schiffsmodul_slots_fk_schiffsmodul")
@@ -121,5 +127,22 @@ public class Schiffsmodul extends Item
 	public IEModule getEffect()
 	{
 		return new IEModule(slots, mods, set);
+	}
+
+	/**
+	 * laedt das Schiffsmodul aus der Datenbank
+	 * @param itemid
+	 * @return das Schiffsmodul
+	 */
+	public static Schiffsmodul getSchiffsmodul(int itemid){
+		return em.find(Schiffsmodul.class, itemid);
+	}
+
+		/**
+	 * Laedt die vollstaendige Itemliste aus der Datenbank
+	 * @return die Itemliste
+	 */
+	public static List<Schiffsmodul> getSchiffsmodulList(){
+		return em.createQuery("from Schiffsmodul", Schiffsmodul.class).getResultList();
 	}
 }

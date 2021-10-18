@@ -27,9 +27,14 @@ import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.Id;
 import java.util.HashSet;
 import java.util.Set;
+
+import java.util.List;
+import net.driftingsouls.ds2.server.framework.Common;
 
 /**
  * Eine einfache Waffe in DS. Basisklasse fuer alle Waffen.
@@ -40,6 +45,10 @@ import java.util.Set;
 @DiscriminatorColumn(name = "implementierung")
 @DiscriminatorValue("Weapon")
 public class Weapon {
+
+	@PersistenceContext
+	private static EntityManager em;
+
 	@Id
 	private String id;
 	private String name = "";
@@ -194,7 +203,7 @@ public class Weapon {
 	public int getBaseDamageModifier(ShipTypeData enemyShipType) {
 		return 1;
 	}
-	
+
 	/**
 	 * Gibt den Schaden der Waffe gegenueber den Schilden zurueck.
 	 * @return Der Schaden an den Schilden
@@ -211,7 +220,7 @@ public class Weapon {
 	{
 		this.shieldDamage = shieldDamage;
 	}
-    
+
 	/**
 	 * Gibt den Schaden der Waffe gegenueber den Subsystemen zurueck.
 	 * @return Der Schaden an den Subsystemen
@@ -228,7 +237,7 @@ public class Weapon {
 	{
 		this.subDamage = subDamage;
 	}
-	
+
 	/**
 	 * Gibt die Trefferwahrscheinlichkeit gegenueber normalen Schiffen zurueck.
 	 * @return Die Trefferwahrscheinlichkeit gegenueber normalen Schiffen
@@ -245,7 +254,7 @@ public class Weapon {
 	{
 		this.defTrefferWS = defTrefferWS;
 	}
-	
+
 	/**
 	 * Gibt die Trefferwahrscheinlichkeit gegenueber kleinen Schiffen zurueck.
 	 * @return Die Trefferwahrscheinlichkeit gegenueber kleinen Schiffen
@@ -262,7 +271,7 @@ public class Weapon {
 	{
 		this.defSmallTrefferWS = defSmallTrefferWS;
 	}
-	
+
 	/**
 	 * Gibt die Trefferwahrscheinlichkeit gegenueber anfliegenden Torpedos (und anderen zerstoerbaren Waffen) zurueck.
 	 * @return Die Trefferwahrscheinlichkeit gegenueber Torpedos (und anderen zerstoerbaren Waffen)
@@ -296,7 +305,7 @@ public class Weapon {
 	{
 		this.defSubWS = defSubWS;
 	}
-	
+
 	/**
 	 * Berechnet Aenderungen am Schiffstyp des feuernden Schiffes.
 	 * @param ownShipType Der Typ des feuernden Schiffes
@@ -306,7 +315,7 @@ public class Weapon {
 	public ShipTypeData calcOwnShipType(ShipTypeData ownShipType, ShipTypeData enemyShipType) {
 		return ownShipType;
 	}
-	
+
 	/**
 	 * Berechnet Aenderungen am Schiffstyp des getroffenen Schiffes.
 	 * @param ownShipType Der Typ des feuernden Schiffes
@@ -316,7 +325,7 @@ public class Weapon {
 	public ShipTypeData calcEnemyShipType(ShipTypeData ownShipType, ShipTypeData enemyShipType) {
 		return enemyShipType;
 	}
-	
+
 	/**
 	 * Gibt die benoetigten Munitionstypen zurueck. Falls keine Munition verwendet wird, so wird ein leeres Set zurueckgegeben.
 	 * @return Die benoetigten Munitionstypen
@@ -334,7 +343,7 @@ public class Weapon {
 		this.munition.clear();
 		this.munition.addAll(munition);
 	}
-	
+
 	/**
 	 * Gibt die Anzahl der Einzelschuesse pro abgefeuertem Schuss zurueck.
 	 * @return Die Anzahl der Einzelschuesse pro abgefeuertem Schiff
@@ -351,7 +360,7 @@ public class Weapon {
 	{
 		this.singleshots = singleshots;
 	}
-	
+
 	/**
 	 * Gibt die Reichweite des Schadens gegenueber der Umgebung des getroffenen Schiffes zurueck.
 	 * @return Der Umgebungsschaden
@@ -368,7 +377,7 @@ public class Weapon {
 	{
 		this.areaDamage = areaDamage;
 	}
-	
+
 	/**
 	 * Gibt zurueck, ob das Geschoss durch Abwehrfeuer zerstoerbar ist.
 	 * @return <code>true</code>, falls das Geschoss durch Abwehrfeuer zerstoerbar ist
@@ -385,7 +394,7 @@ public class Weapon {
 	{
 		this.destroyable = destroyable;
 	}
-	
+
 	/**
 	 * Prueft, ob die Waffe ueber das angegebene Flag verfuegt.
 	 * @param flag Das Flag
@@ -424,5 +433,23 @@ public class Weapon {
 		 * zweite Reihe des Gegners feuern.
 		 */
 		VERY_LONG_RANGE
+	}
+
+
+	/**
+	 * Laedt die vollstaendige Weaponliste aus der Datenbank
+	 * @return die Weaponliste
+	 */
+	public static List<Weapon> getWeaponList(){
+		return Common.cast(em.createCriteria(Weapon.class).list());
+	}
+
+	/**
+	 * laedt das Weapon aus der Datenbank
+	 * @param weaponid
+	 * @return das Weapon
+	 */
+	public static Weapon getWeapon(int weaponid){
+		return em.find(Weapon.class,weaponid);
 	}
 }

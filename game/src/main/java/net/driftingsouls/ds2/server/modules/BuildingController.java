@@ -1498,7 +1498,7 @@ public class BuildingController extends Controller
 			int itemid = ContextMap.getContext().getRequest().getParameterInt("item");
 
 			Ally ally = user.getAlly();
-			Item item = em.find(Item.class, itemid);
+			Item item = Item.getItem(itemid);
 
 			if( ally == null ) {
 				message.append("Sie sind in keiner Allianz<br /><br />\n");

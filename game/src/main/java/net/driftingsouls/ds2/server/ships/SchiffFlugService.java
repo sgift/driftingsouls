@@ -188,7 +188,7 @@ public class SchiffFlugService
 		else if( direction == 8 ) { y++; }
 		else if( direction == 9 ) { x++; y++; }
 
-		StarSystem sys = em.find(StarSystem.class, ship.getSystem());
+		StarSystem sys = StarSystem.getSystem(ship.getSystem());
 
 		if( x > sys.getWidth()) {
 			x = sys.getWidth();
