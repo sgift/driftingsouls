@@ -114,15 +114,19 @@ public class SchlachtErstellenService
 				continue;
 			}
 
+			//gedockte + gelandete Schiffe werden ueber ihr BaseShip in die Schlacht gejoint
+			//andernfalls koennen ueber Flotten Schiffe der Schlacht joinen, welche auf einem Traeger ausserhalb sind.
+			if(aShip.isDocked() || aShip.isLanded()){
+				continue;
+			}
+
 			BattleShip battleShip = new BattleShip(null, aShip);
 
 			ShipTypeData shiptype = aShip.getBaseType();
 
 
 			boolean ownShipFound = false;
-			if ((shiptype.getShipClass() == ShipClasses.GESCHUETZ) && (aShip.isDocked() || aShip.isLanded())) {
-				battleShip.addFlag(BattleShipFlag.DISABLE_WEAPONS);
-			}
+
 
 			if (((ownAlly != null) && (tmpUser.getAlly() == ownAlly)) || (user.getId() == tmpUser.getId())) {
 				ownUsers.add(tmpUser);
@@ -153,14 +157,6 @@ public class SchlachtErstellenService
       if (shiptype.hasFlag(ShipTypeFlag.SECONDROW) && aShip.getEinstellungen().gotoSecondrow()) {
 				secondRowShips.add(battleShip);
 			}
-			//ist Schiff gedockt und Traeger Reihe 2, dann Schiff auch Reihe 2
-			else if (aShip.isDocked()){
-				Ship traeger =  aShip.getBaseShip();
-				//Traegertschiff ebenso abfragen wie oben
-				if (traeger.getEinstellungen().gotoSecondrow()  && traeger.getBaseType().hasFlag(ShipTypeFlag.SECONDROW)){
-					secondRowShips.add(battleShip);
-				}
-			}
 			else
 			{
 				if(ownShipFound)
@@ -171,6 +167,29 @@ public class SchlachtErstellenService
 				{
 					firstRowEnemyExists = true;
 				}
+			}
+
+			//sollten auf dem Schiff Schiffe gedockt / gelandet sein, joinen diese nun ebenfalls der Schlacht
+			for(Ship lShip : aShip.getGedockteUndGelandeteSchiffe()){
+				BattleShip blShip = new BattleShip(null, lShip);
+				ShipTypeData lshiptype = lShip.getBaseType();
+
+				//natuerlich kommt das gedockte Schiff auf die selbe Seite und in die selbe Reihe wie sein Traeger
+				blShip.setSide(battleShip.getSide());
+				if(ownShips.contains(battleShip)){
+					ownShips.add(blShip);
+				}
+				else{
+					enemyShips.add(blShip);
+				}
+				if(secondRowShips.contains(battleShip)){
+					secondRowShips.add(blShip);
+				}
+				//Geschuetze deaktivieren
+				if ((lshiptype.getShipClass() == ShipClasses.GESCHUETZ) ) {
+					blShip.addFlag(BattleShipFlag.DISABLE_WEAPONS);
+				}
+
 			}
 		}
 

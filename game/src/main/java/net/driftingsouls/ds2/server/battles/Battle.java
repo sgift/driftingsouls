@@ -785,51 +785,15 @@ public boolean hasFrontRow( int side) {
             if (shiptype.getShipClass() == ShipClasses.GESCHUETZ) {
                 continue;
             }
+						//gedockte/gelandete Schiffe werden ueber ihr Baseship gejoint, damit es nicht zu Fehlern mit Flotten kommt
+						if(aship.isDocked() ||aship.isLanded()){
+							continue;
+						}
 
             shiplist.add(aship.getId());
+						BattleShip aBattleShip = new BattleShip(this, aship);
 
-            // ggf. gedockte Schiffe auch beruecksichtigen
-            List<Ship> docked = Common.cast(db.createQuery("from Ship where id>0 and battle is null and docked in (:docked,:landed)")
-                    .setString("docked", Integer.toString(aship.getId()))
-                    .setString("landed", "l " + aship.getId())
-                    .list());
-
-            for(Ship dockedShip : docked)
-            {
-                if (db.get(BattleShip.class, dockedShip.getId()) != null) {
-                    continue;
-                }
-
-				BattleShip sid2bs = new BattleShip(this, dockedShip);
-
-                ShipTypeData stype = dockedShip.getTypeData();
-                if (stype.getShipClass() == ShipClasses.GESCHUETZ) {
-                    sid2bs.addFlag(BattleShipFlag.BLOCK_WEAPONS);
-                }
-
-                shiplist.add(dockedShip.getId());
-
-
-                // Das neue Schiff in die Liste der eigenen Schiffe eintragen
-                if (!shiptype.hasFlag(ShipTypeFlag.INSTANT_BATTLE_ENTER) &&
-                        !stype.hasFlag(ShipTypeFlag.INSTANT_BATTLE_ENTER)) {
-                    sid2bs.addFlag(BattleShipFlag.JOIN);
-                }
-
-                sid2bs.setSide(this.ownSide);
-
-                getOwnShips().add(sid2bs);
-
-                Common.safeIntInc(shipcounts, dockedShip.getType());
-
-                db.persist(sid2bs);
-
-                dockedShip.setBattle(this);
-            }
-
-			BattleShip aBattleShip = new BattleShip(this, aship);
-
-			// Das neue Schiff in die Liste der eigenen Schiffe eintragen
+						// Das neue Schiff in die Liste der eigenen Schiffe eintragen
             if (!shiptype.hasFlag(ShipTypeFlag.INSTANT_BATTLE_ENTER)) {
                 aBattleShip.addFlag(BattleShipFlag.JOIN);
             }
@@ -843,6 +807,42 @@ public boolean hasFrontRow( int side) {
             db.persist(aBattleShip);
 
             aship.setBattle(this);
+
+						//alle gedockten / gelandeten Schiffe mit in die Schlacht ziehen
+						for(Ship lShip : aship.getGedockteUndGelandeteSchiffe()){
+
+							//falls es schon im Kampf sein sollte. Kann eigentlich nicht, aber sicher ist sicher
+							if (db.get(BattleShip.class, lShip.getId()) != null) {
+								continue;
+							}
+							//ok, noch nicht in der Schlacht, dann legen wir los
+
+							BattleShip sid2bs = new BattleShip(this, lShip);
+							ShipTypeData stype = lShip.getTypeData();
+
+							//Gechuetze blockieren
+							if (stype.getShipClass() == ShipClasses.GESCHUETZ) {
+									sid2bs.addFlag(BattleShipFlag.BLOCK_WEAPONS);
+							}
+
+							shiplist.add(lShip.getId());
+							// Das neue Schiff in die Liste der eigenen Schiffe eintragen
+							if (!shiptype.hasFlag(ShipTypeFlag.INSTANT_BATTLE_ENTER) &&
+										!stype.hasFlag(ShipTypeFlag.INSTANT_BATTLE_ENTER)) {
+								sid2bs.addFlag(BattleShipFlag.JOIN);
+							}
+
+							sid2bs.setSide(aBattleShip.getSide());
+
+							getOwnShips().add(sid2bs);
+
+							Common.safeIntInc(shipcounts, lShip.getType());
+
+							db.persist(sid2bs);
+
+							lShip.setBattle(this);
+
+						}
         }
 
 		if( shiplist.size() > 1 )
@@ -1235,24 +1235,24 @@ public boolean hasFrontRow( int side) {
                     ship.removeFlag(BattleShipFlag.SECONDROW);
                 }
                 else if ((i == 1) && this.hasFlag(BattleFlag.DROP_SECONDROW_1)) {
-					ship.removeFlag(BattleShipFlag.SECONDROW);
+									ship.removeFlag(BattleShipFlag.SECONDROW);
                 }
 
                 if (ship.hasFlag(BattleShipFlag.JOIN)) {
                     ShipTypeData ashipType = ship.getTypeData();
-					if (ashipType.hasFlag(ShipTypeFlag.SECONDROW)) {
-						shipsSecond.add(ship);
-					}
+										if (ashipType.hasFlag(ShipTypeFlag.SECONDROW) && ship.getShip().getEinstellungen().gotoSecondrow()) {
+											shipsSecond.add(ship);
+										}
                     ship.removeFlag(BattleShipFlag.JOIN);
                 }
 
                 Map<String, Integer> heat = ship.getWeaponHeat();
 
-				heat.replaceAll((n, v) -> 0);
+								heat.replaceAll((n, v) -> 0);
 
                 if (ship.hasFlag(BattleShipFlag.FLUCHTNEXT)) {
-					ship.removeFlag(BattleShipFlag.FLUCHTNEXT);
-					ship.addFlag(BattleShipFlag.FLUCHT);
+									ship.removeFlag(BattleShipFlag.FLUCHTNEXT);
+									ship.addFlag(BattleShipFlag.FLUCHT);
                 }
 
                 ship.getShip().setWeaponHeat(heat);
