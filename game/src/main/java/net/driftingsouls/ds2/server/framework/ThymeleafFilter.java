@@ -18,11 +18,13 @@ public class ThymeleafFilter implements Filter {
     private ServletContext servletContext;
     private DSApplication application;
 
+    @Override
     public void init(FilterConfig config) throws ServletException {
         this.servletContext = config.getServletContext();
         this.application = new DSApplication(this.servletContext);
     }
 
+    @Override
     public void destroy() {
         //Nothing to do
     }
