@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+
+    <title>Drifting Souls 2</title>
+
+    <link rel="stylesheet" type="text/css" href="./data/css/format.css"/>
+    <link rel="stylesheet" type="text/css" href="./data/css/ui-darkness/00_jquery-ui-1.8.20.css"/>
+    <link rel="stylesheet" type="text/css" href="./data/css/ui-darkness/10_jquery-ui.css"/>
+    <link type="text/css" rel="stylesheet" href="data/css/ds_2_portal.css"/>
+
+    <script type="text/javascript" src="data/javascript/jquery.js"></script>
+    <script type="text/javascript" src="data/javascript/facebox.js"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(function ($) {
+            $('a[rel*=facebox]').facebox()
+        })
+
+    </script>
+</head>
+
+<body>
+<input type='hidden' name='currentDsModule' id='currentDsModule' value=''/>
+<script src="./data/javascript/ds.js" type="text/javascript"></script>
+<div id="error-placeholder"></div>
+<audio autoplay loop>
+    <source src="data/sounds/welcome.mp3" type="audio/mp3">
+</audio>
+<div id="header">
+
+    <!-- hier sind die Drifting Souls Bilder der ersten Portalseite-->
+    <div class="logo">
+        <img src="./data/interface/portal/gcp-logo.png" alt="DS2 LOGO"/>
+    </div>
+    <div class="ueberschrift">
+        <h1><img src="./data/interface/portal/driftingsouls.png" alt="Drifting Souls 2"/></h1>
+    </div>
+    <div id="navigation">
+        <ul class="navi">
+            <li><a title="Home" href=".">Home</a></li>
+            <li><a title="Portal" href=".">Portal</a>
+                <ul class="subnav1">
+                    <li><a title="Github Repository" href="https://github.com/sgift/driftingsouls" target="_blank">Github</a>
+                    </li>
+                </ul>
+            </li>
+            <li><a>Community</a>
+                <ul class="subnav1">
+                    <li><a title="Discord" href="https://discord.gg/cpxxAGy" target="_blank">Discord</a></li>
+                    <li><a title="Forum" href="http://ds.rnd-it.de/index.php" target="_blank">Forum</a></li>
+                    <li><a title="Drifting Souls Wiki" href="http://de.drifting-souls.wikia.com"
+                           target="_blank">Wiki</a></li>
+                    <li><a title="Facebook-Seite" href="https://www.facebook.com/DriftingSouls2/" target="_blank">FB-Seite</a>
+                    </li>
+                    <li><a title="Facebook-Gruppe" href="https://www.facebook.com/groups/156787224385374"
+                           target="_blank">FB-Gruppe</a></li>
+                    <li><a title="Twitter" href="https://twitter.com/driftingsouls2" target="_blank">Twitter</a></li>
+                </ul>
+            </li>
+            <li><a title="zu den AGB" href="agb.html">AGB</a></li>
+            <li><a title="zum Impressum" href="impressum.html">Impressum</a></li>
+        </ul>
+    </div>
+</div>
+
+<div>
+    <p class="schiff"><img src="./data/interface/portal/FINAL4-1.png" alt="Ein Traeger"/></p>
+</div>
+<!-- Bis hier der Headerbereich -->
+<div id="content">
+    <div class="linke-spalte">
+
+        <div id="document">
+
+
+            <div id="login">
+                <form action="./ds" method="post">
+
+                    <p><span class="left">Name: </span><input class="name-input" style="width:170px" name="username"
+                                                              type="text" maxlength="40" value=""/></p>
+
+                    <p><span class="left">Passwort: </span><input class="pw-input" style="width:170px" name="password"
+                                                                  type="password" value=""/></p>
+
+                    <p><input type="hidden" name="action" value="login"/>
+                        <input type="hidden" name="module" value="portal"/></p>
+                    <p><span class="submit"><input type="submit" value="Login" style="width:100px"/></span></p>
+                </form>
+            </div>
+
+            <div id="lostpass">
+                <p><a href="password_lost.html" title="Passwort vergessen">Passwort vergessen?</a></p>
+            </div>
+
+            <div id="teaser">
+                <p><a id="registerlink" href="register.html"> Registrierung </a></p>
+            </div>
+
+
+        </div> <!-- Ende ID document -->
+        <!-- Eigene if Bedingung definieren? -->
+
+        <div id="about">
+            <h2>&Uuml;ber Drifting Souls 2</h2>
+            <p>Drifting Souls 2 (DS2) ist ein komplexes Aufbau-Strategiespiel, welches im Weltraum spielt und in der
+                Zukunft stattfindet. Der geschichtlich-rollenspielerische Hintergrund des Spiels sind die
+                90er-Jahre-Computerspiele der Freespace-Reihe. DS2 ist komplett kostenlos und zum Spielen braucht es
+                lediglich einen Browser und eine aktive Internetverbindung.</p>
+            <p>In DS2 startet man auf einem kargen Asteroiden, welchen man zun&auml;chst ausbauen und erweitern muss. In
+                diesem Part gleicht DS2 den altherbekannten Aufbau-Strategiespielen wie OGame, die St&auml;mme und Ikariam.
+                Doch das ist nur ein kleiner Teil. In DS2 kannst Du Deine Schiffe &uuml;ber 2D-Sternenkarten fliegen, manuell
+                ausstatten, individuell steuern und mit ihnen k&auml;mpfen. Du kannst Dich Allianzen und Fraktionen
+                anschließen, Handel treiben und den Weltraum entdecken. Ob H&auml;ndler, Krieger, ob Einsiedler und
+                Teamplayer, ob viel Zeit oder wenig: Ein Spieler eines jeden Spielstils wird sich wohlf&uuml;hlen. Ein
+                besonderes Schmankerl ist auch das im Spiel integrierte Schreib-Rollenspiel. Im sogennanten Com-Net,
+                einem universumsweiten Kommunikationsnetzwerk, k&ouml;nnen Spieler ihre Rollenspiele betreiben. Vom einfachen
+                Notruf bis zur weitgeschm&uuml;ckten RPG-Episode ist hier Platz f&uuml;r jeden, der sich gern
+                schriftstellerisch/kreativ austoben will.</p>
+            <p>Programmiert wird DS2 von ehrenamtlichen Entwicklern, und das seit 2001. Bis heute frischen regelm&auml;ßige
+                Updates das Spiel auf. Zudem gibt es keine langweiligen, vorhersehbaren NPC-KIs, denn die NPCs werden
+                von Menschenhand gesteuert und verwaltet.</p>
+            <p>Steige jetzt in Dein Raumschiff und werde vasudanischer Pirat, terranischer Extremist, großz&uuml;giger
+                H&auml;ndler, pazifistischer Kommunist oder spiritueller Fundamentalist.</p>
+            <iframe src="https://youtube.com/embed/QZy3MctfW3I"></iframe>
+        </div> <!-- Ende About -->
+
+    </div> <!-- Ende Linke Spalte -->
+
+    <div class="rechte-spalte">
+        <div id="re-inhalt">
+
+
+            <!-- was war hier drin? -->
+
+
+            <ul id="news">
+                <h2>News</h2>
+
+                <li class="newsitem">
+                    <h3 class="title">Neuigkeiten vom 19.10.2021</h3>
+                    <span class="authoring">Neuigkeiten, 19.10.2021 22:57</span>
+                    <p class="newstext">1. Kleinere Anpassungen, v. a. an Modulen:<br/><a class="forschinfo"
+                                                                                          href="https://ds2forum.de/viewtopic.php?f=8&amp;t=318"
+                                                                                          target="_blank">Siehe hier</a><br/><br/>2.
+                        Vorwarnung Schadensnebel / Treibstoffverbrauch von Schiffen:<br/><br/>In K&#252;rze wird ein
+                        Update eingespielt, welches einer gewissen Vorwarnung bedarf. Es betritt den Treibstoffverbrauch
+                        der Schiffe und die Funktion der Schadensnebel. <br/><br/><a class="forschinfo"
+                                                                                     href="https://ds2forum.de/viewtopic.php?f=8&amp;t=319"
+                                                                                     target="_blank">Siehe hier</a></p>
+                </li>
+
+                <li class="newsitem">
+                    <h3 class="title">Weitreichende Anpassung von Nareos- und Depot-Modulen</h3>
+                    <span class="authoring">Neuigkeiten, 17.10.2021 21:28</span>
+                    <p class="newstext">Heute wurden die allermeisten Nareos- und Depot-Module angepasst. Wir danken
+                        hierbei allen aus der Spielerschaft, die uns bei den Anpassungen beratend im Discord zur Seite
+                        gestanden haben.<br/><br/>Die Nareos-Module sind nun unter anderem auch f&#252;r H&#228;ndler
+                        interessant, die so ihre Handelsst&#228;tten besser sch&#252;tzen und unterhalten k&#246;nnen,
+                        bieten aber auch sonst verschiedene Einsatzm&#246;glichkeiten. Das Milit&#228;rdepot kann nun
+                        als kleiner, wehrhafter Au&#223;enposten fungieren, z. B. auch als Bergbaust&#252;tzpunkt. Die
+                        Anschaffungskosten sind zumeist deutlich reduziert worden. Bei einigen Modulen wurden aber auch
+                        die Nahrungsspeicher reduziert, pr&#252;ft dahingehend bitte eure Schiffe.<br/><br/>Wir w&#252;nschen
+                        viel Spa&#223; mit den neuen Modulen. &nbsp;:)<br/><br/>Die wichtigsten &#196;nderungen sind
+                        hier zu entnehmen:<br/><a class="forschinfo"
+                                                  href="https://ds2forum.de/viewtopic.php?f=8&amp;t=317&amp;p=937#p937"
+                                                  target="_blank">Link zum Forum</a></p>
+                </li>
+
+                <li class="newsitem">
+                    <h3 class="title">Alastor, Guardian, Edjo: &uuml;berarbeitung der Gesch&uuml;tze</h3>
+                    <span class="authoring">Neuigkeiten, 24.09.2021 17:45</span>
+                    <p class="newstext">Heute wurden die meisten Gesch&#252;tze &#252;berarbeitet.<br/><br/>Weitere
+                        Infos zu den &#220;berarbeitungen im Einzelnen &nbsp;findet ihr im Forum: <a class="forschinfo"
+                                                                                                     href="https://ds2forum.de/viewtopic.php?f=8&amp;t=316"
+                                                                                                     target="_blank">Link
+                            zur Ank&#252;ndigung</a></p>
+                </li>
+
+            </ul>
+
+            <div id="archiv">
+                <p>
+                    <a title="zum News-Archiv" href="news_archive.html">Zum News-Archiv</a>
+                </p>
+            </div>
+
+
+        </div>  <!-- Ende class. re-inhalt (gegenstueck "documents") -->
+    </div>    <!-- Ende class. Rechte Spalte -->
+
+</div> <!-- Ende ID Container -->
+
+<!-- hier wird von wo anders der Schluss eingef&uuml;gt -->
+<script type="text/javascript">
+    if (parent && parent.setCurrentPage) {
+        parent.setCurrentPage('', 'null');
+        parent.completePage();
+    }
+</script>
+</body>
+</html>
