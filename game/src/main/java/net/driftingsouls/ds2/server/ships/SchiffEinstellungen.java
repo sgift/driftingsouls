@@ -41,6 +41,7 @@ public class SchiffEinstellungen
 	private byte automine;
 	private boolean startFighters;
 	private boolean gotoSecondrow;
+	private boolean useInstantBattleEnter;
 	@Index(name="schiffeinstellungen_feeding")
 	private boolean isfeeding;
 	@Index(name="schiffeinstellungen_allyfeeding")
@@ -55,6 +56,7 @@ public class SchiffEinstellungen
 		this.autodeut = 1;
 		this.automine = 1;
 		this.gotoSecondrow = true;
+		this.useInstantBattleEnter = true;
 		this.showtradepost = TradepostVisibility.ALL;
 	}
 
@@ -239,6 +241,22 @@ public class SchiffEinstellungen
 		this.gotoSecondrow = gotoSecondrow;
 	}
 
+		/**
+	 * Gibt zurueck, ob Schiffe ihre schnelle Kampfbereitschaft nutzen sollen.
+	 * @return <code>true</code>, falls sie ihre schnelle Kampfbereitschaft nutzen sollen
+	 */
+	public boolean useInstantBattleEnter() {
+		return useInstantBattleEnter;
+	}
+
+	/**
+	 * Setzt, ob Schiffe ihre schnelle Kampfbereitschaft nutzen sollen.
+	 * @param useInstantBattleEnter <code>true</code>, falls sie ihre schnelle Kampfbereitschaft nutzen sollen
+	 */
+	public void setUseInstantBattleEnter(boolean useInstantBattleEnter) {
+		this.useInstantBattleEnter = useInstantBattleEnter;
+	}
+
 	/**
 	 * returns who can see the tradepost entry in factions.
 	 * @return The variable who can see the post
@@ -273,7 +291,7 @@ public class SchiffEinstellungen
 		{
 			return true;
 		}
-		if( this.bookmark || this.autodeut != 1 || this.automine != 1 || this.startFighters || !this.gotoSecondrow)
+		if( this.bookmark || this.autodeut != 1 || this.automine != 1 || this.startFighters || !this.gotoSecondrow || !this.useInstantBattleEnter)
 		{
 			return true;
 		}
