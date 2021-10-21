@@ -895,40 +895,43 @@ public class KSAttackAction extends BasicKSAction {
 				defcount = defcount + 1;
 			}
 
-			//check if ship has torpdef
-			if (shipHasTorpDef(type))
+			//check if ship has torpdef. ships joining don't add to torpdef
+			if(!selectedShip.hasFlag(BattleShipFlag.JOIN))
 			{
-				// check if ship is a GKS
-				if (shipIsGKS(type))
+				if (shipHasTorpDef(type))
 				{
-					// increase the gks-torpedo-defense
-					gksdefcount = gksdefcount + (int) Math.floor(type.getTorpedoDef() * crewFactor);
-				}
-				else
-				{
-					// check if ship is landed
-					if (shipIsNotLanded(selectedShip))
+					// check if ship is a GKS
+					if (shipIsGKS(type))
 					{
-						// increase the fighter-torpedo-defense
-						fighterdefcount += (int) Math.floor(type.getTorpedoDef() * crewFactor);
-						// increase number of fighters
-						fighter = fighter + 1;
+						// increase the gks-torpedo-defense
+						gksdefcount = gksdefcount + (int) Math.floor(type.getTorpedoDef() * crewFactor);
+					}
+					else
+					{
+						// check if ship is landed
+						if (shipIsNotLanded(selectedShip))
+						{
+							// increase the fighter-torpedo-defense
+							fighterdefcount += (int) Math.floor(type.getTorpedoDef() * crewFactor);
+							// increase number of fighters
+							fighter = fighter + 1;
+						}
 					}
 				}
-			}
 
-			// check if ship needs dock
-			if (shipNeedsDock(type))
-			{
-				// increase number of docks needed
-				docksuse = docksuse + 1;
-			}
+				// check if ship needs dock
+				if (shipNeedsDock(type))
+				{
+					// increase number of docks needed
+					docksuse = docksuse + 1;
+				}
 
-			// check if ship has docks
-			if (shipHasDocks(type))
-			{
-				// add docks
-				docks = docks + (int) Math.floor(type.getJDocks() * crewFactor);
+				// check if ship has docks
+				if (shipHasDocks(type))
+				{
+					// add docks
+					docks = docks + (int) Math.floor(type.getJDocks() * crewFactor);
+				}
 			}
 		}
 
@@ -1060,7 +1063,7 @@ public class KSAttackAction extends BasicKSAction {
 	}
 
 	private boolean shipNeedsDock(ShipTypeData type) {
-		return !(type.getShipClass() != ShipClasses.JAEGER && type.getShipClass() != ShipClasses.BOMBER);
+		return !(type.getShipClass() != ShipClasses.JAEGER && type.getShipClass() != ShipClasses.BOMBER && type.getShipClass() != ShipClasses.RETTUNGSKAPSEL);
 	}
 
 	private boolean shipIsGKS(ShipTypeData type) {
