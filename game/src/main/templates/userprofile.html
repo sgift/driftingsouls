@@ -27,7 +27,7 @@
 			{/endif}
 			{if user.allyrelationchange}
 				<br />
-				<span style="font-size:10px">F&uuml;r alle ihre Allianzmitglieder:</span><br />
+				<span style="font-size:10px">Für alle Ihre Allianzmitglieder:</span><br />
 				{!link_to feindlich, changeRelationAlly, css_class:error, css_style:font-size:10px, user:$user.id, relation:1} -
 				{!link_to neutral, changeRelationAlly, css_style:font-size:10px;color:#c7c7c7, user:$user.id, relation:0} -
 				{!link_to freundlich, changeRelationAlly, css_class:ok, css_style:font-size:10px, user:$user.id, relation:2}
@@ -68,7 +68,7 @@
 		<div class="gfxbox" style="width:395px;text-align:left">
 			<div style="height:102px; overflow:auto">
 				Dabei seit: {user.signupdate}<br />
-				Vac-Status: {user.vacstatus}<br />
+				Urlaubsmodus: {user.vacstatus}<br />
 			</div>
 		</div>
 	</td>

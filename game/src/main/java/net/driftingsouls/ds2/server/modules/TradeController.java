@@ -76,7 +76,7 @@ public class TradeController extends Controller
 	{
 		if ((ship == null) || (ship.getId() < 0) || (ship.getOwner() != getUser()))
 		{
-			throw new ValidierungException("Fehler: Das angegebene Schiff existiert nicht oder geh&ouml;rt nicht ihnen", Common.buildUrl("default", "module", "schiffe"));
+			throw new ValidierungException("Fehler: Das angegebene Schiff existiert nicht oder gehört nicht Ihnen", Common.buildUrl("default", "module", "schiffe"));
 		}
 	}
 
@@ -203,13 +203,13 @@ public class TradeController extends Controller
 		if (totalRE.compareTo(BigInteger.ZERO) > 0)
 		{
 			//Benachrichtigung fuer HP-Besitzer schreiben
-			if(ship.getOwner().getId()!=tradepost.getOwner().getId() && user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_HANDELSPOSTEN_PM))
+			if(ship.getOwner().getId()!=tradepost.getOwner().getId() && tradepost.getOwner().getUserValue(WellKnownUserValue.GAMEPLAY_USER_HANDELSPOSTEN_PM))
 			{
 				PM.send(tradepost.getOwner(), tradepost.getOwner().getId(), "Warenverkauf an "+tradepost.getName(), pmText.toString());
 			}
 			tradepost.getOwner()
 					.transferMoneyFrom(user.getId(), totalRE,
-							"Warenverkauf an"+tradepost.getName()+" bei " + tradepost.getLocation().displayCoordinates(false),
+							"Warenverkauf an "+tradepost.getName()+" bei " + tradepost.getLocation().displayCoordinates(false),
 							false, UserMoneyTransfer.Transfer.SEMIAUTO);
 		}
 		return new RedirectViewResult("default");
@@ -311,7 +311,7 @@ public class TradeController extends Controller
 					long nichtVerkauft = tmp - freeSpace / resourceMass;
 					tmp = freeSpace / resourceMass;
 
-					message.append("[resource=").append(res.getId()).append("]").append(nichtVerkauft).append("[/resource] nicht verkauft - Alle Lager sind voll\n");
+					message.append("[resource=").append(res.getId()).append("]").append(nichtVerkauft).append("[/resource] nicht verkauft - alle Lager sind voll\n");
 					pmText.append("[resource=").append(res.getId()).append("]").append(nichtVerkauft).append("[/resource] konnten nicht gekauft werden, da das Lager voll war\n");
 				}
 
@@ -337,7 +337,7 @@ public class TradeController extends Controller
 						log.info("Maximum after re consumption check: " + maximum);
 
 						message.append("[resource=").append(res.getId()).append("]").append(tmp - maximum.longValue()).append("[/resource] nicht verkauft - Ihr Handelspartner ist pleite\n");
-						pmText.append("[resource=").append(res.getId()).append("]").append(tmp - maximum.longValue()).append("[/resource] konnten nicht gekauft werden, da du zu wenig Geld hattest\n");
+						pmText.append("[resource=").append(res.getId()).append("]").append(tmp - maximum.longValue()).append("[/resource] konnten nicht gekauft werden, da Sie zu wenig Geld hatten\n");
 
 						tmp = maximum.longValue();
 					}
@@ -470,7 +470,7 @@ public class TradeController extends Controller
 		{
 
 			t.setVar("is.full", true,
-					"res.msg", "Dieser Handelsposten ist voll. Bitte beehre uns zu einem späteren Zeitpunkt erneut.");
+					"res.msg", "Dieser Handelsposten ist voll. Bitte beehren Sie uns zu einem späteren Zeitpunkt erneut.");
 		}
 
 		t.setBlock("_TRADE", "resbuy.listitem", "resbuy.list");

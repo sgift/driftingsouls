@@ -8,6 +8,7 @@ import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.services.SchlachtErstellenService;
@@ -17,8 +18,10 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -28,11 +31,13 @@ import java.util.concurrent.ThreadLocalRandom;
 public class SchiffFlugService
 {
 	private final SchlachtErstellenService schlachtErstellenService;
+	private final ConfigService configService;
 
 	@Autowired
-	public SchiffFlugService(SchlachtErstellenService schlachtErstellenService)
+	public SchiffFlugService(SchlachtErstellenService schlachtErstellenService, ConfigService configService)
 	{
 		this.schlachtErstellenService = schlachtErstellenService;
+		this.configService = configService;
 	}
 
 	/**
@@ -55,7 +60,11 @@ public class SchiffFlugService
 		/**
 		 * Das Schiff konnte nicht mehr weiterfliegen.
 		 */
-		SHIP_FAILURE
+		SHIP_FAILURE,
+		/**
+		 * Der Flug wurde an einem Schadensnebel abgebrochen.
+		 */
+		BLOCKED_BY_DAMAGE_NEBULA,
 	}
 
 	private static class MovementResult
@@ -74,7 +83,7 @@ public class SchiffFlugService
 
 
 
-	private static MovementResult moveSingle(Ship ship, ShipTypeData shiptype, Offizier offizier, int direction, int distance, long adocked, boolean forceLowHeat, boolean verbose, StringBuilder out) {
+	private MovementResult moveSingle(Ship ship, ShipTypeData shiptype, Offizier offizier, int direction, int distance, long adocked, boolean forceLowHeat, boolean verbose, StringBuilder out) {
 		boolean moved = false;
 		FlugStatus status = FlugStatus.SUCCESS;
 		org.hibernate.Session db = ContextMap.getContext().getDB();
@@ -219,12 +228,28 @@ public class SchiffFlugService
 				}
 			}
 
+			Nebel.Typ nebula = Nebel.getNebula(new Location(ship.getSystem(), x, y));
+			if(nebula != null) {
+				nebula.damageShip(ship, configService);
+			}
+
 			ship.setX(x);
 			ship.setY(y);
 			ship.setEnergy(newe);
 			ship.setHeat(news);
 			if( verbose ) {
 				out.append(ship.getName()).append(" fliegt in ").append(ship.getLocation().displayCoordinates(true)).append(" ein<br />\n");
+			}
+
+			if(ship.isDestroyed()) {
+				out.append("<span style=\"color:#ff0000\">Das Schiff wurde beim Einflug in den Sektor ").append(ship.getLocation().displayCoordinates(true)).append(" durch ein Raumphänomen zerstört</span><br />\n");
+				status = FlugStatus.SHIP_FAILURE;
+				distance = 0;
+			} else if(ship.getEngine() == 0) {
+				out.append("<span style=\"color:#ff0000\">Die Triebwerke sind zerstört</span><br />\n");
+				out.append("<span style=\"color:#ff0000\">Autopilot bricht ab bei ").append(ship.getLocation().displayCoordinates(true)).append("</span><br />\n");
+				status = FlugStatus.SHIP_FAILURE;
+				distance = 0;
 			}
 		}
 
@@ -575,24 +600,31 @@ public class SchiffFlugService
 
 			Map<Location, List<Ship>> alertList = Ship.alertCheck(schiff.getOwner(), sectorList.stream().map(Ship::getLocation).toArray(Location[]::new));
 
-			// Alle potentiell relevanten Sektoren mit EMP-Nebeln (ok..und ein wenig ueberfluessiges Zeug bei schraegen Bewegungen) auslesen
-			Map<Location,Boolean> nebulaemplist = new HashMap<>();
+			// Alle potentiell relevanten Sektoren mit EMP- oder Schadensnebeln (ok..und ein wenig ueberfluessiges Zeug bei schraegen Bewegungen) auslesen
+			Set<Nebel.Typ> nebulaTypes = new HashSet<>(Nebel.Typ.getEmpNebula());
+			nebulaTypes.addAll(Nebel.Typ.getDamageNebula());
 			List<Nebel> sectorNebelList = Common.cast(db.createQuery("from Nebel " +
-					"where type in (:emptypes) and loc.system=:system and loc.x between :lowerx and :upperx and loc.y between :lowery and :uppery")
+					"where type in (:nebulaTypes) and loc.system=:system and loc.x between :lowerx and :upperx and loc.y between :lowery and :uppery")
 					.setInteger("system", schiff.getSystem())
 					.setInteger("lowerx", (waypoint.direction - 1) % 3 == 0 ? schiff.getX() - waypoint.distance : schiff.getX())
 					.setInteger("upperx", (waypoint.direction) % 3 == 0 ? schiff.getX() + waypoint.distance : schiff.getX())
 					.setInteger("lowery", waypoint.direction <= 3 ? schiff.getY() - waypoint.distance : schiff.getY())
 					.setInteger("uppery", waypoint.direction >= 7 ? schiff.getY() + waypoint.distance : schiff.getY())
-					.setParameterList("emptypes", Nebel.Typ.getEmpNebel())
+					.setParameterList("nebulaTypes", nebulaTypes)
 					.list());
 
+			Set<Location> empLocations = new HashSet<>();
+			Set<Location> damageLocations = new HashSet<>();
 			for (Nebel nebel : sectorNebelList)
 			{
-				nebulaemplist.put(nebel.getLocation(), Boolean.TRUE);
+				if(nebel.getType().isEmp()) {
+					empLocations.add(nebel.getLocation());
+				} else {
+					damageLocations.add(nebel.getLocation());
+				}
 			}
 
-			if( (waypoint.distance > 1) && nebulaemplist.containsKey(schiff.getLocation()) ) {
+			if( (waypoint.distance > 1) && empLocations.contains(schiff.getLocation()) ) {
 				out.append("<span style=\"color:#ff0000\">Der Autopilot funktioniert in EMP-Nebeln nicht</span><br />\n");
 				return new FlugErgebnis(FlugStatus.BLOCKED_BY_EMP, out.toString());
 			}
@@ -633,7 +665,7 @@ public class SchiffFlugService
 					}
 				}
 
-				if( (startdistance > 1) && nebulaemplist.containsKey(nextLocation) ) {
+				if( (startdistance > 1) && empLocations.contains(nextLocation) ) {
 					out.append("<span style=\"color:#ff0000\">EMP-Nebel im n&auml;chsten Sektor geortet</span><br />\n");
 					out.append("<span style=\"color:#ff0000\">Autopilot bricht ab</span><br />\n");
 					status = FlugStatus.BLOCKED_BY_EMP;
@@ -641,10 +673,18 @@ public class SchiffFlugService
 					break;
 				}
 
+				if( (startdistance > 1) && damageLocations.contains(nextLocation) ) {
+					out.append("<span style=\"color:#ff0000\">Schadensnebel im n&auml;chsten Sektor geortet</span><br />\n");
+					out.append("<span style=\"color:#ff0000\">Autopilot bricht ab</span><br />\n");
+					status = FlugStatus.BLOCKED_BY_DAMAGE_NEBULA;
+					waypoint.distance = 0;
+					break;
+				}
+
 				int olddirection = waypoint.direction;
 
 				// ACHTUNG: Ob das ganze hier noch sinnvoll funktioniert, wenn distance > 1 ist, ist mehr als fraglich...
-				if( nebulaemplist.containsKey(nextLocation) &&
+				if( empLocations.contains(nextLocation) &&
 						(ThreadLocalRandom.current().nextDouble() < schiff.getTypeData().getLostInEmpChance()) ) {
 					Nebel.Typ nebel = Nebel.getNebula(schiff.getLocation());
 					if( nebel == Nebel.Typ.STRONG_EMP ) {
@@ -675,7 +715,6 @@ public class SchiffFlugService
 				}
 
 				waypoint.distance--;
-
 				MovementResult result = moveSingle(schiff, shiptype, offizier, waypoint.direction, waypoint.distance, adocked, forceLowHeat, false, out);
 				status = result.status;
 				waypoint.distance = result.distance;

@@ -245,7 +245,7 @@ public class KapernController extends Controller
 				}
 			}
 
-			msg.append("Die Einheiten der ").append(eigenesSchiff.getName()).append(" (").append(eigenesSchiff.getId()).append("), eine ").append(eigenesSchiff.getTypeData().getNickname()).append(", st&uuml;rmt die ").append(zielSchiff.getName()).append(" (").append(zielSchiff.getId()).append("), eine ").append(zielSchiff.getTypeData().getNickname()).append(", bei ").append(zielSchiff.getLocation().displayCoordinates(false)).append(".\n\n");
+			msg.append("Die Einheiten der ").append(eigenesSchiff.getName()).append(" (").append(eigenesSchiff.getId()).append("), ein(e) ").append(eigenesSchiff.getTypeData().getNickname()).append(", stürmen die ").append(zielSchiff.getName()).append(" (").append(zielSchiff.getId()).append("), ein(e) ").append(zielSchiff.getTypeData().getNickname()).append(", bei ").append(zielSchiff.getLocation().displayCoordinates(false)).append(".\n\n");
 
 			StringBuilder kapernLog = new StringBuilder();
 			ok = doFighting(kapernLog, eigenesSchiff, zielSchiff);
@@ -526,7 +526,7 @@ public class KapernController extends Controller
 				Battle battle = schlachtErstellenService.erstelle(targetShip.getOwner(), targetShip, ownShip, true);
 
 				t.setVar(
-						"kapern.message", "Ihr Kaperversuch wurde entdeckt und einige gegnerischen Schiffe haben das Feuer er&ouml;ffnet.",
+						"kapern.message", "Ihr Kaperversuch wurde entdeckt und die gegnerischen Schiffe haben das Feuer er&ouml;ffnet.",
 						"kapern.battle", battle.getId());
 
 				return false;

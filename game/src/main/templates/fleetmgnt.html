@@ -110,6 +110,7 @@
 			<td class="noBorderX" style="text-align:center; width:50px">ID</td>
 			<td class="noBorderX" style="text-align:center; width:150px">Name</td>
 			<td class="noBorderX" style="text-align:center; width:150px">Typ</td>
+			<td class="noBorderX" style="text-align:center; width:50px">Hitze</td>
 			<td class="noBorderX" style="text-align:center; width:50px">Offizier</td>
 			<td class="noBorderX"></td>
 		</tr>
@@ -134,6 +135,7 @@
 				</td>
 
 				<td class="noBorderX">{ship.type.name}</td>
+				<td class="noBorderX" style="color:{ship.heat.color}">{ship.heat}</td>
 				<td class="noBorderX">{ship.offi}</td>
 				<td class="noBorderX">
 					<a class="error" href="javascript:removeShip('{ship.id}')">[x]</a>

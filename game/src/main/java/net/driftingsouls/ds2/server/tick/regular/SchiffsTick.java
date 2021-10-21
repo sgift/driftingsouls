@@ -93,9 +93,9 @@ public class SchiffsTick extends TickController {
 	protected void prepare()
 	{
 		esources = new LinkedHashMap<>();
-		esources.put("a", Resources.ANTIMATERIE);
 		esources.put("d", Resources.DEUTERIUM);
 		esources.put("u", Resources.URAN);
+		esources.put("a", Resources.ANTIMATERIE);
 	}
 
 	/**
@@ -416,7 +416,7 @@ public class SchiffsTick extends TickController {
 			int maxenergie = rm;
 
 			// Reihenfolge muss identisch zu this.esources sein!
-			int[] reactres = new int[] {shiptd.getRa(), shiptd.getRd(), shiptd.getRu()};
+			int[] reactres = new int[] {shiptd.getRd(), shiptd.getRu(),shiptd.getRa()};
 			int index = 0;
 
 			for( String resshort : this.esources.keySet() ) {
@@ -888,32 +888,7 @@ public class SchiffsTick extends TickController {
 				Ship ship = (Ship)db.get(Ship.class, shipId);
 
 				log("* "+ship.getId());
-				int[] sub = new int[] {ship.getEngine(),ship.getWeapons(),ship.getComm(),ship.getSensors()};
-
-				for( int i=0; i < sub.length; i++ )
-				{
-					sub[i] -= 10;
-					if( sub[i] < 0 )
-					{
-						sub[i] = 0;
-					}
-				}
-
-				int hull = ship.getHull();
-				if( hull > 1 )
-				{
-					hull -= (int)(hull*0.05d);
-					if( hull < 1 )
-					{
-						hull = 1;
-					}
-				}
-
-				ship.setEngine(sub[0]);
-				ship.setWeapons(sub[1]);
-				ship.setComm(sub[2]);
-				ship.setSensors(sub[3]);
-				ship.setHull(hull);
+				Nebel.Typ.DAMAGE.damageShip(ship, new ConfigService());
 			}
 		}
 		.executeFor(ships);
