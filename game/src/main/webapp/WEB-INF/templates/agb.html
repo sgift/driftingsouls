@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+
+    <title>Drifting Souls 2</title>
+
+    <link rel="stylesheet" type="text/css" href="./data/css/format.css"/>
+    <link rel="stylesheet" type="text/css" href="./data/css/ui-darkness/00_jquery-ui-1.8.20.css"/>
+    <link rel="stylesheet" type="text/css" href="./data/css/ui-darkness/10_jquery-ui.css"/>
+    <link type="text/css" rel="stylesheet" href="data/css/ds_2_portal.css"/>
+
+    <script type="text/javascript" src="data/javascript/jquery.js"></script>
+    <script type="text/javascript" src="data/javascript/facebox.js"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(function ($) {
+            $('a[rel*=facebox]').facebox()
+        })
+
+    </script>
+</head>
+
+<body>
+<input type='hidden' name='currentDsModule' id='currentDsModule' value=''/>
+<script src="./data/javascript/ds.js" type="text/javascript"></script>
+<div id="error-placeholder"></div>
+<audio autoplay loop>
+    <source src="data/sounds/welcome.mp3" type="audio/mp3">
+</audio>
+<div id="header">
+
+    <!-- hier sind die Drifting Souls Bilder der ersten Portalseite-->
+    <div class="logo">
+        <img src="./data/interface/portal/gcp-logo.png" alt="DS2 LOGO"/>
+    </div>
+    <div class="ueberschrift">
+        <h1><img src="./data/interface/portal/driftingsouls.png" alt="Drifting Souls 2"/></h1>
+    </div>
+    <div id="navigation">
+        <ul class="navi">
+            <li><a title="Home" href=".">Home</a></li>
+            <li><a title="Portal" href=".">Portal</a>
+                <ul class="subnav1">
+                    <li><a title="Github Repository" href="https://github.com/sgift/driftingsouls" target="_blank">Github</a>
+                    </li>
+                </ul>
+            </li>
+            <li><a>Community</a>
+                <ul class="subnav1">
+                    <li><a title="Discord" href="https://discord.gg/cpxxAGy" target="_blank">Discord</a></li>
+                    <li><a title="Forum" href="http://ds.rnd-it.de/index.php" target="_blank">Forum</a></li>
+                    <li><a title="Drifting Souls Wiki" href="http://de.drifting-souls.wikia.com"
+                           target="_blank">Wiki</a></li>
+                    <li><a title="Facebook-Seite" href="https://www.facebook.com/DriftingSouls2/" target="_blank">FB-Seite</a>
+                    </li>
+                    <li><a title="Facebook-Gruppe" href="https://www.facebook.com/groups/156787224385374"
+                           target="_blank">FB-Gruppe</a></li>
+                    <li><a title="Twitter" href="https://twitter.com/driftingsouls2" target="_blank">Twitter</a></li>
+                </ul>
+            </li>
+            <li><a title="zu den AGB" href="./agb">AGB</a></li>
+            <li><a title="zum Impressum" href="./impressum">Impressum</a></li>
+        </ul>
+    </div>
+</div>
+
+<div>
+    <p class="schiff"><img src="./data/interface/portal/FINAL4-1.png" alt="Ein Traeger"/></p>
+</div>
+<!-- Bis hier der Headerbereich -->
+<div id="content">
+    <div class="linke-spalte">
+
+        <div id="document">
+
+
+            <div id="login">
+                <form action="./ds" method="post">
+
+                    <p><span class="left">Name: </span><input class="name-input" style="width:170px" name="username"
+                                                              type="text" maxlength="40" value=""/></p>
+
+                    <p><span class="left">Passwort: </span><input class="pw-input" style="width:170px" name="password"
+                                                                  type="password" value=""/></p>
+
+                    <p><input type="hidden" name="action" value="login"/>
+                        <input type="hidden" name="module" value="portal"/></p>
+                    <p><span class="submit"><input type="submit" value="Login" style="width:100px"/></span></p>
+                </form>
+            </div>
+
+            <div id="lostpass">
+                <p><a href="./password_lost" title="Passwort vergessen">Passwort vergessen?</a></p>
+            </div>
+
+            <div id="teaser">
+                <p><a id="registerlink" href="./register"> Registrierung </a></p>
+            </div>
+
+
+        </div> <!-- Ende ID document -->
+        <!-- Eigene if Bedingung definieren? -->
+
+        <div id="about">
+            <h2>&Uuml;ber Drifting Souls 2</h2>
+            <p>Drifting Souls 2 (DS2) ist ein komplexes Aufbau-Strategiespiel, welches im Weltraum spielt und in der
+                Zukunft stattfindet. Der geschichtlich-rollenspielerische Hintergrund des Spiels sind die
+                90er-Jahre-Computerspiele der Freespace-Reihe. DS2 ist komplett kostenlos und zum Spielen braucht es
+                lediglich einen Browser und eine aktive Internetverbindung.</p>
+            <p>In DS2 startet man auf einem kargen Asteroiden, welchen man zun&auml;chst ausbauen und erweitern muss. In
+                diesem Part gleicht DS2 den altherbekannten Aufbau-Strategiespielen wie OGame, die St&auml;mme und
+                Ikariam.
+                Doch das ist nur ein kleiner Teil. In DS2 kannst Du Deine Schiffe &uuml;ber 2D-Sternenkarten fliegen,
+                manuell
+                ausstatten, individuell steuern und mit ihnen k&auml;mpfen. Du kannst Dich Allianzen und Fraktionen
+                anschlie&szlig;en, Handel treiben und den Weltraum entdecken. Ob H&auml;ndler, Krieger, ob Einsiedler und
+                Teamplayer, ob viel Zeit oder wenig: Ein Spieler eines jeden Spielstils wird sich wohlf&uuml;hlen. Ein
+                besonderes Schmankerl ist auch das im Spiel integrierte Schreib-Rollenspiel. Im sogennanten Com-Net,
+                einem universumsweiten Kommunikationsnetzwerk, k&ouml;nnen Spieler ihre Rollenspiele betreiben. Vom
+                einfachen
+                Notruf bis zur weitgeschm&uuml;ckten RPG-Episode ist hier Platz f&uuml;r jeden, der sich gern
+                schriftstellerisch/kreativ austoben will.</p>
+            <p>Programmiert wird DS2 von ehrenamtlichen Entwicklern, und das seit 2001. Bis heute frischen regelm&auml;&szlig;ige
+                Updates das Spiel auf. Zudem gibt es keine langweiligen, vorhersehbaren NPC-KIs, denn die NPCs werden
+                von Menschenhand gesteuert und verwaltet.</p>
+            <p>Steige jetzt in Dein Raumschiff und werde vasudanischer Pirat, terranischer Extremist, gro&szlig;z&uuml;giger
+                H&auml;ndler, pazifistischer Kommunist oder spiritueller Fundamentalist.</p>
+            <iframe src="https://youtube.com/embed/QZy3MctfW3I"></iframe>
+        </div> <!-- Ende About -->
+
+    </div> <!-- Ende Linke Spalte -->
+
+    <div class="rechte-spalte">
+        <div id="re-inhalt">
+
+
+            <div id="seite-agb">
+
+                <h2>Allgemeine Gesch&auml;ftsbedingungen (AGB)</h2>
+                <ol id="agb">
+                    <li>§ 1 Grunds&auml;tzliches
+                        <ol>
+                            <li>I. Drifting Souls 2 (im folgenden: Spiel) ist ein Online-Browser Spiel, welches von Ralf
+                                Hajek, Sch&ouml;nauer Stra&szlig;e 4, 65232 Taunusstein (im folgenden: Betreiber) betrieben wird.
+                                Der Betreiber stellt das Spiel grunds&auml;tzlich allen Benutzern (im folgenden: Spieler) zur
+                                Verf&uuml;gung. Der Betreiber wird vertreten durch die Spielleitung.
+                            </li>
+                            <li>II. Alle im Rahmen vom Spiel ver&ouml;ffentlichten Inhalte, sowie Medien und Nachrichten
+                                unterliegen den Vorgaben dieser AGB sowie anderer, vom Betreiber oder der Spielleitung
+                                herausgegebenen Regelungen. Bei einem Konflikt zwischen AGB und anderen Regelungen gehen
+                                die AGB vor.
+                            </li>
+                            <li>III. Durch das Anklicken des H&auml;kchens "AGB akzeptieren" best&auml;tigt der Spieler die AGB
+                                und ihre Bestimmungen vollumf&auml;nglich zur Kenntnis genommen zu haben. Durch das Absenden
+                                der Daten unterbreitet der Spieler dem Betreiber und der Spielleitung ein Angebot zum
+                                Abschluss eines Endbenutzer-Lizenzvertrags.
+                            </li>
+                            <li>IV. Diese Vereinbarungen und andere Regelungen k&ouml;nnen vom Betreiber oder der
+                                Spielleitung mit Wirkung f&uuml;r die Zukunft ver&auml;ndert werden. Eine solche Ver&auml;nderung wird
+                                nur aus einem wichtigen Grund durchgef&uuml;hrt. Die Spieler werden rechtzeitig &uuml;ber eine
+                                solche informiert und m&uuml;ssen dieser zustimmen.
+                            </li>
+                        </ol>
+                    </li>
+                    <li>§ 2 Endbenutzer-Lizenzvertrag
+                        <ol>
+                            <li>I. Der Endbenutzer-Lizenzvertrags ist kostenlos und kommt zustande &uuml;ber den Zugang des
+                                Angebotes gem&auml;&szlig; § 1 Abs. 3 AGB und der Freischaltung des Spielerkontos (im folgenden:
+                                Account) seitens des Betreibers oder der Spielleitung.
+                            </li>
+                            <li>II. Der Spieler hat keinen Anspruch auf Teilhabe am Spiel. Ein bestehender
+                                Endbenutzer-Lizenzvertrag kann von Seiten des Spielers, des Betreibers oder der
+                                Spielleitung jederzeit gek&uuml;ndigt werden.
+                            </li>
+                            <li>III. Das Spiel steht grunds&auml;tzlich nur Personen &uuml;ber 16 Jahren zur Verf&uuml;gung. Werden dem
+                                Betreiber Umst&auml;nde bekannt, nach denen ein Spieler unter dem Mindestalter liegt, so muss
+                                dieser auf Nachfrage eine Einwilligung eines Erziehungsberechtigten vorlegen.
+                            </li>
+                        </ol>
+                    </li>
+                    <li>§ 3 Account
+                        <ol>
+                            <li>I. Ein bestehender Endbenutzer-Lizenzvertrags berechtigt den Spieler zu einem Account.
+                                Mit diesem kann er am Spiel teilnehmen, seinen Namen sowie sein Profilbild &auml;ndern,
+                                Nachrichten verfassen und am internen Forum (Com-Net) teilhaben. Der Account teilt das
+                                Schicksal des gek&uuml;ndigten oder sonst wie wirkungslosen Endbenutzer-Lizenzvertrags.
+                            </li>
+                            <li>II. Der Betreiber beh&auml;lt sich vor Accountnamen, Anzeigenamen sowie alle vom Spieler
+                                eingebrachten Inhalte aus technischen, ethischen sowie rechtlichen Gr&uuml;nden zu &auml;ndern
+                                oder zu l&ouml;schen.
+                            </li>
+                            <li>III. Das Erstellen von mehreren Accounts (Multiaccounting) ist verboten. Verst&ouml;&szlig;e
+                                hiergegen k&ouml;nnen neben der K&uuml;ndigung des Endbenutzer-Lizenzvertrags mit den
+                                Multiaccounts auch zur K&uuml;ndigung des Endbenutzer-Lizenzvertrags mit dem Hauptaccount des
+                                Spielers f&uuml;hren.
+                            </li>
+                            <li>IV. Jeder Account ist an den jeweiligen Spieler gebunden. Das F&uuml;hren eines fremden
+                                Accounts ist unzul&auml;ssig und kann zu K&uuml;ndigung des Endbenutzer-Lizenzvertrags mit dem
+                                Hauptaccount des fremden sowie des eigenen Spielers f&uuml;hren.
+                            </li>
+                            <li>V. Bei inaktiven Accounts gilt der Endbenutzer-Lizenzvertrags als gek&uuml;ndigt. Als inaktiv
+                                gilt ein Account, auf den seit mindestens 6 Monaten nicht mehr zugegriffen wurde oder
+                                der sich seit mindestens 12 Monate im Urlaubsmodus (VAC) befindet.
+                            </li>
+                            <li>VI. Der Spieler ist dazu verpflichtet die Zugangsdaten zu seinem Account mit gr&ouml;&szlig;ter
+                                Sorgfalt zu behandeln und ein Abhandenkommen nach allen Umst&auml;nden zu verhindern. Das
+                                Verlieren der Zugangsdaten muss unverz&uuml;glich dem Betreiber angezeigt werden.
+                            </li>
+                        </ol>
+                    </li>
+                    <li>
+                        § 4 Spielregeln
+                        <ol>
+                            <li>I. Der Spieler ist ohne die Erlaubnis des Betreibers nicht berechtigt, Mechanismen,
+                                Software, Programme oder sonstige Routinen zu verwenden, die den Server oder die Systeme
+                                st&ouml;ren k&ouml;nnten. Er darf keine Ma&szlig;nahmen ergreifen, die zu einer unzumutbaren
+                                &uuml;berbelastung der Systeme f&uuml;hren k&ouml;nnten. Die Nutzung von besonderer Software,
+                                insbesondere zur systematischen oder automatischen Steuerung der Spiele oder einzelner
+                                Spielfunktionen (Bots, Makros), zur Reproduktion oder Auswertung der Spiele, ist
+                                unzul&auml;ssig.
+                            </li>
+                            <li>II. Es ist verboten, Bugs bzw. Fehler in der Programmierung des Spiels und im
+                                Spielverlauf, die einen Vorteil f&uuml;r den Spieler darstellen k&ouml;nnen, f&uuml;r eigene und/oder
+                                f&uuml;r fremde Zwecke auszunutzen. Wurden Bugs bzw. Fehler vors&auml;tzlich ausgenutzt, kann dies
+                                zur fristlosen K&uuml;ndigung des Endbenutzer-Lizenzvertrags f&uuml;hren.
+                            </li>
+                            <li>III. Es ist ohne die Erlaubnis des Betreibers verboten, Software zu benutzen, die
+                                "Datamining" erm&ouml;glicht oder auf andere Weise im Zusammenhang mit dem Spiel stehende
+                                Informationen sammelt.
+                            </li>
+                            <li>IV. Es ist verboten, Spielinhalte au&szlig;erhalb der Spiele zu nutzen, f&uuml;r reales Geld zu
+                                kaufen oder zu verkaufen oder zu tauschen.
+                            </li>
+                            <li>V. Der Betreiber oder die Spielleitung kann jederzeit weitere Regeln mit Wirkung f&uuml;r die
+                                Zukunft erlassen; vgl. § 1 Abs. 4 AGB. Zum Verh&auml;ltnis der AGB und den sonstigen
+                                Spielregeln vgl. § 1 Abs. 2 AGB.
+                            </li>
+                        </ol>
+                    </li>
+                    <li>
+                        § 5 Haftung
+                        <ol>
+                            <li>I. Grunds&auml;tzlich ist jegliche Haftung des Betreibers ausgeschlossen und findet nur im
+                                Einzelfall und nach Ma&szlig;gabe der folgenden Regelungen statt.
+                            </li>
+                            <li>II. Der Betreiber haftet auf Schadensersatz und Ersatz vergeblicher Aufwendungen
+                                („Schadensersatz") wegen Verletzung vertraglicher oder au&szlig;ervertraglicher Pflichten nur:
+                                <ol>
+                                    <li>1. bei Vorsatz oder grober Fahrl&auml;ssigkeit,</li>
+                                    <li>2. bei fahrl&auml;ssiger oder vors&auml;tzlicher Verletzung des Lebens, des K&ouml;rpers oder
+                                        der Gesundheit,
+                                    </li>
+                                    <li>3. bei fahrl&auml;ssiger oder vors&auml;tzlicher Verletzung wesentlicher
+                                        Vertragspflichten,
+                                    </li>
+                                    <li>4. wegen der &uuml;bernahme einer Beschaffenheitsgarantie,</li>
+                                    <li>5. aufgrund zwingender Haftung nach dem Produkthaftungsgesetz sowie im
+                                        Anwendungsbereich des § 44a TKG oder
+                                    </li>
+                                    <li>6. aufgrund sonstiger zwingender Haftung</li>
+                                </ol>
+                            </li>
+                            <li>III. Der Schadensersatz f&uuml;r die Verletzung wesentlicher Vertragspflichten ist auf den
+                                vertragstypischen, vorhersehbaren Schaden begrenzt, soweit nicht Vorsatz oder grobe
+                                Fahrl&auml;ssigkeit vorliegt oder wegen der Verletzung des Lebens, des K&ouml;rpers oder der
+                                Gesundheit oder der &uuml;bernahme einer Beschaffenheitsgarantie oder aus Produkthaftung
+                                gehaftet wird.
+                            </li>
+                        </ol>
+                    </li>
+                    <li>§ 6 Datenschutz
+                        <ol>
+                            <li>I. Der Betreiber speichert nur die unmittelbar zur Teilnahme am Spiel notwendigen Daten.
+                                Diese sind nur durch den Betreiber einsehbar und werden nicht zu werbe- oder sonstigen
+                                kommerziellen Zwecken genutzt oder gehandelt.
+                            </li>
+                            <li>II. Die gespeicherten Daten umfassen:
+                                <ol>
+                                    <li>1. die zur Anmeldung angegebene E-Mailadresse des Spielers</li>
+                                    <li>die IP-Adresse; diese wird f&uuml;r 30 Tage gespeichert und dann automatisch
+                                        gel&ouml;scht
+                                    </li>
+                                    <li>ein „Sessioncookie“ zur Authentifizierung des Spielers; dieses wird mit
+                                        Schlie&szlig;en des jeweiligen Browsers automatisch gel&ouml;scht. Das Spiel benutzt
+                                        keinerlei „Third Party Cookies“.
+                                    </li>
+                                </ol>
+                            </li>
+                            <li>III. Der Spieler kann jederzeit und ohne Angaben von Gr&uuml;nden die L&ouml;schung seiner
+                                pers&ouml;nlichen Daten verlangen. In einem solchen Fall endet der Endbenutzer-Lizenzvertrag
+                                mit der L&ouml;schung. Eine erneute Spielteilnahme ist nur unter den Voraussetzungen des § 1
+                                Abs. 3 AGB wieder m&ouml;glich.
+                            </li>
+                        </ol>
+                    </li>
+                    <li>§ 7 &auml;nderungen der AGB
+                        <ol>
+                            <li>I. Gem&auml;&szlig; § 1 Abs. 4 AGB k&ouml;nnen die AGB ge&auml;ndert werden. In einem solchen Fall wird der
+                                Spieler &uuml;ber das interne Nachrichtensystem (PM) sowie mittels Ank&uuml;ndigung auf der
+                                Startseite des Spiels &uuml;ber die &auml;nderungen informiert.
+                            </li>
+                            <li>II. Diese Vereinbarungen gelten als angenommen, wenn der Spieler ihnen nicht innerhalb
+                                von 14 Tagen nach Information hier&uuml;ber widersprochen hat. In Zukunft ver&auml;nderte AGB
+                                gelten ebenfalls als angenommen, wenn der Spieler nicht innerhalb von 14 Tagen nach der
+                                Information hier&uuml;ber diesen widerspricht.
+                            </li>
+                            <li>III. Der Widerspruch ist dem Betreiber oder die Spielleitung anzuzeigen. Folge des
+                                Widerspruchs ist die Beendigung des Endbenutzer-Lizenzvertrages.
+                            </li>
+                        </ol>
+                    </li>
+                </ol>
+            </div>
+
+
+        </div>  <!-- Ende class. re-inhalt (gegenstueck "documents") -->
+    </div>    <!-- Ende class. Rechte Spalte -->
+
+</div> <!-- Ende ID Container -->
+
+<!-- hier wird von wo anders der Schluss eingef&uuml;gt -->
+<script type="text/javascript">
+    if (parent && parent.setCurrentPage) {
+        parent.setCurrentPage('', 'null');
+        parent.completePage();
+    }
+</script>
+</body>
+</html>

@@ -2,6 +2,8 @@ package net.driftingsouls.ds2.server.framework;
 
 import net.driftingsouls.ds2.server.modules.thymeleaf.DSController;
 import net.driftingsouls.ds2.server.modules.thymeleaf.PortalController;
+import net.driftingsouls.ds2.server.modules.thymeleaf.SendPasswordController;
+import net.driftingsouls.ds2.server.modules.thymeleaf.StaticController;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
@@ -15,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 //Adapted from Thymeleaf example
 public class DSApplication {
     private final TemplateEngine templateEngine;
-    private Map<String, DSController> controllersByURL;
+    private final Map<String, DSController> controllersByURL;
 
     public DSApplication(final ServletContext servletContext) {
         ServletContextTemplateResolver templateResolver = new ServletContextTemplateResolver(servletContext);
@@ -35,11 +37,21 @@ public class DSApplication {
         this.templateEngine = new TemplateEngine();
         this.templateEngine.setTemplateResolver(templateResolver);
 
+        var portalController = new PortalController();
+        var passwordLostController = new StaticController("password_lost");
+
         this.controllersByURL = new HashMap<>();
 
-        var portalController = new PortalController();
+        this.controllersByURL.put("/agb", new StaticController("agb"));
+        this.controllersByURL.put("/impressum", new StaticController("impressum"));
+        this.controllersByURL.put("/password_lost", passwordLostController);
+
+
         this.controllersByURL.put("/", portalController);
         this.controllersByURL.put("/portal", portalController);
+
+        this.controllersByURL.put("/send_password", new SendPasswordController(passwordLostController));
+
     }
 
     public TemplateEngine getTemplateEngine() {
