@@ -2,6 +2,7 @@ package net.driftingsouls.ds2.server.framework;
 
 import net.driftingsouls.ds2.server.modules.thymeleaf.DSController;
 import net.driftingsouls.ds2.server.modules.thymeleaf.PortalController;
+import net.driftingsouls.ds2.server.modules.thymeleaf.RegisterController;
 import net.driftingsouls.ds2.server.modules.thymeleaf.SendPasswordController;
 import net.driftingsouls.ds2.server.modules.thymeleaf.StaticController;
 import org.thymeleaf.TemplateEngine;
@@ -42,16 +43,14 @@ public class DSApplication {
 
         this.controllersByURL = new HashMap<>();
 
-        this.controllersByURL.put("/agb", new StaticController("agb"));
-        this.controllersByURL.put("/impressum", new StaticController("impressum"));
-        this.controllersByURL.put("/password_lost", passwordLostController);
-
 
         this.controllersByURL.put("/", portalController);
         this.controllersByURL.put("/portal", portalController);
-
+        this.controllersByURL.put("/agb", new StaticController("agb"));
+        this.controllersByURL.put("/impressum", new StaticController("impressum"));
+        this.controllersByURL.put("/password_lost", passwordLostController);
         this.controllersByURL.put("/send_password", new SendPasswordController(passwordLostController));
-
+        this.controllersByURL.put("/register", new RegisterController());
     }
 
     public TemplateEngine getTemplateEngine() {

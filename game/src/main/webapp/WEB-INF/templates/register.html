@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+
+    <title>Drifting Souls 2</title>
+
+    <link rel="stylesheet" type="text/css" href="./data/css/format.css"/>
+    <link rel="stylesheet" type="text/css" href="./data/css/ui-darkness/00_jquery-ui-1.8.20.css"/>
+    <link rel="stylesheet" type="text/css" href="./data/css/ui-darkness/10_jquery-ui.css"/>
+    <link type="text/css" rel="stylesheet" href="data/css/ds_2_portal.css"/>
+
+    <script type="text/javascript" src="data/javascript/jquery.js"></script>
+    <script type="text/javascript" src="data/javascript/facebox.js"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(function ($) {
+            $('a[rel*=facebox]').facebox()
+        })
+
+    </script>
+</head>
+
+<body>
+<input type='hidden' name='currentDsModule' id='currentDsModule' value=''/>
+<script src="./data/javascript/ds.js" type="text/javascript"></script>
+<div id="error-placeholder"></div>
+<audio autoplay loop>
+    <source src="data/sounds/welcome.mp3" type="audio/mp3">
+</audio>
+<div id="header">
+
+    <!-- hier sind die Drifting Souls Bilder der ersten Portalseite-->
+    <div class="logo">
+        <img src="./data/interface/portal/gcp-logo.png" alt="DS2 LOGO"/>
+    </div>
+    <div class="ueberschrift">
+        <h1><img src="./data/interface/portal/driftingsouls.png" alt="Drifting Souls 2"/></h1>
+    </div>
+    <div id="navigation">
+        <ul class="navi">
+            <li><a title="Home" href=".">Home</a></li>
+            <li><a title="Portal" href=".">Portal</a>
+                <ul class="subnav1">
+                    <li><a title="Github Repository" href="https://github.com/sgift/driftingsouls" target="_blank">Github</a>
+                    </li>
+                </ul>
+            </li>
+            <li><a>Community</a>
+                <ul class="subnav1">
+                    <li><a title="Discord" href="https://discord.gg/cpxxAGy" target="_blank">Discord</a></li>
+                    <li><a title="Forum" href="http://ds.rnd-it.de/index.php" target="_blank">Forum</a></li>
+                    <li><a title="Drifting Souls Wiki" href="http://de.drifting-souls.wikia.com"
+                           target="_blank">Wiki</a></li>
+                    <li><a title="Facebook-Seite" href="https://www.facebook.com/DriftingSouls2/" target="_blank">FB-Seite</a>
+                    </li>
+                    <li><a title="Facebook-Gruppe" href="https://www.facebook.com/groups/156787224385374"
+                           target="_blank">FB-Gruppe</a></li>
+                    <li><a title="Twitter" href="https://twitter.com/driftingsouls2" target="_blank">Twitter</a></li>
+                </ul>
+            </li>
+            <li><a title="zu den AGB" href="./agb">AGB</a></li>
+            <li><a title="zum Impressum" href="./impressum">Impressum</a></li>
+        </ul>
+    </div>
+</div>
+
+<div>
+    <p class="schiff"><img src="./data/interface/portal/FINAL4-1.png" alt="Ein Traeger"/></p>
+</div>
+<!-- Bis hier der Headerbereich -->
+<div id="content">
+    <div class="linke-spalte">
+    </div> <!-- Ende Linke Spalte -->
+    <div id="document">
+        <p>
+            <span data-th-each="error: ${errors}">
+                <span class="red" data-th-text="${error}">Die AGB m&#252;ssen akzeptiert werden zur Registrierung</span><br>
+            </span>
+        </p>
+
+        <form action="./register" method="post">
+            <script type="text/javascript">
+                let lastRaceSelect = 1;
+
+                function actionRaceSelectChange(action) {
+                    if( document.getElementById("register_rassendesc_"+action) != null ) {
+                        document.getElementById("register_rassendesc_"+action).style.display = 'inline';
+                    }
+                    if( document.getElementById("register_rassendesc_"+lastRaceSelect) != null ) {
+                        document.getElementById("register_rassendesc_"+lastRaceSelect).style.display = 'none';
+                    }
+                    lastRaceSelect = action;
+                }
+            </script>
+
+            <div id="register-neusiedler-daten">
+                <h2>Registrierung</h2>
+                <p>Bitte f&uuml;lle alle Felder aus.<br />
+                    Das Passwort wird Dir anschlie&szlig;end via E-Mail zugesandt.</p>
+                <p><span class="red">Das setzt die Angabe einer g&uuml;ltigen E-Mail-Adresse voraus.</span></p>
+
+                <p>
+                    <label for="race" class="left">Spezies</label>
+                    <select name="race" id="race" size="1" style="width:200px" onchange="actionRaceSelectChange(this.options[this.options.selectedIndex].value)">
+
+                        <option value="1" selected="selected">Terraner</option>
+
+                        <option value="2" >Vasudaner</option>
+
+                    </select>
+                </p>
+                <p>
+                    <label for="login_name" class="left">Loginname</label> <input name="login_name" id="login_name" type="text" style="width:200px"  maxlength="40" value="" />
+                    <br /><br />Hinweis: Der Loginname ist <span class="red">nicht</span> der Ingame-Name. Dieser kann sp&auml;ter bestimmt und ge&auml;ndert werden. <br /><br />
+                    <label for="email" class="left">E-Mail</label> <input id="email" name="email" type="text" style="width:200px" maxlength="60" value="" />
+                    <br />
+                </p>
+
+                <p class="checkbox">
+                    <input type="checkbox" id="login_acceptagb" name="accept_agb" value="true" />
+                    <label for="login_acceptagb"><a  href="./agb" target="_blank">AGB</a> akzeptieren</label>
+                </p>
+                <p>
+                    <input type="hidden" name="action" value="register" />
+                    <input type="hidden" name="module" value="portal" />
+                    <span class="submit"><input type="submit" value="Account registrieren" style="width:200px" /></span>
+                </p>
+
+
+
+                <div id="register_rassendesc_1" style="display:inline">
+                    <div id="register-info-rassen-2">
+                        <h2> Terraner </h2>
+                        <p>
+                            Terraner sind wie die Vasudaner Humanoide auf Kohlenstoffbasis. Im Vergleich zu Vasudanern oder Shivanern sind Terraner k&#246;rperlich schw&#228;cher und k&#246;nnen nur etwas mehr als ihr eigenes K&#246;rpergewicht heben. Sie stammen urspr&#252;nglich von der Erde, zu der aber infolge eines shivanischen Angriffs seit langer Zeit keine Verbindung mehr besteht. Die Terraner abseits der Erde haben an verschiedenen Orten im Universum neu Fu&#223; gefasst, was die unglaubliche Anpassungsf&#228;higkeit dieser Spezies beweist. Ihre Technologie ist mit der der Vasudaner ebenb&#252;rtig und viele Terraner leben heutzutage mit den Vasudanern in Koexistenz. Andere Terraner wiederum bezeichnen sich als Neo-Terraner (angelehnt an die Neo-Terranische Front) und haben als Ziel die Vernichtung der vasudanischen Rasse.<br /><br /><br />Weitere Informationen finden sich <a class="forschinfo" href="https://drifting-souls.fandom.com/de/wiki/Terraner" target="_blank">hier</a>.<br /><br /><img style="vertical-align:middle; border:0" src="data/interface/rassen/1.png" alt="" />
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div id="register_rassendesc_2" style="display:none">
+                <div id="register-info-rassen-1">
+                    <h2> Vasudaner </h2>
+                    <p>
+                        Vasudaner sind wie die Terraner eine hoch entwickelte Spezies. Ihr Heimatplanet war Vasuda Prime, ein sehr unwirtlicher W&#252;stenplanet.<br />Er wurde im Gro&#223;en Krieg von den Shivanern angegriffen und dadurch fast unbewohnbar.<br />Die Vasudaner haben eine sehr alte Kultur mit mehreren hochentwickelten Sprachen und Nationen. Sie leben in gro&#223;en und eng verbundenen Familienstrukturen, vergleichbar mit terranischen Familienklans. Ihre K&#246;rper sind entsprechend dem extrem ariden Klima ihres Heimatplaneten perfekt an das Leben in der W&#252;ste angepasst. Ihre Kultur weist gewisse &#196;hnlichkeiten mit dem &#196;gypten der Pharaonenzeit auf. Daneben gibt es aber auch &#196;hnlichkeiten mit dem mittelalterlichen Japan und nat&#252;rlich auch zahlreiche gesellschaftliche und kulturelle Entwicklungen, die keine vergleichbare terranische Entsprechung besitzen. So spielt die spirituelle und geistige Erleuchtung f&#252;r viele Vasudaner eine gro&#223;e Rolle. Die Vasudaner weisen als Gemeinschaft einen hohen Grad an Zusammenhalt und Z&#228;higkeit auf. Selbst schlimmste Etappen ihrer Geschichte, wie die Verw&#252;stung ihrer Heimatwelt durch die Shivaner, lie&#223; sie niemals verzweifeln und aufgeben. Der technologische Stand ist in etwa mit dem der Terraner vergleichbar. Viele Vasudaner leben heute gemeinsam mit Terranern. Andere wiederum lehnen eine Koexistenz mit den Terranern ab und haben sich dem neu gegr&#252;ndeten Vasudanischen Imperium angeschlossen.<br /><br />Weitere Informationen finden sich <a class="forschinfo" href="https://drifting-souls.fandom.com/de/wiki/Vasudaner" target="_blank">hier</a>.<br /><br /><img style="vertical-align:middle; border:0" src="data/interface/rassen/2.png" alt="" />
+                    </p>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="rechte-spalte">
+        <div id="re-inhalt">
+        </div>  <!-- Ende class. re-inhalt (gegenstueck "documents") -->
+    </div>    <!-- Ende class. Rechte Spalte -->
+
+</div> <!-- Ende ID Container -->
+
+<!-- hier wird von wo anders der Schluss eingef&uuml;gt -->
+<script type="text/javascript">
+    if (parent && parent.setCurrentPage) {
+        parent.setCurrentPage('', 'null');
+        parent.completePage();
+    }
+</script>
+</body>
+</html>
