@@ -304,9 +304,10 @@ public class SchiffsTick extends TickController {
 	private void produziereNahrung(Ship shipd, ShipTypeData shiptd, Cargo shipc)
 	{
 		int hydro = shiptd.getHydro();
+		long foodprod = shiptd.getProduces().getResourceCount(Resources.NAHRUNG);
 		long nahrung = shipd.getNahrungCargo();
 		long speicher = shiptd.getNahrungCargo();
-		long rest = nahrung + hydro - speicher;
+		long rest = nahrung + hydro - speicher + foodprod;
 
 		if ( rest>0){
 			//Nahrungsspeicher voll machen
@@ -320,7 +321,7 @@ public class SchiffsTick extends TickController {
 		}
 		else
 		{
-			shipd.setNahrungCargo(nahrung + hydro);
+			shipd.setNahrungCargo(nahrung + hydro + foodprod);
 		}
 	}
 

@@ -17,7 +17,10 @@
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 package net.driftingsouls.ds2.server.ships;
+import net.driftingsouls.ds2.server.cargo.*;
+import net.driftingsouls.ds2.server.config.items.Item;
 
+import org.apache.log4j.lf5.util.Resource;
 import org.hibernate.annotations.ForeignKey;
 
 import javax.annotation.Nonnull;
@@ -67,6 +70,7 @@ public class SchiffstypModifikation
 	private int aDocks;
 	private int sensorRange;
 	private int hydro;
+	private Cargo produces;
 	private int deutFactor;
 	private int reCost;
 	@ElementCollection
@@ -339,6 +343,26 @@ public class SchiffstypModifikation
 	public void setHydro(int hydro)
 	{
 		this.hydro = hydro;
+	}
+
+	/**
+	 * Gibt die Produktion des Moduls pro Tick zurueck.
+	 *
+	 * @return Die Produktion
+	 */
+	public Cargo getProduces()
+	{
+		return new UnmodifiableCargo(produces);
+	}
+
+	/**
+	 * Setzt die Produktion.
+	 *
+	 * @param produces Produktion
+	 */
+	public void setProduces(Cargo produces)
+	{
+		this.produces = produces;
 	}
 
 	/**
@@ -760,6 +784,11 @@ public class SchiffstypModifikation
 		if ( hydro != 0) {
 			effekte.add("hydro=" + hydro);
 		}
+		if ( !produces.isEmpty()) {
+			for(ItemCargoEntry<Item> res : produces.getItems()){
+				effekte.add(res.getItem().getName()+"=" + res.getCount());
+			}
+		}
 		if ( deutFactor != 0) {
 			effekte.add("deutfactor=" + deutFactor);
 		}
@@ -950,6 +979,13 @@ public class SchiffstypModifikation
 		public int getHydro() {
 			int value = inner.getHydro() + SchiffstypModifikation.this.getHydro();
 			return Math.max(value, 0);
+		}
+
+		@Override
+		public Cargo getProduces() {
+			Cargo value = inner.getProduces();
+			value.addCargo(SchiffstypModifikation.this.getProduces());
+			return value;
 		}
 
 		@Override
