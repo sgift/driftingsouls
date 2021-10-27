@@ -230,7 +230,10 @@
                         <option value="activateTanker">Tanker anschalten</option>
                         <option value="deactivateTanker">Tanker abschalten</option>
                     {/endif}
-                    <option value="fillFood">Nahrung transferieren</option>
+					<option value="fillFood">Nahrung aus Cargo transferieren</option>
+					{if astiinsector}
+						<option value="fillFoodFromAsti">Nahrung von Asteroiden transferieren</option>
+					{/endif}
 					<option value="rename">Flotte umbenennen</option>
 					<option value="kill">Flotte auflösen</option>
 					<option value="newowner">Flotte übergeben</option>

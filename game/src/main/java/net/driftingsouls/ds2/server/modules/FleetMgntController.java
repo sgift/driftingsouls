@@ -937,8 +937,68 @@ public class FleetMgntController extends Controller
 				message.append(s.getName()).append(" (").append(s.getId()).append(") - <span style=\"color:orange\">")
 					.append(usenahrung).append(" Nahrung transferiert</span><br />");
 			}
-			s.setCargo(cargo);
 		}
+		return new RedirectViewResult("default").withMessage(message.append("Nahrung erfolgreich in den Nahrungsspeicher transferiert.").toString());
+	}
+
+	@Action(ActionType.DEFAULT)
+	public RedirectViewResult fillFoodFromAstiAction(ShipFleet fleet){
+		validiereGueltigeFlotteVorhanden(fleet);
+		StringBuilder message = new StringBuilder(100);
+
+		org.hibernate.Session db = getDB();
+		User user = (User) getUser();
+
+		List<?> ships = db.createQuery("from Ship as s WHERE s.id>0 and s.owner=:owner and s.fleet=:fleet and s.battle is null")
+				.setEntity("owner", user)
+				.setEntity("fleet", fleet)
+				.list();
+		Ship aship = getOneFleetShip(fleet);
+		List<Base> bases = getOwnerAsteroids(fleet);
+
+			//Gehen wir mal die Schiffe durch
+			for (Object ship : ships)
+			{
+					Ship s = (Ship) ship;
+
+					long usenahrung = s.getTypeData().getNahrungCargo() - s.getNahrungCargo();
+					if (usenahrung <= 0)
+					{
+						//Scheinbar braucht das Schiff keine Nahrung mehr, also weiter
+						continue;
+					}
+					//Wir brauchen noch Nahrung, also schauen wir mal die Astis durch
+					for(Base base : bases)
+					{
+						Cargo cargo = base.getCargo();
+						long nahrungsvorrat = cargo.getResourceCount(Resources.NAHRUNG);
+						if (nahrungsvorrat <= 0)
+						{
+							//Keine Nahrung mehr da, weiter
+							continue;
+						}
+
+						if(usenahrung > nahrungsvorrat) {
+							usenahrung = nahrungsvorrat;
+						}
+
+						s.setNahrungCargo(s.getNahrungCargo()+usenahrung);
+						cargo.substractResource(Resources.NAHRUNG, usenahrung);
+						base.setCargo(cargo);
+						if(usenahrung > 0) {
+							message.append(s.getName()).append(" (").append(s.getId()).append(") - <span style=\"color:orange\">")
+								.append(usenahrung).append(" Nahrung transferiert</span><br />");
+						}
+						//Noch die benoetigte Nahrungsmenge updaten
+						usenahrung = s.getTypeData().getNahrungCargo() - s.getNahrungCargo();
+						if (usenahrung <= 0 )
+						{
+							//wir sind fuer das Schiff fertig, also raus hier
+							break;
+						}
+					}
+				}
+
 		return new RedirectViewResult("default").withMessage(message.append("Nahrung erfolgreich in den Nahrungsspeicher transferiert.").toString());
 	}
 
