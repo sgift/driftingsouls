@@ -33,10 +33,13 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.ships.Alarmstufe;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
+import net.driftingsouls.ds2.server.ships.ShipModules;
+
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -780,8 +783,10 @@ public class WerftGUI {
 			for (Ship aship : targetShips)
 			{
 				werft.removeModule( aship, slot );
+				if (Ship.getShipType(aship.getId()).getWeapons().isEmpty()){
+					aship.setAlarm(Alarmstufe.GREEN);
+				}
 			}
-
 			t.setVar("ws.modules.msg", Common._plaintext(werft.getMessage()));
 		}
 
