@@ -794,7 +794,7 @@ public boolean hasFrontRow( int side) {
 						BattleShip aBattleShip = new BattleShip(this, aship);
 
 						// Das neue Schiff in die Liste der eigenen Schiffe eintragen
-            if (!(shiptype.hasFlag(ShipTypeFlag.INSTANT_BATTLE_ENTER)&&aship.getEinstellungen().useInstantBattleEnter())) {
+            if (!(shiptype.hasFlag(ShipTypeFlag.INSTANT_BATTLE_ENTER) && aship.getEinstellungen().useInstantBattleEnter())) {
                 aBattleShip.addFlag(BattleShipFlag.JOIN);
             }
 
@@ -827,11 +827,18 @@ public boolean hasFrontRow( int side) {
 
 							shiplist.add(lShip.getId());
 							// Das neue Schiff in die Liste der eigenen Schiffe eintragen
-							if (!shiptype.hasFlag(ShipTypeFlag.INSTANT_BATTLE_ENTER) &&
-										!stype.hasFlag(ShipTypeFlag.INSTANT_BATTLE_ENTER) &&
-										!lShip.getEinstellungen().useInstantBattleEnter() &&
-										!aship.getEinstellungen().useInstantBattleEnter()) {
-								sid2bs.addFlag(BattleShipFlag.JOIN);
+							// lShip, stype = gelandetes / gedocktes Schiff
+							// aship, shiptype = Traegerschiff
+
+							//gucken wir uns erstmal das gelandete/gedockte Schiff an
+							if(!(stype.hasFlag(ShipTypeFlag.INSTANT_BATTLE_ENTER) && lShip.getEinstellungen().useInstantBattleEnter()))
+							{
+								//hat kein Flag oder die Option wurde deaktiviert. Vielleicht erbt es ja vom Traeger...
+								if(!(shiptype.hasFlag(ShipTypeFlag.INSTANT_BATTLE_ENTER) && aShip.getEinstellungen().useInstantBattleEnter()))
+								{
+									//aus der Traeger moechte / kann nicht instant joinen, also wird das gelandete / degockte Schiff auf Join gesetzt.
+									sid2bs.addFlag(BattleShipFlag.JOIN);
+								}
 							}
 
 							sid2bs.setSide(aBattleShip.getSide());
