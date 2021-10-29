@@ -786,7 +786,7 @@ public class SchiffstypModifikation
 		if ( hydro != 0) {
 			effekte.add("hydro=" + hydro);
 		}
-		if ( !produces.isEmpty()) {
+		if ( produces != null && !produces.isEmpty()) {
 			for(ItemCargoEntry<Item> res : produces.getItems()){
 				effekte.add(res.getItem().getName()+"=" + res.getCount());
 			}
