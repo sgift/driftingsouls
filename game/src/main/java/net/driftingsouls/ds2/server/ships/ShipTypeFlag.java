@@ -132,7 +132,7 @@ public enum ShipTypeFlag
 	/**
 	 * Muss im Kampf als erstes zerstört werden.
 	 */
-	ASTISCAN("astiscan", "Asteroidenscanner", "Dieses Schiff kann für "+new ConfigService().getValue(WellKnownConfigValue.ASTI_SCAN_COST)+" Energie einen Asteroiden scannen."),
+	ASTISCAN("astiscan", "Asteroidenscanner", "Dieses Schiff kann einen Asteroiden scannen."),
 	/**
 	 * Muss im Kampf als erstes zerstört werden.
 	 */
