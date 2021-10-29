@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.BaseStatus;
 import net.driftingsouls.ds2.server.bases.Building;
@@ -28,6 +29,7 @@ import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
@@ -261,6 +263,18 @@ public class BaseController extends Controller
 		{
 			validate(base);
 		}
+		else{
+			setPageTitle(base.getName());
+			int e = new ConfigService().getValue(WellKnownConfigValue.ASTI_SCAN_COST);
+			if(e <= ship.getEnergy())
+			{
+				ship.setEnergy(ship.getEnergy() - e);
+			}
+			else
+			{
+				throw new ValidierungException("Nicht ausreichend Energie für den Asteroidenscan vorhanden", Common.buildUrl("default", "module", "basen") );
+			}
+		}
 
 		AjaxViewModel response = new AjaxViewModel();
 		response.col = base.getId();
@@ -376,6 +390,18 @@ public class BaseController extends Controller
 		if (!scan)
 		{
 			validate(base);
+		}
+		else{
+			setPageTitle(base.getName());
+			int e = new ConfigService().getValue(WellKnownConfigValue.ASTI_SCAN_COST);
+			if(e <= ship.getEnergy())
+			{
+				ship.setEnergy(ship.getEnergy() - e);
+			}
+			else
+			{
+				throw new ValidierungException("Nicht ausreichend Energie für den Asteroidenscan vorhanden", Common.buildUrl("default", "module", "basen") );
+			}
 		}
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 
