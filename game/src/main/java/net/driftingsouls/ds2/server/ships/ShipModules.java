@@ -25,6 +25,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
+import org.hibernate.annotations.Type;
 
 import javax.annotation.Nonnull;
 import javax.persistence.Column;
@@ -91,6 +92,7 @@ public class ShipModules implements ShipTypeData {
 	@Column(name="sensorrange", nullable = false)
 	private int sensorRange;
 	private int hydro;
+	@Type(type="cargo")
 	private Cargo produces;
 	@Column(name="deutfactor", nullable = false)
 	private int deutFactor;

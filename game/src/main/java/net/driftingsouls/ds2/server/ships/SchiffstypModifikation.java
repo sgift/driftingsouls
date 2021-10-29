@@ -71,7 +71,7 @@ public class SchiffstypModifikation
 	private int aDocks;
 	private int sensorRange;
 	private int hydro;
-	@Type(type="largeCargo")
+	@Type(type="cargo")
 	private Cargo produces;
 	private int deutFactor;
 	private int reCost;
