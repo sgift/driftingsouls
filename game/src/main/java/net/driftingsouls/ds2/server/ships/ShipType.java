@@ -140,6 +140,7 @@ public class ShipType implements ShipTypeData {
 		this.modules = "";
 		this.nickname = "";
 		this.shipClass = ShipClasses.UNBEKANNT;
+		this.produces = new Cargo();
 	}
 
 	/**

@@ -258,7 +258,7 @@ public class SchiffInfoController extends Controller
 				"shiptype.maxunitsize", ship.getMaxUnitSize(),
 				"shiptype.deutfactor", ship.getDeutFactor(),
 				"shiptype.hydro", Common.ln(ship.getHydro()),
-				"shiptype.produces", ship.getProduces().isEmpty()?0:1,
+				"shiptype.produces", (ship.getProduces() == null || ship.getProduces().isEmpty())?0:1,
 				"shiptype.flagschiff", shipBuildData != null && shipBuildData.isFlagschiff(),
 				"shiptype.recost", Common.ln(ship.getReCost()),
 				"shiptype.torpedodef", ship.getTorpedoDef(),
@@ -299,6 +299,10 @@ public class SchiffInfoController extends Controller
 	{
 		t.setBlock("_SCHIFFINFO", "shiptypeproduces.listitem", "shiptypeproduces.list");
 		t.setVar("shiptypeproduces.list", "");
+		if(ship.getProduces() == null)
+		{
+			return;
+		}
 		for(ResourceEntry res : ship.getProduces().getResourceList())
 		{
 			t.setVar("shiptypeproduces.image", res.getImage(),
