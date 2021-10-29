@@ -231,25 +231,23 @@ public class FleetMgntController extends Controller
 				throw new ValidierungException("Das Schiff untersteht nicht Ihrem Kommando.");
 			}
 
-			List<?> ships = db.createQuery("from Ship where id>0 and owner=:owner and system=:sys and x=:x and y=:y and shiptype=:type and docked='' order by fleet.id,id asc")
+			List<Ship> ships = Common.cast(db.createQuery("from Ship where id>0 and owner=:owner and system=:sys and x=:x and y=:y and shiptype=:type and docked='' order by fleet.id,id asc")
 					.setEntity("owner", user)
 					.setInteger("sys", sectorShip.getSystem())
 					.setInteger("x", sectorShip.getX())
 					.setInteger("y", sectorShip.getY())
 					.setInteger("type", type)
 					.setMaxResults(count)
-					.list();
+					.list());
 			shiplistInt = new Integer[ships.size()];
 			int i = 0;
-			for (Object ship : ships)
+			for (Ship ship : ships)
 			{
-				Ship s = (Ship) ship;
-
-				if (s.getFleet() != null)
+				if (ship.getFleet() != null)
 				{
-					s.removeFromFleet();
+					ship.removeFromFleet();
 				}
-				shiplistInt[i++] = s.getId();
+				shiplistInt[i++] = ship.getId();
 			}
 		}
 
