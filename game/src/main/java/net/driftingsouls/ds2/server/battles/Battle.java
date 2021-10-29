@@ -834,7 +834,7 @@ public boolean hasFrontRow( int side) {
 							if(!(stype.hasFlag(ShipTypeFlag.INSTANT_BATTLE_ENTER) && lShip.getEinstellungen().useInstantBattleEnter()))
 							{
 								//hat kein Flag oder die Option wurde deaktiviert. Vielleicht erbt es ja vom Traeger...
-								if(!(shiptype.hasFlag(ShipTypeFlag.INSTANT_BATTLE_ENTER) && aShip.getEinstellungen().useInstantBattleEnter()))
+								if(!(shiptype.hasFlag(ShipTypeFlag.INSTANT_BATTLE_ENTER) && aship.getEinstellungen().useInstantBattleEnter()))
 								{
 									//aus der Traeger moechte / kann nicht instant joinen, also wird das gelandete / degockte Schiff auf Join gesetzt.
 									sid2bs.addFlag(BattleShipFlag.JOIN);
