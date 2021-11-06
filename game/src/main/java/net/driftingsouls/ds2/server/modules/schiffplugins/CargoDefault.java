@@ -222,7 +222,7 @@ public class CargoDefault implements SchiffPlugin {
 		else if(setuseinstantbattleenter)
 		{
 			SchiffEinstellungen einstellungen = ship.getEinstellungen();
-			einstellungen.setGotoSecondrow(useinstantbattleenter != 0);
+			einstellungen.setUseInstantBsttleEnter(useinstantbattleenter != 0);
 			einstellungen.persistIfNecessary(ship);
 
 			output.append("Schnelle Kampfbereitschaft ").append(useinstantbattleenter != 0 ? "" : "de").append("aktiviert<br />\n");
