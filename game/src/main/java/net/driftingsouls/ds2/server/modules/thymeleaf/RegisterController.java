@@ -13,6 +13,7 @@ import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.Offizier;
+import net.driftingsouls.ds2.server.entities.Rasse;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
@@ -32,6 +33,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 //TODO: Whole class should be autowired, don't get your own config service
 public class RegisterController implements DSController {
@@ -46,6 +48,9 @@ public class RegisterController implements DSController {
             templateEngine.process("no_register", ctx, response.getWriter());
             return;
         }
+
+        populateRaceOptions(ctx);
+        populateSystemOptions(ctx);
 
         var action = request.getParameter("action");
         if (action == null || action.isBlank()) {
@@ -81,6 +86,31 @@ public class RegisterController implements DSController {
         }
 
         templateEngine.process("registered", ctx, response.getWriter());
+    }
+
+    private void populateRaceOptions(WebContext ctx) {
+        var db = ContextMap.getContext().getDB();
+
+        List<Rasse> playableRaces = Common.cast(db.createQuery("from rasse where playable=true").list());
+        List<RegisterRace> registerRaces = playableRaces.stream()
+            .map(race -> new RegisterRace(race.getId(), race.getName(), race.getDescription()))
+            .collect(Collectors.toList());
+
+        ctx.setVariable("races", registerRaces);
+    }
+
+    private void populateSystemOptions(WebContext ctx) {
+        var db = ContextMap.getContext().getDB();
+
+        var startLocation = getStartLocation();
+        List<StarSystem> systems = Common.cast(db.createQuery("from StarSystem").list());
+        List<RegisterSystem> registerSystems = systems.stream()
+            .filter(sys -> sys.getOrderLocations().length > 0)
+            .filter(sys -> startLocation.minSysDistance.containsKey(sys.getID()))
+            .map(sys -> new RegisterSystem(sys.getID(), sys.getName(), sys.getDescription()))
+            .collect(Collectors.toList());
+
+        ctx.setVariable("systems", registerSystems);
     }
 
     private List<String> checkPrerequisites(String loginName, String email, boolean acceptAgb) {
@@ -126,11 +156,11 @@ public class RegisterController implements DSController {
         }
 
         StarSystem system = (StarSystem) db.get(StarSystem.class, systemId);
-        if(system == null || system.getOrderLocations().length == 0) {
+        if (system == null || system.getOrderLocations().length == 0) {
             errors.add("Das gewählte System existiert nicht.");
         }
 
-        if(!errors.isEmpty()) {
+        if (!errors.isEmpty()) {
             return errors;
         }
 
@@ -203,29 +233,23 @@ public class RegisterController implements DSController {
         int bewohner = 0;
         int arbeiter = 0;
 
-        for (int i = 0; i < baselayoutStr.length; i++)
-        {
+        for (int i = 0; i < baselayoutStr.length; i++) {
             baselayout[i] = Integer.parseInt(baselayoutStr[i]);
 
-            if (baselayout[i] != 0)
-            {
+            if (baselayout[i] != 0) {
                 activebuildings[i] = 1;
                 Building building = Building.getBuilding(baselayout[i]);
                 bewohner += building.getBewohner();
                 arbeiter += building.getArbeiter();
-            }
-            else
-            {
+            } else {
                 activebuildings[i] = 0;
             }
         }
 
         // Alte Gebaeude entfernen
         Integer[] bebauung = base.getBebauung();
-        for (Integer aBebauung : bebauung)
-        {
-            if (aBebauung == 0)
-            {
+        for (Integer aBebauung : bebauung) {
+            if (aBebauung == 0) {
                 continue;
             }
 
@@ -250,15 +274,12 @@ public class RegisterController implements DSController {
         base.setCoreActive(false);
         base.setAutoGTUActs(new ArrayList<>());
 
-        for (Offizier offi : Offizier.getOffiziereByDest(base))
-        {
+        for (Offizier offi : Offizier.getOffiziereByDest(base)) {
             offi.setOwner(base.getOwner());
         }
 
-        for (Integer aBaselayout : baselayout)
-        {
-            if (aBaselayout > 0)
-            {
+        for (Integer aBaselayout : baselayout) {
+            if (aBaselayout > 0) {
                 Building building = Building.getBuilding(aBaselayout);
                 building.build(base, aBaselayout);
             }
@@ -266,13 +287,10 @@ public class RegisterController implements DSController {
     }
 
     private void positionShips(Session db, int newId, int raceId, Base base, Nebel nebel) {
-        if (raceId == 1)
-        {
+        if (raceId == 1) {
             SectorTemplateManager.getInstance().useTemplate(db, "ORDER_TERRANER", base.getLocation(), newId);
             SectorTemplateManager.getInstance().useTemplate(db, "ORDER_TERRANER_TANKER", nebel.getLocation(), newId);
-        }
-        else
-        {
+        } else {
             SectorTemplateManager.getInstance().useTemplate(db, "ORDER_VASUDANER", base.getLocation(), newId);
             SectorTemplateManager.getInstance().useTemplate(db, "ORDER_VASUDANER_TANKER", nebel.getLocation(), newId);
         }
@@ -295,35 +313,7 @@ public class RegisterController implements DSController {
                 "Viel Spaß bei DS2 wünschen Dir die Admins[/font]");
     }
 
-    private static class StartLocations
-    {
-        final int systemID;
-        @SuppressWarnings("unused")
-        final int orderLocationID;
-        final HashMap<Integer, RegisterController.StartLocation> minSysDistance;
-
-        StartLocations(int systemID, int orderLocationID, HashMap<Integer, RegisterController.StartLocation> minSysDistance)
-        {
-            this.systemID = systemID;
-            this.orderLocationID = orderLocationID;
-            this.minSysDistance = minSysDistance;
-        }
-    }
-
-    private static class StartLocation
-    {
-        final int orderLocationID;
-        final int distance;
-
-        StartLocation(int orderLocationID, int distance)
-        {
-            this.orderLocationID = orderLocationID;
-            this.distance = distance;
-        }
-    }
-
-    private RegisterController.StartLocations getStartLocation()
-    {
+    private RegisterController.StartLocations getStartLocation() {
         org.hibernate.Session db = ContextMap.getContext().getDB();
 
         int systemID = 0;
@@ -332,13 +322,11 @@ public class RegisterController implements DSController {
         HashMap<Integer, RegisterController.StartLocation> minsysdistance = new HashMap<>();
 
         List<?> systems = db.createQuery("from StarSystem order by id asc").list();
-        for (Object system1 : systems)
-        {
+        for (Object system1 : systems) {
             StarSystem system = (StarSystem) system1;
             Location[] locations = system.getOrderLocations();
 
-            for (int i = 0; i < locations.length; i++)
-            {
+            for (int i = 0; i < locations.length; i++) {
                 int dist = 0;
                 int count = 0;
                 Iterator<?> distiter = db.createQuery("SELECT sqrt((:x-x)*(:x-x)+(:y-y)*(:y-y)) FROM Base WHERE owner.id = 0 AND system = :system AND klasse.id = 1 ORDER BY sqrt((:x-x)*(:x-x)+(:y-y)*(:y-y))")
@@ -348,23 +336,19 @@ public class RegisterController implements DSController {
                     .setMaxResults(15)
                     .iterate();
 
-                while (distiter.hasNext())
-                {
+                while (distiter.hasNext()) {
                     dist += (Double) distiter.next();
                     count++;
                 }
 
-                if (count < 15)
-                {
+                if (count < 15) {
                     continue;
                 }
 
-                if (!minsysdistance.containsKey(system.getID()) || (minsysdistance.get(system.getID()).distance > dist))
-                {
+                if (!minsysdistance.containsKey(system.getID()) || (minsysdistance.get(system.getID()).distance > dist)) {
                     minsysdistance.put(system.getID(), new RegisterController.StartLocation(i, dist));
 
-                    if (mindistance > dist)
-                    {
+                    if (mindistance > dist) {
                         mindistance = dist;
                         systemID = system.getID();
                         orderLocationID = i;
@@ -373,5 +357,51 @@ public class RegisterController implements DSController {
             }
         }
         return new RegisterController.StartLocations(systemID, orderLocationID, minsysdistance);
+    }
+
+    private static class StartLocations {
+        final int systemID;
+        final int orderLocationID;
+        final HashMap<Integer, RegisterController.StartLocation> minSysDistance;
+
+        StartLocations(int systemID, int orderLocationID, HashMap<Integer, RegisterController.StartLocation> minSysDistance) {
+            this.systemID = systemID;
+            this.orderLocationID = orderLocationID;
+            this.minSysDistance = minSysDistance;
+        }
+    }
+
+    private static class StartLocation {
+        final int orderLocationID;
+        final int distance;
+
+        StartLocation(int orderLocationID, int distance) {
+            this.orderLocationID = orderLocationID;
+            this.distance = distance;
+        }
+    }
+
+    private static class RegisterSystem {
+        public final int id;
+        public final String name;
+        public final String description;
+
+        private RegisterSystem(int id, String name, String description) {
+            this.id = id;
+            this.name = name;
+            this.description = description;
+        }
+    }
+
+    private static class RegisterRace {
+        public final int id;
+        public final String name;
+        public final String description;
+
+        private RegisterRace(int id, String name, String description) {
+            this.id = id;
+            this.name = name;
+            this.description = description;
+        }
     }
 }

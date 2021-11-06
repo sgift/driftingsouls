@@ -16,7 +16,6 @@
         jQuery(document).ready(function ($) {
             $('a[rel*=facebox]').facebox()
         })
-
     </script>
 </head>
 
@@ -79,20 +78,6 @@
         </p>
 
         <form action="./register" method="post">
-            <script type="text/javascript">
-                let lastRaceSelect = 1;
-
-                function actionRaceSelectChange(action) {
-                    if( document.getElementById("register_rassendesc_"+action) != null ) {
-                        document.getElementById("register_rassendesc_"+action).style.display = 'inline';
-                    }
-                    if( document.getElementById("register_rassendesc_"+lastRaceSelect) != null ) {
-                        document.getElementById("register_rassendesc_"+lastRaceSelect).style.display = 'none';
-                    }
-                    lastRaceSelect = action;
-                }
-            </script>
-
             <div id="register-neusiedler-daten">
                 <h2>Registrierung</h2>
                 <p>Bitte f&uuml;lle alle Felder aus.<br />
@@ -101,14 +86,18 @@
 
                 <p>
                     <label for="race" class="left">Spezies</label>
-                    <select name="race" id="race" size="1" style="width:200px" onchange="actionRaceSelectChange(this.options[this.options.selectedIndex].value)">
-
-                        <option value="1" selected="selected">Terraner</option>
-
-                        <option value="2" >Vasudaner</option>
-
+                    <select name="race" id="race" style="width:300px" onchange="actionRaceSelectChange(this.options[this.options.selectedIndex].value)">
+                        <option data-th-each="race: ${races}" data-th-value="${race.id}" data-th-text="${race.name}">Terraner</option>
                     </select>
                 </p>
+
+                <p>
+                    <label for="system" class="left">System</label>
+                    <select name="system" id="system" style="width:300px" onchange="actionSystemSelectChange(this.options[this.options.selectedIndex].value)">
+                        <option data-th-each="system: ${systems}" data-th-value="${system.id}" data-th-text="${system.name}">Eta Nebular</option>
+                    </select>
+                </p>
+
                 <p>
                     <label for="login_name" class="left">Loginname</label> <input name="login_name" id="login_name" type="text" style="width:200px"  maxlength="40" value="" />
                     <br /><br />Hinweis: Der Loginname ist <span class="red">nicht</span> der Ingame-Name. Dieser kann sp&auml;ter bestimmt und ge&auml;ndert werden. <br /><br />
@@ -127,36 +116,59 @@
                 </p>
 
 
-
-                <div id="register_rassendesc_1" style="display:inline">
-                    <div id="register-info-rassen-2">
-                        <h2> Terraner </h2>
-                        <p>
-                            Terraner sind wie die Vasudaner Humanoide auf Kohlenstoffbasis. Im Vergleich zu Vasudanern oder Shivanern sind Terraner k&#246;rperlich schw&#228;cher und k&#246;nnen nur etwas mehr als ihr eigenes K&#246;rpergewicht heben. Sie stammen urspr&#252;nglich von der Erde, zu der aber infolge eines shivanischen Angriffs seit langer Zeit keine Verbindung mehr besteht. Die Terraner abseits der Erde haben an verschiedenen Orten im Universum neu Fu&#223; gefasst, was die unglaubliche Anpassungsf&#228;higkeit dieser Spezies beweist. Ihre Technologie ist mit der der Vasudaner ebenb&#252;rtig und viele Terraner leben heutzutage mit den Vasudanern in Koexistenz. Andere Terraner wiederum bezeichnen sich als Neo-Terraner (angelehnt an die Neo-Terranische Front) und haben als Ziel die Vernichtung der vasudanischen Rasse.<br /><br /><br />Weitere Informationen finden sich <a class="forschinfo" href="https://drifting-souls.fandom.com/de/wiki/Terraner" target="_blank">hier</a>.<br /><br /><img style="vertical-align:middle; border:0" src="data/interface/rassen/1.png" alt="" />
-                        </p>
+                <div data-th-each="race: ${races}">
+                    <div data-th-id="'register_rassendesc_' + ${race.id}" id="register_rassendesc_1" style="display:none">
+                        <div data-th-id="'register-info-rassen-' + ${race.id}" id="register-info-rassen-1">
+                            <h2 data-th-text="${race.name}"> Terraner </h2>
+                            <p data-th-text="${race.description}">
+                                Terraner sind wie die Vasudaner Humanoide auf Kohlenstoffbasis. Im Vergleich zu Vasudanern oder Shivanern sind Terraner k&#246;rperlich schw&#228;cher und k&#246;nnen nur etwas mehr als ihr eigenes K&#246;rpergewicht heben. Sie stammen urspr&#252;nglich von der Erde, zu der aber infolge eines shivanischen Angriffs seit langer Zeit keine Verbindung mehr besteht. Die Terraner abseits der Erde haben an verschiedenen Orten im Universum neu Fu&#223; gefasst, was die unglaubliche Anpassungsf&#228;higkeit dieser Spezies beweist. Ihre Technologie ist mit der der Vasudaner ebenb&#252;rtig und viele Terraner leben heutzutage mit den Vasudanern in Koexistenz. Andere Terraner wiederum bezeichnen sich als Neo-Terraner (angelehnt an die Neo-Terranische Front) und haben als Ziel die Vernichtung der vasudanischen Rasse.<br /><br /><br />Weitere Informationen finden sich <a class="forschinfo" href="https://drifting-souls.fandom.com/de/wiki/Terraner" target="_blank">hier</a>.<br /><br /><img style="vertical-align:middle; border:0" src="data/interface/rassen/1.png" alt="" />
+                            </p>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-
-
-            <div id="register_rassendesc_2" style="display:none">
-                <div id="register-info-rassen-1">
-                    <h2> Vasudaner </h2>
-                    <p>
-                        Vasudaner sind wie die Terraner eine hoch entwickelte Spezies. Ihr Heimatplanet war Vasuda Prime, ein sehr unwirtlicher W&#252;stenplanet.<br />Er wurde im Gro&#223;en Krieg von den Shivanern angegriffen und dadurch fast unbewohnbar.<br />Die Vasudaner haben eine sehr alte Kultur mit mehreren hochentwickelten Sprachen und Nationen. Sie leben in gro&#223;en und eng verbundenen Familienstrukturen, vergleichbar mit terranischen Familienklans. Ihre K&#246;rper sind entsprechend dem extrem ariden Klima ihres Heimatplaneten perfekt an das Leben in der W&#252;ste angepasst. Ihre Kultur weist gewisse &#196;hnlichkeiten mit dem &#196;gypten der Pharaonenzeit auf. Daneben gibt es aber auch &#196;hnlichkeiten mit dem mittelalterlichen Japan und nat&#252;rlich auch zahlreiche gesellschaftliche und kulturelle Entwicklungen, die keine vergleichbare terranische Entsprechung besitzen. So spielt die spirituelle und geistige Erleuchtung f&#252;r viele Vasudaner eine gro&#223;e Rolle. Die Vasudaner weisen als Gemeinschaft einen hohen Grad an Zusammenhalt und Z&#228;higkeit auf. Selbst schlimmste Etappen ihrer Geschichte, wie die Verw&#252;stung ihrer Heimatwelt durch die Shivaner, lie&#223; sie niemals verzweifeln und aufgeben. Der technologische Stand ist in etwa mit dem der Terraner vergleichbar. Viele Vasudaner leben heute gemeinsam mit Terranern. Andere wiederum lehnen eine Koexistenz mit den Terranern ab und haben sich dem neu gegr&#252;ndeten Vasudanischen Imperium angeschlossen.<br /><br />Weitere Informationen finden sich <a class="forschinfo" href="https://drifting-souls.fandom.com/de/wiki/Vasudaner" target="_blank">hier</a>.<br /><br /><img style="vertical-align:middle; border:0" src="data/interface/rassen/2.png" alt="" />
-                    </p>
+                <div data-th-each="system: ${systems}">
+                    <div data-th-id="'register_systemdesc_' + ${system.id}" id="register_systemdesc_605" style="display:none">
+                        <div data-th-id="'register-info-system-' + ${system.id}" id="register-info-system-605">
+                            <h2 data-th-text="${system.name}"> Eta Nebular </h2>
+                            <p data-th-text="${system.description}">
+                                Das System ist ein gro&#223;es und stark ausgebautes Sternensystem, welches vorrangig von der Galactic Terran-Vasudan Republic kontrolliert wird. Die Republic bietet sowohl Vasudanern als auch Terranern ein Zuhause und einen gewissen Schutz. Zudem ist das System mit einer Vielzahl an Handelsstationen ausgestattet und verf&#252;gt &#252;ber viele Sprungpunkte in andere Systeme. &nbsp;<span style="font-style:italic">F&#252;r mehr siehe <a class="forschinfo" href="https://drifting-souls.fandom.com/de/wiki/Eta_Nebular" target="_blank">hier</a></span>
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </form>
     </div>
 
-    <div class="rechte-spalte">
-        <div id="re-inhalt">
-        </div>  <!-- Ende class. re-inhalt (gegenstueck "documents") -->
-    </div>    <!-- Ende class. Rechte Spalte -->
-
 </div> <!-- Ende ID Container -->
+
+<script type="text/javascript">
+    let lastRaceSelect = 1;
+    function actionRaceSelectChange(action) {
+        if( document.getElementById("register_rassendesc_"+action) != null ) {
+            document.getElementById("register_rassendesc_"+action).style.display = 'inline';
+        }
+        if( document.getElementById("register_rassendesc_"+lastRaceSelect) != null ) {
+            document.getElementById("register_rassendesc_"+lastRaceSelect).style.display = 'none';
+        }
+        lastRaceSelect = action;
+    }
+
+    let lastSystemSelect = 605;
+    function actionSystemSelectChange(action) {
+        if( document.getElementById("register_systemdesc_"+action) != null ) {
+            document.getElementById("register_systemdesc_"+action).style.display = 'inline';
+        }
+        if( document.getElementById("register_systemdesc_"+lastSystemSelect) != null ) {
+            document.getElementById("register_systemdesc_"+lastSystemSelect).style.display = 'none';
+        }
+        lastSystemSelect = action;
+    }
+
+    document.getElementById("register_rassendesc_"+lastRaceSelect).style.display = 'inline';
+    document.getElementById("register_systemdesc_"+lastSystemSelect).style.display = 'inline';
+</script>
 
 <!-- hier wird von wo anders der Schluss eingef&uuml;gt -->
 <script type="text/javascript">
