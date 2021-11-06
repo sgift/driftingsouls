@@ -53,6 +53,8 @@ public class CargoDefault implements SchiffPlugin {
 			int startfighter,
 			boolean setgotosecondrow,
 			int gotosecondrow,
+			boolean setuseinstantbattleenter,
+			int useinstantbattleenter,
 			long usenahrung,
 			boolean setfeeding,
 			boolean isfeeding,
@@ -217,6 +219,14 @@ public class CargoDefault implements SchiffPlugin {
 
 			output.append("Automatisches Verlegen in die 2. Reihe ").append(gotosecondrow != 0 ? "" : "de").append("aktiviert<br />\n");
 		}
+		else if(setuseinstantbattleenter)
+		{
+			SchiffEinstellungen einstellungen = ship.getEinstellungen();
+			einstellungen.setGotoSecondrow(useinstantbattleenter != 0);
+			einstellungen.persistIfNecessary(ship);
+
+			output.append("Schnelle Kampfbereitschaft ").append(useinstantbattleenter != 0 ? "" : "de").append("aktiviert<br />\n");
+		}
 		else if( setfeeding )
 		{
 			SchiffEinstellungen einstellungen = ship.getEinstellungen();
@@ -266,6 +276,8 @@ public class CargoDefault implements SchiffPlugin {
 					"schiff.cargo.traeger.startfighter",	ship.getEinstellungen().startFighters(),
 					"schiff.cargo.secondrow",				shiptype.hasFlag(ShipTypeFlag.SECONDROW),
 					"schiff.cargo.secondrow.gotosecondrow", ship.getEinstellungen().gotoSecondrow(),
+					"schiff.cargo.instant",				shiptype.hasFlag(ShipTypeFlag.INSTANT_BATTLE_ENTER),
+					"schiff.cargo.instant.useinstantbattleenter", ship.getEinstellungen().useInstantBattleEnter(),
 					"schiff.cargo.versorger",				shiptype.hasFlag(ShipTypeFlag.VERSORGER),
 					"schiff.cargo.versorger.isfeeding",		ship.getEinstellungen().isFeeding(),
 					"schiff.cargo.versorger.isallyfeeding",	ship.getEinstellungen().isAllyFeeding(),

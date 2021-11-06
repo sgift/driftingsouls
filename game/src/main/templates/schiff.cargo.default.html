@@ -101,6 +101,18 @@
 		</div>
 	</form>
 {/endif}
+{if schiff.cargo.instant}
+	<form action="./ds" method="post">
+		<div>
+			Schnelle Kampfbereitschaft aktivieren:<br />
+			<input id="cargo_ops_useinstantbattleenter" name="cargo_ops[useinstantbattleenter]" type="checkbox" value="1" {if schiff.cargo.instant.useinstantbattleenter}checked="checked"{/endif} />
+			<label for="cargo_ops_useinstantbattleenter">aktivieren</label>&nbsp;
+			{!form_create_hidden plugin, ship:$ship.id, plugin:$global.pluginid}
+			<input type="hidden" name="cargo_ops[setuseinstantbattleenter]" value="1" />
+			<input type="submit" value="ok" />
+		</div>
+	</form>
+{/endif}
 {if schiff.cargo.versorger}
 	<form action="./ds" method="post">
 		<div>
