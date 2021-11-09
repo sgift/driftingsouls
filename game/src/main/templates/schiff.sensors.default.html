@@ -82,6 +82,14 @@
 			<td class="show2">&nbsp;</td>
 			{if global.awac}<td class="show2">&nbsp;</td>{/endif}
 			<td class="show2" align="left">
+			{if global.astiscan}
+				<a class="greenborder tooltip" href="./ds?module=base&amp;col={base.id}&amp;ship={global.ship}">
+					<img src="data/interface/schiffe/asti_scan.gif" alt="scannen" />
+					<span class="ttcontent">
+						{base.name} scannen.
+					</span>
+				</a>
+			{/endif}
 			{if base.colonize}
 				<a class="greenborder tooltip" href="./ds?module=colonize&amp;col={base.id}&amp;ship={global.ship}">
 					<img src="data/interface/schiffe/schiff_kolonisieren.gif" alt="kolonisieren" />

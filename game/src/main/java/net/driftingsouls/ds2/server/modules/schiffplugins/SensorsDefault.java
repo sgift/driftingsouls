@@ -109,7 +109,8 @@ public class SensorsDefault implements SchiffPlugin {
 				"global.ship", ship.getId(),
 				"global.pluginid", pluginid,
 				"ship.sensors.location", ship.getLocation().displayCoordinates(true),
-				"global.awac", shiptype.hasFlag(ShipTypeFlag.SRS_AWAC) || shiptype.hasFlag(ShipTypeFlag.SRS_EXT_AWAC) );
+				"global.awac", shiptype.hasFlag(ShipTypeFlag.SRS_AWAC) || shiptype.hasFlag(ShipTypeFlag.SRS_EXT_AWAC),
+				"global.astiscan", shiptype.hasFlag(ShipTypeFlag.ASTISCAN));
 
 		String order = user.getUserValue(WellKnownUserValue.TBLORDER_SCHIFF_SENSORORDER);
 

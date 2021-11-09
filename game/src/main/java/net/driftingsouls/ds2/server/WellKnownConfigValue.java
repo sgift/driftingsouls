@@ -221,6 +221,10 @@ public class WellKnownConfigValue<T> implements ConfigValueDescriptor<T>
 	 * Maximaler Schaden an den Subsystemen durch Schadensnebel (Prozent)
 	 */
 	public static final ConfigValueDescriptor<Integer> NEBULA_DAMAGE_SUBSYSTEM = new WellKnownConfigValue<>(Integer.class, "nebula_damage_subsystem", "30", "Prozent an Schaden der maximal an Subsystemen durch Einflug in einen Schadensnebel verursacht wird");
+	/**
+	 * Energiekosten fuer einen Asteroidenscan
+	 */
+	public static final ConfigValueDescriptor<Integer> ASTI_SCAN_COST = new WellKnownConfigValue<>(Integer.class, "asti_scan_cost", "75", "Energiekosten für einen Asteroidenscan");
 
 	private final String name;
 	private final String description;

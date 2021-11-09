@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules;
 
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.BaseStatus;
 import net.driftingsouls.ds2.server.bases.Building;
@@ -25,8 +26,10 @@ import net.driftingsouls.ds2.server.bases.Core;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
+import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
@@ -216,6 +219,7 @@ public class BaseController extends Controller
 			public int arbeiter;
 			public int arbeiterErforderlich;
 			public int wohnraum;
+			public boolean scan = false;
 			public final List<ResourceEntryViewModel> cargo = new ArrayList<>();
 			public final List<UnitCargoEntryViewModel> einheiten = new ArrayList<>();
 			public CoreViewModel core;
@@ -253,8 +257,24 @@ public class BaseController extends Controller
 	 * Zeigt die Basis an.
 	 */
 	@Action(ActionType.AJAX)
-	public AjaxViewModel ajaxAction(@UrlParam(name="col") Base base) {
-		validate(base);
+	public AjaxViewModel ajaxAction(@UrlParam(name="col") Base base, Ship ship) {
+		boolean scan = ship == null;
+		if(!scan)
+		{
+			validate(base);
+		}
+		else{
+			setPageTitle(base.getName());
+			int e = new ConfigService().getValue(WellKnownConfigValue.ASTI_SCAN_COST);
+			if(e <= ship.getEnergy())
+			{
+				ship.setEnergy(ship.getEnergy() - e);
+			}
+			else
+			{
+				throw new ValidierungException("Nicht ausreichend Energie für den Asteroidenscan vorhanden", Common.buildUrl("default", "module", "basen") );
+			}
+		}
 
 		AjaxViewModel response = new AjaxViewModel();
 		response.col = base.getId();
@@ -302,6 +322,7 @@ public class BaseController extends Controller
 		baseObj.arbeiter = base.getArbeiter();
 		baseObj.arbeiterErforderlich = basedata.getArbeiter();
 		baseObj.wohnraum = basedata.getLivingSpace();
+		baseObj.scan = scan;
 
 		response.base = baseObj;
 
@@ -364,9 +385,24 @@ public class BaseController extends Controller
 	 * Zeigt die Basis an.
 	 */
 	@Action(ActionType.DEFAULT)
-	public TemplateEngine defaultAction(@UrlParam(name = "col") Base base, RedirectViewResult redirect) {
-		validate(base);
-
+	public TemplateEngine defaultAction(@UrlParam(name = "col") Base base, Ship ship, RedirectViewResult redirect) {
+		boolean scan = ship == null;
+		if (!scan)
+		{
+			validate(base);
+		}
+		else{
+			setPageTitle(base.getName());
+			int e = new ConfigService().getValue(WellKnownConfigValue.ASTI_SCAN_COST);
+			if(e <= ship.getEnergy())
+			{
+				ship.setEnergy(ship.getEnergy() - e);
+			}
+			else
+			{
+				throw new ValidierungException("Nicht ausreichend Energie für den Asteroidenscan vorhanden", Common.buildUrl("default", "module", "basen") );
+			}
+		}
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 
 		User user = (User)getUser();
@@ -385,7 +421,8 @@ public class BaseController extends Controller
 				"base.map.width", base.getWidth()*39+20,
 				"base.cargo.height", (mapheight < 280 ? "280" : mapheight),
 				"base.cargo.empty",	Common.ln(base.getMaxCargo() - base.getCargo().getMass()),
-				"base.message", redirect != null ? redirect.getMessage() : null);
+				"base.message", redirect != null ? redirect.getMessage() : null,
+				"scan", scan);
 
 		BaseStatus basedata = Base.getStatus(base);
 

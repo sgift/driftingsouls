@@ -2,6 +2,9 @@ package net.driftingsouls.ds2.server.ships;
 
 import org.apache.commons.lang3.StringUtils;
 
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
+import net.driftingsouls.ds2.server.framework.ConfigService;
+
 import javax.annotation.Nonnull;
 import java.util.EnumSet;
 import java.util.Optional;
@@ -127,9 +130,14 @@ public enum ShipTypeFlag
 	 */
 	NICHT_UEBERGEBBAR("nicht_uebergebbar", "nicht übergebbar", "Der Inhaber dieses Schiffes kann es nicht an andere Kolonisten übergeben."),
 	/**
+	 * Kann Asteroiden scannen (Astiansicht ohne Besiedelung)
+	 */
+	ASTISCAN("astiscan", "Asteroidenscanner", "Dieses Schiff kann einen Asteroiden scannen."),
+	/**
 	 * Muss im Kampf als erstes zerstört werden.
 	 */
 	SCHUTZSCHILD("schutzschild", "Schutzschild", "Dieses Schiff schützt verbündete Schiffe vor Angriffen, bis es zerstört worden ist. Im Kampf muss es als erstes zerstört werden, ehe andere Schiffe 'hinter dem Schild' angegriffen werden können.");
+
 
 	private final String flag;
 	private final String label;
