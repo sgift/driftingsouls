@@ -257,8 +257,16 @@ public class BaseController extends Controller
 	 * Zeigt die Basis an.
 	 */
 	@Action(ActionType.AJAX)
+		public AjaxViewModel ajaxAction(@UrlParam(name="col") Base base) {
+		return ajaxAction(base, null);
+	}
+
+	/**
+	 * Zeigt die Basis fuer einen Scan an.
+	 */
+	@Action(ActionType.AJAX)
 	public AjaxViewModel ajaxAction(@UrlParam(name="col") Base base, Ship ship) {
-		boolean scan = ship == null;
+		boolean scan = ship != null;
 		if(!scan)
 		{
 			validate(base);
