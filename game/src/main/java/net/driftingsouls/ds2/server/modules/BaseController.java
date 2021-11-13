@@ -389,12 +389,21 @@ public class BaseController extends Controller
 		return response;
 	}
 
+        /**
+	 * Zeigt die Basis an.
+	 */
+	@Action(ActionType.DEFAULT)
+	public TemplateEngine defaultAction(@UrlParam(name = "col") Base base, Ship ship, RedirectViewResult redirect) {
+		return defaultAction(base,  null, redirect);
+        }
+
+
 	/**
 	 * Zeigt die Basis an.
 	 */
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine defaultAction(@UrlParam(name = "col") Base base, Ship ship, RedirectViewResult redirect) {
-		boolean scan = ship == null;
+		boolean scan = ship! = null;
 		if (!scan)
 		{
 			validate(base);
