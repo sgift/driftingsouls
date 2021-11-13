@@ -393,7 +393,7 @@ public class BaseController extends Controller
 	 * Zeigt die Basis an.
 	 */
 	@Action(ActionType.DEFAULT)
-	public TemplateEngine defaultAction(@UrlParam(name = "col") Base base, Ship ship, RedirectViewResult redirect) {
+	public TemplateEngine defaultAction(@UrlParam(name = "col") Base base,  RedirectViewResult redirect) {
 		return defaultAction(base,  null, redirect);
         }
 
@@ -403,7 +403,7 @@ public class BaseController extends Controller
 	 */
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine defaultAction(@UrlParam(name = "col") Base base, Ship ship, RedirectViewResult redirect) {
-		boolean scan = ship! = null;
+		boolean scan = ship != null;
 		if (!scan)
 		{
 			validate(base);
