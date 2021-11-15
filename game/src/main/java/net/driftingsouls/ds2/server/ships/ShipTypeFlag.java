@@ -130,7 +130,7 @@ public enum ShipTypeFlag
 	 */
 	NICHT_UEBERGEBBAR("nicht_uebergebbar", "nicht übergebbar", "Der Inhaber dieses Schiffes kann es nicht an andere Kolonisten übergeben."),
 	/**
-	 * Muss im Kampf als erstes zerstört werden.
+	 * Kann Asteroiden scannen (Astiansicht ohne Besiedelung)
 	 */
 	ASTISCAN("astiscan", "Asteroidenscanner", "Dieses Schiff kann einen Asteroiden scannen."),
 	/**
