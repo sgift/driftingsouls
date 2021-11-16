@@ -38,7 +38,7 @@
 <table class="noBorder" cellspacing="5" cellpadding="2" style="table-layout:fixed">
 <tr>
 	<td style="width:{base.map.width}px" class="Border">Karte</td>
-	{if !scan || base.colonize}
+	{if base.showall}
 		<td style="width:5px" class="noBorder"></td>
 		<td style="width:280px" class="Border">Cargo</td>
 	{/endif}
@@ -92,7 +92,7 @@
 		<!-- +END+ Karte -->
 		</div>
 	</td>
-	{if !scan || base.colonize}
+	{if base.showall}
 		<td class="noBorder" style="width:5px">&nbsp;</td>
 		<td style="vertical-align:top; width:280px;height:{base.cargo.height}px;" class="schiffWaren">
 			<ul id="cargoBox">
@@ -142,7 +142,7 @@
 		</td>
 	{/endif}
 </tr>
-{if !scan || base.colonize}
+{if base.showall}
 	<tr>
 		<td colspan="5" class="noBorderS">
 			<br />

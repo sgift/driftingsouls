@@ -441,7 +441,7 @@ public class BaseController extends Controller
 				"base.message", redirect != null ? redirect.getMessage() : null,
 				"scan", scan,
 				"ship.id", ship.getId(),
-				"base.colonize", (base.getOwner().getId() == 0));
+				"base.showall", (base.getOwner().getId() == 0) || (base.getOwner().getId() == user.getId()));
 
 		BaseStatus basedata = Base.getStatus(base);
 
