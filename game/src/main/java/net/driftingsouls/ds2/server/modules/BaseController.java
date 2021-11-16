@@ -439,7 +439,8 @@ public class BaseController extends Controller
 				"base.cargo.height", (mapheight < 280 ? "280" : mapheight),
 				"base.cargo.empty",	Common.ln(base.getMaxCargo() - base.getCargo().getMass()),
 				"base.message", redirect != null ? redirect.getMessage() : null,
-				"scan", scan);
+				"scan", scan,
+				"ship.id", ship.getId());
 
 		BaseStatus basedata = Base.getStatus(base);
 
