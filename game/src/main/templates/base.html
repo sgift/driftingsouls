@@ -38,10 +38,12 @@
 <table class="noBorder" cellspacing="5" cellpadding="2" style="table-layout:fixed">
 <tr>
 	<td style="width:{base.map.width}px" class="Border">Karte</td>
-	<td style="width:5px" class="noBorder"></td>
-	<td style="width:280px" class="Border">Cargo</td>
-	<td style="width:5px" class="noBorder"></td>
+	{if !scan || base.colonize}
+		<td style="width:5px" class="noBorder"></td>
+		<td style="width:280px" class="Border">Cargo</td>
+	{/endif}
 	{if !scan}
+		<td style="width:5px" class="noBorder"></td>
 		<td style="width:240px" class="Border">Aktionen</td>
 	{/endif}
 </tr>
@@ -90,20 +92,22 @@
 		<!-- +END+ Karte -->
 		</div>
 	</td>
-	<td class="noBorder" style="width:5px">&nbsp;</td>
-	<td style="vertical-align:top; width:280px;height:{base.cargo.height}px;" class="schiffWaren">
-		<ul id="cargoBox">
-			<!-- +START+ Cargo -->
-			<!-- BEGIN base.cargo.listitem -->
-				<li>
-				<img src="{res.image}" alt="" />
-				{res.name} {res.cargo1} {if res.plaincount2}{res.cargo2}{/endif}
-				</li>
-			<!-- END base.cargo.listitem -->
-			<img src="data/interface/leer.gif" alt="" />leer {base.cargo.empty} {base.cstat}<br />
-			<!-- +END+ Cargo -->
-		</ul>
-	</td>
+	{if !scan || base.colonize}
+		<td class="noBorder" style="width:5px">&nbsp;</td>
+		<td style="vertical-align:top; width:280px;height:{base.cargo.height}px;" class="schiffWaren">
+			<ul id="cargoBox">
+				<!-- +START+ Cargo -->
+				<!-- BEGIN base.cargo.listitem -->
+					<li>
+					<img src="{res.image}" alt="" />
+					{res.name} {res.cargo1} {if res.plaincount2}{res.cargo2}{/endif}
+					</li>
+				<!-- END base.cargo.listitem -->
+				<img src="data/interface/leer.gif" alt="" />leer {base.cargo.empty} {base.cstat}<br />
+				<!-- +END+ Cargo -->
+			</ul>
+		</td>
+	{endif}
 	{if !scan}
 		<td class="noBorder" style="width:5px">&nbsp;</td>
 		<td style="vertical-align:top; width:240px" class="schiffWaren">
@@ -138,10 +142,10 @@
 		</td>
 	{/endif}
 </tr>
-<tr>
-	<td colspan="5" class="noBorderS">
-		<br />
-		{if !scan}
+{if !scan || base.colonize}
+	<tr>
+		<td colspan="5" class="noBorderS">
+			<br />
 			{if base.marines}
 				<div class="gfxbox">
 					<!-- BEGIN base.units.listitem -->
@@ -149,22 +153,22 @@
 					<!-- END base.units.listitem -->
 				</div>
 			{/endif}
-		{/endif}
-		<div class="gfxbox" id="statsBox">
-			Gespeicherte Energie: {base.e}<br />
-			Energiebilanz: {base.estat}<br />
-			<br />
-			Bev&ouml;lkerung: {base.bewohner}<br />
-			Arbeiter ben&ouml;tigt: {base.arbeiter.needed}<br />
-			Wohnraum: {base.wohnraum}<br />
-			<div class="arbeiteranzeige" style="width:{arbeiterProzent}%"></div>
-			<div class="arbeitslosenanzeige" style="width:{arbeitslosProzent}%"></div>
-			<div class="wohnraumfreianzeige" style="width:{wohnraumFreiProzent}%"></div>
-			<div class="wohnraumfehltanzeige" style="width:{wohnraumFehltProzent}%"></div>
-			<br /><br />
-		</div>
-	</td>
-</tr>
+			<div class="gfxbox" id="statsBox">
+				Gespeicherte Energie: {base.e}<br />
+				Energiebilanz: {base.estat}<br />
+				<br />
+				Bev&ouml;lkerung: {base.bewohner}<br />
+				Arbeiter ben&ouml;tigt: {base.arbeiter.needed}<br />
+				Wohnraum: {base.wohnraum}<br />
+				<div class="arbeiteranzeige" style="width:{arbeiterProzent}%"></div>
+				<div class="arbeitslosenanzeige" style="width:{arbeitslosProzent}%"></div>
+				<div class="wohnraumfreianzeige" style="width:{wohnraumFreiProzent}%"></div>
+				<div class="wohnraumfehltanzeige" style="width:{wohnraumFehltProzent}%"></div>
+				<br /><br />
+			</div>
+		</td>
+	</tr>
+{/endif}
 </table>
 {if scan}
 	{!link_to zur&uuml;ck zum Schiff, default, css_class:back, module:schiff, ship:$ship.id}

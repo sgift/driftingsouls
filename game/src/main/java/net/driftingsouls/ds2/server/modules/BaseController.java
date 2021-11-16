@@ -440,7 +440,8 @@ public class BaseController extends Controller
 				"base.cargo.empty",	Common.ln(base.getMaxCargo() - base.getCargo().getMass()),
 				"base.message", redirect != null ? redirect.getMessage() : null,
 				"scan", scan,
-				"ship.id", ship.getId());
+				"ship.id", ship.getId(),
+				"base.colonize", (base.getOwner().getId() == 0));
 
 		BaseStatus basedata = Base.getStatus(base);
 

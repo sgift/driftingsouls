@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.modules.schiffplugins;
 
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.MutableLocation;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
@@ -27,6 +28,7 @@ import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.entities.*;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
@@ -110,7 +112,9 @@ public class SensorsDefault implements SchiffPlugin {
 				"global.pluginid", pluginid,
 				"ship.sensors.location", ship.getLocation().displayCoordinates(true),
 				"global.awac", shiptype.hasFlag(ShipTypeFlag.SRS_AWAC) || shiptype.hasFlag(ShipTypeFlag.SRS_EXT_AWAC),
-				"global.astiscan", shiptype.hasFlag(ShipTypeFlag.ASTISCAN));
+				"global.astiscan", shiptype.hasFlag(ShipTypeFlag.ASTISCAN),
+				"global.astiscan.cost", new ConfigService().getValue(WellKnownConfigValue.ASTI_SCAN_COST)
+				);
 
 		String order = user.getUserValue(WellKnownUserValue.TBLORDER_SCHIFF_SENSORORDER);
 
