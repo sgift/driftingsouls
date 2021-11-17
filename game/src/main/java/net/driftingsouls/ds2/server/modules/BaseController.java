@@ -404,11 +404,13 @@ public class BaseController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine defaultAction(@UrlParam(name = "col") Base base, Ship ship, RedirectViewResult redirect) {
 		boolean scan = ship != null;
+		int shipid = 0;
 		if (!scan)
 		{
 			validate(base);
 		}
 		else{
+			shipid = ship.getId();
 			setPageTitle(base.getName());
 			int e = new ConfigService().getValue(WellKnownConfigValue.ASTI_SCAN_COST);
 			if(e <= ship.getEnergy())
@@ -440,7 +442,7 @@ public class BaseController extends Controller
 				"base.cargo.empty",	Common.ln(base.getMaxCargo() - base.getCargo().getMass()),
 				"base.message", redirect != null ? redirect.getMessage() : null,
 				"scan", scan,
-				"ship.id", ship.getId(),
+				"ship.id", shipid,
 				"base.showall", (base.getOwner().getId() == 0) || (base.getOwner().getId() == user.getId()));
 
 		BaseStatus basedata = Base.getStatus(base);
