@@ -783,7 +783,7 @@ public class WerftGUI {
 			for (Ship aship : targetShips)
 			{
 				werft.removeModule( aship, slot );
-				if (Ship.getShipType(aship.getId()).getWeapons().isEmpty()){
+				if (!aship.getTypeData().isMilitary()){
 					aship.setAlarm(Alarmstufe.GREEN);
 				}
 			}
