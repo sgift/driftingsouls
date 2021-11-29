@@ -726,11 +726,28 @@ public class KSAttackAction extends BasicKSAction {
 			eShip.addFlag(BattleShipFlag.HIT);
 			if(eShip.hasFlag(BattleShipFlag.FLUCHTNEXT) && (eShip.getEngine() == 0) && (eShipType.getCost() > 0) ) {
 				eShip.removeFlag(BattleShipFlag.FLUCHTNEXT);
+				List<BattleShip> enemyShips = battle.getEnemyShips();
+				for (BattleShip s : enemyShips)
+				{
+					if (s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == eShip.getId() && s.hasFlag(BattleShipFlag.FLUCHTNEXT))
+					{
+						s.removeFlag(BattleShipFlag.FLUCHTNEXT);
+					}
+				}
 			}
 			if(eShip.hasFlag(BattleShipFlag.FLUCHT) && (eShip.getEngine() == 0) && (eShipType.getCost() > 0) ) {
 				eShip.removeFlag(BattleShipFlag.FLUCHT);
 				battle.logme( "+ Flucht gestoppt\n" );
 				logMsg.append("[color=red]+ Flucht gestoppt[/color]\n");
+				//Flucht auch fuer alle gelandeten und gedockten Schiffe stoppen.
+				List<BattleShip> enemyShips = battle.getEnemyShips();
+				for (BattleShip s : enemyShips)
+				{
+					if (s.getShip().getBaseShip() != null && s.getShip().getBaseShip().getId() == eShip.getId() && s.hasFlag(BattleShipFlag.FLUCHT))
+					{
+						s.removeFlag(BattleShipFlag.FLUCHT);
+					}
+				}
 			}
 		}
 
