@@ -72,8 +72,12 @@ public class BaseController extends Controller
 	private void validate(Base base) {
 		User user = (User)getUser();
 
-		if( (base == null) || (base.getOwner() != user) ) {
+		if( base == null ) {
 			throw new ValidierungException("Die angegebene Kolonie existiert nicht", Common.buildUrl("default", "module", "basen") );
+		}
+		if (base.getOwner() != user)
+		{
+			throw new ValidierungException("Die angegebene Kolonie gehört nicht Ihnen", Common.buildUrl("default", "module", "basen") );
 		}
 
 		base.getCargo().setOption( Cargo.Option.LINKCLASS, "schiffwaren" );
@@ -433,15 +437,15 @@ public class BaseController extends Controller
 	 */
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine defaultAction(@UrlParam(name = "col") Base base,  RedirectViewResult redirect) {
-		return defaultAction(base,  null, redirect);
-        }
+		return scanAction(base,  null, redirect);
+	}
 
 
 	/**
 	 * Zeigt die Basis an.
 	 */
 	@Action(ActionType.DEFAULT)
-	public TemplateEngine defaultAction(@UrlParam(name = "col") Base base, Ship ship, RedirectViewResult redirect) {
+	public TemplateEngine scanAction(@UrlParam(name = "col") Base base, Ship ship, RedirectViewResult redirect) {
 		boolean scan = ship != null;
 		int shipid = 0;
 		if (!scan)
