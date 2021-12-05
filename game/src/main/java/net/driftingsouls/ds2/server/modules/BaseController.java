@@ -27,6 +27,7 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
@@ -71,11 +72,59 @@ public class BaseController extends Controller
 	private void validate(Base base) {
 		User user = (User)getUser();
 
-		if( (base == null) || (base.getOwner() != user) ) {
+		if( base == null ) {
 			throw new ValidierungException("Die angegebene Kolonie existiert nicht", Common.buildUrl("default", "module", "basen") );
+		}
+		if (base.getOwner() != user)
+		{
+			throw new ValidierungException("Die angegebene Kolonie gehört nicht Ihnen", Common.buildUrl("default", "module", "basen") );
 		}
 
 		base.getCargo().setOption( Cargo.Option.LINKCLASS, "schiffwaren" );
+
+		setPageTitle(base.getName());
+	}
+
+	private void validateScan(Base base, Ship ship) {
+
+		if ((ship == null) || (ship.getId() < 0) || (ship.getOwner() != getUser()))
+		{
+			throw new ValidierungException("Das angegebene Schiff existiert nicht oder gehört nicht Ihnen", Common.buildUrl("default", "module", "basen"));
+		}
+
+		if( (base == null)) {
+			throw new ValidierungException("Die angegebene Kolonie existiert nicht", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()) );
+		}
+
+		if( ship.getCrew() < ship.getTypeData().getMinCrew())
+		{
+			throw new ValidierungException("Das Schiff verfügt nicht über ausreichend Crew um den Asteroiden zu scannen", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()) );
+		}
+
+		if (ship.getSensors() == 0)
+		{
+			throw new ValidierungException("Die Sensoren des Schiffes sind defekt. Ein Asteroidenscan ist daher nicht möglich", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()) );
+		}
+
+		if(!ship.getTypeData().hasFlag(ShipTypeFlag.ASTISCAN))
+		{
+			throw new ValidierungException("Dieses Schiff besitzt keinen Asteroidenscanner und kann diese Kolonie daher nicht scannen", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
+		}
+
+		if (!ship.getLocation().sameSector(0, base.getLocation(), base.getSize()))
+		{
+			throw new ValidierungException("Der Asteroid befindet sich nicht im selben Sektor wie das Schiff", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
+		}
+
+		if (ship.getBattle() != null)
+		{
+			throw new ValidierungException("Das angegebene Schiff befindet sich in einer Schlacht", Common.buildUrl("default", "module", "schiffe"));
+		}
+
+		if(ship.getEnergy() < new ConfigService().getValue(WellKnownConfigValue.ASTI_SCAN_COST) )
+		{
+			throw new ValidierungException("Nicht ausreichend Energie für den Asteroidenscan vorhanden", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()) );
+		}
 
 		setPageTitle(base.getName());
 	}
@@ -272,16 +321,10 @@ public class BaseController extends Controller
 			validate(base);
 		}
 		else{
+			validateScan(base,ship);
 			setPageTitle(base.getName());
 			int e = new ConfigService().getValue(WellKnownConfigValue.ASTI_SCAN_COST);
-			if(e <= ship.getEnergy())
-			{
-				ship.setEnergy(ship.getEnergy() - e);
-			}
-			else
-			{
-				throw new ValidierungException("Nicht ausreichend Energie für den Asteroidenscan vorhanden", Common.buildUrl("default", "module", "basen") );
-			}
+			ship.setEnergy(ship.getEnergy() - e);
 		}
 
 		AjaxViewModel response = new AjaxViewModel();
@@ -394,15 +437,15 @@ public class BaseController extends Controller
 	 */
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine defaultAction(@UrlParam(name = "col") Base base,  RedirectViewResult redirect) {
-		return defaultAction(base,  null, redirect);
-        }
+		return scanAction(base,  null, redirect);
+	}
 
 
 	/**
 	 * Zeigt die Basis an.
 	 */
 	@Action(ActionType.DEFAULT)
-	public TemplateEngine defaultAction(@UrlParam(name = "col") Base base, Ship ship, RedirectViewResult redirect) {
+	public TemplateEngine scanAction(@UrlParam(name = "col") Base base, Ship ship, RedirectViewResult redirect) {
 		boolean scan = ship != null;
 		int shipid = 0;
 		if (!scan)
@@ -410,17 +453,11 @@ public class BaseController extends Controller
 			validate(base);
 		}
 		else{
+			validateScan(base,ship);
 			shipid = ship.getId();
 			setPageTitle(base.getName());
 			int e = new ConfigService().getValue(WellKnownConfigValue.ASTI_SCAN_COST);
-			if(e <= ship.getEnergy())
-			{
-				ship.setEnergy(ship.getEnergy() - e);
-			}
-			else
-			{
-				throw new ValidierungException("Nicht ausreichend Energie für den Asteroidenscan vorhanden", Common.buildUrl("default", "module", "basen") );
-			}
+			ship.setEnergy(ship.getEnergy() - e);
 		}
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 
