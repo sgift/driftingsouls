@@ -129,18 +129,12 @@
 
     <div class="rechte-spalte">
         <div id="re-inhalt">
-
-
-            <!-- was war hier drin? -->
-
-
             <ul id="news">
                 <h2>News</h2>
-
-                <li class="newsitem">
-                    <h3 class="title">Neuigkeiten vom 19.10.2021</h3>
-                    <span class="authoring">Neuigkeiten, 19.10.2021 22:57</span>
-                    <p class="newstext">1. Kleinere Anpassungen, v. a. an Modulen:<br/><a class="forschinfo"
+                <li class="newsitem" data-th-each="news_item: ${news}">
+                    <h3 class="title" data-th-text="${news_item.title}">Neuigkeiten vom 19.10.2021</h3>
+                    <span class="authoring" data-th-text="${news_item.author} + ', ' + ${news_item.date}">Neuigkeiten, 19.10.2021 22:57</span>
+                    <p class="newstext" data-th-utext="${news_item.text}">1. Kleinere Anpassungen, v. a. an Modulen:<br/><a class="forschinfo"
                                                                                           href="https://ds2forum.de/viewtopic.php?f=8&amp;t=318"
                                                                                           target="_blank">Siehe hier</a><br/><br/>2.
                         Vorwarnung Schadensnebel / Treibstoffverbrauch von Schiffen:<br/><br/>In K&#252;rze wird ein
@@ -149,41 +143,15 @@
                                                                                      href="https://ds2forum.de/viewtopic.php?f=8&amp;t=319"
                                                                                      target="_blank">Siehe hier</a></p>
                 </li>
-
-                <li class="newsitem">
-                    <h3 class="title">Weitreichende Anpassung von Nareos- und Depot-Modulen</h3>
-                    <span class="authoring">Neuigkeiten, 17.10.2021 21:28</span>
-                    <p class="newstext">Heute wurden die allermeisten Nareos- und Depot-Module angepasst. Wir danken
-                        hierbei allen aus der Spielerschaft, die uns bei den Anpassungen beratend im Discord zur Seite
-                        gestanden haben.<br/><br/>Die Nareos-Module sind nun unter anderem auch f&#252;r H&#228;ndler
-                        interessant, die so ihre Handelsst&#228;tten besser sch&#252;tzen und unterhalten k&#246;nnen,
-                        bieten aber auch sonst verschiedene Einsatzm&#246;glichkeiten. Das Milit&#228;rdepot kann nun
-                        als kleiner, wehrhafter Au&#223;enposten fungieren, z. B. auch als Bergbaust&#252;tzpunkt. Die
-                        Anschaffungskosten sind zumeist deutlich reduziert worden. Bei einigen Modulen wurden aber auch
-                        die Nahrungsspeicher reduziert, pr&#252;ft dahingehend bitte eure Schiffe.<br/><br/>Wir w&#252;nschen
-                        viel Spa&#223; mit den neuen Modulen. &nbsp;:)<br/><br/>Die wichtigsten &#196;nderungen sind
-                        hier zu entnehmen:<br/><a class="forschinfo"
-                                                  href="https://ds2forum.de/viewtopic.php?f=8&amp;t=317&amp;p=937#p937"
-                                                  target="_blank">Link zum Forum</a></p>
-                </li>
-
-                <li class="newsitem">
-                    <h3 class="title">Alastor, Guardian, Edjo: &uuml;berarbeitung der Gesch&uuml;tze</h3>
-                    <span class="authoring">Neuigkeiten, 24.09.2021 17:45</span>
-                    <p class="newstext">Heute wurden die meisten Gesch&#252;tze &#252;berarbeitet.<br/><br/>Weitere
-                        Infos zu den &#220;berarbeitungen im Einzelnen &nbsp;findet ihr im Forum: <a class="forschinfo"
-                                                                                                     href="https://ds2forum.de/viewtopic.php?f=8&amp;t=316"
-                                                                                                     target="_blank">Link
-                            zur Ank&#252;ndigung</a></p>
-                </li>
-
             </ul>
 
+            <!--
             <div id="archiv">
                 <p>
                     <a title="zum News-Archiv" href="./news_archive">Zum News-Archiv</a>
                 </p>
             </div>
+            -->
 
 
         </div>  <!-- Ende class. re-inhalt (gegenstueck "documents") -->
