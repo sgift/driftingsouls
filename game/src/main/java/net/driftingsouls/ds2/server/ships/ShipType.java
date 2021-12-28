@@ -89,6 +89,7 @@ public class ShipType implements ShipTypeData {
 	private int sensorRange;
 	private int hydro;
 	@Type(type="cargo")
+	@Column(nullable = false)
 	private Cargo produces;
 	@Column(name="recost", nullable = false)
 	private int reCost;
