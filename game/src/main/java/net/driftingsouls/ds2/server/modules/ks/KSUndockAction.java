@@ -20,8 +20,10 @@ package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.BattleShip;
+import net.driftingsouls.ds2.server.battles.BattleShipFlag;
 import net.driftingsouls.ds2.server.battles.SchlachtLogAktion;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 
 import java.io.IOException;
 
@@ -76,6 +78,12 @@ public class KSUndockAction extends BasicKSAction {
 
         battle.logme("Die "+Battle.log_shiplink(ownShip.getShip())+" wurde abgedockt");
 		battle.log(new SchlachtLogAktion(battle.getOwnSide(), "Die "+Battle.log_shiplink(ownShip.getShip())+" wurde abgedockt"));
+        
+        if(!ownShip.getShip().getTypeData().hasFlag(ShipTypeFlag.SECONDROW) && ownShip.hasFlag(BattleShipFlag.SECONDROW))
+        {
+            ownShip.removeFlag(BattleShipFlag.SECONDROW);
+            ownShip.addFlag(BattleShipFlag.SECONDROW_BLOCKED);
+        }
 
         ownShip.getShip().recalculateShipStatus();
 
