@@ -312,7 +312,11 @@ public class PlayerStarmap extends PublicStarmap
 			this.sektorenMitBefreundetenSchiffen.add(position);
 
 			int scanRange = scanShip.getEffectiveScanRange();
-			int nebulaRange = nebulaScanShip.getEffectiveScanRange();
+			int nebulaRange = -1;
+			if(nebulaScanShip != null)
+			{
+				nebulaRange = nebulaScanShip.getEffectiveScanRange();
+			}
 
 			//Adjust for nebula position
 			//TODO: Check, if there's an performant way to bring this part into the Ship and/or the Location class
