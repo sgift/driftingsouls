@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.battles.BattleShip;
+import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -88,6 +89,7 @@ public class EditShiptypes implements EntityEditor<ShipType>
 		form.field("externe Docks", Integer.class, ShipType::getADocks, ShipType::setADocks);
 		form.field("Sensorreichweite", Integer.class, ShipType::getSensorRange, ShipType::setSensorRange);
 		form.field("Hydros", Integer.class, ShipType::getHydro, ShipType::setHydro);
+		form.field("Produktion", Cargo.class, ShipType::getProduces, ShipType::setProduces);
 		form.field("RE-Kosten", Integer.class, ShipType::getReCost, ShipType::setReCost);
 		form.textArea("Beschreibung", ShipType::getDescrip, ShipType::setDescrip);
 		form.field("Deuteriumsammeln", Integer.class, ShipType::getDeutFactor, ShipType::setDeutFactor);

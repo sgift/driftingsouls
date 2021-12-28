@@ -141,6 +141,7 @@ public class ShipModules implements ShipTypeData {
 		this.nickname = "";
 		this.picture = "";
 		this.modules = "";
+		this.produces = new Cargo();
 	}
 
 	/**
