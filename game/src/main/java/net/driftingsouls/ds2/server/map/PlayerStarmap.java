@@ -124,7 +124,7 @@ public class PlayerStarmap extends PublicStarmap
 	@Override
 	public boolean isScannbar(Location location)
 	{
-		return this.scannableLocations.containsKey(location) || this.bekannteOrte.contains(location) || this.scannableNebulaLocations.containsKey(location);
+		return this.scannableLocations.containsKey(location) || this.bekannteOrte.contains(location);
 	}
 
     @Override
@@ -146,7 +146,9 @@ public class PlayerStarmap extends PublicStarmap
 						(user.getAlly() != null && user.getAlly().getShowAstis() && user.getAlly().equals(base.getOwner().getAlly())) ||
 						relations.isOnly(base.getOwner(), Relation.FRIEND) )
 				{
-					String img = base.getOverlayImage(location, user, isScannbar(location));
+					boolean isNebula = map.isNebula(location);
+					boolean revealAsti = bekannteOrte.contains(location) || (!isNebula && scannableLocations.containsKey(location))|| (isNebula && scannableNebulaLocations.containsKey(location)) ;
+					String img = base.getOverlayImage(location, user, revealAsti);
 					if( img != null ) {
 						return new SectorImage(img, 0, 0);
 					}
