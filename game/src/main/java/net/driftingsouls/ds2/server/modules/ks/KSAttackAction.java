@@ -1523,10 +1523,10 @@ public class KSAttackAction extends BasicKSAction {
 				int antitorptrefferws = this.getAntiTorpTrefferWS(enemyShipType, this.enemyShip);
 
 				if (antitorptrefferws > 0) {
-					battle.logme("Anti-Torp.-Treffer-WS: " + this.getTWSText(antitorptrefferws) + "%\n");
+					battle.logme("Anti-Torp.-Treffer-WS: " + this.getTWSText(antitorptrefferws) + "\n");
 				}
 				if (fighterdef > 0) {
-					battle.logme("Verteidigung durch Schiffe: " + this.getTWSText(fighterdef) + "%\n");
+					battle.logme("Verteidigung durch Schiffe: " + this.getTWSText(fighterdef) + "\n");
 				}
 
 				ownShipType = this.ownShip.getTypeData();
