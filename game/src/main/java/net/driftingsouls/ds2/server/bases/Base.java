@@ -1255,6 +1255,10 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		{
 			return "data/starmap/asti_enemy/asti_enemy.png";
 		}
+		else if(scanned && (getOwner().equals(nobody) || getOwner().equals(zero)))
+		{
+			return this.getKlasse().getStarmapImage();
+		}
 		else
 		{
 			return null;
