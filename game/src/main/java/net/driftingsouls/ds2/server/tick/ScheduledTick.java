@@ -23,10 +23,10 @@ import net.driftingsouls.ds2.server.framework.CmdLineRequest;
 import net.driftingsouls.ds2.server.framework.EmptyPermissionResolver;
 import net.driftingsouls.ds2.server.framework.SimpleResponse;
 import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
+import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.SchedulerException;
-import org.quartz.StatefulJob;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
@@ -39,7 +39,8 @@ import java.lang.reflect.InvocationTargetException;
  * @author Christopher Jung
  *
  */
-public class ScheduledTick extends QuartzJobBean implements StatefulJob
+@DisallowConcurrentExecution
+public class ScheduledTick extends QuartzJobBean
 {
 	private String tick;
 
