@@ -147,7 +147,7 @@ public class PlayerStarmap extends PublicStarmap
 						relations.isOnly(base.getOwner(), Relation.FRIEND) )
 				{
 					boolean isNebula = map.isNebula(location);
-					boolean revealAsti = bekannteOrte.contains(location) || (!isNebula && scannableLocations.containsKey(location))|| (isNebula && scannableNebulaLocations.containsKey(location)) ;
+					boolean revealAsti = bekannteOrte.contains(location) || (!isNebula && scannableLocations.containsKey(location))|| (isNebula && (scannableNebulaLocations.containsKey(location) || shipInSector(location))) ;
 					String img = base.getOverlayImage(location, user, revealAsti);
 					if( img != null ) {
 						return new SectorImage(img, 0, 0);
@@ -193,6 +193,19 @@ public class PlayerStarmap extends PublicStarmap
 			return null;
 		}
 		return new SectorImage("data/starmap/fleet/fleet"+shipImage+".png", 0, 0);
+	}
+
+	private boolean shipInSector(Location location)
+	{
+		List<Ship> sectorShips = this.map.getShipMap().get(location);
+		for(Ship ship : sectorShips)
+		{
+			if (ship.getOwner().equals(user))
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private String getShipImage(Location location)
