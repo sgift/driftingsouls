@@ -111,7 +111,12 @@ public class PlayerFieldView implements FieldView
         Nebel nebula = (Nebel)db.get(Nebel.class, new MutableLocation(scanShip.getLocation()));
         if(nebula != null)
         {
-            scanRange /= 2;
+			//Mit Nebelscannern wird die Sichtweite im Nebel nicht eingeschraenkt
+			if(!scanShip.getTypeData().hasFlag(ShipTypeFlag.NEBELSCAN))
+            {
+				scanRange /= 2;
+			}
+			//Ausser natuerlich, es ist ein EMP. Da funktionieren auch die nicht
             if(!nebula.allowsScan())
             {
                 return false;
