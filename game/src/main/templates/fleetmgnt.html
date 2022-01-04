@@ -171,6 +171,12 @@
 					else {
 						$("#alarm").css('display', 'none');
 					}
+					if( action == "schnelleKampfbereitschaft" ) {
+						$("#schnelleKampfbereitschaft").css('display', 'inline');
+					}
+					else {
+						$("#schnelleKampfbereitschaft").css('display', 'none');
+					}
 
 					if(action == "getCrew")
 					{
@@ -204,6 +210,7 @@
 					<!--<option value="chargeBatteries">Batterien aufladen</option>
 					<option value="dischargeBatteries">Batterien entladen</option>-->
 					<option value="alarm">Alarmstufe ändern</option>
+					<option value="schnelleKampfbereitschaft">Schnelle Kampfbereitschaft</option>
 					<option value="show">---------</option>
 					<option value="jstart">Jäger/Bomber starten</option>
 					{if jaegertypes.list}
@@ -261,6 +268,7 @@
 					<option value="1">gelb</option>
 					<option value="2">rot</option>
 				</select>
+				<input type="checkbox" id="schnelleKampfbereitschaft" checked="{schnelleKampfbereitschaft}" style="display:none"/>
 				<input type="text" id="crewinpercent" name="crewinpercent" style="display:none" size="3" maxlength="3" /><span id="percent" name="percent" style="display:none">%</span>
 				{if buildableships.list}
 					<input type="text" id="buildcount" name="buildcount" style="display:none" size="3" maxlength="3" />
