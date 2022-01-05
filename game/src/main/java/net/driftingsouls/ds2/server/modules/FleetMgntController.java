@@ -1524,10 +1524,12 @@ public class FleetMgntController extends Controller
 		Set<WerftObject> werften = new HashSet<>();
         boolean hasTanker = false;
 		boolean schnelleKampfbereitschaft = true;
+		boolean schnelleKampfbereitschaft_or = false;
 		for (Object ship1 : ships)
 		{
 			Ship ship = (Ship) ship1;
 			schnelleKampfbereitschaft &= ship.getEinstellungen().useInstantBattleEnter();
+			schnelleKampfbereitschaft_or |= ship.getEinstellungen().useInstantBattleEnter();
 
 			ShipTypeData shiptype = ship.getTypeData();
 			Location loc = ship.getLocation();
@@ -1632,6 +1634,10 @@ public class FleetMgntController extends Controller
 		if(schnelleKampfbereitschaft)
 		{
 			t.setVar("schnelleKampfbereitschaft", 1);
+		}
+		if(schnelleKampfbereitschaft != schnelleKampfbereitschaft_or)
+		{
+			t.setVar("schnelleKampfbereitschaft_intermediate",1);
 		}
 		//Find shipyards in sector
 		long ganymedCount = getGanymedCount(fleet);
