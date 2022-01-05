@@ -268,7 +268,7 @@
 					<option value="1">gelb</option>
 					<option value="2">rot</option>
 				</select>
-				<input type="checkbox" id="schnelleKampfbereitschaft" checked="{schnelleKampfbereitschaft}" style="display:none"/>
+				<input type="checkbox" id="schnelleKampfbereitschaft" name="schnelleKampfbereitschaft" checked="{schnelleKampfbereitschaft}" style="display:none"/>
 				<input type="text" id="crewinpercent" name="crewinpercent" style="display:none" size="3" maxlength="3" /><span id="percent" name="percent" style="display:none">%</span>
 				{if buildableships.list}
 					<input type="text" id="buildcount" name="buildcount" style="display:none" size="3" maxlength="3" />
@@ -287,6 +287,11 @@
 
 <script type="text/javascript">
 <!--
+	{if schnelleKampfbereitschaft_intermediate}
+		var checkbox = document.getElementById("schnelleKampfbereitschaft");
+		checkbox.indeterminate = true;
+	{/endif}
+
 	function showShip( ship ) {
 		opener.parent.frames['main'].location.href = DS.getUrl()+'?module=schiff&ship='+ship;
 	}
