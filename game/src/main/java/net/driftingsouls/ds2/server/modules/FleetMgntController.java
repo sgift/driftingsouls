@@ -827,7 +827,9 @@ public class FleetMgntController extends Controller
 
 		for(Ship ship : fleet.getShips())
 		{
-			ship.getEinstellungen().setUseInstantBattleEnter(schnelleKampfbereitschaft);
+			SchiffEinstellungen einstellungen = ship.getEinstellungen();
+			einstellungen.setUseInstantBattleEnter(schnelleKampfbereitschaft);
+			einstellungen.persistIfNecessary(ship);
 		}
 
 		return new RedirectViewResult("default").withMessage("Die schnelle Kampfbereitschaft wurde "+(schnelleKampfbereitschaft? "":"de")+"aktiviert.");
