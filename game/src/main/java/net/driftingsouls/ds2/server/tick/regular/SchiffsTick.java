@@ -728,7 +728,7 @@ public class SchiffsTick extends TickController {
 
 		if( (!shipd.getStatus().contains("lowmoney")) &&
 				( (shipd.getEngine() < 100) || (shipd.getWeapons() < 100) || (shipd.getComm() < 100) || (shipd.getSensors() < 100) ) &&
-				((Nebel.getNebula(shipd.getLocation()) != Nebel.Typ.DAMAGE) || (Nebel.getNebula(shipd.getLocation()) != Nebel.Typ.DAMAGE && shipd.getShields() > 0) )) {
+				((Nebel.getNebula(shipd.getLocation()) != Nebel.Typ.DAMAGE) || (Nebel.getNebula(shipd.getLocation()) == Nebel.Typ.DAMAGE && shipd.getShields() > 0) )) {
 
 			Offizier offizier = shipd.getOffizier();
 
