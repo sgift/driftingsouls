@@ -22,11 +22,11 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.tick.TickController;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.quartz.CronTrigger;
 import org.quartz.JobDataMap;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Required;
-import org.springframework.scheduling.quartz.CronTriggerBean;
 
 /**
  * Implementiert Admin-Kommandos rund um das Ticksystem.
@@ -37,8 +37,8 @@ public class TickAdminCommand
 {
 	private static final Log log = LogFactory.getLog(TickAdminCommand.class);
 	
-	private CronTriggerBean regularTick;
-	private CronTriggerBean rareTick;
+	private CronTrigger regularTick;
+	private CronTrigger rareTick;
 	private Scheduler scheduler;
 	
 	/**
@@ -46,7 +46,7 @@ public class TickAdminCommand
 	 * @param regularTick Der Trigger
 	 */
 	@Required
-	public void setRegularTickCronTrigger(CronTriggerBean regularTick) {
+	public void setRegularTickCronTrigger(CronTrigger regularTick) {
 		this.regularTick = regularTick;
 	}
 	
@@ -55,7 +55,7 @@ public class TickAdminCommand
 	 * @param rareTick Der Trigger
 	 */
 	@Required
-	public void setRareTickCronTrigger(CronTriggerBean rareTick) {
+	public void setRareTickCronTrigger(CronTrigger rareTick) {
 		this.rareTick = rareTick;
 	}
 	
@@ -75,7 +75,7 @@ public class TickAdminCommand
 		try
 		{
 			log.info("RegularTick wird manuell gestartet");
-			scheduler.triggerJob(this.regularTick.getJobName(), this.regularTick.getJobGroup());
+			scheduler.triggerJob(this.regularTick.getJobKey());
 		}
 		catch( SchedulerException e )
 		{
@@ -90,7 +90,7 @@ public class TickAdminCommand
 		try
 		{
 			log.info("RareTick wird manuell gestartet");
-			scheduler.triggerJob(this.rareTick.getJobName(), this.rareTick.getJobGroup());
+			scheduler.triggerJob(this.rareTick.getJobKey());
 		}
 		catch( SchedulerException e )
 		{
@@ -109,7 +109,7 @@ public class TickAdminCommand
 			map.put("onlyTick", tickPart);
 			
 			log.info("RegularTick '"+tickPart+"' wird manuell gestartet");
-			scheduler.triggerJob(this.regularTick.getJobName(), this.regularTick.getJobGroup(), map);
+			scheduler.triggerJob(this.regularTick.getJobKey(), map);
 		}
 		catch( SchedulerException e )
 		{
@@ -130,7 +130,7 @@ public class TickAdminCommand
 			map.put("onlyTick", tickPart);
 			
 			log.info("RegularTick '"+tickPart+"' wird manuell gestartet");
-			scheduler.triggerJob(this.regularTick.getJobName(), this.regularTick.getJobGroup(), map);
+			scheduler.triggerJob(this.regularTick.getJobKey(), map);
 		}
 		catch( SchedulerException e )
 		{

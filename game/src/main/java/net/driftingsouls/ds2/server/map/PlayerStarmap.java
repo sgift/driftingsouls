@@ -30,6 +30,7 @@ public class PlayerStarmap extends PublicStarmap
 	static final boolean ALLOW_NEBULA_SCANS = true;
 
 	private final Map<Location, Ship> scannableLocations;
+	private final Map<Location, Ship> scannableNebulaLocations;
 	private final Set<Location> sektorenMitBefreundetenSchiffen;
 	private final Set<Location> sektorenMitRotemAlarm;
 	private final Set<Location> bekannteOrte;
@@ -55,6 +56,7 @@ public class PlayerStarmap extends PublicStarmap
 		this.relations = user.getRelations();
 
 		this.scannableLocations = new HashMap<>();
+		this.scannableNebulaLocations = new HashMap<>();
 		this.sektorenMitBefreundetenSchiffen = new HashSet<>();
 		buildScannableLocations(user);
 
@@ -134,7 +136,7 @@ public class PlayerStarmap extends PublicStarmap
 	@Override
 	public SectorImage getUserSectorBaseImage(Location location)
 	{
-		boolean scannable = scannableLocations.containsKey(location);
+		boolean scannable = scannableLocations.containsKey(location) || scannableNebulaLocations.containsKey(location);
 		List<Base> positionBases = map.getBaseMap().get(location);
 		if(positionBases != null && !positionBases.isEmpty())
 		{
@@ -144,7 +146,9 @@ public class PlayerStarmap extends PublicStarmap
 						(user.getAlly() != null && user.getAlly().getShowAstis() && user.getAlly().equals(base.getOwner().getAlly())) ||
 						relations.isOnly(base.getOwner(), Relation.FRIEND) )
 				{
-					String img = base.getOverlayImage(location, user, isScannbar(location));
+					boolean isNebula = map.isNebula(location);
+					boolean revealAsti = bekannteOrte.contains(location) || (!isNebula && scannableLocations.containsKey(location))|| (isNebula && (scannableNebulaLocations.containsKey(location) || shipInSector(location))) ;
+					String img = base.getOverlayImage(location, user, revealAsti);
 					if( img != null ) {
 						return new SectorImage(img, 0, 0);
 					}
@@ -157,14 +161,14 @@ public class PlayerStarmap extends PublicStarmap
 		{
 			for(JumpNode node: positionNodes)
 			{
-				if(!node.isHidden() || scannableLocations.containsKey(location))
+				if(!node.isHidden() || scannableLocations.containsKey(location) || scannableNebulaLocations.containsKey(location))
 				{
 					return new SectorImage("data/starmap/jumpnode/jumpnode.png", 0, 0);
 				}
 			}
 		}
 
-		if(!map.isNebula(location))
+		if(!map.isNebula(location) || scannableNebulaLocations.containsKey(location))
 		{
 			List<Ship> positionBrocken = map.getBrockenMap().get(location);
 			if(positionBrocken != null && !positionBrocken.isEmpty())
@@ -189,6 +193,23 @@ public class PlayerStarmap extends PublicStarmap
 			return null;
 		}
 		return new SectorImage("data/starmap/fleet/fleet"+shipImage+".png", 0, 0);
+	}
+
+	private boolean shipInSector(Location location)
+	{
+		List<Ship> sectorShips = this.map.getShipMap().get(location);
+		if (sectorShips == null || sectorShips.isEmpty())
+		{
+			return false;
+		}
+		for(Ship ship : sectorShips)
+		{
+			if (ship.getOwner().equals(user))
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private String getShipImage(Location location)
@@ -299,6 +320,7 @@ public class PlayerStarmap extends PublicStarmap
 			List<Ship> ships = sectorShips.getValue();
 
 			Ship scanShip = findBestScanShip(user, ally, ships);
+			Ship nebulaScanShip = findBestNebulaScanShip(user, ally, ships);
 
 			//No ship found
 			if(scanShip == null)
@@ -309,6 +331,11 @@ public class PlayerStarmap extends PublicStarmap
 			this.sektorenMitBefreundetenSchiffen.add(position);
 
 			int scanRange = scanShip.getEffectiveScanRange();
+			int nebulaRange = -1;
+			if(nebulaScanShip != null)
+			{
+				nebulaRange = nebulaScanShip.getEffectiveScanRange();
+			}
 
 			//Adjust for nebula position
 			//TODO: Check, if there's an performant way to bring this part into the Ship and/or the Location class
@@ -322,6 +349,8 @@ public class PlayerStarmap extends PublicStarmap
 					continue;
 				}
 			}
+
+			scanRange = Math.max(scanRange, nebulaRange);
 
 			//Find sectors scanned from ship
 			for(int y = position.getY() - scanRange; y <= position.getY() + scanRange; y++)
@@ -366,7 +395,54 @@ public class PlayerStarmap extends PublicStarmap
 
             //Ships in sector always get priority for this sector to ensure best scan result for sector scans
 			this.scannableLocations.put(scanShip.getLocation(), scanShip);
-		}
+
+			//und jetzt noch die Nebel scannen, falls wir einen Nebelscanner haben
+			if(nebulaRange>0)
+			{
+				for(int y = position.getY() - nebulaRange; y <= position.getY() + nebulaRange; y++)
+					{
+						for(int x = position.getX() - nebulaRange; x <= position.getX() + nebulaRange; x++)
+						{
+							Location loc = new Location(map.getSystem(), x, y);
+
+							if(!position.sameSector(nebulaRange, loc, 0))
+							{
+								continue;
+							}
+
+							boolean ok = false;
+
+							//Hier sparen wir uns etwas Zeit, es reicht alle Nebel durchzugehen
+							if(!nebulas.containsKey(loc))
+							{
+								continue;
+							}
+							else
+							{
+								if(ALLOW_NEBULA_SCANS || loc.equals(position))
+								{
+									Nebel nebula = nebulas.get(loc);
+									if(nebula.allowsScan())
+									{
+										ok = true;
+									}
+								}
+							}
+
+							if( ok )
+							{
+								// Immer das naechstgelegene Schiff als Scanschiff nehmen um auch Effekte
+								// anzeigen zu koennen, die nur im benachbarten Sektor entdeckt werden koennen
+								Ship oldShip = scannableNebulaLocations.get(loc);
+								scannableNebulaLocations.put(loc, naechstesSchiff(loc,oldShip,nebulaScanShip));
+							}
+						}
+					}
+
+					//Ships in sector always get priority for this sector to ensure best scan result for sector scans
+					this.scannableNebulaLocations.put(nebulaScanShip.getLocation(), nebulaScanShip);
+			}
+		}	
 	}
 
 	private Ship naechstesSchiff(Location loc, Ship ship1, Ship ship2)
@@ -388,7 +464,7 @@ public class PlayerStarmap extends PublicStarmap
 		}
 		return ship2;
 	}
-
+	
 	private Ship findBestScanShip(User user, Ally ally,  List<Ship> ships)
 	{
 		int curScanRange = -1;
@@ -396,6 +472,46 @@ public class PlayerStarmap extends PublicStarmap
 		//Find ship with best scanrange
 		for(Ship ship: ships)
 		{
+			//Own ship?
+			if(!ship.getOwner().equals(user))
+			{
+				//See allied scans?
+				if (!relations.isOnly(ship.getOwner(), Relation.FRIEND))
+				{
+					continue;
+				}
+				if (ally != null && !ally.getShowLrs() && ally.equals(ship.getOwner().getAlly()))
+				{
+					continue;
+				}
+			}
+
+			if(ship.getOwner().isInVacation())
+			{
+				continue;
+			}
+
+			int shipScanRange = ship.getEffectiveScanRange();
+			if(shipScanRange > curScanRange)
+			{
+				curScanRange = shipScanRange;
+				scanShip = ship;
+			}
+		}
+		return scanShip;
+	}
+
+	private Ship findBestNebulaScanShip(User user, Ally ally,  List<Ship> ships)
+	{
+		int curScanRange = -1;
+		Ship scanShip = null;
+		//Find ship with best scanrange
+		for(Ship ship: ships)
+		{
+			//NebulaScanner?
+			if(!ship.getTypeData().hasFlag(ShipTypeFlag.NEBELSCAN)){
+				continue;
+			}
 			//Own ship?
 			if(!ship.getOwner().equals(user))
 			{

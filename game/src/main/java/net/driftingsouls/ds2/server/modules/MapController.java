@@ -787,7 +787,10 @@ public class MapController extends Controller
 						int sensorRange = ship.getEffectiveScanRange();
 						if (field.getNebel() != null)
 						{
-							sensorRange /= 2;
+							if(!ship.getTypeData().hasFlag(ShipTypeFlag.NEBELSCAN))
+							{
+								sensorRange /= 2;
+							}
 						}
 						ownShip.sensorRange = sensorRange;
 

@@ -427,6 +427,10 @@ public class SchlachtErstellenService
 			Ship baseShip = ship.getShip().getBaseShip();
 			if (baseShip != null && ship.getShip().isLanded() && baseShip.getEinstellungen().startFighters() && ship.getShip().getTypeData().getShipClass() == ShipClasses.JAEGER ) {
 				ship.getShip().setDocked("");
+				if(!ship.getShip().getTypeData().hasFlag(ShipTypeFlag.SECONDROW))
+				{
+					ship.removeFlag(BattleShipFlag.SECONDROW);
+				}
 				startlist.add(ship.getId());
 			}
 			idlist.add(ship.getId());

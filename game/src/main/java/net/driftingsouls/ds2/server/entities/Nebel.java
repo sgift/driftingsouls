@@ -295,6 +295,11 @@ public class Nebel implements Locatable {
 			if(this != DAMAGE) {
 				return;
 			}
+			//gedockte Schiffe werden bereits ueber ihr Traegerschiff verarbeitet (siehe damageInternal())
+			if(ship.isDocked())
+			{
+				return;
+			}
 
 			double shieldDamageFactor = config.getValue(WellKnownConfigValue.NEBULA_DAMAGE_SHIELD)/100.d;
 			double ablativeDamageFactor = config.getValue(WellKnownConfigValue.NEBULA_DAMAGE_ABLATIVE)/100.d;

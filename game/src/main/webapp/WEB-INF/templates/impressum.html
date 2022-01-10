@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+
+    <title>Drifting Souls 2</title>
+
+    <link rel="stylesheet" type="text/css" href="./data/css/format.css"/>
+    <link rel="stylesheet" type="text/css" href="./data/css/ui-darkness/00_jquery-ui-1.8.20.css"/>
+    <link rel="stylesheet" type="text/css" href="./data/css/ui-darkness/10_jquery-ui.css"/>
+    <link type="text/css" rel="stylesheet" href="data/css/ds_2_portal.css"/>
+
+    <script type="text/javascript" src="data/javascript/jquery.js"></script>
+    <script type="text/javascript" src="data/javascript/facebox.js"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(function ($) {
+            $('a[rel*=facebox]').facebox()
+        })
+
+    </script>
+</head>
+
+<body>
+<input type='hidden' name='currentDsModule' id='currentDsModule' value=''/>
+<script src="./data/javascript/ds.js" type="text/javascript"></script>
+<div id="error-placeholder"></div>
+<audio autoplay loop>
+    <source src="data/sounds/welcome.mp3" type="audio/mp3">
+</audio>
+<div id="header">
+
+    <!-- hier sind die Drifting Souls Bilder der ersten Portalseite-->
+    <div class="logo">
+        <img src="./data/interface/portal/gcp-logo.png" alt="DS2 LOGO"/>
+    </div>
+    <div class="ueberschrift">
+        <h1><img src="./data/interface/portal/driftingsouls.png" alt="Drifting Souls 2"/></h1>
+    </div>
+    <div id="navigation">
+        <ul class="navi">
+            <li><a title="Home" href=".">Home</a></li>
+            <li><a title="Portal" href=".">Portal</a>
+                <ul class="subnav1">
+                    <li><a title="Github Repository" href="https://github.com/sgift/driftingsouls" target="_blank">Github</a>
+                    </li>
+                </ul>
+            </li>
+            <li><a>Community</a>
+                <ul class="subnav1">
+                    <li><a title="Discord" href="https://discord.gg/cpxxAGy" target="_blank">Discord</a></li>
+                    <li><a title="Forum" href="http://ds.rnd-it.de/index.php" target="_blank">Forum</a></li>
+                    <li><a title="Drifting Souls Wiki" href="http://de.drifting-souls.wikia.com"
+                           target="_blank">Wiki</a></li>
+                    <li><a title="Facebook-Seite" href="https://www.facebook.com/DriftingSouls2/" target="_blank">FB-Seite</a>
+                    </li>
+                    <li><a title="Facebook-Gruppe" href="https://www.facebook.com/groups/156787224385374"
+                           target="_blank">FB-Gruppe</a></li>
+                    <li><a title="Twitter" href="https://twitter.com/driftingsouls2" target="_blank">Twitter</a></li>
+                </ul>
+            </li>
+            <li><a title="zu den AGB" href="./agb">AGB</a></li>
+            <li><a title="zum Impressum" href="./impressum">Impressum</a></li>
+        </ul>
+    </div>
+</div>
+
+<div>
+    <p class="schiff"><img src="./data/interface/portal/FINAL4-1.png" alt="Ein Traeger"/></p>
+</div>
+<!-- Bis hier der Headerbereich -->
+<div id="content">
+    <div class="linke-spalte">
+
+        <div id="document">
+
+
+            <div id="login">
+                <form action="./ds" method="post">
+
+                    <p><span class="left">Name: </span><input class="name-input" style="width:170px" name="username"
+                                                              type="text" maxlength="40" value=""/></p>
+
+                    <p><span class="left">Passwort: </span><input class="pw-input" style="width:170px" name="password"
+                                                                  type="password" value=""/></p>
+
+                    <p><input type="hidden" name="action" value="login"/>
+                        <input type="hidden" name="module" value="portal"/></p>
+                    <p><span class="submit"><input type="submit" value="Login" style="width:100px"/></span></p>
+                </form>
+            </div>
+
+            <div id="lostpass">
+                <p><a href="./password_lost" title="Passwort vergessen">Passwort vergessen?</a></p>
+            </div>
+
+            <div id="teaser">
+                <p><a id="registerlink" href="./register"> Registrierung </a></p>
+            </div>
+
+
+        </div> <!-- Ende ID document -->
+        <!-- Eigene if Bedingung definieren? -->
+
+        <div id="about">
+            <h2>&Uuml;ber Drifting Souls 2</h2>
+            <p>Drifting Souls 2 (DS2) ist ein komplexes Aufbau-Strategiespiel, welches im Weltraum spielt und in der
+                Zukunft stattfindet. Der geschichtlich-rollenspielerische Hintergrund des Spiels sind die
+                90er-Jahre-Computerspiele der Freespace-Reihe. DS2 ist komplett kostenlos und zum Spielen braucht es
+                lediglich einen Browser und eine aktive Internetverbindung.</p>
+            <p>In DS2 startet man auf einem kargen Asteroiden, welchen man zun&auml;chst ausbauen und erweitern muss. In
+                diesem Part gleicht DS2 den altherbekannten Aufbau-Strategiespielen wie OGame, die St&auml;mme und
+                Ikariam.
+                Doch das ist nur ein kleiner Teil. In DS2 kannst Du Deine Schiffe &uuml;ber 2D-Sternenkarten fliegen,
+                manuell
+                ausstatten, individuell steuern und mit ihnen k&auml;mpfen. Du kannst Dich Allianzen und Fraktionen
+                anschlie&szlig;en, Handel treiben und den Weltraum entdecken. Ob H&auml;ndler, Krieger, ob Einsiedler und
+                Teamplayer, ob viel Zeit oder wenig: Ein Spieler eines jeden Spielstils wird sich wohlf&uuml;hlen. Ein
+                besonderes Schmankerl ist auch das im Spiel integrierte Schreib-Rollenspiel. Im sogennanten Com-Net,
+                einem universumsweiten Kommunikationsnetzwerk, k&ouml;nnen Spieler ihre Rollenspiele betreiben. Vom
+                einfachen
+                Notruf bis zur weitgeschm&uuml;ckten RPG-Episode ist hier Platz f&uuml;r jeden, der sich gern
+                schriftstellerisch/kreativ austoben will.</p>
+            <p>Programmiert wird DS2 von ehrenamtlichen Entwicklern, und das seit 2001. Bis heute frischen regelm&auml;&szlig;ige
+                Updates das Spiel auf. Zudem gibt es keine langweiligen, vorhersehbaren NPC-KIs, denn die NPCs werden
+                von Menschenhand gesteuert und verwaltet.</p>
+            <p>Steige jetzt in Dein Raumschiff und werde vasudanischer Pirat, terranischer Extremist, gro&szlig;z&uuml;giger
+                H&auml;ndler, pazifistischer Kommunist oder spiritueller Fundamentalist.</p>
+            <iframe src="https://youtube.com/embed/QZy3MctfW3I"></iframe>
+        </div> <!-- Ende About -->
+
+    </div> <!-- Ende Linke Spalte -->
+
+    <div class="rechte-spalte">
+        <div id="re-inhalt">
+            <div id="impressum">
+                <h2>Impressum</h2>
+                <p>
+                    Webmaster: Ralf Hajek - Alias: Guzman<br/>
+                    Sch&ouml;nauer Stra&szlig;e 4<br/>
+                    65232 Taunusstein<br/>
+                    E-Mail: R.Hajek@t-online.de<br/>
+                    Administratoren: Yuma, Madison<br/>
+                    (weitere) Hauptentwickler: Lee Blackwell, Syndikat - unterst&uuml;tzt durch viele weitere flei&szlig;ige Helfer<br/>
+                    Ehemalige Programmierer: Ra, BoLt, Kakashi, Firewing, Gargair, Rhonabwy, bKtHeG<br/>
+                </p>
+                <p>
+                    Bei der Webseitengestaltung haben geholfen:<br/>
+                    Yuma,<br/>
+                    Antiker,<br/>
+                    Mav aus der Perry-Rhodan-Community<br/>
+                    vielen Dank f&uuml;r die Bilder
+                </p>
+                <p>
+                    Haftungshinweis: Trotz sorgf&auml;ltiger inhaltlicher Kontrolle &uuml;bernehme
+                    ich keine Haftung f&uuml;r die Inhalte externer Links. <br/>F&uuml;r den Inhalt der
+                    verlinkten Seiten sind ausschlie&szlig;lich deren Betreiber verantwortlich.
+                </p>
+            </div>
+        </div>  <!-- Ende class. re-inhalt (gegenstueck "documents") -->
+    </div>    <!-- Ende class. Rechte Spalte -->
+
+</div> <!-- Ende ID Container -->
+
+<!-- hier wird von wo anders der Schluss eingef&uuml;gt -->
+<script type="text/javascript">
+    if (parent && parent.setCurrentPage) {
+        parent.setCurrentPage('', 'null');
+        parent.completePage();
+    }
+</script>
+</body>
+</html>

@@ -728,7 +728,7 @@ public class SchiffsTick extends TickController {
 
 		if( (!shipd.getStatus().contains("lowmoney")) &&
 				( (shipd.getEngine() < 100) || (shipd.getWeapons() < 100) || (shipd.getComm() < 100) || (shipd.getSensors() < 100) ) &&
-				(Nebel.getNebula(shipd.getLocation()) != Nebel.Typ.DAMAGE)  ) {
+				((Nebel.getNebula(shipd.getLocation()) != Nebel.Typ.DAMAGE) || (Nebel.getNebula(shipd.getLocation()) == Nebel.Typ.DAMAGE && shipd.getShields() > 0) )) {
 
 			Offizier offizier = shipd.getOffizier();
 
@@ -856,11 +856,14 @@ public class SchiffsTick extends TickController {
 
 		doShipFlags(db);
 
+		//Schadensnebel muessen vor den Usern berechnet werden:
+		//Schiffe sollen erst im Nebel kaputt gemacht werden und dann, falls sie noch Schilde uebrig haben, duerfen sie sich reparieren.
+		//fuehrt umgekehrt leider auch dazu, dass Schiffe erst kaputt gehen und dann zur Ratte ueberlaufen, aber das sehe ich nicht als bedenklich
+		doSchadensnebel(db);
+
 		doUsers(db);
 
 		doDestroyStatus(db);
-
-		doSchadensnebel(db);
 
 		db.setCacheMode(cacheMode);
 	}

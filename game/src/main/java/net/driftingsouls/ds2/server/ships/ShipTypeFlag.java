@@ -134,6 +134,10 @@ public enum ShipTypeFlag
 	 */
 	ASTISCAN("astiscan", "Asteroidenscanner", "Dieses Schiff kann einen Asteroiden scannen."),
 	/**
+	 * Kann im Nebel (nicht emp) versteckte Objekte entdecken
+	 */
+	NEBELSCAN("nebelscan", "Nebelscanner", "Dieses Schiff kann Objekte in Deuterium- und Schadensnebeln scannen und auf der Sternenkarte anzeigen."),
+	/**
 	 * Muss im Kampf als erstes zerstört werden.
 	 */
 	SCHUTZSCHILD("schutzschild", "Schutzschild", "Dieses Schiff schützt verbündete Schiffe vor Angriffen, bis es zerstört worden ist. Im Kampf muss es als erstes zerstört werden, ehe andere Schiffe 'hinter dem Schild' angegriffen werden können.");
