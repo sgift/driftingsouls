@@ -492,26 +492,27 @@ public class AcademyBuilding extends DefaultBuilding {
 						t.setVar("offizier.train.lvl",tec);
 						t.parse("academy.training.list", "academy.training.listitem", true);
 					}
-					else if( train.containsValue(2) ) {
+					if( train.containsValue(2) ) {
 						t.setVar("offizier.train.ability", "Waffen");
 						t.setVar("offizier.train.lvl",waf);
 						t.parse("academy.training.list", "academy.training.listitem", true);
 					}
-					else if( train.containsValue(3) ) {
+					if( train.containsValue(3) ) {
 						t.setVar("offizier.train.ability", "Navigation");
 						t.setVar("offizier.train.lvl",nav);
 						t.parse("academy.training.list", "academy.training.listitem", true);
 					}
-					else if( train.containsValue(4) ) {
+					if( train.containsValue(4) ) {
 						t.setVar("offizier.train.ability", "Sicherheit");
 						t.setVar("offizier.train.lvl",sec);
 						t.parse("academy.training.list", "academy.training.listitem", true);
 					}
-					else if( train.containsValue(5) ) {
+					if( train.containsValue(5) ) {
 						t.setVar("offizier.train.ability", "Kommandoeffizienz");
 						t.setVar("offizier.train.lvl",com);
 						t.parse("academy.training.list", "academy.training.listitem", true);
 					}
+					t.parse("academy.training.list", "academy.training.listitem", true);
 
 
 					Cargo cargo = new Cargo(base.getCargo());
