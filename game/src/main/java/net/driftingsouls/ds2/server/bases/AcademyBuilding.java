@@ -24,6 +24,7 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.Offiziere;
 import net.driftingsouls.ds2.server.entities.Academy;
 import net.driftingsouls.ds2.server.entities.Offizier;
+import net.driftingsouls.ds2.server.entities.Offizier.Ability;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -135,7 +136,7 @@ public class AcademyBuilding extends DefaultBuilding {
 	 * @param train Sparte/Faehigkeit die ausgebildet wird
 	 * @return nada
 	 */
-	public int getUpgradeCosts(Academy acc, int typ, Offizier offizier, int train) {
+	public int getUpgradeCosts(Academy acc, int typ, Offizier offizier, Ability train) {
 		Map<Integer,Offizier.Ability> dTrain = new HashMap<>();
 		dTrain.put(1, Offizier.Ability.ING);
 		dTrain.put(2, Offizier.Ability.WAF);
@@ -150,7 +151,7 @@ public class AcademyBuilding extends DefaultBuilding {
 		int plus = 0;
 		List<AcademyQueueEntry> entries = acc.getQueueEntries();
 		for( AcademyQueueEntry entry : entries ) {
-			if( entry.getTraining() == offizier.getID() && entry.getTrainingType() == train )
+			if( entry.getTraining() == offizier.getID() && entry.getTrainingType() == decodeAbility(train) )
 			{
 				plus = plus+10;
 			}
@@ -158,11 +159,11 @@ public class AcademyBuilding extends DefaultBuilding {
 
 		switch ( typ ) {
 		case 0:
-			return (int)((offizier.getAbility(dTrain.get(train))+plus)*siliziumfactor)+1;
+			return (int)((offizier.getAbility(dTrain.get(decodeAbility(train)))+plus)*siliziumfactor)+1;
 		case 1:
-			return (int)((offizier.getAbility(dTrain.get(train))+plus)*nahrungfactor)+1;
+			return (int)((offizier.getAbility(dTrain.get(decodeAbility(train)))+plus)*nahrungfactor)+1;
 		case 2:
-			return (int)((offizier.getAbility(dTrain.get(train))+plus)*dauerfactor)+1;
+			return (int)((offizier.getAbility(dTrain.get(decodeAbility(train)))+plus)*dauerfactor)+1;
 		}
 		return 0;
 	}
@@ -230,6 +231,28 @@ public class AcademyBuilding extends DefaultBuilding {
 		return result.toString();
 	}
 
+	/**
+	 * Gibt den in der Datenbank gespeicherten Integer fuer die Ability zurueck
+	 * @param ability die Faehigkeit
+	 * @return der Integerwert
+	 */
+	public int decodeAbility(Ability ability)
+	{
+		switch( ability ) {
+			case ING:
+				return 1;
+			case WAF:
+				return 2;
+			case NAV:
+				return 3;
+			case SEC:
+				return 4;
+			case COM:
+				return 5;
+		}
+		return 0;
+	}
+
 	@Override
 	public String output(Context context, Base base, int field, int building) {
 		org.hibernate.Session db = context.getDB();
@@ -242,13 +265,64 @@ public class AcademyBuilding extends DefaultBuilding {
 		int maxoffstotrain = new ConfigService().getValue(WellKnownConfigValue.MAX_OFFS_TO_TRAIN);
 
 		int newo = context.getRequest().getParameterInt("newo");
-		int train = context.getRequest().getParameterInt("train");
 		int off = context.getRequest().getParameterInt("off");
 		int up = context.getRequest().getParameterInt("up");
 		int down = context.getRequest().getParameterInt("down");
 		int cancel = context.getRequest().getParameterInt("cancel");
 		int queueid = context.getRequest().getParameterInt("queueid");
 		String conf = context.getRequest().getParameterString("conf");
+		int nav = context.getRequest().getParameterInt("navigation");
+		int waf = context.getRequest().getParameterInt("waffen");
+		int tec = context.getRequest().getParameterInt("technik");
+		int sec = context.getRequest().getParameterInt("sicherheit");
+		int com = context.getRequest().getParameterInt("kommando");
+
+		Offizier offizier = Offizier.getOffizierByID(off);
+		HashMap<Ability,Integer> train = new HashMap<>();
+		if(offizier != null)
+		{
+			if (waf > offizier.getAbility(Ability.WAF))
+			{
+				train.put(Ability.WAF,waf);
+			}
+			else
+			{
+				waf = offizier.getAbility(Ability.WAF);
+			}
+			if (nav > offizier.getAbility(Ability.NAV))
+			{
+				train.put(Ability.NAV,nav);
+			}
+			else
+			{
+				nav = offizier.getAbility(Ability.NAV);
+			}
+			if (tec > offizier.getAbility(Ability.ING))
+			{
+				train.put(Ability.ING,tec);
+			}
+			else
+			{
+				tec = offizier.getAbility(Ability.ING);
+			}
+			if (sec > offizier.getAbility(Ability.SEC))
+			{
+				train.put(Ability.SEC,sec);
+			}
+			else
+			{
+				sec = offizier.getAbility(Ability.SEC);
+			}
+			if (com > offizier.getAbility(Ability.COM))
+			{
+				train.put(Ability.COM,com);
+			}
+			else
+			{
+				com = offizier.getAbility(Ability.COM);
+			}
+
+		}
 
 		if( !t.setFile( "_BUILDING", "buildings.academy.html" ) ) {
 			context.addError("Konnte das Template-Engine nicht initialisieren");
@@ -330,7 +404,6 @@ public class AcademyBuilding extends DefaultBuilding {
 				{
 					if( !academy.isOffizierScheduled(offid))
 					{
-						Offizier offizier = Offizier.getOffizierByID(offid);
 						offizier.setTraining(false);
 					}
 				}
@@ -375,17 +448,32 @@ public class AcademyBuilding extends DefaultBuilding {
 		//--------------------------------------
 		// "Upgrade" eines Offiziers durchfuehren
 		//--------------------------------------
-
-		if( (train != 0) && (off != 0) ) {
-			Offizier offizier = Offizier.getOffizierByID(off);
+		HashMap<Ability,ArrayList<Integer>> training = new HashMap<>();
+		if( (!train.isEmpty()) && (off != 0) ) {
 			//Auch hier kann es sein dass der Offizier nicht existiert.
 			if(offizier != null )
 			{
+				int sk = 0;
+				int nk = 0;
+				int dauer = 0;
 				if( offizier.getStationiertAufBasis() != null && offizier.getStationiertAufBasis().getId() == base.getId() ) {
-					int sk = getUpgradeCosts(academy, 0, offizier, train);
-					int nk = getUpgradeCosts(academy, 1, offizier, train);
-					int dauer = getUpgradeCosts(academy, 2, offizier, train);
-
+					for(Ability ability : train.keySet())
+					{
+						for(int level = offizier.getAbility(ability); level < train.get(ability);level+=10)
+						{
+							int tmp_dauer = getUpgradeCosts(academy, 2, offizier, ability);
+							sk += getUpgradeCosts(academy, 0, offizier, ability);
+							nk += getUpgradeCosts(academy, 1, offizier, ability);
+							dauer += tmp_dauer;
+							ArrayList<Integer> zeit = training.get(ability);
+							if(zeit == null)
+							{
+								zeit = new ArrayList<>();
+							}
+							zeit.add(tmp_dauer);
+							training.put(ability,zeit);
+						}
+					}
 					t.setVar(
 							"academy.show.trainoffi", 1,
 							"trainoffi.id",			offizier.getID(),
@@ -397,21 +485,35 @@ public class AcademyBuilding extends DefaultBuilding {
 							"resource.nahrung.image",	Cargo.getResourceImage(Resources.NAHRUNG),
 							"resource.silizium.image",	Cargo.getResourceImage(Resources.SILIZIUM));
 
-					if( train == 1 ) {
+					t.setBlock("_BUILDING", "academy.train.listitem", "academy.train.list");
+
+					if( train.containsValue(1) ) {
 						t.setVar("offizier.train.ability", "Technik");
+						t.setVar("offizier.train.lvl",tec);
+						t.parse("academy.train.list", "academy.train.listitem", true);
 					}
-					else if( train == 2 ) {
+					if( train.containsValue(2) ) {
 						t.setVar("offizier.train.ability", "Waffen");
+						t.setVar("offizier.train.lvl",waf);
+						t.parse("academy.train.list", "academy.train.listitem", true);
 					}
-					else if( train == 3 ) {
+					if( train.containsValue(3) ) {
 						t.setVar("offizier.train.ability", "Navigation");
+						t.setVar("offizier.train.lvl",nav);
+						t.parse("academy.train.list", "academy.train.listitem", true);
 					}
-					else if( train == 4 ) {
+					if( train.containsValue(4) ) {
 						t.setVar("offizier.train.ability", "Sicherheit");
+						t.setVar("offizier.train.lvl",sec);
+						t.parse("academy.train.list", "academy.train.listitem", true);
 					}
-					else if( train == 5 ) {
+					if( train.containsValue(5) ) {
 						t.setVar("offizier.train.ability", "Kommandoeffizienz");
+						t.setVar("offizier.train.lvl",com);
+						t.parse("academy.train.list", "academy.train.listitem", true);
 					}
+					t.parse("academy.train.list", "academy.train.listitem", true);
+
 
 					Cargo cargo = new Cargo(base.getCargo());
 						boolean ok = true;
@@ -436,14 +538,19 @@ public class AcademyBuilding extends DefaultBuilding {
 						cargo.substractResource( Resources.SILIZIUM, sk );
 						cargo.substractResource( Resources.NAHRUNG, nk );
 
-						AcademyQueueEntry entry = new AcademyQueueEntry(academy,offizier.getID(),dauer,train);
-
-						offizier.setTraining(true);
+						for(Ability ability : train.keySet())
+						{
+							for(int time: training.get(ability))
+							{
+								AcademyQueueEntry entry = new AcademyQueueEntry(academy,offizier.getID(),time,decodeAbility(ability));
+								db.save(entry);
+								academy.addQueueEntry(entry);
+							}
+						}
 						base.setCargo(cargo);
-						db.save(entry);
-						academy.addQueueEntry(entry);
 						academy.setTrain(true);
 						academy.rescheduleQueue();
+						offizier.setTraining(true);
 
 						t.setVar("academy.actualbuilds", academy.getNumberScheduledQueueEntries());
 
