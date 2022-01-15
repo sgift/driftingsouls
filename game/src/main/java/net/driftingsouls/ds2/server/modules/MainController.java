@@ -48,7 +48,7 @@ import java.util.Set;
  *
  * @author Christopher Jung
  */
-@Module(name = "main", defaultModule = true)
+@Module(name = "main")
 public class MainController extends Controller {
 	private static final String SCRIPT_FORUM = "http://ds.rnd-it.de/";
 

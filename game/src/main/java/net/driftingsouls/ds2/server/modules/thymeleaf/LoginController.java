@@ -37,7 +37,7 @@ public class LoginController extends StaticController {
 
         try {
             authenticationManager.login(username, password);
-            response.sendRedirect("./ds?module=main&action=default");
+            response.sendRedirect(response.encodeRedirectURL("./ds?module=main&action=default"));
             return;
         } catch (LoginDisabledException e) {
             //TODO: Login disabled message variable
