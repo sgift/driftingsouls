@@ -1,6 +1,8 @@
 package net.driftingsouls.ds2.server.framework;
 
 import net.driftingsouls.ds2.server.modules.thymeleaf.DSController;
+import net.driftingsouls.ds2.server.modules.thymeleaf.LoginController;
+import net.driftingsouls.ds2.server.modules.thymeleaf.LogoutController;
 import net.driftingsouls.ds2.server.modules.thymeleaf.PortalController;
 import net.driftingsouls.ds2.server.modules.thymeleaf.RegisterController;
 import net.driftingsouls.ds2.server.modules.thymeleaf.SendPasswordController;
@@ -51,6 +53,8 @@ public class DSApplication {
         this.controllersByURL.put("/password_lost", passwordLostController);
         this.controllersByURL.put("/send_password", new SendPasswordController(passwordLostController));
         this.controllersByURL.put("/register", new RegisterController());
+        this.controllersByURL.put("/login", new LoginController(portalController));
+        this.controllersByURL.put("/logout", new LogoutController());
     }
 
     public TemplateEngine getTemplateEngine() {
