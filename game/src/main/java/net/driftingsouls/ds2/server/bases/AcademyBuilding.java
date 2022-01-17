@@ -136,7 +136,7 @@ public class AcademyBuilding extends DefaultBuilding {
 	 * @param train Sparte/Faehigkeit die ausgebildet wird
 	 * @return nada
 	 */
-	public int getUpgradeCosts(Academy acc, int typ, Offizier offizier, Ability train) {
+	public int getUpgradeCosts(Academy acc, int typ, Offizier offizier, Ability train, int level) {
 		Map<Integer,Offizier.Ability> dTrain = new HashMap<>();
 		dTrain.put(1, Offizier.Ability.ING);
 		dTrain.put(2, Offizier.Ability.WAF);
@@ -148,7 +148,7 @@ public class AcademyBuilding extends DefaultBuilding {
 		double siliziumfactor = new ConfigService().getValue(WellKnownConfigValue.OFFIZIER_SILIZIUM_FACTOR);
 		double dauerfactor = new ConfigService().getValue(WellKnownConfigValue.OFFIZIER_DAUER_FACTOR);
 
-		int plus = 0;
+		int plus = level<0?0:level;
 		List<AcademyQueueEntry> entries = acc.getQueueEntries();
 		for( AcademyQueueEntry entry : entries ) {
 			if( entry.getTraining() == offizier.getID() && entry.getTrainingType() == decodeAbility(train) )
@@ -441,9 +441,9 @@ public class AcademyBuilding extends DefaultBuilding {
 					{
 						for(int level = 0; level < train.get(ability);level+=10)
 						{
-							int tmp_dauer = getUpgradeCosts(academy, 2, offizier, ability);
-							sk += getUpgradeCosts(academy, 0, offizier, ability);
-							nk += getUpgradeCosts(academy, 1, offizier, ability);
+							int tmp_dauer = getUpgradeCosts(academy, 2, offizier, ability, level);
+							sk += getUpgradeCosts(academy, 0, offizier, ability, level);
+							nk += getUpgradeCosts(academy, 1, offizier, ability, level);
 							dauer += tmp_dauer;
 							ArrayList<Integer> zeit = training.get(ability);
 							if(zeit == null)
