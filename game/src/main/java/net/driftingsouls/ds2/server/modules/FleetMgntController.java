@@ -816,6 +816,26 @@ public class FleetMgntController extends Controller
 	}
 
 	/**
+	 * Aendert die schnelle Kampfbereitschaft der Schiffe.
+	 *
+	 * @param schnelleKampfbereitschaft Die Kampfbereitschaftseinstellung
+	 */
+	@Action(ActionType.DEFAULT)
+	public RedirectViewResult schnelleKampfbereitschaftAction(ShipFleet fleet, boolean schnelleKampfbereitschaft)
+	{
+		validiereGueltigeFlotteVorhanden(fleet);
+
+		for(Ship ship : fleet.getShips())
+		{
+			SchiffEinstellungen einstellungen = ship.getEinstellungen();
+			einstellungen.setUseInstantBattleEnter(schnelleKampfbereitschaft);
+			einstellungen.persistIfNecessary(ship);
+		}
+
+		return new RedirectViewResult("default").withMessage("Die schnelle Kampfbereitschaft wurde "+(schnelleKampfbereitschaft? "":"de")+"aktiviert.");
+	}
+
+	/**
 	 * Zeigt das Eingabefeld fuer das Umbenennen der Schiffe der Flotte.
 	 */
 	@Action(ActionType.DEFAULT)
@@ -1503,9 +1523,13 @@ public class FleetMgntController extends Controller
 
 		Set<WerftObject> werften = new HashSet<>();
         boolean hasTanker = false;
+		boolean schnelleKampfbereitschaft = true;
+		boolean schnelleKampfbereitschaft_or = false;
 		for (Object ship1 : ships)
 		{
 			Ship ship = (Ship) ship1;
+			schnelleKampfbereitschaft &= ship.getEinstellungen().useInstantBattleEnter();
+			schnelleKampfbereitschaft_or |= ship.getEinstellungen().useInstantBattleEnter();
 
 			ShipTypeData shiptype = ship.getTypeData();
 			Location loc = ship.getLocation();
@@ -1607,6 +1631,14 @@ public class FleetMgntController extends Controller
         {
             t.setVar("hastanker", 1);
         }
+		if(schnelleKampfbereitschaft)
+		{
+			t.setVar("schnelleKampfbereitschaft", 1);
+		}
+		if(schnelleKampfbereitschaft != schnelleKampfbereitschaft_or)
+		{
+			t.setVar("schnelleKampfbereitschaft_intermediate",1);
+		}
 		//Find shipyards in sector
 		long ganymedCount = getGanymedCount(fleet);
 

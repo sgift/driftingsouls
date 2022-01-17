@@ -22,10 +22,11 @@
 	<td valign="top" class="noBorderX">
 		<h3>Reaktorwerte</h3>
 		<table class="noBorderX">
-		<tr><td class="noBorderX">{shiptype.ru}</td><td class="noBorderX"><img src="{uran.image}" alt="" /></td><td class="noBorderX">Uran</td></tr>
-		<tr><td class="noBorderX">{shiptype.rd}</td><td class="noBorderX"><img src="{deuterium.image}" alt="" /></td><td class="noBorderX">Deuterium</td></tr>
-		<tr><td class="noBorderX">{shiptype.ra}</td><td class="noBorderX"><img src="{antimaterie.image}" alt="" /></td><td class="noBorderX">Antimaterie</td></tr>
-		<tr><td class="noBorderX">{shiptype.rm}</td><td class="noBorderX"><img src="data/interface/energie.gif" alt="" /></td><td class="noBorderX">maximal</td></tr>
+		<tr><td class="noBorderX" colspan="2">Energieproduktion</td><td class="noBorderX">Treibstoff</td></tr>
+		<tr><td class="noBorderX">{shiptype.ru}</td><td class="noBorderX"><img src="data/interface/energie.gif" alt="" /> / <img src="{uran.image}" alt="" /></td><td class="noBorderX">Uran</td></tr>
+		<tr><td class="noBorderX">{shiptype.rd}</td><td class="noBorderX"><img src="data/interface/energie.gif" alt="" /> / <img src="{deuterium.image}" alt="" /></td><td class="noBorderX">Deuterium</td></tr>
+		<tr><td class="noBorderX">{shiptype.ra}</td><td class="noBorderX"><img src="data/interface/energie.gif" alt="" /> / <img src="{antimaterie.image}" alt="" /></td><td class="noBorderX">Antimaterie</td></tr>
+		<tr><td class="noBorderX">{shiptype.rm}</td><td class="noBorderX" colspan="2"><img src="data/interface/energie.gif" alt="" /> maximal pro Tick</td></tr>
 		</table>
 	</td>
 
@@ -42,7 +43,7 @@
 				{if shiptype.tr3}
 					{!link_to $shiptype.tr3.name, default, module:forschinfo, css_class:$shiptype.tr3.status, res:$shiptype.tr3}<br />
 				{/endif}
-	
+
 			{else}
 				{if shiptype.tr1}
 					<span style="color:#ff4444">{shiptype.tr1.name}</span><br />
@@ -54,7 +55,7 @@
 					<span style="color:#ff4444">{shiptype.tr3.name}</span><br />
 				{/endif}
 			{/endif}
-	
+
 			<br />
 			Rasse: {shiptype.race}<br />
 		</td>
@@ -111,7 +112,7 @@
 		{shiptype.heat} Überhitzung<br /><br />
 		Größe/Beweglichkeit: {shiptype.size}<br />
 		Sensorreichweite: {shiptype.sensorrange}<br /><br />
-		
+
 		<h3>Ausstattung</h3>
 		{shiptype.eps} Energiespeicher<br />
 		{shiptype.cargo} Cargo<br />
@@ -123,7 +124,7 @@
 	        	Externe Dockinganlage (Kapazität: {shiptype.adocks})<br />
 		{/endif}
 		{if shiptype.moduleslots}
-			{shiptype.moduleslots} Modulsteckplätze 
+			{shiptype.moduleslots} Modulsteckplätze
 			<a href="#" class="forschinfo tooltip">
 				<img border="0" src="data/interface/schiffinfo/info.gif" alt="i" style="vertical-align:middle" />
 				<span class="ttcontent">
@@ -157,6 +158,11 @@
 		{if shiptype.hydro}
 			Produktion: <img src="{nahrung.image}" alt="Nahrung" />{shiptype.hydro}<br />
 		{/endif}
+		{if shiptype.produces}
+			<!-- BEGIN shiptypeproduces.listitem -->
+			<img src="{shiptypeproduces.image}" alt="{shiptypeproduces.name}" />{shiptypeproduces.amount}<br />
+			<!-- END shiptypeproduces.listitem -->
+		{/endif}
 		{if shiptype.torpedodef}
 			Torpedoabwehr: {shiptype.torpedodef}%<br />
 		{/endif}
@@ -164,7 +170,7 @@
 			Betriebskosten: {shiptype.recost} RE<br />
 		{/endif}
 		<!-- BEGIN shiptypeflags.listitem -->
-			{shiptypeflag.name} 
+			{shiptypeflag.name}
 			{if shiptypeflag.description}
 				<a href="#" class="forschinfo tooltip">
 					<img border="0" src="data/interface/schiffinfo/info.gif" alt="i" style="vertical-align:middle" />

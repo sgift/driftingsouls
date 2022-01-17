@@ -17,6 +17,7 @@
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 package net.driftingsouls.ds2.server.ships;
+import net.driftingsouls.ds2.server.cargo.*;
 
 import net.driftingsouls.ds2.server.config.Weapons;
 import org.hibernate.annotations.BatchSize;
@@ -24,6 +25,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
+import org.hibernate.annotations.Type;
 
 import javax.annotation.Nonnull;
 import javax.persistence.Column;
@@ -90,6 +92,8 @@ public class ShipModules implements ShipTypeData {
 	@Column(name="sensorrange", nullable = false)
 	private int sensorRange;
 	private int hydro;
+	@Type(type="cargo")
+	private Cargo produces;
 	@Column(name="deutfactor", nullable = false)
 	private int deutFactor;
 	@Column(name="recost", nullable = false)
@@ -112,10 +116,10 @@ public class ShipModules implements ShipTypeData {
 	private boolean versorger;
 	@Column(nullable = false)
     private BigInteger bounty = BigInteger.ZERO;
-	
+
 	@Version
 	private int version;
-	
+
 	/**
 	 * Konstruktor.
 	 *
@@ -123,7 +127,7 @@ public class ShipModules implements ShipTypeData {
 	protected ShipModules() {
 		// EMPTY
 	}
-	
+
 	/**
 	 * <p>Konstruktor.</p>
 	 * Erstellt einen neuen Schiffsmoduleintrag fuer das angegebene Schiff
@@ -137,8 +141,9 @@ public class ShipModules implements ShipTypeData {
 		this.nickname = "";
 		this.picture = "";
 		this.modules = "";
+		this.produces = new Cargo();
 	}
-	
+
 	/**
 	 * Gibt das Schiff zurueck, zu dem der Eintrag gehoert.
 	 * @return Das Schiff
@@ -172,12 +177,12 @@ public class ShipModules implements ShipTypeData {
 	public void setCargo(long cargo) {
 		this.cargo = cargo;
 	}
-	
+
 	@Override
 	public long getNahrungCargo() {
 		return nahrungcargo;
 	}
-	
+
 	/**
 	 * Setzt den NahrungsCargo.
 	 * @param nahrungcargo der Nahrungcargo
@@ -211,7 +216,7 @@ public class ShipModules implements ShipTypeData {
 	public void setCrew(int crew) {
 		this.crew = crew;
 	}
-	
+
 	@Override
 	public int getMaxUnitSize() {
 		return maxunitsize;
@@ -224,12 +229,12 @@ public class ShipModules implements ShipTypeData {
 	public void setMaxUnitSize(int maxunitsize) {
 		this.maxunitsize = maxunitsize;
 	}
-	
+
 	@Override
 	public int getUnitSpace() {
 		return unitspace;
 	}
-	
+
 	/**
 	 * Setzt den Laderaum fuer Einheiten.
 	 * @param unitspace Der Laderaum
@@ -237,7 +242,7 @@ public class ShipModules implements ShipTypeData {
 	public void setUnitSpace(int unitspace) {
 		this.unitspace = unitspace;
 	}
-	
+
 	@Override
 	public int getDeutFactor() {
 		return deutFactor;
@@ -314,6 +319,19 @@ public class ShipModules implements ShipTypeData {
 	 */
 	public void setHydro(int hydro) {
 		this.hydro = hydro;
+	}
+
+	@Override
+	public Cargo getProduces() {
+		return produces;
+	}
+
+	/**
+	 * Setzt die Produktion.
+	 * @param produces Die Produktion
+	 */
+	public void setProduces(Cargo produces) {
+		this.produces = produces;
 	}
 
 	/**
@@ -448,7 +466,7 @@ public class ShipModules implements ShipTypeData {
 	public int getReCost() {
 		return reCost;
 	}
-	
+
 	/**
 	 * Setzt die Wartungskosten.
 	 * @param recost Die Wartungskosten
@@ -560,42 +578,42 @@ public class ShipModules implements ShipTypeData {
 	public void setWerft(int werft) {
 		this.werft = werft;
 	}
-	
+
 	@Override
 	public int getGroupwrap() {
 		return getShip().getBaseType().getGroupwrap();
 	}
-	
+
 	@Override
 	public String getTypeModules() {
 		return getShip().getBaseType().getModules();
 	}
-		
+
 	@Override
 	public String getDescrip() {
 		return getShip().getBaseType().getDescrip();
 	}
-	
+
 	@Override
 	public boolean isHide() {
 		return getShip().getBaseType().isHide();
 	}
-	
+
 	@Override
 	public ShipClasses getShipClass() {
 		return getShip().getBaseType().getShipClass();
 	}
-	
+
 	@Override
 	public int getChance4Loot() {
 		return getShip().getBaseType().getChance4Loot();
 	}
-	
+
 	@Override
 	public boolean isMilitary() {
 		return !getWeapons().isEmpty();
 	}
-	
+
 	/**
 	 * @return <code>true</code>, falls es ein Versorger ist.
 	 */
@@ -603,7 +621,7 @@ public class ShipModules implements ShipTypeData {
 	public boolean isVersorger() {
 		return versorger;
 	}
-	
+
 	/**
 	 * Setzt, ob es sich bei diesem Schiff um einen Versorger handelt.
 	 * @param versorger <code>true</code>, falls es ein Versorger ist
@@ -611,7 +629,7 @@ public class ShipModules implements ShipTypeData {
 	public void setVersorger(boolean versorger) {
 		this.versorger = versorger;
 	}
-	
+
 	@Override
 	public int getTypeId() {
 		return getShip().getBaseType().getId();
@@ -653,7 +671,7 @@ public class ShipModules implements ShipTypeData {
 	public void setSrs(boolean srs) {
 		this.srs = srs;
 	}
-	
+
 	@Override
 	public int getMinCrew()
 	{
@@ -662,17 +680,17 @@ public class ShipModules implements ShipTypeData {
 
 	/**
 	 * Crewwert.
-	 * 
+	 *
 	 * @param minCrew Crewwert bei dem das Schiff noch normal funktioniert.
 	 */
 	public void setMinCrew(int minCrew)
 	{
 		this.minCrew = minCrew;
 	}
-	
+
 	/**
 	 * Wahrscheinlichkeit, dass das Schiff sich in einem EMP-Nebel verfliegt.
-	 * 
+	 *
 	 * @return Zahl zwischen 0 und 1.
 	 */
 	@Override
@@ -680,10 +698,10 @@ public class ShipModules implements ShipTypeData {
 	{
 		return lostInEmpChance;
 	}
-	
+
 	/**
 	 * Wahrscheinlichkeit, dass das Schiff sich in einem EMP-Nebel verfliegt.
-	 * 
+	 *
 	 * @param lostInEmpChance Zahl zwischen 0 und 1.
 	 */
 	public void setLostInEmpChance(double lostInEmpChance)
@@ -748,6 +766,7 @@ public class ShipModules implements ShipTypeData {
         clone.aDocks = this.aDocks;
         clone.sensorRange = this.sensorRange;
         clone.hydro = this.hydro;
+				clone.produces = this.produces;
         clone.deutFactor = this.deutFactor;
         clone.reCost = this.reCost;
         clone.flags = this.flags;

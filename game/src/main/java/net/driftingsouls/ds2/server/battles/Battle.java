@@ -293,7 +293,7 @@ public class Battle implements Locatable
 
             double size = type.getSize();
             if (aship.hasFlag(BattleShipFlag.SECONDROW)) {
-                if (!aship.getShip().isDocked() && !aship.getShip().isLanded()) {
+                if (!aship.getShip().isDocked() && !aship.getShip().isLanded() ) {
                     secondrowcaps += size;
                 }
             }

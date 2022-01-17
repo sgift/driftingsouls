@@ -198,6 +198,10 @@ public class PlayerStarmap extends PublicStarmap
 	private boolean shipInSector(Location location)
 	{
 		List<Ship> sectorShips = this.map.getShipMap().get(location);
+		if (sectorShips == null || sectorShips.isEmpty())
+		{
+			return false;
+		}
 		for(Ship ship : sectorShips)
 		{
 			if (ship.getOwner().equals(user) || relations.isOnly(ship.getOwner(), Relation.FRIEND))

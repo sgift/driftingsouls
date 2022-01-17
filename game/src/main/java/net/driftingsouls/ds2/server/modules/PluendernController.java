@@ -71,7 +71,8 @@ public class PluendernController extends Controller
 		}
 		ShipTypeData shipTypeTo = zielSchiff.getTypeData();
 
-		if (user.isNoob())
+		//Felsbrocken duerfen auch als NOOB gepluendert werden
+		if (user.isNoob() && zielSchiff.getTypeData().getShipClass() != ShipClasses.FELSBROCKEN)
 		{
 			throw new ValidierungException("Sie stehen unter GCP-Schutz und k&ouml;nnen daher nicht pl&uuml;nndern<br />Hinweis: der GCP-Schutz kann unter Optionen vorzeitig beendet werden", errorurl);
 		}

@@ -1336,6 +1336,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		shipModules.setADocks(type.getADocks());
 		shipModules.setSensorRange(type.getSensorRange());
 		shipModules.setHydro(type.getHydro());
+		shipModules.setProduces(type.getProduces());
 		shipModules.setDeutFactor(type.getDeutFactor());
 		shipModules.setReCost(type.getReCost());
 		shipModules.setFlags(type.getFlags().stream().map(ShipTypeFlag::getFlag).collect(Collectors.joining(" ")));
