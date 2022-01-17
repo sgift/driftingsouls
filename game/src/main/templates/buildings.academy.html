@@ -23,8 +23,9 @@
 	<div class="gfxbox" style="width:600px">
 		Trainiere {offizier.name}:<br />
 		<!-- BEGIN academy.train.listitem -->
-		verbessere {offizier.train.ability} um {offizier.train.lvl} Stufen
+		verbessere {offizier.train.ability} um {offizier.train.lvl} Stufen <br />
 		<!-- END academy.train.listitem -->
+		<br />
 		 - Gesamtkosten: <img src="data/interface/time.gif" alt="Dauer" />{offizier.train.dauer}
 		<img src="{resource.silizium.image}" alt="" />{offizier.train.silizium} <img src="{resource.nahrung.image}" alt="" />{offizier.train.nahrung}<br />
 
@@ -34,7 +35,19 @@
 		{if trainoffi.conf}
 			<br />
 			<div style="text-align:center">
-				<a class="back" href="./ds?module=building&amp;col={base.id}&amp;field={base.field}&amp;train={trainoffi.trainid}&amp;off={trainoffi.id}&amp;conf=ok">Training durchf&uuml;hren</a>
+				<form action="./ds" method="post">
+					<input type="hidden" name="waffen" value="{trainoffi.waf}"/>
+					<input type="hidden" name="navigation" value="{trainoffi.nav}"/>
+					<input type="hidden" name="technik" value="{trainoffi.tec}"/>
+					<input type="hidden" name="sicherheit" value="{trainoffi.sec}"/>
+					<input type="hidden" name="kommando" value="{trainoffi.com}"/>
+					<input type="hidden" name="off" value="{trainoffi.id}"/>
+					<input type="hidden" name="col" value="{base.id}"/>
+					<input type="hidden" name="field" value="{base.field}"/>
+					<input type="hidden" name="module" value="building"/>
+					<input type="hidden" name="conf" value="ok"/>
+					<input type="submit" value="Training durchf&uuml;hren"/>
+				</form>
 			</div>
 		{/endif}
 		{if trainoffi.train}
@@ -44,9 +57,9 @@
 	<br />
 {/endif}
 {if academy.show.training}
-	<div class="gfxbox" style="width:600px">
+	<div class="gfxbox" style="width:800px">
 	 	<h3>Bildet aus</h3>
-	 	<table class=noBorderX" border="0" style="width:100%">
+	 	<table class="noBorderX" border="0" style="width:100%">
 	 	<tr>
 	 		<td class="noBorderX">Name</td>
 	 		<td class="noBorderX">Ausbildung</td>
@@ -88,7 +101,7 @@
 	 <br />
 {/endif}
 {if academy.show.trainnew}
-	<div class="gfxbox" style="width:600px">
+	<div class="gfxbox" style="width:800px">
 
 	<h3>Neuen Offizier ausbilden</h3>
 	Kosten: <img src="data/interface/time.gif" alt="" />{dauer.costs} <img src="{resource.silizium.image}" alt="" />{resource.silizium.costs} <img src="{resource.nahrung.image}" alt="" />{resource.nahrung.costs}<br /><br />
