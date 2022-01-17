@@ -12,6 +12,7 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
+import net.driftingsouls.ds2.server.cargo.*;
 
 import javax.annotation.Nonnull;
 import java.math.BigInteger;
@@ -54,6 +55,7 @@ public class EditSchiffstypModifikation implements EntityEditor<SchiffstypModifi
 		form.field("externe Docks", Integer.class, SchiffstypModifikation::getADocks, SchiffstypModifikation::setADocks);
 		form.field("Sensorreichweite", Integer.class, SchiffstypModifikation::getSensorRange, SchiffstypModifikation::setSensorRange);
 		form.field("Hydros", Integer.class, SchiffstypModifikation::getHydro, SchiffstypModifikation::setHydro);
+		form.field("Produktion", Cargo.class, SchiffstypModifikation::getProduces, SchiffstypModifikation::setProduces);
 		form.field("RE-Kosten", Integer.class, SchiffstypModifikation::getReCost, SchiffstypModifikation::setReCost);
 		form.field("Deuteriumsammeln", Integer.class, SchiffstypModifikation::getDeutFactor, SchiffstypModifikation::setDeutFactor);
 		form.multiSelection("Flags", ShipTypeFlag.class, SchiffstypModifikation::getFlags, SchiffstypModifikation::setFlags);

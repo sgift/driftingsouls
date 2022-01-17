@@ -17,6 +17,7 @@
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 package net.driftingsouls.ds2.server.ships;
+import net.driftingsouls.ds2.server.cargo.*;
 
 import javax.annotation.Nonnull;
 import java.math.BigInteger;
@@ -29,7 +30,7 @@ import java.util.Map;
  */
 public abstract class AbstractShipTypeDataWrapper implements ShipTypeData {
 	private ShipTypeData inner;
-	
+
 	/**
 	 * Konstruktor.
 	 * @param inner Das Objekt, das der Wrapper kapseln soll
@@ -37,7 +38,7 @@ public abstract class AbstractShipTypeDataWrapper implements ShipTypeData {
 	public AbstractShipTypeDataWrapper(ShipTypeData inner) {
 		this.inner = inner;
 	}
-	
+
 	/**
 	 * Gibt die innere Klasse zurueck.
 	 * @return Die innere Klasse
@@ -55,7 +56,7 @@ public abstract class AbstractShipTypeDataWrapper implements ShipTypeData {
 		catch( CloneNotSupportedException e ) {
 			wrapper.inner = this.inner;
 		}
-		
+
 		return wrapper;
 	}
 
@@ -74,7 +75,7 @@ public abstract class AbstractShipTypeDataWrapper implements ShipTypeData {
 	public long getCargo() {
 		return inner.getCargo();
 	}
-	
+
 	@Override
 	public long getNahrungCargo() {
 		return inner.getNahrungCargo();
@@ -94,12 +95,12 @@ public abstract class AbstractShipTypeDataWrapper implements ShipTypeData {
 	public int getCrew() {
 		return inner.getCrew();
 	}
-	
+
 	@Override
 	public int getMaxUnitSize() {
 		return inner.getMaxUnitSize();
 	}
-	
+
 	@Override
 	public int getUnitSpace() {
 		return inner.getUnitSpace();
@@ -143,6 +144,11 @@ public abstract class AbstractShipTypeDataWrapper implements ShipTypeData {
 	@Override
 	public int getHydro() {
 		return inner.getHydro();
+	}
+
+	@Override
+	public Cargo getProduces() {
+		return inner.getProduces();
 	}
 
 	@Override
@@ -265,17 +271,17 @@ public abstract class AbstractShipTypeDataWrapper implements ShipTypeData {
 	public boolean isMilitary() {
 		return inner.isMilitary();
 	}
-	
+
 	@Override
 	public boolean isVersorger() {
 		return inner.isVersorger();
 	}
-	
+
 	@Override
 	public int getAblativeArmor() {
 		return inner.getAblativeArmor();
 	}
-	
+
 	@Override
 	public boolean hasSrs() {
 		return inner.hasSrs();
@@ -286,7 +292,7 @@ public abstract class AbstractShipTypeDataWrapper implements ShipTypeData {
 	{
 		return inner.getMinCrew();
 	}
-	
+
 	@Override
 	public double getLostInEmpChance()
 	{

@@ -17,6 +17,7 @@
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 package net.driftingsouls.ds2.server.ships;
+import net.driftingsouls.ds2.server.cargo.*;
 
 import javax.annotation.Nonnull;
 import java.math.BigInteger;
@@ -40,37 +41,37 @@ public interface ShipTypeData extends Cloneable {
 	 * @return Die externen Docks
 	 */
     int getADocks();
-	
+
 	/**
 	 * Gibt die Cargogroesse zurueck.
 	 * @return Die Cargogroesse
 	 */
     long getCargo();
-	
+
 	/**
 	 * Gibt die NahrungsCargogroesze zurueck.
 	 * @return Die Nahrungscargogroesze
 	 */
     long getNahrungCargo();
-	
+
 	/**
 	 * Git die Chance auf Loot zurueck.
 	 * @return Die Lootchance
 	 */
     int getChance4Loot();
-	
+
 	/**
 	 * Gibt die Flugkosten in Energie zurueck.
 	 * @return Die Flugkosten
 	 */
     int getCost();
-	
+
 	/**
 	 * Gibt die Maximalbesatzung zurueck.
 	 * @return Die Besatzung
 	 */
     int getCrew();
-	
+
 	/**
 	 * Gibt die Schiffstypenbeschreibung zurueck.
 	 * @return Die Beschreibung
@@ -132,12 +133,18 @@ public interface ShipTypeData extends Cloneable {
 	 */
     int getHydro();
 
+			/**
+	 * Gibt die Produktion pro Tick zurueck.
+	 * @return Die Produktion pro Tick
+	 */
+	Cargo getProduces();
+
 	/**
 	 * Gibt die ID des Schifftyps zurueck.
 	 * @return Die Schiffstypen-ID
 	 */
     int getTypeId();
-	
+
 	/**
 	 * Gibt die Typendaten des zu Grunde liegenden Schifftyps zurueck.
 	 * @return Die Typendaten
@@ -245,7 +252,7 @@ public interface ShipTypeData extends Cloneable {
 	 * @return Der Verteidigungswert
 	 */
     int getTorpedoDef();
-	
+
 	/**
 	 * Gibt die Waffen des Schiffes zurueck.
 	 * @return Die Waffen
@@ -257,40 +264,40 @@ public interface ShipTypeData extends Cloneable {
 	 * @return Die Werftslots
 	 */
     int getWerft();
-	
+
 	/**
 	 * Gibt die maximale Groesze der Einheiten auf diesem Schiff zurueck.
 	 * @return Die maximale Groesze
 	 */
     int getMaxUnitSize();
-	
+
 	/**
 	 * Gibt den Laderaum fuer die Einheiten zurueck.
 	 * @return Der Laderaum
 	 */
     int getUnitSpace();
-	
+
 	/**
 	 * Gibt zurueck, ob es sich um ein bewaffnetes Schiff handelt.
 	 * @return <code>true</code>, falls das Schiff Waffen hat
 	 */
     boolean isMilitary();
-	
+
 	/**
 	 * Gibt zurueck, ob es sich um einen Versorger handelt.
 	 * @return <code>true</code>, falls das Schiff ein Versorger ist
 	 */
     boolean isVersorger();
-	
+
 	/**
 	 * Gibt die ablative Panzerung des Schifftypes zurueck.
 	 * @return Ablative Panzerung
 	 */
     int getAblativeArmor();
-	
+
 	/**
 	 * Gibt zurueck, ob ein Schiff ein SRS besitzt.
-	 * 
+	 *
 	 * @return <code>True</code>, wenn es ein SRS hat, <code>false</code> ansonsten.
 	 */
     boolean hasSrs();
@@ -299,14 +306,14 @@ public interface ShipTypeData extends Cloneable {
 	 * @return Crewwert bei dem das Schiff noch normal funktioniert.
 	 */
     int getMinCrew();
-	
+
 	/**
 	 * Wahrscheinlichkeit, dass das Schiff sich in einem EMP-Nebel verfliegt.
-	 * 
+	 *
 	 * @return Wahrscheinlichkeit als Anteil von 0 bis 1. Kann auch groesser oder kleienr als 0 oder 1 sein (Module!)
 	 */
     double getLostInEmpChance();
-	
+
 	/**
 	 * Zusaetzlich zu den Bedingungen von {@link Object#clone()} gilt folgende Bedingung:
 	 * Eine Klasse soll nur dann eine <code>CloneNotSupportedException</code> werfen,
