@@ -281,7 +281,7 @@ public class AcademyBuilding extends DefaultBuilding {
 		HashMap<Ability,Integer> train = new HashMap<>();
 		if(offizier != null)
 		{
-			if (waf > offizier.getAbility(Ability.WAF))
+			if (waf > 0)
 			{
 				train.put(Ability.WAF,waf);
 			}
@@ -289,7 +289,7 @@ public class AcademyBuilding extends DefaultBuilding {
 			{
 				waf = offizier.getAbility(Ability.WAF);
 			}
-			if (nav > offizier.getAbility(Ability.NAV))
+			if (nav > 0)
 			{
 				train.put(Ability.NAV,nav);
 			}
@@ -297,7 +297,7 @@ public class AcademyBuilding extends DefaultBuilding {
 			{
 				nav = offizier.getAbility(Ability.NAV);
 			}
-			if (tec > offizier.getAbility(Ability.ING))
+			if (tec > 0)
 			{
 				train.put(Ability.ING,tec);
 			}
@@ -305,7 +305,7 @@ public class AcademyBuilding extends DefaultBuilding {
 			{
 				tec = offizier.getAbility(Ability.ING);
 			}
-			if (sec > offizier.getAbility(Ability.SEC))
+			if (sec > 0)
 			{
 				train.put(Ability.SEC,sec);
 			}
@@ -313,7 +313,7 @@ public class AcademyBuilding extends DefaultBuilding {
 			{
 				sec = offizier.getAbility(Ability.SEC);
 			}
-			if (com > offizier.getAbility(Ability.COM))
+			if (com > 0)
 			{
 				train.put(Ability.COM,com);
 			}
@@ -459,7 +459,7 @@ public class AcademyBuilding extends DefaultBuilding {
 				if( offizier.getStationiertAufBasis() != null && offizier.getStationiertAufBasis().getId() == base.getId() ) {
 					for(Ability ability : train.keySet())
 					{
-						for(int level = offizier.getAbility(ability); level < train.get(ability);level+=10)
+						for(int level = 0; level < train.get(ability);level+=10)
 						{
 							int tmp_dauer = getUpgradeCosts(academy, 2, offizier, ability);
 							sk += getUpgradeCosts(academy, 0, offizier, ability);

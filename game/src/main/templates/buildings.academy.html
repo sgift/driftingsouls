@@ -23,7 +23,7 @@
 	<div class="gfxbox" style="width:600px">
 		Trainiere {offizier.name}:<br />
 		<!-- BEGIN academy.train.listitem -->
-		verbessere {offizier.train.ability} auf {offizier.train.lvl}
+		verbessere {offizier.train.ability} um {offizier.train.lvl} Stufen
 		<!-- END academy.train.listitem -->
 		 - Gesamtkosten: <img src="data/interface/time.gif" alt="Dauer" />{offizier.train.dauer}
 		<img src="{resource.silizium.image}" alt="" />{offizier.train.silizium} <img src="{resource.nahrung.image}" alt="" />{offizier.train.nahrung}<br />
@@ -119,7 +119,7 @@
 {/endif}
 {if academy.show.offilist}
 	{if academy.offilistausb.list}
-		<div class="gfxbox" style="width:600px">
+		<div class="gfxbox" style="width:800px">
 		<h3>Offiziere in Ausbildung</h3>
 		<table class="noBorderX" border="1">
 		<tr>
@@ -186,7 +186,7 @@
 	{/endif}
 	<br />
 	{if academy.offilist.list}
-		<div class="gfxbox" style="width:600px">
+		<div class="gfxbox" style="width:800px">
 		<h3>Anwesende Offiziere</h3>
 		<table class="noBorderX" border="1">
 		<tr>
@@ -200,12 +200,12 @@
 			<td class="noBorderX">Aktion</td>
 		</tr>
 		<!-- BEGIN academy.offilist.listitem -->
-		<form action="./ds" method="post">
-			<tr>
+		<tr>
+			<form action="./ds" method="post">
 				<td class="noBorderX" style="white-space:nowrap">
 					<img style="vertical-align:middle" src="{offizier.picture}" alt="" />
 					<a class="academy" href="./ds?module=choff&amp;off={offizier.id}">{offizier.name}</a>
-					<input type="hidden" name="offiid" value="{offizier.id}"/>
+					<input type="hidden" name="off" value="{offizier.id}"/>
 					<input type="hidden" name="col" value="{base.id}"/>
 					<input type="hidden" name="field" value="{base.field}"/>
 					<input type="hidden" name="module" value="building"/>
@@ -214,7 +214,7 @@
 
 				<td class="noBorderX" align="center">
 				{if offilist.allowactions}
-					<input type="number" id="technik" name="technik" min="{offizier.ing}" step="10" style="width:50px;text-align: right" value="{offizier.ing}"/>
+					{offizier.ing} +<input type="number" id="technik" name="technik" min="0" step="10" style="width:50px;text-align: right" value="0"/>
 				{else}
 					{offizier.ing}
 				{/endif}
@@ -222,7 +222,7 @@
 
 				<td class="noBorderX" align="center">
 				{if offilist.allowactions}
-					<input type="number" id="waffen" name="waffen" min="{offizier.waf}" step="10" style="width:50px;text-align: right" value="{offizier.waf}"/>
+					{offizier.waf} +<input type="number" id="waffen" name="waffen" min="0" step="10" style="width:50px;text-align: right" value="0"/>
 				{else}
 					{offizier.waf}
 				{/endif}
@@ -230,7 +230,7 @@
 
 				<td class="noBorderX" align="center">
 				{if offilist.allowactions}
-					<input type="number" id="navigation" name="navigation" min="{offizier.nav}" step="10" style="width:50px;text-align: right" value="{offizier.nav}"/>
+					{offizier.nav} +<input type="number" id="navigation" name="navigation" min="0" step="10" style="width:50px;text-align: right" value="0"/>
 				{else}
 					{offizier.nav}
 				{/endif}
@@ -238,7 +238,7 @@
 
 				<td class="noBorderX" align="center">
 				{if offilist.allowactions}
-					<input type="number" id="sicherheit" name="sicherheit" min="{offizier.sec}" step="10" style="width:50px;text-align: right" value="{offizier.sec}"/>
+					{offizier.sec} +<input type="number" id="sicherheit" name="sicherheit" min="0" step="10" style="width:50px;text-align: right" value="0"/>
 				{else}
 					{offizier.sec}
 				{/endif}
@@ -246,17 +246,16 @@
 
 				<td class="noBorderX" align="center">
 				{if offilist.allowactions}
-					<input type="number" id="kommando" name="kommando" min="{offizier.com}" step="10" style="width:50px;text-align: right" value="{offizier.com}"/>
+					{offizier.com} +<input type="number" id="kommando" name="kommando" min="0" step="10" style="width:50px;text-align: right" value="0"/>
 				{else}
 					{offizier.com}
 				{/endif}
 				</td>
 				<td>
-					<input type="submit" value="Ausbilden"/>
+					<input type="submit" value="Trainieren"/>
 				</td>
-
-			</tr>
-		</form>
+			</form>
+		</tr>
 		<!-- END academy.offilist.listitem -->
 		</table><br />
 		</div>
