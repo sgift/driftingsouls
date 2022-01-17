@@ -477,7 +477,6 @@ public class AcademyBuilding extends DefaultBuilding {
 					t.setVar(
 							"academy.show.trainoffi", 1,
 							"trainoffi.id",			offizier.getID(),
-							"trainoffi.trainid",	train,
 							"offizier.name",		Common._plaintext(offizier.getName()),
 							"offizier.train.dauer",		dauer,
 							"offizier.train.nahrung", 	nk,
@@ -487,27 +486,27 @@ public class AcademyBuilding extends DefaultBuilding {
 
 					t.setBlock("_BUILDING", "academy.train.listitem", "academy.train.list");
 
-					if( train.containsValue(1) ) {
+					if( train.containsKey(Ability.ING) ) {
 						t.setVar("offizier.train.ability", "Technik");
 						t.setVar("offizier.train.lvl",tec);
 						t.parse("academy.train.list", "academy.train.listitem", true);
 					}
-					if( train.containsValue(2) ) {
+					if( train.containsKey(Ability.WAF) ) {
 						t.setVar("offizier.train.ability", "Waffen");
 						t.setVar("offizier.train.lvl",waf);
 						t.parse("academy.train.list", "academy.train.listitem", true);
 					}
-					if( train.containsValue(3) ) {
+					if( train.containsKey(Ability.NAV) ) {
 						t.setVar("offizier.train.ability", "Navigation");
 						t.setVar("offizier.train.lvl",nav);
 						t.parse("academy.train.list", "academy.train.listitem", true);
 					}
-					if( train.containsValue(4) ) {
+					if( train.containsKey(Ability.SEC) ) {
 						t.setVar("offizier.train.ability", "Sicherheit");
 						t.setVar("offizier.train.lvl",sec);
 						t.parse("academy.train.list", "academy.train.listitem", true);
 					}
-					if( train.containsValue(5) ) {
+					if( train.containsKey(Ability.COM) ) {
 						t.setVar("offizier.train.ability", "Kommandoeffizienz");
 						t.setVar("offizier.train.lvl",com);
 						t.parse("academy.train.list", "academy.train.listitem", true);
@@ -526,8 +525,13 @@ public class AcademyBuilding extends DefaultBuilding {
 						ok = false;
 					}
 
-					if( !conf.equals("ok") ) {
-						t.setVar("trainoffi.conf",	1);
+					if( !conf.equals("ok") && ok) {
+						t.setVar("trainoffi.conf",	1,
+										 "trainoffi.waf", waf,
+										 "trainoffi.nav", nav,
+										 "trainoffi.com", com,
+										 "trainoffi.sec", sec,
+										 "trainoffi.tec", tec);
 						t.parse( "OUT", "_BUILDING" );
 						return t.getVar("OUT");
 					}
