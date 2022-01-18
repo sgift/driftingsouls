@@ -247,7 +247,7 @@ public class SchiffsTick extends TickController {
 		produziereNahrung(shipd, shiptd, shipc);
 
 		//poduziere Items
-		produziereItems(shipd, shiptd);
+		produziereItems(shipd, shiptd, shipc);
 
 		berechneNahrungsverbrauch(shipd, shiptd, feedingBases);
 
