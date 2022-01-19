@@ -723,6 +723,13 @@ public class AcademyBuilding extends DefaultBuilding {
 		}
 	}
 
+	/**
+	 * Gibt den Skillwert fuer eine uebergebene Ability fuer einen Offizier nach Abschluss des Trainings wieder
+	 * @param acc die Akademie
+	 * @param offi der Offizier
+	 * @param ability die Ability
+	 * @return das Level nach Abschluss des Trainings oder <code>0</code>, falls der Offizier diesen Skill nicht trainiert
+	 */
 	public int offiTargetValue(Academy acc, Offizier offi, Ability ability)
 	{
 		switch( ability ) {
@@ -731,7 +738,7 @@ public class AcademyBuilding extends DefaultBuilding {
 			case NAV:
 			case SEC:
 			case COM:
-				int target = offi.getAbility(ability);
+				int target = 0;
 				List<AcademyQueueEntry> entries = acc.getQueueEntries();
 				for( AcademyQueueEntry entry : entries ) {
 					if( entry.getTraining() == offi.getID() && entry.getTrainingType() == decodeAbility(ability) )
@@ -739,7 +746,8 @@ public class AcademyBuilding extends DefaultBuilding {
 						target += 10;
 					}
 				}
-				return target;
+				//wir wollen nur eine TargetValue, wenn der Offizier ueberhaupt trainiert wird.
+				return target == 0 ? 0 : target + offi.getAbility(ability);
 		default:
 				return 0;
 			}
