@@ -671,6 +671,11 @@ public class AcademyBuilding extends DefaultBuilding {
 					"offizier.nav",		offi.getAbility(Offizier.Ability.NAV),
 					"offizier.sec",		offi.getAbility(Offizier.Ability.SEC),
 					"offizier.com",		offi.getAbility(Offizier.Ability.COM),
+					"offizier.toing",	offiTargetValue(academy, offi, Offizier.Ability.ING),
+					"offizier.towaf",	offiTargetValue(academy, offi, Offizier.Ability.WAF),
+					"offizier.tonav",	offiTargetValue(academy, offi, Offizier.Ability.NAV),
+					"offizier.tosec",	offiTargetValue(academy, offi, Offizier.Ability.SEC),
+					"offizier.tocom",	offiTargetValue(academy, offi, Offizier.Ability.COM),
 					"offizier.special",	offi.getSpecial().getName() );
 
 			t.parse("academy.offilistausb.list", "academy.offilistausb.listitem", true);
@@ -716,5 +721,27 @@ public class AcademyBuilding extends DefaultBuilding {
 		{
 			return o1.getPosition() - o2.getPosition();
 		}
+	}
+
+	public int offiTargetValue(Academy acc, Offizier offi, Ability ability)
+	{
+		switch( ability ) {
+			case ING:
+			case WAF:
+			case NAV:
+			case SEC:
+			case COM:
+				int target = offi.getAbility(ability);
+				List<AcademyQueueEntry> entries = acc.getQueueEntries();
+				for( AcademyQueueEntry entry : entries ) {
+					if( entry.getTraining() == offi.getID() && entry.getTrainingType() == decodeAbility(ability) )
+					{
+						target += 10;
+					}
+				}
+				return target;
+		default:
+				return 0;
+			}
 	}
 }
