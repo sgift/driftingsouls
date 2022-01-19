@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.cargo.modules.Module;
@@ -27,6 +28,7 @@ import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleItemModule;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Weapons;
+import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
@@ -949,7 +951,24 @@ public class SchiffController extends Controller
 					log.error("Ungueltige Property " + method, e);
 				}
 			}
-
+			//Dann berechnen wir doch mal die Produktion, die durch Module hinzukommt und schreiben den Effekt weg
+			String produktion = "Produktion<br /> ";
+			for(ItemCargoEntry<Item> item : type.getProduces().getItems())
+			{
+				//nur hinzufuegen, wenn das Modul auch wirklich produziert
+				if(item.getCount() - basetype.getProduces().getResourceCount(item.getResourceID()) != 0)
+				{
+					produktion += "<img align='middle' src='" + item.getItem().getPicture() + "' alt='' />"
+												+ Common.ln(item.getCount())
+												+ " (<span class='nobr' style='color:green'>+"
+												+ Common.ln(item.getCount() - basetype.getProduces().getResourceCount(item.getResourceID()))
+												+"</span>)<br />";
+				}
+			}
+			if (!produktion.equals("Produktion<br /> "))
+			{
+				tooltiplines.add(produktion);
+			}
 			// Weapons
 			Map<String, Integer> weaponlist = type.getWeapons();
 			Map<String, Integer> defweaponlist = basetype.getWeapons();
