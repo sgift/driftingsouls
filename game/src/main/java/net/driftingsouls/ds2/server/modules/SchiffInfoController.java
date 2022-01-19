@@ -306,7 +306,7 @@ public class SchiffInfoController extends Controller
 		for(ResourceEntry res : ship.getProduces().getResourceList())
 		{
 			t.setVar("shiptypeproduces.image", res.getImage(),
-								"shiptypeproduces.name", res.getName(),
+								"shiptypeproduces.name", res.getPlainName(),
 								"shiptypeproduces.amount", res.getCount1());
 			t.parse("shiptypeproduces.list","shiptypeproduces.listitem",true);
 		}

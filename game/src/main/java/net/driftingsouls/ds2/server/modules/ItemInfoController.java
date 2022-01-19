@@ -228,8 +228,19 @@ public class ItemInfoController extends Controller
 		if (mods.getHydro() != 0)
 		{
 			colorize(effecttext, mods.getHydro());
-			effecttext.append("Produktion <img src=\"").append(Cargo.getResourceImage(Resources.NAHRUNG)).append("\" alt=\"\" />").append(mods.getHydro());
+			effecttext.append("Nahrungsspeicherproduktion <img src=\"").append(Cargo.getResourceImage(Resources.NAHRUNG)).append("\" alt=\"\" />").append(mods.getHydro());
 			effecttext.append("</span><br />\n");
+		}
+
+		if (mods.getProduces() != null)
+		{
+			effecttext.append("Produktion:<br />");
+			for(ItemCargoEntry<Item> item : mods.getProduces().getItems())
+			{
+				colorize(effecttext, mods.getHydro());
+				effecttext.append("<img src=\"").append(item.getItem().getName()).append("\" alt=\"\" />").append(item.getCount());
+				effecttext.append("</span><br />\n");
+			}
 		}
 
 		if (mods.getDeutFactor() != 0)
