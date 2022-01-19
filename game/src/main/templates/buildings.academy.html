@@ -152,43 +152,33 @@
 			</td>
 
 			<td class="noBorderX" align="center">
-			{if offilist.allowactions}
-				<a class="academy" href="./ds?module=building&amp;col={base.id}&amp;field={base.field}&amp;train=1&amp;off={offizier.id}">{offizier.ing}</a>
-			{else}
-				{offizier.ing}
-			{/endif}
+
+				{offizier.ing} {if offizier.toing > 0} -> {offizier.toing}{/endif}
+
 			</td>
 
 			<td class="noBorderX" align="center">
-			{if offilist.allowactions}
-				<a class="academy" href="./ds?module=building&amp;col={base.id}&amp;field={base.field}&amp;train=2&amp;off={offizier.id}">{offizier.waf}</a>
-			{else}
-				{offizier.waf}
-			{/endif}
+
+				{offizier.waf} {if offizier.towaf > 0} -> {offizier.towaf}{/endif}
+
 			</td>
 
 			<td class="noBorderX" align="center">
-			{if offilist.allowactions}
-				<a class="academy" href="./ds?module=building&amp;col={base.id}&amp;field={base.field}&amp;train=3&amp;off={offizier.id}">{offizier.nav}</a>
-			{else}
-				{offizier.nav}
-			{/endif}
+
+				{offizier.nav} {if offizier.tonav > 0} -> {offizier.tonav}{/endif}
+
 			</td>
 
 			<td class="noBorderX" align="center">
-			{if offilist.allowactions}
-				<a class="academy" href="./ds?module=building&amp;col={base.id}&amp;field={base.field}&amp;train=4&amp;off={offizier.id}">{offizier.sec}</a>
-			{else}
-				{offizier.sec}
-			{/endif}
+
+				{offizier.sec} {if offizier.tosec > 0} -> {offizier.tosec}{/endif}
+
 			</td>
 
 			<td class="noBorderX" align="center">
-			{if offilist.allowactions}
-				<a class="academy" href="./ds?module=building&amp;col={base.id}&amp;field={base.field}&amp;train=5&amp;off={offizier.id}">{offizier.com}</a>
-			{else}
-				{offizier.com}
-			{/endif}
+
+				{offizier.com} {if offizier.tocom > 0} -> {offizier.tocom}{/endif}
+
 			</td>
 
 			<td class="noBorderX">{offizier.special}</td>
