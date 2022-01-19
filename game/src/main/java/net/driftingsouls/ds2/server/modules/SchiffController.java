@@ -952,7 +952,7 @@ public class SchiffController extends Controller
 				}
 			}
 			//Dann berechnen wir doch mal die Produktion, die durch Module hinzukommt und schreiben den Effekt weg
-			String produktion = "Produktion<br /> ";
+			String produktion = "";
 			for(ItemCargoEntry<Item> item : type.getProduces().getItems())
 			{
 				//nur hinzufuegen, wenn das Modul auch wirklich produziert
@@ -965,9 +965,9 @@ public class SchiffController extends Controller
 												+"</span>)<br />";
 				}
 			}
-			if (!produktion.equals("Produktion<br /> "))
+			if (!produktion.equals(""))
 			{
-				tooltiplines.add(produktion);
+				tooltiplines.add("Produktion<br /> "+produktion);
 			}
 			// Weapons
 			Map<String, Integer> weaponlist = type.getWeapons();
