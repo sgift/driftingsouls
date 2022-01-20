@@ -217,7 +217,7 @@
 
 				<td class="noBorderX" align="center">
 				{if offilist.allowactions}
-					{offizier.ing} +<input type="number" id="technik" name="technik" min="0" step="10" style="width:50px;text-align: right" value="0"/>
+					{offizier.ing} +<input type="number" id="technik" name="technik" min="0" step="10" max="{offizier.ing+1000}" style="width:50px;text-align: right" value="0"/>
 				{else}
 					{offizier.ing}
 				{/endif}
@@ -225,7 +225,7 @@
 
 				<td class="noBorderX" align="center">
 				{if offilist.allowactions}
-					{offizier.waf} +<input type="number" id="waffen" name="waffen" min="0" step="10" style="width:50px;text-align: right" value="0"/>
+					{offizier.waf} +<input type="number" id="waffen" name="waffen" min="0" step="10" max="{offizier.waf+1000}" style="width:50px;text-align: right" value="0"/>
 				{else}
 					{offizier.waf}
 				{/endif}
@@ -233,7 +233,7 @@
 
 				<td class="noBorderX" align="center">
 				{if offilist.allowactions}
-					{offizier.nav} +<input type="number" id="navigation" name="navigation" min="0" step="10" style="width:50px;text-align: right" value="0"/>
+					{offizier.nav} +<input type="number" id="navigation" name="navigation" min="0" step="10" max="{offizier.nav+1000}" style="width:50px;text-align: right" value="0"/>
 				{else}
 					{offizier.nav}
 				{/endif}
@@ -241,7 +241,7 @@
 
 				<td class="noBorderX" align="center">
 				{if offilist.allowactions}
-					{offizier.sec} +<input type="number" id="sicherheit" name="sicherheit" min="0" step="10" style="width:50px;text-align: right" value="0"/>
+					{offizier.sec} +<input type="number" id="sicherheit" name="sicherheit" min="0" step="10" max="{offizier.sec+1000}" style="width:50px;text-align: right" value="0"/>
 				{else}
 					{offizier.sec}
 				{/endif}
@@ -249,7 +249,7 @@
 
 				<td class="noBorderX" align="center">
 				{if offilist.allowactions}
-					{offizier.com} +<input type="number" id="kommando" name="kommando" min="0" step="10" style="width:50px;text-align: right" value="0"/>
+					{offizier.com} +<input type="number" id="kommando" name="kommando" min="0" step="10" max="{offizier.com+1000}" style="width:50px;text-align: right" value="0"/>
 				{else}
 					{offizier.com}
 				{/endif}
