@@ -235,10 +235,10 @@ public class ItemInfoController extends Controller
 		if (mods.getProduces() != null)
 		{
 			effecttext.append("Produktion:<br />");
-			for(ItemCargoEntry<Item> item : mods.getProduces().getItems())
+			for(ResourceEntry res : mods.getProduces().getResourceList())
 			{
-				colorize(effecttext, mods.getHydro());
-				effecttext.append("<img src=\"").append(item.getItem().getName()).append("\" alt=\"\" />").append(item.getCount());
+				colorize(effecttext, res.getCount1());
+				effecttext.append("<img style=\"vertical-align:middle\" src=\"").append(Cargo.getResourceImage(res.getId())).append("\" alt=\"\" />").append(res.getCargo1());
 				effecttext.append("</span><br />\n");
 			}
 		}

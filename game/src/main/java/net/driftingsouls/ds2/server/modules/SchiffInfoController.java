@@ -303,13 +303,8 @@ public class SchiffInfoController extends Controller
 		{
 			return;
 		}
-		for(ResourceEntry res : ship.getProduces().getResourceList())
-		{
-			t.setVar("shiptypeproduces.image", res.getImage(),
-								"shiptypeproduces.name", res.getPlainName(),
-								"shiptypeproduces.amount", res.getCount1());
-			t.parse("shiptypeproduces.list","shiptypeproduces.listitem",true);
-		}
+		ResourceList reslist = ship.getProduces().getResourceList();
+		Resources.echoResList(t, reslist, "shiptypeproduces.list");
 	}
 
 	private void zeigeFlagListeAn(TemplateEngine t, ShipType ship)
