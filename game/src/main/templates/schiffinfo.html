@@ -156,11 +156,12 @@
 			Tanker: <img src="{deuterium.image}" alt="Deuterium" />{shiptype.deutfactor} für <img src="data/interface/energie.gif" alt="Energie" />1<br />
 		{/endif}
 		{if shiptype.hydro}
-			Produktion: <img src="{nahrung.image}" alt="Nahrung" />{shiptype.hydro}<br />
+			Nahrungsspeicherproduktion: <img src="{nahrung.image}" alt="Nahrung" />{shiptype.hydro}<br />
 		{/endif}
 		{if shiptype.produces}
+			Produktion:<br />
 			<!-- BEGIN shiptypeproduces.listitem -->
-			<img src="{shiptypeproduces.image}" alt="{shiptypeproduces.name}" />{shiptypeproduces.amount}<br />
+			<img style="vertical-align:middle" src="{res.image}" alt="" title="{res.plainname}" />{res.cargo}<br />
 			<!-- END shiptypeproduces.listitem -->
 		{/endif}
 		{if shiptype.torpedodef}

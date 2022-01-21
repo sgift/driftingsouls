@@ -354,7 +354,7 @@ public class SchiffstypModifikation
 	 */
 	public Cargo getProduces()
 	{
-		return new UnmodifiableCargo(produces);
+		return produces;
 	}
 
 	/**
