@@ -9,7 +9,7 @@
 <br />
 <br />
 {if academy.show.trainnewoffi}
-	<div class="gfxbox" style="width:600px">
+	<div class="gfxbox" style="width:800px">
 		{if trainnewoffi.error}
 			<span class="error">{trainnewoffi.error}</span><br />
 		{/endif}
@@ -20,7 +20,7 @@
 	<br />
 {/endif}
 {if academy.show.trainoffi}
-	<div class="gfxbox" style="width:600px">
+	<div class="gfxbox" style="width:800px">
 		Trainiere {offizier.name}:<br />
 		<!-- BEGIN academy.train.listitem -->
 		verbessere {offizier.train.ability} um {offizier.train.lvl} Stufen <br />
@@ -152,43 +152,33 @@
 			</td>
 
 			<td class="noBorderX" align="center">
-			{if offilist.allowactions}
-				<a class="academy" href="./ds?module=building&amp;col={base.id}&amp;field={base.field}&amp;train=1&amp;off={offizier.id}">{offizier.ing}</a>
-			{else}
-				{offizier.ing}
-			{/endif}
+
+				{offizier.ing} {if offizier.toing > 0} -> {offizier.toing}{/endif}
+
 			</td>
 
 			<td class="noBorderX" align="center">
-			{if offilist.allowactions}
-				<a class="academy" href="./ds?module=building&amp;col={base.id}&amp;field={base.field}&amp;train=2&amp;off={offizier.id}">{offizier.waf}</a>
-			{else}
-				{offizier.waf}
-			{/endif}
+
+				{offizier.waf} {if offizier.towaf > 0} -> {offizier.towaf}{/endif}
+
 			</td>
 
 			<td class="noBorderX" align="center">
-			{if offilist.allowactions}
-				<a class="academy" href="./ds?module=building&amp;col={base.id}&amp;field={base.field}&amp;train=3&amp;off={offizier.id}">{offizier.nav}</a>
-			{else}
-				{offizier.nav}
-			{/endif}
+
+				{offizier.nav} {if offizier.tonav > 0} -> {offizier.tonav}{/endif}
+
 			</td>
 
 			<td class="noBorderX" align="center">
-			{if offilist.allowactions}
-				<a class="academy" href="./ds?module=building&amp;col={base.id}&amp;field={base.field}&amp;train=4&amp;off={offizier.id}">{offizier.sec}</a>
-			{else}
-				{offizier.sec}
-			{/endif}
+
+				{offizier.sec} {if offizier.tosec > 0} -> {offizier.tosec}{/endif}
+
 			</td>
 
 			<td class="noBorderX" align="center">
-			{if offilist.allowactions}
-				<a class="academy" href="./ds?module=building&amp;col={base.id}&amp;field={base.field}&amp;train=5&amp;off={offizier.id}">{offizier.com}</a>
-			{else}
-				{offizier.com}
-			{/endif}
+
+				{offizier.com} {if offizier.tocom > 0} -> {offizier.tocom}{/endif}
+
 			</td>
 
 			<td class="noBorderX">{offizier.special}</td>
@@ -227,7 +217,7 @@
 
 				<td class="noBorderX" align="center">
 				{if offilist.allowactions}
-					{offizier.ing} +<input type="number" id="technik" name="technik" min="0" step="10" style="width:50px;text-align: right" value="0"/>
+					{offizier.ing} +<input type="number" id="technik" name="technik" min="0" step="10" max="1000" style="width:50px;text-align: right" value="0"/>
 				{else}
 					{offizier.ing}
 				{/endif}
@@ -235,7 +225,7 @@
 
 				<td class="noBorderX" align="center">
 				{if offilist.allowactions}
-					{offizier.waf} +<input type="number" id="waffen" name="waffen" min="0" step="10" style="width:50px;text-align: right" value="0"/>
+					{offizier.waf} +<input type="number" id="waffen" name="waffen" min="0" step="10" max="1000" style="width:50px;text-align: right" value="0"/>
 				{else}
 					{offizier.waf}
 				{/endif}
@@ -243,7 +233,7 @@
 
 				<td class="noBorderX" align="center">
 				{if offilist.allowactions}
-					{offizier.nav} +<input type="number" id="navigation" name="navigation" min="0" step="10" style="width:50px;text-align: right" value="0"/>
+					{offizier.nav} +<input type="number" id="navigation" name="navigation" min="0" step="10" max="1000" style="width:50px;text-align: right" value="0"/>
 				{else}
 					{offizier.nav}
 				{/endif}
@@ -251,7 +241,7 @@
 
 				<td class="noBorderX" align="center">
 				{if offilist.allowactions}
-					{offizier.sec} +<input type="number" id="sicherheit" name="sicherheit" min="0" step="10" style="width:50px;text-align: right" value="0"/>
+					{offizier.sec} +<input type="number" id="sicherheit" name="sicherheit" min="0" step="10" max="1000" style="width:50px;text-align: right" value="0"/>
 				{else}
 					{offizier.sec}
 				{/endif}
@@ -259,7 +249,7 @@
 
 				<td class="noBorderX" align="center">
 				{if offilist.allowactions}
-					{offizier.com} +<input type="number" id="kommando" name="kommando" min="0" step="10" style="width:50px;text-align: right" value="0"/>
+					{offizier.com} +<input type="number" id="kommando" name="kommando" min="0" step="10" max="1000" style="width:50px;text-align: right" value="0"/>
 				{else}
 					{offizier.com}
 				{/endif}
