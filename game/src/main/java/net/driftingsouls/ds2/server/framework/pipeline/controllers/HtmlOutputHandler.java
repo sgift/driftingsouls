@@ -67,7 +67,10 @@ public class HtmlOutputHandler extends OutputHandler
 		}
 		else
 		{
-			sb.append("<script src=\"./data/javascript/ds.js\" type=\"text/javascript\"></script>\n");
+			if(this.getAttributeString("module") != "main")
+			{
+				sb.append("<script src=\"./data/javascript/ds.js\" type=\"text/javascript\"></script>\n");
+			}
 		}
 		sb.append("<div id=\"error-placeholder\"></div>\n");
 	}
