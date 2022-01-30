@@ -985,7 +985,7 @@ public class SchiffstypModifikation
 
 		@Override
 		public Cargo getProduces() {
-			Cargo value = inner.getProduces();
+			Cargo value = new Cargo(inner.getProduces());
 			value.addCargo(SchiffstypModifikation.this.getProduces());
 			return value;
 		}
