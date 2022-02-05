@@ -714,7 +714,7 @@ public class SchiffController extends Controller
 		mo.put("getPanzerung", "<img align='middle' src='data/interface/schiffe/panzerplatte.png' alt='' />Panzerung ");
 		mo.put("getTorpedoDef", "Torpedoabwehr ");
 		mo.put("getCrew", "<img align='middle' src='data/interface/besatzung.gif' alt='' />Crew ");
-		mo.put("getHydro", "<img align='middle' src='" + Cargo.getResourceImage(Resources.NAHRUNG) + "' alt='' />Produktion ");
+		mo.put("getHydro", "<img align='middle' src='" + Cargo.getResourceImage(Resources.NAHRUNG) + "' alt='' />Nahrungsspeicherproduktion ");
 		mo.put("getSensorRange", "<img align='middle' src='data/interface/schiffe/sensorrange.png' alt='' />Sensorreichweite ");
 		mo.put("getDeutFactor", "Tanker: <img align='middle' src='" + Cargo.getResourceImage(Resources.DEUTERIUM) + "' alt='' />");
 		mo.put("getReCost", "Wartungskosten ");
@@ -953,16 +953,26 @@ public class SchiffController extends Controller
 			}
 			//Dann berechnen wir doch mal die Produktion, die durch Module hinzukommt und schreiben den Effekt weg
 			String produktion = "";
-			for(ItemCargoEntry<Item> item : type.getProduces().getItems())
+
+			//for(ItemCargoEntry<Item> item : type.getProduces().getItems())
+			for(ResourceEntry res : type.getProduces().getResourceList())
 			{
 				//nur hinzufuegen, wenn das Modul auch wirklich produziert
-				if(item.getCount() - basetype.getProduces().getResourceCount(item.getResourceID()) != 0)
+				long mod_count = type.getProduces().getResourceCount(res.getId());
+				long org_count = ship.getTypeData().getProduces().getResourceCount(res.getId());
+				if(mod_count - org_count  != 0)
 				{
-					produktion += "<img align='middle' src='" + item.getItem().getPicture() + "' alt='' />"
-												+ Common.ln(item.getCount())
-												+ " (<span class='nobr' style='color:green'>+"
-												+ Common.ln(item.getCount() - basetype.getProduces().getResourceCount(item.getResourceID()))
-												+"</span>)<br />";
+					{
+						produktion+="<img style=\"vertical-align:middle\" src=\""+Cargo.getResourceImage(res.getId())+"\" alt=\"\" />"+res.getCount1();
+						if (mod_count > org_count)
+						{
+							produktion += "(<span class='nobr' style='color:green'>+" + (mod_count - org_count) + " </span>)<br />";
+						}
+						else if (mod_count < org_count)
+						{
+							produktion += "(<span class='nobr' style='color:red'>" + (mod_count - org_count) + " </span>)<br />";
+						}
+					}
 				}
 			}
 			if (!produktion.equals(""))
