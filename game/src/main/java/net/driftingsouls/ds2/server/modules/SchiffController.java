@@ -959,7 +959,7 @@ public class SchiffController extends Controller
 			{
 				//nur hinzufuegen, wenn das Modul auch wirklich produziert
 				long mod_count = type.getProduces().getResourceCount(res.getId());
-				long org_count = ship.getTypeData().getProduces().getResourceCount(res.getId());
+				long org_count = basetype.getProduces().getResourceCount(res.getId());
 				if(mod_count - org_count  != 0)
 				{
 					{
