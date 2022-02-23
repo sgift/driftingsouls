@@ -321,7 +321,9 @@ public class SchiffsTick extends TickController {
 			shipd.setNahrungCargo(speicher);
 			if( Cargo.getResourceMass( Resources.NAHRUNG, rest ) > (shiptd.getCargo() - shipc.getMass()) )
 				{
-					rest = (int)( (shiptd.getCargo()-shipc.getMass())/(Cargo.getResourceMass( Resources.NAHRUNG, 1 )) );
+					long mass = Cargo.getResourceMass( Resources.NAHRUNG, 1 );
+					mass = mass == 0 ? 1 : mass;
+					rest = (int)( (shiptd.getCargo()-shipc.getMass())/(mass) );
 					this.slog("[maxcargo]");
 				}
 			shipc.addResource( Resources.NAHRUNG, rest );
@@ -351,7 +353,9 @@ public class SchiffsTick extends TickController {
 
 			if( Cargo.getResourceMass( entry.getResourceID(), rest ) > (maxCargo - shipc.getMass()) )
 				{
-					rest = (int)( (shiptd.getCargo()-shipc.getMass())/(Cargo.getResourceMass( entry.getResourceID(), 1 )) );
+					long mass = Cargo.getResourceMass( entry.getResourceID(), 1 );
+					mass = mass == 0 ? 1 : mass;
+					rest = (int)( (shiptd.getCargo()-shipc.getMass())/ mass );
 					//nochmal absichern, nicht, dass ich irgendwo einen Fehler gemacht habe
 					amount = amount < rest ? amount : rest;
 					this.slog("[maxcargo]");
@@ -381,7 +385,9 @@ public class SchiffsTick extends TickController {
 
 				if( Cargo.getResourceMass( Resources.DEUTERIUM, tmpe * deutfactor ) > (shiptd.getCargo() - shipc.getMass()) )
 				{
-					tmpe = (int)( (shiptd.getCargo()-shipc.getMass())/(deutfactor*Cargo.getResourceMass( Resources.DEUTERIUM, 1 )) );
+					long mass = Cargo.getResourceMass( Resources.DEUTERIUM, 1 );
+					mass = mass == 0 ? 1 : mass;
+					tmpe = (int)( (shiptd.getCargo()-shipc.getMass())/(deutfactor*mass) );
 					this.slog("[maxcargo]");
 				}
 				long saugdeut = tmpe * deutfactor;

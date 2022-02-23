@@ -637,7 +637,7 @@ public class TransportController extends Controller
 	private long transferSingleResource(StringBuilder message, TransportTarget fromItem, TransportTarget toItem, ResourceEntry res, long count, Cargo newfromc, Cargo newtoc, MutableLong cargofrom, MutableLong cargoto, StringBuilder msg, char mode, String rawFrom, String rawTo, String rawWay, boolean replenish)
 	{
 		boolean out = false;
-	
+
 		//Abfrage, ob Cargo aufgefuellt werden soll
 		if(replenish){
 			 	long tocount = newtoc.getResourceCount(res.getId());
@@ -649,7 +649,7 @@ public class TransportController extends Controller
 		  			count *= -1;
 		  		}
 		}
-				 		
+
 		if (count > newfromc.getResourceCount(res.getId()))
 		{
 			count = newfromc.getResourceCount(res.getId());
@@ -665,7 +665,9 @@ public class TransportController extends Controller
 
 		if (cargoto.longValue() - Cargo.getResourceMass(res.getId(), count) < 0)
 		{
-			count = cargoto.longValue() / Cargo.getResourceMass(res.getId(), 1);
+			long mass = Cargo.getResourceMass(res.getId(), 1);
+			mass = mass == 0 ? 1 : mass;
+			count = cargoto.longValue() / mass;
 
 			if (count < 0)
 			{
@@ -676,7 +678,7 @@ public class TransportController extends Controller
 			out = true;
 			message.append(" - Nur noch Platz für [resource=").append(res.getId()).append("]").append(count).append("[/resource] vorhanden");
 		}
-		
+
 		newtoc.addResource(res.getId(), count);
 		newfromc.substractResource(res.getId(), count);
 
@@ -731,7 +733,7 @@ public class TransportController extends Controller
 			@UrlParam(name = "replenish") int replenish)
 	{
 		String[] way = StringUtils.split(rawWay, "to");
-		
+
 
 		List<TransportTarget> from = parseListeDerTransportQuellen(way[0], fromString);
 		List<TransportTarget> to = parseListeDerTransportZiele(way[1], toString);
@@ -778,8 +780,8 @@ public class TransportController extends Controller
 				if( to.size() > 1 )
 				{
 					if( replenish == 1) {
-						message.append("Fülle auf je [resource=").append(res.getId()).append("]").append(transt).append("[/resource] auf\n");	
-					}						
+						message.append("Fülle auf je [resource=").append(res.getId()).append("]").append(transt).append("[/resource] auf\n");
+					}
 					else {
 						message.append("Transportiere je [resource=").append(res.getId()).append("]").append(transt).append("[/resource]\n");
 					}
@@ -832,8 +834,8 @@ public class TransportController extends Controller
 				if( from.size() > 1 )
 				{
 					if( replenish == 1) {
-						message.append("Fülle auf je [resource=").append(res.getId()).append("]").append(transt).append("[/resource] auf\n");	
-					}	
+						message.append("Fülle auf je [resource=").append(res.getId()).append("]").append(transt).append("[/resource] auf\n");
+					}
 					else {
 						message.append("Transportiere je [resource=").append(res.getId()).append("]").append(transt).append("[/resource]\n");
 					}
@@ -1034,7 +1036,7 @@ public class TransportController extends Controller
 		{
 			reslist = fromcargo.compare(tocargo, true);
 		}
-		
+
 		//Ress-Menge an Source und Target zur Variablenliste hinzugefuegt fuer Schnelllade-Funktion
 		for (ResourceEntry res : reslist)
 		{

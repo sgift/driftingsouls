@@ -966,11 +966,11 @@ public class SchiffController extends Controller
 						produktion+="<img style=\"vertical-align:middle\" src=\""+Cargo.getResourceImage(res.getId())+"\" alt=\"\" />"+res.getCount1();
 						if (mod_count > org_count)
 						{
-							produktion += "(<span class='nobr' style='color:green'>+" + (mod_count - org_count) + " </span>)<br />";
+							produktion += " (<span class='nobr' style='color:green'>+" + (mod_count - org_count) + "</span>)<br />";
 						}
 						else if (mod_count < org_count)
 						{
-							produktion += "(<span class='nobr' style='color:red'>" + (mod_count - org_count) + " </span>)<br />";
+							produktion += " (<span class='nobr' style='color:red'>" + (mod_count - org_count) + "</span>)<br />";
 						}
 					}
 				}
