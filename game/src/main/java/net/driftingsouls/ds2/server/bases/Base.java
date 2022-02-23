@@ -1531,6 +1531,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 				else
 				{
 					long resourceMass = Cargo.getResourceMass(resource.getId(), 1);
+					resourceMass = resourceMass == 0 ? 1 : resourceMass;
 					toSell = (long)Math.ceil((double)surplus/(double)resourceMass);
 				}
 
