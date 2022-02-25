@@ -121,7 +121,13 @@ public class PlayerDelete implements AdminPlugin
 		//Sicherheitsabfrage
 		if(!conf.equals("ok"))
 		{
-			echo.append("<a style=\"font-size:16px\" class=\"error\" href=\"javascript:DS.ask('Spieler "+user.getName()+" ("+user.getId()+"), inaktiv seit "+user.getInactivity()+" Ticks, wirklich löschen?','")
+			echo.append("<a style=\"font-size:16px\" class=\"error\" href=\"javascript:DS.ask('Spieler: "+user.getName()+" ("+user.getId()+")\n"
+																																											 +"Allianz: "+(user.getAlly()!=null?user.getAlly().getName():"keine")+"\n"
+																																											 +"Login: "+user.getUN()+"\n"
+																																											 +"E-Mail: "+user.getEmail()+"\n"
+																																											 +"Angemeldet seit: "+user.getSignup()+"\n"
+																																											 +"inaktiv seit "+user.getInactivity()+" Ticks\n"
+																																											 +"\nwirklich löschen?','")
 			.append(Common.buildUrl("admin", "namedplugin",getClass().getName(), "userid", user.getId(), "conf", "ok")).append("');\">Spieler löschen</a><br />");
 			return;
 		}
