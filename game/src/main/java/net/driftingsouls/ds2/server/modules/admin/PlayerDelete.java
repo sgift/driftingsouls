@@ -25,6 +25,7 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -56,11 +57,11 @@ public class PlayerDelete implements AdminPlugin
 		org.hibernate.Session db = context.getDB();
 
 		int userid = context.getRequest().getParameterInt("userid");
+		String conf = context.getRequest().getParameterString("conf");
 
 		if( userid == 0 )
 		{
 			echo.append("<div class='gfxbox' style='width:440px;text-align:center'>");
-			echo.append("Hinweis: Es gibt KEINE Sicherheitsabfrage!<br />\n");
 			echo.append("<form action=\"./ds\" method=\"post\">");
 			echo.append("<table class=\"noBorderX\">\n");
 			echo.append("<tr><td class=\"noBorderX\" width=\"60\">Userid:</td><td class=\"noBorderX\">");
@@ -69,6 +70,7 @@ public class PlayerDelete implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderX\" colspan=\"2\" align=\"center\">");
 			echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
+			echo.append("<input type=\"hidden\" name=\"conf\" value=\"false\" />\n");
 			echo.append("<input type=\"submit\" value=\"l&ouml;schen\" style=\"width:100px\"/></td></tr>");
 			echo.append("</table>\n");
 			echo.append("</form>");
@@ -77,7 +79,7 @@ public class PlayerDelete implements AdminPlugin
 			return;
 		}
 
-		log.info("Loesche Spieler "+userid);
+		log.info("Beginne Loeschung Spieler "+userid);
 
 		echo.append("<div class='gfxbox' style='width:540px'>");
 		User user = (User)db.get(User.class, userid);
@@ -116,6 +118,15 @@ public class PlayerDelete implements AdminPlugin
 			return;
 		}
 
+		//Sicherheitsabfrage
+		if(!conf.equals("ok"))
+		{
+			echo.append("<a style=\"font-size:16px\" class=\"error\" href=\"javascript:DS.ask('Spieler "+user.getName()+" ("+user.getId()+"), inaktiv seit "+user.getInactivity()+" Ticks, wirklich löschen?','")
+			.append(Common.buildUrl("admin", "namedplugin",getClass().getName(), "userid", user.getId(), "conf", "ok")).append("');\">Spieler löschen</a><br />");
+			return;
+		}
+
+		log.info("Loesche Spieler "+userid);
 		long count;
 
 		if( user.getAlly() != null )
