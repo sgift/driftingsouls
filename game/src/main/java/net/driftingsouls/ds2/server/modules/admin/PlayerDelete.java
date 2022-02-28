@@ -129,8 +129,8 @@ public class PlayerDelete implements AdminPlugin
 			echo.append("<tr><td class=\"noBorderX\" width=\"60\">Allianz:</td><td class=\"noBorderX\">"+ (user.getAlly()!=null?user.getAlly().getName():"keine")+"</td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\" width=\"60\">Login:</td><td class=\"noBorderX\">"+ user.getUN()+"</td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\" width=\"60\">E-Mail:</td><td class=\"noBorderX\">"+ user.getEmail()+"</td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\" width=\"60\">Angemeldet seit:</td><td class=\"noBorderX\">"+ +user.getSignup()+"</td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\" width=\"60\">Inaktiv seit:</td><td class=\"noBorderX\">"+ Common.date("d.m.Y H:i:s", user.getSignup())+" Ticks</td></tr>\n");
+			echo.append("<tr><td class=\"noBorderX\" width=\"60\">Angemeldet seit:</td><td class=\"noBorderX\">"+  Common.date("d.m.Y H:i:s", user.getSignup()) +"</td></tr>\n");
+			echo.append("<tr><td class=\"noBorderX\" width=\"60\">Inaktiv seit:</td><td class=\"noBorderX\">"+ user.getInactivity() +" Ticks</td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\" colspan=\"2\" align=\"center\">");
 			echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
