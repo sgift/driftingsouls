@@ -79,7 +79,7 @@ public class PlayerDelete implements AdminPlugin
 			return;
 		}
 
-		log.info("Beginne Loeschung Spieler "+userid);
+
 
 		echo.append("<div class='gfxbox' style='width:540px'>");
 		User user = (User)db.get(User.class, userid);
@@ -121,18 +121,29 @@ public class PlayerDelete implements AdminPlugin
 		//Sicherheitsabfrage
 		if(!conf.equals("ok"))
 		{
-			echo.append("<a style=\"font-size:16px\" class=\"error\" href=\"javascript:DS.ask('Spieler: "+user.getName()+" ("+user.getId()+")\n"
-																																											 +"Allianz: "+(user.getAlly()!=null?user.getAlly().getName():"keine")+"\n"
-																																											 +"Login: "+user.getUN()+"\n"
-																																											 +"E-Mail: "+user.getEmail()+"\n"
-																																											 +"Angemeldet seit: "+user.getSignup()+"\n"
-																																											 +"inaktiv seit "+user.getInactivity()+" Ticks\n"
-																																											 +"\nwirklich löschen?','")
-			.append(Common.buildUrl("admin", "namedplugin",getClass().getName(), "userid", user.getId(), "conf", "ok")).append("');\">Spieler löschen</a><br />");
+
+			echo.append("<div class='gfxbox' style='width:440px;text-align:center'>");
+			echo.append("<form action=\"./ds\" method=\"post\">");
+			echo.append("<table class=\"noBorderX\">\n");
+			echo.append("<tr><td class=\"noBorderX\" width=\"60\">Spieler:</td><td class=\"noBorderX\">"+ user.getName() + "("+user.getId()+")"+"</td></tr>\n");
+			echo.append("<tr><td class=\"noBorderX\" width=\"60\">Allianz:</td><td class=\"noBorderX\">"+ (user.getAlly()!=null?user.getAlly().getName():"keine")+"</td></tr>\n");
+			echo.append("<tr><td class=\"noBorderX\" width=\"60\">Login:</td><td class=\"noBorderX\">"+ user.getUN()+"</td></tr>\n");
+			echo.append("<tr><td class=\"noBorderX\" width=\"60\">E-Mail:</td><td class=\"noBorderX\">"+ user.getEmail()+"</td></tr>\n");
+			echo.append("<tr><td class=\"noBorderX\" width=\"60\">Angemeldet seit:</td><td class=\"noBorderX\">"+ +user.getSignup()+"</td></tr>\n");
+			echo.append("<tr><td class=\"noBorderX\" width=\"60\">Inaktiv seit:</td><td class=\"noBorderX\">"+ Common.date("d.m.Y H:i:s", user.getSignup())+" Ticks</td></tr>\n");
+			echo.append("<tr><td class=\"noBorderX\" colspan=\"2\" align=\"center\">");
+			echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />");
+			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
+			echo.append("<input type=\"hidden\" name=\"conf\" value=\"ok\" />\n");
+			echo.append("<input type=\"hidden\" name=\"userid\" value=\""+userid+"\" />\n");
+			echo.append("<input type=\"submit\" value=\"l&ouml;schen\" style=\"width:100px\"/></td></tr>");
+			echo.append("</table>\n");
+			echo.append("</form>");
+			echo.append("</div>");
 			return;
 		}
 
-		log.info("Loesche Spieler "+userid);
+		log.info("Beginne Loeschung Spieler "+userid);
 		long count;
 
 		if( user.getAlly() != null )
