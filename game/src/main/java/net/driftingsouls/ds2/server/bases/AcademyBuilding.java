@@ -382,7 +382,7 @@ public class AcademyBuilding extends DefaultBuilding {
 				academy.rescheduleQueue();
 				if(offid > 0 )
 				{
-					if( !academy.isOffizierScheduled(offid))
+					if( !academy.isOffizierScheduled(offid) && offizier != null)
 					{
 						offizier.setTraining(false);
 					}
