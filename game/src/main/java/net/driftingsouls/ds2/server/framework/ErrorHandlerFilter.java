@@ -125,7 +125,7 @@ public class ErrorHandlerFilter implements Filter
 	@Override
 	public void destroy()
 	{}
-	
+
 	private interface ErrorReporter
 	{
 		void reportTickInProgress(TickInProgressException e) throws IOException;
@@ -135,11 +135,11 @@ public class ErrorHandlerFilter implements Filter
 		void reportInVacation(AccountInVacationModeException e) throws IOException;
 		void reportUnexpected(Throwable t) throws IOException;
 	}
-	
+
 	private static class HtmlErrorReporter implements ErrorReporter
 	{
 		private final ServletResponse response;
-		
+
 		HtmlErrorReporter(ServletResponse response)
 		{
 			this.response = response;
@@ -187,13 +187,26 @@ public class ErrorHandlerFilter implements Filter
 		{
 			printBoxedErrorMessage(response, "Ein genereller Fehler ist aufgetreten. Die Entwickler arbeiten daran, ihn zu beheben.");
 		}
-		
+
 		private void redirectToPortal(ServletResponse response) throws IOException
 		{
 			Writer sb = response.getWriter();
 			sb.append("<script type=\"text/javascript\">\n");
+			//URL holen
 			sb.append("var url=parent.location.href;\n");
-			sb.append("parent.location.href=url.substring(0,url.indexOf('?'));");
+			sb.append("var index=url.indexOf('?');\n");
+			//ist ein ? in der URL enthalten?
+			sb.append("if(index>0){\n");
+			//dann url bis zum Fragezeichen kuerzen
+			sb.append("  url=url.substring(0,index);");
+			sb.append("}\n");
+			//endet sie auf 'ds'?
+			sb.append("else if(url.endsWith('ds')){\n");
+			//dann das 'ds' abschneiden, damit wir keine Endlosschleife haben
+			sb.append("  url=url.slice(0,-2);\n");
+			sb.append("}\n");
+			//und jetzt zur Seite gehen
+			sb.append("parent.location.href=url;");
 			sb.append("</script>");
 			printBoxedErrorMessage("Du musst eingeloggt sein, um diese Seite zu sehen.", sb);
 		}
@@ -214,11 +227,11 @@ public class ErrorHandlerFilter implements Filter
 			sb.append("</div>\n");
 		}
 	}
-	
+
 	private static class JsonErrorReporter implements ErrorReporter
 	{
 		private final ServletResponse response;
-		
+
 		JsonErrorReporter(ServletResponse response)
 		{
 			this.response = response;
@@ -284,7 +297,7 @@ public class ErrorHandlerFilter implements Filter
 			obj.message.cls = t.getClass().getSimpleName();
 			respondWithObject(obj);
 		}
-		
+
 		private void respondWithObject(ViewMessage obj) throws IOException
 		{
 			Writer w = response.getWriter();
