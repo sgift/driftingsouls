@@ -238,7 +238,11 @@ public class ShipType implements ShipTypeData {
 
 	@Override
 	public Cargo getProduces() {
-		return produces;
+		if(produces == null)
+		{
+			return new UnmodifiableCargo(new Cargo());
+		}
+		return new UnmodifiableCargo(produces);
 	}
 
 	/**

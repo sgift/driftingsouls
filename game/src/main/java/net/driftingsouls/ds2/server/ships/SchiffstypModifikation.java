@@ -354,7 +354,11 @@ public class SchiffstypModifikation
 	 */
 	public Cargo getProduces()
 	{
-		return produces;
+		if(produces == null)
+		{
+			return new UnmodifiableCargo(new Cargo());
+		}
+			return new UnmodifiableCargo(produces);
 	}
 
 	/**
@@ -985,7 +989,7 @@ public class SchiffstypModifikation
 
 		@Override
 		public Cargo getProduces() {
-			Cargo value = inner.getProduces();
+			Cargo value = new Cargo(inner.getProduces());
 			value.addCargo(SchiffstypModifikation.this.getProduces());
 			return value;
 		}
