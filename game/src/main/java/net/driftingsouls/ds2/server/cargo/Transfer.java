@@ -37,47 +37,48 @@ public final class Transfer {
 		if( to == null ) {
 			throw new IllegalArgumentException("To may not be null.");
 		}
-		
+
 		if( from == null ) {
 			throw new IllegalArgumentException("From may not be null.");
 		}
-		
+
 		if( resource == null ) {
 			throw new IllegalArgumentException("Resource may not be null.");
 		}
-		
+
 		if( count <= 0 ) {
 			throw new IllegalArgumentException("Count must be strictly positive.");
 		}
-		
+
 		if( !to.getLocation().equals(from.getLocation()) ) {
 			return "FEHLER: Objekte sind an verschiedenen Positionen.\n";
 		}
-		
+
 		Cargo fromCargo = from.getCargo();
 		Cargo toCargo = to.getCargo();
 		long countOnShip = fromCargo.getResourceCount(resource);
 		if( count > countOnShip ) {
 			count = countOnShip;
 		}
-		
+
 		long massOfCount = Cargo.getResourceMass(resource, count);
-		
+		massOfCount = massOfCount == 0 ? 1 : massOfCount;
+
 		long maxCargo = to.getMaxCargo();
 		if( massOfCount > maxCargo ) {
 			count = maxCargo/(massOfCount/count);
 		}
-		
+
 		if( count <= 0 ) {
 			return "";
 		}
-		
+
 		fromCargo.substractResource(resource, count);
 		toCargo.addResource(resource, count);
-		
+
 		from.setCargo(fromCargo);
 		to.setCargo(toCargo);
-		
+
 		return "Transferiere "+count+"*"+resource+"\n";
 	}
 }

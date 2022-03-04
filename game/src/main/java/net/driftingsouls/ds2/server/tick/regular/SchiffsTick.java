@@ -22,13 +22,18 @@ import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
+import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
+import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
+import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.*;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.framework.db.batch.UnitOfWork;
 import net.driftingsouls.ds2.server.ships.*;
@@ -241,6 +246,9 @@ public class SchiffsTick extends TickController {
 		// produziere Nahrung
 		produziereNahrung(shipd, shiptd, shipc);
 
+		//poduziere Items
+		produziereItems(shipd, shiptd, shipc);
+
 		berechneNahrungsverbrauch(shipd, shiptd, feedingBases);
 
 		//Damage ships which don't have enough crew
@@ -313,7 +321,9 @@ public class SchiffsTick extends TickController {
 			shipd.setNahrungCargo(speicher);
 			if( Cargo.getResourceMass( Resources.NAHRUNG, rest ) > (shiptd.getCargo() - shipc.getMass()) )
 				{
-					rest = (int)( (shiptd.getCargo()-shipc.getMass())/(Cargo.getResourceMass( Resources.NAHRUNG, 1 )) );
+					long mass = Cargo.getResourceMass( Resources.NAHRUNG, 1 );
+					mass = mass == 0 ? 1 : mass;
+					rest = (int)( (shiptd.getCargo()-shipc.getMass())/(mass) );
 					this.slog("[maxcargo]");
 				}
 			shipc.addResource( Resources.NAHRUNG, rest );
@@ -322,6 +332,39 @@ public class SchiffsTick extends TickController {
 		{
 			shipd.setNahrungCargo(nahrung + hydro);
 		}
+	}
+
+	private void produziereItems(Ship shipd, ShipTypeData shiptd, Cargo shipc)
+	{
+		Cargo shipproduction = shiptd.getProduces();
+		long maxCargo = shipd.getMaxCargo();
+		for(ItemCargoEntry<Item> entry : shipproduction.getItems())
+		{
+			long amount = entry.getCount();
+			//negative Produktion nehmen wir hier erst noch mal raus, weil ich keine Ahnung habe, was sonst passiert
+			if(amount <= 0 )
+			{
+				continue;
+			}
+			long rest = shipc.getMass() + entry.getMass() - maxCargo;
+
+			//zu wenig Platz fuer die gesamte Produktion
+			if ( rest>0){
+
+			if( Cargo.getResourceMass( entry.getResourceID(), rest ) > (maxCargo - shipc.getMass()) )
+				{
+					long mass = Cargo.getResourceMass( entry.getResourceID(), 1 );
+					mass = mass == 0 ? 1 : mass;
+					rest = (int)( (shiptd.getCargo()-shipc.getMass())/ mass );
+					//nochmal absichern, nicht, dass ich irgendwo einen Fehler gemacht habe
+					amount = amount < rest ? amount : rest;
+					this.slog("[maxcargo]");
+				}
+			}
+			//und nun produzieren
+			shipc.addResource(entry.getResourceID(), amount);
+		}
+
 	}
 
 	private int sammelDeuterium(Ship shipd, ShipTypeData shiptd, Cargo shipc, int e)
@@ -342,7 +385,9 @@ public class SchiffsTick extends TickController {
 
 				if( Cargo.getResourceMass( Resources.DEUTERIUM, tmpe * deutfactor ) > (shiptd.getCargo() - shipc.getMass()) )
 				{
-					tmpe = (int)( (shiptd.getCargo()-shipc.getMass())/(deutfactor*Cargo.getResourceMass( Resources.DEUTERIUM, 1 )) );
+					long mass = Cargo.getResourceMass( Resources.DEUTERIUM, 1 );
+					mass = mass == 0 ? 1 : mass;
+					tmpe = (int)( (shiptd.getCargo()-shipc.getMass())/(deutfactor*mass) );
 					this.slog("[maxcargo]");
 				}
 				long saugdeut = tmpe * deutfactor;

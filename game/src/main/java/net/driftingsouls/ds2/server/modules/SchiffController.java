@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.cargo.modules.Module;
@@ -27,6 +28,7 @@ import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleItemModule;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Weapons;
+import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
@@ -712,7 +714,7 @@ public class SchiffController extends Controller
 		mo.put("getPanzerung", "<img align='middle' src='data/interface/schiffe/panzerplatte.png' alt='' />Panzerung ");
 		mo.put("getTorpedoDef", "Torpedoabwehr ");
 		mo.put("getCrew", "<img align='middle' src='data/interface/besatzung.gif' alt='' />Crew ");
-		mo.put("getHydro", "<img align='middle' src='" + Cargo.getResourceImage(Resources.NAHRUNG) + "' alt='' />Produktion ");
+		mo.put("getHydro", "<img align='middle' src='" + Cargo.getResourceImage(Resources.NAHRUNG) + "' alt='' />Nahrungsspeicherproduktion ");
 		mo.put("getSensorRange", "<img align='middle' src='data/interface/schiffe/sensorrange.png' alt='' />Sensorreichweite ");
 		mo.put("getDeutFactor", "Tanker: <img align='middle' src='" + Cargo.getResourceImage(Resources.DEUTERIUM) + "' alt='' />");
 		mo.put("getReCost", "Wartungskosten ");
@@ -949,7 +951,34 @@ public class SchiffController extends Controller
 					log.error("Ungueltige Property " + method, e);
 				}
 			}
+			//Dann berechnen wir doch mal die Produktion, die durch Module hinzukommt und schreiben den Effekt weg
+			String produktion = "";
 
+			//for(ItemCargoEntry<Item> item : type.getProduces().getItems())
+			for(ResourceEntry res : type.getProduces().getResourceList())
+			{
+				//nur hinzufuegen, wenn das Modul auch wirklich produziert
+				long mod_count = type.getProduces().getResourceCount(res.getId());
+				long org_count = basetype.getProduces().getResourceCount(res.getId());
+				if(mod_count - org_count  != 0)
+				{
+					{
+						produktion+="<img style=\"vertical-align:middle\" src=\""+Cargo.getResourceImage(res.getId())+"\" alt=\"\" />"+res.getCount1();
+						if (mod_count > org_count)
+						{
+							produktion += " (<span class='nobr' style='color:green'>+" + (mod_count - org_count) + "</span>)<br />";
+						}
+						else if (mod_count < org_count)
+						{
+							produktion += " (<span class='nobr' style='color:red'>" + (mod_count - org_count) + "</span>)<br />";
+						}
+					}
+				}
+			}
+			if (!produktion.equals(""))
+			{
+				tooltiplines.add("Produktion<br /> "+produktion);
+			}
 			// Weapons
 			Map<String, Integer> weaponlist = type.getWeapons();
 			Map<String, Integer> defweaponlist = basetype.getWeapons();

@@ -202,6 +202,7 @@ public class SchiffInfoController extends Controller
 
 		// Flags auflisten
 		zeigeFlagListeAn(t, ship);
+		zeigeProduktionsListeAn(t, ship);
 
 		// Module
 		StringBuilder moduletooltip = new StringBuilder();
@@ -257,6 +258,7 @@ public class SchiffInfoController extends Controller
 				"shiptype.maxunitsize", ship.getMaxUnitSize(),
 				"shiptype.deutfactor", ship.getDeutFactor(),
 				"shiptype.hydro", Common.ln(ship.getHydro()),
+				"shiptype.produces", (ship.getProduces() == null || ship.getProduces().isEmpty())?0:1,
 				"shiptype.flagschiff", shipBuildData != null && shipBuildData.isFlagschiff(),
 				"shiptype.recost", Common.ln(ship.getReCost()),
 				"shiptype.torpedodef", ship.getTorpedoDef(),
@@ -291,6 +293,18 @@ public class SchiffInfoController extends Controller
 		}
 
 		return t;
+	}
+
+	private void zeigeProduktionsListeAn(TemplateEngine t, ShipType ship)
+	{
+		t.setBlock("_SCHIFFINFO", "shiptypeproduces.listitem", "shiptypeproduces.list");
+		t.setVar("shiptypeproduces.list", "");
+		if(ship.getProduces() == null)
+		{
+			return;
+		}
+		ResourceList reslist = ship.getProduces().getResourceList();
+		Resources.echoResList(t, reslist, "shiptypeproduces.list");
 	}
 
 	private void zeigeFlagListeAn(TemplateEngine t, ShipType ship)

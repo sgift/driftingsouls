@@ -204,7 +204,7 @@ public class PlayerStarmap extends PublicStarmap
 		}
 		for(Ship ship : sectorShips)
 		{
-			if (ship.getOwner().equals(user))
+			if (ship.getOwner().equals(user) || relations.isOnly(ship.getOwner(), Relation.FRIEND))
 			{
 				return true;
 			}
@@ -442,7 +442,7 @@ public class PlayerStarmap extends PublicStarmap
 					//Ships in sector always get priority for this sector to ensure best scan result for sector scans
 					this.scannableNebulaLocations.put(nebulaScanShip.getLocation(), nebulaScanShip);
 			}
-		}	
+		}
 	}
 
 	private Ship naechstesSchiff(Location loc, Ship ship1, Ship ship2)
@@ -464,7 +464,7 @@ public class PlayerStarmap extends PublicStarmap
 		}
 		return ship2;
 	}
-	
+
 	private Ship findBestScanShip(User user, Ally ally,  List<Ship> ships)
 	{
 		int curScanRange = -1;

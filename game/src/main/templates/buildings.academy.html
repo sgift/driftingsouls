@@ -9,7 +9,7 @@
 <br />
 <br />
 {if academy.show.trainnewoffi}
-	<div class="gfxbox" style="width:600px">
+	<div class="gfxbox" style="width:800px">
 		{if trainnewoffi.error}
 			<span class="error">{trainnewoffi.error}</span><br />
 		{/endif}
@@ -20,10 +20,13 @@
 	<br />
 {/endif}
 {if academy.show.trainoffi}
-	<div class="gfxbox" style="width:600px">
+	<div class="gfxbox" style="width:800px">
 		Trainiere {offizier.name}:<br />
-		verbessere {offizier.train.ability}
-		 - Kosten: <img src="data/interface/time.gif" alt="Dauer" />{offizier.train.dauer}
+		<!-- BEGIN academy.train.listitem -->
+		verbessere {offizier.train.ability} um {offizier.train.lvl} Stufen <br />
+		<!-- END academy.train.listitem -->
+		<br />
+		 - Gesamtkosten: <img src="data/interface/time.gif" alt="Dauer" />{offizier.train.dauer}
 		<img src="{resource.silizium.image}" alt="" />{offizier.train.silizium} <img src="{resource.nahrung.image}" alt="" />{offizier.train.nahrung}<br />
 
 		{if trainoffi.error}
@@ -32,7 +35,19 @@
 		{if trainoffi.conf}
 			<br />
 			<div style="text-align:center">
-				<a class="back" href="./ds?module=building&amp;col={base.id}&amp;field={base.field}&amp;train={trainoffi.trainid}&amp;off={trainoffi.id}&amp;conf=ok">Training durchf&uuml;hren</a>
+				<form action="./ds" method="post">
+					<input type="hidden" name="waffen" value="{trainoffi.waf}"/>
+					<input type="hidden" name="navigation" value="{trainoffi.nav}"/>
+					<input type="hidden" name="technik" value="{trainoffi.tec}"/>
+					<input type="hidden" name="sicherheit" value="{trainoffi.sec}"/>
+					<input type="hidden" name="kommando" value="{trainoffi.com}"/>
+					<input type="hidden" name="off" value="{trainoffi.id}"/>
+					<input type="hidden" name="col" value="{base.id}"/>
+					<input type="hidden" name="field" value="{base.field}"/>
+					<input type="hidden" name="module" value="building"/>
+					<input type="hidden" name="conf" value="ok"/>
+					<input type="submit" value="Training durchf&uuml;hren"/>
+				</form>
 			</div>
 		{/endif}
 		{if trainoffi.train}
@@ -42,9 +57,9 @@
 	<br />
 {/endif}
 {if academy.show.training}
-	<div class="gfxbox" style="width:600px">
+	<div class="gfxbox" style="width:800px">
 	 	<h3>Bildet aus</h3>
-	 	<table class=noBorderX" border="0" style="width:100%">
+	 	<table class="noBorderX" border="0" style="width:100%">
 	 	<tr>
 	 		<td class="noBorderX">Name</td>
 	 		<td class="noBorderX">Ausbildung</td>
@@ -86,7 +101,7 @@
 	 <br />
 {/endif}
 {if academy.show.trainnew}
-	<div class="gfxbox" style="width:600px">
+	<div class="gfxbox" style="width:800px">
 
 	<h3>Neuen Offizier ausbilden</h3>
 	Kosten: <img src="data/interface/time.gif" alt="" />{dauer.costs} <img src="{resource.silizium.image}" alt="" />{resource.silizium.costs} <img src="{resource.nahrung.image}" alt="" />{resource.nahrung.costs}<br /><br />
@@ -117,7 +132,7 @@
 {/endif}
 {if academy.show.offilist}
 	{if academy.offilistausb.list}
-		<div class="gfxbox" style="width:600px">
+		<div class="gfxbox" style="width:800px">
 		<h3>Offiziere in Ausbildung</h3>
 		<table class="noBorderX" border="1">
 		<tr>
@@ -137,43 +152,33 @@
 			</td>
 
 			<td class="noBorderX" align="center">
-			{if offilist.allowactions}
-				<a class="academy" href="./ds?module=building&amp;col={base.id}&amp;field={base.field}&amp;train=1&amp;off={offizier.id}">{offizier.ing}</a>
-			{else}
-				{offizier.ing}
-			{/endif}
+
+				{offizier.ing} {if offizier.toing > 0} -> {offizier.toing}{/endif}
+
 			</td>
 
 			<td class="noBorderX" align="center">
-			{if offilist.allowactions}
-				<a class="academy" href="./ds?module=building&amp;col={base.id}&amp;field={base.field}&amp;train=2&amp;off={offizier.id}">{offizier.waf}</a>
-			{else}
-				{offizier.waf}
-			{/endif}
+
+				{offizier.waf} {if offizier.towaf > 0} -> {offizier.towaf}{/endif}
+
 			</td>
 
 			<td class="noBorderX" align="center">
-			{if offilist.allowactions}
-				<a class="academy" href="./ds?module=building&amp;col={base.id}&amp;field={base.field}&amp;train=3&amp;off={offizier.id}">{offizier.nav}</a>
-			{else}
-				{offizier.nav}
-			{/endif}
+
+				{offizier.nav} {if offizier.tonav > 0} -> {offizier.tonav}{/endif}
+
 			</td>
 
 			<td class="noBorderX" align="center">
-			{if offilist.allowactions}
-				<a class="academy" href="./ds?module=building&amp;col={base.id}&amp;field={base.field}&amp;train=4&amp;off={offizier.id}">{offizier.sec}</a>
-			{else}
-				{offizier.sec}
-			{/endif}
+
+				{offizier.sec} {if offizier.tosec > 0} -> {offizier.tosec}{/endif}
+
 			</td>
 
 			<td class="noBorderX" align="center">
-			{if offilist.allowactions}
-				<a class="academy" href="./ds?module=building&amp;col={base.id}&amp;field={base.field}&amp;train=5&amp;off={offizier.id}">{offizier.com}</a>
-			{else}
-				{offizier.com}
-			{/endif}
+
+				{offizier.com} {if offizier.tocom > 0} -> {offizier.tocom}{/endif}
+
 			</td>
 
 			<td class="noBorderX">{offizier.special}</td>
@@ -184,67 +189,76 @@
 	{/endif}
 	<br />
 	{if academy.offilist.list}
-		<div class="gfxbox" style="width:600px">
+		<div class="gfxbox" style="width:800px">
 		<h3>Anwesende Offiziere</h3>
 		<table class="noBorderX" border="1">
 		<tr>
 			<td class="noBorderX">Name</td>
+			<td class="noBorderX">Spezial</td>
 			<td class="noBorderX">Technik</td>
 			<td class="noBorderX">Waffen</td>
 			<td class="noBorderX">Navigation</td>
 			<td class="noBorderX">Sicherheit</td>
 			<td class="noBorderX">Kommandoeffizienz</td>
-			<td class="noBorderX">Spezial</td>
+			<td class="noBorderX">Aktion</td>
 		</tr>
 		<!-- BEGIN academy.offilist.listitem -->
-			<tr>
-			<td class="noBorderX" style="white-space:nowrap">
-			<img style="vertical-align:middle" src="{offizier.picture}" alt="" />
-			<a class="academy" href="./ds?module=choff&amp;off={offizier.id}">{offizier.name}</a>
-			</td>
+		<tr>
+			<form action="./ds" method="post">
+				<td class="noBorderX" style="white-space:nowrap">
+					<img style="vertical-align:middle" src="{offizier.picture}" alt="" />
+					<a class="academy" href="./ds?module=choff&amp;off={offizier.id}">{offizier.name}</a>
+					<input type="hidden" name="off" value="{offizier.id}"/>
+					<input type="hidden" name="col" value="{base.id}"/>
+					<input type="hidden" name="field" value="{base.field}"/>
+					<input type="hidden" name="module" value="building"/>
+				</td>
+				<td class="noBorderX">{offizier.special}</td>
 
-			<td class="noBorderX" align="center">
-			{if offilist.allowactions}
-				<a class="academy" href="./ds?module=building&amp;col={base.id}&amp;field={base.field}&amp;train=1&amp;off={offizier.id}">{offizier.ing}</a>
-			{else}
-				{offizier.ing}
-			{/endif}
-			</td>
+				<td class="noBorderX" align="center">
+				{if offilist.allowactions}
+					{offizier.ing} +<input type="number" id="technik" name="technik" min="0" step="10" max="1000" style="width:50px;text-align: right" value="0"/>
+				{else}
+					{offizier.ing}
+				{/endif}
+				</td>
 
-			<td class="noBorderX" align="center">
-			{if offilist.allowactions}
-				<a class="academy" href="./ds?module=building&amp;col={base.id}&amp;field={base.field}&amp;train=2&amp;off={offizier.id}">{offizier.waf}</a>
-			{else}
-				{offizier.waf}
-			{/endif}
-			</td>
+				<td class="noBorderX" align="center">
+				{if offilist.allowactions}
+					{offizier.waf} +<input type="number" id="waffen" name="waffen" min="0" step="10" max="1000" style="width:50px;text-align: right" value="0"/>
+				{else}
+					{offizier.waf}
+				{/endif}
+				</td>
 
-			<td class="noBorderX" align="center">
-			{if offilist.allowactions}
-				<a class="academy" href="./ds?module=building&amp;col={base.id}&amp;field={base.field}&amp;train=3&amp;off={offizier.id}">{offizier.nav}</a>
-			{else}
-				{offizier.nav}
-			{/endif}
-			</td>
+				<td class="noBorderX" align="center">
+				{if offilist.allowactions}
+					{offizier.nav} +<input type="number" id="navigation" name="navigation" min="0" step="10" max="1000" style="width:50px;text-align: right" value="0"/>
+				{else}
+					{offizier.nav}
+				{/endif}
+				</td>
 
-			<td class="noBorderX" align="center">
-			{if offilist.allowactions}
-				<a class="academy" href="./ds?module=building&amp;col={base.id}&amp;field={base.field}&amp;train=4&amp;off={offizier.id}">{offizier.sec}</a>
-			{else}
-				{offizier.sec}
-			{/endif}
-			</td>
+				<td class="noBorderX" align="center">
+				{if offilist.allowactions}
+					{offizier.sec} +<input type="number" id="sicherheit" name="sicherheit" min="0" step="10" max="1000" style="width:50px;text-align: right" value="0"/>
+				{else}
+					{offizier.sec}
+				{/endif}
+				</td>
 
-			<td class="noBorderX" align="center">
-			{if offilist.allowactions}
-				<a class="academy" href="./ds?module=building&amp;col={base.id}&amp;field={base.field}&amp;train=5&amp;off={offizier.id}">{offizier.com}</a>
-			{else}
-				{offizier.com}
-			{/endif}
-			</td>
-
-			<td class="noBorderX">{offizier.special}</td>
-			</tr>
+				<td class="noBorderX" align="center">
+				{if offilist.allowactions}
+					{offizier.com} +<input type="number" id="kommando" name="kommando" min="0" step="10" max="1000" style="width:50px;text-align: right" value="0"/>
+				{else}
+					{offizier.com}
+				{/endif}
+				</td>
+				<td>
+					<input type="submit" value="Trainieren"/>
+				</td>
+			</form>
+		</tr>
 		<!-- END academy.offilist.listitem -->
 		</table><br />
 		</div>

@@ -17,12 +17,14 @@
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 package net.driftingsouls.ds2.server.ships;
+import net.driftingsouls.ds2.server.cargo.*;
 
 import net.driftingsouls.ds2.server.config.Weapons;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
+import org.hibernate.annotations.Type;
 
 import javax.annotation.Nonnull;
 import javax.persistence.Column;
@@ -50,7 +52,7 @@ public class ShipType implements ShipTypeData {
 	 * Kennzeichnet die maximale Groesse, die ein kleines Schiff (z.B. ein Jaeger) haben kann .
 	 */
 	public static final int SMALL_SHIP_MAXSIZE = 3;
-	
+
 	@Id @GeneratedValue
 	private int id;
 	@Column(nullable = false)
@@ -86,6 +88,9 @@ public class ShipType implements ShipTypeData {
 	@Column(name="sensorrange", nullable = false)
 	private int sensorRange;
 	private int hydro;
+	@Type(type="cargo")
+	@Column(nullable = false)
+	private Cargo produces;
 	@Column(name="recost", nullable = false)
 	private int reCost;
 	@Lob
@@ -119,10 +124,10 @@ public class ShipType implements ShipTypeData {
 	private boolean versorger;
 	@Column(nullable = false)
 	private BigInteger bounty = BigInteger.ZERO;
-	
+
 	@Version
 	private int version;
-	
+
 	/**
 	 * Konstruktor.
 	 *
@@ -136,6 +141,7 @@ public class ShipType implements ShipTypeData {
 		this.modules = "";
 		this.nickname = "";
 		this.shipClass = ShipClasses.UNBEKANNT;
+		this.produces = new Cargo();
 	}
 
 	/**
@@ -164,7 +170,7 @@ public class ShipType implements ShipTypeData {
 	public long getCargo() {
 		return cargo;
 	}
-	
+
 	@Override
 	public long getNahrungCargo() {
 		return nahrungcargo;
@@ -184,7 +190,7 @@ public class ShipType implements ShipTypeData {
 	public int getCrew() {
 		return crew;
 	}
-	
+
 	@Override
 	public String getDescrip() {
 		return descrip;
@@ -199,7 +205,7 @@ public class ShipType implements ShipTypeData {
 	public int getEps() {
 		return eps;
 	}
-	
+
 	@Override
 	public java.util.EnumSet<ShipTypeFlag> getFlags() {
 		return ShipTypeFlag.parseFlags(flags);
@@ -230,6 +236,15 @@ public class ShipType implements ShipTypeData {
 		return hydro;
 	}
 
+	@Override
+	public Cargo getProduces() {
+		if(produces == null)
+		{
+			return new UnmodifiableCargo(new Cargo());
+		}
+		return new UnmodifiableCargo(produces);
+	}
+
 	/**
 	 * Gibt die ID des Schifftyps zurueck.
 	 * @return Die ID
@@ -247,7 +262,7 @@ public class ShipType implements ShipTypeData {
 	public Map<String, Integer> getMaxHeat() {
 		return Weapons.parseWeaponList(maxHeat);
 	}
-	
+
 	/**
 	 * Gibt die Modulsteckplaetze des Schiffstyps zurueck.
 	 * @return Die Modulsteckplaetze
@@ -335,7 +350,7 @@ public class ShipType implements ShipTypeData {
 	public int getTypeId() {
 		return getId();
 	}
-	
+
 	@Override
 	public Map<String, Integer> getWeapons() {
 		return Weapons.parseWeaponList(weapons);
@@ -345,22 +360,22 @@ public class ShipType implements ShipTypeData {
 	public int getWerft() {
 		return werft;
 	}
-	
+
 	@Override
 	public int getMaxUnitSize() {
 		return maxunitsize;
 	}
-	
+
 	@Override
 	public int getUnitSpace() {
 		return unitspace;
 	}
-	
+
 	@Override
 	public boolean isMilitary() {
 		return !getWeapons().isEmpty();
 	}
-	
+
 	/**
 	 * @return <code>true</code>, wenn dieses Schiff ein Versorger ist.
 	 */
@@ -368,7 +383,7 @@ public class ShipType implements ShipTypeData {
 	public boolean isVersorger() {
 		return versorger;
 	}
-	
+
 	/**
 	 * Setzt, ob es sich um einen Versorger handelt.
 	 * @param versorger <code>true</code>, falls es ein Versorger ist
@@ -387,7 +402,7 @@ public class ShipType implements ShipTypeData {
 	public ShipTypeData getType() {
 		return this;
 	}
-	
+
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		throw new CloneNotSupportedException("Diese Klasse ist unveraenderbar");
@@ -434,7 +449,7 @@ public class ShipType implements ShipTypeData {
 	public void setCargo(long cargo) {
 		this.cargo = cargo;
 	}
-	
+
 	/**
 	 * Setzt den NahrungsCargo.
 	 * @param nahrungcargo Der Nahrungscargo
@@ -537,6 +552,14 @@ public class ShipType implements ShipTypeData {
 	 */
 	public void setHydro(int hydro) {
 		this.hydro = hydro;
+	}
+
+	/**
+	 * Setzt die den Productionscargo pro Tick.
+	 * @param produces Der Cargo
+	 */
+	public void setProduces(Cargo produces) {
+		this.produces = produces;
 	}
 
 	/**
@@ -699,7 +722,7 @@ public class ShipType implements ShipTypeData {
 	public void setWerft(int werft)	{
 		this.werft = werft;
 	}
-	
+
 	/**
 	 * Setzt die maximale Groesze der Einheiten.
 	 * @param maxsize Die maximale Groesze
@@ -715,7 +738,7 @@ public class ShipType implements ShipTypeData {
 	public void setUnitSpace(int unitspace) {
 		this.unitspace = unitspace;
 	}
-	
+
 	/**
 	 * Gibt die Versionsnummer zurueck.
 	 * @return Die Nummer
@@ -740,10 +763,10 @@ public class ShipType implements ShipTypeData {
 	{
 		this.minCrew = minCrew;
 	}
-	
+
 	/**
 	 * Wahrscheinlichkeit, dass das Schiff sich in einem EMP-Nebel verfliegt.
-	 * 
+	 *
 	 * @return Zahl zwischen 0 und 1.
 	 */
 	@Override
@@ -751,10 +774,10 @@ public class ShipType implements ShipTypeData {
 	{
 		return lostInEmpChance;
 	}
-	
+
 	/**
 	 * Wahrscheinlichkeit, dass das Schiff sich in einem EMP-Nebel verfliegt.
-	 * 
+	 *
 	 * @param lostInEmpChance Zahl zwischen 0 und 1.
 	 */
 	public void setLostInEmpChance(double lostInEmpChance)

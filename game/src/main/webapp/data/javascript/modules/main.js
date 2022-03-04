@@ -102,7 +102,7 @@ var helpBox = {
 		var response = originalRequest;
 
 		if( response.indexOf('Sie muessen sich einloggen') > -1 ) {
-			location.href = DS.getUrl()+"?module=portal&action=login";
+			location.href = './portal';
 			return;
 		}
 
