@@ -221,6 +221,7 @@ public class PluendernController extends Controller
 				long massToTransfer = Cargo.getResourceMass(res.getId(), transt);
 				if (curcargoto - massToTransfer < 0)
 				{
+					massToTransfer = massToTransfer == 0 ? 1 : massToTransfer;
 					transt = (long) (curcargoto / (double) Cargo.getResourceMass(res.getId(), 1));
 
 					message.append(" - Nur noch Platz für [resource=").append(res.getId()).append("]").append(transt).append("[/resource] vorhanden");
@@ -268,6 +269,7 @@ public class PluendernController extends Controller
 				long massToTransfer = Cargo.getResourceMass(res.getId(), transf);
 				if (curcargofrom - massToTransfer < 0)
 				{
+					massToTransfer = massToTransfer == 0 ? 1 : massToTransfer;
 					transf = (long) (curcargofrom / (double) Cargo.getResourceMass(res.getId(), 1));
 
 					message.append(" - Nur noch Platz für [resource=").append(res.getId()).append("]").append(transf).append("[/resource] vorhanden");
