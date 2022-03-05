@@ -1,52 +1,57 @@
 
-.container{
+.container
+{
     display:flex;
     flex-direction:column;
-    }
-    .container-cn
-    {
-    max-width:1200px;
-    margin: 0px 20px 0px 20px
-    }
-    
-    .container.gfxbox
-    {
-    
-    }
-    body
-    {
-    background-image: url(../interface/portal/bg2.jpg);
-    background-color: rgba(0,0,0,0.85);
-    background-blend-mode: overlay;
-    }
-    .row {
-      display: -webkit-box;
-      display: -ms-flexbox;
-      display: flex;
-      -ms-flex-wrap: wrap;
-      flex-wrap: wrap;
-    }
-    .col {
-      -ms-flex-preferred-size: 0;
-      flex-basis: 0;
-      -webkit-box-flex: 1;
-      -ms-flex-positive: 1;
-      flex-grow: 1;
-      max-width: 100%;
-      position: relative;
-      width: 100%;
-      min-height: 1px;
-      padding-right: 15px;
-      padding-left: 15px;
-    }
-    .cnheader
-    {
-    display:flex;
-    flex-direction:row;
-    justify-content:space-between;
-    margin-top:10px;
-    margin-bottom:10px;
-    margin-right:26px;
-    background:
-    linear-gradient(to right, rgba(0,0,0,0.05) 0.5%, rgba(0,0,0,0.30) 99.4%, rgba(0,0,0,0.05) 0.1%);
-    }
+}
+.container-cn
+{
+max-width:1200px;
+margin: 0px 20px 0px 20px
+}
+
+.container.gfxbox
+{
+
+}
+
+.comnet-background
+{
+  background-image: url(../inteface/portal/bg2.jpg);
+  background-color: rgba(0,0,0,0.85);
+  background-blend-mode: overlay;
+}
+
+.row 
+{
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+.col 
+{
+  -ms-flex-preferred-size: 0;
+  flex-basis: 0;
+  -webkit-box-flex: 1;
+  -ms-flex-positive: 1;
+  flex-grow: 1;
+  max-width: 100%;
+  position: relative;
+  width: 100%;
+  min-height: 1px;
+  padding-right: 15px;
+  padding-left: 15px;
+}
+.cnheader
+{
+  display:flex;
+  flex-direction:row;
+  justify-content:space-between;
+  margin-top:10px;
+  margin-bottom:10px;
+  margin-right:26px;
+  background:
+  linear-gradient(to right, rgba(0,0,0,0.05) 0.5%, rgba(0,0,0,0.30) 99.4%, rgba(0,0,0,0.05) 0.1%);
+}
