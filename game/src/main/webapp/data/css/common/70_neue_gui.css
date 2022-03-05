@@ -7,7 +7,7 @@
 .container-cn
 {
 max-width:1200px;
-margin: 0px 20px 0px 20px
+margin: 0px 30px 0px 10px
 }
 
 .container.gfxbox
@@ -15,11 +15,9 @@ margin: 0px 20px 0px 20px
 
 }
 
-.comnet-background
+html, body
 {
-  background-image: url(../inteface/portal/bg2.jpg);
-  background-color: rgba(0,0,0,0.85);
-  background-blend-mode: overlay;
+  height:100%;
 }
 
 .row 

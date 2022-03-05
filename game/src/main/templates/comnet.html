@@ -1,12 +1,18 @@
 
-<div class="comnet-background">
-	<div id="error-placeholder">
-	</div>
-	<div style="display:flex;justify-content:center;">
-		<div class="container container-cn">
-			<div class="cnheader" style="">
-				<div class="">
-					<div style="font-weight:bold">Com-net - Version 6<br /></div>
+<style type="text/css"> body:first-of-type
+	{
+		background-image: url(https://ds2.drifting-souls.net/data/interface/portal/bg2.jpg);
+		background-color: rgba(0,0,0,0.65);
+		background-blend-mode: overlay;
+	} 
+</style>
+<div id="error-placeholder">
+</div>
+<div style="display:flex;justify-content:center;">
+	<div class="container container-cn">
+		<div class="cnheader" style="">
+			<div class="">
+				<div style="font-weight:bold">Com-net - Version 6<br />
 					{if show.inputform}
 						<div>
 							{if show.vorschau}
@@ -18,44 +24,44 @@
 					{/endif}
 					{if show.vorschau}
 						<div class="gfxbox" style="width:100%">
-						<table width="100%" cellspacing="3" cellpadding="3" class="noBorderX">
-						<tr>
-							<td style="width:90px; text-align:center; vertical-align:top" class="noBorderX">
-								{!link_to $post.name, default, module:userprofile, css_class:profile, user:$post.id}
-								<span class="tooltip">
-									<img align="middle" src="{user.rang.image}" alt=""/>
-									<span class="ttcontent">
-										{user.rang.name}
-									</span>
-								</span>
-								{if user.id < 0}
-									[NPC]
-								{/endif}
-								<br /><br />
-								<img src="data/logos/user/{post.pic}.gif" width="75" height="75" alt="logo" />
-								{if post.allypic}
-									<img src="data/logos/ally/{post.allypic}.gif" width="75" height="75" alt="Allylogo" />
-								{/endif}
-							</td>
-							<td class="noBorderX" valign="top">
-								<table class="noBorderX" width="100%">
+							<table width="100%" cellspacing="3" cellpadding="3" class="noBorderX">
 								<tr>
-									<td style="height:10px; width:20%; text-align:center" class="noBorderX">Post {post.postid}</td>
-									<td style="height:10px; width:60%; text-align:center" class="noBorderX">
-										Titel: {post.title}
+									<td style="width:90px; text-align:center; vertical-align:top" class="noBorderX">
+										{!link_to $post.name, default, module:userprofile, css_class:profile, user:$post.id}
+										<span class="tooltip">
+											<img align="middle" src="{user.rang.image}" alt=""/>
+											<span class="ttcontent">
+												{user.rang.name}
+											</span>
+										</span>
+										{if user.id < 0}
+											[NPC]
+										{/endif}
+										<br /><br />
+										<img src="data/logos/user/{post.pic}.gif" width="75" height="75" alt="logo" />
+										{if post.allypic}
+											<img src="data/logos/ally/{post.allypic}.gif" width="75" height="75" alt="Allylogo" />
+										{/endif}
 									</td>
-									<td style="height:10px; width:20%; text-align:center" class="noBorderX">{post.time}<br /><span style="color:yellow;">[{post.ingametime}]</span></td>
-								</tr>
-								<tr>
-									<td class="noBorderX" colspan="3">
-										<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
-										{post.text}
+									<td class="noBorderX" valign="top">
+										<table class="noBorderX" width="100%">
+											<tr>
+												<td style="height:10px; width:20%; text-align:center" class="noBorderX">Post {post.postid}</td>
+												<td style="height:10px; width:60%; text-align:center" class="noBorderX">
+													Titel: {post.title}
+												</td>
+												<td style="height:10px; width:20%; text-align:center" class="noBorderX">{post.time}<br /><span style="color:yellow;">[{post.ingametime}]</span></td>
+											</tr>
+											<tr>
+												<td class="noBorderX" colspan="3">
+													<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+													{post.text}
+												</td>
+											</tr>
+										</table>
 									</td>
 								</tr>
-								</table>
-							</td>
-						</tr>
-						</table>
+							</table>
 						</div>
 						<div>
 							<br /><br />
@@ -64,32 +70,32 @@
 					{if show.searchform}
 						<div class="gfxbox" style="width:590px">
 							<form method="post" action="./ds">
-							<table cellpadding="3" cellspacing="3" class="noBorder">
-							<tr>
-								<td class="noBorderX">Suchbereich</td>
-								<td class="noBorderX">
-									<select name="searchtype">
-										<option value="Titel">Titel</option>
-										<option value="Inhalt">Inhalt</option>
-										<option value="UserId">Sender-ID</option>
-									</select>
-								</td>
-							</tr>
-							<tr>
-								<td class="noBorderX" valign="top">Suchtext</td>
-								<td class="noBorderX">
-									<input type="text" name="search" style="width:422px" value="{post.raw.text}" />
-								</td>
-							</tr>
-							<tr>
-								<td align="center" class="noBorderX">&nbsp;</td>
-								<td align="center" class="noBorderX">
-									{!form_create_hidden search, channel:$channel.id}
-									<input name="back" type="hidden" value="0" />
-									<input type="submit" style="width:300px" value="suchen" />
-								</td>
-							</tr>
-							</table>
+								<table cellpadding="3" cellspacing="3" class="noBorder">
+									<tr>
+										<td class="noBorderX">Suchbereich</td>
+										<td class="noBorderX">
+											<select name="searchtype">
+												<option value="Titel">Titel</option>
+												<option value="Inhalt">Inhalt</option>
+												<option value="UserId">Sender-ID</option>
+											</select>
+										</td>
+									</tr>
+									<tr>
+										<td class="noBorderX" valign="top">Suchtext</td>
+										<td class="noBorderX">
+											<input type="text" name="search" style="width:422px" value="{post.raw.text}" />
+										</td>
+									</tr>
+									<tr>
+										<td align="center" class="noBorderX">&nbsp;</td>
+										<td align="center" class="noBorderX">
+											{!form_create_hidden search, channel:$channel.id}
+											<input name="back" type="hidden" value="0" />
+											<input type="submit" style="width:300px" value="suchen" />
+										</td>
+									</tr>
+								</table>
 							</form>
 							<br />
 							<div style="text-align:center">
@@ -103,32 +109,32 @@
 					{if show.inputform}
 						<div class="gfxbox" style="width:590px">
 							<form method="post" action="./ds">
-							<table cellpadding="3" cellspacing="3" class="noBorder">
-							<tr>
-								<td class="noBorderX">Titel</td>
-								<td class="noBorderX">
-									<input type="text" name="head" style="width:422px" value="{post.raw.title}" />
-								</td>
-							</tr>
-							<tr>
-								<td class="noBorderX" valign="top">Text</td>
-								<td class="noBorderX">
-									<textarea name="text" style="width:422px" cols="60" rows="20">{post.raw.text}</textarea>
-								</td>
-							</tr>
-							<tr>
-								<td align="center" class="noBorderX">&nbsp;</td>
-								<td align="center" class="noBorderX">
-									{!form_create_hidden -, channel:$channel.id}
-									{if show.vorschau}
-										<input type="submit" name="action" style="width:200px" value="vorschau" />
-										<input type="submit" name="action" style="width:200px" value="senden" />
-									{else}
-										<input type="submit" name="action" style="width:300px" value="vorschau" />
-									{/endif}
-								</td>
-							</tr>
-							</table>
+								<table cellpadding="3" cellspacing="3" class="noBorder">
+									<tr>
+										<td class="noBorderX">Titel</td>
+										<td class="noBorderX">
+											<input type="text" name="head" style="width:422px" value="{post.raw.title}" />
+										</td>
+									</tr>
+									<tr>
+										<td class="noBorderX" valign="top">Text</td>
+										<td class="noBorderX">
+											<textarea name="text" style="width:422px" cols="60" rows="20">{post.raw.text}</textarea>
+										</td>
+									</tr>
+									<tr>
+										<td align="center" class="noBorderX">&nbsp;</td>
+										<td align="center" class="noBorderX">
+											{!form_create_hidden -, channel:$channel.id}
+											{if show.vorschau}
+												<input type="submit" name="action" style="width:200px" value="vorschau" />
+												<input type="submit" name="action" style="width:200px" value="senden" />
+											{else}
+												<input type="submit" name="action" style="width:300px" value="vorschau" />
+											{/endif}
+										</td>
+									</tr>
+								</table>
 							</form>
 							<div style="text-align:center">
 								<br />
@@ -175,36 +181,38 @@
 							Subraum-Tranciever... aktiviert<br />
 							Kommunikations-System... einsatzbereit<br /><br />
 						</div>
-						<table class="noBorder">
-						<tr>
-							<td class="noBorderS" colspan="2" style="font-weight:bold">Öffentliche Frequenzen:</td>
-						</tr>
-						<!-- BEGIN channels.listitem -->
-							{if thischannel.showprivateinfo}
+						<div class="gfxbox">
+							<table class="noBorder">
 								<tr>
-									<td class="noBorderS" colspan="2" style="font-weight:bold"><br />Allianz-Frequenzen:</td>
+									<td class="noBorderS" colspan="2" style="font-weight:bold">Öffentliche Frequenzen:</td>
 								</tr>
-							{/endif}
+								<!-- BEGIN channels.listitem -->
+									{if thischannel.showprivateinfo}
+										<tr>
+											<td class="noBorderS" colspan="2" style="font-weight:bold"><br />Allianz-Frequenzen:</td>
+										</tr>
+									{/endif}
 
-								<tr>
-									<td class="noBorderS" style="width:10px">&nbsp;+</td>
-									<td class="noBorderS">{thischannel.name}
+										<tr>
+											<td class="noBorderS" style="width:10px">&nbsp;+</td>
+											<td class="noBorderS">{thischannel.name}
 
-							{if thischannel.readable}
-								- {!link_to lesen, read, channel:$thischannel.id} - {!link_to scannen, search, channel:$thischannel.id}
-							{/endif}
+												{if thischannel.readable}
+													- {!link_to lesen, read, channel:$thischannel.id} - {!link_to scannen, search, channel:$thischannel.id}
+												{/endif}
 
-							{if thischannel.writeable}
-								- {!link_to senden, write, channel:$thischannel.id}
-							{/endif}
+												{if thischannel.writeable}
+													- {!link_to senden, write, channel:$thischannel.id}
+												{/endif}
 
-							{if thischannel.newposts}
-								- <span style="color:yellow; font-weight:bold">NEU</span></td></tr>
-							{else}
-								</td></tr>
-							{/endif}
-						<!-- END channels.listitem -->
-						</table>
+												{if thischannel.newposts}
+													- <span style="color:yellow; font-weight:bold">NEU</span>
+												{/endif}
+											</td>
+										</tr>
+								<!-- END channels.listitem -->
+							</table>
+						</div>
 					{/endif}
 					{if show.submit}
 						<div>
@@ -221,90 +229,87 @@
 						</div>
 					{/endif}
 					{if show.read}
-						<div>
-							<br />
-							{!link_to zurück zum Com-Net-Menü, default, channel:$channel.id}
-							{if channel.writeable}
-								- {!link_to antworten, write, channel:$channel.id}
-							{/endif}
-							<br /><br />
-							Eingegangene Nachrichten: <br />
-							{if read.nextpossible}
-								{!link_to vor, $posts.action, back:$show.vor, channel:$channel.id, search:$search.string, searchtype:$search.type}
-							{else}
-								<span class="smallfont">vor</span>
-							{/endif}
-
-							---
-							{if show.back}
-								{!link_to zurück, $posts.action, back:$show.back, channel:$channel.id, search:$search.string, searchtype:$search.type}
-							{else}
-								<span class="smallfont">zurück</span>
-							{/endif}
-							<br /><br />
-						</div>
-						<!-- BEGIN posts.listitem -->
-							<div class="gfxbox" style="width:95%">
-								<table width="100%" cellspacing="3" cellpadding="3" class="noBorderX">
-									<tr>
-										<td style="width:90px; text-align:center; vertical-align:top" class="noBorderX">
-											{!link_to $post.name, default, module:userprofile, css_class:profile, user:$post.user.id}<br />
-											<span class="tooltip">
-												<img align="middle" src="{post.user.rang.image}" alt=""/>
-												<span class="ttcontent">
-													{post.user.rang.name}
-												</span>
-											</span>
-											{if post.user.id < 0}
-												<br />[NPC]
-											{/endif}
-
-											<br /><br />
-											<img src="data/logos/user/{post.pic}.gif" width="75" height="75" alt="logo" />
-											{if post.allypic}
-												<img src="data/logos/ally/{post.allypic}.gif" width="75" height="75" alt="Allianzlogo" />
-											{/endif}
-										</td>
-										<td class="noBorderX" valign="top">
-											<table class="noBorderX" width="100%">
-											<tr>
-												<td style="height:10px; width:20%; text-align:center" class="noBorderX">Post {post.postid}</td>
-												<td style="height:10px; width:60%; text-align:center" class="noBorderX">
-													Titel: {post.title}
-												</td>
-												<td style="height:10px; width:20%; text-align:center" class="noBorderX">{post.time}<br /><span style="color:yellow;">[{post.ingametime}]</span></td>
-											</tr>
-											<tr>
-												<td class="noBorderX" colspan="3">
-													<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
-													{post.text}
-												</td>
-											</tr>
-											</table>
-										</td>
-									</tr>
-								</table>
-							</div>
-							<div>
-								<br />
-							</div>
-						<!-- END posts.listitem -->
-						<div>
-							{if read.nextpossible}
-								{!link_to vor, $posts.action, back:$show.vor, channel:$channel.id, search:$search.string, searchtype:$search.type}
-							{else}
-								<span class="smallfont">vor</span>
-							{/endif}
-							---
-							{if show.back}
-								{!link_to zurück, $posts.action, back:$show.back, channel:$channel.id, search:$search.string, searchtype:$search.type}
-							{else}
-								<span class="smallfont">zurück</span>
-							{/endif}
-						</div>
-					{/endif}
+						{!link_to zurück zum Com-Net-Menü, default, channel:$channel.id}
+						{if channel.writeable}
+							- {!link_to antworten, write, channel:$channel.id}
+						{/endif}
 				</div>
 			</div>
+			<div class="">
+						Eingegangene Nachrichten: <br />
+						{if read.nextpossible}
+							{!link_to vor, $posts.action, back:$show.vor, channel:$channel.id, search:$search.string, searchtype:$search.type}
+						{else}
+							<span class="smallfont">vor</span>
+						{/endif}
+
+						---
+						{if show.back}
+							{!link_to zurück, $posts.action, back:$show.back, channel:$channel.id, search:$search.string, searchtype:$search.type}
+						{else}
+							<span class="smallfont">zurück</span>
+						{/endif}
+			</div>
 		</div>
+		<!-- BEGIN posts.listitem -->
+			<div class="gfxbox" style="width:95%">
+				<table width="100%" cellspacing="3" cellpadding="3" class="noBorderX">
+					<tr>
+						<td style="width:90px; text-align:center; vertical-align:top" class="noBorderX">
+							{!link_to $post.name, default, module:userprofile, css_class:profile, user:$post.user.id}<br />
+							<span class="tooltip">
+								<img align="middle" src="{post.user.rang.image}" alt=""/>
+								<span class="ttcontent">
+									{post.user.rang.name}
+								</span>
+							</span>
+							{if post.user.id < 0}
+								<br />[NPC]
+							{/endif}
+
+							<br /><br />
+							<img src="data/logos/user/{post.pic}.gif" width="75" height="75" alt="logo" />
+							{if post.allypic}
+								<img src="data/logos/ally/{post.allypic}.gif" width="75" height="75" alt="Allianzlogo" />
+							{/endif}
+						</td>
+						<td class="noBorderX" valign="top">
+							<table class="noBorderX" width="100%">
+								<tr>
+									<td style="height:10px; width:20%; text-align:center" class="noBorderX">Post {post.postid}</td>
+									<td style="height:10px; width:60%; text-align:center" class="noBorderX">
+										Titel: {post.title}
+									</td>
+									<td style="height:10px; width:20%; text-align:center" class="noBorderX">{post.time}<br /><span style="color:yellow;">[{post.ingametime}]</span></td>
+								</tr>
+								<tr>
+									<td class="noBorderX" colspan="3">
+										<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+										{post.text}
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div>
+				<br />
+			</div>
+		<!-- END posts.listitem -->
+		<div>
+			{if read.nextpossible}
+				{!link_to vor, $posts.action, back:$show.vor, channel:$channel.id, search:$search.string, searchtype:$search.type}
+			{else}
+				<span class="smallfont">vor</span>
+			{/endif}
+			---
+			{if show.back}
+				{!link_to zurück, $posts.action, back:$show.back, channel:$channel.id, search:$search.string, searchtype:$search.type}
+			{else}
+				<span class="smallfont">zurück</span>
+			{/endif}
+		</div>
+	{/endif}
 	</div>
 </div>
