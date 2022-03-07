@@ -1,0 +1,44 @@
+<span th:switch="${choff != null}" class="smallfont" th:value="${choff?.mesage}"><br /><br /></span>
+
+<div id="choffBox" class="gfxbox">
+	<form action="./ds" method="post">
+    <table class="datatable">
+      <thead>
+        <tr>
+          <th colspan="2">Name</th>
+          <th>Technik</th>
+          <th>Waffen</th>
+          <th>Navigation</th>
+          <th>Sicherheit</th>
+          <th>Kommandoeffizienz</th>
+          <th>Spezial</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <img src="${offizier.getPicture()}" alt="" />
+          </td>
+          <td>
+            <input name="name" type="text" size="15" value="${offizier.getName()}" />
+          </td>
+          <td th:text="${offizier.getAbility(Offizier.Ability.ING)}">Ability.ING</td>
+          <td th:text="${offizier.getAbility(Offizier.Ability.WAF)}">Ability.WAF</td>
+          <td th:text="${offizier.getAbility(Offizier.Ability.NAV)}">Ability.NAV</td>
+          <td th:text="${offizier.getAbility(Offizier.Ability.SEC)}">Ability.SEC</td>
+          <td th:text="${offizier.getAbility(Offizier.Ability.COM)}">Ability.COM</td>
+          <td th:text="${offizier.getSpecial().getName()}">Special</td>
+          <td><input type="submit" value="Ã¤ndern"></td>
+        </tr>
+      </tbody>
+    </table>
+    <input type="hidden" name="action" value="rename">
+    <input type="hidden" name="module" value="choff">
+    <input type="hidden" name="off" value="-1" th-value="${offizier.getId()}">
+	</form>
+</div>
+<br />
+
+<a th-if="$baseid > 0" class="back" href="@{ds(module=base)(action=default)(col=${baseid})}">zurück zur Basis</a>
+<a th-if="$shipid > 0" class="back" href="|{ds(module=base)(action=default)(ship=${shipid})}">zurück zur Basis</a>
