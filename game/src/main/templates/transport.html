@@ -122,14 +122,13 @@
 
 		<form action="./ds" method="post">
 		<table class="noBorderX" border="0" style="border:0px;">	
-		<tr><td></td><td></td><td><span style="color: #C7C7C7">Alle ausw&auml;hlen</span></td>
+		<tr><td></td><td colspan="2"><span style="color: #C7C7C7">Alle ausw&auml;hlen</span></td>
 		<td><input type="checkbox" onClick="toggle(this)" /></td>
 		<td></td>
-		<td colspan="2">
-			{if target.show}
-			<input type="checkbox" onClick="toggle2(this)" /></td><td><span style="color: #C7C7C7">Alle ausw&auml;hlen</span>
-			{/endif}
-		</td>
+		<td></td>
+		{if target.show}
+		<td><input type="checkbox" onClick="toggle2(this)" /></td><td><span style="color: #C7C7C7">Alle ausw&auml;hlen</span></td>
+		{/endif}
 		</tr>
 		<!-- BEGIN res.listitem -->
 			<tr>
