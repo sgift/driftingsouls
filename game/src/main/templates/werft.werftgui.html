@@ -46,7 +46,8 @@
 				Triebwerks&uuml;berhitzung: {ship.heat}<br />
 				{if ship.offizier.id}
 					Offizier: <img style="vertical-align:middle" src="{ship.offizier.picture}" alt="Rang {ship.offizier.rang}" title="Rang {ship.offizier.rang}" />
-					{!link_to $ship.offizier.name, default, module:choff, off:$ship.offizier.id}<br />
+					<a class="forschinfo" href="./choff?off={ship.offizier.id}">{ship.offizier.name}}</a>
+					<br />
 				{/endif}
 			{/endif}
 			{if werftgui.ws.repair}

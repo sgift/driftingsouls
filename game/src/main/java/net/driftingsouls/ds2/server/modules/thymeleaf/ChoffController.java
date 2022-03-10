@@ -18,6 +18,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ChoffController implements DSController {
+    /**
+     * Erzeugt die Offiziersseite (/choff). 
+     * URL-Parameter:
+     * off: Die ID des Offiziers
+     * action: <code>null</code> oder "rename"
+     * name: der neue Name fuer den Offizier
+     */
     @Override
     public void process(HttpServletRequest request, HttpServletResponse response, ServletContext servletContext, ITemplateEngine templateEngine) throws Exception {
         WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
@@ -34,17 +41,22 @@ public class ChoffController implements DSController {
 
         Offizier offizier = (Offizier) db.createQuery("from Offizier where id =:id").setParameter("id", offid).uniqueResult();
         validiereOffizier(offizier);
-        switch(action){
+        action = action == null ? "":action;
+        switch(action.toLowerCase()){
           case "rename":
-            renameAction(ctx, request, offizier);
+            ctx = renameAction(ctx, request, offizier);
+            break;
           default:
-            defaultAction(ctx, request, offizier);
+            ctx = defaultAction(ctx, request, offizier);
+            break;
         }
-        populateNews(ctx);
 
         templateEngine.process("choff", ctx, response.getWriter());
     }
 
+    /**
+     * prueft, ob der Spieler diesen Offizier ansehen darf
+     */
     private void validiereOffizier(Offizier offizier)
     {
       Context context = ContextMap.getContext();
@@ -61,8 +73,14 @@ public class ChoffController implements DSController {
       }
     }
 
-    private void renameAction(WebContext ctx, HttpServletRequest request, Offizier offizier){
-
+    /**
+     * Aktion zum Umbenennen des Offiziers
+     * @param ctx der WebContext
+     * @param request der HttpServletRequest (enthaelt die uebergebenen Parameter)
+     * @param offizier der Offizier
+     * URL-Parameter: name - der neue Name fuer den Offizier
+     */
+    private WebContext renameAction(WebContext ctx, HttpServletRequest request, Offizier offizier){
       var name = request.getParameter("name");
       String message;
       if (name.length() != 0)
@@ -82,21 +100,36 @@ public class ChoffController implements DSController {
       {
         message = "<span style=\"color:red\">Sie müssen einen Namen angeben</span>";
       }
-      Choff choff = new Choff(message);
-      ctx.setVariable("choff", choff);
+      Inhalt i = new Inhalt(message, offizier, offizier.getStationiertAufBasis() != null ? offizier.getStationiertAufBasis().getId() : 0,offizier.getStationiertAufSchiff() != null ? offizier.getStationiertAufSchiff().getId() : 0);
+      ctx.setVariable("inhalt",i);
+      return ctx;
     }
 
-    private void defaultAction(WebContext ctx, HttpServletRequest request, Offizier offizier){
-      ctx.setVariable("offizier", offizier);
-      ctx.setVariable("baseid",offizier.getStationiertAufBasis() != null ? offizier.getStationiertAufBasis().getId() : 0 );
-      ctx.setVariable("shipid",offizier.getStationiertAufSchiff() != null ? offizier.getStationiertAufSchiff().getId() : 0)
+    /**
+     * Zeigt die Offiziersseite mit den Werten des Offiziers
+     * @param ctx der WebContext
+     * @param request der HttpServletRequest (enthaelt die uebergebenen Parameter)
+     * @param offizier der Offizier
+     */
+    private WebContext defaultAction(WebContext ctx, HttpServletRequest request, Offizier offizier){
+      Inhalt i = new Inhalt("",offizier,offizier.getStationiertAufBasis() != null ? offizier.getStationiertAufBasis().getId() : 0,offizier.getStationiertAufSchiff() != null ? offizier.getStationiertAufSchiff().getId() : 0);
+      ctx.setVariable("inhalt", i);
+
+      return ctx;
+
     }
 
-    private static class Choff{
-      public static String message;
+    private static class Inhalt{
+      public final String text;
+      public final Offizier off;
+      public final int baseid;
+      public final int shipid;
 
-      public Choff(String message){
-        this.message = message;
+      public Inhalt(String text,Offizier off, int baseid, int shipid){
+        this.text = text;
+        this.off = off;
+        this.baseid = baseid;
+        this.shipid = shipid;
       }
 
     }
