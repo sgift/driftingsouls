@@ -13,12 +13,22 @@
 
 <body>
   <script src="./data/javascript/ds.js" type="text/javascript"></script>
-  <div id="error-placeholder"></div>
+  <div th:if="${error}" id="error-placeholder">
+    <div id="error-box" align="center">
+      <div class="gfxbox" style="width:470px">
+        <div style="text-align:center; font-size:14px; font-weight:bold">Es sind Fehler aufgetreten:</div>
+        <ul>
+          <li><a class="error" style="font-size:14px; font-weight:normal" href="./ds?module=ueber&amp;action=default" th:utext="${error.text}">Der angegebene Offizier ist ung&uuml;ltig</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
 
+  <div th:if="${error == null}">
+    <span class="smallfont" th:if="${not inhalt.text.isEmpty()}" th:text="${inhalt.text}"><br /><br /></span>
+  </div>
 
-  <span class="smallfont" th:if="${not inhalt.text.isEmpty()}" th:text="${inhalt.text}"><br /><br /></span>
-
-  <div id="choffBox" class="gfxbox">
+  <div th:if="${error == null}" id="choffBox" class="gfxbox">
     <form action="./choff" method="post">
       <table class="datatable">
         <thead>
@@ -57,9 +67,10 @@
     </form>
   </div>
   <br />
-
-  <a class="back" th:if="${inhalt.baseid > 0}" th:href="@{'ds'(module='base',action='default',col=${inhalt.baseid})}" >zur&uuml;ck zur Basis</a>
-  <a class="back" th:if="${inhalt.shipid > 0}" th:href="@{'ds'(module='schiff',action='default',ship=${inhalt.shipid})}" >zur&uuml;ck zum Schiff</a>
+  <div th:if="${error==null}">
+    <a class="back" th:if="${inhalt.baseid > 0}" th:href="@{'ds'(module='base',action='default',col=${inhalt.baseid})}" >zur&uuml;ck zur Basis</a>
+    <a class="back" th:if="${inhalt.shipid > 0}" th:href="@{'ds'(module='schiff',action='default',ship=${inhalt.shipid})}" >zur&uuml;ck zum Schiff</a>
+  </div>
   <script type="text/javascript">
     if (parent && parent.setCurrentPage) {
       parent.setCurrentPage('choff','Offizier');

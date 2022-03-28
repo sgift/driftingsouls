@@ -18,6 +18,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ChoffController implements DSController {
+    
+    private enum Action{
+      RENAME,
+      DEFAULT
+    }
+
     /**
      * Erzeugt die Offiziersseite (/choff). 
      * URL-Parameter:
@@ -29,25 +35,34 @@ public class ChoffController implements DSController {
     public void process(HttpServletRequest request, HttpServletResponse response, ServletContext servletContext, ITemplateEngine templateEngine) throws Exception {
         WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
 
-        var action = request.getParameter("action");
+        Action action = Action.DEFAULT;
+        try{
+         action = Action.valueOf(request.getParameter("action").toUpperCase());
+        } catch(Exception ex){}
         int offid = -1;
         try{
           offid = Integer.parseInt(request.getParameter("off"));
         }
         catch (NumberFormatException e){
-          throw new ValidierungException("Der angegebene Offizier ist ung&uuml;ltig", Common.buildUrl("default", "module", "ueber"));
+          Error error = new Error("Der angegebene Offizier ist ung&uuml;ltig");
+          ctx.setVariable("error",error);
+          templateEngine.process("choff", ctx, response.getWriter());
+          return;
         }
         org.hibernate.Session db = ContextMap.getContext().getDB();
 
         Offizier offizier = (Offizier) db.createQuery("from Offizier where id =:id").setParameter("id", offid).uniqueResult();
-        validiereOffizier(offizier);
-        action = action == null ? "":action;
-        switch(action.toLowerCase()){
-          case "rename":
-            ctx = renameAction(ctx, request, offizier);
+        if(!validiereOffizier(offizier, ctx))
+        {
+          templateEngine.process("choff", ctx, response.getWriter());
+          return;
+        }
+        switch(action){
+          case RENAME:
+            renameAction(ctx, request, offizier);
             break;
           default:
-            ctx = defaultAction(ctx, request, offizier);
+            defaultAction(ctx, request, offizier);
             break;
         }
 
@@ -57,20 +72,25 @@ public class ChoffController implements DSController {
     /**
      * prueft, ob der Spieler diesen Offizier ansehen darf
      */
-    private void validiereOffizier(Offizier offizier)
+    private boolean validiereOffizier(Offizier offizier, WebContext ctx)
     {
       Context context = ContextMap.getContext();
       User user = (User) context.getActiveUser();
 
       if (offizier == null)
       {
-        throw new ValidierungException("Der angegebene Offizier ist ung&uuml;ltig", Common.buildUrl("default", "module", "ueber"));
+        Error error = new Error("Der angegebene Offizier ist ung&uuml;ltig");
+        ctx.setVariable("error",error);
+        return false;
       }
 
       if (offizier.getOwner() != user)
       {
-        throw new ValidierungException("Dieser Offizier untersteht nicht ihrem Kommando", Common.buildUrl("default", "module", "ueber"));
+        Error error = new Error("Dieser Offizier untersteht nicht ihrem Kommando");
+        ctx.setVariable("error",error);
+        return false;
       }
+      return true;
     }
 
     /**
@@ -80,7 +100,7 @@ public class ChoffController implements DSController {
      * @param offizier der Offizier
      * URL-Parameter: name - der neue Name fuer den Offizier
      */
-    private WebContext renameAction(WebContext ctx, HttpServletRequest request, Offizier offizier){
+    private void renameAction(WebContext ctx, HttpServletRequest request, Offizier offizier){
       var name = request.getParameter("name");
       String message;
       if (name.length() != 0)
@@ -102,7 +122,6 @@ public class ChoffController implements DSController {
       }
       Inhalt i = new Inhalt(message, offizier, offizier.getStationiertAufBasis() != null ? offizier.getStationiertAufBasis().getId() : 0,offizier.getStationiertAufSchiff() != null ? offizier.getStationiertAufSchiff().getId() : 0);
       ctx.setVariable("inhalt",i);
-      return ctx;
     }
 
     /**
@@ -111,12 +130,9 @@ public class ChoffController implements DSController {
      * @param request der HttpServletRequest (enthaelt die uebergebenen Parameter)
      * @param offizier der Offizier
      */
-    private WebContext defaultAction(WebContext ctx, HttpServletRequest request, Offizier offizier){
+    private void defaultAction(WebContext ctx, HttpServletRequest request, Offizier offizier){
       Inhalt i = new Inhalt("",offizier,offizier.getStationiertAufBasis() != null ? offizier.getStationiertAufBasis().getId() : 0,offizier.getStationiertAufSchiff() != null ? offizier.getStationiertAufSchiff().getId() : 0);
       ctx.setVariable("inhalt", i);
-
-      return ctx;
-
     }
 
     private static class Inhalt{
@@ -131,6 +147,13 @@ public class ChoffController implements DSController {
         this.baseid = baseid;
         this.shipid = shipid;
       }
+    }
 
+    private static class Error{
+      public final String text;
+
+      public Error(String text){
+        this.text = text;
+      }
     }
 }
