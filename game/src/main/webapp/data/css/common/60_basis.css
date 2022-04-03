@@ -104,18 +104,6 @@
 	height:15px;
 	background-repeat:repeat-x;
 }
-#baseContent #statsBox .arbeiteranzeige {
-	background-image:url('../../interface/arbeiter.gif');
-}
-#baseContent #statsBox .arbeitslosenanzeige {
-	background-image:url('../../interface/arbeitslos.gif');
-}
-#baseContent #statsBox .wohnraumfreianzeige {
-	background-image:url('../../interface/frei.gif');
-}
-#baseContent #statsBox .wohnraumfehltanzeige {
-	background-image:url('../../interface/narbeiter.gif');
-}
 
 #buildingBox .content {
 	width:430px;
