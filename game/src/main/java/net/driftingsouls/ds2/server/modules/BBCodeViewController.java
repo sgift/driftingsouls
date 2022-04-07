@@ -71,6 +71,9 @@ public class BBCodeViewController extends Controller
 		codes.add("[resource=iID|0|0,PARAM]Anzahl[/resource]");
 		codes.add("Als PARAM kann i oder n angegeben werden, um nur den Namen oder nur das Bild anzeigen zu lassen. Das ,PARAM kann aber auch komplett weggelassen werden.");
 		codes.add("Beispiel f&uuml;r 5 Nahrung: [resource=i16|0|0]5[/resource]<br />");
+		codes.add("[spoiler]Spoilertext[/spoiler]");
+		codes.add("Text der mit einem Spoiler Tag versehen wurde wird ausgegraut und dem Benutzer erst angezeigt, wenn dieser mit der Maus darüber fährt.");
+		codes.add("Dieser sollte insbesondere dann verwendet werden, wenn Geschehnisse beschrieben werden, die generell unter \"Not save for work\" fallen<br />");
 	}
 
 	private TemplateViewResultFactory templateViewResultFactory;
