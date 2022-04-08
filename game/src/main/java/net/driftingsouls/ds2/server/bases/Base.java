@@ -216,6 +216,43 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	}
 
 	/**
+	 * Gibt die MapBreite zurueck.
+	 * @return Die Breite
+	 */
+	public int getMapWidth()
+	{
+		return this.width*39+20;
+	}
+
+	/**
+	 * Gibt die MapBreite zurueck.
+	 * @return Die Breite
+	 */
+	public int getCargoHeight()
+	{
+		int cargoHeight = (1 + this.getHeight() * 2) * 22+25;
+		return (cargoHeight < 280 ? 280 : cargoHeight);
+	}
+
+	/**
+	 * Gibt die noch freie CargoMenge formatiert zurueck.
+	 * @return Die formatierte freie CargoMenge
+	 */
+	public String getCargoEmpty()
+	{
+		return Common.ln(this.getMaxCargo() - this.getCargo().getMass());
+	}
+
+	/**
+	 * Soll alles angezeigt werden=?
+	 * @return true / false
+	 */
+	public boolean showAll(User user)
+	{
+		return (this.getOwner().getId() == 0) || (this.getOwner().getId() == user.getId());
+	}
+
+	/**
 	 * Setzt die Breite der Bauflaeche auf der Basis.
 	 * @param width Die Breite
 	 */
@@ -249,6 +286,14 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	public String getName()
 	{
 		return this.name;
+	}
+	/**
+	 * Gibt den Plainnamen der Basis zurueck.
+	 * @return Der Name
+	 */
+	public String getPlainName()
+	{
+		return Common._plaintitle(this.name);
 	}
 
 	/**
@@ -1766,5 +1811,51 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	public Set<Offizier> getOffiziere()
 	{
 		return offiziere;
+	}
+
+	public static Base getBaseById(int id){
+		try{
+			return (Base) ContextMap.getContext().getDB().get(Base.class, id);
+		}catch(Exception e)
+		{
+			return null;
+		}
+	}
+
+	public String getCstat_formated(){
+		long cstat = -Base.getStatus(this).getProduction().getMass();
+		return Common.ln(cstat);
+	}
+
+	public String getEnergy_formated(){
+		return Common.ln(this.getEnergy());
+	}
+
+	public String getEstat_formated(){
+		return Common.ln(Base.getStatus(this).getEnergy());
+	}
+
+	public String getBewohner_formated(){
+		return Common.ln(this.getBewohner());
+	}
+
+	public String getArbeitetNeeded_formated(){
+		return Common.ln(Base.getStatus(this).getArbeiter());
+	}
+
+	public String getLivingSpace_formated(){
+		return Common.ln(Base.getStatus(this).getLivingSpace());
+	}
+
+	public String getWohnraum_formated(){
+		return Common.ln(Base.getStatus(this).getLivingSpace());
+	}
+
+	public boolean hasUnits(){
+		return !this.getUnits().isEmpty();
+	}
+
+	public ResourceList getCargoResourceList(){
+		return this.getCargo().compare(Base.getStatus(this).getProduction(), true,true);
 	}
 }

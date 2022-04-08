@@ -2839,4 +2839,13 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 		return offi;
 	}
+
+	public static Ship getShipById(int id){
+		try{
+			return (Ship) ContextMap.getContext().getDB().get(Ship.class, id);
+		}catch(Exception e)
+		{
+			return null;
+		}
+	}
 }

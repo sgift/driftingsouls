@@ -19,6 +19,7 @@
 
 package net.driftingsouls.ds2.server.units;
 
+import net.driftingsouls.ds2.server.framework.Common;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.proxy.HibernateProxy;
 
@@ -142,6 +143,16 @@ public abstract class UnitCargoEntry
 	{
 		return this.amount;
 	}
+
+	/**
+	 * Gibt die Menge zurueck.
+	 * @return Die Menge
+	 */
+	public String getAmount_formated()
+	{
+		return Common.ln(this.amount);
+	}
+
 
 	/**
 	 * Setzt die Menge.

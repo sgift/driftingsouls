@@ -179,7 +179,7 @@ var SearchBox = {
 	}
 };
 
-var InfoBox = {
+/*var InfoBox = {
 	open: function() {
 		$('#infoicon').removeClass('highlight');
 		$('#infobox').dialog({title: 'Über Drifting Souls', width:700, height:400});
@@ -220,7 +220,7 @@ var InfoBox = {
 				});
 			});
 	}
-};
+};*/
 
 
 var adminBox = {

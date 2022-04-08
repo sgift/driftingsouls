@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" lang="de">
+    <head>
+        <meta charset="utf-8">
+
+        <title>Drifting Souls 2</title>
+
+        <link rel="stylesheet" type="text/css" href="./data/css/format.css"/>
+        <link rel="stylesheet" type="text/css" href="./data/css/ui-darkness/00_jquery-ui-1.8.20.css"/>
+        <link rel="stylesheet" type="text/css" href="./data/css/ui-darkness/10_jquery-ui.css"/>
+
+        <script type="text/javascript" src="data/javascript/jquery.js"></script>
+        <script type="text/javascript" src="data/javascript/facebox.js"></script>
+        <script type="text/javascript" src="data/javascript/modules/base.js"></script>
+        <script type="text/javascript">
+            jQuery(document).ready(function ($) {
+                $('a[rel*=facebox]').facebox()
+            })
+        </script>
+    </head>
+    <body>
+        <div class="gfxbox" id="error-placeholder" th:if="${error}" style="width:470px;display:flex;justify-content:center;">
+            <div style="text-align:center; font-size:14px; font-weight:bold">Es sind Fehler aufgetreten:</div>
+            <ul>
+                <li>
+                    <a class="error" style="font-size:14px; font-weight:normal" href="./ds?module=basen&amp;action=default" th:utext="${error.text}">Die angegebene Kolonie existiert nicht</a>
+                </li>
+            </ul>
+        </div>
+        <div id="baseContent" th:if="${error == null}">
+            <div class="container" style="margin:auto;">
+                <div class="row">
+                    <div class="col gfxbox" style="flex-direction:row;justify-content:space-between;display:flex;">
+                        <span>
+                            <input type="hidden" id="baseId" th:value="${base.getId()}" style="margin-left:5px;margin-right:5px;"/>
+                            <a style="margin-left:5px;margin-right:5px;" title="Zur Sternenkarte wechseln" class="forschinfo" th:href="'ds?module=client#/map/'+${base.getSystem()}+'/'+${base.getX()}+'/'+${base.getY()}" th:utext="${base.getSystem()}+':'+${base.getX()}+'/'+${base.getY()}">
+                                <span><img src="data/interface/impobjects.gif" alt="?">Sys:X/Y</span>
+                            </a>
+                            <span style="margin-left:2px;margin-right:2px;" id="baseName" th:utext="${base.getPlainName()}+' ('+${base.getId()}+')'">Koloniename (ID)</span>
+                            <span id="baseNameForm" style="display:none">
+                                <form th:action="@{base}" method="post" style="display:inline">
+                                    <input name="newname" class="fsinput" type="text" size="15" maxlength="50" th:value="${base.getPlainName()}">
+                                    <input name="col" type="hidden" th:value="${base.getId()}">
+                                    <input name="module" type="hidden" value="base">
+                                    <input name="action" type="hidden" value="changeName">&nbsp;
+                                    <input type="submit" value="umbenennen"  class="fsSubmit" >
+                                </form>
+                            </span>
+
+                            <img style="vertical-align:middle; border:0px" src="./data/interface/pen.gif" alt="Namen &auml;ndern" onclick="Base.changeName()">
+                        </span>
+                    </div>
+                </div>
+                <div class="row" style="flex-direction:row-reverse;">
+                    <div th:if="${not scan}" class="col gfxbox wms" style="display: flex;flex-direction:column;min-width:380px;max-width:380px;">
+                        <div id="verwaltung-bauen" class="row" style="height:40px;">
+                            <button type="button" class="fsbutton noise link aktiv" onclick="toggleBaumenu()" style="position:absolute;top:-14px;left:-14px;clip-path: polygon(0px 15px, 15px 0px, 150px 0px, 150px 40px, 0px 40px);z-index:10;">
+                                <span class="button-text" style="" >Verwaltung</span>
+                            </button>
+                            <div class="" style="position:absolute;top:-14px;left:135px;">
+                                <button class="fsbutton noise link" onclick="toggleBaumenu()" style="clip-path: border-box polygon(0 0, 150px 0, 150px 30px, 140px 40px, 0 40px);z-index:10;border-left:2px solid grey;">
+                                    <span class="button-text" style="" >Baumen&uuml;</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div id="aktionen-asteroid">
+                                    <div class="row" style="margin-bottom:15px;margin-left:-10px;">
+                                        <div class="col">
+
+                                        </div>
+                                    </div>
+                                    <ul class="buildingActions" >
+                                        <li  th:each="building : ${buildings}" th:onmouseover="|Base.highlightBuilding('building${building.id}')|" onmouseout="Base.noBuildingHighlight()" th:utext="${building.building.getPlainName()}">
+                                            <a th:if="${building.allowoff}" title="Geb&auml;ude deaktivieren" class="action deaktivieren" th:href="@{/base(action='changeBuildingStatus',col=${base.getId()},buildingonoff=${building.id},act='0')}">
+                                                <img alt="" src="./data/interface/nenergie.gif">
+                                            </a>
+                                            <a th:if="${building.allowon}" title="Geb&auml;ude aktivieren" class="action aktivieren" th:href="@{/base(action='changeBuildingStatus',col=${base.getId()},buildingonoff=${building.id},act='1')}">
+                                                <img alt="" src="./data/interface/energie.gif">
+                                            </a>
+                                        </li>
+                                    </ul>
+                                    <ul class="baseActions">
+                                        <li><a style="font-size:14px" class="ok" th:href="@{/base(action='activateall',col=${base.getId()})}">Alles aktivieren</a></li>
+                                        <li><a style="font-size:14px" class="error" th:href="@{/base(action='activateall',col=${base.getId()}, deaconly='1')}">Alles deaktivieren</a></li>
+                                    </ul>
+                                    <ul class="baseActions">
+                                        <li th:if="${base.isFeeding()}"><a style="font-size:14px" class="error" th:href="@{/base(action='changeFeeding',col=${base.getId()},feeding='0')}">Versorgung abschalten</a></li>
+                                        <li th:if="${not base.isFeeding()}"><a style="font-size:14px" class="error" th:href="@{/base(action='changeFeeding',col=${base.getId()},feeding='1')}">Versorgung anschalten</a></li>
+                                    </ul>
+                                </div>
+                                <div id="baumenu-asteroid" style="display:none;">
+                                    <div class="gfx-tab-nav" style="margin-left:-15px;margin-right:-15px;width:370px;" >
+                                        <span th:each="kategorie : ${kategorien}" class="geb-kategorie-auswahl" th:style="${kategorie.name.equals('Sonstiges')}? 'border-right:none;':' '" th:data-click="${kategorie.name}" onclick="tabWechsel(this,this.getAttribute('data-click'))" th:text="${kategorie.name}">Kategorie</span>
+                                    </div>
+                                    <div th:each="kategorie: ${kategorien}" th:id="${kategorie.name}" class="tab-element" th:style="${kategorie.name.equals('Energie')}? '':'display:none'">
+                                        <div th:each="build:${kategorie.gebaeude}">
+                                            <button type="button" class="btn-geb-info" style="" th:data-click="${build.building.getId()}" onclick="SelectBuilding(this,this.getAttribute('data-click'))">
+                                                <span style="align-self:center;"><img th:src="${build.building.getPictureForRace(base.getOwner().getRace())}" alt=""></span>
+                                                <span class="geb-name" style="" th:utext="${build.building.getPlainName()}">Geb&auml;udename</span>
+                                                <span style="align-self:center;">
+                                                    <span th:each="res : ${build.baukosten}" th:style="${res.getDiff()}>0? 'color:red':''">
+                                                        <img th:src="${res.getImage()}" alt="" th:title="${res.getPlainName()}">[(${res.getCargo1()})]
+                                                    </span>
+                                                </span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col gfxbox wmd">
+                        <div class="row" style="height:40px;">
+                            <button type="button" disabled class="fsbutton noise" onclick="toggleBaumenu()" style="position:absolute;top:-14px;left:-14px;clip-path: polygon(0% 15px, 15px 0%, 150px 0%, 150px 30px, 140px 40px, 0% 40px);z-index:10;box-sizing:border-box;">
+                                <span class="button-text" >Bebauung</span>
+                            </button>
+                        </div>
+                        <div class="row" style="margin-bottom:15px;margin-top:5px;margin-left:-10px;">
+                            <div class="col">
+                                Core:
+                                <a th:if="${base.getCore()}"         th:class="${base.isCoreActive()}?'ok':'error'" style="color:green;text-decoration:none;font-weight:bold;"  th:href="@{ds(module='core',action='default',col=${base.getId()})}" th:utext="${base.getCore().getPlainName()}">CoreName</a>
+                                <a th:if="${base.getCore() == null}" class="ok" th:href="@{ds(module='core',action='default',col=${base.getId()})}">leer</a>
+                            </div>
+                        </div>
+                        <div class="row">
+                        </div>
+                        <div id="baseMap" th:style="'width:'+${base.getMapWidth()}+'px; height:'+${base.getCargoHeight()}+'px;'" >
+                            <div th:each="tilerow : ${tiles}" class="tilerow">
+                                <div th:each="tile: ${tilerow}" class="tile">
+                                    <div th:class="'p'+${tile.id}+(${tile.building}?' building'+${tile.buildingId}:' ')">
+                                        <a th:if="${tile.building}" class="tooltip" th:href="@{ds(module='building',col=${base.getId()},field=${tile.field})}">
+                                            <span class="ttcontent" th:text="${tile.buildingName}">Geb&auml;udename</span>
+                                            <img style="border:0px" th:src="${tile.buildingImage}" alt="">
+                                        </a>
+                                        <a th:if="${not tile.building and not scan}" th:href="@{ds(module='build',col=${base.getId()},field=${tile.field})}">
+                                            <img style="border:0px" th:src="${tile.buildingImage}" alt="">
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col gfxbox wsm">
+                        <div class="row" style="height:40px;">
+                            <button type="button" disabled class="fsbutton noise" onclick="toggleBaumenu()" style="position:absolute;top:-14px;left:-14px;clip-path: polygon(0% 15px, 15px 0%, 150px 0%, 150px 30px, 140px 40px, 0% 40px);z-index:10;box-sizing:border-box;">
+                                <span class="button-text" >Lager</span>
+                            </button>
+                        </div>
+                        <div style="display:flex;flex-direction:row;justify-content:center;">
+                            <div class="gfx-tab-nav" style="">
+                                <span class="geb-kategorie-auswahl" th:each="cargotyp : ${cargo}" th:data-click="${cargotyp.getName()}" onclick="tabWechsel(this, 'res_'+this.getAttribute('data-click'))" th:style="${cargotyp.getName().equals('Sonstiges')}? 'border-right:none;':' '"  th:inline="text">[[${cargotyp.getName()}]]<span style="margin-left:2px;font-size:90%;color:darkgoldenrod;"th:utext="'('+${cargotyp.getAmount()}+')'"></span></span>
+                            </div>
+                        </div>
+                        <div th:each="cargotyp : ${cargo}" th:id="'res_'+${cargotyp.getName()}" class="gfx-tab tab-element" style="display:block;">
+
+                            <div class="row" style="justify-content:center;">
+                                <table class="ressources-table" style="border:none;text-align:right;">
+                                    <tbody>
+                                        <tr th:each="res : ${cargotyp.getRess()}">
+                                            <td>
+                                                <img th:src="${res.getImage()}" alt="">
+                                            </td>
+                                            <td>
+                                                <span th:utext="${res.getName()}"></span>
+                                            </td>
+                                            <td>
+                                                <span th:utext="${res.getCargo1()}"></span>
+                                            </td>
+                                            <td>
+                                            <span th:if="${res.getCount2()}" th:utext="${res.getCargo2}"></span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <img src="data/interface/leer.gif" alt="" th:text="'leer '+${base.getCargoEmpty()}+ ' '+ ${base.getCstat_formated()}"/><br />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col gfxbox">
+                        <div class="row">
+                            <div class="col" id="statsBox">
+                                <span th:utext="'Gespeicherte Energie: '+${base.getEnergy_formated()}">Gespeicherte Energie: base.energy</span><br>
+                                <span th:utext="'Energiebilanz: '+${base.getEstat_formated()}">Energiebilanz: base.estat</span><br>
+                                <br>
+                                <span th:text="'Bev&ouml;lkerung: '+${base.getBewohner_formated()}"> Bev&ouml;lkerung: x</span><br>
+                                <span th:text="'Arbeiter ben&ouml;tigt: '+${base.getArbeitetNeeded_formated()}"> Arbeiter ben&ouml;tigt: x</span><br>
+                                <span th:text="'Wohnraum: '+${base.getLivingSpace_formated()}"> Wohnraum: x</span><br>
+                                <div class="arbeiteranzeige"      th:style="'width:'+${bevoelkerung.arbeiterProzent}     +'%'"></div>
+                                <div class="arbeitslosenanzeige"  th:style="'width:'+${bevoelkerung.arbeitslosProzent}   +'%'"></div>
+                                <div class="wohnraumfreianzeige"  th:style="'width:'+${bevoelkerung.wohnraumFreiProzent} +'%'"></div>
+                                <div class="wohnraumfehltanzeige" th:style="'width:'+${bevoelkerung.wohnraumFehltProzent}+'%'"></div>
+                            </div>
+                            <div class="col" style="max-width:250px;">
+                                Einheiten:<br />
+                                <div th:each="unit:${units}">
+                                    <img style="vertical-align:middle"  th:src="${unit.getUnitType().getPicture()}" alt="" />
+                                    <a class="forschinfo" th:href="@{ds(module='unitinfo',action='default',unit=${unit.getUnitTypeId()})}" th:text="${unit.getUnitType().getName()}">Einheit</a> <span th:text="${unit.getAmount_formated()}">{unit.count}</span><br />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="tt_div">
+        </div>
+        <script type="text/javascript">
+
+            ReplaceBauliste(test);
+        </script>
+        <svg class="clip-svg">
+            <defs>
+                <clipPath id="clip-demo-basic" clipPathUnits="userSpaceOnUse" stroke-width="5">
+                    <polygon points="0 10, 10 0, 185 0, 195 10, 195 50, 185 60, 10 60, 0 50, 0 10"/>
+                </clipPath>
+            </defs>
+        </svg>
+
+    </body>
+</html>

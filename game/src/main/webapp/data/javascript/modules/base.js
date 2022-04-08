@@ -136,7 +136,13 @@ var Base = {
 		$('#baseMap .tile').removeClass('highlight');
 	},
 	changeName : function() {
-		this.view.showNameInput({basename:$("#baseName").text(), baseid: this.getBaseId()});
+		//this.view.showNameInput({basename:$("#baseName").text(), baseid: this.getBaseId()});
+		var baseName = document.getElementById("baseName");
+		var baseNameForm = document.getElementById("baseNameForm");
+
+		toggleElement(baseName, "inline");
+		toggleElement(baseNameForm, "inline");
+
 	},
 	showBuilding : function(tileId) {
 		new BuildingUi(this, tileId);
@@ -405,7 +411,8 @@ function BuildingUi(base, tileId) {
 				return confirm('Wollen sie den Asteroiden wirklich aufgeben?');
 			});
 		}
-		else {
+		else
+		{
 			$('#demoBuilding').bind('click.demoBuilding', function() {
 				showAskDemo(model);
 			});
@@ -480,3 +487,176 @@ function BuildingUi(base, tileId) {
 		field:tileId
 	}, __parseBuildingResponse);
 }
+
+/*
+Neue Thymeleaf GUI Funktionen
+ */
+function toggleBaumenu(){
+	var baumenu = document.getElementById("baumenu-asteroid");
+	//var baumenuSwitch = document.getElementById("baumenu-switch");
+	var aktionen = document.getElementById("aktionen-asteroid");
+
+
+	var buttonParent = document.getElementById("verwaltung-bauen");
+
+	test = buttonParent.querySelectorAll("button");
+
+	if(test[0].classList.contains("aktiv"))
+	{
+		test[0].classList.remove("aktiv");
+		test[1].classList.add("aktiv");
+	}
+	else
+	{
+		test[1].classList.remove("aktiv");
+		test[0].classList.add("aktiv");
+	}
+
+	if(aktionen.style.display === "none")
+	{
+		deselectBuilding();
+		console.log(selectedBuilding);
+	}
+
+	toggleElement(baumenu);
+	toggleElement(aktionen);
+}
+var test;
+function toggleElement(element, display="block") {
+	if (element.style.display === "none") {
+		element.style.display = display;
+	} else {
+		element.style.display = "none";
+	}
+}
+
+function BaueFeld(tileDiv, id){
+	if(selectedBuilding == -1)
+	{
+		//console.log("test");
+		return;
+	}
+
+	var response = getJson();
+
+	if(response["success"] == 'true')
+	{
+		console.log("success!");
+		var ressourcesDiv = document.getElementById("cargoBox");
+
+
+		ressourcesDiv.innerHTML  = parseHTML(response.ressources).firstChild.innerHTML;
+		tileDiv.innerHTML = parseHTML(fieldMessage).firstChild.innerHTML;
+	}
+	else
+	{
+		console.log("test " + response["success"]);
+		var infobox = document.getElementById("buildingBox");
+		if(infobox != undefined)
+		{
+			console.log("infobox found!");
+			buildingBox.firstChild.innerHTML = "test";
+			infobox.style.display = "block";
+		}
+		else
+		{
+			document.body.appendChild(parseHTML(errormessage).firstChild);
+		}
+
+
+	}
+	Base.noBuildingHighlight();
+	Base.highlightBuilding('bebaubar');
+
+	console.log("Baue Gebäude: " + selectedBuilding);
+}
+
+function parseHTML(html) {
+	var t = document.createElement('template');
+	t.innerHTML = html;
+	console.log(t.content);
+	return t.content;
+}
+
+function SelectBuilding(element, id)
+{
+	if(selectedBuilding != id)
+	{
+		deselectBuilding();
+		selectedBuilding = id;
+		console.log(selectedBuilding);
+		element.classList.add("active");
+		Base.highlightBuilding('bebaubar');
+	}
+	else
+	{
+		deselectBuilding();
+	}
+}
+function deselectBuilding()
+{
+	Base.noBuildingHighlight();
+	var active = document.getElementsByClassName("active");
+	if(active[0] != null){
+		active[0].classList.remove("active");
+	}
+	selectedBuilding = -1;
+}
+
+var selectedBuilding = -1;
+
+function tabWechsel(element, categoryName) {
+	var i;
+	var x = element.closest('.gfxbox').querySelectorAll('.tab-element');
+	for (i = 0; i < x.length; i++) {
+		x[i].style.display = "none";
+	}
+	document.getElementById(categoryName).style.display = "block";
+	deselectBuilding();
+}
+
+function getJson(){
+	var json = '{'
+		+ '"success":"true", '+ '"ressources":' + JSON.stringify(ressourceString)
+		//+ '"errordiv":"", "field":"' + JSON.stringify(fieldMessage) + '"'
+		+ '}';
+
+	console.log(json);
+	return JSON.parse(json);
+}
+
+/*function bbbold()
+{
+	var text = replaceSelectionText("[B]", "[/B]",/\[B\]/g, /\[/B\]/g);
+}
+function bbitalic()
+{
+	var text = replaceSelectionText("[i]", "[/i]",/\[i\]/g, /\[/i\]/g);
+}
+function bbunderline()
+{
+	var text = replaceSelectionText("[u]", "[/u]",/\[u\]/g, /\[/u\]/g);
+}
+function bbcolor()
+{
+	var text = replaceSelectionText("[color=]", "[/color]", /\[color=.*?\]/g, /\[\/color\]/g);
+}
+
+function replaceSelectionText(prefix, suffix, prefixReplacePattern, suffixReplacePattern) {
+	var textElement = document.getElementById("cn-text");
+    var text = textElement.value;
+
+	var selectionStart = textElement.selectionStart;
+	var selectionEnd = textElement.selectionEnd;
+
+	var selectedText = text.substring(selectionStart, selectionEnd)
+	selectedText = selectedText.replace(prefixReplacePattern, "");
+	selectedText = selectedText.replace(suffixReplacePattern, "");
+	console.log(selectedText);
+
+	var outstr = text.substr(0,selectionStart)+prefix+selectedText+suffix+text.substr(selectionEnd);
+	textElement.value = outstr;
+
+	//return selectedText;
+
+}*/
