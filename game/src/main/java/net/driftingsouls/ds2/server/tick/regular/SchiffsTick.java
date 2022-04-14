@@ -455,8 +455,8 @@ public class SchiffsTick extends TickController {
 		if( e < shiptd.getEps() )
 		{
 			int rm = shiptd.getRm();
-			if( shiptd.getCrew() > 0 ) {
-				rm = (int)(rm * shipd.getCrew() / (double)shiptd.getCrew());
+			if( shiptd.getMinCrew() > 0 && shipd.getCrew() < shiptd.getMinCrew() ) {
+				rm = (int)(rm * shipd.getCrew() / (double)shiptd.getMinCrew());
 			}
 			int maxenergie = rm;
 
