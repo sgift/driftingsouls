@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.entities;
 import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.PermissionResolver;
 import org.hibernate.Session;
@@ -372,5 +373,19 @@ public class ComNetChannel {
 	 */
 	public int getVersion() {
 		return this.version;
+	}
+
+	/**
+	 * Sucht aus der Datenbank den passenden ComNetChannel raus
+	 * @param nr die Kanal-ID
+	 * @return der gesuchte Kanal oder, falls nicht existent, der ComNetKanal mit ID 1
+	 */
+	public static ComNetChannel getChannelByNr(int nr, Context context){
+		try{
+			return (ComNetChannel) context.getDB().get(ComNetChannel.class, nr);
+		}catch(Exception e)
+		{
+			return (ComNetChannel) context.getDB().get(ComNetChannel.class, 1);
+		}
 	}
 }
