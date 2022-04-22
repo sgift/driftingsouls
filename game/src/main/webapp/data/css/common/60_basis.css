@@ -5,8 +5,7 @@
 #baseMap {
 	z-index:2;
 	position:relative;
-	top:0px;
-	overflow:auto;
+	top:20px;
 	left:0px;
 	padding-left:5px;
 	padding-top:5px;
@@ -29,6 +28,8 @@
 	float:left;
 	margin-left: -10px;
 	position: relative;
+	clip-path: polygon(24.45% -4.30%, 81.63% -4.31%, 102.04% 50%, 79.08% 99.65%, 22.96% 99.65%, -2.04% 50%);
+	-webkit-clip-path: polygon(24.45% -4.30%, 81.63% -4.31%, 102.04% 50%, 79.08% 99.65%, 22.96% 99.65%, -2.04% 50%);
 }
 
 #baseMap .tile:nth-child(even) {
@@ -325,11 +326,11 @@ button.btn-geb-info.active:hover{
 .gfxbox .fsbutton, .fsbutton{
 	padding:4px 15px 7px 15px;
 	border:none;
-	width:150px;
-	height:40px;
+	width:200px;
+	height:55px;
 	color:inherit;
-	background-image:url(../interface/buttontextur.png);
-	background-size:cover;
+	background-image:url(../interface/green/button150.svg);
+	#background-size:cover;
 }
 
 .button-text{
@@ -345,3 +346,33 @@ button.btn-geb-info.active:hover{
 button.aktiv span{
 	color: #feb626;
 }
+span a.mangel{
+	color:red;
+}
+
+div div.gfxbox {
+	border-image: url(../interface/green/gfxbox.png) 30 fill;
+	border-width: 30px;
+}
+
+.gfxbox a.ok:link			{color: green; text-decoration: none; font-weight:bold; }
+.gfxbox a.ok:visited		{color: green; text-decoration: none; font-weight:bold; }
+.gfxbox a.ok:hover			{color: #F0A000; text-decoration: none; font-weight:bold; }
+.gfxbox a.ok:active			{color: green; text-decoration: none; font-weight:bold; }
+
+.gfxbox a.error:link		{color: #E00000; text-decoration: none; font-weight:bold;}
+.gfxbox a.error:visited		{color: #E00000; text-decoration: none; font-weight:bold;}
+.gfxbox a.error:hover		{color: #F0A000; text-decoration: none; font-weight:bold;}
+.gfxbox a.error:active		{color: #FF0000; text-decoration: none; font-weight:bold;}
+
+.col.gfxbox {
+	margin: 5px;
+}
+
+.tilepair{
+	margin-top: -21px;
+	margin-left: -10px;
+}
+
+
+

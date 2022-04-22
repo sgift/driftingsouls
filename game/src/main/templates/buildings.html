@@ -152,7 +152,7 @@
 		{!link_to zur&uuml;ck, default, css_class:back, module:build, col:$base.id, field:$base.field}
 	{else}
 		{if base.id}
-			{!link_to zur&uuml;ck, default, module:base, css_class:back, col:$base.id}
+			<a style="font-size:16px" class="back" href="./base?col={base.id}">zur&uuml;ck zur Basis</a>
 		{/endif}
 	{/endif}
 </div>

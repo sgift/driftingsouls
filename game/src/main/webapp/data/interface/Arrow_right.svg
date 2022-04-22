@@ -1,0 +1,22 @@
+<svg id="svgNoiseTest" width="30px" height="50px" viewBox="0 0 30 50" xmlns='http://www.w3.org/2000/svg'> 
+   <defs>
+   
+		<style>
+			.arrow-color
+			{
+				fill:grey;
+			}
+			.arrow-color:hover
+			{
+				fill:#feb626;
+				cursor:pointer;
+			}
+
+		</style>
+	</defs>
+		
+	<g class="arrow-color">
+		<polygon points="5 5, 25 25, 5 45" />
+	</g>
+</svg>
+

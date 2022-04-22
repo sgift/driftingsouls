@@ -221,7 +221,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 */
 	public int getMapWidth()
 	{
-		return this.width*39+20;
+		return Math.min(this.width,10)*39+20;
+		//return this.width*39+20;
 	}
 
 	/**
@@ -230,7 +231,9 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 */
 	public int getCargoHeight()
 	{
-		int cargoHeight = (1 + this.getHeight() * 2) * 22+25;
+		//Da wir die Breite nun auf 10 Beschraenken, muessen wir den Ueberschuss auf die Hoehe anrechnen
+		int cargoHeight = (1 + ((this.width>10? this.width-10:0) + this.height)* 2) * 22+25;
+		//int cargoHeight = (1 +  this.height * 2) * 22+25;
 		return (cargoHeight < 280 ? 280 : cargoHeight);
 	}
 
@@ -533,6 +536,10 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	public long getMaxCargo()
 	{
 		return this.maxCargo;
+	}
+	public String getMaxCargo_formated()
+	{
+		return Common.ln(this.maxCargo);
 	}
 
 	/**
@@ -1826,6 +1833,9 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		long cstat = -Base.getStatus(this).getProduction().getMass();
 		return Common.ln(cstat);
 	}
+	public long getCstat(){
+		return -Base.getStatus(this).getProduction().getMass();
+	}
 
 	public String getEnergy_formated(){
 		return Common.ln(this.getEnergy());
@@ -1849,6 +1859,9 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 
 	public String getWohnraum_formated(){
 		return Common.ln(Base.getStatus(this).getLivingSpace());
+	}
+	public int getWohnraum(){
+		return Base.getStatus(this).getLivingSpace();
 	}
 
 	public boolean hasUnits(){

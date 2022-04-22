@@ -83,22 +83,22 @@ public class CoreController extends Controller
 
 		if (base.getCore() != null)
 		{
-			throw new ValidierungException("Sie können nur einen Core pro Asteroid bauen", Common.buildUrl("default", "module", "base", "col", base.getId()));
+			throw new ValidierungException("Sie können nur einen Core pro Asteroid bauen", Common.buildThymeleafUrl("base", "col", base.getId()));
 		}
 
 		if (core == null)
 		{
-			throw new ValidierungException("Der angegebene Core-Typ existiert nicht", Common.buildUrl("default", "module", "base", "col", base.getId()));
+			throw new ValidierungException("Der angegebene Core-Typ existiert nicht", Common.buildThymeleafUrl("base", "col", base.getId()));
 		}
 
 		if (!user.hasResearched(core.getTechRequired()))
 		{
-			throw new ValidierungException("Sie haben nicht alle benötigten Forschungen", Common.buildUrl("default", "module", "base", "col", base.getId()));
+			throw new ValidierungException("Sie haben nicht alle benötigten Forschungen", Common.buildThymeleafUrl( "base", "col", base.getId()));
 		}
 
 		if (core.getAstiType() != base.getKlasse())
 		{
-			throw new ValidierungException("Diese ausgewählte Core passt nicht in diesen Asteroiden hinein", Common.buildUrl("default", "module", "base", "col", base.getId()));
+			throw new ValidierungException("Diese ausgewählte Core passt nicht in diesen Asteroiden hinein", Common.buildThymeleafUrl( "base", "col", base.getId()));
 		}
 
 		Cargo costs = core.getBuildCosts();

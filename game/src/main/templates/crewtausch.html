@@ -29,6 +29,6 @@
 	 | {!link_to zum Zielschiff, default, css_class:back, module:schiff, ship:$target.id}
 {/endif}
 {if global.mode.sb}
-	 | {!link_to zum Asteroid, default, module:base, css_class:back, col:$target.id}
+	 | <a style="font-size:16px" class="back" href="./base?col={target.id}">zur&uuml;ck zur Basis</a>
 {/endif}
 </span>

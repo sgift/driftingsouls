@@ -313,7 +313,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 		boolean ok = true;
 
 		if( !Rassen.get().rasse(user.getRace()).isMemberIn(tech.getRace()) ) {
-			echo.append("<a class=\"error\" href=\"./ds?module=base&amp;col=").append(base.getId()).append("\">Fehler: Diese Forschung kann von ihrer Rasse nicht erforscht werden</a>\n");
+			echo.append("<a class=\"error\" href=\"./base?col=").append(base.getId()).append("\">Fehler: Diese Forschung kann von ihrer Rasse nicht erforscht werden</a>\n");
 			return;
 		}
 
@@ -354,7 +354,7 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 		}
 
 		if( !ok ) {
-			echo.append("<a class=\"error\" href=\"./ds?module=base&amp;col=").append(base.getId()).append("\">Fehler: Forschung kann nicht durchgef&uuml;hrt werden</a>\n");
+			echo.append("<a class=\"error\" href=\"./base?col=").append(base.getId()).append("\">Fehler: Forschung kann nicht durchgef&uuml;hrt werden</a>\n");
 			return;
 		}
 

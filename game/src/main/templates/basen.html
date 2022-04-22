@@ -78,10 +78,10 @@
 <!-- BEGIN bases.listitem -->
 	<tr>
 		<td>
-			{!link_to $base.id, default, module:base, col:$base.id}
+			<a class="forschinfo" href="./base?col={base.id}">{base.id}</a>
 		</td>
 		<td>
-			<a href="./ds?module=base&amp;col={base.id}">
+			<a href="./base?col={base.id}">
 				<img class="baseIcon" src="{base.klasse.lrsimage}" alt="Kolonie" />&nbsp;
 				{base.name}
 			</a>

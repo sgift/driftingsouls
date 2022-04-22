@@ -2,7 +2,6 @@ package net.driftingsouls.ds2.server.modules.thymeleaf;
 
 import net.driftingsouls.ds2.server.bases.*;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
-import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
@@ -11,16 +10,9 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
-import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.units.BaseUnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargoEntry;
 import org.hibernate.Session;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.http.HttpHeaders;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.WebContext;
 
@@ -28,6 +20,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,14 +30,14 @@ import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import net.driftingsouls.ds2.server.framework.ConfigService;
-
+import org.json.*;
 /**
  * Die Basis - Alle Funktionalitaeten der Basis befinden sich in
  * dieser Klasse.
  *
  * @author Gregor Fuhs
  */
-public class BaseController implements DSController{
+public class BaseController implements DSController {
     private Context context;
 
     private static class BuildingComparator implements Comparator<Integer> {
@@ -66,8 +59,11 @@ public class BaseController implements DSController{
         CHANGEBUILDINGSTATUS,
         SCAN,
         ACTIVATEALL,
+        BUILD,
+        UPDATE,
         DEFAULT
     }
+
 
     private boolean validateBase(Base base, WebContext ctx) {
 		User user = (User)context.getActiveUser();
@@ -178,7 +174,7 @@ public class BaseController implements DSController{
             templateEngine.process("base", ctx, response.getWriter());
             return;
         }
-        if(!validateBase(base, ctx)){
+        if(action != Action.SCAN && !validateBase(base, ctx)){
             templateEngine.process("base", ctx, response.getWriter());
             return;
         }
@@ -186,15 +182,12 @@ public class BaseController implements DSController{
         switch(action){
           case CHANGEFEEDING:
             changeFeedingAction(ctx, request, base);
-            defaultAction(ctx, request, base);
             break;
           case CHANGENAME:
             changeNameAction(ctx, request, base);
-            defaultAction(ctx, request, base);
             break;
           case CHANGEBUILDINGSTATUS:
             changeBuildingStatusAction(ctx, request, base);
-            defaultAction(ctx, request, base);
             break;
           case SCAN:
           Ship ship = null;
@@ -202,17 +195,314 @@ public class BaseController implements DSController{
                 ship = Ship.getShipById(Integer.parseInt(request.getParameter("ship")));
             }catch(Exception e){}
             scanAction(ctx, request, base, ship);
-            break;
+            templateEngine.process("base", ctx, response.getWriter());
+            //wir wollen nur scannen, nicht die Basis komplett anzeigen, daher hier return
+            return;
           case ACTIVATEALL:
             activateAllAction(ctx, request, base);
-            defaultAction(ctx, request, base);
             break;
+          case BUILD:
+            buildAction(request,base, response);
+            //Seitenupdate wird in Javascript gemacht, daher hier ein return
+            return;
+          case UPDATE:
+            updateAction(request,base,response);
+            return;
+            //Seitenupdate wird in Javascript gemacht, daher hier ein return
           default:
-            defaultAction(ctx, request, base);
             break;
         }
-
+        defaultAction(ctx, request, base);
         templateEngine.process("base", ctx, response.getWriter());
+    }
+
+    public void prepareResponseForJSON(HttpServletResponse response){
+        response.resetBuffer();
+        response.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+        response.setCharacterEncoding("UTF-8");
+    }
+
+    public void JSONPostERROR(String message, JSONObject json, HttpServletResponse response) throws IOException {
+        prepareResponseForJSON(response);
+        json.put("success",false);
+        json.put("message",message);
+        response.getWriter().write(json.toString());
+        response.flushBuffer(); // marks response as committed -- if we don't do this the request will go through normally!
+    }
+
+    public void updateAction(HttpServletRequest request, Base base, HttpServletResponse response) throws IOException {
+
+        prepareResponseForJSON(response);
+        JSONObject json = new JSONObject();
+        if(request.getParameter("field")!= null){
+            Integer field = -1;
+            try{
+                field = Integer.parseInt(request.getParameter("field"));
+            }catch(Exception e){
+            }
+            JSONObject g = new JSONObject();
+            g.put("geb_id",-1);
+            g.put("field",field);
+            g.put("ground","data/buildings/ground"+base.getTerrain()[field]+".png");
+            json.put("gebaut",g);
+            json.put("success",true);
+        }
+        addFullCargoToJSON(json, base);
+        addBaumenuDiffToJSON(json, base);
+        addEnergyToJSON(json, base);
+        addBevoelkerungToJSON(json, base);
+        response.getWriter().write(json.toString());
+        response.flushBuffer(); // marks response as committed -- if we don't do this the request will go through normally!
+    }
+
+    public void buildAction(HttpServletRequest request, Base base, HttpServletResponse response) throws IOException {
+
+        int buildingid = -1;
+        int field = -1;
+        boolean success = false;
+        prepareResponseForJSON(response);
+        JSONObject json  = new JSONObject();
+        try {
+            buildingid = Integer.parseInt(request.getParameter("building"));
+            field = Integer.parseInt(request.getParameter("field"));
+
+        }catch(NumberFormatException e){
+            JSONPostERROR("Ung&uuml;tige Parameter: Parameter konnten nicht geparst werden.",json,response);
+            return;
+        }
+        json.put("field",field);
+
+        User user = (User) context.getActiveUser();
+
+        //Darf das Gebaeude ueberhaupt gebaut werden?
+
+        if (field >= base.getWidth() * base.getHeight())
+        {
+            JSONPostERROR("Ung&uuml;tige Parameter: Feld existiert nicht.",json,response);
+            return;
+        }
+
+        Building building = Building.getBuilding(buildingid);
+        if(building == null)
+        {
+            JSONPostERROR("Ung&uuml;tige Parameter: Geb&auml;de ung&uuml;ltig.",json,response);
+            return;
+        }
+
+        //Anzahl der Gebaeude berechnen
+        Map<Integer, Integer> buildingcount = berechneGebaeudeanzahlDieserBasis(base);
+
+        //Anzahl der Gebaeude pro Spieler berechnen
+        Map<Integer, Integer> ownerbuildingcount = berechneGebaeudeanzahlAllerBasen(user);
+
+        //Anzahl der Gebaeude berechnen
+        if (building.getPerPlanetCount() != 0)
+        {
+            if (buildingcount.containsKey(building.getId()) && building.getPerPlanetCount() <= buildingcount.get(building.getId()))
+            {
+                JSONPostERROR("Maximale Anzahl pro Asteroid (" + building.getPerPlanetCount() + ") erreicht.",json,response);
+                return;
+            }
+        }
+
+        //Anzahl der Gebaeude pro Spieler berechnen
+        if (building.getPerUserCount() != 0)
+        {
+            if (ownerbuildingcount.containsKey(building.getId()) && building.getPerUserCount() <= ownerbuildingcount.get(building.getId()))
+            {
+                JSONPostERROR("Sie k&ouml;nnen dieses Geb&auml;ude maximal " + building.getPerUserCount() + " Mal insgesamt bauen",json,response);
+                return;
+            }
+        }
+
+        // Pruefe auf richtiges Terrain
+        if (!building.hasTerrain(base.getTerrain()[field]))
+        {
+            JSONPostERROR("Dieses Geb&auml;ude ist nicht auf diesem Terrainfeld baubar.",json,response);
+            return;
+        }
+
+        if (base.getBebauung()[field] != 0)
+        {
+            JSONPostERROR("Es existiert bereits ein Geb&auml;ude an dieser Stelle",json,response);
+            return;
+        }
+
+        if (building.isUComplex())
+        {
+            int c = berechneAnzahlUnterirdischerKomplexe(context.getDB(), buildingcount);
+            int grenze = berechneMaximaleAnzahlUnterirdischerKomplexe(base);
+
+            if (c > grenze - 1)
+            {
+                JSONPostERROR("Maximale Anzahl (" + grenze + ") unterirdischer Komplexe erreicht",json,response);
+                return ;
+            }
+        }
+        if (!Rassen.get().rasse(user.getRace()).isMemberIn(building.getRace()))
+        {
+            JSONPostERROR("Sie geh&ouml;ren der falschen Spezies an und k&ouml;nnen dieses Geb&auml;ude nicht selbst errichten.",json,response);
+            return ;
+        }
+        if (!user.hasResearched(building.getTechRequired()))
+        {
+            JSONPostERROR("Sie verf&uuml;gen nicht über alle n&ouml;tigen Forschungen um dieses Geb&auml;ude zu bauen",json,response);
+            return ;
+        }
+        //Alle technischen Fehler des Baus geprueft, sieht bislang gut aus. Also setzen wir den Erfolg erstmal
+        success = true;
+        //noetige Resourcen berechnen/anzeigen
+        Cargo basecargo = base.getCargo();
+
+        //jetzt pruefen wir noch, ob ausreichend Baumaterial verfuegbar
+        ResourceList compreslist = building.getBuildCosts().compare(basecargo, false);
+        for (ResourceEntry compres : compreslist)
+        {
+            if (compres.getDiff() > 0)
+            {
+                //und entziehen hier ggfs den Erfolg wieder
+                success = false;
+                break;
+            }
+        }
+
+        // Alles OK -> bauen
+        if (success)
+        {
+            Integer[] bebauung = base.getBebauung();
+            bebauung[field] = building.getId();
+            base.setBebauung(bebauung);
+
+            Integer[] active = base.getActive();
+            // Muss das Gebaeude aufgrund von Arbeitermangel deaktiviert werden?
+            boolean aktiviert = false;
+            if ((building.getArbeiter() > 0) && (building.getArbeiter() + base.getArbeiter() > base.getBewohner()))
+            {
+                active[field] = 0;
+                aktiviert = true;
+            }
+            else
+            {
+                active[field] = 1;
+            }
+            // Resourcen abziehen
+            basecargo.substractCargo(building.getBuildCosts());
+            base.setCargo(basecargo);
+            base.setArbeiter(base.getArbeiter() + building.getArbeiter());
+            base.setActive(active);
+
+            // Evt. muss das Gebaeude selbst noch ein paar Dinge erledigen
+            building.build(base, building.getId());
+
+            //JSON zusammenbauen
+            /* Return ResponseBody
+            "Success":bool,
+            "Buildings":[ // hier die baubaren, fürs baumenü
+            {"Geb1_id": int, "Mangel":[{"Ress_id": int},{...}] Aenderung}
+            {"Geb2_id": ...}, ...], Aenderung
+            "Cargo":[{"ress_name":string, "Menge":long, "produktion":long "kategorie":string}], komplett
+            "Gebaut":{"Geb_id":int, "fieldnumber":int, "aktiviert":bool, "bildpfad":string; "col": int},
+            "Message":String,
+            "field":int
+        */
+            JSONObject g = new JSONObject();
+            g.put("geb_id",buildingid);
+            g.put("field",field);
+            g.put("aktiviert",aktiviert);
+            g.put("bildpfad",building.getPictureForRace(user.getRace()));
+            g.put("col",base.getId());
+            g.put("geb_name",building.getPlainName());
+            json.put("gebaut",g);
+            json.put("message", "Geb&auml;de "+building.getPlainName()+" erfolgreich gebaut.");
+        }
+        else
+        {
+            //scheinbar waren doch nicht ausreichend Ress da, weil vielleicht in der Zwischenzeit Ress transferiert wurden
+            json.put("message", "Geb&auml;de "+building.getPlainName()+" aus Ressourcenmangel nicht gebaut.");
+        }
+        //und deshalb laden wir hier auch noch einmal den Cargo und das Baumenu neu, dass die sich updaten
+        json.put("success",success);
+        //Jetzt das Baumenue, nur Aenderungen
+        addBaumenuDiffToJSON(json, base);
+        //Jetzt den neuen Cargo:
+        addFullCargoToJSON(json, base);
+        addEnergyToJSON(json,base);
+        addBevoelkerungToJSON(json,base);
+        response.getWriter().write(json.toString());
+        response.flushBuffer(); // marks response as committed -- if we don't do this the request will go through normally!
+
+
+    }
+
+    /**
+     * fuegt den gesamten Basiscargo dem uebergebenen JSONObject hinzu
+     * @param json das zu erweiternde JSONObject
+     * @param base die Basis, deren Cargo hinzugefuegt werden soll
+     */
+    public void addFullCargoToJSON(JSONObject json, Base base){
+        JSONArray ja = new JSONArray();
+        for(ResourceEntry r : base.getCargoResourceList()){
+            JSONObject jo = new JSONObject();
+            jo.put("ress_name",r.getPlainName());
+            jo.put("menge",r.getCount1());
+            jo.put("produktion", r.getCount2());
+            jo.put("kategorie",convertItemEffectType2ItemTyp(Item.getItemById(r.getId().getItemID()).getEffect().getType()).getName());
+            jo.put("bildpfad",r.getImage());
+            ja.put(jo);
+        }
+        JSONObject empty = new JSONObject();
+        empty.put("empty", base.getCargoEmpty());
+        empty.put("max",base.getMaxCargo());
+        empty.put("change", base.getCstat());
+        json.put("empty_cargo",empty);
+        json.put("cargo",ja);
+    }
+
+    public void addEnergyToJSON(JSONObject json, Base base){
+        JSONObject energy = new JSONObject();
+        energy.put("gespeicherte_energie", base.getEnergy_formated());
+        energy.put("energiebilanz", base.getEstat_formated());
+        json.put("energy",energy);
+    }
+    public void addBevoelkerungToJSON(JSONObject json, Base base){
+        JSONObject bev = new JSONObject();
+        bev.put("arbeiter", base.getArbeiter());
+        bev.put("einwohner",base.getBewohner());
+        bev.put("wohnraum",base.getWohnraum());
+        json.put("stats",bev);
+    }
+
+    /**
+     * fuegt alle Aenderungen des Baumenues in die uebergebene JSON
+     * @param json das JSONObject, das erweitert werden soll
+     * @param base die Basis, auf der das Baumenu angezeigt werden soll
+     */
+    public void addBaumenuDiffToJSON(JSONObject json, Base base){
+        if(base == null){
+            return;
+        }
+        Cargo basecargo = base.getCargo();
+        JSONArray jb = new JSONArray();
+        Iterator<?> buildingIter = context.getDB().createQuery("from Building  order by name")
+                .iterate();
+        for (; buildingIter.hasNext(); ) {
+            Building b = (Building) buildingIter.next();
+            JSONArray ja = new JSONArray();
+            for(ResourceEntry r : b.getBuildCosts().compare(basecargo, false)){
+                if(r.getDiff() > 0) {
+                    JSONObject jo = new JSONObject();
+                    jo.put("ress_id",r.getId().getItemID());
+                    ja.put(jo);
+                }
+            }
+            if(ja != null && !ja.isEmpty()) {
+                JSONObject job = new JSONObject();
+                job.put("geb_id", b.getId());
+                job.put("mangel", ja);
+                jb.put(job);
+            }
+        }
+        json.put("buildings",jb);
     }
 
     /**
@@ -300,7 +590,7 @@ public class BaseController implements DSController{
         }catch(Exception e){}
         int buildingonoff = -1;
         try{
-            buildingonoff = Integer.parseInt(request.getParameter("act"));
+            buildingonoff = Integer.parseInt(request.getParameter("buildingonoff"));
         }catch(Exception e){
             message = "Ung&uuml;ltige Geb&auml;ude-ID angegeben";
             ctx.setVariable("message", message);
@@ -359,7 +649,7 @@ public class BaseController implements DSController{
         ctx.setVariable("message", message);
     }
     /** 
-     * Aktion zur Anzeige der Basis
+     * Aktion zur Anzeige der Basis. Wird ein Schiff uebergeben, wird der Asti gescannt, wird <code>null</code> uebergeben, wird der Asti normal aufgerufen.
      * @param ctx der WebContext
      * @param request der HttpServletRequest (enthaelt die uebergebenen Parameter)
      * @param base die Basis
@@ -369,24 +659,20 @@ public class BaseController implements DSController{
      */
     public void scanAction(WebContext ctx, HttpServletRequest request, Base base, Ship ship){
         boolean scan = ship != null;
-		int shipid = 0;
-		if (!scan)
-		{
-			if(!validateBase(base, ctx)){
+        if (!scan)
+        {
+            if(!validateBase(base, ctx)){
                 return;
             }
-		}
-		else{
-			if(!validateScan(base,ship, ctx)){
+        }
+        else{
+            if(!validateScan(base,ship, ctx)){
                 return;
             }
-			shipid = ship.getId();
-			int e = new ConfigService().getValue(WellKnownConfigValue.ASTI_SCAN_COST);
-			ship.setEnergy(ship.getEnergy() - e);
-		}
-
+            int e = new ConfigService().getValue(WellKnownConfigValue.ASTI_SCAN_COST);
+            ship.setEnergy(ship.getEnergy() - e);
+        }
 		User user = (User)context.getActiveUser();
-		int mapheight = (1 + base.getHeight() * 2) * 22+25;
         ctx.setVariable("base", base);
         ctx.setVariable("scan",scan);
 
@@ -450,7 +736,9 @@ public class BaseController implements DSController{
             tile.setId(i);
             //endrow
             tilerow.add(tile);
-            if((i+1)%base.getWidth() == 0){
+            //maximal 12 pro Tilerow, da sonst die Map zu breit wird
+            if((i+1)%Math.min(base.getWidth(),10) == 0){
+           // if((i+1)%base.getWidth() == 0){
                 tiles.add(tilerow);
                 tilerow = new ArrayList<>();
             }
@@ -478,13 +766,13 @@ public class BaseController implements DSController{
 		// Aktionen
 		//----------------
 
-        List<BuildingView> buildings = new ArrayList<>();
+        List<BuildingGroup> buildings = new ArrayList<>();
 
 		for( Map.Entry<Integer,Integer> entry : buildingonoffstatus.entrySet() ) {
 			int bstatus = entry.getValue();
 
 			Building building = Building.getBuilding(entry.getKey());
-            BuildingView bv = new BuildingView(building,entry.getKey(),(bstatus == -1) || (bstatus == 2),(bstatus == -1) || (bstatus == 1)  );
+            BuildingGroup bv = new BuildingGroup(building,entry.getKey(),(bstatus == -1) || (bstatus == 2),(bstatus == -1) || (bstatus == 1)  );
             buildings.add(bv);
 		}
         ctx.setVariable("buildings",buildings);
@@ -498,22 +786,8 @@ public class BaseController implements DSController{
             ctx.setVariable("units",units);
         }
 
-		double summeWohnen = Math.max(base.getBewohner(),basedata.getLivingSpace());
-		long arbeiterProzent = Math.round(basedata.getArbeiter()/summeWohnen*100);
-		long arbeitslosProzent = Math.max(Math.round((base.getBewohner()-basedata.getArbeiter())/summeWohnen*100),0);
-		long wohnraumFreiProzent = Math.max(Math.round((basedata.getLivingSpace()-base.getBewohner())/summeWohnen*100),0);
-		long wohnraumFehltProzent = Math.max(Math.round((base.getBewohner()-basedata.getLivingSpace())/summeWohnen*100),0);
-		long prozent = arbeiterProzent+arbeitslosProzent+wohnraumFehltProzent+wohnraumFreiProzent;
-		if( prozent > 100 ) {
-			long remaining = prozent-100;
-			long diff = Math.min(remaining,arbeiterProzent);
-			arbeiterProzent -= diff;
-			remaining -= diff;
-			if( remaining > 0 ) {
-				arbeitslosProzent -= remaining;
-			}
-		}
-        Bevoelkerung bevoelkerung = new Bevoelkerung(arbeiterProzent,arbeitslosProzent,wohnraumFreiProzent,wohnraumFehltProzent);
+
+        Bevoelkerung bevoelkerung = new Bevoelkerung(base,basedata);
 
 		ctx.setVariable("bevoelkerung", bevoelkerung);
         if(!scan)
@@ -534,12 +808,6 @@ public class BaseController implements DSController{
         scanAction(ctx, request, base,  null);
     }
 
-    @RequestMapping("/base/build")
-    @ResponseBody
-    public String getJSON( @RequestParam("buildingid") int buildingid, @RequestParam("field") int fieldid, @RequestParam("col") int baseid){
-        return "test: buildingid="+buildingid+"; field="+fieldid+"; col="+baseid;
-    }
-
     /**
      * Aktion zur Anzeige der Basis
      * @param ctx der WebContext
@@ -554,7 +822,7 @@ public class BaseController implements DSController{
         ctx.setVariable("base", base);
         boolean deaconly = false;
         try{
-            deaconly = Boolean.parseBoolean(request.getParameter("deaconly"));
+            deaconly = request.getParameter("deaconly").equals("1") || Boolean.parseBoolean(request.getParameter("deaconly")) ;
         }catch(Exception e){}
         /*
 			Alle Gebaeude deaktivieren
@@ -672,9 +940,6 @@ public class BaseController implements DSController{
         int c = berechneAnzahlUnterirdischerKomplexe(db, buildingcount);
 
         boolean ucomplex = c <= grenze - 1;
-
-        //t.setBlock("_BUILD", "buildings.listitem", "buildings.list");
-        //t.setBlock("buildings.listitem", "buildings.res.listitem", "buildings.res.list");
 
         List<BuildingKategorie> kategorien = new ArrayList<>();
 
@@ -853,32 +1118,25 @@ public class BaseController implements DSController{
         public String getName() {
             return name;
         }
-
         public void setName(String name) {
             this.name = name;
         }
-
         public List<ResourceEntry> getRess() {
             return ress;
         }
-
         public void setRess(List<ResourceEntry> ress) {
             this.ress = ress;
         }
-
-        public String name;
-
+        public int getAmount(){
+            return ress.size();
+        }
         public RessView(String name, List<ResourceEntry> ress) {
             this.name = name;
             this.ress = ress;
         }
 
         public List<ResourceEntry> ress;
-
-        public int getAmount(){
-            return ress.size();
-        }
-
+        public String name;
     }
 
     private static class BuildingKategorie{
@@ -897,27 +1155,21 @@ public class BaseController implements DSController{
             baubar = false;
             baukosten =  building.getBuildCosts().compare(basecargo, false, true);
         }
-
         public Building getBuilding() {
             return building;
         }
-
         public void setBuilding(Building building) {
             this.building = building;
         }
-
         public boolean isBaubar() {
             return baubar;
         }
-
         public void setBaubar(boolean baubar) {
             this.baubar = baubar;
         }
-
         public ResourceList getBaukosten() {
             return baukosten;
         }
-
         public void setBaukosten(ResourceList baukosten) {
             this.baukosten = baukosten;
         }
@@ -1003,31 +1255,37 @@ public class BaseController implements DSController{
 
     }
 
-    private static class BuildingView{
+    private static class BuildingGroup{
         public final Building building;
         public boolean allowon = false;
         public boolean allowoff = false;
         public final int id;
-        public BuildingView(Building building, int id, boolean allowoff, boolean allowon) {
+
+        public BuildingGroup(Building building, int id, boolean allowoff, boolean allowon) {
             this.building = building;
             this.allowon = allowon;
             this.allowoff = allowoff;
             this.id = id;
         }
+        public boolean isAllowon() {
+            return allowon;
+        }
+        public boolean isAllowoff() {
+            return allowoff;
+        }
 
     }
 
     private static class Bevoelkerung{
-        public final long arbeiterProzent;
-		public final long arbeitslosProzent;
-		public final long wohnraumFreiProzent;
-		public final long wohnraumFehltProzent;
-        public Bevoelkerung(long arbeiterProzent, long arbeitslosProzent, long wohnraumFreiProzent,
-                long wohnraumFehltProzent) {
-            this.arbeiterProzent = arbeiterProzent;
-            this.arbeitslosProzent = arbeitslosProzent;
-            this.wohnraumFreiProzent = wohnraumFreiProzent;
-            this.wohnraumFehltProzent = wohnraumFehltProzent;
+        public final long arbeiter;
+        public final long arbeitslos;
+        public final long wohnraumFrei;
+        public final long wohnraumFehlt;
+        public Bevoelkerung(Base base, BaseStatus basedata) {
+            this.arbeiter = basedata.getArbeiter();
+            this.arbeitslos = base.getBewohner()-basedata.getArbeiter();
+            this.wohnraumFrei = basedata.getLivingSpace()-base.getBewohner();
+            this.wohnraumFehlt = base.getBewohner()-basedata.getLivingSpace();
         }
     }
 
@@ -1046,13 +1304,10 @@ public class BaseController implements DSController{
         MODUL("Module"),
         MUNITION("Munition"),
         SONSTIGES("Sonstiges");
-
         private final String name;
-
         ItemTyp(String name) {
             this.name = name;
         }
-
         /**
          * Gibt den umgangssprachlichen Namen der des ItemTyps zurueck.
          * @return der Name
@@ -1062,6 +1317,12 @@ public class BaseController implements DSController{
         }
     }
 
+    /**
+     * konvertiert einen ItemEffect in einen ItemTyp fuer die Kategorisierung in der GUI
+     * gibt also quasi die Oberkategorie zurueck
+     * @param type der ItemEffect.Type
+     * @return der GUI-ItemTyp
+     */
     public ItemTyp convertItemEffectType2ItemTyp(ItemEffect.Type type){
         switch (type){
             case NONE:
@@ -1075,5 +1336,4 @@ public class BaseController implements DSController{
                 return ItemTyp.SONSTIGES;
         }
     }
-
 }
