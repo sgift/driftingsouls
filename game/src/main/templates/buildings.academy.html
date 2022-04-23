@@ -72,7 +72,7 @@
 	 		<td class="noBorderX">
 		 		{if trainoffizier.offi}
 		 			<img style="vertical-align:middle" src="{trainoffizier.picture}" alt="" />
-		 			<a class="academy" href="./ds?module=choff&amp;off={trainoffizier.id}">{trainoffizier.name}</a>
+		 			<a class="academy" href="./choff?off={trainoffizier.id}">{trainoffizier.name}</a>
 		 		{else}
 		 			{trainoffizier.name}
 		 		{/endif}
@@ -148,7 +148,7 @@
 			<tr>
 			<td class="noBorderX" style="white-space:nowrap">
 			<img style="vertical-align:middle" src="{offizier.picture}" alt="" />
-			<a class="academy" href="./ds?module=choff&amp;off={offizier.id}">{offizier.name}</a>
+			<a class="academy" href="./choff?off={offizier.id}">{offizier.name}</a>
 			</td>
 
 			<td class="noBorderX" align="center">
@@ -207,7 +207,7 @@
 			<form action="./ds" method="post">
 				<td class="noBorderX" style="white-space:nowrap">
 					<img style="vertical-align:middle" src="{offizier.picture}" alt="" />
-					<a class="academy" href="./ds?module=choff&amp;off={offizier.id}">{offizier.name}</a>
+					<a class="academy" href="./choff?off={offizier.id}">{offizier.name}</a>
 					<input type="hidden" name="off" value="{offizier.id}"/>
 					<input type="hidden" name="col" value="{base.id}"/>
 					<input type="hidden" name="field" value="{base.field}"/>

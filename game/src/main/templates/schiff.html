@@ -102,7 +102,7 @@
 				Offizier:
 				<!-- BEGIN offiziere.listitem -->
 					{if offiziere.list}, {/endif}
-					<span class="nobr"><img src="{offizier.picture}" alt="Rang {offizier.rang}" /> {!link_to $offizier.name, default, module:choff, off:$offizier.id}</span>
+					<span class="nobr"><img src="{offizier.picture}" alt="Rang {offizier.rang}" /> <a class="forschinfo" href="./choff?off={offizier.id}">{offizier.name}</a></span>
 				<!-- END offiziere.listitem -->
 			</td></tr>
 			{/endif}

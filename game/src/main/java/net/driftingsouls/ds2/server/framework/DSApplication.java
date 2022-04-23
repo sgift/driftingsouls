@@ -8,6 +8,7 @@ import net.driftingsouls.ds2.server.modules.thymeleaf.RegisterController;
 import net.driftingsouls.ds2.server.modules.thymeleaf.SendPasswordController;
 import net.driftingsouls.ds2.server.modules.thymeleaf.ComNetController;
 import net.driftingsouls.ds2.server.modules.thymeleaf.StaticController;
+import net.driftingsouls.ds2.server.modules.thymeleaf.ChoffController;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
@@ -56,6 +57,7 @@ public class DSApplication {
         this.controllersByURL.put("/register", new RegisterController());
         this.controllersByURL.put("/login", new LoginController(portalController));
         this.controllersByURL.put("/logout", new LogoutController());
+        this.controllersByURL.put("/choff", new ChoffController());
         this.controllersByURL.put("/comnet", new ComNetController());
     }
 
