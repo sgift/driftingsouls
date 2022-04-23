@@ -11,7 +11,7 @@
     <properties>
         <hibernate.version>4.1.12.Final</hibernate.version>
         <imageio.version>1.4.0</imageio.version>
-        <spring.version>4.3.30.RELEASE</spring.version>
+        <spring.version>5.3.19</spring.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.release>11</maven.compiler.release>
