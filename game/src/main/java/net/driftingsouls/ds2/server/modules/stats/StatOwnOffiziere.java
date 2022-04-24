@@ -65,7 +65,7 @@ public class StatOwnOffiziere implements Statistic {
 			Offizier offizier = (Offizier) anOffiziere;
 
 			echo.append("<tr>\n");
-			echo.append("<td class=\"noBorderX\"><img src=\"").append(offizier.getPicture()).append("\" alt=\"Rang ").append(Integer.toString(offizier.getRang())).append("\" /> <a class=\"forschinfo\" href=\"").append(Common.buildUrl("default", "module", "choff", "off", offizier.getID())).append("\">").append(Common._title(offizier.getName())).append("</a> (").append(Integer.toString(offizier.getID())).append(")</td>\n");
+			echo.append("<td class=\"noBorderX\"><img src=\"").append(offizier.getPicture()).append("\" alt=\"Rang ").append(Integer.toString(offizier.getRang())).append("\" /> <a class=\"forschinfo\" href=\"choff?off=").append(Integer.toString(offizier.getID())).append("\">").append(Common._title(offizier.getName())).append("</a> (").append(Integer.toString(offizier.getID())).append(")</td>\n");
 			echo.append("<td class=\"noBorderX\">&nbsp;</td>\n");
 
 			if (offizier.getStationiertAufSchiff() != null)

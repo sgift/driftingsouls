@@ -327,6 +327,22 @@ public class Offizier extends DSObject {
 		return 0;
 	}
 
+	public int getWAF(){
+		return getAbility(Ability.WAF); 
+	}
+	public int getNAV(){
+		return getAbility(Ability.NAV); 
+	}
+	public int getCOM(){
+		return getAbility(Ability.COM); 
+	}
+	public int getSEC(){
+		return getAbility(Ability.SEC); 
+	}
+	public int getING(){
+		return getAbility(Ability.ING); 
+	}
+
 	/**
 	 * Setzt den Skillwert einer Faehigkeit des offiziers.
 	 * @param ability Die Faehigkeit
