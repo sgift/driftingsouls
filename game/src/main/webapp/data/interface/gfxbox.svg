@@ -1,0 +1,21 @@
+<svg id="svgNoiseTest" width="400px" height="400px" viewBox="0 0 400 400" xmlns='http://www.w3.org/2000/svg'> 
+   <defs>
+   
+		<style>
+			.mix 
+			{ 
+				mix-blend-mode: soft-light;
+			}
+			.color{
+				fill:#3C3C5A;
+				#stroke-width:0;
+			}
+		</style>
+		  
+  </defs>
+<g  viewbox="0 0 400 400" transform="translate(0 0)">
+	<polygon class="" points="5 25, 25 5, 375 5, 395 25, 395 375, 375 395, 25 395, 5 375" fill="#0A0602" stroke="#373737" stroke-width="0" />
+	<polygon class="" points="5 25, 25 5, 375 5, 395 25, 395 375, 375 395, 25 395, 5 375" fill="transparent" stroke="#373737" stroke-width="6" />
+</g>
+</svg>
+

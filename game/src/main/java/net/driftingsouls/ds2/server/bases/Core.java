@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.bases;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.UnmodifiableCargo;
 import net.driftingsouls.ds2.server.entities.Forschung;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -119,6 +120,16 @@ public abstract class Core {
 	public String getName() {
 		return name;
 	}
+
+	/**
+	 * Der Name der Core.
+	 * @return der Name
+	 */
+	public String getPlainName() {
+		return Common._plaintitle(this.getName());
+	}
+
+	
 	
 	/**
 	 * Gibt den Basis-Typ, in den die Core passt, zurueck.

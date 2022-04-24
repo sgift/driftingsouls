@@ -187,7 +187,7 @@
 <br />
 {if source.isbase}
 	<span class="smallfont">
-		{!link_to zur&uuml;ck, default, module:base, css_class:back, col:$sourceobj.id}
+		<a style="font-size:16px" class="back" href="./base?col={sourceobj.id}">zur&uuml;ck zur Basis</a>
 	</span>
 {else}
 	<span class="smallfont">
@@ -197,7 +197,7 @@
 {if target.show}
 	{if target.isbase}
 		<span class="smallfont">
-			| <a class="back" href="./ds?module=base&col={targetobj.id}">zu {targetobj.name}</a>
+			| <a class="back" href="./base?col={targetobj.id}">zu {targetobj.name}</a>
 		</span>
 	{else}
 		<span class="smallfont">

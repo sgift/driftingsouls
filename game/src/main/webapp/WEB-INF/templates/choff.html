@@ -68,7 +68,7 @@
   </div>
   <br />
   <div th:if="${error==null}">
-    <a class="back" th:if="${inhalt.baseid > 0}" th:href="@{'ds'(module='base',action='default',col=${inhalt.baseid})}" >zur&uuml;ck zur Basis</a>
+    <a class="back" th:if="${inhalt.baseid > 0}" th:href="@{'base'(col=${inhalt.baseid})}" >zur&uuml;ck zur Basis</a>
     <a class="back" th:if="${inhalt.shipid > 0}" th:href="@{'ds'(module='schiff',action='default',ship=${inhalt.shipid})}" >zur&uuml;ck zum Schiff</a>
   </div>
   <script type="text/javascript">

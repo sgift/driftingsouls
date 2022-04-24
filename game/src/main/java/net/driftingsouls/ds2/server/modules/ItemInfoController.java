@@ -823,7 +823,7 @@ public class ItemInfoController extends Controller
 							{
 								continue;
 							}
-							tooltiptext.append(baseimage + "<td class='noBorderX'><a style='font-size:14px' class='forschinfo' href='").append(Common.buildUrl("default", "module", "base", "col", objectid)).append("'>").append(base.getName()).append(" - ").append(base.getLocation().displayCoordinates(false)).append("</a></td>");
+							tooltiptext.append(baseimage + "<td class='noBorderX'><a style='font-size:14px' class='forschinfo' href='").append(Common.buildThymeleafUrl("base", "col", objectid)).append("'>").append(base.getName()).append(" - ").append(base.getLocation().displayCoordinates(false)).append("</a></td>");
 							break;
 						}
 						case 'g':

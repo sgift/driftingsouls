@@ -16,7 +16,7 @@
 <br />
 <br />
 {if base.id}
-	{!link_to Zur Kolonie, default, module:base, css_class:back, col:$base.id}
+	<a style="font-size:16px" class="back" href="./base?col={base.id}">Zur Kolonie</a>
 	|
 	{!link_to zur Kolonie&uuml;bersicht, default, css_class:back, module:basen}
 {else}

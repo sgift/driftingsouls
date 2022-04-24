@@ -1,132 +1,282 @@
-function BaseView() {
-	function renderCargo(baseModel) {
-		var model = $.extend(true, {}, baseModel);
-		model.cargoFrei = DS.ln(model.cargoFrei);
-		model.cargoBilanz = DS.ln(model.cargoBilanz);
+function BaseRenderer(){
+	function RenderCargo(data){
+		document.getElementById("Waren").querySelectorAll("tbody")[0].innerHTML="";
+		document.getElementById("Munition").querySelectorAll("tbody")[0].innerHTML="";
+		document.getElementById("Module").querySelectorAll("tbody")[0].innerHTML="";
+		document.getElementById("Sonstiges").querySelectorAll("tbody")[0].innerHTML="";
+		document.getElementById("cargo_uebersicht").innerHTML ='Verf\u00fcgbarer Cargo: '+ data.empty_cargo.empty.toLocaleString() + ' ('+data.empty_cargo.change.toLocaleString()+') / '+data.empty_cargo.max.toLocaleString();
+		data.url = DS.getUrl();
 
-		var tmpl = '<ul id="cargoBox">'+
-			'{{#cargo}}'+
-			'<li>'+
-			'<img src="{{image}}" alt="" />'+
-			'{{{name}}} {{{cargo1}}} {{#count2}}{{{cargo2}}}{{/count2}}'+
-			'</li>'+
-			'{{/cargo}}'+
-			'<li><img src="./data/interface/leer.gif" alt="" />Leer {{cargoFrei}} {{cargoBilanz}}</li>'+
-			'</ul>';
-
-		return DS.render(tmpl, model);
+		for(let i=0; i< data.cargo.length; i++)
+		{
+			data.cargo[i].url= data.url;
+			document.getElementById(data.cargo[i].kategorie).querySelectorAll("tbody")[0].appendChild(parseHTML(templateCargoFn(data.cargo[i])));
+		}
 	}
 
-	function updateCargo(baseModel) {
-		var cargoEl = $('#cargoBox');
-		cargoEl.replaceWith(renderCargo(baseModel));
-		DsTooltip.update(cargoEl);
+	function RenderEnergy(data){
+
+		document.getElementById("stored_energy").innerHTML = data.energy.gespeicherte_energie.toLocaleString();
+		document.getElementById("energydiff").innerHTML = data.energy.energiebilanz.toLocaleString();
 	}
 
-	function renderGebaeudeAktionen(model) {
-		var tmpl = '<ul class="buildingActions">'+
-			'{{#gebaeudeStatus}}'+
-			'<li class="building{{id}}">'+
-			'{{name}}'+
-			'{{#deaktivierbar}}'+
-			'<a class="deaktiveren action" title="Gebäude deaktivieren" href="#">'+
-			'<img alt="" src="data/interface/nenergie.gif">'+
-			'</a>'+
-			'{{/deaktivierbar}}'+
-			'{{#aktivierbar}}'+
-			'<a class="aktivieren action" title="Gebäude aktivieren" href="#">'+
-			'<img alt="" src="data/interface/energie.gif">'+
-			'</a>'+
-			'{{/aktivierbar}}'+
-			'</li>'+
-			'{{/gebaeudeStatus}}'+
-			'</ul>';
+	function RenderStats(data){ // json = {Arbeiter:1000, Einwohner: 1500, Wohnraum: 1500}
+		const templateStatsFn = stats => `<div id="statsBox" style="width:100%;">
+									${RenderSingleStat("arbeiteranzeige", stats.arbeiter)}
+									${RenderSingleStat("arbeitslosenanzeige", stats.einwohner-stats.arbeiter)}
+									${RenderSingleStat("wohnraumfreianzeige", stats.wohnraum-stats.einwohner)}
+									${RenderSingleStat("wohnraumfehltanzeige", stats.einwohner-stats.wohnraum)}
+							</div>`;
+		let stats = document.getElementById("statsBox");
 
-		return DS.render(tmpl, model);
-	}
-	function updateGebaeudeAktionen(model) {
-		var bactionEl = $('.buildingActions');
-		bactionEl.replaceWith(renderGebaeudeAktionen(model));
-		DsTooltip.update(bactionEl);
+		stats.innerHTML = parseHTML(templateStatsFn(data.stats)).firstChild.innerHTML;
+		document.getElementById("bevoelkerung").innerHTML = data.stats.einwohner.toLocaleString();
+		document.getElementById("arbeiter").innerHTML = data.stats.arbeiter.toLocaleString();
+		document.getElementById("wohnraum").innerHTML = data.stats.wohnraum.toLocaleString();
 	}
 
-	function renderStats(baseModel) {
-		var model = $.extend(true, {}, baseModel);
-
-		var summeWohnen = Math.max(model.bewohner,model.wohnraum);
-		model.arbeiterProzent = Math.round(model.arbeiter/summeWohnen*100);
-		model.arbeitslosProzent = Math.max(Math.round((model.bewohner-model.arbeiter)/summeWohnen*100),0);
-		model.wohnraumFreiProzent = Math.max(Math.round((model.wohnraum-model.bewohner)/summeWohnen*100),0);
-		model.wohnraumFehltProzent = Math.max(Math.round((model.bewohner-model.wohnraum)/summeWohnen*100),0);
-		var prozent = model.arbeiterProzent+model.arbeitslosProzent+model.wohnraumFehltProzent+model.wohnraumFreiProzent;
-		if( prozent > 100 ) {
-			var remaining = prozent-100;
-			var diff = Math.min(remaining,model.arbeiterProzent);
-			model.arbeiterProzent -= diff;
-			remaining -= diff;
-			if( remaining > 0 ) {
-				model.arbeitslosProzent -= remaining;
-			}
+	function RenderSingleStat(cssClass, amount)	{
+		if(amount < 0)
+		{
+			return "";
 		}
 
-		model.energy = DS.ln(model.energy);
-		model.energyProduced = DS.ln(model.energyProduced);
-		model.bewohner = DS.ln(model.bewohner);
-		model.arbeiterErforderlich = DS.ln(model.arbeiterErforderlich);
-		model.wohnraum = DS.ln(model.wohnraum);
+		let result = "<div class=\"row\" style=\"margin-left:5px;margin-right:5px;\">";
 
-		var tmpl = '<div class="gfxbox" id="statsBox">'+
-			'Gespeicherte Energie: {{energy}}<br />'+
-			'Energiebilanz: {{energyProduced}}<br />'+
-			'<br />'+
-			'Bevölkerung: {{bewohner}}<br />'+
-			'Arbeiter benötigt: {{arbeiterErforderlich}}<br />'+
-			'Wohnraum: {{wohnraum}}<br />'+
-			'<div class="arbeiteranzeige" style="width:{{arbeiterProzent}}%"></div>'+
-			'<div class="arbeitslosenanzeige" style="width:{{arbeitslosProzent}}%"></div>'+
-			'<div class="wohnraumfreianzeige" style="width:{{wohnraumFreiProzent}}%"></div>'+
-			'<div class="wohnraumfehltanzeige" style="width:{{wohnraumFehltProzent}}%"></div>'+
-			'<br /><br />'+
-			'</div>';
+		for(let i=0; i< (amount-(amount % 800)) / 800; i++)
+		{
+			result = result + '<div class="' + cssClass + '" ></div>';
+		}
 
-		return DS.render(tmpl, model);
-	}
-	function updateStats(baseModel) {
-		var statsEl = $('#statsBox');
-		statsEl.replaceWith(renderStats(baseModel));
-		DsTooltip.update(statsEl);
+		if(amount % 800 != 0)
+		{
+			result = result + '<div class="' + cssClass + '" style="width:' + ((amount % 800)/800)*80 + 'px"></div>';
+		}
+		result = result + "</div>";
+		return result;
 	}
 
-	function showNameInput(model) {
+	function RenderBaulisteRessMangel(buildings){
+		let allGebRess = document.querySelectorAll("button.btn-geb-info span [ds-item-id]");
+
+		for(let index = 0; index < allGebRess.length; ++index)
+		{
+			let ressElement = allGebRess[index];
+			if(ressElement.parentElement.classList.contains("negativ"))
+			{
+				ressElement.parentElement.classList.remove("negativ");
+				ressElement.parentElement.classList.add("positiv");
+			}
+
+		}
+
+		for(let index = 0; index < buildings.length; ++index)
+		{
+			let geb = buildings[index];
+			let gebNode = document.querySelectorAll("button.geb" + geb.geb_id);
+
+			if(gebNode != undefined && gebNode.length > 0)
+			{
+				for(let j=0; j < geb.mangel.length; j++)
+				{
+					gebNode[0].querySelector("[ds-item-id='i" + geb.mangel[j].ress_id + "|0|0']").parentElement.classList.remove("positiv");
+					gebNode[0].querySelector("[ds-item-id='i" + geb.mangel[j].ress_id + "|0|0']").parentElement.classList.add("negativ");
+				}
+			}
+		}
+	}
+
+	function ReplaceBuilding(data){
+		let field = data.field;
+		data.url = DS.getUrl();
+		const templateBuildingFn = building => `<div class="p${building.field} building${building.geb_id}">
+						
+							
+								<a class="tooltip" onclick="Base.showBuilding(${building.field});return false;" href="${building.url}?module=building&amp;col=${building.kolonie}&amp;field=${building.field}">
+									<span class="ttcontent">${building.name}</span>
+							
+						
+						<img style="border:0px" src="${building.bildpfad}" alt="">
+						</a>
+					</div>`;
+
+		const templateEmptyBuildingSpaceFn = building => `<div>
+					<div class="p${building.field} bebaubar" data-overlay="false" data-field="${building.field}" onclick="BaueFeld(this.parentNode, this.getAttribute('data-field'))">
+						<img style="border:0px" src="${building.ground}" alt="">								
+					</div>
+				</div>`;
+
+		let replace;
+		if(data.geb_id == -1){
+			replace = parseHTML(templateEmptyBuildingSpaceFn(data));
+		}
+		else{
+			replace = parseHTML(templateBuildingFn(data));
+		}
+
+		let oldBuilding = document.querySelector("div.p"+data.field).closest(".tile");
+		oldBuilding.innerHTML = replace.firstChild.innerHTML;
+	}
+
+
+	function RenderAllButBuildings(data){
+		RenderCargo(data);
+		RenderStats(data);
+		RenderEnergy(data);
+		RenderBaulisteRessMangel(data.buildings);
+	}
+
+	function RenderNoSuccessBuildBuilding(json){
+		RenderContentInBuildingBox(json.message);
+	}
+
+	function RenderContentInBuildingBox(rendercontent) {
+		if( $('#buildingBox').size() == 0 ) {
+			$('body').append('<div id="buildingBox" />');
+			$('#buildingBox').dsBox({
+				draggable:true,
+				center:true
+			});
+		}
+
+		var buildingBox = $('#buildingBox');
+		console.log(buildingBox);
+		buildingBox.dsBox('show');
+		var content = buildingBox.find('.content');
+		console.log(content);
+
+		content.empty();
+		content.append(rendercontent);
+	}
+
+
+	const templateCargoFn = ress  => `<tr>
+				<td>
+					<img src="${ress.bildpfad}" alt="">
+				</td>
+				<td>
+					<a class="tooltip schiffwaren" href="${ress.url}?module=iteminfo&amp;itemlist=i${ress.ress_id}|0|0">
+					${ress.ress_name}
+					<span class="ttcontent ttitem" ds-item-id="i${ress.ress_id}|0|0"><img src="${ress.ress_id}" alt="" align="left">
+						<span>
+							${ress.ress_name}
+						</span>
+					</span>
+					</a>
+				</td>
+				<td>
+					<a class="cargo1 schiffwaren tooltip" href="${ress.url}?module=iteminfo&amp;itemlist=i${ress.ress_id}|0|0">
+						${ress.menge.toLocaleString()}
+						<span class="ttcontent ttitem" ds-item-id="i${ress.ress_id}|0|0">
+							<img src="${ress.bildpfad}" alt="" align="left">
+							<span>{ress.ress_name}</span>
+						</span>
+					</a> 
+				</td>
+				<td>
+					${ress.produktion != 0 ? `<a class="cargo2 ${ress.produktion > 0 ? "positiv" : "negativ"} tooltip" href="${ress.url}?module=iteminfo&amp;itemlist=i${ress.ress_id}|0|0">${ress.produktion.toLocaleString()}<span class="ttcontent ttitem" ds-item-id="i${ress.ress_id}|0|0"><img src="${ress.bildpfad}" alt="" align="left"><span>{ress.ress_name}</span></span></a>`:``}
+				</td>
+			</tr>`;
+
+	this.RenderCargo = RenderCargo;
+	this.RenderStats = RenderStats;
+	this.RenderSingleStat = RenderSingleStat;
+	this.RenderBaulisteRessMangel = RenderBaulisteRessMangel;
+	this.ReplaceBuilding = ReplaceBuilding;
+	this.RenderAllButBuildings = RenderAllButBuildings;
+	this.RenderNoSuccessBuildBuilding = RenderNoSuccessBuildBuilding;
+	this.RenderContentInBuildingBox = RenderContentInBuildingBox;
+
+
+}
+
+var Base = {
+	renderer: new BaseRenderer(),
+
+	AskField:function(field){
+		let url = getUrl();
+		jQuery.getJSON(url,{action:'update', col:Base.getBaseId(), field:field},function(response){Base.ResponseVerarbeitung(response); Base.noBuildingHighlight()} );
+	},
+
+	SelectBuilding: function(element, id){
+		if(this.selectedBuilding != id)
+		{
+			this.deselectBuilding();
+			this.selectedBuilding = id;
+			console.log(this.selectedBuilding);
+			element.classList.add("active");
+			Base.highlightBuilding('bebaubar');
+		}
+		else
+		{
+			this.deselectBuilding();
+		}
+	},
+
+	deselectBuilding: function(){
+		Base.noBuildingHighlight();
+		let active = document.getElementsByClassName("active");
+		if(active[0] != null){
+			active[0].classList.remove("active");
+		}
+		this.selectedBuilding = -1;
+	},
+
+	selectedBuilding: -1,
+
+	ResponseVerarbeitung: function(data)
+	{
+		if(data.success == true)
+
+		{
+			Base.renderer.ReplaceBuilding(data.gebaut);
+			Base.renderer.RenderAllButBuildings(data);
+		}
+		else
+		{
+			Base.renderer.RenderNoSuccessBuildBuilding(data);
+		}
+		Base.noBuildingHighlight();
+		Base.highlightBuilding('bebaubar');
+	},
+
+	UpdateAllButBuildings: function()
+	{
+		let url = getUrl();
+		jQuery.getJSON(url,{action:'update', col:Base.getBaseId()},function(response){Base.renderer.RenderAllButBuildings(response)} );
+	},
+
+	BaueFeld: function(tileDiv, id){
+		if(this.selectedBuilding == -1)
+		{
+			return;
+		}
+
+		let url = getUrl();
+		jQuery.getJSON(url,{action:'build', col:Base.getBaseId(), building:Base.selectedBuilding, field:id},function(resp){Base.ResponseVerarbeitung(resp)} );
+	},
+
+	showNameInput: function(model) {
 		var el = $('#baseName');
 		var name = el.text();
 		el.empty();
 
 		var cnt = DS.render(
-				"<form action='{{URL}}' method='post' style='display:inline'>"+
-				"<input name='newname' type='text' size='15' maxlength='50' value='{{basename}}' />"+
-				"<input name='col' type='hidden' value='{{baseid}}' />"+
-				"<input name='module' type='hidden' value='base' />"+
-				"<input name='action' type='hidden' value='changeName' />"+
-				"&nbsp;<input type='submit' value='umbenennen' />"+
-				"</form>",
-				model
+			"<form action='{{URL}}' method='post' style='display:inline'>"+
+			"<input name='newname' type='text' size='15' maxlength='50' value='{{basename}}' />"+
+			"<input name='col' type='hidden' value='{{baseid}}' />"+
+			"<input name='module' type='hidden' value='base' />"+
+			"<input name='action' type='hidden' value='changeName' />"+
+			"&nbsp;<input type='submit' value='umbenennen' />"+
+			"</form>",
+			model
 		);
 
 		el.append(cnt);
 
 		$('#changename').css('display','none');
-	}
+	},
 
-	// Public
-	this.updateCargo = updateCargo;
-	this.updateGebaeudeAktionen = updateGebaeudeAktionen;
-	this.updateStats = updateStats;
-	this.showNameInput = showNameInput;
-}
-
-var Base = {
-	view : new BaseView(),
 	highlightBuilding : function(buildingCls) {
 		$('#baseMap').addClass('fade');
 		$('#baseMap .'+buildingCls).closest('.tile').addClass('highlight');
@@ -136,18 +286,19 @@ var Base = {
 		$('#baseMap .tile').removeClass('highlight');
 	},
 	changeName : function() {
-		this.view.showNameInput({basename:$("#baseName").text(), baseid: this.getBaseId()});
+		var baseName = document.getElementById("baseName");
+		var baseNameForm = document.getElementById("baseNameForm");
+
+		toggleElement(baseName, "inline");
+		toggleElement(baseNameForm, "inline");
+
 	},
 	showBuilding : function(tileId) {
 		new BuildingUi(this, tileId);
 	},
 
 	refreshAll : function() {
-		var self = this;
-		DS.get(
-				{module:'base', col:this.getBaseId()},
-				function(resp) {self.__parseRefreshAll(resp)}
-		);
+		location.reload();
 	},
 	__parseRefreshAll : function(resp) {
 		var response = $(resp);
@@ -155,37 +306,11 @@ var Base = {
 		$('#baseContent').replaceWith(cnt);
 	},
 
-	refreshCargoAndActions : function() {
-		var self = this;
-		DS.getJSON(
-				{module:'base', action:'ajax', col:this.getBaseId()},
-				function(resp) {self.__parseRefreshCargoAndActions(resp)}
-		);
-	},
-	__parseRefreshCargoAndActions : function(resp) {
-		this.view.updateCargo(resp.base);
-		this.view.updateGebaeudeAktionen(resp);
-		this.view.updateStats(resp.base);
+	refreshBase : function() {
 
-		$('.buildingActions li')
-			.on('mouseover', function() {
-				Base.highlightBuilding(this.className);
-			})
-			.on('mouseout', function() {
-				Base.noBuildingHighlight()
-			});
-
-		$('.buildingActions a')
-			.on('click', function() {
-				var cls = $(this).parent("li").attr("class");
-				var id = cls.substring("building".length);
-				var action = 1;
-				if( $(this).hasClass('deaktivieren') ) {
-					action = 0;
-				}
-				document.location.href = 'ds?module=base&action=changeBuildingStatus&col='+resp.col+'&buildingonoff='+id+'&act='+action;
-			});
+		RenderAllButBuildings(data);
 	},
+
 	getBaseId : function() {
 		return $('#baseId').val();
 	}
@@ -289,7 +414,7 @@ function BuildingUi(base, tileId) {
 				buildingUi = __defaultBuildingHandler.generateOutput(model);
 			}
 			else {
-				buildingUi = "Unbekannter Gebäudetyp: "+model.building.type;
+				buildingUi = "Unbekannter Geb&auml;udetyp: "+model.building.type;
 			}
 
 			model.ui = buildingUi;
@@ -325,7 +450,7 @@ function BuildingUi(base, tileId) {
 			var tmpl = '<div class="head">'+
 				'<img src="./{{building.picture}}" alt="" /> {{building.name}}'+
 				'</div>'+
-				'<div class="message">Wollen sie dieses Gebäude wirklich demontieren?</div>'+
+				'<div class="message">Wollen sie dieses Geb&auml;ude wirklich demontieren?</div>'+
 				'<ul class="confirm">'+
 				'<li><a id="cancelDemo" href="#">abbrechen</a></li>'+
 				'<li><a class="error" id="okDemo" href="#">demontieren</a></li>'+
@@ -338,15 +463,15 @@ function BuildingUi(base, tileId) {
 		}
 
 		function renderDemoResponse(demoModel) {
-			var tmpl = '<div align="center">Rückerstattung:</div><br />'+
+			var tmpl = '<div align="center">RÃ¼ckerstattung:</div><br />'+
 				'{{#demoCargo}}'+
 				'<img src="{{image}}" alt="" />{{{cargo1}}}'+
-				'{{#spaceMissing}} - <span style="color:red">Nicht genug Platz für alle Waren</span>{{/spaceMissing}}'+
+				'{{#spaceMissing}} - <span style="color:red">Nicht genug Platz fÃ¼r alle Waren</span>{{/spaceMissing}}'+
 				'<br />'+
 				'{{/demoCargo}}'+
 				'<br />'+
 				'<hr noshade="noshade" size="1" style="color:#cccccc" /><br />'+
-				'<div align="center"><span style="color:#ff0000">Das Gebäude wurde demontiert</span></div>';
+				'<div align="center"><span style="color:#ff0000">Das GebÃ¤ude wurde demontiert</span></div>';
 
 			var content = $('#buildingBox .content');
 			content.empty();
@@ -389,7 +514,7 @@ function BuildingUi(base, tileId) {
 	function parseDemoBuilding(demoModel) {
 		view.renderDemoResponse(demoModel);
 
-		base.refreshAll();
+		Base.AskField(demoModel.field);
 	}
 
 	function __parseBuildingResponse(model) {
@@ -405,7 +530,8 @@ function BuildingUi(base, tileId) {
 				return confirm('Wollen sie den Asteroiden wirklich aufgeben?');
 			});
 		}
-		else {
+		else
+		{
 			$('#demoBuilding').bind('click.demoBuilding', function() {
 				showAskDemo(model);
 			});
@@ -436,6 +562,7 @@ function BuildingUi(base, tileId) {
 			});
 		}
 	}
+
 	function __parseBuildingShutdown(resp) {
 		if( !resp.success ) {
 			view.renderMessage(resp.message);
@@ -453,8 +580,9 @@ function BuildingUi(base, tileId) {
 
 		__bindBuildingStartStop(resp.col, resp.field, false);
 
-		base.refreshCargoAndActions();
+		base.UpdateAllButBuildings();
 	}
+
 	function __parseBuildingStart(resp) {
 		if( !resp.success ) {
 			view.renderMessage(resp.message);
@@ -468,7 +596,7 @@ function BuildingUi(base, tileId) {
 
 		__bindBuildingStartStop(resp.col, resp.field, true);
 
-		base.refreshCargoAndActions();
+		base.UpdateAllButBuildings();
 	}
 
 	view.renderEmpty();
@@ -480,3 +608,107 @@ function BuildingUi(base, tileId) {
 		field:tileId
 	}, __parseBuildingResponse);
 }
+
+/*
+Neue Thymeleaf GUI Funktionen
+ */
+function toggleBaumenu(){
+	var baumenu = document.getElementById("baumenu-asteroid");
+	//var baumenuSwitch = document.getElementById("baumenu-switch");
+	var aktionen = document.getElementById("aktionen-asteroid");
+
+
+	var buttonParent = document.getElementById("verwaltung-bauen");
+
+	test = buttonParent.querySelectorAll("button");
+
+	if(test[0].classList.contains("aktiv"))
+	{
+		test[0].classList.remove("aktiv");
+		test[1].classList.add("aktiv");
+	}
+	else
+	{
+		test[1].classList.remove("aktiv");
+		test[0].classList.add("aktiv");
+	}
+
+	if(aktionen.style.display === "none")
+	{
+		Base.deselectBuilding();
+		console.log(Base.selectedBuilding);
+	}
+
+	toggleElement(baumenu);
+	toggleElement(aktionen);
+}
+
+function toggleLagermenu(){
+	var cargo = document.getElementById("cargo-asteroid");
+	var einheiten = document.getElementById("einheiten-asteroid");
+	var buttonParent = document.getElementById("lager-einheiten");
+
+	test = buttonParent.querySelectorAll("button");
+
+	if(test[0].classList.contains("aktiv"))
+	{
+		test[0].classList.remove("aktiv");
+		test[1].classList.add("aktiv");
+	}
+	else
+	{
+		test[1].classList.remove("aktiv");
+		test[0].classList.add("aktiv");
+	}
+
+	toggleElement(einheiten);
+	toggleElement(cargo);
+}
+var test;
+function toggleElement(element, display="block") {
+	if (element.style.display === "none") {
+		element.style.display = display;
+	} else {
+		element.style.display = "none";
+	}
+}
+
+
+function getUrl(){
+	var url = DS.location.getCurrent();
+	if( url.indexOf('?') > -1 )
+	{
+		url = url.substring(0,url.indexOf('?'));
+	}
+	if( url.indexOf('#') > -1 ) {
+		url = url.substring(0,url.indexOf('#'));
+	}
+	if( url.indexOf('/ds',url.length-3) != -1 ) {
+		url = url.substring(0,url.lastIndexOf('/'));
+	}
+	return url;
+}
+
+function parseHTML(html) {
+	var t = document.createElement('template');
+	t.innerHTML = html;
+	console.log(t.content);
+	return t.content;
+}
+
+function tabWechsel(element, categoryName) {
+	var i;
+	var x = element.closest('.gfxbox').querySelectorAll('.tab-element');
+	for (i = 0; i < x.length; i++) {
+		x[i].style.display = "none";
+	}
+	document.getElementById(categoryName).style.display = "block";
+	deselectBuilding();
+}
+
+const templateBuildingBoxFn = content => `<div id="buildingBox" class="gfxbox popupbox ui-draggable ui-draggable-handle" style="inset: 462px auto auto 941px; display: block; width: 433px; height: 322px;">
+		<div class="content">
+			${content}
+		</div>
+		<button class="closebox" onclick="toggleElement(document.getElementById('buildingBox'))">schlie\u00dfen</button>
+	</div>`;
