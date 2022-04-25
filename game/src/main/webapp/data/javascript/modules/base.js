@@ -703,7 +703,7 @@ function tabWechsel(element, categoryName) {
 		x[i].style.display = "none";
 	}
 	document.getElementById(categoryName).style.display = "block";
-	deselectBuilding();
+	Base.deselectBuilding();
 }
 
 const templateBuildingBoxFn = content => `<div id="buildingBox" class="gfxbox popupbox ui-draggable ui-draggable-handle" style="inset: 462px auto auto 941px; display: block; width: 433px; height: 322px;">
