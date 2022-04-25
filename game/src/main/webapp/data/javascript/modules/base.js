@@ -101,7 +101,7 @@ function BaseRenderer(){
 					</div>`;
 
 		const templateEmptyBuildingSpaceFn = building => `<div>
-					<div class="p${building.field} bebaubar" data-overlay="false" data-field="${building.field}" onclick="BaueFeld(this.parentNode, this.getAttribute('data-field'))">
+					<div class="p${building.field} bebaubar" data-overlay="false" data-field="${building.field}" onclick="Base.BaueFeld(this.parentNode, this.getAttribute('data-field'))">
 						<img style="border:0px" src="${building.ground}" alt="">								
 					</div>
 				</div>`;
