@@ -76,10 +76,11 @@
 .buildingActions li {
 	margin:0px;
 	padding: 1px 0px 3px 0px;
+	display: flex;
+        flex-direction: row;
+        justify-content: space-between;
 }
-.buildingActions .action {
-	float:right;
-}
+
 
 .baseActions {
 	margin:0px;
@@ -373,6 +374,4 @@ div div.gfxbox {
 	margin-top: -21px;
 	margin-left: -10px;
 }
-
-
 
