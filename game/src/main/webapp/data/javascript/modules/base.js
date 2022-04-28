@@ -89,7 +89,7 @@ function BaseRenderer(){
 	function ReplaceBuilding(data){
 		let field = data.field;
 		data.url = DS.getUrl();
-		const templateBuildingFn = building => `<div class="p${building.field} building${building.geb_id}">
+		const templateBuildingFn = building => `<div><div class="p${building.field} building${building.geb_id}">
 						
 							
 								<a class="tooltip" onclick="Base.showBuilding(${building.field});return false;" href="${building.url}?module=building&amp;col=${building.kolonie}&amp;field=${building.field}">
@@ -104,7 +104,7 @@ function BaseRenderer(){
 					<div class="p${building.field} bebaubar" data-overlay="false" data-field="${building.field}" onclick="Base.BaueFeld(this.parentNode, this.getAttribute('data-field'))">
 						<img style="border:0px" src="${building.ground}" alt="">								
 					</div>
-				</div>`;
+				</div></div>`;
 
 		let replace;
 		if(data.geb_id == -1){
