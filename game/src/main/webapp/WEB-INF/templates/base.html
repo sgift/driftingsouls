@@ -117,15 +117,15 @@
                                         <li>Gespeicherte Energie: <span id="stored_energy" style="float:right;margin-right:5px;" th:utext="${base.getEnergy_formated()}">base.energy</span></li>
                                         <li>Energiebilanz: <span id="energydiff" style="float:right;margin-right:5px;" th:utext="${base.getEstat_formated()}">base.estat</span></li>
 
-                                        <li style="border-bottom:1px solid grey;margin-top:5px;margin-bottom:5px;"> </li>
-                                        <li style="text-align:center;"><a style="font-size:14px" class="ok" th:href="@{/base(action='activateall',col=${base.getId()})}">Alles aktivieren</a></li>
-                                        <li style="text-align:center;"><a style="font-size:14px" class="error" th:href="@{/base(action='activateall',col=${base.getId()}, deaconly='1')}">Alles deaktivieren</a></li>
+                                        <li style="border-bottom:1px solid grey;margin-top:5px;margin-bottom:5px;justify-content:center;"> </li>
+                                        <li style="text-align:center;justify-content:center;"><a style="font-size:14px" class="ok" th:href="@{/base(action='activateall',col=${base.getId()})}">Alles aktivieren</a></li>
+                                        <li style="text-align:center;justify-content:center;"><a style="font-size:14px" class="error" th:href="@{/base(action='activateall',col=${base.getId()}, deaconly='1')}">Alles deaktivieren</a></li>
 
 
 
-                                        <li style="border-bottom:1px solid grey;margin-top:5px;margin-bottom:5px;"> </li>
-                                        <li th:if="${base.isFeeding()}" style="text-align:center;"><a style="font-size:14px" class="ok" th:href="@{/base(action='changeFeeding',col=${base.getId()},feeding='0')}">Versorgung abschalten</a></li>
-                                        <li th:if="${not base.isFeeding()}" style="text-align:center;"><a style="font-size:14px" class="error" th:href="@{/base(action='changeFeeding',col=${base.getId()},feeding='1')}">Versorgung anschalten</a></li>
+                                        <li style="border-bottom:1px solid grey;margin-top:5px;margin-bottom:5px;justify-content:center;"> </li>
+                                        <li th:if="${base.isFeeding()}" style="text-align:center;justify-content:center;"><a style="font-size:14px" class="ok" th:href="@{/base(action='changeFeeding',col=${base.getId()},feeding='0')}">Versorgung abschalten</a></li>
+                                        <li th:if="${not base.isFeeding()}" style="text-align:center;justify-content:center;"><a style="font-size:14px" class="error" th:href="@{/base(action='changeFeeding',col=${base.getId()},feeding='1')}">Versorgung anschalten</a></li>
                                     </ul>
                                 </div>
                                 <div id="baumenu-asteroid" style="display: none;min-width: 315px;">
