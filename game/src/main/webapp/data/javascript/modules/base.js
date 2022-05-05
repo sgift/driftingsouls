@@ -463,15 +463,15 @@ function BuildingUi(base, tileId) {
 		}
 
 		function renderDemoResponse(demoModel) {
-			var tmpl = '<div align="center">RÃ¼ckerstattung:</div><br />'+
+			var tmpl = '<div align="center">R&uumlckerstattung:</div><br />'+
 				'{{#demoCargo}}'+
 				'<img src="{{image}}" alt="" />{{{cargo1}}}'+
-				'{{#spaceMissing}} - <span style="color:red">Nicht genug Platz fÃ¼r alle Waren</span>{{/spaceMissing}}'+
+				'{{#spaceMissing}} - <span style="color:red">Nicht genug Platz f&uumlr alle Waren</span>{{/spaceMissing}}'+
 				'<br />'+
 				'{{/demoCargo}}'+
 				'<br />'+
 				'<hr noshade="noshade" size="1" style="color:#cccccc" /><br />'+
-				'<div align="center"><span style="color:#ff0000">Das GebÃ¤ude wurde demontiert</span></div>';
+				'<div align="center"><span style="color:#ff0000">Das Geb&aumlude wurde demontiert</span></div>';
 
 			var content = $('#buildingBox .content');
 			content.empty();
