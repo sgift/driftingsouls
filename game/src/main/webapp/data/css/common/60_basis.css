@@ -375,3 +375,44 @@ div div.gfxbox {
 	margin-left: -10px;
 }
 
+.arbeiteranzeige
+{
+	width:80px;
+}
+#baseContent #statsBox .row .arbeiteranzeige{
+	background-image:url('../interface/arbeiter.gif');
+}
+.arbeitslosenanzeige
+{
+	width:80px;
+}
+#baseContent #statsBox .row .arbeitslosenanzeige{
+	background-image:url('../interface/arbeitslos.gif');
+}
+.wohnraumfreianzeige
+{
+	width:80px;
+}
+#baseContent #statsBox .row .wohnraumfreianzeige{
+	background-image:url('../interface/frei.gif');
+}
+.wohnraumfehltanzeige
+{
+	width:80px;
+}
+#baseContent #statsBox .row .wohnraumfehltanzeige{
+	background-image:url('../interface/narbeiter.gif');
+}
+
+.offline::after
+{
+	background-image: url('../buildings/overlay_offline.png');
+	content: "";
+	display: block;
+	width: 49px;
+	height: 43px;
+	z-index: 10;
+	position: absolute;
+	top: -2px;
+	pointer-events: none;
+}

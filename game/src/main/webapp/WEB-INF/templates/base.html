@@ -174,16 +174,10 @@
                         <div id="baseMap" th:style="'width:'+${base.getMapWidth()}+'px; height:'+${base.getCargoHeight()}+'px;'" >
                             <div th:each="tilerow : ${tiles}" class="tilerow">
                                 <div th:each="tile: ${tilerow}" class="tile">
-                                    <div th:class="'p'+${tile.id}+(${tile.building}?' building'+${tile.buildingId}:' bebaubar')" th:data-overlay="${tile.isOverlay()}" th:data-field="${tile.id}" th:attrappend="onclick=${tile.building} ? '': 'Base.BaueFeld(this.parentNode, this.getAttribute(\'data-field\'))'">
-                                        <a th:remove="${not tile.building or tile.isOverlay()}? tag" class="tooltip" th:href="@{ds(module='building',col=${base.getId()},field=${tile.field})}" th:data-field="${tile.field}" th:attrappend="onclick=${tile.isBuildingJson()} ? 'Base.showBuilding(this.getAttribute(\'data-field\'));return false;' :''">
-                                            <span th:if="${tile.building}" th:remove="${tile.isOverlay()}? all " class="ttcontent" th:text="${tile.buildingName}">Geb&auml;udename</span>
+                                    <div th:class="'p'+${tile.id}+(${tile.building}?' building'+${tile.buildingId}:' bebaubar')+(${tile.isOverlay()}?' offline':'')" th:data-overlay="${tile.isOverlay()}" th:data-field="${tile.id}" th:attrappend="onclick=${tile.building} ? '': 'Base.BaueFeld(this.parentNode, this.getAttribute(\'data-field\'))'">
+                                        <a th:remove="${not tile.building}? tag" class="tooltip" th:href="@{ds(module='building',col=${base.getId()},field=${tile.field})}" th:data-field="${tile.field}" th:attrappend="onclick=${tile.isBuildingJson()} ? 'Base.showBuilding(this.getAttribute(\'data-field\'));return false;' :''">
+                                            <span th:if="${tile.building}" class="ttcontent" th:text="${tile.buildingName}">Geb&auml;udename</span>
                                             <img style="border:0px" th:src="${tile.buildingImage}" alt="">
-                                        </a>
-                                    </div>
-                                    <div th:if="${tile.isOverlay()}" th:class="'o'+${tile.getId()}+' overlay'">
-                                        <a th:if="${tile.building}" class="tooltip"  th:href="@{ds(module='building',col=${base.getId()},field=${tile.field})}" th:data-field="${tile.field}" th:attrappend="onclick=${tile.isBuildingJson()} ? 'Base.showBuilding(this.getAttribute(\'data-field\'));return false;' :''">
-                                            <span class="ttcontent" th:text="${tile.buildingName}">Geb&auml;udename</span>
-                                            <img style="border:0px" th:src="'data/buildings/'+${tile.getOverlayImage()}" alt="" />
                                         </a>
                                     </div>
                                 </div>
@@ -195,53 +189,30 @@
                             <li>Arbeiter ben&ouml;tigt: <span id="arbeiter" th:text="${base.getArbeitetNeeded_formated()}"> Arbeiter ben&ouml;tigt: x</span></li>
                             <li>Wohnraum: <span id="wohnraum" th:text="${base.getLivingSpace_formated()}"> Wohnraum: x</span></li>
                         </ul>
-                        <style>
-                            .arbeiteranzeige
-                            {
-                                width:80px;
-                            }
-                            #baseContent #statsBox .row .arbeiteranzeige{
-                                background-image:url('./data/interface/arbeiter.gif');
-                            }
-                            .arbeitslosenanzeige
-                            {
-                                width:80px;
-                            }
-                            #baseContent #statsBox .row .arbeitslosenanzeige{
-                                background-image:url('./data/interface/arbeitslos.gif');
-                            }
-                            .wohnraumfreianzeige
-                            {
-                                width:80px;
-                            }
-                            #baseContent #statsBox .row .wohnraumfreianzeige{
-                                background-image:url('./data/interface/frei.gif');
-                            }
-                            .wohnraumfehltanzeige
-                            {
-                                width:80px;
-                            }
-                            #baseContent #statsBox .row .wohnraumfehltanzeige{
-                                background-image:url('./data/interface/narbeiter.gif');
-                            }
-                        </style>
-
                         <div id="statsBox" style="width:100%;">
-                            <div class="row" style="margin-left:5px;margin-right:5px;">
-                                <div th:each="i : ${#numbers.sequence(1,bevoelkerung.arbeiter / 1000,1)}" class="arbeiteranzeige arbeiteranzeige-voll" th:data="${i}" th:data-bv="${bevoelkerung.arbeiter / 1000}"></div>
-                                <div class="arbeiteranzeige" th:style="'width:'+${0.08*(bevoelkerung.arbeiter % 1000)}+'px;'"></div>
+                            <div class="row" style="margin-left:5px;margin-right:5px;" title="Anteil arbeitender Bev&ouml;lkerung">
+                                <div th:each="i : ${#numbers.sequence(1,bevoelkerung.arbeiter / 1000,1)}" class="arbeiteranzeige arbeiteranzeige-voll" th:data="${i}" th:data-bv="${bevoelkerung.arbeiter / 1000}">
+                                </div>
+                                <div class="arbeiteranzeige" th:style="'width:'+${0.08*(bevoelkerung.arbeiter % 1000)}+'px;'" >
+                                </div>
                             </div>
-                            <div class="row" style="margin-left:5px;margin-right:5px;">
-                                <div th:each="i : ${#numbers.sequence(1,bevoelkerung.arbeitslos / 1000,1)}" class="arbeitslosenanzeige arbeiteranzeige-voll" th:data="${i}" th:data-bv="${bevoelkerung.arbeitslos / 1000}"></div>
-                                <div class="arbeitslosenanzeige" th:style="'width:'+${0.08*(bevoelkerung.arbeitslos % 1000)}+'px;'"></div>
+                            <div class="row " style="margin-left:5px;margin-right:5px;" title="Anteil arbeitsloser Bev&ouml;lkerung">
+                                <div th:each="i : ${#numbers.sequence(1,bevoelkerung.arbeitslos / 1000,1)}" class="arbeitslosenanzeige arbeiteranzeige-voll tooltip" th:data="${i}" th:data-bv="${bevoelkerung.arbeitslos / 1000}">
+                                </div>
+                                <div class="arbeitslosenanzeige " th:style="'width:'+${0.08*(bevoelkerung.arbeitslos % 1000)}+'px;'">
+                                </div>
                             </div>
-                            <div class="row" style="margin-left:5px;margin-right:5px;">
-                                <div th:each="i : ${#numbers.sequence(1,bevoelkerung.wohnraumFrei / 1000,1)}" class="wohnraumfreianzeige arbeiteranzeige-voll" th:data="${i}" th:data-bv="${bevoelkerung.wohnraumFrei / 1000}"></div>
-                                <div class="wohnraumfreianzeige" th:style="'width:'+${0.08*(bevoelkerung.wohnraumFrei % 1000)}+'px;'"></div>
+                            <div class="row " style="margin-left:5px;margin-right:5px;" title="Freier Wohnraum f&uuml;r neue Bev&ouml;lkerung. Bev&ouml;lkerung wandert zu.">
+                                <div th:each="i : ${#numbers.sequence(1,bevoelkerung.wohnraumFrei / 1000,1)}" class="wohnraumfreianzeige arbeiteranzeige-voll" th:data="${i}" th:data-bv="${bevoelkerung.wohnraumFrei / 1000}">
+                                </div>
+                                <div class="wohnraumfreianzeige " th:style="'width:'+${0.08*(bevoelkerung.wohnraumFrei % 1000)}+'px;'">
+                                </div>
                             </div>
-                            <div class="row" style="margin-left:5px;margin-right:5px;">
-                                <div th:each="i : ${#numbers.sequence(1,bevoelkerung.wohnraumFehlt / 1000,1)}" class="wohnraumfehltanzeige arbeiteranzeige-voll" th:data="${i}" th:data-bv="${bevoelkerung.wohnraumFehlt / 1000}"></div>
-                                <div class="wohnraumfehltanzeige" th:style="'width:'+${0.08*(bevoelkerung.wohnraumFehlt % 1000)}+'px;'"></div>
+                            <div class="row" style="margin-left:5px;margin-right:5px;" title="Fehlender Wohnraum f&uuml;r aktuelle Bev&ouml;lkerung. Bev&ouml;lkerung wandert ab!">
+                                <div th:each="i : ${#numbers.sequence(1,bevoelkerung.wohnraumFehlt / 1000,1)}" class="wohnraumfehltanzeige arbeiteranzeige-voll " th:data="${i}" th:data-bv="${bevoelkerung.wohnraumFehlt / 1000}">
+                                </div>
+                                <div class="wohnraumfehltanzeige " th:style="'width:'+${0.08*(bevoelkerung.wohnraumFehlt % 1000)}+'px;'">
+                                </div>
                             </div>
                         </div>
                         <div class="row" style="height:40px;">

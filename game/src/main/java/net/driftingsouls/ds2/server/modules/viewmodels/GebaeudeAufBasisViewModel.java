@@ -18,6 +18,7 @@ public class GebaeudeAufBasisViewModel
 	public boolean deakable;
 	public boolean kommandozentrale;
 	public String type;
+	public int arbeiter;
 
 	/**
 	 * Mappt eine Entity zu einer Instanz dieses ViewModels.
@@ -49,5 +50,6 @@ public class GebaeudeAufBasisViewModel
 		viewModel.deakable = model.isDeakAble();
 		viewModel.kommandozentrale = model.getId() == Building.KOMMANDOZENTRALE;
 		viewModel.type = model.getClass().getSimpleName();
+		viewModel.arbeiter = model.getArbeiter();
 	}
 }

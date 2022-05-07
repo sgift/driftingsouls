@@ -108,6 +108,16 @@ public class DefaultBuilding extends Building
 	public String output(Context context, Base base, int field, int building)
 	{
 		StringBuilder buffer = new StringBuilder();
+		buffer.append("Arbeiter ben&oulm;tigt:<br />\n");
+		buffer.append("<div align=\"center\">\n");
+		if(this.getArbeiter()>0){
+			buffer.append("<img src=\"./data/interface/arbeiter.gif\"").append("\" alt=\"\" />").append(this.getArbeiter()).append(" ");
+		}
+		else{
+			buffer.append("-");
+		}
+		buffer.append("</div>\n");
+
 		buffer.append("Verbraucht:<br />\n");
 		buffer.append("<div align=\"center\">\n");
 
@@ -166,6 +176,9 @@ public class DefaultBuilding extends Building
 	public BuildingUiViewModel outputJson(Context context, Base base, int field, int building)
 	{
 		BuildingUiViewModel gui = new BuildingUiViewModel();
+
+		gui.worker = new BuildingUiViewModel.WorkerViewModel();
+		gui.worker.count = this.getArbeiter();
 
 		if (!getConsumes().isEmpty() || getEVerbrauch() > 0)
 		{

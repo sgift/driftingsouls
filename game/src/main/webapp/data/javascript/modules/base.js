@@ -23,9 +23,9 @@ function BaseRenderer(){
 	function RenderStats(data){ // json = {Arbeiter:1000, Einwohner: 1500, Wohnraum: 1500}
 		const templateStatsFn = stats => `<div id="statsBox" style="width:100%;">
 									${RenderSingleStat("arbeiteranzeige", stats.arbeiter)}
-									${RenderSingleStat("arbeitslosenanzeige", stats.einwohner-stats.arbeiter)}
-									${RenderSingleStat("wohnraumfreianzeige", stats.wohnraum-stats.einwohner)}
-									${RenderSingleStat("wohnraumfehltanzeige", stats.einwohner-stats.wohnraum)}
+									${RenderSingleStat("arbeitslosenanzeige", stats.arbeitslos)}
+									${RenderSingleStat("wohnraumfreianzeige", stats.wohnraumfrei)}
+									${RenderSingleStat("wohnraumfehltanzeige", stats.wohnraumfehlt)}
 							</div>`;
 		let stats = document.getElementById("statsBox");
 
@@ -43,14 +43,14 @@ function BaseRenderer(){
 
 		let result = "<div class=\"row\" style=\"margin-left:5px;margin-right:5px;\">";
 
-		for(let i=0; i< (amount-(amount % 800)) / 800; i++)
+		for(let i=0; i< Math.floor(amount/ 1000); i++)
 		{
-			result = result + '<div class="' + cssClass + '" ></div>';
+			result = result + '<div class="' + cssClass + ' arbeiteranzeige-voll" ></div>';
 		}
 
-		if(amount % 800 != 0)
+		if(amount % 1000 != 0)
 		{
-			result = result + '<div class="' + cssClass + '" style="width:' + ((amount % 800)/800)*80 + 'px"></div>';
+			result = result + '<div class="' + cssClass + '" style="width:' + ((amount % 1000) * 0.08) + 'px"></div>';
 		}
 		result = result + "</div>";
 		return result;
@@ -89,7 +89,7 @@ function BaseRenderer(){
 	function ReplaceBuilding(data){
 		let field = data.field;
 		data.url = DS.getUrl();
-		const templateBuildingFn = building => `<div><div class="p${building.field} building${building.geb_id}">
+		const templateBuildingFn = building => `<div><div class="p${building.field} building${building.geb_id} ${building.offline}">
 						
 							
 								<a class="tooltip" onclick="Base.showBuilding(${building.field});return false;" href="${building.url}?module=building&amp;col=${building.kolonie}&amp;field=${building.field}">
@@ -321,6 +321,12 @@ function BuildingUi(base, tileId) {
 		generateOutput : function(resp) {
 			var tmpl =
 				'<dl class="defaultBuilding">'+
+				"<dt>Arbeiter ben&ouml;tigt:</dt>"+
+				"<dd>"+
+				'{{#worker}}'+
+				'<img src="./data/interface/arbeiter.gif" alt="" title="Arbeiter" />{{count}} '+
+				'{{/worker}}'+
+				"</dd>"+
 				'<dt>Verbraucht:</dt>'+
 				"<dd>"+
 				'{{#consumes}}'+

@@ -379,11 +379,11 @@ public class BaseController implements DSController {
             if ((building.getArbeiter() > 0) && (building.getArbeiter() + base.getArbeiter() > base.getBewohner()))
             {
                 active[field] = 0;
-                aktiviert = true;
             }
             else
             {
                 active[field] = 1;
+                aktiviert = true;
             }
             // Resourcen abziehen
             basecargo.substractCargo(building.getBuildCosts());
@@ -408,7 +408,7 @@ public class BaseController implements DSController {
             JSONObject g = new JSONObject();
             g.put("geb_id",buildingid);
             g.put("field",field);
-            g.put("aktiviert",aktiviert);
+            g.put("offline",aktiviert? "" : "offline");
             g.put("bildpfad",building.getPictureForRace(user.getRace()));
             g.put("col",base.getId());
             g.put("geb_name",building.getPlainName());
@@ -466,9 +466,13 @@ public class BaseController implements DSController {
     }
     public void addBevoelkerungToJSON(JSONObject json, Base base){
         JSONObject bev = new JSONObject();
-        bev.put("arbeiter", base.getArbeiter());
+        BaseStatus basedata = Base.getStatus(base);
+        bev.put("arbeiter", basedata.getArbeiter());
         bev.put("einwohner",base.getBewohner());
         bev.put("wohnraum",base.getWohnraum());
+        bev.put("arbeitslos",Math.max(base.getBewohner()-basedata.getArbeiter(),0));
+        bev.put("wohnraumfrei",Math.max(basedata.getLivingSpace()-base.getBewohner(),0));
+        bev.put("wohnraumfehlt",Math.max(base.getBewohner()-basedata.getLivingSpace(),0));
         json.put("stats",bev);
     }
 
@@ -1283,9 +1287,9 @@ public class BaseController implements DSController {
         public final long wohnraumFehlt;
         public Bevoelkerung(Base base, BaseStatus basedata) {
             this.arbeiter = basedata.getArbeiter();
-            this.arbeitslos = base.getBewohner()-basedata.getArbeiter();
-            this.wohnraumFrei = basedata.getLivingSpace()-base.getBewohner();
-            this.wohnraumFehlt = base.getBewohner()-basedata.getLivingSpace();
+            this.arbeitslos = Math.max(base.getBewohner()-basedata.getArbeiter(),0);
+            this.wohnraumFrei = Math.max(basedata.getLivingSpace()-base.getBewohner(),0);
+            this.wohnraumFehlt = Math.max(base.getBewohner()-basedata.getLivingSpace(),0);
         }
     }
 
