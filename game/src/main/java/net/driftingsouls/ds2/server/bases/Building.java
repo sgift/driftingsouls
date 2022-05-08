@@ -783,6 +783,12 @@ public abstract class Building
 
 		public CPViewModel consumes;
 		public CPViewModel produces;
+		public WorkerViewModel worker;
+
+		public static class WorkerViewModel
+		{
+			public int count;
+		}
 	}
 
 	/**
