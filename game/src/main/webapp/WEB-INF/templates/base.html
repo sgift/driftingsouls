@@ -105,12 +105,14 @@
                                     <ul class="buildingActions" >
                                         <li  th:each="building : ${buildings}" th:onmouseover="|Base.highlightBuilding('building${building.id}')|" onmouseout="Base.noBuildingHighlight()"  th:data-on="${building.isAllowon()}" th:data-off="${building.isAllowoff()}">
                                             [(${building.building.getPlainName()})]
-                                            <a th:if="${building.isAllowoff()}" title="Geb&auml;ude deaktivieren" class="action deaktivieren" th:href="@{/base(action='changeBuildingStatus',col=${base.getId()},buildingonoff=${building.id},act='0')}">
-                                                <img alt="" src="./data/interface/nenergie.gif">
-                                            </a>
-                                            <a th:if="${building.isAllowon()}" title="Geb&auml;ude aktivieren" class="action aktivieren" th:href="@{/base(action='changeBuildingStatus',col=${base.getId()},buildingonoff=${building.id},act='1')}">
-                                                <img alt="" src="./data/interface/energie.gif">
-                                            </a>
+                                            <span>
+                                              <a th:if="${building.isAllowoff()}" title="Geb&auml;ude deaktivieren" class="action deaktivieren" th:href="@{/base(action='changeBuildingStatus',col=${base.getId()},buildingonoff=${building.id},act='0')}">
+                                                  <img alt="" src="./data/interface/nenergie.gif">
+                                              </a>
+                                              <a th:if="${building.isAllowon()}" title="Geb&auml;ude aktivieren" class="action aktivieren" th:href="@{/base(action='changeBuildingStatus',col=${base.getId()},buildingonoff=${building.id},act='1')}">
+                                                  <img alt="" src="./data/interface/energie.gif">
+                                              </a>
+                                            </span>
                                         </li>
 
                                         <li style="border-bottom:1px solid grey;margin-top:5px;margin-bottom:5px;"> </li>
