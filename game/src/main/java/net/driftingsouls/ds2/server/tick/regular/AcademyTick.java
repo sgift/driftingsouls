@@ -172,7 +172,7 @@ public class AcademyTick extends TickController {
 		.execute();
 
 		//da es immer mal wieder zu Problemem mit Offizieren kommt, die gefunden werden, setzen wir den Trainingsstatus des Offiziers zurueck, wenn wir ihn nicht mehr in einem Trainingseintrag finden
-		List<Offizier> offiziere = Common.cast(db.createQuery("from offiziere where id not in (select training from academy_queue_entry)").list());
+		List<Offizier> offiziere = Common.cast(db.createQuery("from Offizier where id not in (select training from AcademyQueueEntry)").list());
 		for(Offizier offizier : offiziere){
 				offizier.setTraining(false);
 		}
