@@ -1,4 +1,23 @@
 function BaseRenderer(){
+
+	function RenderBuildingActions(data)
+	{
+		var container = document.querySelector(".buildingActions");
+		var toBeRemoved = document.querySelectorAll(".buildingActions li.buildingAction");
+
+		for(let i=0; i < toBeRemoved.length; i++)
+		{
+			toBeRemoved[i].remove();
+		}
+
+		for(let i=0; i < data.buildingActions.length; i++)
+		{
+			var parsedata = parseHTML(templatebuildingActions(data.buildingActions[i],data.id));
+			container.prepend(parsedata.firstElementChild);
+			container.prepend(parsedata.firstChild);
+		}
+	}
+
 	function RenderCargo(data){
 		document.getElementById("Waren").querySelectorAll("tbody")[0].innerHTML="";
 		document.getElementById("Munition").querySelectorAll("tbody")[0].innerHTML="";
@@ -15,18 +34,18 @@ function BaseRenderer(){
 	}
 
 	function RenderEnergy(data){
-
 		document.getElementById("stored_energy").innerHTML = data.energy.gespeicherte_energie.toLocaleString();
 		document.getElementById("energydiff").innerHTML = data.energy.energiebilanz.toLocaleString();
 	}
 
-	function RenderStats(data){ // json = {Arbeiter:1000, Einwohner: 1500, Wohnraum: 1500}
-		const templateStatsFn = stats => `<div id="statsBox" style="width:100%;">
-									${RenderSingleStat("arbeiteranzeige", stats.arbeiter)}
-									${RenderSingleStat("arbeitslosenanzeige", stats.arbeitslos)}
-									${RenderSingleStat("wohnraumfreianzeige", stats.wohnraumfrei)}
-									${RenderSingleStat("wohnraumfehltanzeige", stats.wohnraumfehlt)}
-							</div>`;
+	function RenderStats(data){
+		const templateStatsFn = stats =>
+			`<div id="statsBox" style="width:100%;">
+				${RenderSingleStat("arbeiteranzeige", stats.arbeiter)}
+				${RenderSingleStat("arbeitslosenanzeige", stats.arbeitslos)}
+				${RenderSingleStat("wohnraumfreianzeige", stats.wohnraumfrei)}
+				${RenderSingleStat("wohnraumfehltanzeige", stats.wohnraumfehlt)}
+			</div>`;
 		let stats = document.getElementById("statsBox");
 
 		stats.innerHTML = parseHTML(templateStatsFn(data.stats)).firstChild.innerHTML;
@@ -67,7 +86,6 @@ function BaseRenderer(){
 				ressElement.parentElement.classList.remove("negativ");
 				ressElement.parentElement.classList.add("positiv");
 			}
-
 		}
 
 		for(let index = 0; index < buildings.length; ++index)
@@ -87,24 +105,7 @@ function BaseRenderer(){
 	}
 
 	function ReplaceBuilding(data){
-		let field = data.field;
 		data.url = DS.getUrl();
-		const templateBuildingFn = building => `<div><div class="p${building.field} building${building.geb_id} ${building.offline}">
-						
-							
-								<a class="tooltip" onclick="Base.showBuilding(${building.field});return false;" href="${building.url}?module=building&amp;col=${building.kolonie}&amp;field=${building.field}">
-									<span class="ttcontent">${building.name}</span>
-							
-						
-						<img style="border:0px" src="${building.bildpfad}" alt="">
-						</a>
-					</div>`;
-
-		const templateEmptyBuildingSpaceFn = building => `<div>
-					<div class="p${building.field} bebaubar" data-overlay="false" data-field="${building.field}" onclick="Base.BaueFeld(this.parentNode, this.getAttribute('data-field'))">
-						<img style="border:0px" src="${building.ground}" alt="">								
-					</div>
-				</div></div>`;
 
 		let replace;
 		if(data.geb_id == -1){
@@ -124,6 +125,7 @@ function BaseRenderer(){
 		RenderStats(data);
 		RenderEnergy(data);
 		RenderBaulisteRessMangel(data.buildings);
+		RenderBuildingActions(data);
 	}
 
 	function RenderNoSuccessBuildBuilding(json){
@@ -140,43 +142,12 @@ function BaseRenderer(){
 		}
 
 		var buildingBox = $('#buildingBox');
-		console.log(buildingBox);
 		buildingBox.dsBox('show');
 		var content = buildingBox.find('.content');
-		console.log(content);
 
 		content.empty();
 		content.append(rendercontent);
 	}
-
-
-	const templateCargoFn = ress  => `<tr>
-				<td>
-					<img src="${ress.bildpfad}" alt="">
-				</td>
-				<td>
-					<a class="tooltip schiffwaren" href="${ress.url}?module=iteminfo&amp;itemlist=i${ress.ress_id}|0|0">
-					${ress.ress_name}
-					<span class="ttcontent ttitem" ds-item-id="i${ress.ress_id}|0|0"><img src="${ress.ress_id}" alt="" align="left">
-						<span>
-							${ress.ress_name}
-						</span>
-					</span>
-					</a>
-				</td>
-				<td>
-					<a class="cargo1 schiffwaren tooltip" href="${ress.url}?module=iteminfo&amp;itemlist=i${ress.ress_id}|0|0">
-						${ress.menge.toLocaleString()}
-						<span class="ttcontent ttitem" ds-item-id="i${ress.ress_id}|0|0">
-							<img src="${ress.bildpfad}" alt="" align="left">
-							<span>{ress.ress_name}</span>
-						</span>
-					</a> 
-				</td>
-				<td>
-					${ress.produktion != 0 ? `<a class="cargo2 ${ress.produktion > 0 ? "positiv" : "negativ"} tooltip" href="${ress.url}?module=iteminfo&amp;itemlist=i${ress.ress_id}|0|0">${ress.produktion.toLocaleString()}<span class="ttcontent ttitem" ds-item-id="i${ress.ress_id}|0|0"><img src="${ress.bildpfad}" alt="" align="left"><span>{ress.ress_name}</span></span></a>`:``}
-				</td>
-			</tr>`;
 
 	this.RenderCargo = RenderCargo;
 	this.RenderStats = RenderStats;
@@ -186,7 +157,6 @@ function BaseRenderer(){
 	this.RenderAllButBuildings = RenderAllButBuildings;
 	this.RenderNoSuccessBuildBuilding = RenderNoSuccessBuildBuilding;
 	this.RenderContentInBuildingBox = RenderContentInBuildingBox;
-
 
 }
 
@@ -203,7 +173,6 @@ var Base = {
 		{
 			this.deselectBuilding();
 			this.selectedBuilding = id;
-			console.log(this.selectedBuilding);
 			element.classList.add("active");
 			Base.highlightBuilding('bebaubar');
 		}
@@ -258,7 +227,6 @@ var Base = {
 
 	showNameInput: function(model) {
 		var el = $('#baseName');
-		var name = el.text();
 		el.empty();
 
 		var cnt = DS.render(
@@ -576,11 +544,8 @@ function BuildingUi(base, tileId) {
 			return;
 		}
 
-		var buildingTile = $('#baseMap .p' + resp.field);
-		var link = buildingTile.html();
-
-		buildingTile.closest('.tile').append('<div class="o'+resp.field+' overlay">'+link+'</div>');
-		$('#baseMap .o'+resp.field+' img').attr('src','./data/buildings/overlay_offline.png');
+		var buildingTile = document.querySelector('#baseMap .p' + resp.field);
+		buildingTile.classList.add('offline');
 
 		view.doShutdown();
 
@@ -595,8 +560,8 @@ function BuildingUi(base, tileId) {
 
 			return;
 		}
-
-		$('#baseMap .o'+resp.field).remove();
+		var buildingTile = document.querySelector('#baseMap .p' + resp.field);
+		buildingTile.classList.remove('offline');
 
 		view.doStartup();
 
@@ -642,7 +607,6 @@ function toggleBaumenu(){
 	if(aktionen.style.display === "none")
 	{
 		Base.deselectBuilding();
-		console.log(Base.selectedBuilding);
 	}
 
 	toggleElement(baumenu);
@@ -698,7 +662,6 @@ function getUrl(){
 function parseHTML(html) {
 	var t = document.createElement('template');
 	t.innerHTML = html;
-	console.log(t.content);
 	return t.content;
 }
 
@@ -712,9 +675,3 @@ function tabWechsel(element, categoryName) {
 	Base.deselectBuilding();
 }
 
-const templateBuildingBoxFn = content => `<div id="buildingBox" class="gfxbox popupbox ui-draggable ui-draggable-handle" style="inset: 462px auto auto 941px; display: block; width: 433px; height: 322px;">
-		<div class="content">
-			${content}
-		</div>
-		<button class="closebox" onclick="toggleElement(document.getElementById('buildingBox'))">schlie\u00dfen</button>
-	</div>`;
