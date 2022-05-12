@@ -247,10 +247,12 @@ public class BaseController implements DSController {
             json.put("gebaut",g);
             json.put("success",true);
         }
+        json.put("id",base.getId());
         addFullCargoToJSON(json, base);
         addBaumenuDiffToJSON(json, base);
         addEnergyToJSON(json, base);
         addBevoelkerungToJSON(json, base);
+        addBuildingsActionsToJSON(json, base);
         response.getWriter().write(json.toString());
         response.flushBuffer(); // marks response as committed -- if we don't do this the request will go through normally!
     }
@@ -275,7 +277,6 @@ public class BaseController implements DSController {
         User user = (User) context.getActiveUser();
 
         //Darf das Gebaeude ueberhaupt gebaut werden?
-
         if (field >= base.getWidth() * base.getHeight())
         {
             JSONPostERROR("Ung&uuml;tige Parameter: Feld existiert nicht.",json,response);
@@ -394,17 +395,6 @@ public class BaseController implements DSController {
             // Evt. muss das Gebaeude selbst noch ein paar Dinge erledigen
             building.build(base, building.getId());
 
-            //JSON zusammenbauen
-            /* Return ResponseBody
-            "Success":bool,
-            "Buildings":[ // hier die baubaren, fürs baumenü
-            {"Geb1_id": int, "Mangel":[{"Ress_id": int},{...}] Aenderung}
-            {"Geb2_id": ...}, ...], Aenderung
-            "Cargo":[{"ress_name":string, "Menge":long, "produktion":long "kategorie":string}], komplett
-            "Gebaut":{"Geb_id":int, "fieldnumber":int, "aktiviert":bool, "bildpfad":string; "col": int},
-            "Message":String,
-            "field":int
-        */
             JSONObject g = new JSONObject();
             g.put("geb_id",buildingid);
             g.put("field",field);
@@ -422,15 +412,16 @@ public class BaseController implements DSController {
         }
         //und deshalb laden wir hier auch noch einmal den Cargo und das Baumenu neu, dass die sich updaten
         json.put("success",success);
+        json.put("id",base.getId());
         //Jetzt das Baumenue, nur Aenderungen
         addBaumenuDiffToJSON(json, base);
         //Jetzt den neuen Cargo:
         addFullCargoToJSON(json, base);
         addEnergyToJSON(json,base);
         addBevoelkerungToJSON(json,base);
+        addBuildingsActionsToJSON(json, base);
         response.getWriter().write(json.toString());
         response.flushBuffer(); // marks response as committed -- if we don't do this the request will go through normally!
-
 
     }
 
@@ -475,6 +466,42 @@ public class BaseController implements DSController {
         bev.put("wohnraumfehlt",Math.max(base.getBewohner()-basedata.getLivingSpace(),0));
         json.put("stats",bev);
     }
+
+    public void addBuildingsActionsToJSON(JSONObject json, Base base){
+        JSONArray act = new JSONArray();
+        TreeMap<Integer,Integer> buildingonoffstatus = new TreeMap<>(new BuildingComparator());
+
+        for( int i = 0; i < base.getWidth() * base.getHeight(); i++ ) {
+            if( base.getBebauung()[i] != 0 ) {
+                Building building = Building.getBuilding(base.getBebauung()[i]);
+                if( !buildingonoffstatus.containsKey(base.getBebauung()[i]) ) {
+                    buildingonoffstatus.put(base.getBebauung()[i], 0);
+                }
+                if( building.isDeakAble() ) {
+                    if( buildingonoffstatus.get(base.getBebauung()[i]) == 0 ) {
+                        buildingonoffstatus.put( base.getBebauung()[i], base.getActive()[i] + 1 );
+                    }
+                    else if( buildingonoffstatus.get(base.getBebauung()[i]) != base.getActive()[i] + 1 ) {
+                        buildingonoffstatus.put(base.getBebauung()[i],-1);
+                    }
+                }
+            }
+        }
+
+        for( Map.Entry<Integer,Integer> entry : buildingonoffstatus.descendingMap().entrySet() ) {
+            int bstatus = entry.getValue();
+            JSONObject b = new JSONObject();
+            Building building = Building.getBuilding(entry.getKey());
+            b.put("name",building.getPlainName());
+            b.put("buildingTypeId",building.getId());
+            b.put("deaktivierbar",(bstatus == -1) || (bstatus == 2));
+            b.put("aktivierbar",(bstatus == -1) || (bstatus == 1));
+            act.put(b);
+        }
+        json.put("buildingActions",act);
+    }
+
+
 
     /**
      * fuegt alle Aenderungen des Baumenues in die uebergebene JSON
@@ -652,6 +679,7 @@ public class BaseController implements DSController {
 		}
         ctx.setVariable("message", message);
     }
+
     /** 
      * Aktion zur Anzeige der Basis. Wird ein Schiff uebergeben, wird der Asti gescannt, wird <code>null</code> uebergeben, wird der Asti normal aufgerufen.
      * @param ctx der WebContext
@@ -690,11 +718,9 @@ public class BaseController implements DSController {
             ctx.setVariable("core", core);
 		}
 
-
 		//----------------
 		// Karte
 		//----------------
-
 		Map<Integer,Integer> buildingonoffstatus = new TreeMap<>(new BuildingComparator());
 
         List<List<Tile>> tiles = new ArrayList<>();
@@ -740,9 +766,9 @@ public class BaseController implements DSController {
             tile.setId(i);
             //endrow
             tilerow.add(tile);
-            //maximal 12 pro Tilerow, da sonst die Map zu breit wird
+            //maximal 10 pro Tilerow, da sonst die Map zu breit wird
             if((i+1)%Math.min(base.getWidth(),10) == 0){
-           // if((i+1)%base.getWidth() == 0){
+            // if((i+1)%base.getWidth() == 0){
                 tiles.add(tilerow);
                 tilerow = new ArrayList<>();
             }
