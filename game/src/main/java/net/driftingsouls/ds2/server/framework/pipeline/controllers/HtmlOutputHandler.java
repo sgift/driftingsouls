@@ -1,9 +1,7 @@
 package net.driftingsouls.ds2.server.framework.pipeline.controllers;
 
 import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.Version;
 import net.driftingsouls.ds2.server.framework.pipeline.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -36,8 +34,6 @@ public class HtmlOutputHandler extends OutputHandler
 
 		Writer sb = response.getWriter();
 
-		final boolean devMode = !Configuration.isProduction();
-
 		sb.append("<!DOCTYPE html>\n");
 		sb.append("<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"de\" lang=\"de\">\n");
 		sb.append("<head>\n");
@@ -61,28 +57,11 @@ public class HtmlOutputHandler extends OutputHandler
 		sb.append("<body ").append(getAttributeString("bodyParameters")).append(" >\n");
 		sb.append("<input type='hidden' name='currentDsModule' id='currentDsModule' value='").append(this.getAttributeString("module")).append("' />");
 
-		if( devMode )
-		{
-			appendDevModeJavascript(sb);
-		}
-		else
-		{
-			sb.append("<script src=\"./data/javascript/ds.js\" type=\"text/javascript\"></script>\n");
-		}
+		appendJs(sb);
 		sb.append("<div id=\"error-placeholder\"></div>\n");
 	}
 
-	private void appendDevModeCss(Writer sb) throws IOException
-	{
-		File cssdir = new File(Configuration.getAbsolutePath()+"data/css/common");
-
-		for( String filename : new TreeSet<>(Arrays.asList(cssdir.list())) )
-		{
-			sb.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"./data/css").append("/common/").append(filename).append("\" />\n");
-		}
-	}
-
-	private void appendDevModeJavascript(Writer sb) throws IOException
+	private void appendJs(Writer sb) throws IOException
 	{
 		File jsdir = new File(Configuration.getAbsolutePath()+"data/javascript/");
 		File libdir = new File(jsdir.getAbsolutePath()+"/libs");
