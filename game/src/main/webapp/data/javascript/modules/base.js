@@ -165,7 +165,7 @@ var Base = {
 
 	AskField:function(field){
 		let url = getUrl();
-		jQuery.getJSON(url,{action:'update', col:Base.getBaseId(), field:field},function(response){Base.ResponseVerarbeitung(response); Base.noBuildingHighlight()} );
+		jQuery.getJSON(url,{action:'update', col:Base.getBaseId(), field:field},function(response){Base.ResponseVerarbeitung(response); function unhiglight(){if(this.selectedBuilding == -1){ Base.noBuildingHighlight()}}} );
 	},
 
 	SelectBuilding: function(element, id){
