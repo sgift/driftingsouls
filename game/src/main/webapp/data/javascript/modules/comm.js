@@ -91,6 +91,7 @@ function actionSelectChange( newval ) {
 function showpm(pmid) {
 	DS.get({module: 'comm', action: 'showPm', pmid: pmid}, function(result) {
 		$('#pmviewer').empty().append($(result).filter('#pmcontent'));
+		$('#pm' + pmid).remove();
 	});
 }
 
