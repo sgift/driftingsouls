@@ -143,7 +143,7 @@ public class AllyController extends Controller
 
 		if (user.getAlly() != null)
 		{
-			return new RedirectViewResult("default").withMessage("Fehler: Sie sind bereits Mitglied in einer Allianz und können daher keine neue Allianz gründen");
+			return new RedirectViewResult("default").withMessage("Fehler: Sie sind bereits Mitglied in einer Allianz und können daher keine neue Allianz gründen!");
 		}
 
 		Taskmanager taskmanager = Taskmanager.getInstance();
@@ -151,13 +151,13 @@ public class AllyController extends Controller
 		Task[] tasks = taskmanager.getTasksByData(Taskmanager.Types.ALLY_NEW_MEMBER, "*", Integer.toString(user.getId()), "*");
 		if (tasks.length > 0)
 		{
-			return new RedirectViewResult("defaultNoAlly").withMessage("Fehler: Sie haben bereits einen Aufnahmeantrag bei einer Allianz gestellt");
+			return new RedirectViewResult("defaultNoAlly").withMessage("Fehler: Sie haben bereits einen Aufnahmeantrag bei einer Allianz gestellt.");
 		}
 
 
 		if ((confuser1 == null) || (confuser1.getAlly() != null))
 		{
-			return new RedirectViewResult("showCreateAlly").withMessage("<span style=\"color:red\">Der angegebene Unterstützer ist ungültig</span>\n");
+			return new RedirectViewResult("showCreateAlly").withMessage("<span style=\"color:red\">Der angegebene Unterstützer ist ungültig.</span>\n");
 		}
 
 		if (allianzService.isUserAnAllianzgruendungBeteiligt(confuser1))
@@ -780,13 +780,13 @@ public class AllyController extends Controller
 			return t;
 		}
 
-		PM.send(user, this.ally.getPresident().getId(), "Allianz verlassen",
-				"Ich habe die Allianz verlassen");
+		PM.send(user, this.ally.getPresident().getId(), "Allianzaustritt",
+				"Hiermit erklären wir den sofortigen Austritt aus der Allianz.");
 
 		allianzService.entferneMitglied(ally, user);
 		this.ally = null;
 
-		return new RedirectViewResult("defaultNoAlly").withMessage("Allianz verlassen");
+		return new RedirectViewResult("defaultNoAlly").withMessage("Du hast die Allianz verlassen.");
 	}
 
 	/**
@@ -848,7 +848,7 @@ public class AllyController extends Controller
 		}
 
 		this.ally.setPresident(presnuser);
-		PM.send(this.ally.getPresident(), presnuser.getId(), "Zum Anführer ernannt", "Ich habe dich zum Präsidenten der Allianz ernannt.");
+		PM.send(this.ally.getPresident(), presnuser.getId(), "Zum Anführer ernannt", "Ich habe dich zum Anführer der Allianz ernannt.");
 
 		return new RedirectViewResult("showMembers").withMessage(presnuser.getProfileLink() + " zum Anführer ernannt");
 	}
@@ -881,7 +881,7 @@ public class AllyController extends Controller
 
 		this.allianzService.entferneMitglied(ally, kickuser);
 
-		PM.send(this.ally.getPresident(), kickuser.getId(), "Aus der Allianz geworfen", "Ich habe dich aus der Allianz geworfen.");
+		PM.send(this.ally.getPresident(), kickuser.getId(), "Aus der Allianz geworfen", "Ich habe Dich aus der Allianz geworfen.");
 
 		return new RedirectViewResult("showMembers").withMessage(Common._title(kickuser.getName()) + " aus der Allianz geworfen.");
 	}
@@ -1300,7 +1300,7 @@ public class AllyController extends Controller
 				"ally.showlrs", this.ally.getShowLrs(),
 				"show.einstellungen.channels.list", "");
 
-		// Zuerst alle vorhandenen Channels dieser Allianz auslesen (max 2)
+		// Zuerst alle vorhandenen Channels dieser Allianz auslesen (max. 2)
 		List<?> channelList = db.createQuery("from ComNetChannel where allyOwner=:ally")
 				.setEntity("ally", this.ally)
 				.setMaxResults(2)
@@ -1390,27 +1390,27 @@ public class AllyController extends Controller
 				int inakt = member.getInactivity();
 				if (inakt <= 14)
 				{
-					inakt_status = "<span style=\\'color:#00FF00\\'>aktiv</span>";
+					inakt_status = "<span style=\\'color:#00FF00\\'>sehr aktiv</span>";
 				}
 				else if (inakt <= 49)
 				{
-					inakt_status = "<span style=\\'color:#22AA22\\'>weniger aktiv</span>";
+					inakt_status = "<span style=\\'color:#22AA22\\'>aktiv</span>";
 				}
 				else if (inakt <= 98)
 				{
-					inakt_status = "<span style=\\'color:#668822\\'>selten aktiv</span>";
+					inakt_status = "<span style=\\'color:#668822\\'>weniger aktiv</span>";
 				}
 				else if (inakt <= 196)
 				{
-					inakt_status = "<span style=\\'color:#884422\\'>inaktiv</span>";
+					inakt_status = "<span style=\\'color:#884422\\'>nahezu inaktiv</span>";
 				}
 				else if (inakt <= 300)
 				{
-					inakt_status = "<span style=\\'color:#AA4422\\'>scheintot</span>";
+					inakt_status = "<span style=\\'color:#AA4422\\'>inaktiv</span>";
 				}
 				else
 				{
-					inakt_status = "<span style=\\'color:#FF2222\\'>bald gelöscht</span>";
+					inakt_status = "<span style=\\'color:#FF2222\\'>scheintot</span>";
 				}
 
 				t.setVar("show.members.inaktstatus", inakt_status);
