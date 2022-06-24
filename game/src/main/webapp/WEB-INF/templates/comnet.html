@@ -24,7 +24,7 @@
                 background-image: url(https://ds2.drifting-souls.net/data/interface/portal/bg2.jpg);
                 background-color: rgba(0,0,0,0.65);
                 background-blend-mode: overlay;
-            } 
+            }
         </style>
         <div id="error-placeholder" th:if="${error}" style="display:flex;justify-content:center;">
             <div>
@@ -323,5 +323,12 @@
         </div>
         <div id="tt_div">
         </div>
+        <!-- hier wird von wo anders der Schluss eingef&uuml;gt -->
+        <script type="text/javascript">
+            if (parent && parent.setCurrentPage) {
+                parent.setCurrentPage('comnet', 'ComNet');
+                parent.completePage();
+            }
+        </script>
     </body>
 </html>

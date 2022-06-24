@@ -277,8 +277,12 @@
             </div>
         </div>
         <div id="tt_div" style="display: none"></div>
+        <!-- hier wird von wo anders der Schluss eingef&uuml;gt -->
         <script type="text/javascript">
-
+            if (parent && parent.setCurrentPage) {
+                parent.setCurrentPage('base', 'Basis');
+                parent.completePage();
+            }
         </script>
     </body>
 </html>

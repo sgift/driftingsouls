@@ -142,12 +142,12 @@ public class BaseController implements DSController {
 		}
         return true;
 	}
-  
+
     /**
-     * Erzeugt die BaseSeite (/base). 
+     * Erzeugt die BaseSeite (/base).
      * URL-Parameter:
-     * action: 
-     *  <code>null</code>, default 
+     * action:
+     *  <code>null</code>, default
      *  changefeeding
      *  changename
      *  changebuildingstatus
@@ -248,7 +248,7 @@ public class BaseController implements DSController {
             json.put("success",true);
         }
         json.put("id",base.getId());
-        addFullCargoToJSON(json, base);
+        addFullCargoToJSON(json, base, null);
         addBaumenuDiffToJSON(json, base);
         addEnergyToJSON(json, base);
         addBevoelkerungToJSON(json, base);
@@ -416,7 +416,7 @@ public class BaseController implements DSController {
         //Jetzt das Baumenue, nur Aenderungen
         addBaumenuDiffToJSON(json, base);
         //Jetzt den neuen Cargo:
-        addFullCargoToJSON(json, base);
+        addFullCargoToJSON(json, base, building);
         addEnergyToJSON(json,base);
         addBevoelkerungToJSON(json,base);
         addBuildingsActionsToJSON(json, base);
@@ -430,7 +430,7 @@ public class BaseController implements DSController {
      * @param json das zu erweiternde JSONObject
      * @param base die Basis, deren Cargo hinzugefuegt werden soll
      */
-    public void addFullCargoToJSON(JSONObject json, Base base){
+    public void addFullCargoToJSON(JSONObject json, Base base, Building building){
         JSONArray ja = new JSONArray();
         for(ResourceEntry r : base.getCargoResourceList()){
             JSONObject jo = new JSONObject();
@@ -439,6 +439,7 @@ public class BaseController implements DSController {
             jo.put("produktion", r.getCount2());
             jo.put("kategorie",convertItemEffectType2ItemTyp(Item.getItemById(r.getId().getItemID()).getEffect().getType()).getName());
             jo.put("bildpfad",r.getImage());
+            jo.put("verbraucht", building != null ? building.getBuildCosts().hasResource(r.getId()) : false);
             ja.put(jo);
         }
         JSONObject empty = new JSONObject();
@@ -541,7 +542,7 @@ public class BaseController implements DSController {
      * @param ctx der WebContext
      * @param request der HttpServletRequest (enthaelt die uebergebenen Parameter)
      * @param base die Basis
-     * @URL-Parameter action: changefeeding 
+     * @URL-Parameter action: changefeeding
      * @URL-Parameter feeding Der neue Versorgungsstatus der Basis
      * @URL-Parameter col Die ID der Basis
      */
@@ -583,7 +584,7 @@ public class BaseController implements DSController {
      * @param ctx der WebContext
      * @param request der HttpServletRequest (enthaelt die uebergebenen Parameter)
      * @param base die Basis
-     * @URL-Parameter action: changename 
+     * @URL-Parameter action: changename
      * @URL-Parameter newname Der neue Name der Basis
      * @URL-Parameter col Die ID der Basis
      */
@@ -601,19 +602,19 @@ public class BaseController implements DSController {
         String message = "Name zu " + Common._plaintitle(newname) + " geändert";
         ctx.setVariable("message", message);
     }
-    
-    /** 
+
+    /**
      * Aktion zur (De)Aktivierung von Gebaeudegruppen.
      * @param ctx der WebContext
      * @param request der HttpServletRequest (enthaelt die uebergebenen Parameter)
      * @param base die Basis
-     * @URL-Parameter action: changebuildingstatus 
+     * @URL-Parameter action: changebuildingstatus
      * @URL-Parameter act <code>false</code>, wenn die Gebaeude deaktiviert werden sollen. Andernfalls <code>true</code>
      * @URL-Parameter buildingonoff Die ID des Gebaeudetyps, dessen Gebaeude (de)aktiviert werden sollen
      * @URL-Parameter col Die ID der Basis
      */
     public void changeBuildingStatusAction(WebContext ctx, HttpServletRequest request, Base base){
-        
+
         int act = 0;
         String message = null;
         try{
@@ -680,12 +681,12 @@ public class BaseController implements DSController {
         ctx.setVariable("message", message);
     }
 
-    /** 
+    /**
      * Aktion zur Anzeige der Basis. Wird ein Schiff uebergeben, wird der Asti gescannt, wird <code>null</code> uebergeben, wird der Asti normal aufgerufen.
      * @param ctx der WebContext
      * @param request der HttpServletRequest (enthaelt die uebergebenen Parameter)
      * @param base die Basis
-     * @URL-Parameter action: scan 
+     * @URL-Parameter action: scan
      * @URL-Parameter col Die ID der Basis
      * @URL-Parameter ship Die ID des scannenden Schiffs
      */
@@ -751,7 +752,7 @@ public class BaseController implements DSController {
 				}
 
 				image = building.getPictureForRace(user.getRace());
-                
+
 				if( building.isDeakAble() && (base.getActive()[i] == 0) ) {
                    tile.setOverlay(true);
                    tile.setOverlayImage("overlay_offline.png");
@@ -825,13 +826,13 @@ public class BaseController implements DSController {
             erzeugeBaumenue(base, ctx);
         }
     }
-    
-    /** 
+
+    /**
      * Aktion zur Anzeige der Basis
      * @param ctx der WebContext
      * @param request der HttpServletRequest (enthaelt die uebergebenen Parameter)
      * @param base die Basis
-     * @URL-Parameter action: default 
+     * @URL-Parameter action: default
      * @URL-Parameter col Die ID der Basis
      */
     public void defaultAction(WebContext ctx, HttpServletRequest request, Base base){
@@ -1208,7 +1209,7 @@ public class BaseController implements DSController {
         public boolean baubar;
         public ResourceList baukosten;
     }
-    
+
     private static class Error{
       public String text;
 

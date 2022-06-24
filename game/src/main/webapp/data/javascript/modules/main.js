@@ -179,11 +179,11 @@ var SearchBox = {
 	}
 };
 
-/*var InfoBox = {
+var InfoBox = {
 	open: function() {
 		$('#infoicon').removeClass('highlight');
 		$('#infobox').dialog({title: 'Über Drifting Souls', width:700, height:400});
-		$.getJSON(DS.getUrl(), {module:'main', action: 'loadVersionInfo'})
+		/*$.getJSON(DS.getUrl(), {module:'main', action: 'loadVersionInfo'})
 			.done(function(data) {
 				var $infobox = $('#infobox');
 				$infobox.find('#lastBuild').text(data.buildTime);
@@ -218,9 +218,9 @@ var SearchBox = {
 
 					$commits.find('tbody').append('<tr class="'+cls+'"><td>'+symbol+'</td><td>'+val.displayId+'</td><td>'+msg+'</td><td>'+val.author.displayName+'</td></tr>')
 				});
-			});
+			});*/
 	}
-};*/
+};
 
 
 var adminBox = {
