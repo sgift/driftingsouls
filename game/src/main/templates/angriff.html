@@ -80,11 +80,14 @@
 			<table border="0" cellspacing="1" cellpadding="1" width="100%" class="nav">
 			<tr>
 				<td class="angrifflog">
-					<div id="ks-log" style="height:220px; overflow:auto">
+					<div id="ks-log" style="height:220px; overflow:auto; display:none;">
 						{battle.logoutput}
 					</div>
 					<br /><br />
-					<div style="text-align:center">[ <a href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ksaction={global.ksaction}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">ok</a> ]</div>
+					<div style="display:flex;flex-direction:row;justify-content:space-around;text-align:center">
+						<a href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ksaction={global.ksaction}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">[ok]</a>
+						<a onclick="document.getElementById('ks-log').style.display='';" href="#">[Log Anzeigen]</a>
+					</div>
 				</td>
 			</tr>
 			</table>
@@ -155,12 +158,18 @@
 					<div id="ks-log" style="height:220px; overflow:auto">
 						{global.showlog.log}
 					</div>
-					{if global.showlog.okbutton}
+					<div style="display:flex;flex-direction:row;justify-content:space-around;">
+						{if global.showlog.okbutton}
 						<div style="text-align:center">[ <a href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">ok</a> ]</div>
-					{/endif}
-					{if global.showlog.takecommand}
-						<div style="text-align:center">[ <a href="./ds?module=angriff&amp;battle={battle.id}&amp;ksaction=take_command&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">Schlacht &uuml;bernehmen</a> ]</div>
-					{/endif}
+						{/endif}
+						{if global.showlog.takecommand}
+							<div style="text-align:center">[ <a href="./ds?module=angriff&amp;battle={battle.id}&amp;ksaction=take_command&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">Schlacht &uuml;bernehmen</a> ]</div>
+						{/endif}
+						<div style="text-align:center">
+							<a onclick="document.getElementById('ks-log').style.display='';" href="#">[Log Anzeigen]</a>
+						</div>
+					</div>
+					
 				</td>
 			</tr>
 			</table>
