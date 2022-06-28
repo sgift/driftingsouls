@@ -1,0 +1,122 @@
+body{
+    background-color:black;
+    color:white;
+}
+.main-container
+{
+    display:flex;
+    justify-content:center;
+}
+.main
+{
+    display:flex;
+    flex-direction:column;
+    flex-grow:1;
+    max-width:1600px;
+}
+.header
+{
+    min-height:10px;
+}
+.panels
+{
+    display:flex;
+    flex-direction:row;
+}
+
+.panels.panel-gfx{
+    margin:5px;
+}
+
+.panel{
+    display:flex;
+    flex-direction:column;
+    flex-grow:1;
+    margin:5px;
+
+    color: #c7c7c7;
+    font-family: arial,helvetica;
+    font-size: 14px;
+}
+.panel-gfx
+{
+    border-image: url(../../interface/green/gfxbox.svg) 30 fill;
+    border-width: 30px;
+    border-style: solid;
+    background-color:transparent;
+    background-clip: padding-box;
+    position:relative;
+}
+
+.panel-gfx h3
+{
+    font-size: 14px;
+    font-weight: bold;
+    text-decoration: none;
+    color: #feb626;
+    margin-top: 1px;
+    margin-left: 0;
+    margin-right: 0;
+    margin-bottom: 2px;
+}
+
+.modal-gfx
+{
+    border-image: url(../../interface/green/modal_gfx.svg) 20 fill;
+    border-width: 20px;
+    border-style: solid;
+    background-color:transparent;
+    background-clip: padding-box;
+    position:relative;
+}
+
+.sub-panel
+{
+    background-color:rgb(200,200,200);
+    min-height:90px;
+}
+
+.row{
+    display: flex;
+    flex-direction: row;
+}
+
+.col{
+    display:flex;
+    flex-direction:column;
+    flex-grow: 1;
+}
+
+
+.dflex
+{
+    display: flex;
+}
+
+.flex-row
+{
+    flex-direction: row;
+}
+.flex-col
+{
+    flex-direction: column;
+}
+
+.jcs
+{
+    justify-content: start;
+}
+
+.jce
+{
+    justify-content: end;
+}
+
+.jcc
+{
+    justify-content: center;
+}
+
+.jcsb{
+    justify-content: space-between;
+}

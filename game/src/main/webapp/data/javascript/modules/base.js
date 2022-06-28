@@ -39,28 +39,37 @@ function BaseRenderer(){
 	}
 
 	function RenderStats(data){
+		//hier noch unschoen, dass die title sowohl hier als auch in der base.html stehen... sollte man, wenn man Musse hat, mal zentral, zB in den Controller auslagern
 		const templateStatsFn = stats =>
 			`<div id="statsBox" style="width:100%;">
-				${RenderSingleStat("arbeiteranzeige", stats.arbeiter)}
-				${RenderSingleStat("arbeitslosenanzeige", stats.arbeitslos)}
-				${RenderSingleStat("wohnraumfreianzeige", stats.wohnraumfrei)}
-				${RenderSingleStat("wohnraumfehltanzeige", stats.wohnraumfehlt)}
+				${RenderSingleStat("arbeiteranzeige", stats.arbeiter, 'Anteil arbeitender Bev&ouml;lkerung')}
+				${RenderSingleStat("arbeitslosenanzeige", stats.arbeitslos, 'Anteil arbeitsloser Bev&ouml;lkerung')}
+				${RenderSingleStat("wohnraumfreianzeige", stats.wohnraumfrei, 'Freier Wohnraum f&uuml;r neue Bev&ouml;lkerung. Bev&ouml;lkerung wandert zu.')}
+				${RenderSingleStat("wohnraumfehltanzeige", stats.wohnraumfehlt, 'Fehlender Wohnraum f&uuml;r aktuelle Bev&ouml;lkerung. Bev&ouml;lkerung wandert ab!')}
 			</div>`;
 		let stats = document.getElementById("statsBox");
 
 		stats.innerHTML = parseHTML(templateStatsFn(data.stats)).firstChild.innerHTML;
 		document.getElementById("bevoelkerung").innerHTML = data.stats.einwohner.toLocaleString();
 		document.getElementById("arbeiter").innerHTML = data.stats.arbeiter.toLocaleString();
+		if(data.stats.arbeiteraenderung)
+		{
+			document.getElementById("arbeiter").classList.add("fadein");
+		}
 		document.getElementById("wohnraum").innerHTML = data.stats.wohnraum.toLocaleString();
+		if(data.stats.wohnraumaenderung)
+		{
+			document.getElementById("wohnraum").classList.add("fadein");
+		}
 	}
 
-	function RenderSingleStat(cssClass, amount)	{
+	function RenderSingleStat(cssClass, amount, title)	{
 		if(amount < 0)
 		{
 			return "";
 		}
 
-		let result = "<div class=\"row\" style=\"margin-left:5px;margin-right:5px;\">";
+		let result = "<div class=\"row\" style=\"margin-left:5px;margin-right:5px;\" title=\""+title+"\">";
 
 		for(let i=0; i< Math.floor(amount/ 1000); i++)
 		{
@@ -117,6 +126,9 @@ function BaseRenderer(){
 
 		let oldBuilding = document.querySelector("div.p"+data.field).closest(".tile");
 		oldBuilding.innerHTML = replace.firstChild.innerHTML;
+		setTimeout(function() {
+			defade();
+		}, 2000);
 	}
 
 
@@ -126,6 +138,7 @@ function BaseRenderer(){
 		RenderEnergy(data);
 		RenderBaulisteRessMangel(data.buildings);
 		RenderBuildingActions(data);
+		DsTooltip.update($("body"));
 	}
 
 	function RenderNoSuccessBuildBuilding(json){
@@ -165,7 +178,7 @@ var Base = {
 
 	AskField:function(field){
 		let url = getUrl();
-		jQuery.getJSON(url,{action:'update', col:Base.getBaseId(), field:field},function(response){Base.ResponseVerarbeitung(response); function unhiglight(){if(this.selectedBuilding == -1){ Base.noBuildingHighlight()}}} );
+		jQuery.getJSON(url,{action:'update', col:Base.getBaseId(), field:field},function(response){Base.ResponseVerarbeitung(response)} );
 	},
 
 	SelectBuilding: function(element, id){
@@ -206,7 +219,10 @@ var Base = {
 			Base.renderer.RenderNoSuccessBuildBuilding(data);
 		}
 		Base.noBuildingHighlight();
-		Base.highlightBuilding('bebaubar');
+		if(this.selectedBuilding != -1) {
+			Base.highlightBuilding('bebaubar');
+		}
+		DsTooltip.update($("body"));
 	},
 
 	UpdateAllButBuildings: function()
@@ -216,6 +232,7 @@ var Base = {
 	},
 
 	BaueFeld: function(tileDiv, id){
+		defade();
 		if(this.selectedBuilding == -1)
 		{
 			return;
@@ -489,6 +506,7 @@ function BuildingUi(base, tileId) {
 		view.renderDemoResponse(demoModel);
 
 		Base.AskField(demoModel.field);
+		Base.noBuildingHighlight();
 	}
 
 	function __parseBuildingResponse(model) {
@@ -611,6 +629,7 @@ function toggleBaumenu(){
 
 	toggleElement(baumenu);
 	toggleElement(aktionen);
+	defade();
 }
 
 function toggleLagermenu(){
@@ -633,6 +652,7 @@ function toggleLagermenu(){
 
 	toggleElement(einheiten);
 	toggleElement(cargo);
+	defade();
 }
 var test;
 function toggleElement(element, display="block") {
@@ -641,6 +661,13 @@ function toggleElement(element, display="block") {
 	} else {
 		element.style.display = "none";
 	}
+}
+
+function defade(){
+	var elemente = document.getElementsByClassName("fadein");
+	while(elemente[0]) {
+		elemente[0].classList.remove("fadein");
+	};
 }
 
 
@@ -657,12 +684,6 @@ function getUrl(){
 		url = url.substring(0,url.lastIndexOf('/'));
 	}
 	return url;
-}
-
-function parseHTML(html) {
-	var t = document.createElement('template');
-	t.innerHTML = html;
-	return t.content;
 }
 
 function tabWechsel(element, categoryName) {

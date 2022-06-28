@@ -284,12 +284,17 @@ public class BuildingController extends Controller
 
 		Integer[] bebauung = base.getBebauung();
 
+
 		building.cleanup( getContext(), base, bebauung[field] );
 
 		bebauung[field] = 0;
 		base.setBebauung(bebauung);
 
 		Integer[] active = base.getActive();
+		if(active[field] == 1)
+		{
+			base.setArbeiter(base.getArbeiter()-building.getArbeiter());
+		}
 		active[field] = 0;
 		base.setActive(active);
 

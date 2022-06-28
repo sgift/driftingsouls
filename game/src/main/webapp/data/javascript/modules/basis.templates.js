@@ -15,7 +15,7 @@ const templatebuildingActions = (data,baseid) => /*html*/ `
 
 
 const templateBuildingFn = building =>
-    `<div><div class="p${building.field} building${building.geb_id} ${building.offline}">
+    `<div><div class="p${building.field} building${building.geb_id} ${building.offline} fadein">
         <a class="tooltip" onclick="Base.showBuilding(${building.field});return false;" href="${building.url}?module=building&amp;col=${building.kolonie}&amp;field=${building.field}">
             <span class="ttcontent">${building.name}</span>
             <img style="border:0px" src="${building.bildpfad}" alt="">
@@ -24,7 +24,7 @@ const templateBuildingFn = building =>
 
 const templateEmptyBuildingSpaceFn = building =>
     `<div>
-        <div class="p${building.field} bebaubar" data-overlay="false" data-field="${building.field}" onclick="Base.BaueFeld(this.parentNode, this.getAttribute('data-field'))">
+        <div class="p${building.field} bebaubar fadein" data-overlay="false" data-field="${building.field}" onclick="Base.BaueFeld(this.parentNode, this.getAttribute('data-field'))">
             <img style="border:0px" src="${building.ground}" alt="">								
         </div>
     </div>
@@ -36,9 +36,9 @@ const templateCargoFn = ress  =>
             <img src="${ress.bildpfad}" alt="">
         </td>
         <td>
-            <a class="tooltip schiffwaren" href="${ress.url}?module=iteminfo&amp;itemlist=i${ress.ress_id}|0|0">
+            <a class="tooltip schiffwaren " href="${ress.url}?module=iteminfo&amp;itemlist=${ress.ress_id}">
                 ${ress.ress_name}
-                <span class="ttcontent ttitem" ds-item-id="i${ress.ress_id}|0|0"><img src="${ress.ress_id}" alt="" align="left">
+                <span class="ttcontent ttitem " ds-item-id="${ress.ress_id}"><img src="${ress.bildpfad}" alt="" align="left">
                     <span>
                         ${ress.ress_name}
                     </span>
@@ -46,16 +46,16 @@ const templateCargoFn = ress  =>
             </a>
         </td>
         <td>
-            <a class="cargo1 schiffwaren tooltip" href="${ress.url}?module=iteminfo&amp;itemlist=i${ress.ress_id}|0|0">
+            <a class="cargo1 schiffwaren tooltip ${ress.verbraucht? ` fadein`:``}" href="${ress.url}?module=iteminfo&amp;itemlist=${ress.ress_id}">
                 ${ress.menge.toLocaleString()}
-                <span class="ttcontent ttitem" ds-item-id="i${ress.ress_id}|0|0">
+                <span class="ttcontent ttitem" ds-item-id="${ress.ress_id}">
                     <img src="${ress.bildpfad}" alt="" align="left">
-                    <span>{ress.ress_name}</span>
+                    <span>${ress.ress_name}</span>
                 </span>
             </a> 
         </td>
         <td>
-            ${ress.produktion != 0 ? `<a class="cargo2 ${ress.produktion > 0 ? "positiv" : "negativ"} tooltip" href="${ress.url}?module=iteminfo&amp;itemlist=i${ress.ress_id}|0|0">${ress.produktion.toLocaleString()}<span class="ttcontent ttitem" ds-item-id="i${ress.ress_id}|0|0"><img src="${ress.bildpfad}" alt="" align="left"><span>{ress.ress_name}</span></span></a>`:``}
+            ${ress.produktion != 0 ? `<a class="cargo2 ${ress.produktion > 0 ? "positiv" : "negativ"} tooltip ${ress.prodaenderung ? 'fadein':''}" href="${ress.url}?module=iteminfo&amp;itemlist=${ress.ress_id}">${ress.produktion.toLocaleString()}<span class="ttcontent ttitem" ds-item-id="${ress.ress_id}"><img src="${ress.bildpfad}" alt="" align="left"><span>{ress.ress_name}</span></span></a>`:``}
         </td>
     </tr>`;
 
