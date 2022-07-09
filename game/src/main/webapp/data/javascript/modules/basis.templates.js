@@ -16,15 +16,15 @@ const templatebuildingActions = (data,baseid) => /*html*/ `
 
 const templateBuildingFn = building =>
     `<div><div class="p${building.field} building${building.geb_id} ${building.offline} fadein">
-        <a class="tooltip" onclick="Base.showBuilding(${building.field});return false;" href="${building.url}?module=building&amp;col=${building.kolonie}&amp;field=${building.field}">
-            <span class="ttcontent">${building.name}</span>
+        <a class="tooltip" onclick="Base.showBuilding(${escape(building.field)});return false;" href="${building.url}?module=building&amp;col=${building.kolonie}&amp;field=${building.field}">
+            <span class="ttcontent">${building.geb_name}</span>
             <img style="border:0px" src="${building.bildpfad}" alt="">
         </a>
     </div>`;
 
 const templateEmptyBuildingSpaceFn = building =>
     `<div>
-        <div class="p${building.field} bebaubar fadein" data-overlay="false" data-field="${building.field}" onclick="Base.BaueFeld(this.parentNode, this.getAttribute('data-field'))">
+        <div class="p${building.field} bebaubar fadein" data-overlay="false" data-field="${escape(building.field)}" onclick="Base.BaueFeld(this.parentNode, this.getAttribute('data-field'))">
             <img style="border:0px" src="${building.ground}" alt="">								
         </div>
     </div>
