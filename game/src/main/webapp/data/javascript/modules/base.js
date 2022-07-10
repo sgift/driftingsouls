@@ -1,3 +1,5 @@
+
+
 function BaseRenderer(){
 
 	function RenderBuildingActions(data)
@@ -13,6 +15,12 @@ function BaseRenderer(){
 		for(let i=0; i < data.buildingActions.length; i++)
 		{
 			var parsedata = parseHTML(templatebuildingActions(data.buildingActions[i],data.id));
+			parsedata.addEventListener("mouseout", function(){
+				Base.noBuildingHighlight();
+			});
+			parsedata.addEventListener("mouseover", function(){
+				Base.highlightBuilding('building'+data.buidingActions[i].buildingTypeId);
+			})
 			container.prepend(parsedata.firstElementChild);
 			container.prepend(parsedata.firstChild);
 		}
@@ -29,7 +37,8 @@ function BaseRenderer(){
 		for(let i=0; i< data.cargo.length; i++)
 		{
 			data.cargo[i].url= data.url;
-			document.getElementById(data.cargo[i].kategorie).querySelectorAll("tbody")[0].appendChild(parseHTML(templateCargoFn(data.cargo[i])));
+			let test = parseHTML(templateCargoFn(data.cargo[i]));
+			document.getElementById(data.cargo[i].kategorie).querySelectorAll("tbody")[0].appendChild(parseHTML(templateCargoFn(data.cargo[i])).querySelector(".myTemplateIdentifier"));
 		}
 	}
 
@@ -64,18 +73,13 @@ function BaseRenderer(){
 	}
 
 	function RenderSingleStat(cssClass, amount, title)	{
-		if(amount < 0)
-		{
-			return "";
+
+		let result = "<div class=\"row\" style=\"margin-left:5px;margin-right:5px; min-height: 15px;\" title=\""+title+"\">";
+		if(amount>0) {
+			for (let i = 0; i < Math.floor(amount / 1000); i++) {
+				result = result + '<div class="' + cssClass + ' arbeiteranzeige-voll" ></div>';
+			}
 		}
-
-		let result = "<div class=\"row\" style=\"margin-left:5px;margin-right:5px;\" title=\""+title+"\">";
-
-		for(let i=0; i< Math.floor(amount/ 1000); i++)
-		{
-			result = result + '<div class="' + cssClass + ' arbeiteranzeige-voll" ></div>';
-		}
-
 		if(amount % 1000 != 0)
 		{
 			result = result + '<div class="' + cssClass + '" style="width:' + ((amount % 1000) * 0.08) + 'px"></div>';
@@ -119,13 +123,30 @@ function BaseRenderer(){
 		let replace;
 		if(data.geb_id == -1){
 			replace = parseHTML(templateEmptyBuildingSpaceFn(data));
+			let oldBuilding = document.querySelector("div.p"+data.field).closest(".tile");
+			oldBuilding.innerHTML = replace.firstChild.innerHTML;
+
+			oldBuilding.querySelector("div.bebaubar").addEventListener('click', function(e) {
+				Base.BaueFeld(oldBuilding.querySelector("div.bebaubar").parentNode, data.field);
+				e.preventDefault();
+				console.log(data.field);
+				return false;
+			}, false);
+
 		}
 		else{
 			replace = parseHTML(templateBuildingFn(data));
-		}
+			let oldBuilding = document.querySelector("div.p"+data.field).closest(".tile");
+			oldBuilding.innerHTML = replace.firstChild.innerHTML;
 
-		let oldBuilding = document.querySelector("div.p"+data.field).closest(".tile");
-		oldBuilding.innerHTML = replace.firstChild.innerHTML;
+			oldBuilding.querySelector("a").addEventListener('click', function(e) {
+				Base.showBuilding(data.field);
+				e.preventDefault();
+				console.log(data.field);
+				return false;
+			}, false);
+
+		}
 		setTimeout(function() {
 			defade();
 		}, 2000);

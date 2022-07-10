@@ -31,6 +31,7 @@
         <script src="./data/javascript/libs/jquery-ui-1.11.2.min.js" type="text/javascript"></script>
         <script src="./data/javascript/libs/rhill-voronoi-core.js" type="text/javascript"></script>
         <script src="./data/javascript/facebox.js" type="text/javascript"></script>
+        <script src="./data/javascript/common/purify.min.js" type="text/javascript"></script>
         <script src="./data/javascript/common/01_ds.js" type="text/javascript"></script>
         <script src="./data/javascript/common/02_cargomodel.js" type="text/javascript"></script>
         <script src="./data/javascript/common/03_itemlistmodel.js" type="text/javascript"></script>
@@ -193,25 +194,25 @@
                             <li>Wohnraum: <span id="wohnraum" th:text="${base.getLivingSpace_formated()}"> Wohnraum: x</span></li>
                         </ul>
                         <div id="statsBox" style="width:100%;">
-                            <div class="row" style="margin-left:5px;margin-right:5px;" title="Anteil arbeitender Bev&ouml;lkerung">
+                            <div class="row" style="margin-left:5px;margin-right:5px;min-height: 15px;" title="Anteil arbeitender Bev&ouml;lkerung">
                                 <div th:each="i : ${#numbers.sequence(1,bevoelkerung.arbeiter / 1000,1)}" class="arbeiteranzeige arbeiteranzeige-voll" th:data="${i}" th:data-bv="${bevoelkerung.arbeiter / 1000}">
                                 </div>
                                 <div class="arbeiteranzeige" th:style="'width:'+${0.08*(bevoelkerung.arbeiter % 1000)}+'px;'" >
                                 </div>
                             </div>
-                            <div class="row " style="margin-left:5px;margin-right:5px;" title="Anteil arbeitsloser Bev&ouml;lkerung">
+                            <div class="row " style="margin-left:5px;margin-right:5px;min-height: 15px;" title="Anteil arbeitsloser Bev&ouml;lkerung">
                                 <div th:each="i : ${#numbers.sequence(1,bevoelkerung.arbeitslos / 1000,1)}" class="arbeitslosenanzeige arbeiteranzeige-voll tooltip" th:data="${i}" th:data-bv="${bevoelkerung.arbeitslos / 1000}">
                                 </div>
                                 <div class="arbeitslosenanzeige " th:style="'width:'+${0.08*(bevoelkerung.arbeitslos % 1000)}+'px;'">
                                 </div>
                             </div>
-                            <div class="row " style="margin-left:5px;margin-right:5px;" title="Freier Wohnraum f&uuml;r neue Bev&ouml;lkerung. Bev&ouml;lkerung wandert zu.">
+                            <div class="row " style="margin-left:5px;margin-right:5px;min-height: 15px;" title="Freier Wohnraum f&uuml;r neue Bev&ouml;lkerung. Bev&ouml;lkerung wandert zu.">
                                 <div th:each="i : ${#numbers.sequence(1,bevoelkerung.wohnraumFrei / 1000,1)}" class="wohnraumfreianzeige arbeiteranzeige-voll" th:data="${i}" th:data-bv="${bevoelkerung.wohnraumFrei / 1000}">
                                 </div>
                                 <div class="wohnraumfreianzeige " th:style="'width:'+${0.08*(bevoelkerung.wohnraumFrei % 1000)}+'px;'">
                                 </div>
                             </div>
-                            <div class="row" style="margin-left:5px;margin-right:5px;" title="Fehlender Wohnraum f&uuml;r aktuelle Bev&ouml;lkerung. Bev&ouml;lkerung wandert ab!">
+                            <div class="row" style="margin-left:5px;margin-right:5px;min-height: 15px;" title="Fehlender Wohnraum f&uuml;r aktuelle Bev&ouml;lkerung. Bev&ouml;lkerung wandert ab!">
                                 <div th:each="i : ${#numbers.sequence(1,bevoelkerung.wohnraumFehlt / 1000,1)}" class="wohnraumfehltanzeige arbeiteranzeige-voll " th:data="${i}" th:data-bv="${bevoelkerung.wohnraumFehlt / 1000}">
                                 </div>
                                 <div class="wohnraumfehltanzeige " th:style="'width:'+${0.08*(bevoelkerung.wohnraumFehlt % 1000)}+'px;'">
