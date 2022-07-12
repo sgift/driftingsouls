@@ -12,4 +12,5 @@
 	<bbcode tag="map" params="1" handler="net.driftingsouls.ds2.server.bbcodes.TagMap" />
 	<bbcode tag="medal" params="1" handler="net.driftingsouls.ds2.server.bbcodes.TagMedal" />
 	<bbcode tag="rang" params="1" handler="net.driftingsouls.ds2.server.bbcodes.TagRang" />
+	<bbcode tag="spoiler" params="1" handler="net.driftingsouls.ds2.server.bbcodes.TagSpoiler" />
 </bbcodes>

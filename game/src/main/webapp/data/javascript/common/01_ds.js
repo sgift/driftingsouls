@@ -127,3 +127,10 @@ var DS = {
 		$.jqplot(id, data, options);
 	}
 };
+
+function parseHTML(html)
+{
+	var t = document.createElement('template');
+	t.innerHTML = DOMPurify.sanitize(html, {ADD_TAGS: ['td','tr','th'], ADD_ATTR: ['style']});
+	return t.content;
+}

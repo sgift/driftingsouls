@@ -251,7 +251,7 @@ public class BaseController implements DSController {
         addFullCargoToJSON(json, base, null);
         addBaumenuDiffToJSON(json, base);
         addEnergyToJSON(json, base);
-        addBevoelkerungToJSON(json, base);
+        addBevoelkerungToJSON(json, base, null, false);
         addBuildingsActionsToJSON(json, base);
         response.getWriter().write(json.toString());
         response.flushBuffer(); // marks response as committed -- if we don't do this the request will go through normally!
@@ -368,6 +368,7 @@ public class BaseController implements DSController {
         }
 
         // Alles OK -> bauen
+        boolean aktiviert = false;
         if (success)
         {
             Integer[] bebauung = base.getBebauung();
@@ -376,7 +377,7 @@ public class BaseController implements DSController {
 
             Integer[] active = base.getActive();
             // Muss das Gebaeude aufgrund von Arbeitermangel deaktiviert werden?
-            boolean aktiviert = false;
+
             if ((building.getArbeiter() > 0) && (building.getArbeiter() + base.getArbeiter() > base.getBewohner()))
             {
                 active[field] = 0;
@@ -385,11 +386,11 @@ public class BaseController implements DSController {
             {
                 active[field] = 1;
                 aktiviert = true;
+                base.setArbeiter(base.getArbeiter() + building.getArbeiter());
             }
             // Resourcen abziehen
             basecargo.substractCargo(building.getBuildCosts());
             base.setCargo(basecargo);
-            base.setArbeiter(base.getArbeiter() + building.getArbeiter());
             base.setActive(active);
 
             // Evt. muss das Gebaeude selbst noch ein paar Dinge erledigen
@@ -418,7 +419,7 @@ public class BaseController implements DSController {
         //Jetzt den neuen Cargo:
         addFullCargoToJSON(json, base, building);
         addEnergyToJSON(json,base);
-        addBevoelkerungToJSON(json,base);
+        addBevoelkerungToJSON(json,base, building, aktiviert);
         addBuildingsActionsToJSON(json, base);
         response.getWriter().write(json.toString());
         response.flushBuffer(); // marks response as committed -- if we don't do this the request will go through normally!
@@ -440,6 +441,8 @@ public class BaseController implements DSController {
             jo.put("kategorie",convertItemEffectType2ItemTyp(Item.getItemById(r.getId().getItemID()).getEffect().getType()).getName());
             jo.put("bildpfad",r.getImage());
             jo.put("verbraucht", building != null ? building.getBuildCosts().hasResource(r.getId()) : false);
+            jo.put("prodaenderung", building!=null ? building.getProduces().hasResource(r.getId()) ||building.getConsumes().hasResource(r.getId()):false );
+            jo.put("ress_id", r.getId());
             ja.put(jo);
         }
         JSONObject empty = new JSONObject();
@@ -456,12 +459,14 @@ public class BaseController implements DSController {
         energy.put("energiebilanz", base.getEstat_formated());
         json.put("energy",energy);
     }
-    public void addBevoelkerungToJSON(JSONObject json, Base base){
+    public void addBevoelkerungToJSON(JSONObject json, Base base, Building building, boolean aktiviert){
         JSONObject bev = new JSONObject();
         BaseStatus basedata = Base.getStatus(base);
         bev.put("arbeiter", basedata.getArbeiter());
+        bev.put("arbeiteraenderung", building != null && aktiviert? building.getArbeiter() > 0 : false);
         bev.put("einwohner",base.getBewohner());
         bev.put("wohnraum",base.getWohnraum());
+        bev.put("wohnraumaenderung", building != null && aktiviert? building.getBewohner() > 0 : false);
         bev.put("arbeitslos",Math.max(base.getBewohner()-basedata.getArbeiter(),0));
         bev.put("wohnraumfrei",Math.max(basedata.getLivingSpace()-base.getBewohner(),0));
         bev.put("wohnraumfehlt",Math.max(base.getBewohner()-basedata.getLivingSpace(),0));
