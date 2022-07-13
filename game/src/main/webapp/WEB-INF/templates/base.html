@@ -169,7 +169,7 @@
                         <div class="row" style="margin-bottom:15px;margin-top:5px;margin-left:-10px;">
                             <div class="col">
                                 Core:
-                                <a th:if="${base.getCore()}" th:class="${base.isCoreActive()}?'ok':'error'" style="color:green;text-decoration:none;font-weight:bold;"  th:href="@{ds(module='core',action='default',col=${base.getId()})}" th:utext="${base.getCore().getPlainName()}">CoreName</a>
+                                <a th:if="${base.getCore()}" th:class="${base.isCoreActive()}?'ok':'error'" th:href="@{ds(module='core',action='default',col=${base.getId()})}" th:utext="${base.getCore().getPlainName()}">CoreName</a>
                                 <a th:if="${base.getCore() == null}" th:remove="${scan} ? 'tag'" class="ok" th:href="@{ds(module='core',action='default',col=${base.getId()})}" >leer</a>
                             </div>
                         </div>
