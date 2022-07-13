@@ -7,6 +7,7 @@ import org.hibernate.annotations.Sort;
 import org.hibernate.annotations.SortType;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -28,6 +29,7 @@ public class SchlachtLog implements Locatable
 	private Long id;
 	@Version
 	private Integer version;
+	@Column(name = "star_system")
 	private int system;
 	private int x;
 	private int y;

@@ -60,7 +60,7 @@ import java.util.stream.Collectors;
 @BatchSize(size=50)
 @org.hibernate.annotations.Table(
 	appliesTo = "bases",
-	indexes = {@Index(name="owner", columnNames = {"owner", "id"}), @Index(name="coords", columnNames = {"x", "y", "system"})}
+	indexes = {@Index(name="owner", columnNames = {"owner", "id"}), @Index(name="coords", columnNames = {"x", "y", "star_system"})}
 )
 public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feeding
 {
@@ -74,6 +74,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	private User owner;
 	private int x;
 	private int y;
+	@Column(name = "star_system")
 	private int system;
 	private int bewohner;
 	private int arbeiter;
