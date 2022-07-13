@@ -131,6 +131,6 @@ var DS = {
 function parseHTML(html)
 {
 	var t = document.createElement('template');
-	t.innerHTML = DOMPurify.sanitize(html, {ADD_TAGS: ['td','tr','th'], ADD_ATTR: ['style']});
+	t.innerHTML = DOMPurify.sanitize(html, {ADD_TAGS: ['td','tr','th'], ADD_ATTR: ['style','ds-item-id']});
 	return t.content;
 }

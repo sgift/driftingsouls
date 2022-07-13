@@ -25,7 +25,7 @@ const templateBuildingFn = building =>
 const templateEmptyBuildingSpaceFn = building =>
     `<div>
         <div class="p${building.field} bebaubar fadein" data-overlay="false" data-field="${escape(building.field)}">
-            <img style="border:0px" src="${building.ground}" alt="">								
+            <img style="border:0px" src="${building.ground}" alt="">
         </div>
     </div>
     </div>`;
@@ -54,10 +54,10 @@ const templateCargoFn = ress  =>
                             <img src="${ress.bildpfad}" alt="" align="left">
                             <span>${ress.ress_name}</span>
                         </span>
-                    </a> 
+                    </a>
                 </td>
                 <td>
-                    ${ress.produktion != 0 ? `<a class="cargo2 ${ress.produktion > 0 ? "positiv" : "negativ"} tooltip ${ress.prodaenderung ? 'fadein':''}" href="${ress.url}?module=iteminfo&amp;itemlist=${ress.ress_id}">${ress.produktion.toLocaleString()}<span class="ttcontent ttitem" ds-item-id="${ress.ress_id}"><img src="${ress.bildpfad}" alt="" align="left"><span>{ress.ress_name}</span></span></a>`:``}
+                    ${ress.produktion != 0 ? `<a class="cargo2 ${ress.produktion > 0 ? "positiv" : "negativ"} tooltip ${ress.prodaenderung ? 'fadein':''}" href="${ress.url}?module=iteminfo&amp;itemlist=${ress.ress_id}">${ress.produktion.toLocaleString()}<span class="ttcontent ttitem" ds-item-id="${ress.ress_id}"><img src="${ress.bildpfad}" alt="" align="left"><span>${ress.ress_name}</span></span></a>`:``}
                 </td>
             </tr>
         </tbody>

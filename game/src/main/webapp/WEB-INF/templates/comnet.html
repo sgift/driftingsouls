@@ -280,7 +280,7 @@
                         <table width="100%" cellspacing="3" cellpadding="3" class="noBorderX">
                             <tr>
                                 <td style="width:90px; text-align:center; vertical-align:top" class="noBorderX">
-                                    <a class="profile" th:href="@{ds(module='userprofile',action='default',user=${post.user.getId()})}"><span style="font-weight:bold"><span style="color:#7F7F7F" th:utext="${post.username}">post.username</span></span></a>
+                                    <a class="profile" th:href="@{ds(module='userprofile',action='default',user=${post.user.getId()})}"><span th:utext="${post.username}">post.username</span></a>
                                     <br />
                                     <span class="tooltip">
                                         <img align="middle" th:src="${post.userRank.getImage()}" alt=""/>
