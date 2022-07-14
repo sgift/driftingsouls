@@ -127,11 +127,11 @@ public class ClippedStarmap extends Starmap
 		// sich komplett im Ausschnitt befinden.
 		// TODO: Die Menge der Schiffe laesst sich sicherlich noch weiter eingrenzen
 		long start = System.nanoTime();
-		List<Ship> shipList = Common.cast(db.createQuery("select s from Ship as s left join s.modules m" +
+		List<Ship> shipList = Common.cast(db.createQuery("select s from Ship as s left join s.modules m left join s.shiptype st" +
 				" where s.system=:sys and s.shiptype.shipClass!=:shipClass and s.docked not like 'l %' and " +
-				"((s.x between :minx-s.shiptype.sensorRange and :maxx+s.shiptype.sensorRange) or" +
+				"((s.x between :minx-st.sensorRange and :maxx+st.sensorRange) or" +
 				"(s.x between :minx-m.sensorRange and :maxx+m.sensorRange)) and " +
-				"((s.y between :miny-s.shiptype.sensorRange and :maxy+s.shiptype.sensorRange) or" +
+				"((s.y between :miny-st.sensorRange and :maxy+st.sensorRange) or" +
 				"(s.x between :miny-m.sensorRange and :maxy+m.sensorRange))")
 			.setInteger("sys", this.inner.getSystem())
 			.setInteger("minx", this.ausschnitt[0])
