@@ -416,3 +416,18 @@ div div.gfxbox {
 	top: -2px;
 	pointer-events: none;
 }
+
+.ueberlauf::-webkit-scrollbar-thumb:hover {
+	background: #555;
+}
+.ueberlauf::-webkit-scrollbar {
+	width: 10px;
+}
+.ueberlauf::-webkit-scrollbar-thumb {
+	background: #888;
+}
+.ueberlauf{
+	scrollbar-color: black;
+	scrollbar-width: thin;
+}
+
