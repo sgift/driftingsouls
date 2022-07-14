@@ -94,11 +94,11 @@
                     </div>
                 </div>
                 <div class="row" style="flex-direction:row-reverse;">
-                    <div th:if="${not scan}" class="col gfxbox wms" style="display: flex;flex-direction:column;flex-grow: 1;flex-basis: 300px;">
+                    <div th:if="${not scan}" class="col gfxbox wms" style="display: flex;flex-direction:column;flex-grow: 1;flex-basis: 300px;max-height: 800px;">
 
-                        <div class="row">
+                        <div class="row" style="max-height: 750px;">
                             <div class="col">
-                                <div id="aktionen-asteroid" style="min-width:315px;">
+                                <div id="aktionen-asteroid" style="min-width:315px;overflow-y: auto;max-height:750px;">
                                     <div class="row" style="margin-bottom:15px;margin-left:-10px;">
                                         <div class="col">
 
@@ -132,7 +132,7 @@
                                         <li th:if="${not base.isFeeding()}" style="text-align:center;justify-content:center;"><a style="font-size:14px" class="error" th:href="@{/base(action='changeFeeding',col=${base.getId()},feeding='1')}">Versorgung anschalten</a></li>
                                     </ul>
                                 </div>
-                                <div id="baumenu-asteroid" style="display: none;min-width: 315px;">
+                                <div id="baumenu-asteroid" style="display: none;min-width: 315px;overflow-y: auto;max-height: 750px;">
                                     <div style="display: flex;flex-direction: column;align-items: center;">
                                         <div class="gfx-tab-nav" style="margin-left:-15px;margin-right:-15px;" >
                                             <span th:each="kategorie : ${kategorien}" class="geb-kategorie-auswahl" th:style="${kategorie.name.equals('Sonstiges')}? 'border-right:none;':' '" th:data-click="'geb_'+${kategorie.name}" onclick="tabWechsel(this,this.getAttribute('data-click'))" th:text="${kategorie.name}">Kategorie</span>
@@ -158,22 +158,22 @@
                             <button type="button" class="fsbutton link aktiv" onclick="toggleBaumenu()" style="position:absolute;bottom:-33px;right:-33px;;z-index:10;background-color:transparent;background-image: url(./data/interface/green/button150_BR.svg);border-width: 0px;border: none;width:150px;height:50px;">
                                 <span class="button-text" style="" >Verwaltung</span>
                             </button>
-                            <button class="fsbutton link" onclick="toggleBaumenu()" style=";z-index:10;border-left:2px solid grey;background-color:transparent;background-image: url(./data/interface/green/button150_tl.svg);border-width: 0px;border: none;width:150px;height:50px;position:absolute;bottom:-33px;right:107px;">
+                            <button class="fsbutton link" onclick="toggleBaumenu()" style="z-index:10;border-left:2px solid grey;background-color:transparent;background-image: url(./data/interface/green/button150_tl.svg);border-width: 0px;border: none;width:150px;height:50px;position:absolute;bottom:-33px;right:107px;">
                                 <span class="button-text" style="" >Baumen&uuml;</span>
                             </button>
                         </div>
                     </div>
 
 
-                    <div class="col gfxbox wmd" style="flex-grow: 10;flex-basis: 410px;">
+                    <div class="col gfxbox wmd" style="flex-grow: 10;flex-basis: 410px;max-height: 800px">
                         <div class="row" style="margin-bottom:15px;margin-top:5px;margin-left:-10px;">
                             <div class="col">
                                 Core:
-                                <a th:if="${base.getCore()}" th:class="${base.isCoreActive()}?'ok':'error'" style="color:green;text-decoration:none;font-weight:bold;"  th:href="@{ds(module='core',action='default',col=${base.getId()})}" th:utext="${base.getCore().getPlainName()}">CoreName</a>
+                                <a th:if="${base.getCore()}" th:class="${base.isCoreActive()}?'ok':'error'" th:href="@{ds(module='core',action='default',col=${base.getId()})}" th:utext="${base.getCore().getPlainName()}">CoreName</a>
                                 <a th:if="${base.getCore() == null}" th:remove="${scan} ? 'tag'" class="ok" th:href="@{ds(module='core',action='default',col=${base.getId()})}" >leer</a>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row" style="overflow-y:auto;">
                         </div>
                         <div id="baseMap" th:style="'width:'+${base.getMapWidth()}+'px; height:'+${base.getCargoHeight()}+'px;'" >
                             <div th:each="tilerow : ${tiles}" class="tilerow">
@@ -227,14 +227,14 @@
                         </div>
                     </div>
 
-                    <div class="col gfxbox wsm" style="flex-grow: 1;flex-basis:300px;">
+                    <div class="col gfxbox wsm" style="flex-grow: 1;flex-basis:340px; max-height: 800px;">
                         <div id="cargo-asteroid">
                             <div style="display:flex;flex-direction:row;justify-content:center;">
                                 <div class="gfx-tab-nav" style="">
                                     <span class="geb-kategorie-auswahl" th:each="cargotyp : ${cargo}" th:data-click="${cargotyp.getName()}" onclick="tabWechsel(this, this.getAttribute('data-click'))" th:style="${cargotyp.getName().equals('Sonstiges')}? 'border-right:none;':' '"  th:inline="text">[[${cargotyp.getName()}]]<span style="margin-left:2px;font-size:90%;color:darkgoldenrod;"th:utext="'('+${cargotyp.getAmount()}+')'"></span></span>
                                 </div>
                             </div>
-                            <div th:each="cargotyp : ${cargo}" th:id="${cargotyp.getName()}" class="gfx-tab tab-element" th:style="${cargotyp.getName().equals('Waren')}? 'display:block;':''">
+                            <div th:each="cargotyp : ${cargo}" th:id="${cargotyp.getName()}" class="gfx-tab tab-element" th:style="${cargotyp.getName().equals('Waren')}? 'display:block; max-height:700px;overflow-y:auto;overflow-x:hidden;':''">
                                 <div class="row" style="justify-content:center;">
                                     <table class="ressources-table" style="border:none;text-align:right;">
                                         <tbody>

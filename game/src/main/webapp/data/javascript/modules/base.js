@@ -713,7 +713,10 @@ function tabWechsel(element, categoryName) {
 	for (i = 0; i < x.length; i++) {
 		x[i].style.display = "none";
 	}
-	document.getElementById(categoryName).style.display = "block";
+	var el = document.getElementById(categoryName);
+	el.style.display = "block";
+	el.style.maxHeight = "700px";
+	el.style.overflowY = "auto";
+	el.style.overflowX = "hidden";
 	Base.deselectBuilding();
 }
-
