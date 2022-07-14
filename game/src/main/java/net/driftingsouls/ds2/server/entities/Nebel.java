@@ -35,9 +35,9 @@ import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.Index;
 
 import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
-import javax.persistence.Id;
 import javax.persistence.Table;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -398,12 +398,20 @@ public class Nebel implements Locatable {
 		}
 	}
 
-	@Id
+	@EmbeddedId
 	private MutableLocation loc;
 	@Index(name="idx_nebulatype")
 	@Enumerated
 	@Column(nullable = false)
 	private Typ type;
+
+	public MutableLocation getLoc() {
+		return loc;
+	}
+
+	public void setLoc(MutableLocation loc) {
+		this.loc = loc;
+	}
 
 	/**
 	 * Konstruktor.

@@ -18,9 +18,9 @@
  */
 package net.driftingsouls.ds2.server;
 
-import java.io.Serializable;
-
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import java.io.Serializable;
 
 /**
  * Eine Version von Location, deren Inhalt veraenderbar ist und die als komplexes Attribut fuer Hibernate
@@ -34,6 +34,7 @@ public class MutableLocation implements Locatable, Serializable {
 	
 	private int x;
 	private int y;
+	@Column(name = "star_system")
 	private int system;
 	
 	/**

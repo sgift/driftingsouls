@@ -18,17 +18,16 @@
  */
 package net.driftingsouls.ds2.server.entities.statistik;
 
+import net.driftingsouls.ds2.server.cargo.Cargo;
+import org.hibernate.annotations.Index;
+import org.hibernate.annotations.Type;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Version;
-
-import net.driftingsouls.ds2.server.cargo.Cargo;
-
-import org.hibernate.annotations.Index;
-import org.hibernate.annotations.Type;
 
 /**
  * Die Verkaufsstatistik an einem Verkaufsort (z.B. Handelsposten, Kommandozentrale)
@@ -40,7 +39,7 @@ import org.hibernate.annotations.Type;
 @Table(name="stats_verkaeufe")
 @org.hibernate.annotations.Table(
 		appliesTo = "stats_verkaeufe",
-		indexes = {@Index(name = "place", columnNames = {"place", "system"})}
+		indexes = {@Index(name = "place", columnNames = {"place", "star_system"})}
 )
 public class StatVerkaeufe {
 	@Id @GeneratedValue
@@ -49,7 +48,8 @@ public class StatVerkaeufe {
 	private int tick;
 	@Column(nullable = false)
 	private String place;
-	@Index(name = "system")
+	@Index(name = "star_system")
+	@Column(name = "star_system")
 	private int system;
 	@Type(type="largeCargo")
 	@Column(nullable = false)

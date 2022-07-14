@@ -53,7 +53,7 @@ import java.util.concurrent.ThreadLocalRandom;
 @Table(name="battles")
 @Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 @BatchSize(size=50)
-@org.hibernate.annotations.Table(appliesTo = "battles", indexes = {@Index(name="battle_coords", columnNames = {"x", "y", "system"})})
+@org.hibernate.annotations.Table(appliesTo = "battles", indexes = {@Index(name="battle_coords", columnNames = {"x", "y", "star_system"})})
 @OptimisticLocking(type = OptimisticLockType.DIRTY)
 public class Battle implements Locatable
 {
@@ -63,6 +63,7 @@ public class Battle implements Locatable
 	private int id;
 	private int x;
 	private int y;
+	@Column(name = "star_system")
 	private int system;
 	private int ally1;
 	private int ally2;
