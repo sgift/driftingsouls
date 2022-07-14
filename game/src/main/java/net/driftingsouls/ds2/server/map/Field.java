@@ -36,37 +36,37 @@ class Field
 
 	Field(Session db, Location position)
 	{
-		ships = Common.cast(db.createQuery("from Ship where star_system=:system and x=:x and y=:y and shiptype.shipClass !=:shipClasses)")
+		ships = Common.cast(db.createQuery("from Ship where system=:system and x=:x and y=:y and shiptype.shipClass !=:shipClasses)")
 							  .setParameter("system", position.getSystem())
 							  .setParameter("x", position.getX())
 								.setParameter("y", position.getY())
 								.setParameter("shipClasses", ShipClasses.FELSBROCKEN)
 								.list());
-		brocken = Common.cast(db.createQuery("from Ship where star_system=:system and x=:x and y=:y and shiptype.shipClass =:shipClasses)")
+		brocken = Common.cast(db.createQuery("from Ship where system=:system and x=:x and y=:y and shiptype.shipClass =:shipClasses)")
 							  .setParameter("system", position.getSystem())
 							  .setParameter("x", position.getX())
 								.setParameter("y", position.getY())
 								.setParameter("shipClasses", ShipClasses.FELSBROCKEN)
 							  .list());
-		bases = Common.cast(db.createQuery("from Base where star_system=:system and x=:x and y=:y")
+		bases = Common.cast(db.createQuery("from Base where system=:system and x=:x and y=:y")
 				  .setParameter("system", position.getSystem())
 				  .setParameter("x", position.getX())
 				  .setParameter("y", position.getY())
 				  .list());
-		nodes = Common.cast(db.createQuery("from JumpNode where star_system=:system and x=:x and y=:y")
+		nodes = Common.cast(db.createQuery("from JumpNode where system=:system and x=:x and y=:y")
 				.setParameter("system", position.getSystem())
 				.setParameter("x", position.getX())
 				.setParameter("y", position.getY())
 				.list());
 		nebula = (Nebel)db.get(Nebel.class, new MutableLocation(position));
 
-		battles = Common.cast(db.createQuery("from Battle where star_system=:system and x=:x and y=:y")
+		battles = Common.cast(db.createQuery("from Battle where system=:system and x=:x and y=:y")
 				.setParameter("system", position.getSystem())
 				.setParameter("x", position.getX())
 				.setParameter("y", position.getY())
 				.list());
 
-		subraumspalten = Common.cast(db.createQuery("from Jump where star_system=:system and x=:x and y=:y")
+		subraumspalten = Common.cast(db.createQuery("from Jump where system=:system and x=:x and y=:y")
 				.setParameter("system", position.getSystem())
 				.setParameter("x", position.getX())
 				.setParameter("y", position.getY())
