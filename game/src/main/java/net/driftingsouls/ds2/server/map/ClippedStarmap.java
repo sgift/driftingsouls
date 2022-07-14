@@ -26,14 +26,15 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
-import net.driftingsouls.ds2.server.ships.ShipType;
-
 import org.hibernate.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Eine auf einen Teilausschnitt reduzierte Version eines Sternensystems.
@@ -45,6 +46,8 @@ import java.util.Map;
  */
 public class ClippedStarmap extends Starmap
 {
+	private static final Logger log = LoggerFactory.getLogger(ClippedStarmap.class);
+
 	private final Starmap inner;
 	private final int[] ausschnitt;
 	private final Map<Location, List<Ship>> clippedShipMap;
@@ -123,19 +126,22 @@ public class ClippedStarmap extends Starmap
 		// Nur solche Schiffe laden, deren LRS potentiell in den Ausschnitt hinein ragen oder die
 		// sich komplett im Ausschnitt befinden.
 		// TODO: Die Menge der Schiffe laesst sich sicherlich noch weiter eingrenzen
+		long start = System.nanoTime();
 		List<Ship> shipList = Common.cast(db.createQuery("select s from Ship as s left join s.modules m" +
 				" where s.system=:sys and s.shiptype.shipClass!=:shipClass and s.docked not like 'l %' and " +
 				"((s.x between :minx-s.shiptype.sensorRange and :maxx+s.shiptype.sensorRange) or" +
 				"(s.x between :minx-m.sensorRange and :maxx+m.sensorRange)) and " +
 				"((s.y between :miny-s.shiptype.sensorRange and :maxy+s.shiptype.sensorRange) or" +
 				"(s.x between :miny-m.sensorRange and :maxy+m.sensorRange))")
-				.setInteger("sys", this.inner.getSystem())
-				.setInteger("minx", this.ausschnitt[0])
-				.setInteger("maxx", this.ausschnitt[0]+this.ausschnitt[2])
-				.setInteger("miny", this.ausschnitt[1])
-				.setInteger("maxy", this.ausschnitt[1]+this.ausschnitt[3])
-				.setParameter("shipClass", ShipClasses.FELSBROCKEN)
-				.list());
+			.setInteger("sys", this.inner.getSystem())
+			.setInteger("minx", this.ausschnitt[0])
+			.setInteger("maxx", this.ausschnitt[0]+this.ausschnitt[2])
+			.setInteger("miny", this.ausschnitt[1])
+			.setInteger("maxy", this.ausschnitt[1]+this.ausschnitt[3])
+			.setParameter("shipClass", ShipClasses.FELSBROCKEN)
+			.list());
+		long duration = System.nanoTime() - start;
+		log.info("Time to load ships in range: {} ms", TimeUnit.NANOSECONDS.toMillis(duration));
 
 		return this.buildLocatableMap(shipList);
 	}
