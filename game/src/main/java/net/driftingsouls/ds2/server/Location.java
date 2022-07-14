@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import org.jetbrains.annotations.NotNull;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import java.io.Serializable;
 
@@ -35,6 +36,7 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 
 	private final int x;
 	private final int y;
+	@Column(name="star_system")
 	private final int system;
 	private transient int hashCode = 0;
 

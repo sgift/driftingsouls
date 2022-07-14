@@ -86,7 +86,7 @@ public class RestTick extends TickController {
 
 				jump.getShip().setLocation(jump);
 
-				db.createQuery("update Ship set x= :x, y= :y, system= :system where docked in (:dock,:land)")
+				db.createQuery("update Ship set x= :x, y= :y, star_system= :system where docked in (:dock,:land)")
 						.setInteger("x", jump.getX())
 						.setInteger("y", jump.getY())
 						.setInteger("system", jump.getSystem())

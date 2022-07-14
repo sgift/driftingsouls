@@ -72,7 +72,7 @@ class Starmap
 		if( this.shipMap == null ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			List<Ship> ships = Common.cast(db
-					.createQuery("from Ship where system=:system and shiptype.shipClass!=:shipClasses ")
+					.createQuery("from Ship where star_system=:system and shiptype.shipClass!=:shipClasses ")
 					.setInteger("system", this.system)
 					.setParameter("shipClasses", ShipClasses.FELSBROCKEN)
 					.list());
@@ -89,7 +89,7 @@ class Starmap
 		if( this.brockenMap == null ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			List<Ship> brocken = Common.cast(db
-					.createQuery("from Ship where system=:system and shiptype.shipClass=:shipClasses")
+					.createQuery("from Ship where star_system=:system and shiptype.shipClass=:shipClasses")
 					.setInteger("system", this.system)
 					.setParameter("shipClasses", ShipClasses.FELSBROCKEN)
 					.list());
@@ -106,7 +106,7 @@ class Starmap
 		if( this.baseMap == null ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			List<Base> bases = Common.cast(db
-					.createQuery("from Base where system=:system")
+					.createQuery("from Base where star_system=:system")
 					.setInteger("system", this.system)
 					.list());
 
@@ -123,7 +123,7 @@ class Starmap
 		if( this.battleMap == null ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			List<Battle> battles = Common.cast(db
-					.createQuery("from Battle where system=:system")
+					.createQuery("from Battle where star_system=:system")
 					.setInteger("system", this.system)
 					.list());
 
@@ -152,7 +152,7 @@ class Starmap
 		}
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		this.nodes = Common.cast(db
-				.createQuery("from JumpNode where system=:system")
+				.createQuery("from JumpNode where star_system=:system")
 				.setInteger("system", this.system)
 				.list());
 	}
@@ -165,7 +165,7 @@ class Starmap
 		if( this.nebulaMap == null ) {
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			List<Nebel> nebulas = Common.cast(db
-					.createQuery("from Nebel where loc.system=:system")
+					.createQuery("from Nebel where loc.star_system=:system")
 					.setInteger("system", this.system)
 					.list());
 			this.nebulaMap = buildNebulaMap(nebulas);

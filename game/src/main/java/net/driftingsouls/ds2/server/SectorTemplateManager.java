@@ -106,7 +106,7 @@ public class SectorTemplateManager {
 
 		List<Integer> shipids = new ArrayList<>();
 
-		String query = "FROM Ship WHERE id>0 AND system=0 ";
+		String query = "FROM Ship WHERE id>0 AND star_system=0 ";
 
 		if( res.getWidth() == 0 ) {
 			query += " AND x="+res.getX()+" ";
