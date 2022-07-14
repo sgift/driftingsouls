@@ -630,12 +630,12 @@ public class ErsteigernController extends Controller
 		outputAstiKurse(t, db);
 
 		List<Ship> postenList = Common.cast(db
-				.createQuery("select s from Ship s left join s.modules sm " +
-						"where s.id>0 and locate('tradepost',s.status)!=0 or " +
-						"s.shiptype.flags like '%tradepost%' or " +
-						"sm.flags like '%tradepost%' " +
-						"order by s.system,s.x+s.y")
-				.list());
+			.createQuery("select s from Ship s left join FETCH s.modules sm LEFT JOIN FETCH s.shiptype st " +
+				"where s.id>0 and locate('tradepost',s.status)!=0 or " +
+				"st.flags like '%tradepost%' or " +
+				"sm.flags like '%tradepost%' " +
+				"order by s.system,s.x+s.y")
+			.list());
 
 		for (Ship tradepost : postenList)
 		{
