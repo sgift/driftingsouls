@@ -27,9 +27,6 @@
         <!-- SQL dialect -->
         <property name="dialect">org.hibernate.dialect.MySQL5InnoDBDialect</property>
 
-		<!--  query cache -->
-		<property name="cache.use_query_cache">true</property>
-
 		<!-- Enable batching -->
 		<property name="hibernate.jdbc.batch_size">50</property>
 		<property name="hibernate.jdbc.fetch_size">50</property>
