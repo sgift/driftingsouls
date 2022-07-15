@@ -30,7 +30,7 @@ class Starmap
 	private final int system;
 
 	private List<JumpNode> nodes;
-	private Map<Location, List<Ship>> shipMap;
+	private Map<Location, ScanData> shipMap;
 	private Map<Location, Nebel> nebulaMap;
 	private Map<Location, List<JumpNode>> nodeMap;
 	private Map<Location, List<Base>> baseMap;
@@ -65,11 +65,13 @@ class Starmap
 	}
 
 	/**
-	 * @return Die Liste der Schiffe im System, sortiert nach Sektoren.
+	 * @return Die Liste der Schiffe im System sortiert nach Sektoren.
 	 */
-	Map<Location, List<Ship>> getShipMap()
+	Map<Location, ScanData> getShipMap()
 	{
 		if( this.shipMap == null ) {
+
+			/*
 			org.hibernate.Session db = ContextMap.getContext().getDB();
 			List<Ship> ships = Common.cast(db
 					.createQuery("from Ship where system=:system and shiptype.shipClass!=:shipClasses ")
@@ -77,12 +79,13 @@ class Starmap
 					.setParameter("shipClasses", ShipClasses.FELSBROCKEN)
 					.list());
 			this.shipMap = buildLocatableMap(ships);
+			 */
 		}
 		return Collections.unmodifiableMap(this.shipMap);
 	}
 
-		/**
-	 * @return Die Liste der Schiffe im System, sortiert nach Sektoren.
+	/**
+	 * @return Die Liste der Brocken im System sortiert nach Sektoren.
 	 */
 	Map<Location, List<Ship>> getBrockenMap()
 	{
@@ -99,7 +102,7 @@ class Starmap
 	}
 
 	/**
-	 * @return Die Liste der Basen im System, sortiert nach Sektoren.
+	 * @return Die Liste der Basen im System sortiert nach Sektoren.
 	 */
 	Map<Location, List<Base>> getBaseMap()
 	{
