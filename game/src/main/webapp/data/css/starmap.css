@@ -1,0 +1,296 @@
+body {
+	margin:0px;
+}
+
+#mapmenubar {
+	position:fixed;
+	left:-20px;
+	top:200px;
+	width:25px;
+}
+
+#mapmenubar .content {
+	padding-left:10px;
+}
+
+#mapmenubar .content a {
+	display:block;
+	margin-bottom:8px;
+}
+
+#systemauswahl {
+	position:fixed;
+	top:200px;
+	margin-left:auto;
+	margin-right:auto;
+	z-index:95;
+	left:0px;
+	right:0px;
+	width:400px;
+	text-align:center;
+}
+
+#systemauswahl table {
+	margin-left:auto;
+	margin-right:auto;
+	text-align:left;
+	margin-bottom:10px;
+	margin-top:5px;
+}
+
+#jumpnodebox {
+	position:fixed;
+	top:200px;
+	margin-left:auto;
+	margin-right:auto;
+	z-index:100;
+	left:0px;
+	right:0px;
+	width:400px;
+	text-align:center;
+}
+
+#jumpnodebox #jumpnodelist {
+	text-align:left;
+	margin-top:5px;
+	margin-bottom:10px;
+}
+
+.invisible{
+	display:none;
+}
+
+#sectortable,
+#starmaploader{
+	position: fixed;
+	top: 200px;
+	margin-left:auto;
+	margin-right:auto;
+	z-index:90;
+	left:0px;
+	right:0px;
+}
+
+#mapcontent {
+	position:absolute;
+	left:45px;
+	top:5px;
+	right:5px;
+	bottom:5px;
+}
+
+#legend
+{
+	table-layout: fixed;
+	border-width: 0px;
+	padding: 0px;
+	margin: 0px;
+	border-spacing: 0px;
+	border-style: none;
+	position:absolute;
+	left:0px;
+	top:0px;
+	right:0px;
+	bottom:0px;
+	z-index:5;
+	font-size:9px;
+}
+
+#legend .top {
+	height: 25px;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width:100%;
+}
+
+#legend .bottom {
+	bottom: 0px;
+    left: 0px;
+    position: absolute;
+    width:100%;
+    height:25px;
+}
+
+#legend .hbar {
+	left: 25px;
+	right:25px;
+    position: absolute;
+    top: 0px;
+    height:25px;
+    overflow:hidden;
+}
+
+#legend .hbar .scroll div {
+	float:left;
+	text-align:center;
+	vertical-align:middle;
+	width:25px;
+	height:25px;
+	line-height: 20px;
+}
+
+#legend .left {
+    left: 0px;
+    position: absolute;
+    top: 25px;
+    bottom:25px;
+    width: 25px;
+}
+
+#legend .right {
+    right: 0px;
+    position: absolute;
+    top: 25px;
+    width: 25px;
+    bottom:25px;
+}
+
+#legend .vbar {
+	position: absolute;
+	overflow:hidden;
+	height:100%;
+	width:25px;
+}
+
+#legend .vbar .scroll div {
+	text-align:center;
+	vertical-align:middle;
+	width:25px;
+	height:25px;
+	line-height: 20px;
+}
+
+#legend .corner {
+	text-align:center;
+	line-height: 20px;
+	width:25px;
+	height:25px;
+}
+
+#legend .scroll {
+	position:absolute;
+}
+
+#legend td
+{
+	border-width: 0px;
+	padding: 0px;
+	margin: 0px;
+	border-spacing: 0px;
+	border-style: none;
+	width:25px;
+	height:25px;
+	background-position:0px 0px;
+	background-repeat:no-repeat;
+	text-align:center;
+	vertical-align:middle;
+}
+
+#legend .border {
+	font-size:9px;
+}
+
+#mapview {
+	position:absolute;
+	top:25px;
+	left:25px;
+	right:25px;
+	bottom:25px;
+	overflow:hidden;
+	z-index:10;
+}
+
+#actionOverlay {
+	position:absolute;
+	top:0px;
+	left:0px;
+	z-index:20;
+	width:100%;
+	height:100%;
+}
+
+#tiles {
+	position:absolute;
+	top:0px;
+	left:0px;
+	z-index:10;
+	opacity:0.5;
+}
+
+#tiles img {
+	width:500px;
+	height:500px;
+	position:absolute;
+}
+
+#tileOverlay {
+	position:absolute;
+	top:0px;
+	left:0px;
+	z-index:15;
+}
+
+#tileOverlay div {
+	width:25px;
+	height:25px;
+	position:absolute;
+}
+
+#sectorview .content {
+	padding-right:3px;
+	max-height:400px;
+	overflow-y:auto;
+}
+#sectorview ul
+{
+    list-style-type: none;
+}
+
+#sectorview .nebel {
+	float:left;
+	width:50px;
+	margin-right:8px;
+	margin-top:8px;
+	margin-left:0px;
+}
+
+#sectorview .bases,
+#sectorview .jumpnodes{
+	margin-top:8px;
+	margin-left:0px;
+	padding-left:0px;
+}
+
+#sectorview .bases img,
+#sectorview .jumpnodes img{
+	float:left;
+	margin-right:8px;
+}
+
+#sectorview .jumpnodes img {
+	width: 50px;
+}
+
+#sectorview .bases li,
+#sectorview .jumpndoes li,
+#sectorview .ships {
+	clear:both;
+}
+
+#sectorview .ships {
+	padding-top:8px;
+}
+
+#sectorview .ships .toggle {
+	cursor:pointer;
+}
+
+#starmaploader .content {
+	text-align:center;
+}
+#starmaploader .content img {
+	margin-top:10px;
+	width:200px;
+	height:22px;
+}
