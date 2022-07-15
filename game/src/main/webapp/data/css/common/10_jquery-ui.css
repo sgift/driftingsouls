@@ -1,0 +1,87 @@
+/*
+	JQuery UI
+*/
+
+.ui-widget {
+	font-family: arial, helvetica;
+	color: #C7C7C7;
+	font-size: 12px;
+	border:2px solid #26312a;
+	box-shadow: 5px 5px 10px #031103;
+}
+
+.ui-widget-header {
+	background-image:none;
+}
+
+.ui-widget-content {
+	background: #0f1513;
+}
+
+.ui-state-hover,
+.ui-widget-content .ui-state-hover,
+.ui-widget-header .ui-state-hover,
+.ui-state-focus,
+.ui-widget-content .ui-state-focus,
+.ui-widget-header .ui-state-focus {
+    background: #243717;
+    color: #FFFFFF;
+    font-weight: bold;
+    border:1px solid black;
+}
+
+.ui-corner-all {
+	border-radius:0px;
+}
+
+.ui-dialog {
+	border:4px solid #26312a;
+	padding:0px;
+}
+
+.ui-dialog .ui-dialog-titlebar {
+	padding:5px 10px;
+	font-size:14px;
+}
+
+.ui-widget-content .ui-icon {
+	background-image:none;
+}
+
+.ui-dialog-titlebar {
+	border:0px;
+	background-color:transparent;
+	font-size:16px;
+	font-weight:bold;
+	text-decoration:none;
+	color:#FEB626;
+	margin:1px 0px 2px 0px;
+}
+
+.ui-dialog .ui-dialog-content {
+	padding: 5px 10px;
+	background-image: none;
+	
+	-webkit-border-image: none;
+	-moz-border-image: none;
+	-o-border-image: none;
+	-ms-border-image: none;
+	border-image:none;
+}
+
+.ui-dialog-title {
+	margin:0px;
+}
+
+
+.ui-dialog .ui-dialog-titlebar-close {
+	width:16px;
+	height:16px;
+}
+
+.ui-dialog .ui-dialog-titlebar-close span {
+	background-image:url('./data/interface/delete.gif');
+	background-position:0px 0px;
+	width:14px;
+	height:14px;
+}

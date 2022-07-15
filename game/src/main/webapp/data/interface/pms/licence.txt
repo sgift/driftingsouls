@@ -1,0 +1,6 @@
+edit-comment.png	- LGPL	- Firewing (Nicht Urheber)
+ordner.png			- LGPL	- Firewing (Nicht Urheber)
+recover.png			- LGPL	- Firewing (Nicht Urheber)
+trash.png			- LGPL	- Firewing (Nicht Urheber)
+trash-full.png		- LGPL	- Firewing (Nicht Urheber)
+ 

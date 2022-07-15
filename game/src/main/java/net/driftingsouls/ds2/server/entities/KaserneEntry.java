@@ -18,6 +18,12 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
+import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.units.UnitCargo;
+import net.driftingsouls.ds2.server.units.UnitType;
+import org.hibernate.annotations.ForeignKey;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -25,22 +31,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.units.UnitCargo;
-import net.driftingsouls.ds2.server.units.UnitType;
-
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ForeignKey;
-
 /**
  * Ein Eintrag der Kaserne.
  *
  */
 @Entity
 @Table(name="kaserne_queues")
-@Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class KaserneEntry {
 
 	@Id @GeneratedValue

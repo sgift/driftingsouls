@@ -30,7 +30,12 @@ import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.entities.ally.AllyPosten;
-import net.driftingsouls.ds2.server.framework.*;
+import net.driftingsouls.ds2.server.framework.BasicUser;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.ConfigService;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.UserValue;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.utils.StringToTypeConverter;
 import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
@@ -43,16 +48,39 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.annotations.*;
-import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.persistence.CascadeType;
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 
@@ -63,7 +91,6 @@ import java.util.stream.Collectors;
  */
 @Entity
 @DiscriminatorValue("default")
-@Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @BatchSize(size=50)
 @org.hibernate.annotations.Table(
 	appliesTo = "users",

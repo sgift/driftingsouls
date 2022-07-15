@@ -22,8 +22,6 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.Column;
@@ -52,7 +50,6 @@ import java.util.Map;
  */
 @Entity
 @Table(name="ordner")
-@Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Ordner {
 	/**
 	 * Ein normaler Ordner.

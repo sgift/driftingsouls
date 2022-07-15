@@ -23,14 +23,23 @@ import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.Battle;
-import net.driftingsouls.ds2.server.cargo.*;
+import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
+import net.driftingsouls.ds2.server.cargo.ResourceID;
+import net.driftingsouls.ds2.server.cargo.Resources;
+import net.driftingsouls.ds2.server.cargo.Transfer;
+import net.driftingsouls.ds2.server.cargo.Transfering;
 import net.driftingsouls.ds2.server.cargo.modules.Module;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleType;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.config.items.IffDeaktivierenItem;
 import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.entities.*;
+import net.driftingsouls.ds2.server.entities.Feeding;
+import net.driftingsouls.ds2.server.entities.Nebel;
+import net.driftingsouls.ds2.server.entities.Offizier;
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
@@ -44,14 +53,39 @@ import net.driftingsouls.ds2.server.werften.ShipWerft;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.annotations.*;
-import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Index;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.CascadeType;
-import javax.persistence.*;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
-import java.util.*;
+import javax.persistence.Transient;
+import javax.persistence.Version;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -62,7 +96,6 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name="ships")
 @BatchSize(size=50)
-@Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 @org.hibernate.annotations.Table(
 		appliesTo = "ships",
 		indexes = {
@@ -101,7 +134,6 @@ public class Ship implements Locatable,Transfering,Feeding {
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="type", nullable=false)
 	@BatchSize(size=50)
-	@Cache(usage=CacheConcurrencyStrategy.READ_ONLY)
 	@ForeignKey(name="ships_type_fk")
 	private ShipType shiptype;
 

@@ -23,8 +23,6 @@ import net.driftingsouls.ds2.server.cargo.UnmodifiableCargo;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.DiscriminatorFormula;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Type;
@@ -49,7 +47,6 @@ import javax.persistence.Table;
 @Table(name="cores")
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 @DiscriminatorFormula("1")
-@Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public abstract class Core {
 	@Id @GeneratedValue
 	private int id;

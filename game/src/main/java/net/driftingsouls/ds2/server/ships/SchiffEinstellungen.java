@@ -2,8 +2,6 @@ package net.driftingsouls.ds2.server.ships;
 
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Index;
 
 import javax.persistence.Column;
@@ -18,7 +16,6 @@ import javax.persistence.Version;
 @Entity
 @Table(name="schiff_einstellungen")
 @BatchSize(size=50)
-@Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 public class SchiffEinstellungen
 {
 	@SuppressWarnings("unused")

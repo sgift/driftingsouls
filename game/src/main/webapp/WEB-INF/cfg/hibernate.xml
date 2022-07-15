@@ -27,12 +27,6 @@
         <!-- SQL dialect -->
         <property name="dialect">org.hibernate.dialect.MySQL5InnoDBDialect</property>
 
-        <!-- Second-level cache  -->
-       <property name="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory</property>
-
-		<!--  query cache -->
-		<property name="cache.use_query_cache">true</property>
-
 		<!-- Enable batching -->
 		<property name="hibernate.jdbc.batch_size">50</property>
 		<property name="hibernate.jdbc.fetch_size">50</property>

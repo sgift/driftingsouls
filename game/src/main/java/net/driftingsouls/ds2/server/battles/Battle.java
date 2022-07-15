@@ -51,7 +51,6 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 @Entity
 @Table(name="battles")
-@Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 @BatchSize(size=50)
 @org.hibernate.annotations.Table(appliesTo = "battles", indexes = {@Index(name="battle_coords", columnNames = {"x", "y", "star_system"})})
 @OptimisticLocking(type = OptimisticLockType.DIRTY)

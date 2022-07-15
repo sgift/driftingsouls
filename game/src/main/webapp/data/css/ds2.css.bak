@@ -1,0 +1,174 @@
+body 
+{
+	background-image: url(../interface/bg2.jpg);
+	color: #a4a8b7;
+	background-color : #2f3447;
+	font-family: Arial, Helvetica, sans-serif;
+	position: relative;
+}
+
+a.portallink
+{
+	color: #a4a8b7;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+a#registerlink
+{
+	color: #00ff00;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+h1
+{
+	font-size: 17px;
+}
+
+p
+{
+	font-size: 15px;
+}
+
+li
+{
+	list-style-type: none;
+}
+
+li#login
+{
+	color: #a4a8b7;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+li#login > form > ol
+{
+	display: inline;
+}
+
+li#login > form > ol > li
+{
+	float: left;
+	padding-left: 0.5em;
+}
+
+#navigation
+{
+	position: relative;
+	margin-top: 0.5em;
+	margin-left: 3em;
+	padding-bottom: 3em;
+}
+
+ol#agb > li
+{
+	list-style: decimal;
+}
+
+#navigation li
+{
+	background-color: #2c3447;
+	text-align: left;
+    float: left;
+    list-style: none;
+    padding: 3px 10px 3px 10px;
+    margin: 5px;
+	border-style: solid;
+	border-width: thin;
+}
+
+#navigation li#current
+{
+	background-color: transparent;
+	color: #a4a8b7;
+	text-decoration: none;
+	border: none;
+}
+
+a:visited
+{
+	color: #a4a8b7;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+#document
+{
+	min-width: 770px;
+	position: relative;
+	margin: 3em;
+	margin-top: 1.5em;
+	border-style: dashed;
+	padding: 1.3em;
+	border-width: thin;
+	background-image: url(../interface/text_back.png);
+}
+
+#screenshots
+{
+	margin-left: 2em;
+	margin-top: 3em;
+	margin-bottom: 3em;
+}
+
+#teaser
+{
+	padding-top: 0.8em;
+}
+
+.screenshot
+{
+	border-color: #a4a8b7;
+	border-style: double;
+	margin: 1em;
+}
+
+#votes
+{
+	margin-top: 3em;
+	text-align:center;
+}
+
+#votes img {
+	vertical-align:middle;
+}
+
+li.newsitem
+{
+	margin-bottom: 2em;
+}
+
+li.newsitem > h2.title
+{
+	font-size: 1.5em;
+	padding-bottom: 0px;
+	margin-bottom: 0px;
+}
+
+li.newsitem > span.authoring
+{
+	font-style: italic;
+	font-size: 0.5em;
+	padding-top: 0px;
+	margin-top: 0px;
+}
+
+li.newsitem > p.newstext
+{
+	padding-top: 0px;
+	margin-top: 0.5em;
+}
+
+li#lostpass
+{
+	clear:both;
+}
+
+li#lostpass > a
+{
+	color: #ff0000;
+	font-size: 0.5em;
+	font-style: italic;
+}

@@ -30,8 +30,11 @@ import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.*;
-import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
+import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.framework.Configuration;
+import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.map.TileCache;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -48,8 +51,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.hibernate.Cache;
-import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.imageio.ImageIO;
@@ -60,8 +61,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -102,7 +108,6 @@ public class AdminCommands {
 			cmds.put("exectask", ExecTaskCommand.class);
 			cmds.put("tick", TickCommand.class);
         	cmds.put("autofire", AutoFireCommand.class);
-			cmds.put("clearcache", ClearCache.class);
 			cmds.put("cleartilecache", ClearSystemTileCache.class);
 		}
 	}
@@ -1468,27 +1473,6 @@ public class AdminCommands {
 		public List<String> autoComplete(String[] command)
 		{
 			return Collections.singletonList("[shipId]");
-		}
-	}
-
-	protected static class ClearCache implements Command {
-		@Override
-		public String execute(Context context, String[] command) {
-			String output = "Cache cleared";
-
-			SessionFactory sf = HibernateUtil.getSessionFactory();
-			Cache c = sf.getCache();
-			c.evictEntityRegions();
-			c.evictCollectionRegions();
-			c.evictQueryRegions();
-
-			return output;
-		}
-
-		@Override
-		public List<String> autoComplete(String[] command)
-		{
-			return Collections.singletonList("");
 		}
 	}
 

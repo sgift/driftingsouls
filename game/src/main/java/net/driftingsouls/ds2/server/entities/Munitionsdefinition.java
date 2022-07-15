@@ -18,8 +18,6 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.CollectionTable;
@@ -39,7 +37,6 @@ import java.util.Set;
  */
 @Entity
 @Table(name="ammo")
-@Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Munitionsdefinition
 {
 	/**

@@ -18,11 +18,8 @@
  */
 package net.driftingsouls.ds2.server.config.items;
 
-import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.Column;
@@ -45,7 +42,6 @@ import javax.persistence.Table;
 @Table(name="items")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "typ", length=255)
-@Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 public abstract class Item {
 	@Id @GeneratedValue(generator="ds-itemid")
 	@GenericGenerator(name="ds-itemid", strategy = "net.driftingsouls.ds2.server.config.items.ItemIdGenerator")
