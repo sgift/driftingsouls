@@ -20,8 +20,6 @@ package net.driftingsouls.ds2.server.units;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.Forschung;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Type;
 
@@ -40,7 +38,6 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name="unit_types")
-@Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class UnitType {
 	
 	@Id @GeneratedValue

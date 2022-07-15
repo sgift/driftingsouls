@@ -21,8 +21,6 @@ package net.driftingsouls.ds2.server.entities;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.UnmodifiableCargo;
 import net.driftingsouls.ds2.server.framework.Common;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Type;
 
@@ -43,7 +41,6 @@ import java.util.Set;
  */
 @Entity
 @Table(name="items_build")
-@Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class FactoryEntry {
 	
 	@Id @GeneratedValue

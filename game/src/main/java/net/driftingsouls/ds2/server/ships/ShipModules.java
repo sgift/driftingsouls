@@ -17,12 +17,11 @@
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 package net.driftingsouls.ds2.server.ships;
-import net.driftingsouls.ds2.server.cargo.*;
 
+import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.UnmodifiableCargo;
 import net.driftingsouls.ds2.server.config.Weapons;
 import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
@@ -49,7 +48,6 @@ import java.util.Map;
  */
 @Entity
 @Table(name="ships_modules")
-@Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @BatchSize(size=50)
 public class ShipModules implements ShipTypeData {
 	@Id @GeneratedValue

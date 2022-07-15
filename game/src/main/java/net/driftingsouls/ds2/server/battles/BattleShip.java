@@ -29,8 +29,6 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import org.hibernate.Session;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 
 import javax.annotation.Nonnull;
@@ -53,7 +51,6 @@ import java.util.Map;
  */
 @Entity
 @Table(name="battles_ships")
-@Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 public class BattleShip {
 	@Id
 	@ForeignKey(name="battles_ships_fk_ships")

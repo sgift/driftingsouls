@@ -26,12 +26,10 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import net.driftingsouls.ds2.server.notification.Notifier;
+import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
@@ -64,7 +62,6 @@ import java.util.List;
  */
 @Entity
 @Table(name="transmissionen")
-@Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 @org.hibernate.annotations.Table(
 	appliesTo = "transmissionen",
 	indexes = {@Index(name="empfaenger", columnNames = {"empfaenger", "gelesen"})}

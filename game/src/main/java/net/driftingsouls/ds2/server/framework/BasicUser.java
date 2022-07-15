@@ -20,8 +20,6 @@ package net.driftingsouls.ds2.server.framework;
 
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.DiscriminatorFormula;
 import org.hibernate.annotations.Index;
 
@@ -49,7 +47,6 @@ import java.util.Set;
 @Table(name="users")
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 @DiscriminatorFormula("'default'")
-@Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public abstract class BasicUser {
 /**
 	 * Sortiert die Benutzer entsprechend ihres Anzeigenamens.

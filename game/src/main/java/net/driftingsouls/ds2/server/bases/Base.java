@@ -21,10 +21,22 @@ package net.driftingsouls.ds2.server.bases;
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
-import net.driftingsouls.ds2.server.cargo.*;
+import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.ResourceEntry;
+import net.driftingsouls.ds2.server.cargo.ResourceID;
+import net.driftingsouls.ds2.server.cargo.ResourceList;
+import net.driftingsouls.ds2.server.cargo.Resources;
+import net.driftingsouls.ds2.server.cargo.Transfer;
+import net.driftingsouls.ds2.server.cargo.Transfering;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.entities.*;
+import net.driftingsouls.ds2.server.entities.Academy;
+import net.driftingsouls.ds2.server.entities.Factory;
+import net.driftingsouls.ds2.server.entities.Feeding;
+import net.driftingsouls.ds2.server.entities.Forschungszentrum;
+import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
+import net.driftingsouls.ds2.server.entities.Offizier;
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -36,16 +48,37 @@ import net.driftingsouls.ds2.server.werften.BaseWerft;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.CallbackException;
 import org.hibernate.Session;
-import org.hibernate.annotations.*;
-import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+import org.hibernate.annotations.Type;
 import org.hibernate.classic.Lifecycle;
 
 import javax.persistence.CascadeType;
-import javax.persistence.*;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.persistence.Version;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -56,7 +89,6 @@ import java.util.stream.Collectors;
  */
 @Entity
 @Table(name="bases")
-@Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
 @BatchSize(size=50)
 @org.hibernate.annotations.Table(
 	appliesTo = "bases",

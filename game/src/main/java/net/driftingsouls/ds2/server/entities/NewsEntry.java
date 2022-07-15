@@ -1,8 +1,5 @@
 package net.driftingsouls.ds2.server.entities;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -17,7 +14,6 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name="portal_news")
-@Cache(usage=CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class NewsEntry
 {
 	@Id @GeneratedValue
