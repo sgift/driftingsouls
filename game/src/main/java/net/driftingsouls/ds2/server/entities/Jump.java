@@ -18,6 +18,12 @@
  */
 package net.driftingsouls.ds2.server.entities;
 
+import net.driftingsouls.ds2.server.Locatable;
+import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.ships.Ship;
+import org.hibernate.annotations.ForeignKey;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -26,11 +32,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
-
-import net.driftingsouls.ds2.server.Locatable;
-import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.ships.Ship;
-import org.hibernate.annotations.ForeignKey;
 
 /**
  * Ein Sprung eines Schiffes durch den Subraum (Subraumspalte).
@@ -48,6 +49,7 @@ public class Jump implements Locatable {
 	private Ship ship;
 	private int x;
 	private int y;
+	@Column(name = "star_system")
 	private int system;
 	
 	@Version

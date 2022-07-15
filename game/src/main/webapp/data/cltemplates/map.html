@@ -89,7 +89,7 @@
 				<li ng-repeat="base in sektor.bases">
 					<img ng-src='{{base.image}}' />
 					<div class='name'>
-						<a ui-if="base.eigene" href="./ds?module=base&action=default&col={{base.id}}">{{base.name}}</a>
+						<a ui-if="base.eigene" href="./base?col={{base.id}}">{{base.name}}</a>
 						<span ui-if="!base.eigene">{{base.name}}</span>
 					</div>
 					<div class='typ'>{{base.typ}}</div>

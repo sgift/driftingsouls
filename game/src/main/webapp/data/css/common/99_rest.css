@@ -352,3 +352,15 @@
 .werft .werkstatt select {
 	width:200px;
 }
+
+/* 
+	BBCode Funktionen
+*/
+.spoiler {
+	color: grey;
+	background-color: grey;
+}
+.spoiler :hover {
+	color: unset;
+	background-color: unset;
+}

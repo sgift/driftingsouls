@@ -46,10 +46,10 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactor
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.BufferedReader;
@@ -58,6 +58,7 @@ import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Die Uebersicht.
@@ -67,7 +68,8 @@ import java.util.Set;
 @Module(name = "ueber")
 public class UeberController extends Controller
 {
-	private static final Log log = LogFactory.getLog(UeberController.class);
+	private static final Logger log = LoggerFactory.getLogger(UeberController.class);
+
 	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
@@ -240,12 +242,15 @@ public class UeberController extends Controller
 		// Bookmarks zusammenbauen
 		t.setVar("show.bookmarks", 1);
 
-		List<?> bookmarks = db.createQuery("from Ship where id>0 and einstellungen.bookmark=true and owner=:owner order by id desc")
-				.setEntity("owner", user)
-				.list();
-		for (Object bookmark1 : bookmarks)
+		long start = System.nanoTime();
+		List<Ship> bookmarks = Common.cast(db.createQuery("from Ship s LEFT JOIN FETCH s.einstellungen se where s.id>0 and se.bookmark=true and owner=:owner order by s.id desc")
+			.setEntity("owner", user)
+			.list());
+		long duration = System.nanoTime() - start;
+		log.info("Bookmark loading took: {}ms", TimeUnit.NANOSECONDS.toMillis(duration));
+
+		for (Ship bookmark : bookmarks)
 		{
-			Ship bookmark = (Ship) bookmark1;
 			ShipTypeData shiptype = bookmark.getTypeData();
 			t.setVar("bookmark.shipid", bookmark.getId(),
 					"bookmark.shipname", bookmark.getName(),

@@ -60,7 +60,7 @@ import java.util.stream.Collectors;
 @BatchSize(size=50)
 @org.hibernate.annotations.Table(
 	appliesTo = "bases",
-	indexes = {@Index(name="owner", columnNames = {"owner", "id"}), @Index(name="coords", columnNames = {"x", "y", "system"})}
+	indexes = {@Index(name="owner", columnNames = {"owner", "id"}), @Index(name="coords", columnNames = {"x", "y", "star_system"})}
 )
 public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feeding
 {
@@ -74,6 +74,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	private User owner;
 	private int x;
 	private int y;
+	@Column(name = "star_system")
 	private int system;
 	private int bewohner;
 	private int arbeiter;
@@ -216,6 +217,46 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	}
 
 	/**
+	 * Gibt die MapBreite zurueck.
+	 * @return Die Breite
+	 */
+	public int getMapWidth()
+	{
+		return Math.min(this.width,10)*39+20;
+		//return this.width*39+20;
+	}
+
+	/**
+	 * Gibt die MapBreite zurueck.
+	 * @return Die Breite
+	 */
+	public int getCargoHeight()
+	{
+		//Da wir die Breite nun auf 10 Beschraenken, muessen wir den Ueberschuss auf die Hoehe anrechnen
+		int cargoHeight = (1 + ((this.width>10? this.width-10:0) + this.height)* 2) * 22+25;
+		//int cargoHeight = (1 +  this.height * 2) * 22+25;
+		return (cargoHeight < 280 ? 280 : cargoHeight);
+	}
+
+	/**
+	 * Gibt die noch freie CargoMenge formatiert zurueck.
+	 * @return Die formatierte freie CargoMenge
+	 */
+	public String getCargoEmpty()
+	{
+		return Common.ln(this.getMaxCargo() - this.getCargo().getMass());
+	}
+
+	/**
+	 * Soll alles angezeigt werden=?
+	 * @return true / false
+	 */
+	public boolean showAll(User user)
+	{
+		return (this.getOwner().getId() == 0) || (this.getOwner().getId() == user.getId());
+	}
+
+	/**
 	 * Setzt die Breite der Bauflaeche auf der Basis.
 	 * @param width Die Breite
 	 */
@@ -249,6 +290,14 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	public String getName()
 	{
 		return this.name;
+	}
+	/**
+	 * Gibt den Plainnamen der Basis zurueck.
+	 * @return Der Name
+	 */
+	public String getPlainName()
+	{
+		return Common._plaintitle(this.name);
 	}
 
 	/**
@@ -488,6 +537,10 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	public long getMaxCargo()
 	{
 		return this.maxCargo;
+	}
+	public String getMaxCargo_formated()
+	{
+		return Common.ln(this.maxCargo);
 	}
 
 	/**
@@ -1766,5 +1819,57 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	public Set<Offizier> getOffiziere()
 	{
 		return offiziere;
+	}
+
+	public static Base getBaseById(int id){
+		try{
+			return (Base) ContextMap.getContext().getDB().get(Base.class, id);
+		}catch(Exception e)
+		{
+			return null;
+		}
+	}
+
+	public String getCstat_formated(){
+		long cstat = -Base.getStatus(this).getProduction().getMass();
+		return Common.ln(cstat);
+	}
+	public long getCstat(){
+		return -Base.getStatus(this).getProduction().getMass();
+	}
+
+	public String getEnergy_formated(){
+		return Common.ln(this.getEnergy());
+	}
+
+	public String getEstat_formated(){
+		return Common.ln(Base.getStatus(this).getEnergy());
+	}
+
+	public String getBewohner_formated(){
+		return Common.ln(this.getBewohner());
+	}
+
+	public String getArbeitetNeeded_formated(){
+		return Common.ln(Base.getStatus(this).getArbeiter());
+	}
+
+	public String getLivingSpace_formated(){
+		return Common.ln(Base.getStatus(this).getLivingSpace());
+	}
+
+	public String getWohnraum_formated(){
+		return Common.ln(Base.getStatus(this).getLivingSpace());
+	}
+	public int getWohnraum(){
+		return Base.getStatus(this).getLivingSpace();
+	}
+
+	public boolean hasUnits(){
+		return !this.getUnits().isEmpty();
+	}
+
+	public ResourceList getCargoResourceList(){
+		return this.getCargo().compare(Base.getStatus(this).getProduction(), true,true);
 	}
 }

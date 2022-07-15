@@ -1,0 +1,118 @@
+<svg id="svgNoiseTest" width="150px" height="50px" viewBox="0 0 150 50" xmlns='http://www.w3.org/2000/svg'> 
+   <defs>
+   
+		<style>
+			.mix 
+			{ 
+				mix-blend-mode: soft-light;
+			}
+			.color{
+				fill:#3C3C5A;
+				#stroke-width:0;
+			}
+
+		</style>
+		  
+		<pattern id="diagonalHatch" width="100" height="100" patternTransform="rotate(35)" patternUnits="userSpaceOnUse">
+			<rect x="0" y="0" width="200" height="200" filter="url(#noiseOne)" />
+		</pattern>
+		  
+		<linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+			<stop offset="0%" style="stop-color:rgba(255,255,255,1);" />
+			<stop offset="100%" style="stop-color:rgba(255,255,255,0.6);" />
+		</linearGradient>
+		  
+		<filter id="noiseOne" filterUnits="objectBoundingBox">		
+			<feTurbulence type='fractalNoise' baseFrequency='0.4' numOctaves='5' stitchTiles='stitch' result="resTurbulence" />
+			<feGaussianBlur stdDeviation="0 10" in="resTurbulence" result="resGaus" />
+			<feComposite operator="in" in="resGaus" in2="SourceGraphic" result="COMPOSITE"/>
+			<feColorMatrix type="matrix" values=
+			   "0 0 0 0 0.06,
+			   0 0 0 0 0.06,
+			   0 0 0 0 0.075,
+			   0 0 0 0.55 0.45" result="fullOpacity"/>
+			   			   
+			   <feColorMatrix in="SourceAlpha" type="matrix" values=
+			   "0 0 0 0 0,
+			   0 0 0 0 0,
+			   0 0 0 0 0,
+			   0 0 0 5 0" result="fullOpacitySource"/>
+			<feComposite operator="in" in="fullOpacity" in2="fullOpacitySource" result="COMPOSITE"/>
+		</filter>
+		
+		<filter id="noiseTwo" filterUnits="objectBoundingBox">
+			<feTurbulence type='fractalNoise' baseFrequency='0.1265 0.11' numOctaves='3' stitchTiles='stitch' result="resTurbulence" />
+			<feGaussianBlur stdDeviation="5" in="resTurbulence" result="resGaus" /> 
+			<feColorMatrix type="matrix" values=
+			   "0 0 0 0 0,
+			   0 0 0 0 0,
+			   0 0 0 0 0,
+			   0 0 0 1 0" result="opacityOnly"/>
+			<feBlend in="opacityOnly" in2="SourceGraphic" type="multiply" result="colorBlend" />
+			<feComposite operator="in" in="colorBlend" in2="SourceAlpha" result="COMPOSITE"/>   
+		</filter>
+		
+		<filter id="lightingFilter" filterUnits="objectBoundingBox">
+			<feGaussianBlur stdDeviation="0.5" result="blur1"/>
+			<feSpecularLighting result="specOut" in="blur1" specularConstant="0.8" specularExponent="30" lighting-color="#ddd">
+				<feDistantLight azimuth="225" elevation="45"/>
+			</feSpecularLighting>
+			<feComposite in="SourceGraphic" in2="specOut" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="result"/>
+			<feComposite operator="atop" in2="SourceGraphic"/>
+			<feColorMatrix type="matrix" values=
+			   "1 0 0 0 0,
+			   0 1 0 0 0,
+			   0 0 1 0 0,
+			   0 0 0 0.75 0" result="fullOpacity"/>
+			<feColorMatrix in="SourceAlpha" type="matrix" values=
+			   "0 0 0 0 0,
+			   0 0 0 0 0,
+			   0 0 0 0 0,
+			   0 0 0 5 0" result="fullOpacitySource"/>
+			<feComposite operator="in" in="fullOpacity" in2="fullOpacitySource" result="COMPOSITE"/>
+		</filter>
+
+
+		<filter  id="infillFilter">
+			<feColorMatrix type="matrix" values=
+			   "0 0 0 0 0.05,
+			   0 0 0 0 0.05,
+			   0 0 0 0 0.06,
+			   0 0 0 1 0" result="opacityOnly"/>
+			<feColorMatrix in="SourceAlpha" type="matrix" values=
+			   "0 0 0 0 0,
+			   0 0 0 0 0,
+			   0 0 0 0 0,
+			   0 0 0 5 0" result="fullOpacity"/>
+			<feBlend in="opacityOnly" in2="floodColor" type="multiply" result="colorBlend" />
+			<feComposite operator="in" in="opacityOnly" in2="fullOpacity" result="COMPOSITE"/>
+		</filter>
+		
+		<filter id="fullOpacity">
+			<feColorMatrix in="SourceAlpha" type="matrix" values=
+			   "0 0 0 0 0,
+			   0 0 0 0 0,
+			   0 0 0 0 0,
+			   0 0 0 5 0" result="fullOpacity"/>
+			<feColorMatrix in="SourceGraphic" type="matrix" values=
+			   "1 0 0 0 0,
+			   0 1 0 0 0,
+			   0 0 1 0 0,
+			   0 0 0 0 1" result="opacityOnly"/>
+			<feComposite operator="in" in="opacityOnly" in2="fullOpacity" result="COMPOSITE"/>
+		</filter>
+  </defs>
+
+
+<g filter="url(#noiseTwo)">
+	<g filter="url(#fullOpacity)">
+		<g filter="url(#lightingFilter)">
+			<polygon class="" points="5 5, 145 5, 145 30, 130 45, 5 45" fill="url(#diagonalHatch)" />
+		</g>
+		<g filter="url(#infillFilter)">
+			<polygon points="143 29.2, 129.2 43, 7 43, 7 7, 143 7" fill="url(#diagonalHatch)" />
+		</g>
+	</g>
+</g>
+</svg>
+

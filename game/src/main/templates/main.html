@@ -17,7 +17,7 @@
 	</script>
 <li class="statusfield">
 	<a id="mailicon" href="./ds?module=comm&action=showInbox" target="main"><img class="blink" src="./data/interface/menubar/mail.png" alt="neue Nachricht" title="Du hast neue Nachrichten erhalten" /></a>
-	<a id="comneticon" href="./ds?module=comnet" target="main"><img class="blink" src="./data/interface/menubar/cn.png" alt="neuer Com-Net-Eintrag" title="neuer Com-Net-Eintrag" /></a>
+	<a id="comneticon" href="./comnet" target="main"><img class="blink" src="./data/interface/menubar/cn.png" alt="neuer Com-Net-Eintrag" title="neuer Com-Net-Eintrag" /></a>
 </li>
 <li id="currentpage">
 	<dl>
@@ -40,7 +40,7 @@
 		</dt>
 		<!-- BEGIN bases.listitem -->
 			<dd>
-				<a href="./ds?module=base&amp;col={base.id}" target="main">
+				<a href="./base?col={base.id}" target="main">
 					{base.name}
 				</a>
 			</dd>
@@ -224,7 +224,7 @@
 			</a>
 		</dd>
 		<dd>
-			<a href="./ds?module=comnet" target="main">
+			<a href="./comnet" target="main">
 				Com-Net
 			</a>
 		</dd>

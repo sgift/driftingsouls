@@ -284,12 +284,17 @@ public class BuildingController extends Controller
 
 		Integer[] bebauung = base.getBebauung();
 
+
 		building.cleanup( getContext(), base, bebauung[field] );
 
 		bebauung[field] = 0;
 		base.setBebauung(bebauung);
 
 		Integer[] active = base.getActive();
+		if(active[field] == 1)
+		{
+			base.setArbeiter(base.getArbeiter()-building.getArbeiter());
+		}
 		active[field] = 0;
 		base.setActive(active);
 
@@ -323,7 +328,7 @@ public class BuildingController extends Controller
 			echo.append("</div>");
 
 			echo.append("<br />\n");
-			echo.append("<a class=\"back\" href=\"").append(Common.buildUrl("default", "module", "base", "col", base.getId())).append("\">zurück</a><br />\n");
+			echo.append("<a class=\"back\" href=\"").append(Common.buildThymeleafUrl("base", "col", base.getId())).append("\">zurück</a><br />\n");
 
 			return;
 		}
@@ -364,7 +369,7 @@ public class BuildingController extends Controller
 		echo.append("</div>");
 
 		echo.append("<br />\n");
-		echo.append("<a class=\"back\" href=\"").append(Common.buildUrl("default", "module", "base", "col", base.getId())).append("\">zurück</a><br />\n");
+		echo.append("<a class=\"back\" href=\"").append(Common.buildThymeleafUrl("base", "col", base.getId())).append("\">zurück</a><br />\n");
 	}
 
 	@ViewModel
@@ -502,7 +507,7 @@ public class BuildingController extends Controller
 			echo.append("<br />\n");
 		}
 
-		echo.append("<br /><a style=\"font-size:16px\" class=\"back\" href=\"").append(Common.buildUrl("default", "module", "base", "col", base.getId())).append("\">zurück zur Basis</a><br /></div>\n");
+		echo.append("<br /><a style=\"font-size:16px\" class=\"back\" href=\"").append(Common.buildThymeleafUrl("base",  "col", base.getId())).append("\">zurück zur Basis</a><br /></div>\n");
 
 		return echo.toString();
 	}

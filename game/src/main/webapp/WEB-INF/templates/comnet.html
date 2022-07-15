@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" lang="de">
+    <head>
+        <meta charset="utf-8">
+
+        <title>Drifting Souls 2</title>
+
+        <link rel="stylesheet" type="text/css" href="./data/css/format.css"/>
+        <link rel="stylesheet" type="text/css" href="./data/css/ui-darkness/00_jquery-ui-1.8.20.css"/>
+        <link rel="stylesheet" type="text/css" href="./data/css/ui-darkness/10_jquery-ui.css"/>
+
+        <script type="text/javascript" src="data/javascript/jquery.js"></script>
+        <script type="text/javascript" src="data/javascript/facebox.js"></script>
+        <script type="text/javascript" src="data/javascript/modules/comnet.js"></script>
+        <script type="text/javascript">
+            jQuery(document).ready(function ($) {
+                $('a[rel*=facebox]').facebox()
+            })
+        </script>
+    </head>
+    <body>
+        <style type="text/css"> body:first-of-type
+            {
+                background-image: url(https://ds2.drifting-souls.net/data/interface/portal/bg2.jpg);
+                background-color: rgba(0,0,0,0.65);
+                background-blend-mode: overlay;
+            }
+        </style>
+        <div id="error-placeholder" th:if="${error}" style="display:flex;justify-content:center;">
+            <div>
+                <span  th:utext="${error.text}"/>
+            </div>
+            <div>
+                <br />
+            </div>
+            <div>
+                <a class="forschinfo" th:href="@{/comnet(action='DEFAULT',channel='1')}">zur&uuml;ck zum Com-Net-Men&uuml;</a>
+            </div>
+        </div>
+        <div th:if="${error == null}" style="display:flex;justify-content:center;">
+            <div th:class="'container '+(${channel.showinputform}? 'container-cnpost':'container-cn')">
+                <div class="cnheader" style="">
+                    <div class="">
+                        <div style="font-weight:bold">Com-net - Version 6<br />
+                            <div th:if="${channel.showinputform}" th:utext="'Frequenz: '+${channel.name} + (${channel.showvorschau} ? ' - Vorschau' : '')">Frequenz: Kanalname [Vorschau] <br /><br /></div>
+                            <br th:if="${channel.showinputform}"/>
+                            <br th:if="${channel.showinputform}"/>
+                            <a th:if="${!channel.showchannellist and !channel.showsubmit}" class="forschinfo" th:href="@{/comnet(action='DEFAULT',channel='1')}">zur&uuml;ck zum Com-Net-Men&uuml;</a>
+                            <span th:if="${channel.iswriteable and channel.showread}">
+                                - <a class="forschinfo" th:href="@{/comnet(action='write',channel=${channel.channel.getId()})}">antworten</a>
+                            </span>
+                            <div th:if="${channel.showchannellist}">
+                                <br />
+                                Subraum-Tranciever... aktiviert<br />
+                                Kommunikations-System... einsatzbereit<br /><br />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gfxbox row" th:if="${channel.showsearchform}" style="">
+                    <form class="col" method="post" action="./comnet">
+                        <div class="row">
+                            <table class="noBorder" cellspacing="3" cellpadding="3">
+                                <tbody>
+                                    <tr>
+                                        <td class="noBorderX" valign="top">Titel</td>
+                                        <td class="noBorderX">
+                                            <input type="text" name="searchtitel" style="width:422px">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="noBorderX" valign="top">Inhalt</td>
+                                        <td class="noBorderX">
+                                            <input type="text" name="searchinhalt" style="width:422px">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="noBorderX" valign="top">Sender-Id</td>
+                                        <td class="noBorderX">
+                                            <input type="number" name="searchsender" style="width:422px">
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="row" style="justify-content:end;margin-top:10px;">
+                            <div style="margin-right:29px;">
+                                <input type="hidden" name="action" value="search">
+                                <input type="hidden" name="channel" th:value="${channel.channel.getId()}">
+                                <input type="hidden" name="back" value="0">
+                                <input type="submit" style="width:300px" value="suchen">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="gfxbox" style="" th:if="${channel.showvorschau}">
+                    <table width="100%" cellspacing="3" cellpadding="3" class="noBorderX">
+                        <tr>
+                            <td style="width:90px; text-align:center; vertical-align:top" class="noBorderX">
+                                <a class="profile" th:href="@{ds(module='userprofile',action='default',user=${post.user.getId()})}"><span th:utext="${post.username}">post.username</span></a>
+                                <span class="tooltip">
+											<img align="middle" th:src="${post.userRank.getImage()}" alt=""/>
+											<span class="ttcontent" th:utext="${post.userRank.getName()}">
+												{user.rang.name}
+											</span>
+										</span>
+                                <span th:if="${post.user.getId()<0}">[NPC]</span>
+
+                                <br /><br />
+                                <img th:src="'data/logos/user/'+${post.user.getId()}+'.gif'" width="75" height="75" alt="logo" />
+                                <img th:if="${post.ally}" th:src="'data/logos/ally/'+${post.ally.getId()}+'.gif'" width="75" height="75" alt="Allylogo" />
+                            </td>
+                            <td class="noBorderX" valign="top">
+                                <table class="noBorderX" width="100%">
+                                    <tr>
+                                        <td style="height:10px; width:20%; text-align:center" class="noBorderX" th:utext="'Post ' +${post.id}">Post {post.postid}</td>
+                                        <td style="height:10px; width:60%; text-align:center" class="noBorderX" th:utext="'Titel: '+${post.title}">
+                                            Titel: {post.title}
+                                        </td>
+                                        <td style="height:10px; width:20%; text-align:center" class="noBorderX" th:utext="${post.time}">{post.time}<br /><span style="color:yellow;" th:utext="'['+${post.ingametime+']'}">[{post.ingametime}]</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="noBorderX" colspan="3">
+                                            <hr style="height:1px; border:0px; background-color:#606060; color:#606060" th:utext="${post.text}"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div th:if="${channel.showvorschau}">
+                    <br /><br />
+                </div>
+                <div th:if="${channel.showinputform}" class="gfxbox" style="">
+                    <form class="container container-cnpost" method="post" action="./comnet">
+                        <div class="row" style="margin-top:10px;margin-bottom:10px;">
+                            <div class="col" style="min-width:50px;max-width:50px;flex-grow:0;">
+                                Titel
+                            </div>
+                            <div class="col">
+                                <input type="text" name="head" style="width:100%;" th:value="${post.rawtitle}">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col" style="min-width:50px;max-width:50px;flex-grow:0;">
+                                Text
+                            </div>
+                            <div class="col">
+                                <textarea id="cn-text" name="text" style="width:100%;resize:vertical;" rows="20" th:text="${post.rawtext}"></textarea>
+                            </div>
+                        </div>
+                        <div class="row" style="justify-content:space-between;margin-top:10px;">
+                            <div class="" style="margin-left:94px;">
+                                <button class="button-bb" type="button" onclick="bold()">[B]</button>
+                                <button class="button-bb" type="button" onclick="italic()">[I]</button>
+                                <button class="button-bb" type="button" onclick="underline()">[U]</button>
+                            </div>
+                            <div class="" style="margin-right:11px;">
+                                <input type="hidden" name="channel" th:value="${channel.channel.getId()}">
+                                <input type="submit" name="action" style="width:300px" value="vorschau">
+                                <input th:if="${channel.showvorschau}" type="submit" name="action" style="width:300px" value="senden">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div style="margin-top:25px;" th:if="${channel.showinputform}">
+                    <span style="font-weight:bold">Folgende Tags sind erlaubt:</span>
+                    <span class="link" style="font-size:8pt;color: #0060f0;cursor:pointer;" onclick="toggleElement(document.getElementById('BBCode-hinweise'));">(mehr Anzeigen)</span>
+                </div>
+                <div id="BBCode-hinweise" style="display:none;">
+                    <span style="font-size:8pt;">
+                        [url]http://www.dieGew&uuml;nschteSeite.de[/url]<br>
+                        [url=http://www.dieGew&uuml;nschteSeite.de]Eine Beschreibung[/url]<br>
+                        [img]AdresseDesBildes[/img]<br>
+                        [email]Irgendeine@EmailAdresse.de[/email]<br>
+                        [email=Irgendeine@EmailAdresse.de]Eine Beschreibung[/email]<br>
+                        [size=SchriftGr&ouml;ße]Irgendein Text[/size]<br>
+                        Eine Auflistung erzeugt man so:<br>
+                        [list=ListenTyp]<br>[*]Eintrag1<br>[*]Eintrag2<br>[/list]<br>
+                        ListenTyp kann z.B. circle,I,i,A usw. sein<br>
+                        =ListTyp kann aber auch einfach weggelassen werden<br>
+                        [color=TextFarbe]Irgendein Text[/color]<br>
+                        [font=Schriftart]Irgendein Text[/font]<br>
+                        [align=Textausrichtung]Irgendein Text[/align]<br>
+                        [mark=HintergrundFarbe]Irgendein Text[/mark]<br>
+                        [b] text [/b] <br>
+                            [i] text [/i] <br>
+                        [u] text [/u] <br>
+                        [spoiler] text [/spoiler] Text, der mit einem Spoiler Tag versehen wurde,
+                        wird ausgegraut und dem Benutzer erst angezeigt, wenn dieser mit der Maus
+                        dar&uuml;ber f&auml;hrt. Dieser sollte insbesondere dann verwendet werden, wenn
+                        Geschehnisse beschrieben werden, die generell unter "Not save for work" fallen <br>
+                        [youtube=Breite,H&ouml;he]Youtube-Code[/youtube]<br>
+                        Zudem gibt es auch einige speziellere Tags:<br>
+                        [shiptype]SchiffsTyp-Id[/shiptype]<br>
+                        [ship=ID]Eine Beschreibung[/ship]<br>
+                        [map]Sys:X/Y[/map]<br>
+                        [base=BaseID]Eine Beschreibung[/base]<br>
+                        [userprofile=SpielerID]Eine Beschreibung[/userprofile]<br>
+                        [resource=iID|0|0,PARAM]Anzahl[/resource]<br>
+                        Als PARAM kann i oder n angegeben werden, um nur den Namen oder
+                        nur das Bild anzeigen zu lassen. Das PARAM kann aber auch komplett
+                        weggelassen werden.<br>
+                        Beispiel f&uuml;r 5 Nahrung: [resource=i16|0|0]5[/resource]<br>
+                    </span>
+                </div>
+
+
+                <div class="" th:if="${channel.showread}">
+                    Eingegangene Nachrichten: <br />
+                    <a th:if="${channel.showreadnextpossible and channel.action.equals('read')}"   class="forschinfo" th:href="@{/comnet(action='read',  channel=${channel.channel.getId()},back=${channel.showvor})}">vor</a>
+                    <a th:if="${channel.showreadnextpossible and channel.action.equals('search')}" class="forschinfo" th:href="@{/comnet(action='search',channel=${channel.channel.getId()},back=${channel.showvor}, searchtitel=${search.searchtitel}, searchinhalt=${search.searchinhalt}, searchsender=${search.searchsender})}">vor</a>
+                    <span th:if="${!channel.showreadnextpossible}" class="smallfont">vor</span>
+                    ---
+                    <a th:if="${channel.showback and channel.action.equals('read')}"    class="forschinfo" th:href="@{/comnet(action='read'  ,channel=${channel.channel.getId()},back=${channel.showback})}" >zur&uuml;ck</a>
+                    <a th:if="${channel.showback and channel.action.equals('search')}"  class="forschinfo" th:href="@{/comnet(action='search',channel=${channel.channel.getId()},back=${channel.showback}, searchtitel=${search.searchtitel}, searchinhalt=${search.searchinhalt}, searchsender=${search.searchsender})}" >zur&uuml;ck</a>
+                    <span th:if="${!channel.showback}" class="smallfont">zur&uuml;ck</span>
+                </div>
+
+
+
+                <div class="gfxbox" style="padding:20px;" th:if="${channel.showchannellist}">
+                    <div style="font-weight:bold;background-color:transparent;color:white;font-family:arial,helvetica;font-size:16px;border-style:none;border-width:0;margin-bottom:10px;">
+                        &Ouml;ffentliche Frequenzen:
+                    </div>
+                    <table class="noBorder">
+                        <tbody>
+                            <tr th:each="channel : ${channels}">
+                                <td class="noBorderS" style="width:10px">
+                                    &nbsp;+
+                                </td>
+                                <td class="noBorderS">
+                                    <span th:utext="${channel.name}"/>
+                                    - <a th:if="${channel.isreadable}" class="forschinfo" th:href="@{/comnet(action='read',channel=${channel.channel.getId()})}">lesen</a>
+                                    - <a th:if="${channel.isreadable}" class="forschinfo" th:href="@{/comnet(action='search',channel=${channel.channel.getId()})}">scannen</a>
+                                    - <a th:if="${channel.iswriteable}" class="forschinfo" th:href="@{/comnet(action='write',channel=${channel.channel.getId()})}">senden</a>
+                                    <span th:if="${channel.newposts}" style="color:yellow; font-weight:bold">NEU</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="gfxbox" style="padding:20px;" th:if="${channel.showchannellist and allychannels.size()}">
+                    <div style="font-weight:bold;background-color:transparent;color:white;font-family:arial,helvetica;font-size:16px;border-style:none;border-width:0;margin-bottom:10px;">
+                        Allianz-Frequenzen:
+                    </div>
+                    <table class="noBorder">
+                        <tbody>
+                        <tr th:each="channel : ${allychannels}">
+                            <td class="noBorderS" style="width:10px">
+                                &nbsp;+
+                            </td>
+                            <td class="noBorderS">
+                                <span th:utext="${channel.name}"/>
+                                - <a th:if="${channel.isreadable}" class="forschinfo" th:href="@{/comnet(action='read',channel=${channel.channel.getId()})}">lesen</a>
+                                - <a th:if="${channel.isreadable}" class="forschinfo" th:href="@{/comnet(action='search',channel=${channel.channel.getId()})}">scannen</a>
+                                - <a th:if="${channel.iswriteable}" class="forschinfo" th:href="@{/comnet(action='write',channel=${channel.channel.getId()})}">senden</a>
+                                <span th:if="${channel.newposts}" style="color:yellow; font-weight:bold">NEU</span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div th:if="${channel.showsubmit}">
+                    Transmission gesendet... Erhalt wurde vom Com-Net best&auml;tigt.<br /><br /><br />
+                    <a class="forschinfo" th:href="@{/comnet(action='DEFAULT',channel='1')}">zur&uuml;ck zum Com-Net-Men&uuml;</a>
+                </div>
+                <div th:if="${channel.showsearcherror}">
+                    <br />
+                    <span style="color:red">Zu Ihrer Suche wurden leider keine Ergebnisse gefunden.</span><br />
+                    <br />
+                    <a class="forschinfo" th:href="@{/comnet(action='DEFAULT',channel='1')}">zur&uuml;ck zum Com-Net-Men&uuml;</a>
+                </div>
+
+                <span th:if="${channel.showread}" th:each="post : ${posts}">
+                    <div class="gfxbox" style="width:95%" >
+                        <table width="100%" cellspacing="3" cellpadding="3" class="noBorderX">
+                            <tr>
+                                <td style="width:90px; text-align:center; vertical-align:top" class="noBorderX">
+                                    <a class="profile" th:href="@{ds(module='userprofile',action='default',user=${post.user.getId()})}"><span th:utext="${post.username}">post.username</span></a>
+                                    <br />
+                                    <span class="tooltip">
+                                        <img align="middle" th:src="${post.userRank.getImage()}" alt=""/>
+                                        <span class="ttcontent" th:text="${post.userRank.getName()}">
+                                            UserRang.Name
+                                        </span>
+                                    </span>
+                                    <span th:if="${post.user.getId()<0}">
+                                        <br />[NPC]
+                                    </span>
+                                    <br /><br />
+                                    <img th:src="'data/logos/user/'+${post.post.getPic()}+'.gif'" width="75" height="75" alt="logo" />
+                                    <img th:if="${post.post.getAllyPic()}" th:src="'data/logos/ally/'+${post.post.getAllyPic()}+'.gif'" width="75" height="75" alt="Allianzlogo" />
+                                </td>
+                                <td class="noBorderX" valign="top">
+                                    <table class="noBorderX" width="100%">
+                                        <tr>
+                                            <td style="height:10px; width:20%; text-align:center" class="noBorderX" th:text="'Post '+${post.id}">Post Post.ID</td>
+                                            <td style="height:10px; width:60%; text-align:center" class="noBorderX" th:utext="'Titel: '+${post.title}">
+                                                Titel: Post.Title
+                                            </td>
+                                            <td style="height:10px; width:20%; text-align:center" class="noBorderX" >
+                                                <span th:text="${post.time}">post.time</span>
+                                                <br />
+                                                <span style="color:yellow;" th:text="'['+${post.ingametime}+']'">[post.ingametime]</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="noBorderX" colspan="3">
+                                                <hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+                                                <span class="CnPost" th:utext="${post.text}">post.text</span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div>
+                        <br />
+                    </div>
+                </span>
+            </div>
+        </div>
+        <div id="tt_div">
+        </div>
+        <!-- hier wird von wo anders der Schluss eingef&uuml;gt -->
+        <script type="text/javascript">
+            if (parent && parent.setCurrentPage) {
+                parent.setCurrentPage('comnet', 'ComNet');
+                parent.completePage();
+            }
+        </script>
+    </body>
+</html>

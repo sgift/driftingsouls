@@ -1563,7 +1563,8 @@ public class FleetMgntController extends Controller
 				Offizier offizier = ship.getOffizier();
 				if (offizier != null)
 				{
-					offi = " <a class=\"forschinfo\" href=\"" + Common.buildUrl("default", "module", "choff", "off", offizier.getID()) + "\"><img style=\"vertical-align:middle\" src=\"" + offizier.getPicture() + "\" alt=\"Rang " + offizier.getRang() + "\" /></a>";
+					//offi = " <a class=\"forschinfo\" href=\"" + Common.buildUrl("default", "module", "choff", "off", offizier.getID()) + "\"><img style=\"vertical-align:middle\" src=\"" + offizier.getPicture() + "\" alt=\"Rang " + offizier.getRang() + "\" /></a>";
+					offi = " <a class=\"forschinfo\" href=\"choff?off="+offizier.getID()  + "\"><img style=\"vertical-align:middle\" src=\"" + offizier.getPicture() + "\" alt=\"Rang " + offizier.getRang() + "\" /></a>";
 				}
 			}
 

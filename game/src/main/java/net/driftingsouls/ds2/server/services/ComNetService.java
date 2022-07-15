@@ -56,55 +56,38 @@ public class ComNetService
 	 * Die Eintraege werden in Reihenfolge ihres Datums zurueckgegeben, beginnend mit dem Neusten.
 	 *
 	 * @param kanal Der zu durchsuchende Kanal
-	 * @param modus Der Suchmodus
-	 * @param suchbegriff Das Muster nachdem gesucht werden soll (abhaengig vom Suchmodus)
+	 * @param suchtext_inhalt Der Inhalt, nach dem gesucht werden soll
+ 	 * @param suchtext_titel Der Titel, nach dem gesucht werden soll
+	 * @param suchid_sender Die SenderID, nach dem gesucht werden soll
 	 * @param offset Die Startnummer des ersten zu findenden Eintrags (relativ zum ersten insgesamt gefundenen Eintrag)
 	 * @param limit Die maximale Anzahl an zu findenden Eintraegen
 	 * @return Die Liste der gefundenen Eintraege
 	 * @throws java.lang.IllegalArgumentException Falls die Argumente ungueltig sind
 	 */
-	public List<ComNetEntry> durchsucheKanal(ComNetChannel kanal, Suchmodus modus, String suchbegriff, int offset, int limit) throws IllegalArgumentException
+	public List<ComNetEntry> durchsucheKanal(ComNetChannel kanal, String suchtext_inhalt, String suchtext_titel, Integer suchid_sender, int offset, int limit) throws IllegalArgumentException
 	{
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
-		Object searchArgument;
-		if (modus == Suchmodus.UserId)
-		{
-			try
-			{
-				searchArgument = Integer.valueOf(suchbegriff);
-			}
-			catch (NumberFormatException e)
-			{
-				throw new IllegalArgumentException("'" + suchbegriff + "' ist keine gültige User-ID");
-			}
-		}
-		else
-		{
-			searchArgument = "%" + suchbegriff + "%";
-		}
-
 		Query query;
-		switch (modus)
+		query = db.createQuery("from ComNetEntry entry where entry.head like :searchtitel and entry.text like :searchinhalt "+(suchid_sender != null? " and entry.pic=:suchid_sender":"")+ " and channel=:channel order by entry.post desc");
+		if(suchid_sender != null)
 		{
-			case Titel:
-				query = db.createQuery("from ComNetEntry entry where entry.head like :input and channel=:channel order by entry.post desc");
-				break;
-			case Inhalt:
-				query = db.createQuery("from ComNetEntry entry where entry.text like :input and channel=:channel order by entry.post desc");
-				break;
-			case UserId:
-				query = db.createQuery("from ComNetEntry entry where entry.pic=:input and channel=:channel order by entry.post desc");
-				break;
-			default:
-				throw new IllegalArgumentException("Unbekannter Suchmodus '" + modus + "'");
+			return Common.cast(query.setParameter("searchtitel", "%" + suchtext_titel + "%")
+					.setParameter("searchinhalt", "%" + suchtext_inhalt + "%")
+					.setParameter("channel", kanal)
+					.setParameter("suchid_sender",suchid_sender)
+					.setFirstResult(offset)
+					.setMaxResults(limit)
+					.list());
 		}
-
-		return Common.cast(query.setParameter("input", searchArgument)
-						   .setParameter("channel", kanal)
-						   .setFirstResult(offset)
-						   .setMaxResults(limit)
-						   .list());
+		else {
+			return Common.cast(query.setParameter("searchtitel", "%" + suchtext_titel + "%")
+					.setParameter("searchinhalt", "%" + suchtext_inhalt + "%")
+					.setParameter("channel", kanal)
+					.setFirstResult(offset)
+					.setMaxResults(limit)
+					.list());
+		}
 	}
 
 	/**

@@ -1,10 +1,79 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<html lang="de">
+    <head>
+        <meta charset="utf-8">
 
-</body>
+        <title>Drifting Souls 2</title>
+
+        <link rel="stylesheet" type="text/css" href="./data/css/format.css"/>
+        <link rel="stylesheet" type="text/css" href="./data/css/ui-darkness/00_jquery-ui-1.8.20.css"/>
+        <link rel="stylesheet" type="text/css" href="./data/css/ui-darkness/10_jquery-ui.css"/>
+        <link type="text/css" rel="stylesheet" href="data/css/ds_2_portal.css"/>
+
+        <script type="text/javascript" src="data/javascript/jquery.js"></script>
+        <script type="text/javascript" src="data/javascript/facebox.js"></script>
+        <script type="text/javascript">
+            jQuery(document).ready(function ($) {
+                $('a[rel*=facebox]').facebox()
+            })
+        </script>
+    </head>
+    <body>
+        <input type='hidden' name='currentDsModule' id='currentDsModule' value=''/>
+        <div id="error-placeholder"></div>
+        <div id="header">
+
+            <!-- hier sind die Drifting Souls Bilder der ersten Portalseite-->
+            <div class="logo">
+                <img src="./data/interface/portal/gcp-logo.png" alt="DS2 LOGO"/>
+            </div>
+            <div class="ueberschrift">
+                <h1><img src="./data/interface/portal/driftingsouls.png" alt="Drifting Souls 2"/></h1>
+            </div>
+            <div id="navigation">
+                <ul class="navi">
+                    <li><a title="Home" href=".">Home</a></li>
+                    <li><a title="Portal" href=".">Portal</a>
+                        <ul class="subnav1">
+                            <li><a title="Github Repository" href="https://github.com/sgift/driftingsouls" target="_blank">Github</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><a>Community</a>
+                        <ul class="subnav1">
+                            <li><a title="Discord" href="https://discord.gg/cpxxAGy" target="_blank">Discord</a></li>
+                            <li><a title="Forum" href="http://ds.rnd-it.de/index.php" target="_blank">Forum</a></li>
+                            <li><a title="Drifting Souls Wiki" href="http://de.drifting-souls.wikia.com"
+                                   target="_blank">Wiki</a></li>
+                            <li><a title="Facebook-Seite" href="https://www.facebook.com/DriftingSouls2/" target="_blank">FB-Seite</a>
+                            </li>
+                            <li><a title="Facebook-Gruppe" href="https://www.facebook.com/groups/156787224385374"
+                                   target="_blank">FB-Gruppe</a></li>
+                            <li><a title="Twitter" href="https://twitter.com/driftingsouls2" target="_blank">Twitter</a></li>
+                        </ul>
+                    </li>
+                    <li><a title="zu den AGB" href="./agb">AGB</a></li>
+                    <li><a title="zum Impressum" href="./impressum">Impressum</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div>
+            <p class="schiff"><img src="./data/interface/portal/FINAL4-1.png" alt="Ein Traeger"/></p>
+        </div>
+
+        <!-- Bis hier der Headerbereich -->
+        <div id="content">
+            <div class="linke-spalte">
+            </div> <!-- Ende Linke Spalte -->
+            <div id="document">
+                <h1>Registrierung erfolgreich.</h1>
+                <p>
+                    Dein Account hat die ID "{register.newid}" bekommen. Außerdem wurde Dir das Passwort via E-Mail zugesendet.<br />
+                    Viel Spaß bei Drifting Souls 2!
+                </p>
+                <p><a href="./portal" title="Zurück zum Login">Zurück zum Login</a></p>
+            </div>
+        </div> <!-- Ende ID Container -->
+    </body>
 </html>

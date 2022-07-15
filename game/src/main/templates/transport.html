@@ -4,189 +4,190 @@
 	</span>
 	<br />
 {/endif}
+<div style="display:flex;flex-direction:row;">
+	<div class="gfxbox" style="min-width:470px;text-align:center;display:flex;flex-direction:column;">
+		{if source.sources.list}
+			<!-- BEGIN source.sources.listitem -->
+				{if source.sources.list},{/endif} {sourceobj.name} ({sourceobj.id})
+			<!-- END source.sources.listitem -->
+			<br />
+			zu
+		{else}
+			{sourceobj.name} ({sourceobj.id}) {sourceobj.addinfo} zu 
+		{/endif}
+		{if target.targets.list}
+			<br />
+			<!-- BEGIN target.targets.listitem -->
+				{if target.targets.list},{/endif} {targetobj.name} ({targetobj.id})
+			<!-- END target.targets.listitem -->
+		{else}
+			{targetobj.name} ({targetobj.id}) {targetobj.addinfo}
+		{/endif}
+		<br /><br />
 
-<div class="gfxbox" style="width:470px;text-align:center">
-	{if source.sources.list}
-		<!-- BEGIN source.sources.listitem -->
-			{if source.sources.list},{/endif} {sourceobj.name} ({sourceobj.id})
-		<!-- END source.sources.listitem -->
-		<br />
-		zu
-	{else}
-		{sourceobj.name} ({sourceobj.id}) {sourceobj.addinfo} zu 
-	{/endif}
-	{if target.targets.list}
-		<br />
-		<!-- BEGIN target.targets.listitem -->
-			{if target.targets.list},{/endif} {targetobj.name} ({targetobj.id})
-		<!-- END target.targets.listitem -->
-	{else}
-		{targetobj.name} ({targetobj.id}) {targetobj.addinfo}
-	{/endif}
-	<br /><br />
-	
-	{if transfermode.list}
-		<script type="text/javascript">
-		<!--
-			function transfermode_change( mode ) {
-				var elements = mode.split(':');
-				document.getElementById('transfermode_from').value = elements[0];
-				document.getElementById('transfermode_to').value = elements[1];
-				document.getElementById('transfermode_form').submit();
-			}
-		// -->
-		</script>
-		<form action="./ds" method="post" id='transfermode_form'>
-		<center>
-		<table>
-		<tr>
-			<td>Modus:</td><td> <select size="1" style="width:150px" onchange="javascript:transfermode_change(this.options[this.options.selectedIndex].value);">
-			<!--  BEGIN transfermode.listitem -->
-				<option value="{transfermode.from}:{transfermode.to}" {if transfermode.selected}selected="selected"{/endif}>{transfermode.from.name} &#x2194; {transfermode.to.name}</option>
-			<!--  END transfermode.listitem -->
-			</select></td></tr>
-			{if target.show}
-			<tr>
-				<td></td><td align="left"><input type="radio" name="transport_mode" onClick="transport()"" checked/> <span style="color: #C7C7C7">Transportieren</span></td>
-			</tr>
-			<tr>
-				<td></td><td align="left"><input type="radio" name="transport_mode" onClick="fillup()"/> <span style="color: #C7C7C7">Auff&uuml;llen</span></td>
-			</tr>
-			{/endif}
-			<input type="hidden" name="from" id="transfermode_from" value="{source.id}" />
-			<input type="hidden" name="to" id="transfermode_to" value="{target.id}" />
-			{!form_create_hidden default, way:$global.rawway}
-		</table>
-		</center>
-		</form>
-		<br />
-	{else}
-		{if target.show}
+		{if transfermode.list}
+			<script type="text/javascript">
+			<!--
+				function transfermode_change( mode ) {
+					var elements = mode.split(':');
+					document.getElementById('transfermode_from').value = elements[0];
+					document.getElementById('transfermode_to').value = elements[1];
+					document.getElementById('transfermode_form').submit();
+				}
+			// -->
+			</script>
+			<form action="./ds" method="post" id='transfermode_form'>
 			<center>
 			<table>
 			<tr>
-				<td>Modus:</td><td align="left"><input type="radio" name="transport_mode" onClick="transport()" checked/> <span style="color: #C7C7C7">Transportieren</span></td>
-			</tr>
-			<tr>
-				<td></td><td align="left"><input type="radio" name="transport_mode" onClick="fillup()"/> <span style="color: #C7C7C7">Auff&uuml;llen</span></td>
-			</tr>
+				<td>Modus:</td><td> <select size="1" style="width:150px" onchange="javascript:transfermode_change(this.options[this.options.selectedIndex].value);">
+				<!--  BEGIN transfermode.listitem -->
+					<option value="{transfermode.from}:{transfermode.to}" {if transfermode.selected}selected="selected"{/endif}>{transfermode.from.name} &#x2194; {transfermode.to.name}</option>
+				<!--  END transfermode.listitem -->
+				</select></td></tr>
+				{if target.show}
+				<tr>
+					<td></td><td align="left"><input type="radio" name="transport_mode" onClick="transport()"" checked/> <span style="color: #C7C7C7">Transportieren</span></td>
+				</tr>
+				<tr>
+					<td></td><td align="left"><input type="radio" name="transport_mode" onClick="fillup()"/> <span style="color: #C7C7C7">Auff&uuml;llen</span></td>
+				</tr>
+				{/endif}
+				<input type="hidden" name="from" id="transfermode_from" value="{source.id}" />
+				<input type="hidden" name="to" id="transfermode_to" value="{target.id}" />
+				{!form_create_hidden default, way:$global.rawway}
 			</table>
 			</center>
-		{/endif}
-	{/endif}
-	<script type="text/javascript">	
-		function fillup(){
-			document.getElementsByName("replenish")[0].value="1";
-		}
-		function transport(){
-			document.getElementsByName("replenish")[0].value="0";
-		}
-		function toggle(source) {
-		  checkboxes = document.getElementsByName('box');
-		  for(var i=0, n=checkboxes.length;i<n;i++) {
-		    checkboxes[i].checked = source.checked;
-		  }
-		  for(var i=0, n=checkboxes.length;i<n;i++){
-			  setValue(checkboxes[i]);
-		  }
-		}
-		function toggle2(source) {
-		  checkboxes = document.getElementsByName('box2');
-		  for(var i=0, n=checkboxes.length;i<n;i++) {
-		    checkboxes[i].checked = source.checked;
-		  }
-		  for(var i=0, n=checkboxes.length;i<n;i++){
-			  setValue2(checkboxes[i]);
-		  }
-		}
-		function setValue(source){
-			texts= document.getElementsByName(source.id+'to');
-			if(source.checked){
-				texts[0].value = source.value.replace(/\D/g,'');
-			}
-			else{
-				texts[0].value="0";
-			}
-		}
-		function setValue2(source){
-			texts= document.getElementsByName(source.id+'from');
-			if(source.checked){
-				texts[0].value = source.value.replace(/\D/g,'');
-			}
-			else{
-				texts[0].value="0";
-			}
-		}
-	</script>
-	
-	
-	<form action="./ds" method="post">
-	<table class="noBorderX" border="0" style="border:0px; width:80%">	
-	<tr><td></td><td></td><td><span style="color: #C7C7C7">Alle ausw&auml;hlen</span></td>
-	<td><input type="checkbox" onClick="toggle(this)" /></td>
-	<td></td>
-	<td></td>
-	{if target.show}
-	<td><input type="checkbox" onClick="toggle2(this)" /></td><td><span style="color: #C7C7C7">Alle ausw&auml;hlen</span></td>
-	{/endif}
-	</tr>
-	<!-- BEGIN res.listitem -->
-		<tr>
-			<td class="noBorderX"><img src="{res.image}" alt="" /></td>
-			<td class="noBorderX">{res.name}&nbsp;</td>
-			<td class="noBorderX" align="right" style="white-space:nowrap">{res.cargo.source}</td>
-			<td class="noBorderX"><input type="checkbox" onClick="setValue(this)" name="box" id="{res.id}" value="{res.cargo.source.count}"  /></td>
-			<td class="noBorderX"><input name="{res.id}to" type="text" id="to" size="3" value="0" /></td>
+			</form>
+			<br />
+		{else}
 			{if target.show}
-				<td class="noBorderX">
-					<input name="{res.id}from" type="text" size="3" value="0" />
-				</td>
-				<td class="noBorderX">
-					<input type="checkbox" onClick="setValue2(this)" name="box2" id="{res.id}" value="{res.cargo.target.count}"  />
-				</td>
-				<td class="noBorderX" style="white-space:nowrap">
-					{res.cargo.target}
-				</td>
+				<center>
+				<table>
+				<tr>
+					<td>Modus:</td><td align="left"><input type="radio" name="transport_mode" onClick="transport()" checked/> <span style="color: #C7C7C7">Transportieren</span></td>
+				</tr>
+				<tr>
+					<td></td><td align="left"><input type="radio" name="transport_mode" onClick="fillup()"/> <span style="color: #C7C7C7">Auff&uuml;llen</span></td>
+				</tr>
+				</table>
+				</center>
+			{/endif}
+		{/endif}
+		<script type="text/javascript">	
+			function fillup(){
+				document.getElementsByName("replenish")[0].value="1";
+			}
+			function transport(){
+				document.getElementsByName("replenish")[0].value="0";
+			}
+			function toggle(source) {
+			  checkboxes = document.getElementsByName('box');
+			  for(var i=0, n=checkboxes.length;i<n;i++) {
+			    checkboxes[i].checked = source.checked;
+			  }
+			  for(var i=0, n=checkboxes.length;i<n;i++){
+				  setValue(checkboxes[i]);
+			  }
+			}
+			function toggle2(source) {
+			  checkboxes = document.getElementsByName('box2');
+			  for(var i=0, n=checkboxes.length;i<n;i++) {
+			    checkboxes[i].checked = source.checked;
+			  }
+			  for(var i=0, n=checkboxes.length;i<n;i++){
+				  setValue2(checkboxes[i]);
+			  }
+			}
+			function setValue(source){
+				texts= document.getElementsByName(source.id+'to');
+				if(source.checked){
+					texts[0].value = source.value.replace(/\D/g,'');
+				}
+				else{
+					texts[0].value="0";
+				}
+			}
+			function setValue2(source){
+				texts= document.getElementsByName(source.id+'from');
+				if(source.checked){
+					texts[0].value = source.value.replace(/\D/g,'');
+				}
+				else{
+					texts[0].value="0";
+				}
+			}
+		</script>
+
+
+		<form action="./ds" method="post">
+		<table class="noBorderX" border="0" style="border:0px;">	
+		<tr><td></td><td colspan="2"><span style="color: #C7C7C7">Alle ausw&auml;hlen</span></td>
+		<td><input type="checkbox" onClick="toggle(this)" /></td>
+		<td></td>
+		<td></td>
+		{if target.show}
+		<td><input type="checkbox" onClick="toggle2(this)" /></td><td><span style="color: #C7C7C7">Alle ausw&auml;hlen</span></td>
+		{/endif}
+		</tr>
+		<!-- BEGIN res.listitem -->
+			<tr>
+				<td class="noBorderX"><img src="{res.image}" alt="" /></td>
+				<td class="noBorderX">{res.name}&nbsp;</td>
+				<td class="noBorderX" align="right" style="white-space:nowrap">{res.cargo.source}</td>
+				<td class="noBorderX"><input type="checkbox" onClick="setValue(this)" name="box" id="{res.id}" value="{res.cargo.source.count}"  /></td>
+				<td class="noBorderX"><input name="{res.id}to" type="text" id="to" size="3" value="0" /></td>
+				{if target.show}
+					<td class="noBorderX">
+						<input name="{res.id}from" type="text" size="3" value="0" />
+					</td>
+					<td class="noBorderX">
+						<input type="checkbox" onClick="setValue2(this)" name="box2" id="{res.id}" value="{res.cargo.target.count}"  />
+					</td>
+					<td class="noBorderX" style="white-space:nowrap">
+						{res.cargo.target}
+					</td>
+				{else}
+					<td class="noBorderX">
+						<input name="{res.id}from" type="text" size="3" value="0" />
+					</td>
+					<td class="noBorderX"></td>
+				{/endif}
+			</tr>
+		<!-- END res.listitem -->
+		<tr>
+			<td class="noBorderX" colspan="6">
+				<hr noshade="noshade" size="1" style="color:#cccccc" />
+			</td>
+		</tr>
+		<tr>
+			<td class="noBorderX"><img src="data/interface/leer.gif" alt="" /></td>
+			<td class="noBorderX">Leer</td>
+			<td class="noBorderX" align="right">{source.cargo}</td>
+			<td class="noBorderX" align="center">-</td>
+			{if target.show}
+				<td class="noBorderX" align="center">-</td>
+				<td class="noBorderX">{target.cargo}</td>
 			{else}
-				<td class="noBorderX">
-					<input name="{res.id}from" type="text" size="3" value="0" />
-				</td>
+				<td class="noBorderX"></td>
 				<td class="noBorderX"></td>
 			{/endif}
 		</tr>
-	<!-- END res.listitem -->
-	<tr>
-		<td class="noBorderX" colspan="6">
-			<hr noshade="noshade" size="1" style="color:#cccccc" />
-		</td>
-	</tr>
-	<tr>
-		<td class="noBorderX"><img src="data/interface/leer.gif" alt="" /></td>
-		<td class="noBorderX">Leer</td>
-		<td class="noBorderX" align="right">{source.cargo}</td>
-		<td class="noBorderX" align="center">-</td>
-		{if target.show}
-			<td class="noBorderX" align="center">-</td>
-			<td class="noBorderX">{target.cargo}</td>
-		{else}
-			<td class="noBorderX"></td>
-			<td class="noBorderX"></td>
-		{/endif}
-	</tr>
-	<tr>
-		<td class="noBorderX" colspan="6" align="center"><br />
-			{!form_create_hidden transfer, from:$source.id, to:$target.id, way:$global.rawway}
-			<input type="hidden" name="replenish" id="replenish" value="0" />
-			<input type="submit" value="transfer" style="width:150px" />
-		</td>
-	</tr>
-	</table>
-	</form>
-</div>
+		<tr>
+			<td class="noBorderX" colspan="6" align="center"><br />
+				{!form_create_hidden transfer, from:$source.id, to:$target.id, way:$global.rawway}
+				<input type="hidden" name="replenish" id="replenish" value="0" />
+				<input type="submit" value="transfer" style="width:150px" />
+			</td>
+		</tr>
+		</table>
+		</form>
+	</div>
+</div>					
 <br />
 {if source.isbase}
 	<span class="smallfont">
-		{!link_to zur&uuml;ck, default, module:base, css_class:back, col:$sourceobj.id}
+		<a style="font-size:16px" class="back" href="./base?col={sourceobj.id}">zur&uuml;ck zur Basis</a>
 	</span>
 {else}
 	<span class="smallfont">
@@ -196,7 +197,7 @@
 {if target.show}
 	{if target.isbase}
 		<span class="smallfont">
-			| <a class="back" href="./ds?module=base&col={targetobj.id}">zu {targetobj.name}</a>
+			| <a class="back" href="./base?col={targetobj.id}">zu {targetobj.name}</a>
 		</span>
 	{else}
 		<span class="smallfont">

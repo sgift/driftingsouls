@@ -15,7 +15,8 @@ var CargoModel = function(cargoStr) {
 		var itemArray = [];
 		for( var i=0; i < itemStrArray.length; i++ ) {
 			var item = itemStrArray[i].split('|');
-			if( item.length < 2 || item.length > 4 ) {
+			//correction
+			if( item.length < 2 || item.lenght > 4) {
 				continue;
 			}
 			for( var j=0; j < item.length; j++ ) {

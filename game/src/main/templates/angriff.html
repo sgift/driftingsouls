@@ -80,11 +80,14 @@
 			<table border="0" cellspacing="1" cellpadding="1" width="100%" class="nav">
 			<tr>
 				<td class="angrifflog">
-					<div id="ks-log" style="height:220px; overflow:auto">
+					<div id="ks-log" style="height:220px; overflow:auto; display:none;">
 						{battle.logoutput}
 					</div>
 					<br /><br />
-					<div style="text-align:center">[ <a href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ksaction={global.ksaction}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">ok</a> ]</div>
+					<div style="display:flex;flex-direction:row;justify-content:space-around;text-align:center">
+						<a href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ksaction={global.ksaction}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">[ok]</a>
+						<a onclick="document.getElementById('ks-log').style.display='';" href="#">[Log Anzeigen]</a>
+					</div>
 				</td>
 			</tr>
 			</table>
@@ -152,15 +155,21 @@
 							<span class="nobr">[ <a href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}{global.showlog.actionstr}&amp;logpage={global.showlog.turnlist.pageid}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}&amp;logpagefilter={global.showlog.filter}">Runde {global.showlog.turnlist.page}</a> ]</span>
 						<!-- END global.showlog.turnlist.item -->
 					</div>
-					<div id="ks-log" style="height:220px; overflow:auto">
+					<div id="ks-log" style="height:220px; overflow:auto;display:none;">
 						{global.showlog.log}
 					</div>
-					{if global.showlog.okbutton}
+					<div style="display:flex;flex-direction:row;justify-content:space-around;">
+						{if global.showlog.okbutton}
 						<div style="text-align:center">[ <a href="./ds?module=angriff&amp;battle={battle.id}&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">ok</a> ]</div>
-					{/endif}
-					{if global.showlog.takecommand}
-						<div style="text-align:center">[ <a href="./ds?module=angriff&amp;battle={battle.id}&amp;ksaction=take_command&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">Schlacht &uuml;bernehmen</a> ]</div>
-					{/endif}
+						{/endif}
+						{if global.showlog.takecommand}
+							<div style="text-align:center">[ <a href="./ds?module=angriff&amp;battle={battle.id}&amp;ksaction=take_command&amp;ship={ownship.id}&amp;attack={enemyship.id}&amp;scan={global.scan}&amp;ownshipgroup={global.ownshipgroup}&amp;enemyshipgroup={global.enemyshipgroup}&amp;weapon={global.weapon}">Schlacht &uuml;bernehmen</a> ]</div>
+						{/endif}
+						<div style="text-align:center">
+							<a onclick="document.getElementById('ks-log').style.display='';" href="#">[Log Anzeigen]</a>
+						</div>
+					</div>
+					
 				</td>
 			</tr>
 			</table>
@@ -307,7 +316,7 @@
 						{/endif}
 
 						{if offizier.id}
-							Offizier: <img src="data/interface/offiziere/off{offizier.rang}.png" alt="Rang {offizer.rang}" /> <a class="forschinfo" href="./ds?module=choff&amp;off={offizier.id}">{offizier.name}</a><br />
+							Offizier: <img src="data/interface/offiziere/off{offizier.rang}.png" alt="Rang {offizer.rang}" /> <a class="forschinfo" href="./choff?off={offizier.id}">{offizier.name}</a><br />
 						{/endif}
 
 						{if shipinfo.enemy}

@@ -1,18 +1,18 @@
 package net.driftingsouls.ds2.server.entities;
 
-import java.io.Serializable;
+import net.driftingsouls.ds2.server.config.Medals;
+import org.hibernate.annotations.ForeignKey;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
-
-import net.driftingsouls.ds2.server.config.Medals;
-import org.hibernate.annotations.ForeignKey;
+import java.io.Serializable;
 
 /**
  * Der Rang eines Spielers bei einem anderen Spieler.
@@ -100,13 +100,22 @@ public class UserRank
 		}
 	}
 
-	@Id
+	@EmbeddedId
 	private UserRankKey userRankKey;
+	@Column(name = "rank_id")
 	private int rank;
 
 	@SuppressWarnings("unused")
 	@Version
 	private int version;
+
+	public UserRankKey getUserRankKey() {
+		return userRankKey;
+	}
+
+	public void setUserRankKey(UserRankKey userRankKey) {
+		this.userRankKey = userRankKey;
+	}
 
 	/**
 	 * Konstruktor.

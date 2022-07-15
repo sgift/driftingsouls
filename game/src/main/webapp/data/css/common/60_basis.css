@@ -5,8 +5,7 @@
 #baseMap {
 	z-index:2;
 	position:relative;
-	top:0px;
-	overflow:auto;
+	top:20px;
 	left:0px;
 	padding-left:5px;
 	padding-top:5px;
@@ -29,6 +28,8 @@
 	float:left;
 	margin-left: -10px;
 	position: relative;
+	clip-path: polygon(24.45% -4.30%, 81.63% -4.31%, 102.04% 50%, 79.08% 99.65%, 22.96% 99.65%, -2.04% 50%);
+	-webkit-clip-path: polygon(24.45% -4.30%, 81.63% -4.31%, 102.04% 50%, 79.08% 99.65%, 22.96% 99.65%, -2.04% 50%);
 }
 
 #baseMap .tile:nth-child(even) {
@@ -75,10 +76,11 @@
 .buildingActions li {
 	margin:0px;
 	padding: 1px 0px 3px 0px;
+	display: flex;
+        flex-direction: row;
+        justify-content: space-between;
 }
-.buildingActions .action {
-	float:right;
-}
+
 
 .baseActions {
 	margin:0px;
@@ -105,16 +107,16 @@
 	background-repeat:repeat-x;
 }
 #baseContent #statsBox .arbeiteranzeige {
-	background-image:url('../../interface/arbeiter.gif');
+	background-image:url('../interface/arbeiter.gif');
 }
 #baseContent #statsBox .arbeitslosenanzeige {
-	background-image:url('../../interface/arbeitslos.gif');
+	background-image:url('../interface/arbeitslos.gif');
 }
 #baseContent #statsBox .wohnraumfreianzeige {
-	background-image:url('../../interface/frei.gif');
+	background-image:url('../interface/frei.gif');
 }
 #baseContent #statsBox .wohnraumfehltanzeige {
-	background-image:url('../../interface/narbeiter.gif');
+	background-image:url('../interface/narbeiter.gif');
 }
 
 #buildingBox .content {
@@ -180,3 +182,252 @@
 	display:block;
 	margin-bottom:8px;
 }
+
+/*
+	CSS fuer neue Thymleaf GUI
+*/
+.container{
+	max-width: 1400px;
+	display:block;
+}
+
+.row{
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+}
+
+.col{
+	-ms-flex-preferred-size: 0;
+	flex-basis: 0;
+	-webkit-box-flex: 1;
+	-ms-flex-positive: 1;
+	flex-grow: 1;
+	max-width: 100%;
+
+	position: relative;
+	width: 100%;
+	min-height: 1px;
+	padding-right: 15px;
+	padding-left: 15px;
+}
+
+button.btn-geb-info{
+	background-color:transparent;
+	border:none;
+	display:flex;
+	padding:7px;
+	transform: scale(1, 1);
+}
+button.btn-geb-info:hover
+{
+	cursor:pointer;
+
+}
+
+button.btn-geb-info:hover span{
+	color:#feb626;
+}
+
+button.active span:nth-child(2){
+	color:green;
+	text-decoration: none;
+	font-weight: bold;
+}
+button.active{
+	box-shadow: inset 0px 0px 5px green;
+}
+
+button.btn-geb-info span
+{
+	color:#0060f0;
+}
+
+button.btn-geb-info.active:hover{
+	transform:none;
+}
+
+.geb-name{
+	flex: 0 0 auto;
+	align-self:center;
+	width:150px;
+	margin-left:10px;
+	margin-right:10px;
+}
+
+.geb-kategorie-auswahl
+{
+	color: #0060f0;
+	font-weight: normal;
+	text-decoration: none;
+	font-size:85%;
+	border-right: 2px solid grey;
+	padding-right: 5px;
+	padding-left: 5px;
+}
+.geb-kategorie-auswahl:hover
+{
+	cursor:pointer;
+	color:#feb626;
+}
+
+.bebaubar:hover
+{
+	cursor:pointer;
+}
+
+.link{
+	cursor:pointer;
+}
+
+.ressources-table{
+	margin-top:10px;
+}
+
+.ressources-table td{
+	padding-left:5px;
+	padding-right:5px;
+	padding-top: 1.5px;
+	padding-bottom: 1.5px;
+}
+.ressources-table td:first-of-type
+{
+	text-align:left;
+}
+
+.gfx-tab{
+	display:none;
+}
+
+.gfx-tab-nav{
+	margin-bottom: 10px;
+	margin-top: 10px;
+}
+
+.fsinput, span#baseNameForm input[type=text] {
+	min-width: 150px;
+	height: 25px;
+	color: #5E7CCD;
+	border: 1px solid #464B48;
+	border-radius: 3px;
+	background-image: url(../interface/noise.svg);
+	background-color: #121717;
+	background-blend-mode: soft-light;
+}
+
+.fsSubmit, .gfxbox span#baseNameForm input[type=submit]{
+	border: 1px solid #464B48;
+	border-radius: 4px;
+	color: darkgray;
+	padding: 5px 8px 5px 8px;
+	box-shadow: inset 0px 0px 3px #464B48;
+}
+.gfxbox .fsbutton, .fsbutton{
+	padding:4px 15px 7px 15px;
+	border:none;
+	width:200px;
+	height:55px;
+	color:inherit;
+	background-image:url(../interface/green/button150.svg);
+	#background-size:cover;
+}
+
+.button-text{
+	font-size:16px;
+	font-weight:bold;
+	color:inherit;
+}
+
+.button-wrap {
+	filter: drop-shadow(-0.125px -.125px 0.5px) drop-shadow(2px 2px 1px);
+}
+
+button.aktiv span{
+	color: #feb626;
+}
+span a.mangel{
+	color:red;
+}
+
+div div.gfxbox {
+	border-image: url(../interface/green/gfxbox.png) 30 fill;
+	border-width: 30px;
+}
+
+.gfxbox a.ok:link			{color: green; text-decoration: none; font-weight:bold; }
+.gfxbox a.ok:visited		{color: green; text-decoration: none; font-weight:bold; }
+.gfxbox a.ok:hover			{color: #F0A000; text-decoration: none; font-weight:bold; }
+.gfxbox a.ok:active			{color: green; text-decoration: none; font-weight:bold; }
+
+.gfxbox a.error:link		{color: #E00000; text-decoration: none; font-weight:bold;}
+.gfxbox a.error:visited		{color: #E00000; text-decoration: none; font-weight:bold;}
+.gfxbox a.error:hover		{color: #F0A000; text-decoration: none; font-weight:bold;}
+.gfxbox a.error:active		{color: #FF0000; text-decoration: none; font-weight:bold;}
+
+.col.gfxbox {
+	margin: 5px;
+}
+
+.tilepair{
+	margin-top: -21px;
+	margin-left: -10px;
+}
+
+.arbeiteranzeige
+{
+	width:80px;
+}
+#baseContent #statsBox .row .arbeiteranzeige{
+	background-image:url('../interface/arbeiter.gif');
+}
+.arbeitslosenanzeige
+{
+	width:80px;
+}
+#baseContent #statsBox .row .arbeitslosenanzeige{
+	background-image:url('../interface/arbeitslos.gif');
+}
+.wohnraumfreianzeige
+{
+	width:80px;
+}
+#baseContent #statsBox .row .wohnraumfreianzeige{
+	background-image:url('../interface/frei.gif');
+}
+.wohnraumfehltanzeige
+{
+	width:80px;
+}
+#baseContent #statsBox .row .wohnraumfehltanzeige{
+	background-image:url('../interface/narbeiter.gif');
+}
+
+.offline::after
+{
+	background-image: url('../buildings/overlay_offline.png');
+	content: "";
+	display: block;
+	width: 49px;
+	height: 43px;
+	z-index: 10;
+	position: absolute;
+	top: -2px;
+	pointer-events: none;
+}
+
+.ueberlauf::-webkit-scrollbar-thumb:hover {
+	background: #555;
+}
+.ueberlauf::-webkit-scrollbar {
+	width: 10px;
+}
+.ueberlauf::-webkit-scrollbar-thumb {
+	background: #888;
+}
+.ueberlauf{
+	scrollbar-color: black;
+	scrollbar-width: thin;
+}
+

@@ -118,6 +118,37 @@ public class Common {
 		
 		return buffer.toString();
 	}
+
+	/**
+	 * Baut eine URL unter Verwendung des aktuellen Kontexts, dem Namen des Controllers bzw. dem zugehoerigen Link und weiterer Parameter
+	 * zusammen. Die weiteren Parameter sind inner in zweier Paerchen anzuordnen und bestehen immer aus
+	 * Parameternamen und -wert.
+	 * @param controller der Name des Controllers der Zielseite
+	 * @param paramlist Weitere Parameter
+	 *
+	 * @return die zusammengebaute URL
+	 */
+	public static String buildThymeleafUrl(String controller, Object ... paramlist ) {
+		final Context context = ContextMap.getContext();
+
+		final StringBuilder buffer = new StringBuilder("./"+controller);
+		if(paramlist.length>0) {
+			buffer.append("?");
+			final Request request = context.getRequest();
+
+
+			final HashMap<String, String> params = new HashMap<>();
+			for (int i = 0; i < paramlist.length; i += 2) {
+				params.put(paramlist[i].toString(), paramlist[i + 1].toString());
+			}
+
+			for (Entry<String, String> entry : params.entrySet()) {
+				buffer.append(entry.getKey()).append("=").append(entry.getValue()).append("&amp;");
+			}
+		}
+
+		return buffer.toString();
+	}
 	
 	/**
 	 * Liefert das aktuell verwendete <code>NumberFormat</code>.

@@ -150,6 +150,16 @@ public abstract class Building
 	}
 
 	/**
+	 * Gibt den formatierten Namen des Gebaeudetyps zurueck.
+	 *
+	 * @return Der formatierte Name
+	 */
+	public String getPlainName()
+	{
+		return Common._plaintitle(name);
+	}
+
+	/**
 	 * Gibt das Default-Bild des Gebaeudes zurueck.
 	 *
 	 * @return Das Bild
@@ -773,6 +783,12 @@ public abstract class Building
 
 		public CPViewModel consumes;
 		public CPViewModel produces;
+		public WorkerViewModel worker;
+
+		public static class WorkerViewModel
+		{
+			public int count;
+		}
 	}
 
 	/**

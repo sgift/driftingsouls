@@ -1561,6 +1561,7 @@
 	 * @typedef {object} ds.viewmodel.bases.Building.BuildingUiViewModel
 	 * @property {ds.viewmodel.bases.Building.BuildingUiViewModel.CPViewModel} consumes
 	 * @property {ds.viewmodel.bases.Building.BuildingUiViewModel.CPViewModel} produces
+	 * @property {ds.viewmodel.bases.Building.BuildingUiViewModel.WorkerViewModel} worker
 	 **/
 	/**
 	 * @namespace ds.viewmodel.modules.MapController.MapViewModel
@@ -1612,6 +1613,10 @@
 	 **/
 	/**
 	 * @typedef {object} ds.viewmodel.bases.Building.BuildingUiViewModel.EnergyViewModel
+	 * @property {number} count
+	 **/
+	/**
+	 * @typedef {object} ds.viewmodel.bases.Building.BuildingUiViewModel.WorkerViewModel
 	 * @property {number} count
 	 **/
 })();

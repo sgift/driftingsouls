@@ -61,7 +61,7 @@ var DS = {
 	 * Die URL endet immer mit /ds
 	 * @returns {string} Die URL
 	 */
-	getUrl : function()
+	getUrl : function(nods)
 	{
 		var url = DS.location.getCurrent();
 		if( url.indexOf('?') > -1 )
@@ -74,6 +74,25 @@ var DS = {
 		if( url.indexOf('/ds',url.length-3) === -1 ) {
 			url = url.substring(0,url.lastIndexOf('/'))+'/ds'
 		}
+		if(nods && url.indexOf('/ds',url.length-3) > -1){
+			url= url.substring(0,url.lastIndexOf('/'));
+		}
+		return url;
+	},
+	getBaseUrl : function()
+	{
+		var url = DS.location.getCurrent();
+		if( url.indexOf('?') > -1 )
+		{
+			url = url.substring(0,url.indexOf('?'));
+		}
+		if( url.indexOf('#') > -1 ) {
+			url = url.substring(0,url.indexOf('#'));
+		}
+		if( url.indexOf('/ds',url.length-3) > -1 ) {
+			url = url.substring(0,url.lastIndexOf('/'));
+		}
+
 		return url;
 	},
 
@@ -108,3 +127,10 @@ var DS = {
 		$.jqplot(id, data, options);
 	}
 };
+
+function parseHTML(html)
+{
+	var t = document.createElement('template');
+	t.innerHTML = DOMPurify.sanitize(html, {ADD_TAGS: ['td','tr','th'], ADD_ATTR: ['style','ds-item-id']});
+	return t.content;
+}

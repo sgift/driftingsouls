@@ -66,7 +66,7 @@ import java.util.stream.Collectors;
 @org.hibernate.annotations.Table(
 		appliesTo = "ships",
 		indexes = {
-				@Index(name="ship_coords", columnNames = {"system", "x", "y"}),
+				@Index(name="ship_coords", columnNames = {"star_system", "x", "y"}),
 				@Index(name="ship_owner", columnNames = {"owner", "id"})
 		}
 )
@@ -113,6 +113,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	private long nahrungcargo;
 	private int x;
 	private int y;
+	@Column(name = "star_system")
 	private int system;
 
 	@Column(nullable = false)
@@ -2838,5 +2839,14 @@ public class Ship implements Locatable,Transfering,Feeding {
 			}
 		}
 		return offi;
+	}
+
+	public static Ship getShipById(int id){
+		try{
+			return (Ship) ContextMap.getContext().getDB().get(Ship.class, id);
+		}catch(Exception e)
+		{
+			return null;
+		}
 	}
 }

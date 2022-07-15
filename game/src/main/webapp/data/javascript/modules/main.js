@@ -149,7 +149,7 @@ var SearchBox = {
 		for( var i=0; i < response.bases.length; i++ ) {
 			var base = response.bases[i];
 			out += '<tr><td><img src="'+base.image+'" alt="Basis" title="Basis" /></td>';
-			out += '<td><a href="'+DS.getUrl()+'?module=base&col='+base.id+'&action=default" target="main">'+base.name+'</a></td>';
+			out += '<td><a href="'+DS.getBaseUrl()+'base?col='+base.id+'&action=default" target="main">'+base.name+'</a></td>';
 			out += '<td>'+base.location+'</td></tr>';
 		}
 
@@ -183,7 +183,7 @@ var InfoBox = {
 	open: function() {
 		$('#infoicon').removeClass('highlight');
 		$('#infobox').dialog({title: 'Über Drifting Souls', width:700, height:400});
-		$.getJSON(DS.getUrl(), {module:'main', action: 'loadVersionInfo'})
+		/*$.getJSON(DS.getUrl(), {module:'main', action: 'loadVersionInfo'})
 			.done(function(data) {
 				var $infobox = $('#infobox');
 				$infobox.find('#lastBuild').text(data.buildTime);
@@ -218,7 +218,7 @@ var InfoBox = {
 
 					$commits.find('tbody').append('<tr class="'+cls+'"><td>'+symbol+'</td><td>'+val.displayId+'</td><td>'+msg+'</td><td>'+val.author.displayName+'</td></tr>')
 				});
-			});
+			});*/
 	}
 };
 

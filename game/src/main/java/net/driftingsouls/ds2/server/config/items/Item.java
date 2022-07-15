@@ -18,7 +18,9 @@
  */
 package net.driftingsouls.ds2.server.config.items;
 
+import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.GenericGenerator;
@@ -283,5 +285,14 @@ public abstract class Item {
 	 */
 	public void setSpawnableRess(boolean spawnableress) {
 		this.isspawnable = spawnableress;
+	}
+
+	public static Item getItemById(int id){
+		try{
+			return (Item) ContextMap.getContext().getDB().get(Item.class, id);
+		}catch(Exception e)
+		{
+			return null;
+		}
 	}
 }
