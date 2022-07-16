@@ -125,7 +125,7 @@ public class ClippedStarmap extends Starmap
 				.where(SHIPS.STAR_SYSTEM.eq(getSystem())
 					.and(SHIPS.X.ge(this.ausschnitt[0]))
 					.and(SHIPS.X.le(this.ausschnitt[0]+this.ausschnitt[2]))
-					.and(SHIPS.Y.ge(this.ausschnitt[2]))
+					.and(SHIPS.Y.ge(this.ausschnitt[1]))
 					.and(SHIPS.Y.le(this.ausschnitt[1]+this.ausschnitt[3])));
 
 			try(rockSelect; var rocks = rockSelect.stream()) {
