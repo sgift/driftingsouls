@@ -5,20 +5,21 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
-import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.DBUtil;
 import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
+import org.jooq.impl.DSL;
 
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
+import static net.driftingsouls.ds2.server.entities.jooq.tables.FriendlyScanRanges.FRIENDLY_SCAN_RANGES;
+import static net.driftingsouls.ds2.server.entities.jooq.tables.NonFriendlyShipLocations.NON_FRIENDLY_SHIP_LOCATIONS;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.Ships.SHIPS;
-import static net.driftingsouls.ds2.server.entities.jooq.tables.ShipsModules.SHIPS_MODULES;
-import static net.driftingsouls.ds2.server.entities.jooq.tables.UserRelations.USER_RELATIONS;
 
 /**
  * Die Adminsicht auf die Sternenkarte. Zeigt alle
@@ -47,9 +48,13 @@ public class AdminStarmap extends PublicStarmap
 	}
 
 	@Override
-	public Ship getScanningShip(Location location)
+	public int getScanningShip(Location location)
 	{
-		return null; //TODO
+		if(getScanMap().containsKey(location)) {
+			return getScanMap().get(location).getShipId();
+		}
+
+		return -1;
 	}
 
 	@Override
@@ -92,56 +97,116 @@ public class AdminStarmap extends PublicStarmap
 		return new SectorImage("data/starmap/fleet/fleet"+shipImage+".png", 0, 0);
 	}
 
-	private String getShipImage(Location location)
+	@Override
+	protected void buildFriendlyData()
 	{
-		String imageName = "";
-		int ownShips;
-		int enemyShips;
-
+		var scanMap = new HashMap<Location, ScanData>();
+		var ownShipSectors = new HashSet<Location>();
+		var allyShipSectors = new HashSet<Location>();
 		try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
 			var db = DBUtil.getDSLContext(conn);
-			var locationCondition = SHIPS.STAR_SYSTEM.eq(location.getSystem())
-				.and(SHIPS.X.eq(location.getX()))
-				.and(SHIPS.Y.eq(location.getY()));
+			try(var scanDataSelect = db
+				.selectFrom(FRIENDLY_SCAN_RANGES)) {
+				var result = scanDataSelect.fetch();
+				for (var record : result) {
+					var scanData = new ScanData(this.map.getSystem(), record.getX(), record.getY(), record.getId(), record.getOwner(), record.getSensorRange().intValue());
 
-			ownShips = Objects.requireNonNullElse(db.selectCount().from(SHIPS)
-				.where(locationCondition.and(SHIPS.OWNER.eq(adminUser.getId())))
-				.fetchOne(0, int.class), 0);
+					//FRIENDLY_SCAN_RANGES contains values per sector for best scanner by user and best scanner by ally
+					//So we check here which one really has the best scan range
+					scanMap.compute(scanData.getLocation(), (k, v) -> {
+						if(v == null) {
+							return scanData;
+						}
 
-			Nebel nebula = this.map.getNebulaMap().get(location);
-			if(nebula != null && !nebula.allowsScan() && ownShips == 0) {
-				enemyShips = 0;
-			} else {
-				var relationBasedSelect = db.selectCount().from(USER_RELATIONS)
-					.innerJoin(SHIPS)
-					.on(SHIPS.OWNER.eq(USER_RELATIONS.ID)
-						.and(SHIPS.OWNER.notEqual(adminUser.getId()))
-						.and(locationCondition));
+						if(scanData.getScanRange() > v.getScanRange()) {
+							return scanData;
+						} else {
+							return v;
+						}
+					});
 
-				var enemyShipSelect = relationBasedSelect
-					.where(locationCondition.and(USER_RELATIONS.STATUS.eq(User.Relation.ENEMY.ordinal())));
-
-				if(ownShips == 0) {
-					enemyShipSelect = enemyShipSelect.and(SHIPS_MODULES.FLAGS.notContains(ShipTypeFlag.SEHR_KLEIN.getFlag()));
-				}
-
-				var finalWrapper = enemyShipSelect;
-				try(finalWrapper) {
-					enemyShips = Objects.requireNonNullElse(finalWrapper.fetchOne(0, int.class), 0);
+					if(scanData.getOwnerId() == adminUser.getId()) {
+						ownShipSectors.add(scanData.getLocation());
+					} else {
+						allyShipSectors.add(scanData.getLocation());
+					}
 				}
 			}
-		} catch (SQLException ex) {
-			throw new RuntimeException(ex);
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
 		}
 
-		if(ownShips > 0)
-		{
-			imageName += "_fo";
-		}
+		this.scanMap = scanMap;
+		this.ownShipSectors = ownShipSectors;
+		this.allyShipSectors = allyShipSectors;
+	}
 
-		if(enemyShips > 0)
+	private String getShipImage(Location location)
+	{
+		//TODO: Currently admins cannot see into emp nebula since we hardcoded that in the view
+		String imageName = "";
+
+		if(isScanned(location))
 		{
-			imageName += "_fe";
+			boolean scanningShipInSector;
+			boolean alliedShips;
+			int maxEnemyShipSize;
+			int maxNeutralShipSize;
+
+			try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
+				var db = DBUtil.getDSLContext(conn);
+				var locationCondition = SHIPS.STAR_SYSTEM.eq(location.getSystem())
+					.and(SHIPS.X.eq(location.getX()))
+					.and(SHIPS.Y.eq(location.getY()));
+
+				scanningShipInSector = scanMap.containsKey(location);
+
+				alliedShips = db.fetchExists(DSL.selectOne().from(FRIENDLY_SCAN_RANGES)
+					.where(locationCondition.and(FRIENDLY_SCAN_RANGES.OWNER.notEqual(FRIENDLY_SCAN_RANGES.TARGET_ID))));
+
+
+				var neutralShipSelect = db.select(NON_FRIENDLY_SHIP_LOCATIONS.MAX_SIZE)
+					.from(NON_FRIENDLY_SHIP_LOCATIONS)
+					.where(locationCondition.and(NON_FRIENDLY_SHIP_LOCATIONS.STATUS.eq(User.Relation.ENEMY.ordinal())));
+
+				var enemyShipSelect = db.select(NON_FRIENDLY_SHIP_LOCATIONS.MAX_SIZE)
+					.from(NON_FRIENDLY_SHIP_LOCATIONS)
+					.where(locationCondition.and(NON_FRIENDLY_SHIP_LOCATIONS.STATUS.eq(User.Relation.ENEMY.ordinal())));
+
+				//TODO: Honor ShipTypeFlag.SEHR_KLEIN again
+
+				try(neutralShipSelect) {
+					var possibleSize = neutralShipSelect.limit(1).fetchAny(NON_FRIENDLY_SHIP_LOCATIONS.MAX_SIZE);
+					maxNeutralShipSize = Objects.requireNonNullElse(possibleSize, -1);
+				}
+
+				try(enemyShipSelect) {
+					var possibleSize = enemyShipSelect.fetchAny(NON_FRIENDLY_SHIP_LOCATIONS.MAX_SIZE);
+					maxEnemyShipSize = Objects.requireNonNullElse(possibleSize, -1);
+				}
+			} catch (SQLException ex) {
+				throw new RuntimeException(ex);
+			}
+
+			if(scanningShipInSector)
+			{
+				imageName += "_fo";
+			}
+
+			if(alliedShips)
+			{
+				imageName += "_fa";
+			}
+
+			int minSize = 0;
+			if(maxEnemyShipSize > minSize)
+			{
+				imageName += "_fe";
+			} else if(maxNeutralShipSize > minSize) {
+				// We only show neutral ships if there are no enemies
+				// enemy ships are more important, and we don't want to clutter the UI
+				imageName += "_fn";
+			}
 		}
 
 		if( imageName.isEmpty() )

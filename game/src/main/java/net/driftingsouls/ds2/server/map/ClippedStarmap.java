@@ -25,8 +25,6 @@ import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
 import java.util.Collection;
@@ -44,8 +42,6 @@ import java.util.Map;
  */
 public class ClippedStarmap extends Starmap
 {
-	private static final Logger log = LoggerFactory.getLogger(ClippedStarmap.class);
-
 	private final Starmap inner;
 	private final int[] ausschnitt;
 	private final Map<Location, List<Ship>> clippedBrockenMap;
@@ -132,43 +128,15 @@ public class ClippedStarmap extends Starmap
 
 	private Map<Location, Nebel> buildClippedNebulaMap()
 	{
-		int[] load = new int[] {
-				this.ausschnitt[0],
-				this.ausschnitt[1],
-				this.ausschnitt[0]+this.ausschnitt[2],
-				this.ausschnitt[1]+this.ausschnitt[3]
-		};
-
-		for( Location loc : this.getScanMap().keySet() )
-		{
-			if( loc.getX() < load[0] )
-			{
-				load[0] = loc.getX();
-			}
-			else if( loc.getX() > load[2] )
-			{
-				load[2] = loc.getX();
-			}
-
-			if( loc.getY() < load[1] )
-			{
-				load[1] = loc.getY();
-			}
-			else if( loc.getY() > load[3] )
-			{
-				load[3] = loc.getY();
-			}
-		}
-
 		List<Nebel> nebelList = em.createQuery("from Nebel " +
 				"where loc.system=:sys and " +
 				"loc.x between :minx and :maxx and " +
 				"loc.y between :miny and :maxy", Nebel.class)
 			.setParameter("sys", this.inner.getSystem())
-			.setParameter("minx", load[0])
-			.setParameter("miny", load[1])
-			.setParameter("maxx", load[2])
-			.setParameter("maxy", load[3])
+			.setParameter("minx", this.ausschnitt[0])
+			.setParameter("miny", this.ausschnitt[1])
+			.setParameter("maxx", this.ausschnitt[0]+this.ausschnitt[2])
+			.setParameter("maxy", this.ausschnitt[1]+this.ausschnitt[3])
 			.getResultList();
 
 		return this.buildNebulaMap(nebelList);

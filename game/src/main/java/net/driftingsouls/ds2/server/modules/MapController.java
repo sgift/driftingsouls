@@ -502,9 +502,7 @@ public class MapController extends Controller
 
 		if (scannable && content.isHasSectorContent(position))
 		{
-			Ship scanner = content.getScanningShip(position);
-
-			posObj.scanner = scanner != null ? scanner.getId() : -1;
+			posObj.scanner = content.getScanningShip(position);
 		}
 
 		if (sectorImage != null)

@@ -334,6 +334,10 @@ public class User extends BasicUser {
 		this.ships = new HashSet<>();
 		this.ApiKey = "";
 
+		// Users are friends of themselves, this simplifies starmap calculations
+		UserRelation selfRelation = new UserRelation(this, this, Relation.FRIEND.ordinal());
+		db.persist(selfRelation);
+
 		int defaultDropZone = new ConfigService().getValue(WellKnownConfigValue.GTU_DEFAULT_DROPZONE);
 		setGtuDropZone(defaultDropZone);
 	}

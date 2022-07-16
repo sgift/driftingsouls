@@ -22,10 +22,11 @@ import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
-import net.driftingsouls.ds2.server.ships.Ship;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Die allgemeine Sicht auf eine Sternenkarte ohne nutzerspezifische Anzeigen.
@@ -36,6 +37,10 @@ public class PublicStarmap
 {
 
 	protected Starmap map;
+
+	protected Map<Location, ScanData> scanMap;
+	protected Set<Location> ownShipSectors;
+	protected Set<Location> allyShipSectors;
 
 	/**
 	 * Konstruktor.
@@ -49,6 +54,21 @@ public class PublicStarmap
 		} else {
 			this.map = new Starmap(system.getID());
 		}
+
+		buildFriendlyData();
+	}
+
+	/**
+	 * @return Die Liste der Scandaten sortiert nach Sektoren.
+	 */
+	Map<Location, ScanData> getScanMap() {
+		return scanMap;
+	}
+
+	protected void buildFriendlyData() {
+		this.scanMap = Map.of();
+		this.ownShipSectors = Set.of();
+		this.allyShipSectors = Set.of();
 	}
 
 	/**
@@ -95,15 +115,15 @@ public class PublicStarmap
 	}
 
 	/**
-	 * Gibt sofern vorhanden ein Schiff zurueck, das den angegebenen
+	 * Gibt, sofern vorhanden, ein Schiff zurueck, das den angegebenen
 	 * Sektor scannen kann.
 	 * @param location Der Sektor, der gescannt werden soll.
 	 *
-	 * @return Das Schiff, dass diesen Sektor scannen kann oder <code>null</code>
+	 * @return Die ID des scannenden Schiffes oder -1
 	 */
-	public Ship getScanningShip(Location location)
+	public int getScanningShip(Location location)
 	{
-		return null;
+		return -1;
 	}
 
 	/**

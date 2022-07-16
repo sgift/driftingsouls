@@ -12,20 +12,18 @@ import net.driftingsouls.ds2.server.entities.User.Relations;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.DBUtil;
 import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
-import org.jooq.impl.DSL;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import static net.driftingsouls.ds2.server.entities.jooq.tables.ShipTypes.SHIP_TYPES;
+import static net.driftingsouls.ds2.server.entities.jooq.tables.FriendlyScanRanges.FRIENDLY_SCAN_RANGES;
+import static net.driftingsouls.ds2.server.entities.jooq.tables.NonFriendlyShipLocations.NON_FRIENDLY_SHIP_LOCATIONS;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.Ships.SHIPS;
-import static net.driftingsouls.ds2.server.entities.jooq.tables.ShipsModules.SHIPS_MODULES;
-import static net.driftingsouls.ds2.server.entities.jooq.tables.UserRelations.USER_RELATIONS;
 
 /**
  * Eine Sicht auf eine bestimmte Sternenkarte.
@@ -35,7 +33,7 @@ import static net.driftingsouls.ds2.server.entities.jooq.tables.UserRelations.US
  */
 public class PlayerStarmap extends PublicStarmap
 {
-	private final Set<Location> scannedLocations;
+	private final Map<Location, Integer> scannedLocationsToScannerId;
 	private final Set<Location> scannedNebulaLocations;
 	private final Set<Location> sektorenMitBefreundetenSchiffen;
 	private final Set<Location> sektorenMitRotemAlarm;
@@ -61,13 +59,58 @@ public class PlayerStarmap extends PublicStarmap
 		}
 		this.relations = user.getRelations();
 
-		this.scannedLocations = new HashSet<>();
+		this.scannedLocationsToScannerId = new HashMap<>();
 		this.scannedNebulaLocations = new HashSet<>();
 		this.sektorenMitBefreundetenSchiffen = new HashSet<>();
 		buildScannedLocations();
 
 		this.bekannteOrte = findeBekannteOrte(user);
 		this.sektorenMitRotemAlarm = findeSektorenMitRotemAlarm(user);
+	}
+
+	@Override
+	protected void buildFriendlyData()
+	{
+		var scanMap = new HashMap<Location, ScanData>();
+		var ownShipSectors = new HashSet<Location>();
+		var allyShipSectors = new HashSet<Location>();
+		try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
+			var db = DBUtil.getDSLContext(conn);
+			try(var scanDataSelect = db
+				.selectFrom(FRIENDLY_SCAN_RANGES)
+				.where(FRIENDLY_SCAN_RANGES.TARGET_ID.eq(user.getId()))) {
+				var result = scanDataSelect.fetch();
+				for (var record : result) {
+					var scanData = new ScanData(this.map.getSystem(), record.getX(), record.getY(), record.getId(), record.getOwner(), record.getSensorRange().intValue());
+
+					//FRIENDLY_SCAN_RANGES contains values per sector for best scanner by user and best scanner by ally
+					//So we check here which one really has the best scan range
+					scanMap.compute(scanData.getLocation(), (k, v) -> {
+						if(v == null) {
+							return scanData;
+						}
+
+						if(scanData.getScanRange() > v.getScanRange()) {
+							return scanData;
+						} else {
+							return v;
+						}
+					});
+
+					if(scanData.getOwnerId() == user.getId()) {
+						ownShipSectors.add(scanData.getLocation());
+					} else {
+						allyShipSectors.add(scanData.getLocation());
+					}
+				}
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+
+		this.scanMap = scanMap;
+		this.ownShipSectors = ownShipSectors;
+		this.allyShipSectors = allyShipSectors;
 	}
 
 	private Set<Location> findeSektorenMitRotemAlarm(User user)
@@ -130,19 +173,19 @@ public class PlayerStarmap extends PublicStarmap
 	@Override
 	public boolean isScanned(Location location)
 	{
-		return this.scannedLocations.contains(location) || this.bekannteOrte.contains(location);
+		return this.scannedLocationsToScannerId.containsKey(location) || this.bekannteOrte.contains(location);
 	}
 
     @Override
-    public Ship getScanningShip(Location location)
+    public int getScanningShip(Location location)
     {
-        return null; //TODO
+        return this.scannedLocationsToScannerId.getOrDefault(location, -1);
     }
 
 	@Override
 	public SectorImage getUserSectorBaseImage(Location location)
 	{
-		boolean scanned = scannedLocations.contains(location) || scannedNebulaLocations.contains(location);
+		boolean scanned = scannedLocationsToScannerId.containsKey(location) || scannedNebulaLocations.contains(location);
 		List<Base> positionBases = map.getBaseMap().get(location);
 		if(positionBases != null && !positionBases.isEmpty())
 		{
@@ -153,7 +196,7 @@ public class PlayerStarmap extends PublicStarmap
 						relations.isOnly(base.getOwner(), Relation.FRIEND) )
 				{
 					boolean isNebula = map.isNebula(location);
-					boolean revealAsteroid = bekannteOrte.contains(location) || (!isNebula && scannedLocations.contains(location))|| (isNebula && (scannedNebulaLocations.contains(location) || shipInSector(location))) ;
+					boolean revealAsteroid = bekannteOrte.contains(location) || (!isNebula && scannedLocationsToScannerId.containsKey(location))|| (isNebula && (scannedNebulaLocations.contains(location) || shipInSector(location))) ;
 					String img = base.getOverlayImage(location, user, revealAsteroid);
 					if( img != null ) {
 						return new SectorImage(img, 0, 0);
@@ -167,7 +210,7 @@ public class PlayerStarmap extends PublicStarmap
 		{
 			for(JumpNode node: positionNodes)
 			{
-				if(!node.isHidden() || scannedLocations.contains(location) || scannedNebulaLocations.contains(location))
+				if(!node.isHidden() || scannedLocationsToScannerId.containsKey(location) || scannedNebulaLocations.contains(location))
 				{
 					return new SectorImage("data/starmap/jumpnode/jumpnode.png", 0, 0);
 				}
@@ -189,7 +232,7 @@ public class PlayerStarmap extends PublicStarmap
 	@Override
 	public SectorImage getSectorOverlayImage(Location location)
 	{
-		if( !this.scannedLocations.contains(location) )
+		if( !this.scannedLocationsToScannerId.containsKey(location) )
 		{
 			return null;
 		}
@@ -203,7 +246,7 @@ public class PlayerStarmap extends PublicStarmap
 
 	private boolean shipInSector(Location location)
 	{
-		return this.map.getScanMap().get(location) != null;
+		return scanMap.containsKey(location);
 	}
 
 	private String getShipImage(Location location)
@@ -212,9 +255,9 @@ public class PlayerStarmap extends PublicStarmap
 
 		if(isScanned(location))
 		{
-			int ownShips;
-			int alliedShips;
-			int enemyShips;
+			boolean scanningShipInSector;
+			int maxEnemyShipSize;
+			int maxNeutralShipSize;
 
 			try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
 				var db = DBUtil.getDSLContext(conn);
@@ -222,66 +265,62 @@ public class PlayerStarmap extends PublicStarmap
 					.and(SHIPS.X.eq(location.getX()))
 					.and(SHIPS.Y.eq(location.getY()));
 
-				ownShips = Objects.requireNonNullElse(db.selectCount().from(SHIPS)
-					.where(locationCondition.and(SHIPS.OWNER.eq(user.getId())))
-					.fetchOne(0, int.class), 0);
+				scanningShipInSector = scanMap.containsKey(location);
 
 				Nebel nebula = this.map.getNebulaMap().get(location);
-				if(nebula != null && !nebula.allowsScan() && ownShips == 0) {
-					alliedShips = 0;
-					enemyShips = 0;
+				if(!scanningShipInSector && nebula != null && !nebula.allowsScan()) {
+					maxNeutralShipSize = -1;
+					maxEnemyShipSize = -1;
 				} else {
-					var relationBasedSelect = db.selectCount().from(USER_RELATIONS)
-						.innerJoin(SHIPS)
-						.on(SHIPS.OWNER.eq(USER_RELATIONS.ID)
-							.and(SHIPS.OWNER.notEqual(user.getId()))
-							.and(locationCondition));
+					var neutralShipSelect = db.select(NON_FRIENDLY_SHIP_LOCATIONS.MAX_SIZE)
+						.from(NON_FRIENDLY_SHIP_LOCATIONS)
+						.where(locationCondition.and(NON_FRIENDLY_SHIP_LOCATIONS.STATUS.eq(Relation.ENEMY.ordinal())));
 
-					try(var alliedShipSelect = relationBasedSelect
-						.where(locationCondition.and(USER_RELATIONS.STATUS.eq(Relation.FRIEND.ordinal())))) {
-						alliedShips = Objects.requireNonNullElse(alliedShipSelect.fetchOne(0, int.class), 0);
+					var enemyShipSelect = db.select(NON_FRIENDLY_SHIP_LOCATIONS.MAX_SIZE)
+						.from(NON_FRIENDLY_SHIP_LOCATIONS)
+						.where(locationCondition.and(NON_FRIENDLY_SHIP_LOCATIONS.STATUS.eq(Relation.ENEMY.ordinal())));
+
+					//TODO: Honor ShipTypeFlag.SEHR_KLEIN again
+
+					try(neutralShipSelect) {
+						var possibleSize = neutralShipSelect.limit(1).fetchAny(NON_FRIENDLY_SHIP_LOCATIONS.MAX_SIZE);
+						maxNeutralShipSize = Objects.requireNonNullElse(possibleSize, -1);
 					}
 
-
-					var enemyShipSelect = relationBasedSelect
-						.where(locationCondition.and(USER_RELATIONS.STATUS.eq(Relation.ENEMY.ordinal())));
-
-					// No ships in sector? Then we need to filter ships with the tiny flag
-					if(ownShips == 0) {
-						enemyShipSelect = db.selectCount().from(USER_RELATIONS)
-							.innerJoin(SHIPS)
-								.on(SHIPS.OWNER.eq(USER_RELATIONS.USER_ID))
-							.innerJoin(SHIP_TYPES)
-								.on(SHIPS.TYPE.eq(SHIP_TYPES.ID)
-									.and(SHIP_TYPES.FLAGS.notContains(ShipTypeFlag.SEHR_KLEIN.getFlag())))
-							.leftJoin(SHIPS_MODULES)
-								.on(SHIPS.MODULES.eq(SHIPS_MODULES.ID)
-									.and(SHIPS_MODULES.FLAGS.notContains(ShipTypeFlag.SEHR_KLEIN.getFlag())))
-							.where(locationCondition.and(USER_RELATIONS.STATUS.eq(Relation.ENEMY.ordinal())));
-					}
-
-					var finalWrapper = enemyShipSelect;
-					try(finalWrapper) {
-						enemyShips = Objects.requireNonNullElse(finalWrapper.fetchOne(0, int.class), 0);
+					try(enemyShipSelect) {
+						var possibleSize = enemyShipSelect.fetchAny(NON_FRIENDLY_SHIP_LOCATIONS.MAX_SIZE);
+						maxEnemyShipSize = Objects.requireNonNullElse(possibleSize, -1);
 					}
 				}
 			} catch (SQLException ex) {
 				throw new RuntimeException(ex);
 			}
 
-			if(ownShips > 0)
+			if(ownShipSectors.contains(location))
 			{
 				imageName += "_fo";
 			}
 
-			if(alliedShips > 0)
+			if(allyShipSectors.contains(location))
 			{
 				imageName += "_fa";
 			}
 
-			if(enemyShips > 0)
+			Nebel nebula = this.map.getNebulaMap().get(location);
+			int minSize;
+			if(nebula != null) {
+				minSize = nebula.getType().getMinScansize();
+			} else {
+				minSize = 0;
+			}
+
+			if(maxEnemyShipSize > minSize)
 			{
 				imageName += "_fe";
+			} else if(maxNeutralShipSize > minSize) {
+				// We only show neutral ships if there are no enemies
+				// enemy ships are more important, and we don't want to clutter the UI
+				imageName += "_fn";
 			}
 		}
 
@@ -299,7 +338,7 @@ public class PlayerStarmap extends PublicStarmap
 
 		try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
 			var db = DBUtil.getDSLContext(conn);
-			for (Map.Entry<Location, ScanData> entry : this.map.getScanMap().entrySet()) {
+			for (Map.Entry<Location, ScanData> entry : scanMap.entrySet()) {
 				Location position = entry.getKey();
 				ScanData scanData = entry.getValue();
 
@@ -318,11 +357,12 @@ public class PlayerStarmap extends PublicStarmap
 
 							var nebula = nebulas.get(loc);
 							if (nebula == null || nebula.allowsScan()) {
-								scannedLocations.add(loc);
+								scannedLocationsToScannerId.put(loc, scanData.getShipId());
 							}
 						}
 					}
 
+					/* TODO: Handle Nebula scan
 					//There was at least one friendly ship with sensors in the sector, so we need to find out if
 					//there's a nebula scanner here
 					int nebulaScanRange;
@@ -356,9 +396,8 @@ public class PlayerStarmap extends PublicStarmap
 							}
 						}
 					}
-				} else {
-					//Our ship may have zero scan range, but we can still see our sector
-					this.scannedLocations.add(position);
+
+					 */
 				}
 			}
 		} catch (SQLException e) {
@@ -390,7 +429,7 @@ public class PlayerStarmap extends PublicStarmap
 	@Override
 	public boolean isSchlachtImSektor(Location sektor)
 	{
-		if( !this.scannedLocations.contains(sektor) )
+		if( !this.scannedLocationsToScannerId.containsKey(sektor) )
 		{
 			return false;
 		}
