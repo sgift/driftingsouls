@@ -127,7 +127,7 @@ public class AdminStarmap extends PublicStarmap
 
 				var finalWrapper = enemyShipSelect;
 				try(finalWrapper) {
-					enemyShips = Objects.requireNonNullElse(enemyShipSelect.fetchOne(0, int.class), 0);
+					enemyShips = Objects.requireNonNullElse(finalWrapper.fetchOne(0, int.class), 0);
 				}
 			}
 		} catch (SQLException ex) {

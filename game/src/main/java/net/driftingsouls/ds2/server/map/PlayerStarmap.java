@@ -246,11 +246,22 @@ public class PlayerStarmap extends PublicStarmap
 					var enemyShipSelect = relationBasedSelect
 						.where(locationCondition.and(USER_RELATIONS.STATUS.eq(Relation.ENEMY.ordinal())));
 
+					// No ships in sector? Then we need to filter ships with the tiny flag
 					if(ownShips == 0) {
-						enemyShipSelect = enemyShipSelect.and(SHIPS_MODULES.FLAGS.notContains(ShipTypeFlag.SEHR_KLEIN.getFlag()));
+						enemyShipSelect = db.selectCount().from(USER_RELATIONS)
+							.innerJoin(SHIPS)
+							.on(SHIPS.TYPE.eq(SHIP_TYPES.ID)
+								.and(DSL.position(ShipTypeFlag.SEHR_KLEIN.getFlag(), SHIP_TYPES.FLAGS).eq(0)))
+							.leftJoin(SHIPS_MODULES)
+							.on(SHIPS.MODULES.eq(SHIPS_MODULES.ID)
+								.and(DSL.position(ShipTypeFlag.SEHR_KLEIN.getFlag(), SHIPS_MODULES.FLAGS).eq(0)))
+							.where(locationCondition.and(USER_RELATIONS.STATUS.eq(Relation.ENEMY.ordinal())));
 					}
 
-					enemyShips = Objects.requireNonNullElse(enemyShipSelect.fetchOne(0, int.class), 0);
+					var finalWrapper = enemyShipSelect;
+					try(finalWrapper) {
+						enemyShips = Objects.requireNonNullElse(finalWrapper.fetchOne(0, int.class), 0);
+					}
 				}
 			} catch (SQLException ex) {
 				throw new RuntimeException(ex);
