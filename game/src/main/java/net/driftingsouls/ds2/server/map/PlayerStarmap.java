@@ -9,6 +9,7 @@ import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.User.Relation;
 import net.driftingsouls.ds2.server.entities.User.Relations;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.DBUtil;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
@@ -215,7 +216,7 @@ public class PlayerStarmap extends PublicStarmap
 			int alliedShips;
 			int enemyShips;
 
-			try(var conn = DBUtil.getConnection()) {
+			try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
 				var db = DBUtil.getDSLContext(conn);
 				var locationCondition = SHIPS.STAR_SYSTEM.eq(location.getSystem())
 					.and(SHIPS.X.eq(location.getX()))
@@ -236,9 +237,11 @@ public class PlayerStarmap extends PublicStarmap
 							.and(SHIPS.OWNER.notEqual(user.getId()))
 							.and(locationCondition));
 
-					alliedShips = Objects.requireNonNullElse(relationBasedSelect
-						.where(locationCondition.and(USER_RELATIONS.STATUS.eq(Relation.FRIEND.ordinal())))
-						.fetchOne(0, int.class), 0);
+					try(var alliedShipSelect = relationBasedSelect
+						.where(locationCondition.and(USER_RELATIONS.STATUS.eq(Relation.FRIEND.ordinal())))) {
+						alliedShips = Objects.requireNonNullElse(alliedShipSelect.fetchOne(0, int.class), 0);
+					}
+
 
 					var enemyShipSelect = relationBasedSelect
 						.where(locationCondition.and(USER_RELATIONS.STATUS.eq(Relation.ENEMY.ordinal())));
@@ -281,7 +284,7 @@ public class PlayerStarmap extends PublicStarmap
 	{
 		Map<Location, Nebel> nebulas = this.map.getNebulaMap();
 
-		try(var conn = DBUtil.getConnection()) {
+		try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
 			var db = DBUtil.getDSLContext(conn);
 			for (Map.Entry<Location, ScanData> entry : this.map.getScanMap().entrySet()) {
 				Location position = entry.getKey();
@@ -309,14 +312,16 @@ public class PlayerStarmap extends PublicStarmap
 
 					//There was at least one friendly ship with sensors in the sector, so we need to find out if
 					//there's a nebula scanner here
-					int nebulaScanRange = Objects.requireNonNullElse(db.select(DSL.max(DSL.if_(DSL.coalesce(SHIPS_MODULES.SENSORRANGE, 0).greaterThan(SHIP_TYPES.SENSORRANGE), SHIPS_MODULES.SENSORRANGE, SHIP_TYPES.SENSORRANGE))).from(SHIPS)
+					int nebulaScanRange;
+					try(var nebulaScanSelect = db.select(DSL.max(DSL.if_(DSL.coalesce(SHIPS_MODULES.SENSORRANGE, 0).greaterThan(SHIP_TYPES.SENSORRANGE), SHIPS_MODULES.SENSORRANGE, SHIP_TYPES.SENSORRANGE))).from(SHIPS)
 						.innerJoin(SHIP_TYPES)
-							.on(SHIPS.TYPE.eq(SHIP_TYPES.ID)
+						.on(SHIPS.TYPE.eq(SHIP_TYPES.ID)
 							.and(DSL.position(ShipTypeFlag.NEBELSCAN.getFlag(), SHIP_TYPES.FLAGS).greaterThan(0)))
 						.leftJoin(SHIPS_MODULES)
-							.on(SHIPS.MODULES.eq(SHIPS_MODULES.ID)
-							.and(DSL.position(ShipTypeFlag.NEBELSCAN.getFlag(), SHIPS_MODULES.FLAGS).greaterThan(0)))
-						.fetchOne(0, int.class), 0);
+						.on(SHIPS.MODULES.eq(SHIPS_MODULES.ID)
+							.and(DSL.position(ShipTypeFlag.NEBELSCAN.getFlag(), SHIPS_MODULES.FLAGS).greaterThan(0)))) {
+						nebulaScanRange = Objects.requireNonNullElse(nebulaScanSelect.fetchOne(0, int.class), 0);
+					}
 
 					if(nebulaScanRange > 0) {
 						for (int y = position.getY() - nebulaScanRange; y <= position.getY() + nebulaScanRange; y++) {

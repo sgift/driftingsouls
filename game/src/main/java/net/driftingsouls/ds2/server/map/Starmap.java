@@ -74,12 +74,14 @@ class Starmap
 	{
 		if( this.shipMap == null ) {
 			var shipMap = new HashMap<Location, ScanData>();
-			try(var conn = DBUtil.getConnection()) {
+			try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
 				var db = DBUtil.getDSLContext(conn);
-				var result = db.selectFrom(FriendlyScanRanges.FRIENDLY_SCAN_RANGES).fetch();
-				for(var record: result) {
-					var scanData = new ScanData(this.system, record.getX(), record.getY(), record.getSensorRange().intValue());
-					shipMap.put(scanData.getLocation(), scanData);
+				try(var scanDataSelect = db.selectFrom(FriendlyScanRanges.FRIENDLY_SCAN_RANGES)) {
+					var result = scanDataSelect.fetch();
+					for (var record : result) {
+						var scanData = new ScanData(this.system, record.getX(), record.getY(), record.getSensorRange().intValue());
+						shipMap.put(scanData.getLocation(), scanData);
+					}
 				}
 				this.shipMap = shipMap;
 			} catch (SQLException e) {

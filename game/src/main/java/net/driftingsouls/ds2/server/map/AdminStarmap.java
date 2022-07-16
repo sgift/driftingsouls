@@ -7,6 +7,7 @@ import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.DBUtil;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
@@ -97,7 +98,7 @@ public class AdminStarmap extends PublicStarmap
 		int ownShips;
 		int enemyShips;
 
-		try(var conn = DBUtil.getConnection()) {
+		try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
 			var db = DBUtil.getDSLContext(conn);
 			var locationCondition = SHIPS.STAR_SYSTEM.eq(location.getSystem())
 				.and(SHIPS.X.eq(location.getX()))
@@ -124,7 +125,10 @@ public class AdminStarmap extends PublicStarmap
 					enemyShipSelect = enemyShipSelect.and(SHIPS_MODULES.FLAGS.notContains(ShipTypeFlag.SEHR_KLEIN.getFlag()));
 				}
 
-				enemyShips = Objects.requireNonNullElse(enemyShipSelect.fetchOne(0, int.class), 0);
+				var finalWrapper = enemyShipSelect;
+				try(finalWrapper) {
+					enemyShips = Objects.requireNonNullElse(enemyShipSelect.fetchOne(0, int.class), 0);
+				}
 			}
 		} catch (SQLException ex) {
 			throw new RuntimeException(ex);
