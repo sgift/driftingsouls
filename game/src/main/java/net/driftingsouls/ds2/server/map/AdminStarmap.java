@@ -5,12 +5,19 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
+import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.db.DBUtil;
 import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 
-import java.util.HashMap;
+import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
+
+import static net.driftingsouls.ds2.server.entities.jooq.tables.Ships.SHIPS;
+import static net.driftingsouls.ds2.server.entities.jooq.tables.ShipsModules.SHIPS_MODULES;
+import static net.driftingsouls.ds2.server.entities.jooq.tables.UserRelations.USER_RELATIONS;
 
 /**
  * Die Adminsicht auf die Sternenkarte. Zeigt alle
@@ -18,7 +25,6 @@ import java.util.Map;
  */
 public class AdminStarmap extends PublicStarmap
 {
-	private final Map<Location,Ship> scannableLocations;
 	private final User adminUser;
 	/**
 	 * Konstruktor.
@@ -31,19 +37,18 @@ public class AdminStarmap extends PublicStarmap
 		super(system, ausschnitt);
 
 		this.adminUser = adminUser;
-		this.scannableLocations = buildScannableLocations();
 	}
 
 	@Override
-	public boolean isScannbar(Location location)
+	public boolean isScanned(Location location)
 	{
-		return this.scannableLocations.containsKey(location);
+		return true;
 	}
 
 	@Override
-	public Ship getScanSchiffFuerSektor(Location location)
+	public Ship getScanningShip(Location location)
 	{
-		return this.scannableLocations.get(location);
+		return null; //TODO
 	}
 
 	@Override
@@ -89,36 +94,50 @@ public class AdminStarmap extends PublicStarmap
 	private String getShipImage(Location location)
 	{
 		String imageName = "";
-		//Fleet attachment
-		List<Ship> sectorShips = this.map.getShipMap().get(location);
-		int ownShips = 0;
-		int alliedShips = 0;
-		int enemyShips = 0;
+		int ownShips;
+		int enemyShips;
 
-		if(sectorShips != null && !sectorShips.isEmpty())
+		try(var conn = DBUtil.getConnection()) {
+			var db = DBUtil.getDSLContext(conn);
+			var locationCondition = SHIPS.STAR_SYSTEM.eq(location.getSystem())
+				.and(SHIPS.X.eq(location.getX()))
+				.and(SHIPS.Y.eq(location.getY()));
+
+			ownShips = Objects.requireNonNullElse(db.selectCount().from(SHIPS)
+				.where(locationCondition.and(SHIPS.OWNER.eq(adminUser.getId())))
+				.fetchOne(0, int.class), 0);
+
+			Nebel nebula = this.map.getNebulaMap().get(location);
+			if(nebula != null && !nebula.allowsScan() && ownShips == 0) {
+				enemyShips = 0;
+			} else {
+				var relationBasedSelect = db.selectCount().from(USER_RELATIONS)
+					.innerJoin(SHIPS)
+					.on(SHIPS.OWNER.eq(USER_RELATIONS.ID)
+						.and(SHIPS.OWNER.notEqual(adminUser.getId()))
+						.and(locationCondition));
+
+				var enemyShipSelect = relationBasedSelect
+					.where(locationCondition.and(USER_RELATIONS.STATUS.eq(User.Relation.ENEMY.ordinal())));
+
+				if(ownShips == 0) {
+					enemyShipSelect = enemyShipSelect.and(SHIPS_MODULES.FLAGS.notContains(ShipTypeFlag.SEHR_KLEIN.getFlag()));
+				}
+
+				enemyShips = Objects.requireNonNullElse(enemyShipSelect.fetchOne(0, int.class), 0);
+			}
+		} catch (SQLException ex) {
+			throw new RuntimeException(ex);
+		}
+
+		if(ownShips > 0)
 		{
-			for(Ship ship: sectorShips)
-			{
-				User shipOwner = ship.getOwner();
-				if(shipOwner.equals(adminUser))
-				{
-					ownShips++;
-				}
-				else
-				{
-					enemyShips++;
-				}
-			}
+			imageName += "_fo";
+		}
 
-			if(ownShips > 0)
-			{
-				imageName += "_fo";
-			}
-
-			if(enemyShips > 0)
-			{
-				imageName += "_fe";
-			}
+		if(enemyShips > 0)
+		{
+			imageName += "_fe";
 		}
 
 		if( imageName.isEmpty() )
@@ -127,17 +146,6 @@ public class AdminStarmap extends PublicStarmap
 		}
 
 		return imageName;
-	}
-
-	private Map<Location,Ship> buildScannableLocations()
-	{
-		Map<Location,Ship> locSet = new HashMap<>();
-		for (Map.Entry<Location, List<Ship>> locationListEntry : this.map.getShipMap().entrySet())
-		{
-			locSet.put(locationListEntry.getKey(), locationListEntry.getValue().get(0));
-		}
-
-		return locSet;
 	}
 
 	/**

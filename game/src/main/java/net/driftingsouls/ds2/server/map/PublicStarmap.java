@@ -44,9 +44,10 @@ public class PublicStarmap
 	 */
 	public PublicStarmap(StarSystem system, int[] ausschnitt)
 	{
-		this.map = new Starmap(system.getID());
 		if( ausschnitt != null ) {
-			this.map = new ClippedStarmap(this.map, ausschnitt);
+			this.map = new ClippedStarmap(new Starmap(system.getID()), ausschnitt);
+		} else {
+			this.map = new Starmap(system.getID());
 		}
 	}
 
@@ -100,7 +101,7 @@ public class PublicStarmap
 	 *
 	 * @return Das Schiff, dass diesen Sektor scannen kann oder <code>null</code>
 	 */
-	public Ship getScanSchiffFuerSektor(Location location)
+	public Ship getScanningShip(Location location)
 	{
 		return null;
 	}
@@ -111,7 +112,7 @@ public class PublicStarmap
 	 * @param location Der Sektor.
 	 * @return <code>true</code>, wenn der Sektor gescannt werden kann, sonst <code>false</code>
 	 */
-	public boolean isScannbar(Location location)
+	public boolean isScanned(Location location)
 	{
 		return false;
 	}

@@ -471,7 +471,7 @@ public class MapController extends Controller
 
 	private MapViewModel.LocationViewModel createMapLocationViewModel(PublicStarmap content, Location position)
 	{
-		boolean scannable = content.isScannbar(position);
+		boolean scannable = content.isScanned(position);
 		SectorImage sectorImage = content.getUserSectorBaseImage(position);
 		SectorImage sectorOverlayImage = content.getSectorOverlayImage(position);
 
@@ -502,7 +502,7 @@ public class MapController extends Controller
 
 		if (scannable && content.isHasSectorContent(position))
 		{
-			Ship scanner = content.getScanSchiffFuerSektor(position);
+			Ship scanner = content.getScanningShip(position);
 
 			posObj.scanner = scanner != null ? scanner.getId() : -1;
 		}

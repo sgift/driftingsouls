@@ -22,19 +22,17 @@ import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
-import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.persistence.EntityManager;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Eine auf einen Teilausschnitt reduzierte Version eines Sternensystems.
@@ -50,24 +48,22 @@ public class ClippedStarmap extends Starmap
 
 	private final Starmap inner;
 	private final int[] ausschnitt;
-	private final Map<Location, List<Ship>> clippedShipMap;
 	private final Map<Location, List<Ship>> clippedBrockenMap;
 	private final Map<Location, Nebel> clippedNebulaMap;
 	private final Map<Location, List<Base>> clippedBaseMap;
-	private final Session db;
+	private final EntityManager em;
 
 	/**
 	 * Konstruktor.
-	 * @param inner Das zu Grunde liegende eigentliche Sternensystem
+	 * @param inner Das zugrunde liegende eigentliche Sternensystem
 	 * @param ausschnitt Der gewaehlte Ausschnitt <code>[x, y, w, h]</code>
 	 */
 	public ClippedStarmap(Starmap inner, int[] ausschnitt)
 	{
 		super(inner.getSystem());
-		this.db = ContextMap.getContext().getDB();
+		this.em = ContextMap.getContext().getEM();
 		this.inner = inner;
 		this.ausschnitt = ausschnitt.clone();
-		this.clippedShipMap = this.buildClippedShipMap();
 		this.clippedNebulaMap = this.buildClippedNebulaMap();
 		this.clippedBaseMap = this.buildClippedBaseMap();
 		this.clippedBrockenMap = this.buildClippedBrockenMap();
@@ -89,12 +85,6 @@ public class ClippedStarmap extends Starmap
 	Collection<JumpNode> getJumpNodes()
 	{
 		return inner.getJumpNodes();
-	}
-
-	@Override
-	Map<Location, List<Ship>> getShipMap()
-	{
-		return Collections.unmodifiableMap(this.clippedShipMap);
 	}
 
 	@Override
@@ -121,48 +111,21 @@ public class ClippedStarmap extends Starmap
 		return Collections.unmodifiableMap(this.clippedNebulaMap);
 	}
 
-	private Map<Location, List<Ship>> buildClippedShipMap()
-	{
-		// Nur solche Schiffe laden, deren LRS potentiell in den Ausschnitt hinein ragen oder die
-		// sich komplett im Ausschnitt befinden.
-		// TODO: Die Menge der Schiffe laesst sich sicherlich noch weiter eingrenzen
-		long start = System.nanoTime();
-		List<Ship> shipList = Common.cast(db.createQuery("select s from Ship as s left join s.modules m left join s.shiptype st" +
-				" where s.system=:sys and s.shiptype.shipClass!=:shipClass and s.docked not like 'l %' and " +
-				"((s.x between :minx-st.sensorRange and :maxx+st.sensorRange) or" +
-				"(s.x between :minx-m.sensorRange and :maxx+m.sensorRange)) and " +
-				"((s.y between :miny-st.sensorRange and :maxy+st.sensorRange) or" +
-				"(s.x between :miny-m.sensorRange and :maxy+m.sensorRange))")
-			.setInteger("sys", this.inner.getSystem())
-			.setInteger("minx", this.ausschnitt[0])
-			.setInteger("maxx", this.ausschnitt[0]+this.ausschnitt[2])
-			.setInteger("miny", this.ausschnitt[1])
-			.setInteger("maxy", this.ausschnitt[1]+this.ausschnitt[3])
-			.setParameter("shipClass", ShipClasses.FELSBROCKEN)
-			.list());
-		long duration = System.nanoTime() - start;
-		log.info("Time to load ships in range: {} ms", TimeUnit.NANOSECONDS.toMillis(duration));
-
-		return this.buildLocatableMap(shipList);
-	}
-
 	private Map<Location, List<Ship>> buildClippedBrockenMap()
 	{
-		// Nur solche Brocken laden, deren LRS potentiell in den Ausschnitt hinein ragen oder die
-		// sich komplett im Ausschnitt befinden.
-		List<Ship> brockenList = Common.cast(db.createQuery("select s from Ship as s left join s.modules m" +
+		// Nur solche Brocken im Ausschnitt laden
+		List<Ship> brockenList = em.createQuery("select s from Ship as s left join s.modules m" +
 				" where s.system=:sys and s.shiptype.shipClass=:shipClass and " +
-				"((s.x between :minx-s.shiptype.sensorRange and :maxx+s.shiptype.sensorRange) or" +
-				"(s.x between :minx-m.sensorRange and :maxx+m.sensorRange)) and " +
-				"((s.y between :miny-s.shiptype.sensorRange and :maxy+s.shiptype.sensorRange) or" +
-				"(s.x between :miny-m.sensorRange and :maxy+m.sensorRange))")
-				.setInteger("sys", this.inner.getSystem())
-				.setInteger("minx", this.ausschnitt[0])
-				.setInteger("maxx", this.ausschnitt[0]+this.ausschnitt[2])
-				.setInteger("miny", this.ausschnitt[1])
-				.setInteger("maxy", this.ausschnitt[1]+this.ausschnitt[3])
+				" s.system=:sys and " +
+				" s.x between :minx and :maxx and " +
+				" s.y between :miny and :maxy", Ship.class)
+				.setParameter("sys", this.inner.getSystem())
+				.setParameter("minx", this.ausschnitt[0])
+				.setParameter("miny", this.ausschnitt[1])
+				.setParameter("maxx", this.ausschnitt[0]+this.ausschnitt[2])
+				.setParameter("maxy", this.ausschnitt[1]+this.ausschnitt[3])
 				.setParameter("shipClass", ShipClasses.FELSBROCKEN)
-				.list());
+				.getResultList();
 
 		return this.buildLocatableMap(brockenList);
 	}
@@ -176,7 +139,7 @@ public class ClippedStarmap extends Starmap
 				this.ausschnitt[1]+this.ausschnitt[3]
 		};
 
-		for( Location loc : this.clippedShipMap.keySet() )
+		for( Location loc : this.getScanMap().keySet() )
 		{
 			if( loc.getX() < load[0] )
 			{
@@ -197,32 +160,32 @@ public class ClippedStarmap extends Starmap
 			}
 		}
 
-		List<Nebel> nebelList = Common.cast(db.createQuery("from Nebel " +
+		List<Nebel> nebelList = em.createQuery("from Nebel " +
 				"where loc.system=:sys and " +
 				"loc.x between :minx and :maxx and " +
-				"loc.y between :miny and :maxy")
-			.setInteger("sys", this.inner.getSystem())
-			.setInteger("minx", load[0])
-			.setInteger("miny", load[1])
-			.setInteger("maxx", load[2])
-			.setInteger("maxy", load[3])
-			.list());
+				"loc.y between :miny and :maxy", Nebel.class)
+			.setParameter("sys", this.inner.getSystem())
+			.setParameter("minx", load[0])
+			.setParameter("miny", load[1])
+			.setParameter("maxx", load[2])
+			.setParameter("maxy", load[3])
+			.getResultList();
 
 		return this.buildNebulaMap(nebelList);
 	}
 
 	private Map<Location, List<Base>> buildClippedBaseMap()
 	{
-		List<Base> baseList = Common.cast(db.createQuery("from Base "+
+		List<Base> baseList = em.createQuery("from Base "+
 				"where system=:sys and " +
 				"x between :minx and :maxx and " +
-				"y between :miny and :maxy")
-			.setInteger("sys", this.inner.getSystem())
-			.setInteger("minx", this.ausschnitt[0])
-			.setInteger("miny", this.ausschnitt[1])
-			.setInteger("maxx", this.ausschnitt[0]+this.ausschnitt[2])
-			.setInteger("maxy", this.ausschnitt[1]+this.ausschnitt[3])
-			.list());
+				"y between :miny and :maxy", Base.class)
+			.setParameter("sys", this.inner.getSystem())
+			.setParameter("minx", this.ausschnitt[0])
+			.setParameter("miny", this.ausschnitt[1])
+			.setParameter("maxx", this.ausschnitt[0]+this.ausschnitt[2])
+			.setParameter("maxy", this.ausschnitt[1]+this.ausschnitt[3])
+			.getResultList();
 
 		return this.buildBaseMap(baseList);
 	}

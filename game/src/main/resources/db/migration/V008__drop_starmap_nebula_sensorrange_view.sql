@@ -1,0 +1,1 @@
+DROP VIEW friendly_nebula_scan_ranges;

@@ -6,11 +6,14 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
+import net.driftingsouls.ds2.server.entities.jooq.tables.FriendlyScanRanges;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.db.DBUtil;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -67,19 +70,21 @@ class Starmap
 	/**
 	 * @return Die Liste der Schiffe im System sortiert nach Sektoren.
 	 */
-	Map<Location, ScanData> getShipMap()
+	Map<Location, ScanData> getScanMap()
 	{
 		if( this.shipMap == null ) {
-
-			/*
-			org.hibernate.Session db = ContextMap.getContext().getDB();
-			List<Ship> ships = Common.cast(db
-					.createQuery("from Ship where system=:system and shiptype.shipClass!=:shipClasses ")
-					.setInteger("system", this.system)
-					.setParameter("shipClasses", ShipClasses.FELSBROCKEN)
-					.list());
-			this.shipMap = buildLocatableMap(ships);
-			 */
+			var shipMap = new HashMap<Location, ScanData>();
+			try(var conn = DBUtil.getConnection()) {
+				var db = DBUtil.getDSLContext(conn);
+				var result = db.selectFrom(FriendlyScanRanges.FRIENDLY_SCAN_RANGES).fetch();
+				for(var record: result) {
+					var scanData = new ScanData(this.system, record.getX(), record.getY(), record.getSensorRange().intValue());
+					shipMap.put(scanData.getLocation(), scanData);
+				}
+				this.shipMap = shipMap;
+			} catch (SQLException e) {
+				throw new RuntimeException(e);
+			}
 		}
 		return Collections.unmodifiableMap(this.shipMap);
 	}
