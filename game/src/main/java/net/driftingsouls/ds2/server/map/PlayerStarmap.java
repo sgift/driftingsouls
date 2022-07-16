@@ -277,11 +277,11 @@ public class PlayerStarmap extends PublicStarmap
 				} else {
 					var neutralShipSelect = db.select(NON_FRIENDLY_SHIP_LOCATIONS.MAX_SIZE)
 						.from(NON_FRIENDLY_SHIP_LOCATIONS)
-						.where(locationCondition.and(NON_FRIENDLY_SHIP_LOCATIONS.STATUS.eq(Relation.ENEMY.ordinal())));
+						.where(locationCondition.and(NON_FRIENDLY_SHIP_LOCATIONS.STATUS.eq(Relation.ENEMY.ordinal())).and(NON_FRIENDLY_SHIP_LOCATIONS.TARGET_ID.eq(user.getId())));
 
 					var enemyShipSelect = db.select(NON_FRIENDLY_SHIP_LOCATIONS.MAX_SIZE)
 						.from(NON_FRIENDLY_SHIP_LOCATIONS)
-						.where(locationCondition.and(NON_FRIENDLY_SHIP_LOCATIONS.STATUS.eq(Relation.ENEMY.ordinal())));
+						.where(locationCondition.and(NON_FRIENDLY_SHIP_LOCATIONS.STATUS.eq(Relation.ENEMY.ordinal())).and(NON_FRIENDLY_SHIP_LOCATIONS.TARGET_ID.eq(user.getId())));
 
 					//TODO: Honor ShipTypeFlag.SEHR_KLEIN again
 

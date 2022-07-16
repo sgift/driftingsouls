@@ -167,11 +167,11 @@ public class AdminStarmap extends PublicStarmap
 
 				var neutralShipSelect = db.select(NON_FRIENDLY_SHIP_LOCATIONS.MAX_SIZE)
 					.from(NON_FRIENDLY_SHIP_LOCATIONS)
-					.where(locationCondition.and(NON_FRIENDLY_SHIP_LOCATIONS.STATUS.eq(User.Relation.ENEMY.ordinal())));
+					.where(locationCondition.and(NON_FRIENDLY_SHIP_LOCATIONS.STATUS.eq(User.Relation.ENEMY.ordinal())).and(NON_FRIENDLY_SHIP_LOCATIONS.TARGET_ID.eq(adminUser.getId())));
 
 				var enemyShipSelect = db.select(NON_FRIENDLY_SHIP_LOCATIONS.MAX_SIZE)
 					.from(NON_FRIENDLY_SHIP_LOCATIONS)
-					.where(locationCondition.and(NON_FRIENDLY_SHIP_LOCATIONS.STATUS.eq(User.Relation.ENEMY.ordinal())));
+					.where(locationCondition.and(NON_FRIENDLY_SHIP_LOCATIONS.STATUS.eq(User.Relation.ENEMY.ordinal())).and(NON_FRIENDLY_SHIP_LOCATIONS.TARGET_ID.eq(adminUser.getId())));
 
 				//TODO: Honor ShipTypeFlag.SEHR_KLEIN again
 
