@@ -4,6 +4,8 @@
 
 <hibernate-configuration>
 	<session-factory>
+		<property name="connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+
 		<property name="hibernate.connection.isolation">2</property>
 		<property name="hibernate.jdbc.batch_versioned_data">true</property>
 
