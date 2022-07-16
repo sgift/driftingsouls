@@ -228,6 +228,11 @@
                 <artifactId>jooq</artifactId>
                 <version>3.17.2</version>
             </dependency>
+            <dependency>
+                <groupId>com.zaxxer</groupId>
+                <artifactId>HikariCP</artifactId>
+                <version>5.0.1</version>
+            </dependency>
 
             <dependency>
                 <groupId>junit</groupId>
@@ -329,9 +334,9 @@
                         <jdbc>
                             <url>jdbc:mysql://localhost:3306?useSsl=true&amp;serverTimezone=UTC&amp;enabledTLSProtocols=TLSv1.2</url>
                             <!--suppress MavenModelInspection -->
-                            <user>${mysql.user}</user>
+                            <user>${mysql_user}</user>
                             <!--suppress MavenModelInspection -->
-                            <password>${mysql.password}</password>
+                            <password>${mysql_password}</password>
                         </jdbc>
 
                         <generator>
