@@ -23,14 +23,20 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.framework.db.DBUtil;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 
 import javax.persistence.EntityManager;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import static java.util.stream.Collectors.toUnmodifiableSet;
+import static net.driftingsouls.ds2.server.entities.jooq.tables.ShipTypes.SHIP_TYPES;
+import static net.driftingsouls.ds2.server.entities.jooq.tables.Ships.SHIPS;
 
 /**
  * Eine auf einen Teilausschnitt reduzierte Version eines Sternensystems.
@@ -44,7 +50,7 @@ public class ClippedStarmap extends Starmap
 {
 	private final Starmap inner;
 	private final int[] ausschnitt;
-	private final Map<Location, List<Ship>> clippedBrockenMap;
+	private final Set<Location> clippedRockMap;
 	private final Map<Location, Nebel> clippedNebulaMap;
 	private final Map<Location, List<Base>> clippedBaseMap;
 	private final EntityManager em;
@@ -62,7 +68,7 @@ public class ClippedStarmap extends Starmap
 		this.ausschnitt = ausschnitt.clone();
 		this.clippedNebulaMap = this.buildClippedNebulaMap();
 		this.clippedBaseMap = this.buildClippedBaseMap();
-		this.clippedBrockenMap = this.buildClippedBrockenMap();
+		this.clippedRockMap = this.buildClippedRockMap();
 	}
 
 	@Override
@@ -84,9 +90,9 @@ public class ClippedStarmap extends Starmap
 	}
 
 	@Override
-	Map<Location, List<Ship>> getBrockenMap()
+	Set<Location> getRockPositions()
 	{
-		return Collections.unmodifiableMap(this.clippedBrockenMap);
+		return this.clippedRockMap;
 	}
 
 	@Override
@@ -107,23 +113,29 @@ public class ClippedStarmap extends Starmap
 		return Collections.unmodifiableMap(this.clippedNebulaMap);
 	}
 
-	private Map<Location, List<Ship>> buildClippedBrockenMap()
+	private Set<Location> buildClippedRockMap()
 	{
-		// Nur solche Brocken im Ausschnitt laden
-		List<Ship> brockenList = em.createQuery("select s from Ship as s left join s.modules m" +
-				" where s.system=:sys and s.shiptype.shipClass=:shipClass and " +
-				" s.system=:sys and " +
-				" s.x between :minx and :maxx and " +
-				" s.y between :miny and :maxy", Ship.class)
-				.setParameter("sys", this.inner.getSystem())
-				.setParameter("minx", this.ausschnitt[0])
-				.setParameter("miny", this.ausschnitt[1])
-				.setParameter("maxx", this.ausschnitt[0]+this.ausschnitt[2])
-				.setParameter("maxy", this.ausschnitt[1]+this.ausschnitt[3])
-				.setParameter("shipClass", ShipClasses.FELSBROCKEN)
-				.getResultList();
+		try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
+			var db = DBUtil.getDSLContext(conn);
 
-		return this.buildLocatableMap(brockenList);
+			var rockSelect = db.select(SHIPS.X, SHIPS.Y)
+				.from(SHIPS)
+				.join(SHIP_TYPES)
+				.on(SHIP_TYPES.CLASS.eq(ShipClasses.FELSBROCKEN.ordinal()).and(SHIP_TYPES.ID.eq(SHIPS.TYPE)))
+				.where(SHIPS.STAR_SYSTEM.eq(getSystem())
+					.and(SHIPS.X.ge(this.ausschnitt[0]))
+					.and(SHIPS.X.le(this.ausschnitt[1]))
+					.and(SHIPS.Y.ge(this.ausschnitt[2]))
+					.and(SHIPS.Y.le(this.ausschnitt[3])));
+
+			try(rockSelect; var rocks = rockSelect.stream()) {
+				return rocks
+					.map(rock -> new Location(getSystem(), rock.value1(), rock.value2()))
+					.collect(toUnmodifiableSet());
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private Map<Location, Nebel> buildClippedNebulaMap()

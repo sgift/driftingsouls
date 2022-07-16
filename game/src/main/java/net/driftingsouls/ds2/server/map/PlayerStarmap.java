@@ -2,7 +2,6 @@ package net.driftingsouls.ds2.server.map;
 
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
@@ -222,8 +221,7 @@ public class PlayerStarmap extends PublicStarmap
 
 		if(!map.isNebula(location) || scannedNebulaLocations.contains(location))
 		{
-			List<Ship> positionBrocken = map.getBrockenMap().get(location);
-			if(positionBrocken != null && !positionBrocken.isEmpty())
+			if(map.getRockPositions().contains(location))
 			{
 				return new SectorImage("data/starmap/base/brocken.png", 0, 0);
 			}
@@ -426,8 +424,7 @@ public class PlayerStarmap extends PublicStarmap
 		}
 
 		List<JumpNode> nodes = map.getNodeMap().get(position);
-		List<Ship> brocken = map.getBrockenMap().get(position);
-		return nodes != null && !nodes.isEmpty() || this.getShipImage(position) != null || brocken != null && !brocken.isEmpty();
+		return nodes != null && !nodes.isEmpty() || this.getShipImage(position) != null || map.getRockPositions().contains(position);
 	}
 
 	@Override
@@ -438,8 +435,7 @@ public class PlayerStarmap extends PublicStarmap
 			return false;
 		}
 
-		List<Battle> battles = this.map.getBattleMap().get(sektor);
-		return battles != null && !battles.isEmpty();
+		return map.getBattlePositions().contains(sektor);
 	}
 
 	@Override

@@ -2,13 +2,11 @@ package net.driftingsouls.ds2.server.map;
 
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.DBUtil;
-import net.driftingsouls.ds2.server.ships.Ship;
 import org.jooq.impl.DSL;
 
 import java.sql.SQLException;
@@ -76,8 +74,7 @@ public class AdminStarmap extends PublicStarmap
 			return new SectorImage("data/starmap/jumpnode/jumpnode.png", 0, 0);
 		}
 
-		List<Ship> positionBrocken = map.getBrockenMap().get(location);
-		if(positionBrocken != null && !positionBrocken.isEmpty())
+		if(map.getRockPositions().contains(location))
 		{
 			return new SectorImage("data/starmap/base/brocken.png", 0, 0);
 		}
@@ -228,14 +225,12 @@ public class AdminStarmap extends PublicStarmap
 	public boolean isHasSectorContent(Location position)
 	{
 		List<Base> bases = map.getBaseMap().get(position);
-		List<Ship> brocken = map.getBrockenMap().get(position);
-		return bases != null && !bases.isEmpty() || this.getShipImage(position) != null || brocken != null && !brocken.isEmpty();
+		return bases != null && !bases.isEmpty() || this.getShipImage(position) != null || map.getRockPositions().contains(position);
 	}
 
 	@Override
 	public boolean isSchlachtImSektor(Location sektor)
 	{
-		List<Battle> battles = this.map.getBattleMap().get(sektor);
-		return battles != null && !battles.isEmpty();
+		return this.map.getBattlePositions().contains(sektor);
 	}
 }

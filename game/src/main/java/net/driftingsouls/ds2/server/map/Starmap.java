@@ -3,20 +3,26 @@ package net.driftingsouls.ds2.server.map;
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.framework.db.DBUtil;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import static java.util.stream.Collectors.toUnmodifiableSet;
+import static net.driftingsouls.ds2.server.entities.jooq.tables.Battles.BATTLES;
+import static net.driftingsouls.ds2.server.entities.jooq.tables.ShipTypes.SHIP_TYPES;
+import static net.driftingsouls.ds2.server.entities.jooq.tables.Ships.SHIPS;
 
 /**
  * Eine Systemkarte.
@@ -33,8 +39,8 @@ class Starmap
 	private Map<Location, Nebel> nebulaMap;
 	private Map<Location, List<JumpNode>> nodeMap;
 	private Map<Location, List<Base>> baseMap;
-	private Map<Location, List<Battle>> battleMap;
-	private Map<Location, List<Ship>> brockenMap;
+	private Set<Location> battlePositions;
+	private Set<Location> rockPositions;
 
 	Starmap(int system)
 	{
@@ -66,18 +72,28 @@ class Starmap
 	/**
 	 * @return Die Liste der Brocken im System sortiert nach Sektoren.
 	 */
-	Map<Location, List<Ship>> getBrockenMap()
+	Set<Location> getRockPositions()
 	{
-		if( this.brockenMap == null ) {
-			org.hibernate.Session db = ContextMap.getContext().getDB();
-			List<Ship> brocken = Common.cast(db
-					.createQuery("from Ship where system=:system and shiptype.shipClass=:shipClasses")
-					.setInteger("system", this.system)
-					.setParameter("shipClasses", ShipClasses.FELSBROCKEN)
-					.list());
-			this.brockenMap = buildLocatableMap(brocken);
+		if( this.rockPositions == null ) {
+			try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
+				var db = DBUtil.getDSLContext(conn);
+
+				var rockSelect = db.select(SHIPS.X, SHIPS.Y)
+					.from(SHIPS)
+					.join(SHIP_TYPES)
+					.on(SHIP_TYPES.CLASS.eq(ShipClasses.FELSBROCKEN.ordinal()).and(SHIP_TYPES.ID.eq(SHIPS.TYPE)))
+					.where(SHIPS.STAR_SYSTEM.eq(system));
+
+				try(rockSelect; var rocks = rockSelect.stream()) {
+					rockPositions = rocks
+						.map(rock -> new Location(system, rock.value1(), rock.value2()))
+						.collect(toUnmodifiableSet());
+				}
+			} catch (SQLException e) {
+				throw new RuntimeException(e);
+			}
 		}
-		return Collections.unmodifiableMap(this.brockenMap);
+		return rockPositions;
 	}
 
 	/**
@@ -98,20 +114,28 @@ class Starmap
 	}
 
 	/**
-	 * @return Die Liste der Schlachten im System, sortiert nach Sektoren.
+	 * @return Die Liste der Sektoren mit Schlachten.
 	 */
-	Map<Location, List<Battle>> getBattleMap()
+	Set<Location> getBattlePositions()
 	{
-		if( this.battleMap == null ) {
-			org.hibernate.Session db = ContextMap.getContext().getDB();
-			List<Battle> battles = Common.cast(db
-					.createQuery("from Battle where system=:system")
-					.setInteger("system", this.system)
-					.list());
+		if( this.battlePositions == null ) {
+			try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
+				var db = DBUtil.getDSLContext(conn);
+				var battleSelect = db
+					.select(BATTLES.X, BATTLES.Y)
+					.from(BATTLES)
+					.where(BATTLES.STAR_SYSTEM.eq(system));
 
-			this.battleMap = buildLocatableMap(battles);
+				try(battleSelect; var battles = battleSelect.stream()) {
+					this.battlePositions = battles
+						.map(battle -> new Location(system, battle.value1(), battle.value2()))
+						.collect(toUnmodifiableSet());
+				}
+			} catch (SQLException e) {
+				throw new RuntimeException(e);
+			}
 		}
-		return Collections.unmodifiableMap(this.battleMap);
+		return battlePositions;
 	}
 
 	/**
