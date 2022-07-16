@@ -80,7 +80,8 @@ public class PlayerStarmap extends PublicStarmap
 			var db = DBUtil.getDSLContext(conn);
 			try(var scanDataSelect = db
 				.selectFrom(FRIENDLY_SCAN_RANGES)
-				.where(FRIENDLY_SCAN_RANGES.TARGET_ID.eq(user.getId()))) {
+				.where(FRIENDLY_SCAN_RANGES.TARGET_ID.eq(user.getId())
+					.and(FRIENDLY_SCAN_RANGES.STAR_SYSTEM.eq(map.getSystem())))) {
 				var result = scanDataSelect.fetch();
 				for (var record : result) {
 					var scanData = new ScanData(this.map.getSystem(), record.getX(), record.getY(), record.getId(), record.getOwner(), record.getSensorRange().intValue());
