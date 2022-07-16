@@ -68,7 +68,7 @@ public class ClippedStarmap extends Starmap
 		this.ausschnitt = ausschnitt.clone();
 		this.clippedNebulaMap = this.buildClippedNebulaMap();
 		this.clippedBaseMap = this.buildClippedBaseMap();
-		this.clippedRockMap = this.buildClippedRockMap();
+		this.clippedRockMap = this.buildClippedRockLocations();
 	}
 
 	@Override
@@ -113,7 +113,7 @@ public class ClippedStarmap extends Starmap
 		return Collections.unmodifiableMap(this.clippedNebulaMap);
 	}
 
-	private Set<Location> buildClippedRockMap()
+	private Set<Location> buildClippedRockLocations()
 	{
 		try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
 			var db = DBUtil.getDSLContext(conn);
@@ -124,9 +124,9 @@ public class ClippedStarmap extends Starmap
 				.on(SHIP_TYPES.CLASS.eq(ShipClasses.FELSBROCKEN.ordinal()).and(SHIP_TYPES.ID.eq(SHIPS.TYPE)))
 				.where(SHIPS.STAR_SYSTEM.eq(getSystem())
 					.and(SHIPS.X.ge(this.ausschnitt[0]))
-					.and(SHIPS.X.le(this.ausschnitt[1]))
+					.and(SHIPS.X.le(this.ausschnitt[0]+this.ausschnitt[2]))
 					.and(SHIPS.Y.ge(this.ausschnitt[2]))
-					.and(SHIPS.Y.le(this.ausschnitt[3])));
+					.and(SHIPS.Y.le(this.ausschnitt[1]+this.ausschnitt[3])));
 
 			try(rockSelect; var rocks = rockSelect.stream()) {
 				return rocks
