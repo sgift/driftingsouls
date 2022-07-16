@@ -57,6 +57,9 @@ public class PlayerStarmap extends PublicStarmap
 		{
 			throw new IllegalArgumentException("User may not be null.");
 		}
+
+		buildFriendlyData();
+
 		this.relations = user.getRelations();
 
 		this.scannedLocationsToScannerId = new HashMap<>();

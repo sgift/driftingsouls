@@ -54,8 +54,6 @@ public class PublicStarmap
 		} else {
 			this.map = new Starmap(system.getID());
 		}
-
-		buildFriendlyData();
 	}
 
 	/**

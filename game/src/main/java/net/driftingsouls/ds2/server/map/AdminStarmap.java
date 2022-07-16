@@ -39,6 +39,7 @@ public class AdminStarmap extends PublicStarmap
 		super(system, ausschnitt);
 
 		this.adminUser = adminUser;
+		buildFriendlyData();
 	}
 
 	@Override
