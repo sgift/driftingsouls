@@ -256,9 +256,11 @@ public class PlayerStarmap extends PublicStarmap
 	{
 		String imageName = "";
 
-		if(isScanned(location))
+		boolean baseInSector = map.getBaseMap().getOrDefault(location, List.of()).stream()
+			.filter(base -> base.getOwner() != null)
+			.anyMatch(base -> base.getOwner().getId() == user.getId());
+		if(baseInSector || isScanned(location))
 		{
-			boolean scanningShipInSector;
 			int maxEnemyShipSize;
 			int maxNeutralShipSize;
 
@@ -268,10 +270,9 @@ public class PlayerStarmap extends PublicStarmap
 					.and(NON_FRIENDLY_SHIP_LOCATIONS.X.eq(location.getX()))
 					.and(NON_FRIENDLY_SHIP_LOCATIONS.Y.eq(location.getY()));
 
-				scanningShipInSector = scanMap.containsKey(location);
-
+				boolean scanningShipInSector = scanMap.containsKey(location);
 				Nebel nebula = this.map.getNebulaMap().get(location);
-				if(!scanningShipInSector && nebula != null && !nebula.allowsScan()) {
+				if(!baseInSector && !scanningShipInSector && nebula != null && !nebula.allowsScan()) {
 					maxNeutralShipSize = -1;
 					maxEnemyShipSize = -1;
 				} else {
