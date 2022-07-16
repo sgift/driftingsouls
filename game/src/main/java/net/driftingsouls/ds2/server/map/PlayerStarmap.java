@@ -250,11 +250,13 @@ public class PlayerStarmap extends PublicStarmap
 					if(ownShips == 0) {
 						enemyShipSelect = db.selectCount().from(USER_RELATIONS)
 							.innerJoin(SHIPS)
-							.on(SHIPS.TYPE.eq(SHIP_TYPES.ID)
-								.and(DSL.position(ShipTypeFlag.SEHR_KLEIN.getFlag(), SHIP_TYPES.FLAGS).eq(0)))
+								.on(SHIPS.OWNER.eq(USER_RELATIONS.USER_ID))
+							.innerJoin(SHIP_TYPES)
+								.on(SHIPS.TYPE.eq(SHIP_TYPES.ID)
+									.and(SHIP_TYPES.FLAGS.notContains(ShipTypeFlag.SEHR_KLEIN.getFlag())))
 							.leftJoin(SHIPS_MODULES)
-							.on(SHIPS.MODULES.eq(SHIPS_MODULES.ID)
-								.and(DSL.position(ShipTypeFlag.SEHR_KLEIN.getFlag(), SHIPS_MODULES.FLAGS).eq(0)))
+								.on(SHIPS.MODULES.eq(SHIPS_MODULES.ID)
+									.and(SHIPS_MODULES.FLAGS.notContains(ShipTypeFlag.SEHR_KLEIN.getFlag())))
 							.where(locationCondition.and(USER_RELATIONS.STATUS.eq(Relation.ENEMY.ordinal())));
 					}
 
@@ -326,11 +328,11 @@ public class PlayerStarmap extends PublicStarmap
 					int nebulaScanRange;
 					try(var nebulaScanSelect = db.select(DSL.max(DSL.if_(DSL.coalesce(SHIPS_MODULES.SENSORRANGE, 0).greaterThan(SHIP_TYPES.SENSORRANGE), SHIPS_MODULES.SENSORRANGE, SHIP_TYPES.SENSORRANGE))).from(SHIPS)
 						.innerJoin(SHIP_TYPES)
-						.on(SHIPS.TYPE.eq(SHIP_TYPES.ID)
-							.and(DSL.position(ShipTypeFlag.NEBELSCAN.getFlag(), SHIP_TYPES.FLAGS).greaterThan(0)))
+							.on(SHIPS.TYPE.eq(SHIP_TYPES.ID)
+								.and(DSL.position(ShipTypeFlag.NEBELSCAN.getFlag(), SHIP_TYPES.FLAGS).greaterThan(0)))
 						.leftJoin(SHIPS_MODULES)
-						.on(SHIPS.MODULES.eq(SHIPS_MODULES.ID)
-							.and(DSL.position(ShipTypeFlag.NEBELSCAN.getFlag(), SHIPS_MODULES.FLAGS).greaterThan(0)))) {
+							.on(SHIPS.MODULES.eq(SHIPS_MODULES.ID)
+								.and(SHIPS_MODULES.FLAGS.contains(ShipTypeFlag.NEBELSCAN.getFlag())))) {
 						nebulaScanRange = Objects.requireNonNullElse(nebulaScanSelect.fetchOne(0, int.class), 0);
 					}
 
