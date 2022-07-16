@@ -23,7 +23,6 @@ import java.util.Set;
 
 import static net.driftingsouls.ds2.server.entities.jooq.tables.FriendlyScanRanges.FRIENDLY_SCAN_RANGES;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.NonFriendlyShipLocations.NON_FRIENDLY_SHIP_LOCATIONS;
-import static net.driftingsouls.ds2.server.entities.jooq.tables.Ships.SHIPS;
 
 /**
  * Eine Sicht auf eine bestimmte Sternenkarte.
@@ -264,9 +263,9 @@ public class PlayerStarmap extends PublicStarmap
 
 			try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
 				var db = DBUtil.getDSLContext(conn);
-				var locationCondition = SHIPS.STAR_SYSTEM.eq(location.getSystem())
-					.and(SHIPS.X.eq(location.getX()))
-					.and(SHIPS.Y.eq(location.getY()));
+				var locationCondition = NON_FRIENDLY_SHIP_LOCATIONS.STAR_SYSTEM.eq(location.getSystem())
+					.and(NON_FRIENDLY_SHIP_LOCATIONS.X.eq(location.getX()))
+					.and(NON_FRIENDLY_SHIP_LOCATIONS.Y.eq(location.getY()));
 
 				scanningShipInSector = scanMap.containsKey(location);
 
