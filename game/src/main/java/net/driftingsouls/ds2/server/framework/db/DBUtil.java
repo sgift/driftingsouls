@@ -23,7 +23,7 @@ public class DBUtil {
         return ds.getConnection();
     }
 
-    public static DSLContext getDSLContext(Connection conn) {
+    public static DSLContext getDSLContext(Connection conn) throws SQLException {
         return DSL.using(conn, SQLDialect.MYSQL).dsl();
     }
 }
