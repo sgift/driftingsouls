@@ -22,44 +22,19 @@ import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.ItemID;
-import net.driftingsouls.ds2.server.cargo.ResourceEntry;
-import net.driftingsouls.ds2.server.cargo.ResourceList;
-import net.driftingsouls.ds2.server.cargo.Resources;
+import net.driftingsouls.ds2.server.cargo.*;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.entities.GtuWarenKurse;
-import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
-import net.driftingsouls.ds2.server.entities.JumpNode;
-import net.driftingsouls.ds2.server.entities.Loyalitaetspunkte;
-import net.driftingsouls.ds2.server.entities.ResourceLimit;
-import net.driftingsouls.ds2.server.entities.SellLimit;
-import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
-import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.FactionShopEntry;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.FactionShopOrder;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionAktionsMeldung;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsAngebot;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintrag;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.Versteigerung;
+import net.driftingsouls.ds2.server.entities.*;
+import net.driftingsouls.ds2.server.entities.fraktionsgui.*;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeInfo;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeJob;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeType;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.ConfigValue;
-import net.driftingsouls.ds2.server.framework.ContextInstance;
+import net.driftingsouls.ds2.server.framework.*;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.RedirectViewResult;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.services.FraktionsGuiEintragService;
@@ -74,22 +49,12 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -100,8 +65,6 @@ import java.util.stream.Collectors;
 @Module(name = "ersteigern")
 public class ErsteigernController extends Controller
 {
-	private static final Logger log = LoggerFactory.getLogger(ErsteigernController.class);
-
 	private final TemplateViewResultFactory templateViewResultFactory;
 	private final ConfigService configService;
 	private final FraktionsGuiEintragService fraktionsGuiEintragService;
@@ -663,17 +626,15 @@ public class ErsteigernController extends Controller
 
 		outputAstiKurse(t, db);
 
-		long start = System.nanoTime();
-		List<Ship> postenList = Common.cast(db
-			.createQuery("select s from Ship s left join FETCH s.modules sm LEFT JOIN FETCH s.shiptype st " +
-				"where s.id>0 and locate('tradepost',s.status)!=0 or " +
-				"st.flags like '%tradepost%' or " +
-				"sm.flags like '%tradepost%' " +
-				"order by s.system,s.x+s.y")
-			.list());
-		long duration = System.nanoTime() - start;
-		log.info("Time to request trade posts: {} ms", TimeUnit.NANOSECONDS.toMillis(duration));
 
+
+		List<Ship> postenList = Common.cast(db
+				.createQuery("select s from Ship s left join s.modules sm left join s.shiptype st " +
+						"where s.id>0 and locate('tradepost',s.status)!=0 or " +
+						"st.flags like '%tradepost%' or " +
+						"sm.flags like '%tradepost%' " +
+						"order by s.system,s.x+s.y")
+				.list());
 
 		for (Ship tradepost : postenList)
 		{
@@ -719,7 +680,7 @@ public class ErsteigernController extends Controller
 		ResourceList reslist = kurseCargo.getResourceList();
 		for (ResourceEntry res : reslist)
 		{
-			ResourceLimit limit = ResourceLimit.fuerSchiffUndItem(tradepost, res.getId());
+			ResourceLimit limit = fuerSchiffUndItem(tradepost, res.getId(), db);
 
 			// Kaufen wir diese Ware vom Spieler?
 			if (limit == null || !limit.willBuy(tradepost.getOwner(), user))
@@ -763,6 +724,33 @@ public class ErsteigernController extends Controller
 			t.parse("kurse.verkaufswaren.list", "kurse.verkaufswaren.listitem", true);
 		}
 		t.parse("kurse.list", "kurse.listitem", true);
+	}
+
+	Map<Ship, Map<Integer, ResourceLimit>> tradepostRessourceLimits = new HashMap<Ship, Map<Integer, ResourceLimit>>();
+	private ResourceLimit fuerSchiffUndItem(Ship ship, ResourceID resource, org.hibernate.Session db)
+	{
+		if (!tradepostRessourceLimits.containsKey(ship))
+		{
+			//org.hibernate.Session db = ContextMap.getContext().getDB();
+			List<ResourceLimit> resLimits =  Common.cast(db.createQuery("from ResourceLimit where ship=:ship")
+					.setEntity("ship", ship)
+					.list());
+
+			var limits = new HashMap<Integer, ResourceLimit>();
+
+			for (ResourceLimit res: resLimits)
+			{
+				limits.put(res.getResourceId().getItemID(), res);
+			}
+
+			tradepostRessourceLimits.put(ship, limits);
+			return limits.get(resource.getItemID());
+		}
+		else
+		{
+			var limits = tradepostRessourceLimits.get(ship);
+			return limits.get(resource.getItemID());
+		}
 	}
 
 	private void outputAstiKurse(TemplateEngine t, org.hibernate.Session db)
