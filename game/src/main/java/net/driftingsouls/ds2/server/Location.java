@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server;
 
 import net.driftingsouls.ds2.server.entities.Nebel;
+import net.driftingsouls.ds2.server.map.PlayerStarmap;
 import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.Embeddable;
@@ -229,6 +230,10 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 	{
 		Nebel.Typ nebulaType = Nebel.getNebula(this);
 
+		return displayCoordinates(noSystem, nebulaType);
+	}
+	public String displayCoordinates(boolean noSystem, Nebel.Typ nebulaType)
+	{
 		StringBuilder text = new StringBuilder(8);
 		if( !noSystem ) {
 			text.append(system);
@@ -252,6 +257,17 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 		text.append(y);
 
 		return text.toString();
+	}
+	public String displayCoordinates(boolean noSystem, PlayerStarmap starmap)
+	{
+		Nebel nebula = starmap.getNebula(this);
+
+		if(nebula == null)
+		{
+			return displayCoordinates(noSystem, (Nebel.Typ) null);
+		}
+
+		return displayCoordinates(noSystem, nebula.getType());
 	}
 
 	/**
