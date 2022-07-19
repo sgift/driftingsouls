@@ -127,7 +127,7 @@ final class DBTestUtils
 	public static void ladeHibernateKonfiguration()
 	{
 		LOG.info("Initialisiere Hibernate");
-		HibernateUtil.initConfiguration("src/test/cfg/hibernate.xml", "jdbc:derby:memory:tests", "", "");
+		HibernateUtil.initConfiguration("src/main/webapp/WEB-INF/cfg/hibernate.xml", "jdbc:mysql://localhost/ds?serverTimezone=UTC&enabledTLSProtocols=TLSv1.2", "root", "build");
 		schema = new SchemaExport(HibernateUtil.getConfiguration());
 	}
 

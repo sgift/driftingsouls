@@ -12,6 +12,11 @@
     <artifactId>driftingsouls-game</artifactId>
     <packaging>war</packaging>
 
+    <properties>
+        <db.username>root</db.username>
+        <db.password>build</db.password>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>net.driftingsouls</groupId>
@@ -274,33 +279,79 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.codehaus.gmaven</groupId>
+                <artifactId>groovy-maven-plugin</artifactId>
+                <version>2.1.1</version>
+                <executions>
+                    <execution>
+                        <!-- Start the container in any phase before the actual code
+                             generation is required, i.e. at the latest in
+                             generate-sources -->
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <source>
+                                import org.testcontainers.containers.MySQLContainer
+
+                                db = new MySQLContainer(
+                                        "mysql:latest")
+                                        .withUsername("${db.username}")
+                                        .withDatabaseName("ds")
+                                        .withPassword("${db.password}")
+
+                                // After you've started the container, collect its generated
+                                // JDBC URL (which contains a random port)
+                                db.start()
+                                project.properties.setProperty('db.url', db.getJdbcUrl())
+                                project.properties.setProperty('testcontainer.containerid', db.getContainerId())
+                                project.properties.setProperty('testcontainer.imageName', db.getDockerImageName())
+                            </source>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-maven-plugin</artifactId>
                 <configuration>
                     <skip>false</skip>
                 </configuration>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>migrate</goal>
+                        </goals>
+                        <configuration>
+                            <!--suppress MavenModelInspection -->
+                            <url>${db.url}</url>
+                            <user>${db.username}</user>
+                            <password>${db.password}</password>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jooq</groupId>
+                <artifactId>jooq-codegen-maven</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <jdbc>
+                        <!--suppress MavenModelInspection -->
+                        <url>${db.url}</url>
+                        <user>${db.username}</user>
+                        <password>${db.password}</password>
+                    </jdbc>
+                </configuration>
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>jooq</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.jooq</groupId>
-                        <artifactId>jooq-codegen-maven</artifactId>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>generate</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>

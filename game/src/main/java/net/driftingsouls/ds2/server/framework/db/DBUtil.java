@@ -6,6 +6,7 @@ import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.service.jdbc.connections.spi.ConnectionProvider;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
+import org.jooq.conf.Settings;
 import org.jooq.impl.DSL;
 
 import javax.persistence.EntityManager;
@@ -24,6 +25,9 @@ public class DBUtil {
     }
 
     public static DSLContext getDSLContext(Connection conn) throws SQLException {
-        return DSL.using(conn, SQLDialect.MYSQL).dsl();
+        //Write sql without schema, e.g. SELECT * FROM ships, not SELECT * FROM ds.ships
+        var settings = new Settings()
+            .withRenderSchema(false);
+        return DSL.using(conn, SQLDialect.MYSQL, settings).dsl();
     }
 }

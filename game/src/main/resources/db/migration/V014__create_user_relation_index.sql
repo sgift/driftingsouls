@@ -1,0 +1,1 @@
+CREATE INDEX relation_status ON user_relations (status);
