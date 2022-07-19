@@ -1,4 +1,0 @@
-flyway.user=
-flyway.password=
-flyway.schemas=ds
-flyway.url=jdbc:mysql://localhost:3306?useSsl=true&serverTimezone=UTC&enabledTLSProtocols=TLSv1.2

@@ -237,6 +237,12 @@
                 <version>3.5.10</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>mysql</artifactId>
+                <version>1.17.3</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -276,11 +282,29 @@
                     <version>1.7.6</version>
                 </plugin>
                 <plugin>
+                    <groupId>org.codehaus.gmaven</groupId>
+                    <artifactId>groovy-maven-plugin</artifactId>
+                    <version>2.1.1</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.testcontainers</groupId>
+                            <artifactId>mysql</artifactId>
+                            <version>1.17.3</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>mysql</groupId>
+                            <artifactId>mysql-connector-java</artifactId>
+                            <version>${mysql.version}</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+                <plugin>
                     <groupId>org.flywaydb</groupId>
                     <artifactId>flyway-maven-plugin</artifactId>
                     <version>9.0.0</version>
                     <configuration>
                         <skip>true</skip>
+                        <schemas>ds</schemas>
                     </configuration>
                     <dependencies>
                         <dependency>
@@ -299,7 +323,6 @@
                     <groupId>org.jooq</groupId>
                     <artifactId>jooq-codegen-maven</artifactId>
                     <version>${jooq.version}</version>
-
                     <dependencies>
                         <dependency>
                             <groupId>mysql</groupId>
@@ -307,23 +330,13 @@
                             <version>${mysql.version}</version>
                         </dependency>
                     </dependencies>
-
                     <configuration>
-
-                        <jdbc>
-                            <url>jdbc:mysql://localhost:3306?useSsl=true&amp;serverTimezone=UTC&amp;enabledTLSProtocols=TLSv1.2</url>
-                            <!--suppress MavenModelInspection -->
-                            <user>${mysql_user}</user>
-                            <!--suppress MavenModelInspection -->
-                            <password>${mysql_password}</password>
-                        </jdbc>
-
                         <generator>
                             <database>
                                 <name>org.jooq.meta.mysql.MySQLDatabase</name>
                                 <includes>.*</includes>
-                                <excludes></excludes>
-                                <inputSchema>sds</inputSchema>
+                                <excludes/>
+                                <inputSchema>ds</inputSchema>
                             </database>
                             <target>
                                 <packageName>net.driftingsouls.ds2.server.entities.jooq</packageName>
