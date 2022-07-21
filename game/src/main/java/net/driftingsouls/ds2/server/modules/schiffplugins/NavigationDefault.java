@@ -192,7 +192,7 @@ public class NavigationDefault implements SchiffPlugin {
 							t.setVar("schiff.navigation.nav.sectorimage", "");
 						}
 						t.setVar("schiff.navigation.nav.direction", tmp,
-								"schiff.navigation.nav.location", sector.displayCoordinates(true),
+								"schiff.navigation.nav.location", sector.displayCoordinates(true, map),
 								"schiff.navigation.nav.tile", "./ds?module=map&action=tile&sys=" + sys + "&tileX=" + (sector.getX() - 1) / 20 + "&tileY=" + (sector.getY() - 1) / 20,
 								"schiff.navigation.nav.tile.x", ((sector.getX() - 1) % 20) * 25,
 								"schiff.navigation.nav.tile.y", ((sector.getY() - 1) % 20) * 25,
