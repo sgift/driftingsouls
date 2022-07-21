@@ -23,12 +23,17 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
+import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.db.DBUtil;
 import net.driftingsouls.ds2.server.ships.Ship;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+
+import static net.driftingsouls.ds2.server.entities.jooq.tables.FriendlyScanRanges.FRIENDLY_SCAN_RANGES;
 
 /**
  * Die allgemeine Sicht auf eine Sternenkarte ohne nutzerspezifische Anzeigen.
@@ -42,6 +47,8 @@ public class PublicStarmap
 	protected HashMap<Location, ScanData> scanMap;
 	protected HashSet<Location> ownShipSectors;
 	protected HashSet<Location> allyShipSectors;
+	protected HashMap<Location, NonFriendScanData> enemyShipMap;
+	protected HashMap<Location, NonFriendScanData> neutralShipMap;
 
 	/**
 	 * Konstruktor.
@@ -216,5 +223,10 @@ public class PublicStarmap
 	public int getScanningShip(Location location)
 	{
 		return -1;
+	}
+
+	protected void buildFriendlyData()
+	{
+
 	}
 }

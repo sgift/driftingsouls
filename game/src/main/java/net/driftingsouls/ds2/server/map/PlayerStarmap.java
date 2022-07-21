@@ -8,6 +8,8 @@ import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.User.Relation;
 import net.driftingsouls.ds2.server.entities.User.Relations;
+import net.driftingsouls.ds2.server.entities.jooq.Routines;
+import net.driftingsouls.ds2.server.entities.jooq.routines.GetEnemyShipsInSystem;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.DBUtil;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -65,13 +67,14 @@ public class PlayerStarmap extends PublicStarmap
 		this.scannedNebulaLocations = new HashSet<>();
 		this.sektorenMitBefreundetenSchiffen = new HashSet<>();
 		buildScannedLocations();
+		buildNonFriendSectors();
 
 		this.bekannteOrte = findeBekannteOrte(user);
 		this.sektorenMitRotemAlarm = findeSektorenMitRotemAlarm(user);
 	}
 
 
-	//@Override
+	@Override
 	protected void buildFriendlyData()
 	{
 		var scanMap = new HashMap<Location, ScanData>();
@@ -259,13 +262,14 @@ public class PlayerStarmap extends PublicStarmap
 		boolean baseInSector = map.getBaseMap().getOrDefault(location, List.of()).stream()
 			.filter(base -> base.getOwner() != null)
 			.anyMatch(base -> base.getOwner().getId() == user.getId());
+
+		int maxEnemyShipSize = -1;
+		int maxNeutralShipSize = -1;
+
 		if(baseInSector || isScanned(location))
 		{
-			int maxEnemyShipSize;
-			int maxNeutralShipSize;
 
-			try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
-				var db = DBUtil.getDSLContext(conn);
+
 				var locationCondition = NON_FRIENDLY_SHIP_LOCATIONS.STAR_SYSTEM.eq(location.getSystem())
 					.and(NON_FRIENDLY_SHIP_LOCATIONS.X.eq(location.getX()))
 					.and(NON_FRIENDLY_SHIP_LOCATIONS.Y.eq(location.getY()));
@@ -276,28 +280,21 @@ public class PlayerStarmap extends PublicStarmap
 					maxNeutralShipSize = -1;
 					maxEnemyShipSize = -1;
 				} else {
-					var neutralShipSelect = db.select(NON_FRIENDLY_SHIP_LOCATIONS.MAX_SIZE)
-						.from(NON_FRIENDLY_SHIP_LOCATIONS)
-						.where(locationCondition.and(NON_FRIENDLY_SHIP_LOCATIONS.STATUS.eq(Relation.ENEMY.ordinal())).and(NON_FRIENDLY_SHIP_LOCATIONS.TARGET_ID.eq(user.getId())));
+					var neutralShipSelect = neutralShipMap.containsKey(location);
 
-					var enemyShipSelect = db.select(NON_FRIENDLY_SHIP_LOCATIONS.MAX_SIZE)
-						.from(NON_FRIENDLY_SHIP_LOCATIONS)
-						.where(locationCondition.and(NON_FRIENDLY_SHIP_LOCATIONS.STATUS.eq(Relation.ENEMY.ordinal())).and(NON_FRIENDLY_SHIP_LOCATIONS.TARGET_ID.eq(user.getId())));
+					var enemyShipSelect = enemyShipMap.containsKey(location);
 
 					//TODO: Honor ShipTypeFlag.SEHR_KLEIN again
 
-					try(neutralShipSelect) {
-						var possibleSize = neutralShipSelect.limit(1).fetchAny(NON_FRIENDLY_SHIP_LOCATIONS.MAX_SIZE);
-						maxNeutralShipSize = Objects.requireNonNullElse(possibleSize, -1);
+					if(neutralShipSelect)
+					{
+						maxNeutralShipSize = neutralShipMap.get(location).getSize();
 					}
-
-					try(enemyShipSelect) {
-						var possibleSize = enemyShipSelect.fetchAny(NON_FRIENDLY_SHIP_LOCATIONS.MAX_SIZE);
-						maxEnemyShipSize = Objects.requireNonNullElse(possibleSize, -1);
+					if(enemyShipSelect)
+					{
+						maxEnemyShipSize = enemyShipMap.get(location).getSize();
 					}
 				}
-			} catch (SQLException ex) {
-				throw new RuntimeException(ex);
 			}
 
 			if(ownShipSectors.contains(location))
@@ -326,7 +323,7 @@ public class PlayerStarmap extends PublicStarmap
 				// enemy ships are more important, and we don't want to clutter the UI
 				imageName += "_fn";
 			}
-		}
+
 
 		if( imageName.isEmpty() )
 		{
@@ -403,6 +400,40 @@ public class PlayerStarmap extends PublicStarmap
 
 					 */
 				}
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private void buildNonFriendSectors()
+	{
+		enemyShipMap = new HashMap<>();
+		neutralShipMap = new HashMap<>();
+
+		var routine = new GetEnemyShipsInSystem();
+		routine.setUserid(user.getId());
+		routine.setStarSystem(map.getSystem());
+
+		try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
+			var db = DBUtil.getDSLContext(conn);
+			routine.execute(db.configuration());
+			try{
+				var result = routine.getResults();
+
+			//var result = scanDataSelect.fetch();
+			for (var record : result) {
+				
+				var row = record.intoArray(8);
+				var scanData = new NonFriendScanData(this.map.getSystem(), row[1], row[2], , record.getStatus() == 1);
+				if (scanData.getIsEnemy())
+				{
+					enemyShipMap.put(scanData.getLocation(), scanData);
+				}
+				else {
+					neutralShipMap.put(scanData.getLocation(), scanData);
+				}
+			}
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
