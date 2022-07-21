@@ -48,8 +48,8 @@ public class AdminStarmap extends PublicStarmap
 	@Override
 	public int getScanningShip(Location location)
 	{
-		if(getScanMap().containsKey(location)) {
-			return getScanMap().get(location).getShipId();
+		if(scanMap.containsKey(location)) {
+			return scanMap.get(location).getShipId();
 		}
 
 		return -1;
@@ -94,7 +94,7 @@ public class AdminStarmap extends PublicStarmap
 		return new SectorImage("data/starmap/fleet/fleet"+shipImage+".png", 0, 0);
 	}
 
-	@Override
+	//@Override
 	protected void buildFriendlyData()
 	{
 		var scanMap = new HashMap<Location, ScanData>();
