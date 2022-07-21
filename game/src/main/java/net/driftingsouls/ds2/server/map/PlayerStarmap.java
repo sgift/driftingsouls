@@ -39,6 +39,7 @@ public class PlayerStarmap extends PublicStarmap
 	private final User user;
 	private final Relations relations;
 
+
 	/**
 	 * Legt eine neue Sicht an.
 	 *
@@ -69,7 +70,8 @@ public class PlayerStarmap extends PublicStarmap
 		this.sektorenMitRotemAlarm = findeSektorenMitRotemAlarm(user);
 	}
 
-	@Override
+
+	//@Override
 	protected void buildFriendlyData()
 	{
 		var scanMap = new HashMap<Location, ScanData>();

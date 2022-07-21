@@ -26,6 +26,8 @@ import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.ships.Ship;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -37,6 +39,9 @@ public class PublicStarmap
 {
 
 	protected Starmap map;
+	protected HashMap<Location, ScanData> scanMap;
+	protected HashSet<Location> ownShipSectors;
+	protected HashSet<Location> allyShipSectors;
 
 	/**
 	 * Konstruktor.
@@ -201,5 +206,15 @@ public class PublicStarmap
 		{
 			return null;
 		}
+	}
+
+	public boolean isScanned(Location location)
+	{
+		return false;
+	}
+
+	public int getScanningShip(Location location)
+	{
+		return -1;
 	}
 }
