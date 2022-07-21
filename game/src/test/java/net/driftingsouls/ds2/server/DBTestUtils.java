@@ -8,16 +8,14 @@ import net.driftingsouls.ds2.server.framework.TestRequest;
 import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import javax.persistence.EntityManager;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.SQLNonTransientConnectionException;
+import java.io.IOException;
+import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 /**
  * Hilfsmethoden fuer DB-Tests.
@@ -25,7 +23,6 @@ import static org.junit.Assert.*;
 final class DBTestUtils
 {
 	private static final Logger LOG = LogManager.getLogger(DBTest.class);
-	private static SchemaExport schema;
 
 	private DBTestUtils() {
 		// EMPTY
@@ -50,35 +47,6 @@ final class DBTestUtils
 		{
 			LOG.fatal("", ex);
 			fail("Konnte Hibernate-Instanz nicht starten");
-		}
-	}
-
-	public static void erzeugeDbSchema()
-	{
-		try
-		{
-			LOG.info("Erzeuge DB-Schema");
-			schema.execute(false, true, false, true);
-		}
-		catch (Exception ex)
-		{
-			LOG.fatal("", ex);
-			fail("Konnte DB-Schema nicht erzeugen");
-		}
-	}
-
-	public static void startDerby()
-	{
-		try
-		{
-			LOG.info("Starte Derby");
-			Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
-			DriverManager.getConnection("jdbc:derby:memory:tests;create=true").close();
-		}
-		catch (Exception ex)
-		{
-			LOG.fatal("", ex);
-			fail("Konnte Derby nicht starten.");
 		}
 	}
 
@@ -108,27 +76,16 @@ final class DBTestUtils
 		em.close();
 	}
 
-	public static void stopDerby() throws SQLException
-	{
-		LOG.info("Beende Derby");
-		try
-		{
-			DriverManager.getConnection("jdbc:derby:memory:tests;drop=true").close();
+	public static void ladeHibernateKonfiguration() throws IOException {
+		var p = new Properties();
+		try(var is = DBTestUtils.class.getResourceAsStream("/build.properties")) {
+			p.load(is);
 		}
-		catch (SQLNonTransientConnectionException ex)
-		{
-			if (ex.getErrorCode() != 45000)
-			{
-				throw ex;
-			}
-		}
-	}
-
-	public static void ladeHibernateKonfiguration()
-	{
+		var dbUrl = p.getProperty("db.url");
+		var dbUser = p.getProperty("db.username");
+		var dbPassword = p.getProperty("db.password");
 		LOG.info("Initialisiere Hibernate");
-		HibernateUtil.initConfiguration("src/main/webapp/WEB-INF/cfg/hibernate.xml", "jdbc:mysql://localhost/ds?serverTimezone=UTC&enabledTLSProtocols=TLSv1.2", "root", "build");
-		schema = new SchemaExport(HibernateUtil.getConfiguration());
+		HibernateUtil.initConfiguration("src/main/webapp/WEB-INF/cfg/hibernate.xml", dbUrl, dbUser, dbPassword);
 	}
 
 	/**
