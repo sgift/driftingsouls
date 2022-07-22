@@ -13,6 +13,7 @@
     <packaging>war</packaging>
 
     <properties>
+        <db_url/>
         <db_username>root</db_username>
         <db_password>build</db_password>
     </properties>
@@ -310,8 +311,6 @@
                                 // JDBC URL (which contains a random port)
                                 db.start()
                                 project.properties.setProperty('db_url', db.getJdbcUrl())
-                                project.properties.setProperty('testcontainer.containerid', db.getContainerId())
-                                project.properties.setProperty('testcontainer.imageName', db.getDockerImageName())
                             </source>
                         </configuration>
                     </execution>

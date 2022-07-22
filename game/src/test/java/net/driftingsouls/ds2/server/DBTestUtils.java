@@ -81,9 +81,9 @@ final class DBTestUtils
 		try(var is = DBTestUtils.class.getResourceAsStream("/build.properties")) {
 			p.load(is);
 		}
-		var dbUrl = p.getProperty("db.url");
-		var dbUser = p.getProperty("db.username");
-		var dbPassword = p.getProperty("db.password");
+		var dbUrl = p.getProperty("db_url");
+		var dbUser = p.getProperty("db_username");
+		var dbPassword = p.getProperty("db_password");
 		LOG.info("Initialisiere Hibernate");
 		HibernateUtil.initConfiguration("src/main/webapp/WEB-INF/cfg/hibernate.xml", dbUrl, dbUser, dbPassword);
 	}
