@@ -8,7 +8,6 @@ import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.User.Relation;
 import net.driftingsouls.ds2.server.entities.User.Relations;
-import net.driftingsouls.ds2.server.entities.jooq.Routines;
 import net.driftingsouls.ds2.server.entities.jooq.routines.GetEnemyShipsInSystem;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.DBUtil;
@@ -19,11 +18,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import static net.driftingsouls.ds2.server.entities.jooq.tables.FriendlyScanRanges.FRIENDLY_SCAN_RANGES;
-import static net.driftingsouls.ds2.server.entities.jooq.tables.NonFriendlyShipLocations.NON_FRIENDLY_SHIP_LOCATIONS;
 
 /**
  * Eine Sicht auf eine bestimmte Sternenkarte.
@@ -429,10 +426,6 @@ public class PlayerStarmap extends PublicStarmap
 						else {
 							newNeutralShipMap.put(scanData.getLocation(), scanData);
 						}
-						System.out.println(scanData.getIsEnemy());
-						System.out.println(scanData.getLocation().getX());
-						System.out.println(scanData.getLocation().getY());
-						System.out.println(scanData.getLocation().getSystem());
 					}
 				}
 			}
