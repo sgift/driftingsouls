@@ -45,6 +45,7 @@ public class PublicStarmap
 
 	protected Starmap map;
 	protected HashMap<Location, ScanData> scanMap;
+	protected HashMap<Location, ScanData> nebelScanMap;
 	protected HashSet<Location> ownShipSectors;
 	protected HashSet<Location> allyShipSectors;
 	protected HashMap<Location, NonFriendScanData> enemyShipMap;
