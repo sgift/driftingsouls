@@ -268,12 +268,6 @@ public class PlayerStarmap extends PublicStarmap
 
 		if(baseInSector || isScanned(location))
 		{
-
-
-				var locationCondition = NON_FRIENDLY_SHIP_LOCATIONS.STAR_SYSTEM.eq(location.getSystem())
-					.and(NON_FRIENDLY_SHIP_LOCATIONS.X.eq(location.getX()))
-					.and(NON_FRIENDLY_SHIP_LOCATIONS.Y.eq(location.getY()));
-
 				boolean scanningShipInSector = scanMap.containsKey(location);
 				Nebel nebula = this.map.getNebulaMap().get(location);
 				if(!baseInSector && !scanningShipInSector && nebula != null && !nebula.allowsScan()) {
@@ -281,7 +275,6 @@ public class PlayerStarmap extends PublicStarmap
 					maxEnemyShipSize = -1;
 				} else {
 					var neutralShipSelect = neutralShipMap.containsKey(location);
-
 					var enemyShipSelect = enemyShipMap.containsKey(location);
 
 					//TODO: Honor ShipTypeFlag.SEHR_KLEIN again
@@ -408,36 +401,53 @@ public class PlayerStarmap extends PublicStarmap
 
 	private void buildNonFriendSectors()
 	{
-		enemyShipMap = new HashMap<>();
-		neutralShipMap = new HashMap<>();
+		var newEnemyShipMap = new HashMap<Location, NonFriendScanData>();
+		var newNeutralShipMap = new HashMap<Location, NonFriendScanData>();
 
 		var routine = new GetEnemyShipsInSystem();
 		routine.setUserid(user.getId());
-		routine.setStarSystem(map.getSystem());
+		routine.setInStarSystem(map.getSystem());
 
 		try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
 			var db = DBUtil.getDSLContext(conn);
 			routine.execute(db.configuration());
 			try{
 				var result = routine.getResults();
-
-			//var result = scanDataSelect.fetch();
-			for (var record : result) {
-				
-				var row = record.intoArray(8);
-				var scanData = new NonFriendScanData(this.map.getSystem(), row[1], row[2], , record.getStatus() == 1);
-				if (scanData.getIsEnemy())
+				for(var row : result)
 				{
-					enemyShipMap.put(scanData.getLocation(), scanData);
-				}
-				else {
-					neutralShipMap.put(scanData.getLocation(), scanData);
+					for (int i=0;i<row.size();i++) {
+						var scanData = new NonFriendScanData(this.map.getSystem(),
+								(int)row.getValue(i, "x"),
+								(int)row.getValue(i, "y"),
+								(int)(row.getValue(i, "nebeltype")!=null ? row.getValue(i, "nebeltype") : 0),
+								(int) (long)row.getValue(i, "max_size"),
+								(int)(row.getValue(i, "status") != null ? row.getValue(i, "status") : 0) ==1);
+						if (scanData.getIsEnemy())
+						{
+							newEnemyShipMap.put(scanData.getLocation(), scanData);
+						}
+						else {
+							newNeutralShipMap.put(scanData.getLocation(), scanData);
+						}
+						System.out.println(scanData.getIsEnemy());
+						System.out.println(scanData.getLocation().getX());
+						System.out.println(scanData.getLocation().getY());
+						System.out.println(scanData.getLocation().getSystem());
+					}
 				}
 			}
+			catch (Exception e)
+			{
+				throw new RuntimeException(e);
 			}
-		} catch (SQLException e) {
+		}
+		catch(SQLException e)
+		{
 			throw new RuntimeException(e);
 		}
+
+		neutralShipMap = newNeutralShipMap;
+		enemyShipMap = newEnemyShipMap;
 	}
 
 	/**
