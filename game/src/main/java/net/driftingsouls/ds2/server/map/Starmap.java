@@ -129,6 +129,9 @@ class Starmap
 	}
 
 	Set<JumpNode> getNodes() {
+		if(nodes == null) {
+			loadNodes();
+		}
 		return nodes;
 	}
 
