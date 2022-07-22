@@ -3,7 +3,6 @@ package net.driftingsouls.ds2.server.map;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.config.StarSystem;
-import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.User.Relation;
@@ -68,7 +67,7 @@ public class PlayerStarmap extends PublicStarmap
 		buildScannedLocations();
 		buildNonFriendSectors();
 
-		this.bekannteOrte = findeBekannteOrte(user);
+		this.bekannteOrte = findWellKnownLocations();
 		this.sectorsWithAttackingShips = findVisibleSectorsWithAlerts();
 	}
 
@@ -181,16 +180,16 @@ public class PlayerStarmap extends PublicStarmap
 		return attackingSectors;
 	}
 
-	private Set<Location> findeBekannteOrte(User user)
+	private Set<Location> findWellKnownLocations()
 	{
-		Set<Location> result = new HashSet<>();
-		for (JumpNode jumpNode : this.map.getJumpNodes())
+		Set<Location> wellKnownLocations = new HashSet<>();
+		for (Starmap.JumpNode jumpNode : this.map.getNodes())
 		{
 			if( jumpNode.isHidden() )
 			{
 				continue;
 			}
-			result.add(jumpNode.getLocation());
+			wellKnownLocations.add(new Location(map.getSystem(), jumpNode.getX(), jumpNode.getY()));
 		}
 
 		for (Map.Entry<Location, List<Base>> loc : this.map.getBaseMap().entrySet())
@@ -200,24 +199,24 @@ public class PlayerStarmap extends PublicStarmap
 				User owner = base.getOwner();
 				if( owner.getId() == user.getId() )
 				{
-					result.add(loc.getKey());
+					wellKnownLocations.add(loc.getKey());
 				}
 				else if( user.getAlly() != null && user.getAlly().getShowAstis() && owner.getAlly() != null &&
 						user.getAlly().getId() == owner.getAlly().getId() )
 				{
-					result.add(loc.getKey());
+					wellKnownLocations.add(loc.getKey());
 				}
 				else
 				{
 					if( relations.isOnly(owner, Relation.FRIEND) )
 					{
-						result.add(loc.getKey());
+						wellKnownLocations.add(loc.getKey());
 					}
 				}
 			}
 		}
 
-		return result;
+		return wellKnownLocations;
 	}
 
 	@Override
@@ -260,10 +259,10 @@ public class PlayerStarmap extends PublicStarmap
 			}
 		}
 
-		List<JumpNode> positionNodes = map.getNodeMap().get(location);
+		List<Starmap.JumpNode> positionNodes = map.getNodeMap().get(location);
 		if(positionNodes != null && !positionNodes.isEmpty())
 		{
-			for(JumpNode node: positionNodes)
+			for(Starmap.JumpNode node: positionNodes)
 			{
 				if(!node.isHidden() || scannedLocationsToScannerId.containsKey(location) || scannedNebulaLocationsToScannerId.containsKey(location))
 				{
@@ -489,7 +488,7 @@ public class PlayerStarmap extends PublicStarmap
 			return true;
 		}
 
-		List<JumpNode> nodes = map.getNodeMap().get(position);
+		List<Starmap.JumpNode> nodes = map.getNodeMap().get(position);
 		return nodes != null && !nodes.isEmpty() || this.getShipImage(position) != null || map.getRockPositions().contains(position);
 	}
 

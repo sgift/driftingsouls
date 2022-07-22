@@ -21,9 +21,7 @@ package net.driftingsouls.ds2.server.map;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.config.StarSystem;
-import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
-import net.driftingsouls.ds2.server.ships.Ship;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -77,7 +75,6 @@ public class PublicStarmap
 	 * enthaelt ausschliesslich spielerspezifische Markierungen
 	 * und keinerlei Hintergrundelemente. Der Hintergrund
 	 * des Bilds ist transparent.
-	 *
 	 * Falls keine Overlay-Daten fuer den Sektor angezeigt werden sollen
 	 * wird <code>null</code> zurueckgegeben.
 	 *
@@ -103,29 +100,6 @@ public class PublicStarmap
 	}
 
 	/**
-	 * Gibt sofern vorhanden ein Schiff zurueck, das den angegebenen
-	 * Sektor scannen kann.
-	 * @param location Der Sektor, der gescannt werden soll.
-	 *
-	 * @return Das Schiff, dass diesen Sektor scannen kann oder <code>null</code>
-	 */
-	public Ship getScanSchiffFuerSektor(Location location)
-	{
-		return null;
-	}
-
-	/**
-	 * Gibt an, ob der entsprechende Sektor der Sternenkarte momentan gescannt werden kann.
-	 *
-	 * @param location Der Sektor.
-	 * @return <code>true</code>, wenn der Sektor gescannt werden kann, sonst <code>false</code>
-	 */
-	public boolean isScannbar(Location location)
-	{
-		return false;
-	}
-
-	/**
 	 * Gibt alle fuer den Sektor notwendigen Renderoperationen zurueck. Die Operationen
 	 * sind in der Reinfolge abzuarbeiten um den Sektor korrekt darzustellen. Die Renderoperationen
 	 * enthalten keine benutzerspezifischen Markierungen/Darstellungen
@@ -145,10 +119,10 @@ public class PublicStarmap
 			renderList.add(new RenderedSectorImage(base.getBaseImage(location), offset[0], offset[1], RenderedSectorImage.DEFAULT_MASK));
 		}
 
-		List<JumpNode> positionNodes = map.getNodeMap().get(location);
+		List<Starmap.JumpNode> positionNodes = map.getNodeMap().get(location);
 		if(positionNodes != null && !positionNodes.isEmpty())
 		{
-			for(JumpNode node: positionNodes)
+			for(Starmap.JumpNode node: positionNodes)
 			{
 				if(!node.isHidden())
 				{
@@ -201,14 +175,7 @@ public class PublicStarmap
 	public Nebel getNebula(Location sektor)
 	{
 		var nebulas = map.getNebulaMap();
-		if(nebulas.containsKey(sektor))
-		{
-			return nebulas.get(sektor);
-		}
-		else
-		{
-			return null;
-		}
+		return nebulas.getOrDefault(sektor, null);
 	}
 
 	public boolean isScanned(Location location)

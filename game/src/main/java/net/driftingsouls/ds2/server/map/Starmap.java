@@ -1,9 +1,7 @@
 package net.driftingsouls.ds2.server.map;
 
-import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -12,15 +10,16 @@ import net.driftingsouls.ds2.server.ships.ShipClasses;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toUnmodifiableSet;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.Battles.BATTLES;
+import static net.driftingsouls.ds2.server.entities.jooq.tables.Jumpnodes.JUMPNODES;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.ShipTypes.SHIP_TYPES;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.Ships.SHIPS;
 
@@ -35,7 +34,7 @@ class Starmap
 {
 	private final int system;
 
-	private List<JumpNode> nodes;
+	private Set<JumpNode> nodes;
 	private Map<Location, Nebel> nebulaMap;
 	private Map<Location, List<JumpNode>> nodeMap;
 	private Map<Location, List<Base>> baseMap;
@@ -58,15 +57,6 @@ class Starmap
 	int getSystem()
 	{
 		return this.system;
-	}
-
-	/**
-	 * @return Die JumpNodes im System.
-	 */
-	Collection<JumpNode> getJumpNodes()
-	{
-		loadNodes();
-		return Collections.unmodifiableCollection(this.nodes);
 	}
 
 	/**
@@ -138,6 +128,10 @@ class Starmap
 		return battlePositions;
 	}
 
+	Set<JumpNode> getNodes() {
+		return nodes;
+	}
+
 	/**
 	 * @return Die Liste der Jumpnodes im System, sortiert nach Sektoren.
 	 */
@@ -145,9 +139,15 @@ class Starmap
 	{
 		if( this.nodeMap == null ) {
 			loadNodes();
-			this.nodeMap = buildLocatableMap(nodes);
+
+			var nodeMap = new HashMap<Location, List<JumpNode>>();
+			for(var node: nodes) {
+				var location = new Location(system, node.getX(), node.getY());
+				nodeMap.computeIfAbsent(location, k -> new ArrayList<>()).add(node);
+			}
+			this.nodeMap = Collections.unmodifiableMap(nodeMap);
 		}
-		return Collections.unmodifiableMap(this.nodeMap);
+		return this.nodeMap;
 	}
 
 	private void loadNodes()
@@ -156,15 +156,22 @@ class Starmap
 		{
 			return;
 		}
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		this.nodes = Common.cast(db
-				.createQuery("from JumpNode where system=:system")
-				.setInteger("system", this.system)
-				.list());
+
+		var nodes = new HashSet<JumpNode>();
+		try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
+			var db = DBUtil.getDSLContext(conn);
+			var result = db.select(JUMPNODES.X, JUMPNODES.Y, JUMPNODES.HIDDEN).from(JUMPNODES).fetch();
+			for(var record: result) {
+				nodes.add(new JumpNode(record.value1(), record.value2(), record.value3() != 0));
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+		this.nodes = Collections.unmodifiableSet(nodes);
 	}
 
 	/**
-	 * @return Die Liste der Schiffe im System, sortiert nach Sektoren.
+	 * @return Die Liste der Schiffe im System sortiert nach Sektoren.
 	 */
 	Map<Location, Nebel> getNebulaMap()
 	{
@@ -189,25 +196,6 @@ class Starmap
 		}
 
 		return nebulaMap;
-	}
-
-	protected <T extends Locatable> Map<Location, List<T>> buildLocatableMap(List<T> nodes)
-	{
-		Map<Location, List<T>> nodeMap = new HashMap<>();
-
-		for(T node: nodes)
-		{
-			Location position = node.getLocation();
-
-			if(!nodeMap.containsKey(position))
-			{
-				nodeMap.put(position, new ArrayList<>());
-			}
-
-			nodeMap.get(position).add(node);
-		}
-
-		return nodeMap;
 	}
 
 	protected Map<Location, List<Base>> buildBaseMap(List<Base> bases)
@@ -251,5 +239,29 @@ class Starmap
 		}
 
 		return baseMap;
+	}
+
+	protected static class JumpNode {
+		private final int x;
+		private final int y;
+		private final boolean hidden;
+
+		protected JumpNode(int x, int y, boolean hidden) {
+			this.x = x;
+			this.y = y;
+			this.hidden = hidden;
+		}
+
+		public int getX() {
+			return x;
+		}
+
+		public int getY() {
+			return y;
+		}
+
+		public boolean isHidden() {
+			return hidden;
+		}
 	}
 }

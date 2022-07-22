@@ -3,7 +3,6 @@ package net.driftingsouls.ds2.server.map;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.config.StarSystem;
-import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.DBUtil;
@@ -65,7 +64,7 @@ public class AdminStarmap extends PublicStarmap
 			}
 		}
 
-		List<JumpNode> positionNodes = map.getNodeMap().get(location);
+		List<Starmap.JumpNode> positionNodes = map.getNodeMap().get(location);
 		if(positionNodes != null && !positionNodes.isEmpty())
 		{
 			return new SectorImage("data/starmap/jumpnode/jumpnode.png", 0, 0);

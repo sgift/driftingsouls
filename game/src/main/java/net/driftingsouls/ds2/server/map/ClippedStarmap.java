@@ -28,7 +28,6 @@ import net.driftingsouls.ds2.server.ships.ShipClasses;
 
 import javax.persistence.EntityManager;
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -81,12 +80,6 @@ public class ClippedStarmap extends Starmap
 	int getSystem()
 	{
 		return inner.getSystem();
-	}
-
-	@Override
-	Collection<JumpNode> getJumpNodes()
-	{
-		return inner.getJumpNodes();
 	}
 
 	@Override
