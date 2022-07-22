@@ -340,6 +340,7 @@
                 </configuration>
                 <executions>
                     <execution>
+                        <id>run-flyway</id>
                         <phase>generate-sources</phase>
                         <goals>
                             <goal>migrate</goal>
