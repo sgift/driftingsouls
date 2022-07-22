@@ -163,7 +163,10 @@ class Starmap
 		var nodes = new HashSet<JumpNode>();
 		try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
 			var db = DBUtil.getDSLContext(conn);
-			var result = db.select(JUMPNODES.X, JUMPNODES.Y, JUMPNODES.HIDDEN).from(JUMPNODES).fetch();
+			var result = db.select(JUMPNODES.X, JUMPNODES.Y, JUMPNODES.HIDDEN)
+				.from(JUMPNODES)
+				.where(JUMPNODES.STAR_SYSTEM.eq(system))
+				.fetch();
 			for(var record: result) {
 				nodes.add(new JumpNode(record.value1(), record.value2(), record.value3() != 0));
 			}
