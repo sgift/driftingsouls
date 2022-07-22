@@ -7,16 +7,13 @@ import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.DBUtil;
-import org.jooq.impl.DSL;
 
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 
 import static net.driftingsouls.ds2.server.entities.jooq.tables.FriendlyScanRanges.FRIENDLY_SCAN_RANGES;
-import static net.driftingsouls.ds2.server.entities.jooq.tables.NonFriendlyShipLocations.NON_FRIENDLY_SHIP_LOCATIONS;
 
 /**
  * Die Adminsicht auf die Sternenkarte. Zeigt alle
@@ -140,78 +137,8 @@ public class AdminStarmap extends PublicStarmap
 
 	private String getShipImage(Location location)
 	{
-		//TODO: Currently admins cannot see into emp nebula since we hardcoded that in the view
-		String imageName = "";
-
-		if(isScanned(location))
-		{
-			boolean scanningShipInSector;
-			boolean alliedShips;
-			int maxEnemyShipSize;
-			int maxNeutralShipSize;
-
-			try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
-				var db = DBUtil.getDSLContext(conn);
-				var locationCondition = NON_FRIENDLY_SHIP_LOCATIONS.STAR_SYSTEM.eq(location.getSystem())
-					.and(NON_FRIENDLY_SHIP_LOCATIONS.X.eq(location.getX()))
-					.and(NON_FRIENDLY_SHIP_LOCATIONS.Y.eq(location.getY()));
-
-				scanningShipInSector = scanMap.containsKey(location);
-
-				alliedShips = db.fetchExists(DSL.selectOne().from(FRIENDLY_SCAN_RANGES)
-					.where(locationCondition.and(FRIENDLY_SCAN_RANGES.OWNER.notEqual(FRIENDLY_SCAN_RANGES.TARGET_ID))));
-
-
-				var neutralShipSelect = db.select(NON_FRIENDLY_SHIP_LOCATIONS.MAX_SIZE)
-					.from(NON_FRIENDLY_SHIP_LOCATIONS)
-					.where(locationCondition.and(NON_FRIENDLY_SHIP_LOCATIONS.STATUS.eq(User.Relation.ENEMY.ordinal())).and(NON_FRIENDLY_SHIP_LOCATIONS.TARGET_ID.eq(adminUser.getId())));
-
-				var enemyShipSelect = db.select(NON_FRIENDLY_SHIP_LOCATIONS.MAX_SIZE)
-					.from(NON_FRIENDLY_SHIP_LOCATIONS)
-					.where(locationCondition.and(NON_FRIENDLY_SHIP_LOCATIONS.STATUS.eq(User.Relation.ENEMY.ordinal())).and(NON_FRIENDLY_SHIP_LOCATIONS.TARGET_ID.eq(adminUser.getId())));
-
-				//TODO: Honor ShipTypeFlag.SEHR_KLEIN again
-
-				try(neutralShipSelect) {
-					var possibleSize = neutralShipSelect.limit(1).fetchAny(NON_FRIENDLY_SHIP_LOCATIONS.MAX_SIZE);
-					maxNeutralShipSize = Objects.requireNonNullElse(possibleSize, -1);
-				}
-
-				try(enemyShipSelect) {
-					var possibleSize = enemyShipSelect.fetchAny(NON_FRIENDLY_SHIP_LOCATIONS.MAX_SIZE);
-					maxEnemyShipSize = Objects.requireNonNullElse(possibleSize, -1);
-				}
-			} catch (SQLException ex) {
-				throw new RuntimeException(ex);
-			}
-
-			if(scanningShipInSector)
-			{
-				imageName += "_fo";
-			}
-
-			if(alliedShips)
-			{
-				imageName += "_fa";
-			}
-
-			int minSize = 0;
-			if(maxEnemyShipSize > minSize)
-			{
-				imageName += "_fe";
-			} else if(maxNeutralShipSize > minSize) {
-				// We only show neutral ships if there are no enemies
-				// enemy ships are more important, and we don't want to clutter the UI
-				imageName += "_fn";
-			}
-		}
-
-		if( imageName.isEmpty() )
-		{
-			return null;
-		}
-
-		return imageName;
+		//TODO: Fix admin view
+		return null;
 	}
 
 	/**
