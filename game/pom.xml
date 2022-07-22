@@ -13,8 +13,8 @@
     <packaging>war</packaging>
 
     <properties>
-        <db.username>root</db.username>
-        <db.password>build</db.password>
+        <db_username>root</db_username>
+        <db_password>build</db_password>
     </properties>
 
     <dependencies>
@@ -302,14 +302,14 @@
 
                                 db = new MySQLContainer(
                                         "mysql:latest")
-                                        .withUsername("${db.username}")
+                                        .withUsername("${db_username}")
                                         .withDatabaseName("ds")
-                                        .withPassword("${db.password}")
+                                        .withPassword("${db_password}")
 
                                 // After you've started the container, collect its generated
                                 // JDBC URL (which contains a random port)
                                 db.start()
-                                project.properties.setProperty('db.url', db.getJdbcUrl())
+                                project.properties.setProperty('db_url', db.getJdbcUrl())
                                 project.properties.setProperty('testcontainer.containerid', db.getContainerId())
                                 project.properties.setProperty('testcontainer.imageName', db.getDockerImageName())
                             </source>
@@ -347,9 +347,9 @@
                         </goals>
                         <configuration>
                             <!--suppress MavenModelInspection -->
-                            <url>${db.url}</url>
-                            <user>${db.username}</user>
-                            <password>${db.password}</password>
+                            <url>${db_url}</url>
+                            <user>${db_username}</user>
+                            <password>${db_password}</password>
                         </configuration>
                     </execution>
                 </executions>
@@ -367,9 +367,9 @@
                 <configuration>
                     <jdbc>
                         <!--suppress MavenModelInspection -->
-                        <url>${db.url}</url>
-                        <user>${db.username}</user>
-                        <password>${db.password}</password>
+                        <url>${db_url}</url>
+                        <user>${db_username}</user>
+                        <password>${db_password}</password>
                     </jdbc>
                 </configuration>
             </plugin>
