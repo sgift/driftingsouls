@@ -78,6 +78,8 @@ public class PlayerStarmap extends PublicStarmap
 	protected void buildFriendlyData()
 	{
 		var scanMap = new HashMap<Location, ScanData>();
+		var nebelScanMap = new HashMap<Location, ScanData>();
+
 		var ownShipSectors = new HashSet<Location>();
 		var allyShipSectors = new HashSet<Location>();
 		try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
@@ -115,6 +117,36 @@ public class PlayerStarmap extends PublicStarmap
 			throw new RuntimeException(e);
 		}
 
+		try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
+			var db = DBUtil.getDSLContext(conn);
+			try(var scanDataSelect = db
+					.selectFrom(FRIENDLY_NEBEL_SCAN_RANGES)
+					.where(FRIENDLY_NEBEL_SCAN_RANGES.TARGET_ID.eq(user.getId())
+							.and(FRIENDLY_NEBEL_SCAN_RANGES.STAR_SYSTEM.eq(map.getSystem())))) {
+				var result = scanDataSelect.fetch();
+				for (var record : result) {
+					var scanData = new ScanData(this.map.getSystem(), record.getX(), record.getY(), record.getId(), record.getOwner(), record.getSensorRange().intValue());
+
+					//FRIENDLY_SCAN_RANGES contains values per sector for best scanner by user and best scanner by ally
+					//So we check here which one really has the best scan range
+					nebelScanMap.compute(scanData.getLocation(), (k, v) -> {
+						if(v == null) {
+							return scanData;
+						}
+
+						if(scanData.getScanRange() > v.getScanRange()) {
+							return scanData;
+						} else {
+							return v;
+						}
+					});
+				}
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+
+		this.nebelScanMap = nebelScanMap;
 		this.scanMap = scanMap;
 		this.ownShipSectors = ownShipSectors;
 		this.allyShipSectors = allyShipSectors;
@@ -266,56 +298,57 @@ public class PlayerStarmap extends PublicStarmap
 		int maxEnemyShipSize = -1;
 		int maxNeutralShipSize = -1;
 
-		if(baseInSector || isScanned(location))
+		if(baseInSector || isScanned(location) || scannedNebulaLocations.contains((location)))
 		{
-				boolean scanningShipInSector = scanMap.containsKey(location);
-				Nebel nebula = this.map.getNebulaMap().get(location);
-				if(!baseInSector && !scanningShipInSector && nebula != null && !nebula.allowsScan()) {
-					maxNeutralShipSize = -1;
-					maxEnemyShipSize = -1;
-				} else {
-					var neutralShipSelect = neutralShipMap.containsKey(location);
-					var enemyShipSelect = enemyShipMap.containsKey(location);
+			boolean scanningShipInSector = scanMap.containsKey(location);
+			Nebel nebula = this.map.getNebulaMap().get(location);
+			if(!baseInSector && !scanningShipInSector && nebula != null && !nebula.allowsScan()) {
+				maxNeutralShipSize = -1;
+				maxEnemyShipSize = -1;
+			}
+			else {
+				var neutralShipSelect = neutralShipMap.containsKey(location);
+				var enemyShipSelect = enemyShipMap.containsKey(location);
 
-					//TODO: Honor ShipTypeFlag.SEHR_KLEIN again
+				//TODO: Honor ShipTypeFlag.SEHR_KLEIN again
 
-					if(neutralShipSelect)
-					{
-						maxNeutralShipSize = neutralShipMap.get(location).getSize();
-					}
-					if(enemyShipSelect)
-					{
-						maxEnemyShipSize = enemyShipMap.get(location).getSize();
-					}
+				if(neutralShipSelect)
+				{
+					maxNeutralShipSize = neutralShipMap.get(location).getSize();
+				}
+				if(enemyShipSelect)
+				{
+					maxEnemyShipSize = enemyShipMap.get(location).getSize();
 				}
 			}
+		}
 
-			if(ownShipSectors.contains(location))
-			{
-				imageName += "_fo";
-			}
+		if(ownShipSectors.contains(location))
+		{
+			imageName += "_fo";
+		}
 
-			if(allyShipSectors.contains(location))
-			{
-				imageName += "_fa";
-			}
+		if(allyShipSectors.contains(location))
+		{
+			imageName += "_fa";
+		}
 
-			Nebel nebula = this.map.getNebulaMap().get(location);
-			int minSize;
-			if(nebula != null) {
-				minSize = nebula.getType().getMinScansize();
-			} else {
-				minSize = 0;
-			}
+		Nebel nebula = this.map.getNebulaMap().get(location);
+		int minSize;
+		if(nebula != null) {
+			minSize = nebula.getType().getMinScansize();
+		} else {
+			minSize = 0;
+		}
 
-			if(maxEnemyShipSize > minSize)
-			{
-				imageName += "_fe";
-			} else if(maxNeutralShipSize > minSize) {
-				// We only show neutral ships if there are no enemies
-				// enemy ships are more important, and we don't want to clutter the UI
-				imageName += "_fn";
-			}
+		if(maxEnemyShipSize > minSize)
+		{
+			imageName += "_fe";
+		} else if(maxNeutralShipSize > minSize) {
+			// We only show neutral ships if there are no enemies
+			// enemy ships are more important, and we don't want to clutter the UI
+			imageName += "_fn";
+		}
 
 
 		if( imageName.isEmpty() )
@@ -394,6 +427,32 @@ public class PlayerStarmap extends PublicStarmap
 					 */
 				}
 			}
+
+			for (Map.Entry<Location, ScanData> entry : nebelScanMap.entrySet()) {
+				Location position = entry.getKey();
+				ScanData scanData = entry.getValue();
+
+				int scanRange = scanData.getScanRange();
+				for (int y = position.getY() - scanData.getScanRange(); y <= position.getY() + scanData.getScanRange(); y++) {
+					for (int x = position.getX() - scanData.getScanRange(); x <= position.getX() + scanData.getScanRange(); x++) {
+						Location loc = new Location(map.getSystem(), x, y);
+
+						if (!position.sameSector(scanRange, loc, 0)) {
+							continue;
+						}
+
+						var nebula = nebulas.get(loc);
+						if (nebula == null) {
+							continue;
+						}
+
+						if (nebula.allowsScan()) {
+							scannedNebulaLocations.add(loc);
+						}
+					}
+				}
+			}
+
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
