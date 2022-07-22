@@ -9,9 +9,9 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.User.Relation;
 import net.driftingsouls.ds2.server.entities.User.Relations;
 import net.driftingsouls.ds2.server.entities.jooq.routines.GetEnemyShipsInSystem;
+import net.driftingsouls.ds2.server.entities.jooq.routines.GetSectorsWithAttackingShips;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.DBUtil;
-import net.driftingsouls.ds2.server.ships.Ship;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -36,7 +36,7 @@ public class PlayerStarmap extends PublicStarmap
 {
 	private final Map<Location, Integer> scannedLocationsToScannerId;
 	private final Map<Location, Integer> scannedNebulaLocationsToScannerId;
-	private final Set<Location> sektorenMitRotemAlarm;
+	private final Set<Location> sectorsWithAttackingShips;
 	private final Set<Location> bekannteOrte;
 	private final User user;
 	private final Relations relations;
@@ -69,7 +69,7 @@ public class PlayerStarmap extends PublicStarmap
 		buildNonFriendSectors();
 
 		this.bekannteOrte = findeBekannteOrte(user);
-		this.sektorenMitRotemAlarm = findeSektorenMitRotemAlarm(user);
+		this.sectorsWithAttackingShips = findVisibleSectorsWithAlerts();
 	}
 
 
@@ -138,7 +138,7 @@ public class PlayerStarmap extends PublicStarmap
 		this.allyShipSectors = allyShipSectors;
 	}
 
-	private Set<Location> findeSektorenMitRotemAlarm(User user)
+	private Set<Location> findVisibleSectorsWithAlerts()
 	{
 		Set<Location> candidateSectors = new HashSet<>();
 		for (Location sektor : this.scanMap.keySet())
@@ -153,7 +153,32 @@ public class PlayerStarmap extends PublicStarmap
 			}
 		}
 
-		return Ship.getAlertStatus(user, candidateSectors.toArray(new Location[0]));
+		if(candidateSectors.isEmpty()) {
+			return Set.of();
+		}
+
+		var attackingSectors = new HashSet<Location>();
+		try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
+			var db = DBUtil.getDSLContext(conn);
+
+			var sectorsWithAttackingShips = new GetSectorsWithAttackingShips();
+			sectorsWithAttackingShips.setUserid(user.getId());
+			sectorsWithAttackingShips.execute(db.configuration());
+
+			for(var record: sectorsWithAttackingShips.getResults().get(0)) {
+				attackingSectors.add(new Location(
+					record.get(SHIPS.STAR_SYSTEM),
+					record.get(SHIPS.X),
+					record.get(SHIPS.Y)
+				));
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+
+		// Only show alerts where we have a ship in the area
+		attackingSectors.retainAll(candidateSectors);
+		return attackingSectors;
 	}
 
 	private Set<Location> findeBekannteOrte(User user)
@@ -417,11 +442,11 @@ public class PlayerStarmap extends PublicStarmap
 					for(var record: row) {
 						var scanData = new NonFriendScanData(
 							this.map.getSystem(),
-							record.getValue(SHIPS.X),
-							record.getValue(SHIPS.Y),
+							record.get(SHIPS.X),
+							record.get(SHIPS.Y),
 							Objects.requireNonNullElse(record.getValue("nebeltype", Integer.class), 0),
-							record.getValue("max_size", Long.class).intValue(),
-							Objects.requireNonNullElse(record.getValue(USER_RELATIONS.STATUS), 0) == 1
+							record.get("max_size", Long.class).intValue(),
+							Objects.requireNonNullElse(record.get(USER_RELATIONS.STATUS), 0) == 1
 						);
 
 						if (scanData.getIsEnemy())
@@ -482,11 +507,11 @@ public class PlayerStarmap extends PublicStarmap
 	@Override
 	public boolean isRoterAlarmImSektor(Location sektor)
 	{
-		return this.sektorenMitRotemAlarm.contains(sektor);
+		return this.sectorsWithAttackingShips.contains(sektor);
 	}
 
-	public Set<Location> getSektorenMitRotemAlarm()
+	public Set<Location> getSectorsWithAttackingShips()
 	{
-		return this.sektorenMitRotemAlarm;
+		return this.sectorsWithAttackingShips;
 	}
 }

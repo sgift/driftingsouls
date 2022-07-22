@@ -172,7 +172,7 @@ public class NavigationDefault implements SchiffPlugin {
 					}
 				}
 
-				Set<Location> alertStatus = map.getSektorenMitRotemAlarm();
+				Set<Location> alertStatus = map.getSectorsWithAttackingShips();
 
 				boolean newrow;
 
