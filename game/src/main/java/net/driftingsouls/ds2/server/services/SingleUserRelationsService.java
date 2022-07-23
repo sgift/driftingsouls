@@ -8,7 +8,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static net.driftingsouls.ds2.server.entities.jooq.tables.UserRelations.USER_RELATIONS;
 
@@ -20,56 +19,50 @@ import static net.driftingsouls.ds2.server.entities.jooq.tables.UserRelations.US
  */
 public class SingleUserRelationsService {
     private final int userId;
-    public SingleUserRelationsService(int userId)
-    {
+
+    public SingleUserRelationsService(int userId) {
         this.userId = userId;
         getUserRelationData();
     }
 
     protected Map<Integer, ArrayList<UserRelationData>> userRelationData;
-    public Map<Integer, ArrayList<UserRelationData>> getUserRelationData()
-    {
-        if(this.userRelationData != null)
-        {
+
+    public Map<Integer, ArrayList<UserRelationData>> getUserRelationData() {
+        if (this.userRelationData != null) {
             return this.userRelationData;
         }
         Map<Integer, ArrayList<UserRelationData>> userRelationData = new HashMap<>();
-        try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
+        try (var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
             var db = DBUtil.getDSLContext(conn);
             try
-                    (
-                            var userRelations = db
-                                    .selectFrom(USER_RELATIONS)
-                                    .where
-                                            (
-                                                    USER_RELATIONS.USER_ID.eq(userId)
-                                                            .or(USER_RELATIONS.TARGET_ID.eq(userId))
-                                            )
-                    )
-            {
+                (
+                    var userRelations = db
+                        .selectFrom(USER_RELATIONS)
+                        .where
+                            (
+                                USER_RELATIONS.USER_ID.eq(userId)
+                                    .or(USER_RELATIONS.TARGET_ID.eq(userId))
+                            )
+                ) {
                 var result = userRelations.fetch();
 
-                for(var row : result)
-                {
+                for (var row : result) {
                     var urd = new UserRelationData(row.getValue(USER_RELATIONS.USER_ID), row.getValue(USER_RELATIONS.TARGET_ID), row.getValue(USER_RELATIONS.STATUS));
-                    if(urd.getUserId() == userId) // Meine Beziehung zu anderen Spielern
+                    if (urd.getUserId() == userId) // Meine Beziehung zu anderen Spielern
                     {
-                        if(!userRelationData.containsKey(urd.getTargetUserId()))
-                        {
-                            userRelationData.put(urd.getTargetUserId(), new ArrayList<>() );
+                        if (!userRelationData.containsKey(urd.getTargetUserId())) {
+                            userRelationData.put(urd.getTargetUserId(), new ArrayList<>());
                         }
                         userRelationData.get(urd.getTargetUserId()).add(urd);
-                    }
-                    else // Die Beziehung anderer Spieler zu mir
+                    } else // Die Beziehung anderer Spieler zu mir
                     {
-                        if(!userRelationData.containsKey(urd.getUserId()))
-                        {
-                            userRelationData.put(urd.getUserId(), new ArrayList<>() );
+                        if (!userRelationData.containsKey(urd.getUserId())) {
+                            userRelationData.put(urd.getUserId(), new ArrayList<>());
                         }
                         userRelationData.get(urd.getUserId()).add(urd);
                     }
                 }
-                this.userRelationData=userRelationData;
+                this.userRelationData = userRelationData;
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -78,12 +71,12 @@ public class SingleUserRelationsService {
         return userRelationData;
     }
 
-    public boolean isMutualFriendTo(int targetId)
-    {
+    public boolean isMutualFriendTo(int targetId) {
         var userRelations = getUserRelationData();
 
         boolean areMutalFriends = false;
-        if(userRelations.containsKey(targetId))  areMutalFriends = userRelations.get(targetId).stream().filter(x -> x.getStatus() == 2).collect(Collectors.toList()).size() == 2;
+        if (userRelations.containsKey(targetId))
+            areMutalFriends = userRelations.get(targetId).stream().filter(x -> x.getStatus() == 2).count() == 2;
 
         return areMutalFriends;
     }

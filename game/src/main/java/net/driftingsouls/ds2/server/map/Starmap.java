@@ -233,16 +233,16 @@ class Starmap
 
 		for(org.jooq.Record8<Integer, Integer, Integer, Integer, Integer, Integer, Integer, String> base: bases)
 		{
-			Location position = new Location(base.getValue(BASES.STAR_SYSTEM), base.getValue(BASES.X), base.getValue(BASES.Y));
+			Location position = new Location(base.get(BASES.STAR_SYSTEM), base.get(BASES.X), base.get(BASES.Y));
 
 			if(!baseMap.containsKey(position))
 			{
 				baseMap.put(position, new ArrayList<>());
 			}
 
-			int allyId = base.getValue(USERS.ALLY) != null ? base.get(USERS.ALLY) : 0;
+			int allyId = base.get(USERS.ALLY) != null ? base.get(USERS.ALLY) : 0;
 
-			int size = base.getValue(BASES.SIZE);
+			int size = base.get(BASES.SIZE);
 			if(size > 0)
 			{
 				for(int y = position.getY() - size; y <= position.getY() + size; y++)
@@ -251,7 +251,7 @@ class Starmap
 					{
 						Location loc = new Location(position.getSystem(), x, y);
 
-						if( !position.sameSector( 0, loc, base.getValue(BASES.SIZE) ) ) {
+						if( !position.sameSector( 0, loc, base.get(BASES.SIZE) ) ) {
 							continue;
 						}
 
@@ -260,13 +260,13 @@ class Starmap
 							baseMap.put(loc, new ArrayList<>());
 						}
 
-						baseMap.get(loc).add(0, new BaseData(base.getValue(BASES.STAR_SYSTEM), base.getValue(BASES.X), base.getValue(BASES.Y), base.getValue(BASES.OWNER), allyId, base.getValue(BASE_TYPES.SIZE), base.getValue(BASE_TYPES.STARMAPIMAGE))); //Big objects are always printed first
+						baseMap.get(loc).add(0, new BaseData(base.get(BASES.STAR_SYSTEM), base.get(BASES.X), base.get(BASES.Y), base.get(BASES.OWNER), allyId, base.get(BASE_TYPES.SIZE), base.getValue(BASE_TYPES.STARMAPIMAGE))); //Big objects are always printed first
 					}
 				}
 			}
 			else
 			{
-				baseMap.get(position).add(new BaseData(base.getValue(BASES.STAR_SYSTEM), base.getValue(BASES.X), base.getValue(BASES.Y), base.getValue(BASES.OWNER), allyId, base.getValue(BASE_TYPES.SIZE), base.getValue(BASE_TYPES.STARMAPIMAGE)));
+				baseMap.get(position).add(new BaseData(base.get(BASES.STAR_SYSTEM), base.get(BASES.X), base.get(BASES.Y), base.get(BASES.OWNER), allyId, base.get(BASE_TYPES.SIZE), base.get(BASE_TYPES.STARMAPIMAGE)));
 			}
 		}
 
