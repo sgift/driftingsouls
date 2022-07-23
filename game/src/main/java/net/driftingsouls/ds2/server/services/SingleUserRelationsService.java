@@ -1,5 +1,6 @@
 package net.driftingsouls.ds2.server.services;
 
+import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.DBUtil;
 import net.driftingsouls.ds2.server.map.UserRelationData;
@@ -18,6 +19,7 @@ import static net.driftingsouls.ds2.server.entities.jooq.tables.UserRelations.US
  * Ziel ist es, mehrere Abfragen zum Server zu vermeiden indem einmal alle relevant eingeschätzten Daten geladen werden.
  */
 public class SingleUserRelationsService {
+
     private final int userId;
 
     public SingleUserRelationsService(int userId) {
@@ -79,5 +81,58 @@ public class SingleUserRelationsService {
             areMutalFriends = userRelations.get(targetId).stream().filter(x -> x.getStatus() == 2).count() == 2;
 
         return areMutalFriends;
+    }
+
+    public User.Relation beziehungZu(User otherUser){return beziehungZu(otherUser.getId());}
+    public User.Relation beziehungZu(int otherUserId)
+    {
+        var userRelations = getUserRelationData();
+
+        if (!userRelations.containsKey(otherUserId) ||userRelations.get(otherUserId).size() == 0)
+        {
+            return User.Relation.NEUTRAL;
+        }
+        else{
+            var relations = userRelations.get(otherUserId);
+
+            var resultRelation = User.Relation.NEUTRAL;
+            for(var relation : relations)
+            {
+                if(relation.getUserId() == userId)
+                {
+                    resultRelation = User.Relation.values()[relation.getStatus()];
+                }
+            }
+            return resultRelation;
+        }
+    }
+
+    public User.Relation beziehungVon(User otherUser){return beziehungVon(otherUser.getId());}
+    /**
+     * Gibt die Beziehung eines anderen Spielers zu diesem Spieler zurueck.
+     * @param otherUserId Der andere Spieler
+     * @return Der Beziehungstyp
+     */
+    public User.Relation beziehungVon(int otherUserId)
+    {
+        var userRelations = getUserRelationData();
+
+        if (!userRelations.containsKey(otherUserId) ||userRelations.get(otherUserId).size() == 0)
+        {
+            return User.Relation.NEUTRAL;
+        }
+        else{
+            var relations = userRelations.get(otherUserId);
+
+            var resultRelation = User.Relation.NEUTRAL;
+            for(var relation : relations)
+            {
+                if(relation.getTargetUserId() == userId)
+                {
+                    resultRelation = User.Relation.values()[relation.getStatus()];
+                }
+            }
+            return resultRelation;
+        }
     }
 }
