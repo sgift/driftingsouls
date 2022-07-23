@@ -2,7 +2,6 @@ package net.driftingsouls.ds2.server.map;
 
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.entities.Nebel;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.DBUtil;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
@@ -17,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toUnmodifiableSet;
+import static net.driftingsouls.ds2.server.entities.jooq.Tables.NEBEL;
 import static net.driftingsouls.ds2.server.entities.jooq.Tables.USERS;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.BaseTypes.BASE_TYPES;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.Bases.BASES;
@@ -37,7 +37,7 @@ class Starmap
 	private final int system;
 
 	private Set<JumpNode> nodes;
-	private Map<Location, Nebel> nebulaMap;
+	private final Map<Location, Nebel.Typ> nebulaMap = new HashMap<>();
 	private Map<Location, List<JumpNode>> nodeMap;
 	private Map<Location, List<BaseData>> baseMap;
 	private Set<Location> battlePositions;
@@ -202,36 +202,39 @@ class Starmap
 	/**
 	 * @return Die Liste der Schiffe im System sortiert nach Sektoren.
 	 */
-	Map<Location, Nebel> getNebulaMap()
+	Map<Location, Nebel.Typ> getNebulaMap()
 	{
-		if( this.nebulaMap == null ) {
-			org.hibernate.Session db = ContextMap.getContext().getDB();
-			List<Nebel> nebulas = Common.cast(db
-					.createQuery("from Nebel where loc.system=:system")
-					.setInteger("system", this.system)
-					.list());
-			this.nebulaMap = buildNebulaMap(nebulas);
+		// Optimized for common case that a system has at least one nebula
+		if(nebulaMap.isEmpty()) {
+			synchronized (nebulaMap) {
+				if(nebulaMap.isEmpty()) {
+					try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
+						var db = DBUtil.getDSLContext(conn);
+						var select = db.select(NEBEL.X, NEBEL.Y, NEBEL.TYPE)
+							.from(NEBEL)
+							.where(NEBEL.STAR_SYSTEM.eq(system));
+						try(select) {
+							for(var record: select.fetch()) {
+								var nebula = Nebel.Typ.getType(record.get(NEBEL.TYPE));
+								var location = new Location(system, record.get(NEBEL.X), record.get(NEBEL.Y));
+								nebulaMap.put(location, nebula);
+							}
+						}
+					} catch (SQLException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			}
 		}
-		return Collections.unmodifiableMap(this.nebulaMap);
-	}
 
-	protected Map<Location, Nebel> buildNebulaMap(List<Nebel> nebulas)
-	{
-		Map<Location, Nebel> nebulaMap = new HashMap<>();
-
-		for(Nebel nebula: nebulas)
-		{
-			nebulaMap.put(nebula.getLocation(), nebula);
-		}
-
-		return nebulaMap;
+		return Collections.unmodifiableMap(nebulaMap);
 	}
 
 	protected Map<Location, List<BaseData>> buildBaseMap(List<org.jooq.Record8<Integer, Integer, Integer, Integer, Integer, Integer, Integer, String>> bases)
 	{
 		Map<Location, List<BaseData>> baseMap = new HashMap<>();
 
-		for(org.jooq.Record8<Integer, Integer, Integer, Integer, Integer, Integer, Integer, String> base: bases)
+		for(var base: bases)
 		{
 			Location position = new Location(base.get(BASES.STAR_SYSTEM), base.get(BASES.X), base.get(BASES.Y));
 

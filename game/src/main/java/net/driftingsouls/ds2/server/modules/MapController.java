@@ -24,6 +24,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungEx
 import net.driftingsouls.ds2.server.map.AdminFieldView;
 import net.driftingsouls.ds2.server.map.AdminStarmap;
 import net.driftingsouls.ds2.server.map.FieldView;
+import net.driftingsouls.ds2.server.map.MapArea;
 import net.driftingsouls.ds2.server.map.PlayerFieldView;
 import net.driftingsouls.ds2.server.map.PlayerStarmap;
 import net.driftingsouls.ds2.server.map.PublicStarmap;
@@ -435,13 +436,14 @@ public class MapController extends Controller
 		}
 
 		PublicStarmap content;
+		var mapArea = new MapArea(xstart, xend - xstart, ystart, yend - ystart);
 		if (admin && hasPermission(WellKnownAdminPermission.STARMAP_VIEW))
 		{
-			content = new AdminStarmap(sys, user, new int[]{xstart, ystart, xend - xstart, yend - ystart});
+			content = new AdminStarmap(sys, user, mapArea);
 		}
 		else
 		{
-			content = new PlayerStarmap(user, sys, new int[]{xstart, ystart, xend - xstart, yend - ystart});
+			content = new PlayerStarmap(user, sys, mapArea);
 		}
 
 		json.size = new MapViewModel.SizeViewModel();

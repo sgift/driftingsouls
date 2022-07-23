@@ -260,14 +260,14 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 	}
 	public String displayCoordinates(boolean noSystem, PlayerStarmap starmap)
 	{
-		Nebel nebula = starmap.getNebula(this);
+		Nebel.Typ nebula = starmap.getNebula(this);
 
 		if(nebula == null)
 		{
 			return displayCoordinates(noSystem, (Nebel.Typ) null);
 		}
 
-		return displayCoordinates(noSystem, nebula.getType());
+		return displayCoordinates(noSystem, nebula);
 	}
 
 	/**

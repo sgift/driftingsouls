@@ -43,11 +43,10 @@ public class PlayerStarmap extends PublicStarmap
 	 *
 	 * @param user Der Spieler fuer den die Sicht gelten soll.
 	 * @param system Die ID des zugrunde liegenden Sternensystems.
-	 * @param ausschnitt Der gewaehlte Ausschnitt <code>[x, y, w, h]</code> oder <code>null</code>, falls kein Ausschnitt verwendet werden soll
 	 */
-	public PlayerStarmap(User user, StarSystem system, int[] ausschnitt)
+	public PlayerStarmap(User user, StarSystem system, MapArea mapArea)
 	{
-		super(system, ausschnitt);
+		super(system, mapArea);
 
 		this.user = user;
 		if(this.user == null)
@@ -240,23 +239,23 @@ public class PlayerStarmap extends PublicStarmap
 		{
 			for (BaseData base : positionBases)
 			{
-				boolean areMutalFriends = this.UserRelationsService.isMutualFriendTo(base.getOwnerId());
+				boolean areMutualFriends = this.UserRelationsService.isMutualFriendTo(base.getOwnerId());
 
 				System.out.println(base.getOwnerId());
 				System.out.println(base.getLocation().getSystem());
 				System.out.println(base.getLocation().getX());
 				System.out.println(base.getLocation().getY());
 				System.out.println(this.user.getId());
-				System.out.println(areMutalFriends);
+				System.out.println(areMutualFriends);
 
 
 				if( scanned || base.getOwnerId() == this.user.getId() ||
-						(user.getAlly() != null && user.getAlly().getShowAstis() && user.getAlly().equals(base.getOwnerAllyId())) ||
-						areMutalFriends )
+						(user.getAlly() != null && user.getAlly().getShowAstis() && user.getAlly().getId() == base.getOwnerAllyId()) ||
+						areMutualFriends )
 				{
 					boolean isNebula = map.isNebula(location);
 					boolean revealAsteroid = bekannteOrte.contains(location) || (!isNebula && scannedLocationsToScannerId.containsKey(location))|| (isNebula && (scannedNebulaLocationsToScannerId.containsKey(location) || shipInSector(location))) ;
-					String img = base.getOverlayImage(location, user, revealAsteroid, areMutalFriends);
+					String img = base.getOverlayImage(location, user, revealAsteroid, areMutualFriends);
 					if( img != null ) {
 						return new SectorImage(img, 0, 0);
 					}
@@ -324,7 +323,7 @@ public class PlayerStarmap extends PublicStarmap
 		if(baseInSector || isScanned(location))
 		{
 			boolean scanningShipInSector = scanMap.containsKey(location);
-			Nebel nebula = this.map.getNebulaMap().get(location);
+			Nebel.Typ nebula = this.map.getNebulaMap().get(location);
 			if(!baseInSector && !scanningShipInSector && nebula != null && !nebula.allowsScan()) {
 				maxNeutralShipSize = -1;
 				maxEnemyShipSize = -1;
@@ -365,10 +364,10 @@ public class PlayerStarmap extends PublicStarmap
 			imageName += "_fa";
 		}
 
-		Nebel nebula = this.map.getNebulaMap().get(location);
+		Nebel.Typ nebula = this.map.getNebulaMap().get(location);
 		int minSize;
 		if(nebula != null) {
-			minSize = nebula.getType().getMinScansize();
+			minSize = nebula.getMinScansize();
 		} else {
 			minSize = 0;
 		}
@@ -393,7 +392,7 @@ public class PlayerStarmap extends PublicStarmap
 
 	private void buildScannedLocations()
 	{
-		Map<Location, Nebel> nebulas = this.map.getNebulaMap();
+		Map<Location, Nebel.Typ> nebulas = this.map.getNebulaMap();
 		for (Map.Entry<Location, ScanData> entry : scanMap.entrySet()) {
 			Location position = entry.getKey();
 			ScanData scanData = entry.getValue();
@@ -404,7 +403,7 @@ public class PlayerStarmap extends PublicStarmap
 				findScannedPositions(nebulas, position, scanData, scanRange, scannedLocationsToScannerId);
 
 				var nebulaScanData = nebulaScanMap.get(position);
-				// Nebula scanners can only exist on position which have at least one friendly scanner, so we only need to check these
+				// Nebula scanners can only exist on position which have at least one friendly scanner
 				if (nebulaScanData != null) {
 					int nebulaScanRange = scanData.getScanRange();
 					findScannedPositions(nebulas, position, scanData, nebulaScanRange, scannedNebulaLocationsToScannerId);
@@ -413,7 +412,7 @@ public class PlayerStarmap extends PublicStarmap
 		}
 	}
 
-	private void findScannedPositions(Map<Location, Nebel> nebulae, Location position, ScanData scanData, int scanRange, Map<Location, Integer> scannedNebulaLocationsToScannerId) {
+	private void findScannedPositions(Map<Location, Nebel.Typ> nebulae, Location position, ScanData scanData, int scanRange, Map<Location, Integer> scannedPositions) {
 		for (int y = position.getY() - scanRange; y <= position.getY() + scanRange; y++) {
 			for (int x = position.getX() - scanRange; x <= position.getX() + scanRange; x++) {
 				Location loc = new Location(map.getSystem(), x, y);
@@ -424,7 +423,7 @@ public class PlayerStarmap extends PublicStarmap
 
 				var nebula = nebulae.get(loc);
 				if (nebula == null || nebula.allowsScan()) {
-					scannedNebulaLocationsToScannerId.put(loc, scanData.getShipId());
+					scannedPositions.put(loc, scanData.getShipId());
 				}
 			}
 		}

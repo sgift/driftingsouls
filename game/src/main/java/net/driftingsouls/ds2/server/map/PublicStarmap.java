@@ -44,13 +44,12 @@ public class PublicStarmap
 	/**
 	 * Konstruktor.
 	 * @param system Die ID des Systems
-	 * @param ausschnitt Der gewaehlte Ausschnitt <code>[x, y, w, h]</code> oder <code>null</code>, falls kein Ausschnitt verwendet werden soll
 	 */
-	public PublicStarmap(StarSystem system, int[] ausschnitt)
+	public PublicStarmap(StarSystem system, MapArea mapArea)
 	{
 		this.map = new Starmap(system.getID());
-		if( ausschnitt != null ) {
-			this.map = new ClippedStarmap(this.map, ausschnitt);
+		if( mapArea != null ) {
+			this.map = new ClippedStarmap(this.map, mapArea);
 		}
 	}
 
@@ -169,7 +168,7 @@ public class PublicStarmap
 		return false;
 	}
 
-	public Nebel getNebula(Location sektor)
+	public Nebel.Typ getNebula(Location sektor)
 	{
 		var nebulas = map.getNebulaMap();
 		return nebulas.getOrDefault(sektor, null);
