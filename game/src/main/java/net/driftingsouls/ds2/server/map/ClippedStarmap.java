@@ -28,12 +28,12 @@ import net.driftingsouls.ds2.server.ships.ShipClasses;
 
 import javax.persistence.EntityManager;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.stream.Collectors.toUnmodifiableSet;
+import static net.driftingsouls.ds2.server.entities.jooq.Tables.USERS;
+import static net.driftingsouls.ds2.server.entities.jooq.tables.BaseTypes.BASE_TYPES;
+import static net.driftingsouls.ds2.server.entities.jooq.tables.Bases.BASES;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.ShipTypes.SHIP_TYPES;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.Ships.SHIPS;
 
@@ -51,7 +51,7 @@ public class ClippedStarmap extends Starmap
 	private final int[] ausschnitt;
 	private final Set<Location> clippedRockMap;
 	private final Map<Location, Nebel> clippedNebulaMap;
-	private final Map<Location, List<Base>> clippedBaseMap;
+	private final Map<Location, List<BaseData>> clippedBaseMap;
 	private final EntityManager em;
 
 	/**
@@ -89,7 +89,7 @@ public class ClippedStarmap extends Starmap
 	}
 
 	@Override
-	Map<Location, List<Base>> getBaseMap()
+	Map<Location, List<BaseData>> getBaseMap()
 	{
 		return Collections.unmodifiableMap(this.clippedBaseMap);
 	}
@@ -147,19 +147,37 @@ public class ClippedStarmap extends Starmap
 		return this.buildNebulaMap(nebelList);
 	}
 
-	private Map<Location, List<Base>> buildClippedBaseMap()
-	{
-		List<Base> baseList = em.createQuery("from Base "+
-				"where system=:sys and " +
-				"x between :minx and :maxx and " +
-				"y between :miny and :maxy", Base.class)
-			.setParameter("sys", this.inner.getSystem())
-			.setParameter("minx", this.ausschnitt[0])
-			.setParameter("miny", this.ausschnitt[1])
-			.setParameter("maxx", this.ausschnitt[0]+this.ausschnitt[2])
-			.setParameter("maxy", this.ausschnitt[1]+this.ausschnitt[3])
-			.getResultList();
+	private Map<Location, List<BaseData>> buildClippedBaseMap() {
+		try (var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
+			var db = DBUtil.getDSLContext(conn);
+			try (var basesSelect = db
+					.select(
+							BASES.ID,
+							BASES.OWNER,
+							USERS.ALLY,
+							BASES.STAR_SYSTEM,
+							BASES.X,
+							BASES.Y,
+							BASE_TYPES.SIZE,
+							BASE_TYPES.STARMAPIMAGE
+					)
+					.from(
+							BASES.innerJoin(BASE_TYPES)
+									.on(BASES.KLASSE.eq(BASE_TYPES.ID))
+									.innerJoin(USERS)
+									.on(USERS.ID.eq(BASES.OWNER))
+					)
+					.where(BASES.OWNER.notEqual(0)
+							.and(BASES.STAR_SYSTEM.eq(this.getSystem())))
+					.and(BASES.X.between(this.ausschnitt[0], this.ausschnitt[0] + this.ausschnitt[2]))
+					.and(BASES.Y.between(this.ausschnitt[1], this.ausschnitt[1] + this.ausschnitt[3]))
 
-		return this.buildBaseMap(baseList);
+			) {
+				var result = basesSelect.fetch();
+				return buildBaseMap(result);
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }
