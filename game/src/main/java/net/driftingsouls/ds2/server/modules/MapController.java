@@ -310,7 +310,7 @@ public class MapController extends Controller
 			tileY = 0;
 		}
 
-		TileCache cache = TileCache.forSystem(sys);
+		TileCache cache = TileCache.forSystem(sys.getID());
 		File tileCacheFile = cache.getTile(tileX, tileY);
 
 		try (InputStream in = new FileInputStream(tileCacheFile))
@@ -439,11 +439,11 @@ public class MapController extends Controller
 		var mapArea = new MapArea(xstart, xend - xstart, ystart, yend - ystart);
 		if (admin && hasPermission(WellKnownAdminPermission.STARMAP_VIEW))
 		{
-			content = new AdminStarmap(sys, user, mapArea);
+			content = new AdminStarmap(sys.getID(), user, mapArea);
 		}
 		else
 		{
-			content = new PlayerStarmap(user, sys, mapArea);
+			content = new PlayerStarmap(user, sys.getID(), mapArea);
 		}
 
 		json.size = new MapViewModel.SizeViewModel();

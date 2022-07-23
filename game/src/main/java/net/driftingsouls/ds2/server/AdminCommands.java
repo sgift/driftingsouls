@@ -1486,7 +1486,7 @@ public class AdminCommands {
 
 			List<StarSystem> systems = Common.cast(ContextMap.getContext().getDB().createQuery("from StarSystem order by id asc").list());
 			for (StarSystem system: systems) {
-				TileCache tileCache = TileCache.forSystem(system);
+				TileCache tileCache = TileCache.forSystem(system.getID());
 				tileCache.resetCache();
 			}
 

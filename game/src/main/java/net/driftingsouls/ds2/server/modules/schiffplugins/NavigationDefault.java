@@ -160,7 +160,7 @@ public class NavigationDefault implements SchiffPlugin {
 				log.error(String.format("ship: %s -- unknown system: %s", data.getId(), sys));
 			} else {
 				var mapArea = new MapArea(x - 1, 3, y - 1, 3);
-				PlayerStarmap map = new PlayerStarmap(user, system, mapArea);
+				PlayerStarmap map = new PlayerStarmap(user, system.getID(), mapArea);
 
 				int tmp = 0;
 

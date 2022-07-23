@@ -1041,6 +1041,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 
 		Integer[] bebauung = base.getBebauung();
 		Integer[] bebon = base.getActive();
+		var buildings = Building.getBuildings();
 
 		for( int o=0; o < base.getWidth() * base.getHeight(); o++ )
 		{
@@ -1049,7 +1050,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 				continue;
 			}
 
-			Building building = Building.getBuilding(bebauung[o]);
+			Building building = buildings.get(bebauung[o]);
 
 			if( !buildinglocs.containsKey(building.getId()) ) {
 				buildinglocs.put(building.getId(), o);
