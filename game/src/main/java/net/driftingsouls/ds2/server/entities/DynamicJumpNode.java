@@ -178,7 +178,7 @@ public class DynamicJumpNode {
 
         // Force a tile cache reset, so we don't get shadow images of old JN positions
         if(resetTileCache) {
-            TileCache.forSystem(system).resetCache();
+            TileCache.forSystem(system.getID()).resetCache();
         }
     }
 }

@@ -28,23 +28,12 @@ public class TileCache
 
 	/**
 	 * Gibt eine Instanz des TileCaches fuer das angegebene Sternensystem zurueck.
-	 * @param system Das System
-	 * @return Die Instanz
-	 */
-	public static TileCache forSystem(StarSystem system)
-	{
-		return new TileCache(system);
-	}
-
-	/**
-	 * Gibt eine Instanz des TileCaches fuer das angegebene Sternensystem zurueck.
 	 * @param system Die ID des Systems
 	 * @return Die Instanz
 	 */
 	public static TileCache forSystem(int system)
 	{
-		StarSystem sys = (StarSystem)ContextMap.getContext().getDB().get(StarSystem.class, system);
-		return new TileCache(sys);
+		return new TileCache(system);
 	}
 
 	private static final class CustomPaletteBuilder extends PaletteBuilder
@@ -64,11 +53,11 @@ public class TileCache
 	}
 
 	private final Map<String,BufferedImage> imageCache = new HashMap<>();
-	private final StarSystem system;
+	private final int systemId;
 
-	private TileCache(StarSystem system)
+	private TileCache(int systemId)
 	{
-		this.system = system;
+		this.systemId = systemId;
 	}
 
 	private BufferedImage loadImage(String name) throws IOException
@@ -90,7 +79,7 @@ public class TileCache
 
 	private void createTile(File tileCacheFile, int tileX, int tileY) throws IOException
 	{
-		PublicStarmap content = new PublicStarmap(this.system, null);
+		PublicStarmap content = new PublicStarmap(this.systemId, null);
 
 		BufferedImage img = new BufferedImage(TILE_SIZE*25,TILE_SIZE*25,BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = img.createGraphics();
@@ -100,7 +89,7 @@ public class TileCache
 			{
 				for(int x = 0; x < TILE_SIZE; x++)
 				{
-					Location position = new Location(this.system.getID(), tileX*TILE_SIZE+x+1, tileY*TILE_SIZE+y+1);
+					Location position = new Location(this.systemId, tileX*TILE_SIZE+x+1, tileY*TILE_SIZE+y+1);
 					List<RenderedSectorImage> sectorImageName = content.getSectorBaseImage(position);
 
 					for (RenderedSectorImage renderOp : sectorImageName)
@@ -194,7 +183,7 @@ public class TileCache
 	 */
 	public File getTile(int tileX, int tileY) throws IOException
 	{
-		if( this.system == null )
+		if( this.systemId == 0 )
 		{
 			throw new IOException("Es kann keine Kachel für ein unbekanntes Sternensystem erzeugt werden");
 		}
@@ -203,7 +192,7 @@ public class TileCache
 			cacheDir.mkdir();
 		}
 
-		File tileCacheFile = new File(getTilePath()+this.system.getID()+"_"+tileX+"_"+tileY+".png");
+		File tileCacheFile = new File(getTilePath()+this.systemId+"_"+tileX+"_"+tileY+".png");
 		if( !tileCacheFile.isFile() ) {
 			createTile(tileCacheFile, tileX, tileY);
 		}
@@ -221,23 +210,18 @@ public class TileCache
 	 */
 	public void resetCache()
 	{
-		if( this.system == null )
-		{
-			return;
-		}
-
 		final File cacheDir = new File(getTilePath());
 		if( !cacheDir.isDirectory() ) {
 			LOG.error("Konnte TileCache-Verzeichnis nicht finden: "+cacheDir.getAbsolutePath());
 			return;
 		}
 
-		File[] files = cacheDir.listFiles(pathname -> pathname.isFile() && pathname.getName().startsWith(TileCache.this.system.getID() + "_"));
+		File[] files = cacheDir.listFiles(pathname -> pathname.isFile() && pathname.getName().startsWith(TileCache.this.systemId + "_"));
 		if(files == null) {
 			return;
 		}
 
-		LOG.info("System "+this.system.getID()+": Loesche "+files.length+" Tiles aus dem Cache");
+		LOG.info("System "+this.systemId+": Loesche "+files.length+" Tiles aus dem Cache");
 
 		for( File file : files )
 		{

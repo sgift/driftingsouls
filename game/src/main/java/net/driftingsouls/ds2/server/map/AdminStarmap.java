@@ -21,9 +21,9 @@ import static net.driftingsouls.ds2.server.entities.jooq.tables.FriendlyScanRang
 public class AdminStarmap extends PublicStarmap
 {
 	private final User adminUser;
-	public AdminStarmap(StarSystem system, User adminUser, MapArea mapArea)
+	public AdminStarmap(int systemId, User adminUser, MapArea mapArea)
 	{
-		super(system, mapArea);
+		super(systemId, mapArea);
 
 		this.UserRelationsService = new SingleUserRelationsService(adminUser.getId());
 		this.adminUser = adminUser;

@@ -43,11 +43,11 @@ public class PublicStarmap
 
 	/**
 	 * Konstruktor.
-	 * @param system Die ID des Systems
+	 * @param systemId Die ID des Systems
 	 */
-	public PublicStarmap(StarSystem system, MapArea mapArea)
+	public PublicStarmap(int systemId, MapArea mapArea)
 	{
-		this.map = new Starmap(system.getID());
+		this.map = new Starmap(systemId);
 		if( mapArea != null ) {
 			this.map = new ClippedStarmap(this.map, mapArea);
 		}

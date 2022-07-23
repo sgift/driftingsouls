@@ -148,9 +148,10 @@ public class UeberController extends Controller
 		String ticktime = getTickTime();
 
 		String race = "???";
-		if (Rassen.get().rasse(user.getRace()) != null)
+		var spezies = Rassen.get().rasse(user.getRace());
+		if (spezies != null)
 		{
-			race = Rassen.get().rasse(user.getRace()).getName();
+			race = spezies.getName();
 		}
 
 		int ticks = getContext().get(ContextCommon.class).getTick();
@@ -440,12 +441,11 @@ public class UeberController extends Controller
 		int bw = 0;
 		int bases = 0;
 
-		List<?> basen = db.createQuery("from Base where owner= :user order by id")
+		List<Base> basen = db.createQuery("from Base b left join fetch b.core where owner= :user order by b.id")
 				.setEntity("user", user)
 				.list();
-		for (Object aBasen : basen)
+		for (Base base : basen)
 		{
-			Base base = (Base) aBasen;
 			bases++;
 
 			BaseStatus basedata = Base.getStatus(base);

@@ -42,11 +42,11 @@ public class PlayerStarmap extends PublicStarmap
 	 * Legt eine neue Sicht an.
 	 *
 	 * @param user Der Spieler fuer den die Sicht gelten soll.
-	 * @param system Die ID des zugrunde liegenden Sternensystems.
+	 * @param systemId Die ID des zugrunde liegenden Sternensystems.
 	 */
-	public PlayerStarmap(User user, StarSystem system, MapArea mapArea)
+	public PlayerStarmap(User user, int systemId, MapArea mapArea)
 	{
-		super(system, mapArea);
+		super(systemId, mapArea);
 
 		this.user = user;
 		if(this.user == null)
