@@ -240,8 +240,6 @@ class Starmap
 				baseMap.put(position, new ArrayList<>());
 			}
 
-			int allyId = base.get(USERS.ALLY) != null ? base.get(USERS.ALLY) : 0;
-
 			int size = base.get(BASES.SIZE);
 			if(size > 0)
 			{
@@ -260,13 +258,14 @@ class Starmap
 							baseMap.put(loc, new ArrayList<>());
 						}
 
-						baseMap.get(loc).add(0, new BaseData(base.get(BASES.STAR_SYSTEM), base.get(BASES.X), base.get(BASES.Y), base.get(BASES.OWNER), allyId, base.get(BASE_TYPES.SIZE), base.getValue(BASE_TYPES.STARMAPIMAGE))); //Big objects are always printed first
+
+						baseMap.get(loc).add(0, base.into(BaseData.class)); //Big objects are always printed first
 					}
 				}
 			}
 			else
 			{
-				baseMap.get(position).add(new BaseData(base.get(BASES.STAR_SYSTEM), base.get(BASES.X), base.get(BASES.Y), base.get(BASES.OWNER), allyId, base.get(BASE_TYPES.SIZE), base.get(BASE_TYPES.STARMAPIMAGE)));
+				baseMap.get(position).add(base.into(BaseData.class));
 			}
 		}
 

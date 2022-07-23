@@ -3,11 +3,6 @@ package net.driftingsouls.ds2.server.map;
 import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class BaseData implements Locatable {
     private final int system;
@@ -17,14 +12,14 @@ public class BaseData implements Locatable {
     private final int ownerId;
     private final int ownerAllyId;
     private final String starmapImage;
-    public BaseData(int system, int x, int y, int ownerId, int ownerAllyId, int size, String starmapImage)
+    public BaseData(int system, int x, int y, int ownerId, Integer ownerAllyId, int size, String starmapImage)
     {
         this.system = system;
         this.x = x;
         this.y = y;
         this.size = size;
         this.ownerId = ownerId;
-        this.ownerAllyId = ownerAllyId;
+        this.ownerAllyId = ownerAllyId != null ? ownerAllyId : 0;
         this.starmapImage = starmapImage;
     }
 
@@ -89,10 +84,6 @@ public class BaseData implements Locatable {
         {
             return null;
         }
-
-        org.hibernate.Session db = ContextMap.getContext().getDB();
-        User nobody = (User)db.get(User.class, -1);
-        User zero = (User)db.get(User.class, 0);
 
         if(size > 0)
         {
