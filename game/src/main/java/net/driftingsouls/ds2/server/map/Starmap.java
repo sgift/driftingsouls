@@ -1,26 +1,26 @@
 package net.driftingsouls.ds2.server.map;
 
 import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.entities.Nebel;
-import net.driftingsouls.ds2.server.entities.jooq.tables.Bases;
-import net.driftingsouls.ds2.server.entities.jooq.tables.records.BasesRecord;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.DBUtil;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
-import org.jooq.Record7;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static java.util.stream.Collectors.toUnmodifiableSet;
 import static net.driftingsouls.ds2.server.entities.jooq.Tables.USERS;
-import static net.driftingsouls.ds2.server.entities.jooq.Tables.USER_RELATIONS;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.BaseTypes.BASE_TYPES;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.Bases.BASES;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.Battles.BATTLES;
-import static net.driftingsouls.ds2.server.entities.jooq.tables.FriendlyScanRanges.FRIENDLY_SCAN_RANGES;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.Jumpnodes.JUMPNODES;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.ShipTypes.SHIP_TYPES;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.Ships.SHIPS;
@@ -240,6 +240,8 @@ class Starmap
 				baseMap.put(position, new ArrayList<>());
 			}
 
+			int allyId = base.getValue(USERS.ALLY) != null ? base.get(USERS.ALLY) : 0;
+
 			int size = base.getValue(BASES.SIZE);
 			if(size > 0)
 			{
@@ -258,13 +260,13 @@ class Starmap
 							baseMap.put(loc, new ArrayList<>());
 						}
 
-						baseMap.get(loc).add(0, new BaseData(base.getValue(BASES.STAR_SYSTEM), base.getValue(BASES.X), base.getValue(BASES.Y), base.getValue(BASES.OWNER), base.getValue(USERS.ALLY), base.getValue(BASE_TYPES.SIZE), base.getValue(BASE_TYPES.STARMAPIMAGE))); //Big objects are always printed first
+						baseMap.get(loc).add(0, new BaseData(base.getValue(BASES.STAR_SYSTEM), base.getValue(BASES.X), base.getValue(BASES.Y), base.getValue(BASES.OWNER), allyId, base.getValue(BASE_TYPES.SIZE), base.getValue(BASE_TYPES.STARMAPIMAGE))); //Big objects are always printed first
 					}
 				}
 			}
 			else
 			{
-				baseMap.get(position).add(new BaseData(base.getValue(BASES.STAR_SYSTEM), base.getValue(BASES.X), base.getValue(BASES.Y), base.getValue(BASES.OWNER), base.getValue(USERS.ALLY), base.getValue(BASE_TYPES.SIZE), base.getValue(BASE_TYPES.STARMAPIMAGE)));
+				baseMap.get(position).add(new BaseData(base.getValue(BASES.STAR_SYSTEM), base.getValue(BASES.X), base.getValue(BASES.Y), base.getValue(BASES.OWNER), allyId, base.getValue(BASE_TYPES.SIZE), base.getValue(BASE_TYPES.STARMAPIMAGE)));
 			}
 		}
 
