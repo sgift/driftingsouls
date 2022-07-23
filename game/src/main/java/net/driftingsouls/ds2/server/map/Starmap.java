@@ -262,13 +262,15 @@ class Starmap
 						}
 
 
-						baseMap.get(loc).add(0, base.into(BaseData.class)); //Big objects are always printed first
+						var baseData = new BaseData(system, x, y, base.get(BASES.OWNER), base.get(USERS.ALLY), size, base.get(BASE_TYPES.STARMAPIMAGE));
+						baseMap.get(loc).add(0, baseData); //Big objects are always printed first
 					}
 				}
 			}
 			else
 			{
-				baseMap.get(position).add(base.into(BaseData.class));
+				var baseData = new BaseData(system, position.getX(), position.getY(), base.get(BASES.OWNER), base.get(USERS.ALLY), size, base.get(BASE_TYPES.STARMAPIMAGE));
+				baseMap.get(position).add(baseData);
 			}
 		}
 
