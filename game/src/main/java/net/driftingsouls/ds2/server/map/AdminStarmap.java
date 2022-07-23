@@ -1,11 +1,11 @@
 package net.driftingsouls.ds2.server.map;
 
 import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.DBUtil;
+import net.driftingsouls.ds2.server.services.SingleUserRelationsService;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -31,6 +31,7 @@ public class AdminStarmap extends PublicStarmap
 	{
 		super(system, ausschnitt);
 
+		this.UserRelationsService = new SingleUserRelationsService(adminUser.getId());
 		this.adminUser = adminUser;
 		buildFriendlyData();
 	}
@@ -54,11 +55,11 @@ public class AdminStarmap extends PublicStarmap
 	@Override
 	public SectorImage getUserSectorBaseImage(Location location)
 	{
-		List<Base> positionBases = map.getBaseMap().get(location);
+		List<BaseData> positionBases = map.getBaseMap().get(location);
 		if(positionBases != null && !positionBases.isEmpty())
 		{
-			Base base = positionBases.get(0);
-			String img = base.getOverlayImage(location, adminUser, true);
+			BaseData base = positionBases.get(0);
+			String img = base.getOverlayImage(location, adminUser, true, this.UserRelationsService.isMutualFriendTo(base.getOwnerId()));
 			if( img != null ) {
 				return new SectorImage(img, 0, 0);
 			}
@@ -150,7 +151,7 @@ public class AdminStarmap extends PublicStarmap
 	@Override
 	public boolean isHasSectorContent(Location position)
 	{
-		List<Base> bases = map.getBaseMap().get(position);
+		List<BaseData> bases = map.getBaseMap().get(position);
 		return bases != null && !bases.isEmpty() || this.getShipImage(position) != null || map.getRockPositions().contains(position);
 	}
 

@@ -1,24 +1,18 @@
 package net.driftingsouls.ds2.server.map;
 
 import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.User.Relation;
 import net.driftingsouls.ds2.server.entities.User.Relations;
 import net.driftingsouls.ds2.server.entities.jooq.routines.GetEnemyShipsInSystem;
 import net.driftingsouls.ds2.server.entities.jooq.routines.GetSectorsWithAttackingShips;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.DBUtil;
+import net.driftingsouls.ds2.server.services.SingleUserRelationsService;
 
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static net.driftingsouls.ds2.server.entities.jooq.tables.FriendlyNebelScanRanges.FRIENDLY_NEBEL_SCAN_RANGES;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.FriendlyScanRanges.FRIENDLY_SCAN_RANGES;
@@ -57,7 +51,7 @@ public class PlayerStarmap extends PublicStarmap
 		{
 			throw new IllegalArgumentException("User may not be null.");
 		}
-
+		this.UserRelationsService = new SingleUserRelationsService(user.getId());
 		buildFriendlyData();
 
 		this.relations = user.getRelations();
@@ -69,6 +63,7 @@ public class PlayerStarmap extends PublicStarmap
 
 		this.bekannteOrte = findWellKnownLocations();
 		this.sectorsWithAttackingShips = findVisibleSectorsWithAlerts();
+
 	}
 
 
@@ -192,23 +187,22 @@ public class PlayerStarmap extends PublicStarmap
 			wellKnownLocations.add(new Location(map.getSystem(), jumpNode.getX(), jumpNode.getY()));
 		}
 
-		for (Map.Entry<Location, List<Base>> loc : this.map.getBaseMap().entrySet())
+		for (Map.Entry<Location, List<BaseData>> loc : this.map.getBaseMap().entrySet())
 		{
-			for (Base base : loc.getValue())
+			for (BaseData base : loc.getValue())
 			{
-				User owner = base.getOwner();
-				if( owner.getId() == user.getId() )
+				//User owner = base.getOwner();
+				if( base.getOwnerId() == user.getId() )
 				{
 					wellKnownLocations.add(loc.getKey());
 				}
-				else if( user.getAlly() != null && user.getAlly().getShowAstis() && owner.getAlly() != null &&
-						user.getAlly().getId() == owner.getAlly().getId() )
+				else if( user.getAlly() != null && user.getAlly().getShowAstis() && user.getAlly().getId() == base.getOwnerAllyId() )
 				{
 					wellKnownLocations.add(loc.getKey());
 				}
 				else
 				{
-					if( relations.isOnly(owner, Relation.FRIEND) )
+					if( this.UserRelationsService.isMutualFriendTo(base.getOwnerId()))
 					{
 						wellKnownLocations.add(loc.getKey());
 					}
@@ -240,18 +234,28 @@ public class PlayerStarmap extends PublicStarmap
 	public SectorImage getUserSectorBaseImage(Location location)
 	{
 		boolean scanned = scannedLocationsToScannerId.containsKey(location) || scannedNebulaLocationsToScannerId.containsKey(location);
-		List<Base> positionBases = map.getBaseMap().get(location);
+		List<BaseData> positionBases = map.getBaseMap().get(location);
 		if(positionBases != null)
 		{
-			for (Base base : positionBases)
+			for (BaseData base : positionBases)
 			{
-				if( scanned || base.getOwner().getId() == this.user.getId() ||
-						(user.getAlly() != null && user.getAlly().getShowAstis() && user.getAlly().equals(base.getOwner().getAlly())) ||
-						relations.isOnly(base.getOwner(), Relation.FRIEND) )
+				boolean areMutalFriends = this.UserRelationsService.isMutualFriendTo(base.getOwnerId());
+
+				System.out.println(base.getOwnerId());
+				System.out.println(base.getLocation().getSystem());
+				System.out.println(base.getLocation().getX());
+				System.out.println(base.getLocation().getY());
+				System.out.println(this.user.getId());
+				System.out.println(areMutalFriends);
+
+
+				if( scanned || base.getOwnerId() == this.user.getId() ||
+						(user.getAlly() != null && user.getAlly().getShowAstis() && user.getAlly().equals(base.getOwnerAllyId())) ||
+						areMutalFriends )
 				{
 					boolean isNebula = map.isNebula(location);
 					boolean revealAsteroid = bekannteOrte.contains(location) || (!isNebula && scannedLocationsToScannerId.containsKey(location))|| (isNebula && (scannedNebulaLocationsToScannerId.containsKey(location) || shipInSector(location))) ;
-					String img = base.getOverlayImage(location, user, revealAsteroid);
+					String img = base.getOverlayImage(location, user, revealAsteroid, areMutalFriends);
 					if( img != null ) {
 						return new SectorImage(img, 0, 0);
 					}
@@ -282,6 +286,9 @@ public class PlayerStarmap extends PublicStarmap
 		return null;
 	}
 
+
+
+
 	@Override
 	public SectorImage getSectorOverlayImage(Location location)
 	{
@@ -307,8 +314,8 @@ public class PlayerStarmap extends PublicStarmap
 		String imageName = "";
 
 		boolean baseInSector = map.getBaseMap().getOrDefault(location, List.of()).stream()
-			.filter(base -> base.getOwner() != null)
-			.anyMatch(base -> base.getOwner().getId() == user.getId());
+			.filter(base -> base.getOwnerId() != -1)
+			.anyMatch(base -> base.getOwnerId() == user.getId());
 
 		int maxEnemyShipSize;
 		int maxNeutralShipSize;
@@ -482,7 +489,7 @@ public class PlayerStarmap extends PublicStarmap
 	@Override
 	public boolean isHasSectorContent(Location position)
 	{
-		List<Base> bases = map.getBaseMap().get(position);
+		List<BaseData> bases = map.getBaseMap().get(position);
 		if( bases != null && !bases.isEmpty()  )
 		{
 			return true;

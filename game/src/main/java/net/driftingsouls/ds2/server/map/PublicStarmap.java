@@ -19,14 +19,11 @@
 package net.driftingsouls.ds2.server.map;
 
 import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.Nebel;
+import net.driftingsouls.ds2.server.services.SingleUserRelationsService;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 /**
  * Die allgemeine Sicht auf eine Sternenkarte ohne nutzerspezifische Anzeigen.
@@ -111,12 +108,12 @@ public class PublicStarmap
 		List<RenderedSectorImage> renderList = new ArrayList<>();
 		renderList.add(new RenderedSectorImage("data/starmap/space/space.png", 0, 0, RenderedSectorImage.DEFAULT_MASK));
 
-		List<Base> positionBases = map.getBaseMap().get(location);
+		var positionBases = map.getBaseMap().get(location);
 		if(positionBases != null && !positionBases.isEmpty())
 		{
-			Base base = positionBases.get(0);
-			int[] offset = base.getBaseImageOffset(location);
-			renderList.add(new RenderedSectorImage(base.getBaseImage(location), offset[0], offset[1], RenderedSectorImage.DEFAULT_MASK));
+			BaseData base = positionBases.get(0);
+			int[] offset = base.getSectorImageOffset(location, base.getLocation());
+			renderList.add(new RenderedSectorImage(base.getSectorImage(location), offset[0], offset[1], RenderedSectorImage.DEFAULT_MASK));
 		}
 
 		List<Starmap.JumpNode> positionNodes = map.getNodeMap().get(location);
@@ -192,4 +189,6 @@ public class PublicStarmap
 	{
 
 	}
+
+	protected SingleUserRelationsService UserRelationsService;
 }

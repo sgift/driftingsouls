@@ -1351,36 +1351,6 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	}
 
 	/**
-	 * Ermittelt den Offset in Sektoren fuer die Darstellung des von
-	 * {@link #getBaseImage(net.driftingsouls.ds2.server.Location)} ermittelten Bildes.
-	 * Der ermittelte Offset ist immer Negativ oder <code>0</code> und stellt
-	 * die Verschiebung der Grafik selbst dar (vgl. CSS-Sprites).
-	 *
-	 * @param location Koordinate fuer die das Bild der Basis ermittelt werden soll.
-	 * @return Der Offset als Array (<code>[x,y]</code>)
-	 */
-	public int[] getBaseImageOffset(Location location)
-	{
-		return this.klasse.getSectorImageOffset(location, this.getLocation());
-	}
-
-	/**
-	 * Gibt das Bild der Basis zurueck.
-	 * Dabei werden Ausdehnung und Besitzer beruecksichtigt. Zudem
-	 * kann das zurueckgelieferte Bild mehrere Sektoren umfassen. Der korrekte
-	 * Offset zur Darstellung des angefragten Sektors kann mittels
-	 * {@link #getBaseImageOffset(net.driftingsouls.ds2.server.Location)}
-	 * ermittelt werden.
-	 *
-	 * @param location Koordinate fuer die das Bild der Basis ermittelt werden soll.
-	 * @return Der Bildstring der Basis oder einen Leerstring, wenn die Basis die Koordinaten nicht schneidet
-	 */
-	public String getBaseImage(Location location)
-	{
-		return this.klasse.getSectorImage(location, this.getLocation());
-	}
-
-	/**
 	 * @return The current amount of food on the object.
 	 */
 	@Override
