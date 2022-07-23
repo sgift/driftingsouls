@@ -4,7 +4,6 @@ import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.User.Relations;
 import net.driftingsouls.ds2.server.entities.jooq.routines.GetEnemyShipsInSystem;
 import net.driftingsouls.ds2.server.entities.jooq.routines.GetSectorsWithAttackingShips;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -12,7 +11,12 @@ import net.driftingsouls.ds2.server.framework.db.DBUtil;
 import net.driftingsouls.ds2.server.services.SingleUserRelationsService;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import static net.driftingsouls.ds2.server.entities.jooq.tables.FriendlyNebelScanRanges.FRIENDLY_NEBEL_SCAN_RANGES;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.FriendlyScanRanges.FRIENDLY_SCAN_RANGES;
@@ -32,7 +36,6 @@ public class PlayerStarmap extends PublicStarmap
 	private final Set<Location> sectorsWithAttackingShips;
 	private final Set<Location> bekannteOrte;
 	private final User user;
-	private final Relations relations;
 
 
 	/**
@@ -53,8 +56,6 @@ public class PlayerStarmap extends PublicStarmap
 		}
 		this.UserRelationsService = new SingleUserRelationsService(user.getId());
 		buildFriendlyData();
-
-		this.relations = user.getRelations();
 
 		this.scannedLocationsToScannerId = new HashMap<>();
 		this.scannedNebulaLocationsToScannerId = new HashMap<>();
@@ -450,7 +451,6 @@ public class PlayerStarmap extends PublicStarmap
 							this.map.getSystem(),
 							record.get(SHIPS.X),
 							record.get(SHIPS.Y),
-							Objects.requireNonNullElse(record.getValue("nebeltype", Integer.class), 0),
 							record.get("max_size", Long.class).intValue(),
 							Objects.requireNonNullElse(record.get(USER_RELATIONS.STATUS), 0) == 1
 						);
