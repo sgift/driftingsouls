@@ -18,10 +18,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toUnmodifiableSet;
-import static net.driftingsouls.ds2.server.entities.jooq.Tables.NEBEL;
-import static net.driftingsouls.ds2.server.entities.jooq.Tables.USERS;
-import static net.driftingsouls.ds2.server.entities.jooq.tables.BaseTypes.BASE_TYPES;
-import static net.driftingsouls.ds2.server.entities.jooq.tables.Bases.BASES;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.Battles.BATTLES;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.Jumpnodes.JUMPNODES;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.ShipTypes.SHIP_TYPES;
@@ -96,7 +92,7 @@ class Starmap
 	Map<Location, List<BaseData>> getBaseMap()
 	{
 		if( this.baseMap == null ) {
-			var bases = BasesRepository.getBaseMap(this.system, null);
+			var bases = BasesRepository.getBaseMapBySystem(this.system);
 			this.baseMap = this.buildBaseMap(bases);
 		}
 

@@ -10,6 +10,7 @@ import net.driftingsouls.ds2.server.map.BaseData;
 import org.jooq.Condition;
 import org.jooq.Records;
 import org.jooq.SelectConditionStep;
+import org.jooq.impl.DSL;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ import static net.driftingsouls.ds2.server.entities.jooq.tables.BaseTypes.BASE_T
 import static net.driftingsouls.ds2.server.entities.jooq.tables.Bases.BASES;
 
 public class BasesRepository {
-    public static ArrayList<BaseData> getBaseMap(int system, Condition condition)
+    public static ArrayList<BaseData> getBaseMap(Condition condition)
     {
         List<BaseData> bases = new ArrayList<>();
             try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
@@ -44,7 +45,7 @@ public class BasesRepository {
                                         .innerJoin(USERS)
                                         .on(USERS.ID.eq(BASES.OWNER))
                         )
-                        .where(BASES.STAR_SYSTEM.eq(system)).and(condition))
+                        .where(condition))
                 {
                     var result = new ArrayList<>(basesSelect.fetch(Records.mapping(BaseData::new)));
                     return result;
@@ -52,5 +53,12 @@ public class BasesRepository {
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
+    }
+
+    public static ArrayList<BaseData> getBaseMapBySystem(int system)
+    {
+        Condition condition = DSL.trueCondition();
+        condition.and(BASES.STAR_SYSTEM.eq(system));
+        return getBaseMap(condition);
     }
 }

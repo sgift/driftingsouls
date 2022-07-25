@@ -107,10 +107,13 @@ public class ClippedStarmap extends Starmap {
         if(this.baseMap == null)
         {
             Condition condition = DSL.falseCondition();
-            condition = condition.or((BASES.X.between(mapArea.getLowerBoundX(), mapArea.getUpperBoundX()))
-                    .and(BASES.Y.between(mapArea.getLowerBoundY(), mapArea.getUpperBoundY())));
+            condition = condition
+                    .or((BASES.X.between(mapArea.getLowerBoundX(), mapArea.getUpperBoundX()))
+                    .and(BASES.Y.between(mapArea.getLowerBoundY(), mapArea.getUpperBoundY()))
+                    .and(BASES.STAR_SYSTEM.eq(inner.getSystem()))
+            );
 
-            var bases = BasesRepository.getBaseMap(inner.getSystem(), condition);
+            var bases = BasesRepository.getBaseMap(condition);
 
             this.baseMap = this.buildBaseMap(bases);
         }
