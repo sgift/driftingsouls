@@ -8,6 +8,7 @@ import net.driftingsouls.ds2.server.entities.jooq.routines.GetEnemyShipsInSystem
 import net.driftingsouls.ds2.server.entities.jooq.routines.GetSectorsWithAttackingShips;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.DBUtil;
+import net.driftingsouls.ds2.server.repositories.ShipsRepository;
 import net.driftingsouls.ds2.server.services.SingleUserRelationsService;
 
 import java.sql.SQLException;
@@ -151,29 +152,19 @@ public class PlayerStarmap extends PublicStarmap
 			return Set.of();
 		}
 
-		var attackingSectors = new HashSet<Location>();
-		try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
-			var db = DBUtil.getDSLContext(conn);
-
-			var sectorsWithAttackingShips = new GetSectorsWithAttackingShips();
-			sectorsWithAttackingShips.setUserid(user.getId());
-			sectorsWithAttackingShips.execute(db.configuration());
-
-			for(var record: sectorsWithAttackingShips.getResults().get(0)) {
-				attackingSectors.add(new Location(
-					record.get(SHIPS.STAR_SYSTEM),
-					record.get(SHIPS.X),
-					record.get(SHIPS.Y)
-				));
-			}
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
+		var attackingSectors = ShipsRepository.getAttackingSectors(user.getId());
 
 		// Only show alerts where we have a ship in the area
-		attackingSectors.retainAll(candidateSectors);
+		retainSectors(candidateSectors, attackingSectors);
+
 		return attackingSectors;
 	}
+
+	protected void retainSectors(Set<Location> candidateSectors, HashSet<Location> attackingSectors)
+	{
+		attackingSectors.retainAll(candidateSectors);
+	}
+
 
 	private Set<Location> findWellKnownLocations()
 	{
