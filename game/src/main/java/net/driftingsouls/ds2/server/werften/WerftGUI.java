@@ -38,7 +38,6 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
-import net.driftingsouls.ds2.server.ships.ShipModules;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -823,19 +822,19 @@ public class WerftGUI {
 			{
 				for (ItemCargoEntry<Schiffsmodul> anItemlist : itemlist)
 				{
-					IEModule effect = anItemlist.getItem().getEffect();
+					IEModule effect = anItemlist.getShipModule().getEffect();
 					if (!ModuleSlots.get().slot(aslot[1]).isMemberIn(effect.getSlots()))
 					{
 						continue;
 					}
-					Item itemobj = anItemlist.getItem();
-					if (itemobj.getAccessLevel() > user.getAccessLevel())
+					var itemData = anItemlist.getItem();
+					if (itemData.getAccessLevel() > user.getAccessLevel())
 					{
 						continue;
 					}
 
 					t.setVar("item.id", anItemlist.getItemID(),
-							"item.name", itemobj.getName());
+							"item.name", itemData.getName());
 
 					t.parse("slot.items.list", "slot.items.listitem", true);
 				}
@@ -960,8 +959,6 @@ public class WerftGUI {
 		t.setVar(	"ship.type.image",		shiptype.getPicture(),
 					"werftgui.ws.reload",	1,
 					"ws.reload.conf",		!conf.equals("ok") );
-
-		Cargo cargo = werft.getCargo(false);
 
 		ReloadCosts reloadCost = werft.getReloadCosts(ship);
 

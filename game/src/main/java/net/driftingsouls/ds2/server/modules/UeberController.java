@@ -28,6 +28,7 @@ import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.IntTutorial;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
@@ -157,6 +158,7 @@ public class UeberController extends Controller
 		int ticks = getContext().get(ContextCommon.class).getTick();
 
 		long[] fullbalance = user.getFullBalance();
+
 
 		t.setVar("user.name", Common._title(user.getName()),
 				"user.race", race,
@@ -444,6 +446,7 @@ public class UeberController extends Controller
 		List<Base> basen = db.createQuery("from Base b left join fetch b.core where owner= :user order by b.id")
 				.setEntity("user", user)
 				.list();
+
 		for (Base base : basen)
 		{
 			bases++;

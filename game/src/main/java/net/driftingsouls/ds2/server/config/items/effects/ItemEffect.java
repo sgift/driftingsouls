@@ -78,6 +78,29 @@ public abstract class ItemEffect {
 		public String getName() {
 			return name;
 		}
+
+		public static Type getTypeFromEffectName(String effectName) {
+			switch(effectName) {
+				case "IffDeaktivieren":
+					return DISABLE_IFF;
+				case "Schiffsbauplan":
+					return DRAFT_SHIP;
+				case "Ware":
+					return NONE;
+				case "Schiffsverbot":
+					return DISABLE_SHIP;
+				case "Munition":
+					return AMMO;
+				case "Munitionsbauplan":
+					return DRAFT_AMMO;
+				case "Schiffsmodul":
+					return MODULE;
+				case "SchiffsmodulSet":
+					return MODULE_SET_META;
+				default:
+					throw new IllegalArgumentException("Unknown discriminator value: " + effectName);
+			}
+		}
 	}
 
 	private final Type type;

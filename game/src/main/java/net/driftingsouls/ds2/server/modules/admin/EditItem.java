@@ -43,6 +43,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import net.driftingsouls.ds2.server.modules.admin.editoren.MapEntryRef;
+import net.driftingsouls.ds2.server.repositories.ItemRepository;
 import net.driftingsouls.ds2.server.ships.SchiffstypModifikation;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
@@ -127,6 +128,8 @@ public class EditItem implements EntityEditor<Item>
 						.list()) : new ArrayList<>(),
 				(Item oldItem, Item item, Integer shipId) -> aktualisiereSchiff(shipId, oldItem, item)
 		);
+
+		ItemRepository.getInstance().clearItemCache();
 	}
 
 	private void aktualisiereSchiff(Integer shipId, Item oldItem, Item item)

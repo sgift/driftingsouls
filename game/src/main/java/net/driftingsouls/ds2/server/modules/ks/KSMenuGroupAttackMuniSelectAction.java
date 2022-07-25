@@ -214,12 +214,12 @@ public class KSMenuGroupAttackMuniSelectAction extends BasicKSMenuAction {
 			List<ItemCargoEntry<Munition>> items = mycargo.getItemsOfType(Munition.class);
 			for (ItemCargoEntry<Munition> item : items)
 			{
-				IEAmmo effect = item.getItem().getEffect();
-				Item itemobject = item.getItem();
+				IEAmmo effect = item.getAmmo().getEffect();
+				var itemData = item.getItem();
 
 				if (ammoids.contains(effect.getAmmo().getId()))
 				{
-					menuEntry(t, itemobject.getName(), "ship", ownShip.getId(),
+					menuEntry(t, itemData.getName(), "ship", ownShip.getId(),
 							"attack", enemyShip.getId(),
 							"ksaction", "groupattack2",
 							"weapon", weapon,

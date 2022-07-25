@@ -1013,7 +1013,6 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 */
 	public static BaseStatus getStatus( Base base )
 	{
-
         Fabrik.ContextVars vars = ContextMap.getContext().get(Fabrik.ContextVars.class);
         vars.clear();
 
@@ -1081,6 +1080,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		stat.substractResource( Resources.NAHRUNG, (long)Math.ceil(base.getBewohner()/10.0) );
 		stat.substractResource( Resources.NAHRUNG, base.getUnits().getNahrung() );
         // RE nicht mit in constat rein. Dies wird im Tick benutzt, der betrachtet RE-Verbrauch aber separat.
+
 		stat.substractResource( Resources.RE, base.getUnits().getRE() );
 
 		return new BaseStatus(stat, prodstat, constat, e, bewohner, arbeiter, Collections.unmodifiableMap(buildinglocs), bebon);
@@ -1392,7 +1392,6 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	public long getNahrungsBalance()
 	{
 		BaseStatus status = getStatus(this );
-
 		Cargo produktion = status.getProduction();
 
 		return produktion.getResourceCount( Resources.NAHRUNG );

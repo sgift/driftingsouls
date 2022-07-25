@@ -20,17 +20,33 @@ package net.driftingsouls.ds2.server.map;
 
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.entities.Nebel;
+import net.driftingsouls.ds2.server.entities.jooq.tables.records.BasesRecord;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.DBUtil;
+import net.driftingsouls.ds2.server.repositories.BasesRepository;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jooq.*;
+import org.jooq.Comparator;
+import org.jooq.Field;
+import org.jooq.Record;
+import org.jooq.conf.ParamType;
+import org.jooq.exception.*;
+import org.jooq.impl.DSL;
+import org.jooq.impl.QOM;
+import org.reactivestreams.Subscriber;
 
 import javax.persistence.EntityManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.Executor;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.stream.Collector;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toUnmodifiableSet;
 import static net.driftingsouls.ds2.server.entities.jooq.Tables.NEBEL;
@@ -53,7 +69,7 @@ public class ClippedStarmap extends Starmap {
     private final MapArea mapArea;
     private final Set<Location> clippedRockMap;
     private final Map<Location, Nebel.Typ> clippedNebulaMap;
-    private final Map<Location, List<BaseData>> clippedBaseMap;
+
     private final EntityManager em;
 
     /**
@@ -68,7 +84,6 @@ public class ClippedStarmap extends Starmap {
         this.inner = inner;
         this.mapArea = mapArea;
         this.clippedNebulaMap = this.buildClippedNebulaMap();
-        this.clippedBaseMap = this.buildClippedBaseMap();
         this.clippedRockMap = this.buildClippedRockLocations();
     }
 
@@ -89,7 +104,20 @@ public class ClippedStarmap extends Starmap {
 
     @Override
     Map<Location, List<BaseData>> getBaseMap() {
-        return Collections.unmodifiableMap(this.clippedBaseMap);
+        if(this.baseMap == null)
+        {
+            Condition condition = DSL.falseCondition();
+            condition = condition
+                    .or((BASES.X.between(mapArea.getLowerBoundX(), mapArea.getUpperBoundX()))
+                    .and(BASES.Y.between(mapArea.getLowerBoundY(), mapArea.getUpperBoundY()))
+                    .and(BASES.STAR_SYSTEM.eq(inner.getSystem()))
+            );
+
+            var bases = BasesRepository.getBaseMap(condition);
+
+            this.baseMap = this.buildBaseMap(bases);
+        }
+        return Collections.unmodifiableMap(this.baseMap);
     }
 
     @Override
@@ -149,37 +177,4 @@ public class ClippedStarmap extends Starmap {
         return clippedNebulaMap;
     }
 
-    private Map<Location, List<BaseData>> buildClippedBaseMap() {
-        try (var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
-            var db = DBUtil.getDSLContext(conn);
-            try (var basesSelect = db
-                .select(
-                    BASES.ID,
-                    BASES.OWNER,
-                    USERS.ALLY,
-                    BASES.STAR_SYSTEM,
-                    BASES.X,
-                    BASES.Y,
-                    BASE_TYPES.SIZE,
-                    BASE_TYPES.STARMAPIMAGE
-                )
-                .from(
-                    BASES.innerJoin(BASE_TYPES)
-                        .on(BASES.KLASSE.eq(BASE_TYPES.ID))
-                        .innerJoin(USERS)
-                        .on(USERS.ID.eq(BASES.OWNER))
-                )
-                .where(BASES.OWNER.notEqual(0)
-                    .and(BASES.STAR_SYSTEM.eq(this.getSystem())))
-                .and(BASES.X.between(mapArea.getLowerBoundX(), mapArea.getUpperBoundX()))
-                .and(BASES.Y.between(mapArea.getLowerBoundY(), mapArea.getUpperBoundY()))
-
-            ) {
-                var result = basesSelect.fetch();
-                return buildBaseMap(result);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

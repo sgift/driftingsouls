@@ -4,6 +4,8 @@ import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.DBUtil;
+import net.driftingsouls.ds2.server.repositories.BasesRepository;
+import net.driftingsouls.ds2.server.repositories.NebulaRepository;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 
 import java.sql.SQLException;
@@ -16,10 +18,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toUnmodifiableSet;
-import static net.driftingsouls.ds2.server.entities.jooq.Tables.NEBEL;
-import static net.driftingsouls.ds2.server.entities.jooq.Tables.USERS;
-import static net.driftingsouls.ds2.server.entities.jooq.tables.BaseTypes.BASE_TYPES;
-import static net.driftingsouls.ds2.server.entities.jooq.tables.Bases.BASES;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.Battles.BATTLES;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.Jumpnodes.JUMPNODES;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.ShipTypes.SHIP_TYPES;
@@ -39,7 +37,7 @@ class Starmap
 	private Set<JumpNode> nodes;
 	private final Map<Location, Nebel.Typ> nebulaMap = new HashMap<>();
 	private Map<Location, List<JumpNode>> nodeMap;
-	private Map<Location, List<BaseData>> baseMap;
+	protected Map<Location, List<BaseData>> baseMap;
 	private Set<Location> battlePositions;
 	private Set<Location> rockPositions;
 
@@ -94,35 +92,10 @@ class Starmap
 	Map<Location, List<BaseData>> getBaseMap()
 	{
 		if( this.baseMap == null ) {
-
-			try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
-				var db = DBUtil.getDSLContext(conn);
-				try(var basesSelect = db
-					.select(
-						BASES.ID,
-						BASES.OWNER,
-						USERS.ALLY,
-						BASES.STAR_SYSTEM,
-						BASES.X,
-						BASES.Y,
-						BASE_TYPES.SIZE,
-						BASE_TYPES.STARMAPIMAGE
-					)
-					.from(
-						BASES.innerJoin(BASE_TYPES)
-								.on(BASES.KLASSE.eq(BASE_TYPES.ID))
-							.innerJoin(USERS)
-								.on(USERS.ID.eq(BASES.OWNER))
-					)
-					.where(BASES.STAR_SYSTEM.eq(this.system)))
-				{
-					var result = basesSelect.fetch();
-					this.baseMap = buildBaseMap(result);
-				}
-			} catch (SQLException e) {
-				throw new RuntimeException(e);
-			}
+			var bases = BasesRepository.getBaseMapBySystem(this.system);
+			this.baseMap = this.buildBaseMap(bases);
 		}
+
 		return Collections.unmodifiableMap(this.baseMap);
 	}
 
@@ -204,73 +177,39 @@ class Starmap
 	 */
 	Map<Location, Nebel.Typ> getNebulaMap()
 	{
-		// Optimized for common case that a system has at least one nebula
-		if(nebulaMap.isEmpty()) {
-			synchronized (nebulaMap) {
-				if(nebulaMap.isEmpty()) {
-					try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
-						var db = DBUtil.getDSLContext(conn);
-						var select = db.select(NEBEL.X, NEBEL.Y, NEBEL.TYPE)
-							.from(NEBEL)
-							.where(NEBEL.STAR_SYSTEM.eq(system));
-						try(select) {
-							for(var record: select.fetch()) {
-								var nebula = Nebel.Typ.getType(record.get(NEBEL.TYPE));
-								var location = new Location(system, record.get(NEBEL.X), record.get(NEBEL.Y));
-								nebulaMap.put(location, nebula);
-							}
-						}
-					} catch (SQLException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			}
-		}
-
-		return Collections.unmodifiableMap(nebulaMap);
+		return NebulaRepository.getInstance().getNebulaData(this.system);
 	}
 
-	protected Map<Location, List<BaseData>> buildBaseMap(List<org.jooq.Record8<Integer, Integer, Integer, Integer, Integer, Integer, Integer, String>> bases)
+	protected Map<Location, List<BaseData>> buildBaseMap(ArrayList<BaseData> bases)
 	{
 		Map<Location, List<BaseData>> baseMap = new HashMap<>();
 
 		for(var base: bases)
 		{
-			Location position = new Location(base.get(BASES.STAR_SYSTEM), base.get(BASES.X), base.get(BASES.Y));
+			Location baseCenterLocation = base.getLocation();
 
-			if(!baseMap.containsKey(position))
-			{
-				baseMap.put(position, new ArrayList<>());
-			}
-
-			int size = base.get(BASES.SIZE);
+			int size = base.getSize();
 			if(size > 0)
 			{
-				for(int y = position.getY() - size; y <= position.getY() + size; y++)
+				var locations = base.getLocationsMap();
+
+				for (var location : locations.entrySet())
 				{
-					for(int x = position.getX() - size; x <= position.getX() + size; x++)
+					if(!baseMap.containsKey(location))
 					{
-						Location loc = new Location(position.getSystem(), x, y);
-
-						if( !position.sameSector( 0, loc, base.get(BASES.SIZE) ) ) {
-							continue;
-						}
-
-						if(!baseMap.containsKey(loc))
-						{
-							baseMap.put(loc, new ArrayList<>());
-						}
-
-
-						var baseData = new BaseData(system, x, y, base.get(BASES.OWNER), base.get(USERS.ALLY), size, base.get(BASE_TYPES.STARMAPIMAGE));
-						baseMap.get(loc).add(0, baseData); //Big objects are always printed first
+						baseMap.put(location.getKey(), new ArrayList<>());
 					}
+
+					baseMap.get(location.getKey()).add(0, location.getValue()); //Big objects are always printed first
 				}
 			}
 			else
 			{
-				var baseData = new BaseData(system, position.getX(), position.getY(), base.get(BASES.OWNER), base.get(USERS.ALLY), size, base.get(BASE_TYPES.STARMAPIMAGE));
-				baseMap.get(position).add(baseData);
+				if(!baseMap.containsKey(baseCenterLocation))
+				{
+					baseMap.put(baseCenterLocation, new ArrayList<>());
+				}
+				baseMap.get(baseCenterLocation).add(base);
 			}
 		}
 

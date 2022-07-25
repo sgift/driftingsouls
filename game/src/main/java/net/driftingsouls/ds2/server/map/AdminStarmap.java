@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static net.driftingsouls.ds2.server.entities.jooq.tables.FriendlyScanRanges.FRIENDLY_SCAN_RANGES;
 
@@ -18,12 +19,12 @@ import static net.driftingsouls.ds2.server.entities.jooq.tables.FriendlyScanRang
  * Die Adminsicht auf die Sternenkarte. Zeigt alle
  * Basen, Schiffe und Sprungpunkte an.
  */
-public class AdminStarmap extends PublicStarmap
+public class AdminStarmap extends PlayerStarmap
 {
 	private final User adminUser;
 	public AdminStarmap(int systemId, User adminUser, MapArea mapArea)
 	{
-		super(systemId, mapArea);
+		super(adminUser, systemId, mapArea);
 
 		this.UserRelationsService = new SingleUserRelationsService(adminUser.getId());
 		this.adminUser = adminUser;
@@ -85,55 +86,8 @@ public class AdminStarmap extends PublicStarmap
 		return new SectorImage("data/starmap/fleet/fleet"+shipImage+".png", 0, 0);
 	}
 
-	//@Override
-	protected void buildFriendlyData()
-	{
-		var scanMap = new HashMap<Location, ScanData>();
-		var ownShipSectors = new HashSet<Location>();
-		var allyShipSectors = new HashSet<Location>();
-		try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
-			var db = DBUtil.getDSLContext(conn);
-			try(var scanDataSelect = db
-				.selectFrom(FRIENDLY_SCAN_RANGES)) {
-				var result = scanDataSelect.fetch();
-				for (var record : result) {
-					var scanData = new ScanData(this.map.getSystem(), record.getX(), record.getY(), record.getId(), record.getOwner(), record.getSensorRange().intValue());
-
-					//FRIENDLY_SCAN_RANGES contains values per sector for best scanner by user and best scanner by ally
-					//So we check here which one really has the best scan range
-					scanMap.compute(scanData.getLocation(), (k, v) -> {
-						if(v == null) {
-							return scanData;
-						}
-
-						if(scanData.getScanRange() > v.getScanRange()) {
-							return scanData;
-						} else {
-							return v;
-						}
-					});
-
-					if(scanData.getOwnerId() == adminUser.getId()) {
-						ownShipSectors.add(scanData.getLocation());
-					} else {
-						allyShipSectors.add(scanData.getLocation());
-					}
-				}
-			}
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-
-		this.scanMap = scanMap;
-		this.ownShipSectors = ownShipSectors;
-		this.allyShipSectors = allyShipSectors;
-	}
-
-	private String getShipImage(Location location)
-	{
-		//TODO: Fix admin view
-		return null;
-	}
+	@Override
+	protected void retainSectors(Set<Location> candidateSectors, HashSet<Location> attackingSectors){}
 
 	/**
 	 * Gibt zurueck, ob der Sektor einen fuer den Spieler theoretisch sichtbaren Inhalt besitzt.
