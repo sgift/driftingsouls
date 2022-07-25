@@ -18,12 +18,12 @@ import static net.driftingsouls.ds2.server.entities.jooq.tables.FriendlyScanRang
  * Die Adminsicht auf die Sternenkarte. Zeigt alle
  * Basen, Schiffe und Sprungpunkte an.
  */
-public class AdminStarmap extends PublicStarmap
+public class AdminStarmap extends PlayerStarmap
 {
 	private final User adminUser;
 	public AdminStarmap(int systemId, User adminUser, MapArea mapArea)
 	{
-		super(systemId, mapArea);
+		super(adminUser, systemId, mapArea);
 
 		this.UserRelationsService = new SingleUserRelationsService(adminUser.getId());
 		this.adminUser = adminUser;
@@ -84,8 +84,8 @@ public class AdminStarmap extends PublicStarmap
 		}
 		return new SectorImage("data/starmap/fleet/fleet"+shipImage+".png", 0, 0);
 	}
-
-	//@Override
+/*
+	@Override
 	protected void buildFriendlyData()
 	{
 		var scanMap = new HashMap<Location, ScanData>();
@@ -127,13 +127,13 @@ public class AdminStarmap extends PublicStarmap
 		this.scanMap = scanMap;
 		this.ownShipSectors = ownShipSectors;
 		this.allyShipSectors = allyShipSectors;
-	}
-
+	}*/
+/*
 	private String getShipImage(Location location)
 	{
 		//TODO: Fix admin view
 		return null;
-	}
+	}*/
 
 	/**
 	 * Gibt zurueck, ob der Sektor einen fuer den Spieler theoretisch sichtbaren Inhalt besitzt.

@@ -301,7 +301,7 @@ public class PlayerStarmap extends PublicStarmap
 		return scanMap.containsKey(location);
 	}
 
-	private String getShipImage(Location location)
+	protected String getShipImage(Location location)
 	{
 		String imageName = "";
 
