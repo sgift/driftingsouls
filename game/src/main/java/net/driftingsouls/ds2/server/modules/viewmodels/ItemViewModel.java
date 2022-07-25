@@ -1,5 +1,6 @@
 package net.driftingsouls.ds2.server.modules.viewmodels;
 
+import net.driftingsouls.ds2.server.cargo.ItemData;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ViewModel;
@@ -22,7 +23,7 @@ public class ItemViewModel
 	 * @param model Die zu mappende Entity
 	 * @return Das ViewModel
 	 */
-	public static ItemViewModel map(Item model)
+	public static ItemViewModel map(ItemData model)
 	{
 		ItemViewModel viewModel = new ItemViewModel();
 		map(model, viewModel);
@@ -34,13 +35,13 @@ public class ItemViewModel
 	 * @param model Die zu mappende Entity
 	 * @param viewModel Die Zielinstanz des ViewModels
 	 */
-	public static void map(Item model, ItemViewModel viewModel)
+	public static void map(ItemData model, ItemViewModel viewModel)
 	{
 		viewModel.name = Common._plaintitle(model.getName());
 		viewModel.picture = model.getPicture();
-		viewModel.id = model.getID();
+		viewModel.id = model.getId();
 		viewModel.quality = ItemQualityViewModel.map(model.getQuality());
-		viewModel.effectName = model.getEffect().getType().getName();
+		viewModel.effectName = model.getType().getName();
 		viewModel.cargo = model.getCargo();
 	}
 }

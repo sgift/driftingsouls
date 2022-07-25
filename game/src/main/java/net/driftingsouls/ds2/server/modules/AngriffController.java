@@ -320,7 +320,7 @@ public class AngriffController extends Controller
 			List<ItemCargoEntry<Munition>> itemlist = mycargo.getItemsOfType(Munition.class);
             for (ItemCargoEntry<Munition> item : itemlist) {
                 if (item.getCount() > 0) {
-					Munition itemobject = item.getItem();
+					Munition itemobject = item.getAmmo();
 
                     t.setVar("ammo.image", itemobject.getPicture(),
                             "ammo.name", itemobject.getName(),

@@ -1257,12 +1257,12 @@ public abstract class WerftObject extends DSObject implements Locatable {
 
 		for (ItemCargoEntry<Schiffsverbot> anItemlist : availablecargo.getItemsOfType(Schiffsverbot.class))
 		{
-			disableShips.put(anItemlist.getItem().getSchiffstyp(), true);
+			disableShips.put(anItemlist.getDisableShip().getSchiffstyp(), true);
 		}
 
 		for (ItemCargoEntry<Schiffsverbot> anItemlist : allyitems.getItemsOfType(Schiffsverbot.class))
 		{
-			disableShips.put(anItemlist.getItem().getSchiffstyp(), true);
+			disableShips.put(anItemlist.getDisableShip().getSchiffstyp(), true);
 		}
 
 		List<?> baubarList = db
@@ -1296,7 +1296,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		Cargo localcargo = this.getCargo(true);
 		for (ItemCargoEntry<Schiffsbauplan> item : localcargo.getItemsOfType(Schiffsbauplan.class))
 		{
-			IEDraftShip effect = item.getItem().getEffect();
+			IEDraftShip effect = item.getShipDraft().getEffect();
 
 			if (effect.getWerftSlots() > this.getWerftSlots())
 			{
@@ -1314,7 +1314,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 
 		for (ItemCargoEntry<Schiffsbauplan> item : allyitems.getItemsOfType(Schiffsbauplan.class))
 		{
-			IEDraftShip effect = item.getItem().getEffect();
+			IEDraftShip effect = item.getShipDraft().getEffect();
 
 			if (effect.getWerftSlots() > this.getWerftSlots())
 			{

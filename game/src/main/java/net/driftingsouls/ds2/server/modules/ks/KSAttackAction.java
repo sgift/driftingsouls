@@ -781,7 +781,7 @@ public class KSAttackAction extends BasicKSAction {
 		List<ItemCargoEntry<Munition>> itemlist = mycargo.getItemsOfType(Munition.class);
 
 		if( this.weapon.hasFlag(Weapon.Flags.AMMO_SELECT) ) {
-			boolean item = itemlist.stream().anyMatch(i -> i.getItem() == munition);
+			boolean item = itemlist.stream().anyMatch(i -> i.getAmmo() == munition);
 
 			if( !item ) {
 				battle.logme( "Sie verf&uuml;gen nicht &uuml;ber den angegebenen Munitionstyp\n" );
@@ -803,7 +803,7 @@ public class KSAttackAction extends BasicKSAction {
 		else {
 			for (ItemCargoEntry<Munition> anItemlist : itemlist)
 			{
-				IEAmmo effect = anItemlist.getItem().getEffect();
+				IEAmmo effect = anItemlist.getAmmo().getEffect();
 
 				if( this.weapon.getMunitionstypen().contains(effect.getAmmo().getType()) )
 				{
@@ -821,7 +821,7 @@ public class KSAttackAction extends BasicKSAction {
 		ammoitem = null;
 		for (ItemCargoEntry<Munition> anItemlist : itemlist)
 		{
-			IEAmmo effect = anItemlist.getItem().getEffect();
+			IEAmmo effect = anItemlist.getAmmo().getEffect();
 			if (effect.getAmmo() == munitionsdefinition)
 			{
 				ammoitem = anItemlist;
@@ -859,7 +859,7 @@ public class KSAttackAction extends BasicKSAction {
 			{
 				for (ItemCargoEntry<Munition> entry : enemyCargo.getItemsOfType(Munition.class))
 				{
-					Munitionsdefinition munitionsdefinition = entry.getItem().getEffect().getAmmo();
+					Munitionsdefinition munitionsdefinition = entry.getAmmo().getEffect().getAmmo();
 					if( weapon.getMunitionstypen().contains(munitionsdefinition.getType()) )
 					{
 						int ammocount = (int) entry.getCount();

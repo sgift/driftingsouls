@@ -1013,10 +1013,10 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 */
 	public static BaseStatus getStatus( Base base )
 	{
-
+		System.out.println("ArglGarglTest3");
         Fabrik.ContextVars vars = ContextMap.getContext().get(Fabrik.ContextVars.class);
         vars.clear();
-
+		System.out.println("ArglGarglTest4");
 		Cargo stat = new Cargo();
         Cargo prodstat = new Cargo();
         Cargo constat = new Cargo();
@@ -1038,7 +1038,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 			arbeiter += core.getArbeiter();
 			bewohner += core.getBewohner();
 		}
-
+		System.out.println("ArglGarglTest5");
 		Integer[] bebauung = base.getBebauung();
 		Integer[] bebon = base.getActive();
 		var buildings = Building.getBuildings();
@@ -1076,11 +1076,12 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 			arbeiter += building.getArbeiter();
 			bewohner += building.getBewohner();
 		}
-
+		System.out.println("ArglGarglTest6");
         // Nahrung nicht mit in constat rein. Dies wird im Tick benutzt, der betrachtet Nahrungsverbrauch aber separat.
 		stat.substractResource( Resources.NAHRUNG, (long)Math.ceil(base.getBewohner()/10.0) );
 		stat.substractResource( Resources.NAHRUNG, base.getUnits().getNahrung() );
         // RE nicht mit in constat rein. Dies wird im Tick benutzt, der betrachtet RE-Verbrauch aber separat.
+
 		stat.substractResource( Resources.RE, base.getUnits().getRE() );
 
 		return new BaseStatus(stat, prodstat, constat, e, bewohner, arbeiter, Collections.unmodifiableMap(buildinglocs), bebon);
@@ -1391,8 +1392,9 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 */
 	public long getNahrungsBalance()
 	{
+		System.out.println("ArglGarglTest1");
 		BaseStatus status = getStatus(this );
-
+		System.out.println("ArglGarglTest2");
 		Cargo produktion = status.getProduction();
 
 		return produktion.getResourceCount( Resources.NAHRUNG );

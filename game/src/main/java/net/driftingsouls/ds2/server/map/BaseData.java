@@ -4,6 +4,10 @@ import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.entities.User;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 public class BaseData implements Locatable {
     private final int system;
     private final int x;
@@ -110,5 +114,38 @@ public class BaseData implements Locatable {
         {
             return null;
         }
+    }
+
+    public String getStarmapImage(){ return starmapImage; }
+
+
+    public Map<Location, BaseData> getLocationsMap()
+    {
+        var baseMap = new HashMap<Location, BaseData>();
+        Location position = getLocation();
+
+        if(size > 0)
+        {
+            for(int y = position.getY() - size; y <= position.getY() + size; y++)
+            {
+                for(int x = position.getX() - size; x <= position.getX() + size; x++)
+                {
+                    Location loc = new Location(position.getSystem(), x, y);
+
+                    if( !position.sameSector( 0, loc, getSize() ) ) {
+                        continue;
+                    }
+
+                    var baseData = new BaseData(system, x, y, getOwnerId(), getOwnerAllyId(), size, getStarmapImage());
+                    baseMap.put(loc, baseData); //Big objects are always printed first
+                }
+            }
+        }
+        else
+        {
+            baseMap.put(position, new BaseData(system, x, y, getOwnerId(), getOwnerAllyId(), size, getStarmapImage()));
+        }
+
+        return baseMap;
     }
 }

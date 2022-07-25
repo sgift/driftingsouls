@@ -46,6 +46,7 @@ import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.repositories.ItemRepository;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.werften.BaseWerft;
 
@@ -369,12 +370,12 @@ public class Kommandozentrale extends DefaultBuilding {
 			int itemid = context.getRequest().getParameterInt("item");
 
 			Ally ally = user.getAlly();
-			Item item = (Item)db.get(Item.class, itemid);
+			var item = ItemRepository.getInstance().getItemData(itemid);
 
 			if( ally == null ) {
 				message.append("Sie sind in keiner Allianz<br /><br />\n");
 			}
-			else if( item == null || item.getEffect().hasAllyEffect() ) {
+			else if( item == null || item.isAllyEffect() ) {
 				message.append("Kein passenden Itemtyp gefunden<br /><br />\n");
 			}
 			else if( !cargo.hasResource( new ItemID(itemid) ) ) {
@@ -459,8 +460,8 @@ public class Kommandozentrale extends DefaultBuilding {
 				Ally ally = user.getAlly();
 				if( ally != null ) {
 					for( ItemCargoEntry<Item> item : itemlist ) {
-						Item itemobject = item.getItem();
-						if( itemobject.getEffect().hasAllyEffect() ) {
+						var itemobject = item.getItem();
+						if( itemobject.isAllyEffect() ) {
 							t.setVar(	"item.id",		item.getItemID(),
 										"item.name",	itemobject.getName() );
 							t.parse("general.itemconsign.list", "general.itemconsign.listitem", true);

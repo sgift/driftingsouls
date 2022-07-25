@@ -148,7 +148,7 @@ public class Fabrik extends DefaultBuilding
 		List<ItemCargoEntry<Munitionsbauplan>> list = cargo.getItemsOfType(Munitionsbauplan.class);
 		for (ItemCargoEntry<Munitionsbauplan> item : list)
 		{
-			FactoryEntry entry = item.getItem().getFabrikeintrag();
+			FactoryEntry entry = item.getFactoryEntry();
 
 			thisitemslist.add(entry);
 		}
@@ -265,7 +265,7 @@ public class Fabrik extends DefaultBuilding
 			List<ItemCargoEntry<Munitionsbauplan>> list = itemlist.getItemsOfType(Munitionsbauplan.class);
 			for (ItemCargoEntry<Munitionsbauplan> item : list)
 			{
-				FactoryEntry entry = item.getItem().getFabrikeintrag();
+				FactoryEntry entry = item.getFactoryEntry();
 
 				vars.owneritemsbase.add(entry);
 			}
@@ -525,8 +525,7 @@ public class Fabrik extends DefaultBuilding
 		List<ItemCargoEntry<Munitionsbauplan>> itemlist = cargo.getItemsOfType(Munitionsbauplan.class);
 		for (ItemCargoEntry<Munitionsbauplan> item : itemlist)
 		{
-			Munitionsbauplan itemobject = item.getItem();
-			final FactoryEntry entry = itemobject.getFabrikeintrag();
+			final FactoryEntry entry = item.getFactoryEntry();
 			itemslist.add(entry);
 		}
 
@@ -538,8 +537,7 @@ public class Fabrik extends DefaultBuilding
 			itemlist = allyitems.getItemsOfType(Munitionsbauplan.class);
 			for (ItemCargoEntry<Munitionsbauplan> item : itemlist)
 			{
-				Munitionsbauplan itemobject = item.getItem();
-				final FactoryEntry entry = itemobject.getFabrikeintrag();
+				final FactoryEntry entry = item.getFactoryEntry();
 				itemslist.add(entry);
 			}
 		}

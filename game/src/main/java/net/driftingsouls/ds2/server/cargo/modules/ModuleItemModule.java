@@ -26,6 +26,7 @@ import net.driftingsouls.ds2.server.config.items.SchiffsmodulSet;
 import net.driftingsouls.ds2.server.config.items.effects.IEModule;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.repositories.ItemRepository;
 import net.driftingsouls.ds2.server.ships.SchiffstypModifikation;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import org.apache.commons.lang3.StringUtils;
@@ -131,7 +132,7 @@ public class ModuleItemModule extends Module {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 
-		Item item = (Item)db.get(Item.class, this.itemid);
+		var item = ItemRepository.getInstance().getItemData(this.itemid);
 		if(item == null) {
 			return "Noname";
 		}

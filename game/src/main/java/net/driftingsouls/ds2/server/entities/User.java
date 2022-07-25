@@ -22,6 +22,7 @@ import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.ItemData;
 import net.driftingsouls.ds2.server.comm.Ordner;
 import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.config.Medals;
@@ -1315,6 +1316,11 @@ public class User extends BasicUser {
 
 	}
 
+	public boolean canSeeItem(ItemData itemData) {
+		return itemData.getAccessLevel() <= this.getAccessLevel() &&
+						(!itemData.isUnknownItem() || this.isKnownItem(itemData.getId()) || ContextMap.getContext().hasPermission(WellKnownPermission.ITEM_UNBEKANNTE_SICHTBAR));
+	}
+
 	/**
 	 * Gibt die Nahrungs- und RE-Bilanz zurueck.
 	 * @return die Bilanzen
@@ -1335,6 +1341,7 @@ public class User extends BasicUser {
 	 */
 	public long getReBalance()
 	{
+
 		int baseRe = 0;
 		for(Base base: this.bases)
 		{
@@ -1391,7 +1398,6 @@ public class User extends BasicUser {
 			}
 			balance -= ship.getNahrungsBalance();
 		}
-
 		return balance;
 	}
 
