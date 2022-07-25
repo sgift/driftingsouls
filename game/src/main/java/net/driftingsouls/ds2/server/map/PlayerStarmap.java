@@ -241,14 +241,6 @@ public class PlayerStarmap extends PublicStarmap
 			{
 				boolean areMutualFriends = this.UserRelationsService.isMutualFriendTo(base.getOwnerId());
 
-				System.out.println(base.getOwnerId());
-				System.out.println(base.getLocation().getSystem());
-				System.out.println(base.getLocation().getX());
-				System.out.println(base.getLocation().getY());
-				System.out.println(this.user.getId());
-				System.out.println(areMutualFriends);
-
-
 				if( scanned || base.getOwnerId() == this.user.getId() ||
 						(user.getAlly() != null && user.getAlly().getShowAstis() && user.getAlly().getId() == base.getOwnerAllyId()) ||
 						areMutualFriends )
