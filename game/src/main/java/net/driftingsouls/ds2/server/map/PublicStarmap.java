@@ -34,10 +34,10 @@ public class PublicStarmap
 {
 
 	protected Starmap map;
-	protected HashMap<Location, ScanData> scanMap;
-	protected HashMap<Location, ScanData> nebulaScanMap;
-	protected HashSet<Location> ownShipSectors;
-	protected HashSet<Location> allyShipSectors;
+	protected HashMap<Location, ScanData> scanMap = new HashMap<>();
+	protected HashMap<Location, ScanData> nebulaScanMap = new HashMap<>();
+	protected HashSet<Location> ownShipSectors = new HashSet<>();
+	protected HashSet<Location> allyShipSectors = new HashSet<>();
 	protected HashMap<Location, NonFriendScanData> enemyShipMap;
 	protected HashMap<Location, NonFriendScanData> neutralShipMap;
 

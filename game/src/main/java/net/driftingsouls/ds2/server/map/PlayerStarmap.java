@@ -71,66 +71,44 @@ public class PlayerStarmap extends PublicStarmap
 	@Override
 	protected void buildFriendlyData()
 	{
-		var scanMap = new HashMap<Location, ScanData>();
-		var nebelScanMap = new HashMap<Location, ScanData>();
+		var scanships = ShipsRepository.getScanships(user.getId(), map.getSystem());
+		var nebulaScanships = ShipsRepository.getNebulaScanships(user.getId(), map.getSystem());
 
-		var ownShipSectors = new HashSet<Location>();
-		var allyShipSectors = new HashSet<Location>();
-		try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
-			var db = DBUtil.getDSLContext(conn);
-			try(var scanDataSelect = db
-				.selectFrom(FRIENDLY_SCAN_RANGES)
-				.where(FRIENDLY_SCAN_RANGES.TARGET_ID.eq(user.getId())
-					.and(FRIENDLY_SCAN_RANGES.STAR_SYSTEM.eq(map.getSystem())))) {
-				var result = scanDataSelect.fetch();
-				for (var record : result) {
-					var scanData = new ScanData(this.map.getSystem(), record.getX(), record.getY(), record.getId(), record.getOwner(), record.getSensorRange().intValue());
+		for(var scanship : scanships)
+		{
+			AddScanshipToMap(scanship, scanMap,false);
+		}
+		for(var scanship : nebulaScanships)
+		{
+			AddScanshipToMap(scanship, scanMap, true);
+			AddScanshipToMap(scanship, nebulaScanMap, true);
 
-					//FRIENDLY_SCAN_RANGES contains values per sector for best scanner by user and best scanner by ally
-					//So we check here which one really has the best scan range
-					scanMap.compute(scanData.getLocation(), (k, v) -> {
-						if(v == null) {
-							return scanData;
-						}
+		}
+	}
 
-						if(scanData.getScanRange() > v.getScanRange()) {
-							return scanData;
-						} else {
-							return v;
-						}
-					});
+	private void AddScanshipToMap(ScanData scanship, HashMap<Location, ScanData> targetMap, boolean isNebulaScanner)
+	{
+		var scannerLocation = scanship.getLocation();
 
-					if(scanData.getOwnerId() == user.getId()) {
-						ownShipSectors.add(scanData.getLocation());
-					} else {
-						allyShipSectors.add(scanData.getLocation());
-					}
-				}
-			}
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
+		if (getNebula(scannerLocation) != null && !isNebulaScanner)
+		{
+			scanship = new ScanData(scanship.getLocation().getSystem(), scanship.getLocation().getX(), scanship.getLocation().getY(), scanship.getShipId(), scanship.getOwnerId(), (int)(scanship.getScanRange() * 0.5));
 		}
 
-		try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
-			var db = DBUtil.getDSLContext(conn);
-			try(var scanDataSelect = db
-					.selectFrom(FRIENDLY_NEBEL_SCAN_RANGES)
-					.where(FRIENDLY_NEBEL_SCAN_RANGES.TARGET_ID.eq(user.getId())
-							.and(FRIENDLY_NEBEL_SCAN_RANGES.STAR_SYSTEM.eq(map.getSystem())))) {
-				var result = scanDataSelect.fetch();
-				for (var record : result) {
-					var scanData = new ScanData(this.map.getSystem(), record.getX(), record.getY(), record.getId(), record.getOwner(), record.getSensorRange().intValue());
-					nebelScanMap.put(scanData.getLocation(), scanData);
-				}
-			}
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
+		if(targetMap.containsKey(scannerLocation) && targetMap.get(scannerLocation).getScanRange() < scanship.getScanRange())
+		{
+			targetMap.replace(scannerLocation, scanship);
+		}
+		else
+		{
+			targetMap.put(scannerLocation, scanship);
 		}
 
-		this.nebulaScanMap = nebelScanMap;
-		this.scanMap = scanMap;
-		this.ownShipSectors = ownShipSectors;
-		this.allyShipSectors = allyShipSectors;
+		if(scanship.getOwnerId() == user.getId()) {
+			ownShipSectors.add(scanship.getLocation());
+		} else {
+			allyShipSectors.add(scanship.getLocation());
+		}
 	}
 
 	private Set<Location> findVisibleSectorsWithAlerts()
@@ -262,7 +240,9 @@ public class PlayerStarmap extends PublicStarmap
 		{
 			if(map.getRockPositions().contains(location))
 			{
+
 				return new SectorImage("data/starmap/base/brocken.png", 0, 0);
+
 			}
 		}
 

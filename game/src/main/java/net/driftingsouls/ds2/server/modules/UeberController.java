@@ -44,6 +44,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.repositories.MessageRepository;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -186,9 +187,7 @@ public class UeberController extends Controller
 		// auf neue Nachrichten checken
 		//------------------------------
 
-		long newCount = (Long) db.createQuery("select count(*) from PM where empfaenger= :user and gelesen=0")
-				.setEntity("user", user)
-				.iterate().next();
+		int newCount = MessageRepository.getNewMessageCount(user.getId());
 		t.setVar("user.newmsgs", Common.ln(newCount));
 
 		//------------------------------
