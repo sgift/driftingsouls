@@ -25,6 +25,7 @@ import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.repositories.NebulaRepository;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.Ships;
@@ -62,30 +63,7 @@ public class Nebel implements Locatable {
 	 */
 	@SuppressWarnings("unchecked")
 	public static synchronized Typ getNebula(Location loc) {
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-
-		// Hibernate cachet nur Ergebnisse, die nicht leer waren.
-		// Da es jedoch viele Positionen ohne Nebel gibt wuerden viele Abfragen
-		// mehrfach durchgefuehrt. Daher wird in der Session vermerkt, welche
-		// Positionen bereits geprueft wurden
-
-		Set<Location> emptySpace = (Set<Location>)context.getVariable(Ships.class, "getNebula(Location)#EmptySpace");
-		if( emptySpace == null ) {
-			emptySpace = new HashSet<>();
-			context.putVariable(Ships.class, "getNebula(Location)#EmptySpace", emptySpace);
-		}
-		if(!emptySpace.contains(loc) ) {
-			Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(loc));
-			if( nebel == null ) {
-				emptySpace.add(loc);
-				return null;
-			}
-
-			return nebel.getType();
-		}
-
-		return null;
+		return NebulaRepository.getInstance().getNebula(loc);
 	}
 
 	/**

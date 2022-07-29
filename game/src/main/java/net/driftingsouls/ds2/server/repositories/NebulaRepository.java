@@ -51,6 +51,15 @@ public class NebulaRepository {
         return Collections.unmodifiableMap(nebulaData.get(system));
     }
 
+    public Nebel.Typ getNebula(Location location)
+    {
+        if(!nebulaData.containsKey(location.getSystem()))
+        {
+            getNebulaData(location.getSystem());
+        }
+        return nebulaData.get(location.getSystem()).get(location);
+    }
+
     public void clearItemCache() {
         nebulaData.clear();
     }
