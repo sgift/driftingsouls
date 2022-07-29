@@ -131,7 +131,7 @@ public class ShipsRepository {
                     .select(
                             SHIP_FLEETS.ID,
                             SHIP_FLEETS.NAME,
-                            SHIPS.ID,
+                            DSL.max(SHIPS.ID),
                             SHIPS.STAR_SYSTEM,
                             SHIPS.X,
                             SHIPS.Y,
