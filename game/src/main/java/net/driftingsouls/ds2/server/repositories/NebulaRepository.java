@@ -36,7 +36,8 @@ public class NebulaRepository {
                                 .where(NEBEL.STAR_SYSTEM.eq(system))
                         )
                         {
-                            for(var record : select.fetch())
+                            var result = select.fetch();
+                            for(var record : result)
                             {
                                 nebulaData.get(system).put(new Location(), Nebel.Typ.getType(record.get(NEBEL.TYPE)));
                             }
