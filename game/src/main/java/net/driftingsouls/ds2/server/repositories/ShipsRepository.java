@@ -141,8 +141,8 @@ public class ShipsRepository {
                     .from(SHIP_FLEETS)
                     .innerJoin(SHIPS).on(SHIP_FLEETS.ID.eq(SHIPS.FLEET))
                     .where(SHIPS.OWNER.eq(userid))
-                    .groupBy(SHIP_FLEETS.ID, SHIP_FLEETS.NAME)
-                    .orderBy(SHIPS.DOCKED, SHIPS.STAR_SYSTEM, SHIPS.X, SHIPS.Y)
+                    .groupBy(SHIP_FLEETS.ID, SHIP_FLEETS.NAME, SHIPS.STAR_SYSTEM, SHIPS.X, SHIPS.Y, SHIPS.DOCKED)
+                    .orderBy(SHIPS.DOCKED, SHIP_FLEETS.ID, SHIPS.STAR_SYSTEM, SHIPS.X, SHIPS.Y)
             ) {
                 //var result = bookmarkDataSelect.fetch();
                 return bookmarkDataSelect.fetch(Records.mapping(FleetsOverviewView::new));
