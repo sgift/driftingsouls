@@ -95,11 +95,7 @@ public class PlayerStarmap extends PublicStarmap
 			scanship = new ScanData(scanship.getLocation().getSystem(), scanship.getLocation().getX(), scanship.getLocation().getY(), scanship.getShipId(), scanship.getOwnerId(), (int)(scanship.getScanRange() * 0.5));
 		}
 
-		if(targetMap.containsKey(scannerLocation) && targetMap.get(scannerLocation).getScanRange() < scanship.getScanRange())
-		{
-			targetMap.replace(scannerLocation, scanship);
-		}
-		else
+		if(!targetMap.containsKey(scannerLocation) || targetMap.get(scannerLocation).getScanRange() < scanship.getScanRange())
 		{
 			targetMap.put(scannerLocation, scanship);
 		}
