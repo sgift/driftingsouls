@@ -136,7 +136,6 @@ public class BaseData implements Locatable {
                         continue;
                     }
 
-                    //var baseData = new BaseData(position.getSystem(), position.getX(), position.getY(), getOwnerId(), getOwnerAllyId(), size, getStarmapImage());
                     baseMap.put(loc, this); //Big objects are always printed first
                 }
             }
