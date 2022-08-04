@@ -195,7 +195,7 @@ class Starmap
 
 				for (var location : locations.entrySet())
 				{
-					if(!baseMap.containsKey(location))
+					if(!baseMap.containsKey(location.getKey()))
 					{
 						baseMap.put(location.getKey(), new ArrayList<>());
 					}
