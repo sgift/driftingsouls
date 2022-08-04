@@ -35,7 +35,6 @@ class Starmap
 	private final int system;
 
 	private Set<JumpNode> nodes;
-	private final Map<Location, Nebel.Typ> nebulaMap = new HashMap<>();
 	private Map<Location, List<JumpNode>> nodeMap;
 	protected Map<Location, List<BaseData>> baseMap;
 	private Set<Location> battlePositions;
