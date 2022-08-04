@@ -4,7 +4,6 @@ import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.entities.User;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -82,8 +81,9 @@ public class BaseData implements Locatable {
         return starmapImage;
     }
 
-    public String getOverlayImage(Location location, User user, boolean scanned, boolean areMutualFriends)
+    public String getOverlayImage(Location location, User user, boolean scanned, boolean areMutualFriends, boolean isBaseOwnerEnemy)
     {
+        boolean isEmpty = ownerId == -1 || ownerId == 0;
         if(!location.sameSector(0, getLocation(), size))
         {
             return null;
@@ -102,11 +102,15 @@ public class BaseData implements Locatable {
         {
             return "data/starmap/asti_ally/asti_ally.png";
         }
-        else if(scanned && ownerId != -1 && ownerId != 0)
+        else if(scanned && !isEmpty)
         {
-            return "data/starmap/asti_enemy/asti_enemy.png";
+            if(isBaseOwnerEnemy) {
+                return "data/starmap/asti_enemy/asti_enemy.png";
+            } else {
+                return "data/starmap/asti_neutral.png";
+            }
         }
-        else if(scanned && ownerId != -1 || ownerId == 0)
+        else if(scanned)
         {
             return starmapImage;
         }

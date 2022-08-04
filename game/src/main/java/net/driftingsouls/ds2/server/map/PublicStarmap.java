@@ -19,7 +19,6 @@
 package net.driftingsouls.ds2.server.map;
 
 import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.services.SingleUserRelationsService;
 
@@ -189,5 +188,5 @@ public class PublicStarmap
 
 	}
 
-	protected SingleUserRelationsService UserRelationsService;
+	protected SingleUserRelationsService userRelationsService;
 }

@@ -50,7 +50,7 @@ public class PlayerStarmap extends PublicStarmap
 		{
 			throw new IllegalArgumentException("User may not be null.");
 		}
-		this.UserRelationsService = new SingleUserRelationsService(user.getId());
+		this.userRelationsService = new SingleUserRelationsService(user.getId());
 		buildFriendlyData();
 
 		this.scannedLocationsToScannerId = new HashMap<>();
@@ -163,7 +163,7 @@ public class PlayerStarmap extends PublicStarmap
 				}
 				else
 				{
-					if( this.UserRelationsService.isMutualFriendTo(base.getOwnerId()))
+					if( this.userRelationsService.isMutualFriendTo(base.getOwnerId()))
 					{
 						wellKnownLocations.add(loc.getKey());
 					}
@@ -200,7 +200,9 @@ public class PlayerStarmap extends PublicStarmap
 		{
 			for (BaseData base : positionBases)
 			{
-				boolean areMutualFriends = this.UserRelationsService.isMutualFriendTo(base.getOwnerId());
+				boolean areMutualFriends = this.userRelationsService.isMutualFriendTo(base.getOwnerId());
+				boolean isBaseOwnerEnemy = this.userRelationsService.beziehungVon(base.getOwnerId()) == User.Relation.ENEMY ||
+					this.userRelationsService.beziehungZu(base.getOwnerId()) == User.Relation.ENEMY;
 
 				if( scanned || base.getOwnerId() == this.user.getId() ||
 						(user.getAlly() != null && user.getAlly().getShowAstis() && user.getAlly().getId() == base.getOwnerAllyId()) ||
@@ -208,7 +210,7 @@ public class PlayerStarmap extends PublicStarmap
 				{
 					boolean isNebula = map.isNebula(location);
 					boolean revealAsteroid = bekannteOrte.contains(location) || (!isNebula && scannedLocationsToScannerId.containsKey(location)) || shipInSector(location) ;
-					String img = base.getOverlayImage(location, user, revealAsteroid, areMutualFriends);
+					String img = base.getOverlayImage(location, user, revealAsteroid, areMutualFriends, isBaseOwnerEnemy);
 					if( img != null ) {
 						return new SectorImage(img, 0, 0);
 					}

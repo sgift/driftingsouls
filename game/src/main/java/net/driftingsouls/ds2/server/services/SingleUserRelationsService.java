@@ -76,11 +76,11 @@ public class SingleUserRelationsService {
     public boolean isMutualFriendTo(int targetId) {
         var userRelations = getUserRelationData();
 
-        boolean areMutalFriends = false;
+        var areMutualFriends = false;
         if (userRelations.containsKey(targetId))
-            areMutalFriends = userRelations.get(targetId).stream().filter(x -> x.getStatus() == 2).count() == 2;
+            areMutualFriends = userRelations.get(targetId).stream().filter(x -> x.getStatus() == 2).count() == 2;
 
-        return areMutalFriends;
+        return areMutualFriends;
     }
 
     public User.Relation beziehungZu(User otherUser){return beziehungZu(otherUser.getId());}

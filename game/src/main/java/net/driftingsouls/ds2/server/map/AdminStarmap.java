@@ -1,19 +1,12 @@
 package net.driftingsouls.ds2.server.map;
 
 import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.DBUtil;
 import net.driftingsouls.ds2.server.services.SingleUserRelationsService;
 
-import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import static net.driftingsouls.ds2.server.entities.jooq.tables.FriendlyScanRanges.FRIENDLY_SCAN_RANGES;
 
 /**
  * Die Adminsicht auf die Sternenkarte. Zeigt alle
@@ -26,7 +19,7 @@ public class AdminStarmap extends PlayerStarmap
 	{
 		super(adminUser, systemId, mapArea);
 
-		this.UserRelationsService = new SingleUserRelationsService(adminUser.getId());
+		this.userRelationsService = new SingleUserRelationsService(adminUser.getId());
 		this.adminUser = adminUser;
 		buildFriendlyData();
 	}
@@ -54,7 +47,9 @@ public class AdminStarmap extends PlayerStarmap
 		if(positionBases != null && !positionBases.isEmpty())
 		{
 			BaseData base = positionBases.get(0);
-			String img = base.getOverlayImage(location, adminUser, true, this.UserRelationsService.isMutualFriendTo(base.getOwnerId()));
+			boolean isBaseOwnerEnemy = this.userRelationsService.beziehungVon(base.getOwnerId()) == User.Relation.ENEMY ||
+				this.userRelationsService.beziehungZu(base.getOwnerId()) == User.Relation.ENEMY;
+			String img = base.getOverlayImage(location, adminUser, true, this.userRelationsService.isMutualFriendTo(base.getOwnerId()), isBaseOwnerEnemy);
 			if( img != null ) {
 				return new SectorImage(img, 0, 0);
 			}
