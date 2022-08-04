@@ -37,6 +37,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.map.TileCache;
+import net.driftingsouls.ds2.server.repositories.NebulaRepository;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -1489,6 +1490,7 @@ public class AdminCommands {
 				TileCache tileCache = TileCache.forSystem(system.getID());
 				tileCache.resetCache();
 			}
+			NebulaRepository.getInstance().clearItemCache();
 
 			return "Tile Cache cleared";
 		}
