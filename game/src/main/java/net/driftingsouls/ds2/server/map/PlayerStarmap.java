@@ -1,11 +1,9 @@
 package net.driftingsouls.ds2.server.map;
 
 import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.jooq.routines.GetEnemyShipsInSystem;
-import net.driftingsouls.ds2.server.entities.jooq.routines.GetSectorsWithAttackingShips;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.DBUtil;
 import net.driftingsouls.ds2.server.repositories.ShipsRepository;
@@ -19,8 +17,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import static net.driftingsouls.ds2.server.entities.jooq.tables.FriendlyNebelScanRanges.FRIENDLY_NEBEL_SCAN_RANGES;
-import static net.driftingsouls.ds2.server.entities.jooq.tables.FriendlyScanRanges.FRIENDLY_SCAN_RANGES;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.Ships.SHIPS;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.UserRelations.USER_RELATIONS;
 
@@ -71,39 +67,39 @@ public class PlayerStarmap extends PublicStarmap
 	@Override
 	protected void buildFriendlyData()
 	{
-		var scanships = ShipsRepository.getScanships(user.getId(), map.getSystem());
-		var nebulaScanships = ShipsRepository.getNebulaScanships(user.getId(), map.getSystem());
+		var scanShips = ShipsRepository.getScanships(user.getId(), map.getSystem());
+		var nebulaScanShips = ShipsRepository.getNebulaScanships(user.getId(), map.getSystem());
 
-		for(var scanship : scanships)
+		for(var scanship : scanShips)
 		{
-			AddScanshipToMap(scanship, scanMap,false);
+			addScanShipToMap(scanship, scanMap,false);
 		}
-		for(var scanship : nebulaScanships)
+		for(var scanShip : nebulaScanShips)
 		{
-			AddScanshipToMap(scanship, scanMap, true);
-			AddScanshipToMap(scanship, nebulaScanMap, true);
+			addScanShipToMap(scanShip, scanMap, true);
+			addScanShipToMap(scanShip, nebulaScanMap, true);
 
 		}
 	}
 
-	private void AddScanshipToMap(ScanData scanship, HashMap<Location, ScanData> targetMap, boolean isNebulaScanner)
+	private void addScanShipToMap(ScanData scanShip, HashMap<Location, ScanData> targetMap, boolean isNebulaScanner)
 	{
-		var scannerLocation = scanship.getLocation();
+		var scannerLocation = scanShip.getLocation();
 
 		if (getNebula(scannerLocation) != null && !isNebulaScanner)
 		{
-			scanship = new ScanData(scanship.getLocation().getSystem(), scanship.getLocation().getX(), scanship.getLocation().getY(), scanship.getShipId(), scanship.getOwnerId(), (int)(scanship.getScanRange() * 0.5));
+			scanShip = new ScanData(scanShip.getLocation().getSystem(), scanShip.getLocation().getX(), scanShip.getLocation().getY(), scanShip.getShipId(), scanShip.getOwnerId(), (int)(scanShip.getScanRange() * 0.5));
 		}
 
-		if(!targetMap.containsKey(scannerLocation) || targetMap.get(scannerLocation).getScanRange() < scanship.getScanRange())
+		if(!targetMap.containsKey(scannerLocation) || targetMap.get(scannerLocation).getScanRange() < scanShip.getScanRange())
 		{
-			targetMap.put(scannerLocation, scanship);
+			targetMap.put(scannerLocation, scanShip);
 		}
 
-		if(scanship.getOwnerId() == user.getId()) {
-			ownShipSectors.add(scanship.getLocation());
+		if(scanShip.getOwnerId() == user.getId()) {
+			ownShipSectors.add(scanShip.getLocation());
 		} else {
-			allyShipSectors.add(scanship.getLocation());
+			allyShipSectors.add(scanShip.getLocation());
 		}
 	}
 
@@ -211,7 +207,7 @@ public class PlayerStarmap extends PublicStarmap
 						areMutualFriends )
 				{
 					boolean isNebula = map.isNebula(location);
-					boolean revealAsteroid = bekannteOrte.contains(location) || (!isNebula && scannedLocationsToScannerId.containsKey(location))|| (isNebula && (scannedNebulaLocationsToScannerId.containsKey(location) || shipInSector(location))) ;
+					boolean revealAsteroid = bekannteOrte.contains(location) || (!isNebula && scannedLocationsToScannerId.containsKey(location)) || shipInSector(location) ;
 					String img = base.getOverlayImage(location, user, revealAsteroid, areMutualFriends);
 					if( img != null ) {
 						return new SectorImage(img, 0, 0);
