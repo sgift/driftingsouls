@@ -177,7 +177,7 @@ public class PlayerStarmap extends PublicStarmap
 	@Override
 	public boolean isScanned(Location location)
 	{
-		return this.scannedLocationsToScannerId.containsKey(location) || this.bekannteOrte.contains(location);
+		return this.scannedLocationsToScannerId.containsKey(location) || this.scannedNebulaLocationsToScannerId.containsKey(location) || this.bekannteOrte.contains(location);
 	}
 
     @Override
