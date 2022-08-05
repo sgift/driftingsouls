@@ -33,6 +33,7 @@ public class PlayerStarmap extends PublicStarmap
 	private final Set<Location> sectorsWithAttackingShips;
 	private final Set<Location> bekannteOrte;
 	private final User user;
+	protected SingleUserRelationsService userRelationsService;
 
 
 	/**
@@ -379,7 +380,15 @@ public class PlayerStarmap extends PublicStarmap
 				}
 
 				var nebula = nebulae.get(loc);
-				if (nebula == null || nebula.allowsScan()) {
+
+				if(nebula != null && scannedPositions.containsKey(loc))
+				{
+					if(scanData.getLocation() == loc)
+					{
+						scannedPositions.put(loc, scanData.getShipId());
+					}
+				}
+				else if (nebula == null || nebula.allowsScan()) {
 					scannedPositions.put(loc, scanData.getShipId());
 				}
 			}
