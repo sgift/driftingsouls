@@ -32,6 +32,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
+import net.driftingsouls.ds2.server.repositories.BasesRepository;
 import net.driftingsouls.ds2.server.ships.Ship;
 import org.hibernate.Session;
 
@@ -101,6 +102,10 @@ public class EditSystem implements EntityEditor<StarSystem>
 						.list()),
 				this::entferneNebel
 		);
+
+		form.postUpdateTask("Basen cache leeren", (oldSystem, newSystem) -> {
+			BasesRepository.getInstance().clearSystem(newSystem.getID());
+		});
 
 
 

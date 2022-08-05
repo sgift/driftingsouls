@@ -2,9 +2,7 @@ package net.driftingsouls.ds2.server.map;
 
 import com.github.jaiimageio.impl.common.PaletteBuilder;
 import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -79,7 +77,7 @@ public class TileCache
 
 	private void createTile(File tileCacheFile, int tileX, int tileY) throws IOException
 	{
-		PublicStarmap content = new PublicStarmap(this.systemId, null);
+		PublicStarmap content = new PublicStarmap(this.systemId);
 
 		BufferedImage img = new BufferedImage(TILE_SIZE*25,TILE_SIZE*25,BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = img.createGraphics();

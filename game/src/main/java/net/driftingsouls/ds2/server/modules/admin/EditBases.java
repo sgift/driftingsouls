@@ -19,7 +19,11 @@
 package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
-import net.driftingsouls.ds2.server.bases.*;
+import net.driftingsouls.ds2.server.bases.AutoGTUAction;
+import net.driftingsouls.ds2.server.bases.Base;
+import net.driftingsouls.ds2.server.bases.BaseType;
+import net.driftingsouls.ds2.server.bases.Base_;
+import net.driftingsouls.ds2.server.bases.Core;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.entities.User;
@@ -27,6 +31,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.map.TileCache;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
+import net.driftingsouls.ds2.server.repositories.BasesRepository;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
@@ -77,6 +82,7 @@ public class EditBases implements EntityEditor<Base>
 		form.postUpdateTask("Sternenkarten-Cache leeren", (orgbase,base) -> {
 			TileCache.forSystem(orgbase.getSystem()).resetCache();
 			TileCache.forSystem(base.getSystem()).resetCache();
+			BasesRepository.getInstance().clearSystem(base.getSystem());
 		});
 	}
 

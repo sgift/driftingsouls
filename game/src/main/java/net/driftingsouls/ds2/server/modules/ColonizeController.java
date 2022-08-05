@@ -36,6 +36,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.repositories.BasesRepository;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
@@ -189,6 +190,9 @@ public class ColonizeController extends Controller
 		base.setOwner(user);
 		base.setBewohner(crew);
 		base.setEnergy(e);
+
+		// Clear system map
+		BasesRepository.getInstance().clearSystem(base.getSystem());
 
 		for (Offizier offi : Offizier.getOffiziereByDest(base))
 		{

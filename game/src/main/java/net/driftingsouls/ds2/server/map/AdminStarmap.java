@@ -15,9 +15,9 @@ import java.util.Set;
 public class AdminStarmap extends PlayerStarmap
 {
 	private final User adminUser;
-	public AdminStarmap(int systemId, User adminUser, MapArea mapArea)
+	public AdminStarmap(int systemId, User adminUser)
 	{
-		super(adminUser, systemId, mapArea);
+		super(adminUser, systemId);
 
 		this.userRelationsService = new SingleUserRelationsService(adminUser.getId());
 		this.adminUser = adminUser;

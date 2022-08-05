@@ -46,6 +46,7 @@ import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.repositories.BasesRepository;
 import net.driftingsouls.ds2.server.repositories.ItemRepository;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.werften.BaseWerft;
@@ -147,6 +148,9 @@ public class Kommandozentrale extends DefaultBuilding {
 		{
 			academy.getQueueEntries().clear();
 		}
+
+		// Clear system map
+		BasesRepository.getInstance().clearSystem(base.getSystem());
 
 		//Check if we need to change the drop zone of the player to another system
 		Set<Integer> systems = oldUser.getAstiSystems();

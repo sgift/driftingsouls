@@ -439,11 +439,11 @@ public class MapController extends Controller
 		var mapArea = new MapArea(xstart, xend - xstart, ystart, yend - ystart);
 		if (admin && hasPermission(WellKnownAdminPermission.STARMAP_VIEW))
 		{
-			content = new AdminStarmap(sys.getID(), user, mapArea);
+			content = new AdminStarmap(sys.getID(), user);
 		}
 		else
 		{
-			content = new PlayerStarmap(user, sys.getID(), mapArea);
+			content = new PlayerStarmap(user, sys.getID());
 		}
 
 		json.size = new MapViewModel.SizeViewModel();

@@ -91,7 +91,7 @@ class Starmap
 	Map<Location, List<BaseData>> getBaseMap()
 	{
 		if( this.baseMap == null ) {
-			var bases = BasesRepository.getBaseMapBySystem(this.system);
+			var bases = BasesRepository.getInstance().getBaseDataBySystem(this.system);
 			this.baseMap = this.buildBaseMap(bases);
 		}
 
@@ -179,7 +179,7 @@ class Starmap
 		return NebulaRepository.getInstance().getNebulaData(this.system);
 	}
 
-	protected Map<Location, List<BaseData>> buildBaseMap(ArrayList<BaseData> bases)
+	protected Map<Location, List<BaseData>> buildBaseMap(List<BaseData> bases)
 	{
 		Map<Location, List<BaseData>> baseMap = new HashMap<>();
 
