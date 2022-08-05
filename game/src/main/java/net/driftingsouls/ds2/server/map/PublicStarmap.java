@@ -188,5 +188,10 @@ public class PublicStarmap
 
 	}
 
-	protected SingleUserRelationsService userRelationsService;
+	public Collection<ScanData> getScanSectorData()
+	{
+		return scanMap.values();
+	}
+
+	protected SingleUserRelationsService UserRelationsService;
 }

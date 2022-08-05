@@ -4,17 +4,13 @@ import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
 
 public class ScanData implements Locatable {
-    private final int system;
-    private final int x;
-    private final int y;
+    private final Location location;
     private final int shipId;
     private final int ownerId;
     private final int scanRange;
 
     public ScanData(int system, int x, int y, int shipId, int ownerId, int scanRange) {
-        this.system = system;
-        this.x = x;
-        this.y = y;
+        this.location = new Location(system, x, y);
         this.shipId = shipId;
         this.ownerId = ownerId;
         this.scanRange = scanRange;
@@ -22,7 +18,7 @@ public class ScanData implements Locatable {
 
     @Override
     public Location getLocation() {
-        return new Location(system, x, y);
+        return this.location;
     }
 
 
