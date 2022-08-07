@@ -20,18 +20,20 @@ var Starmap = function(){
     function maxX()
     {
         var width = system.width*25;
-        return Math.max(0, width-elementWidth());
+        return Math.max(-25, width-elementWidth());
     }
     function maxY()
     {
         var height = system.height*25;
-        return Math.max(0, height-elementHeight());
+        return Math.max(-25, height-elementHeight());
     }
 
     function init()
     {
+        console.log("starmap init");
         target = document.getElementById("draggable");
-
+        console.log(target);
+        document.querySelector("#starmap-mouse-event-target").addEventListener("click", (e) => onclick(e));
     }
 
     document.body.addEventListener("mousedown", function (e) {
@@ -91,15 +93,19 @@ var Starmap = function(){
         if (!e) {
             var e = window.event
         };
-        var targ = document.getElementById("draggable");
+
         // move div element
 
         var newX = coordX + e.clientX - offsetX
         var newY = coordY + e.clientY - offsetY;
 
-        console.log(newX);
-        console.log(newY); // -260
+        setPosition(newX, newY);
+        return false;
+    }
 
+    function setPosition(newX, newY)
+    {
+        var targ = document.getElementById("draggable");
         targ.style.left = Math.min(25, Math.max(newX, -maxX())) + 'px';
         targ.style.top = Math.min(25, Math.max(newY, -maxY())) + 'px';
 
@@ -111,8 +117,39 @@ var Starmap = function(){
 
         legendTargetsY[0].style.top = parseInt(targ.style.top)-25 + 'px';
         legendTargetsY[1].style.top = parseInt(targ.style.top)-25 + 'px';
+    }
 
-        return false;
+    function getPixelByCoordinates(x)
+    {
+        return (x-1)*25;
+    }
+
+    function setCoordinates(x, y)
+    {
+        setPosition(-getPixelByCoordinates(x) + elementWidth()/2, -getPixelByCoordinates(y) + elementHeight() / 2);
+        setMarkerToCoordinates(x, y);
+    }
+
+    function setMarkerToCoordinates(x, y)
+    {
+        var marker = document.getElementById("position-marker");
+        marker.style.display = "block";
+        marker.style.left = getPixelByCoordinates(x) + 'px';
+        marker.style.top = getPixelByCoordinates(y) + 'px';
+    }
+
+    function onclick(event)
+    {
+        var y = (event.offsetY - parseInt(document.querySelector("#draggable").style.top));
+        var x = (event.offsetX - parseInt(document.querySelector("#draggable").style.left));
+
+        var location = getLocationFromPixels(x, y);
+        setMarkerToCoordinates(location.x, location.y);
+    }
+
+    function getLocationFromPixels(x, y)
+    {
+        return {x: Math.floor(x/25)+1, y: Math.floor(y/25)+1};
     }
 
     function stopDrag() {
@@ -128,6 +165,16 @@ var Starmap = function(){
         document.onmousedown = startDrag;
         document.onmouseup = stopDrag;
     }
+    function getSystem()
+    {
+        return system;
+    }
+
 
     this.setSystem = setSystem;
+    this.setCoordinates = setCoordinates;
+    this.onclick = onclick;
+    this.setMarkerToCoordinates = setMarkerToCoordinates;
+    this.getLocationFromPixels = getLocationFromPixels;
+    this.getSystem = getSystem;
 };

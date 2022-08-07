@@ -69,18 +69,7 @@ function getUrl(){
 	return url;
 }
 
-const templateTileFn = data => /*html*/
-    `<div style="position:relative;width:500px;height:500px;">
-         <img src="${data}")/>
-     </div>`;
 
-
-const templateScansector = data => /*html*/
-    `<div class="scanrange scanrange${data.scanRange +1}" style="position: absolute; top: ${(((data.location.y - 1) * 25) + 12.5)}px; left: ${(((data.location.x - 1) * 25) + 12.5)}px; background-color: white; "></div>`;
-
-const templateScannedSector = data => `<div style="width:25px;height:25px;position:absolute;top:${data.y*25-25}px;left:${data.x*25-25}px;${data.bg != null && data.bg.image != undefined ? 'background-image:url('+data.bg.image+')' : ''}">
-${data.fg!=null ? '<img src="'+data.fg+'"/>' : ''}
-</div>`;
 
 function addScansectors(json) {
     var container = document.getElementById("scansectors");
@@ -105,49 +94,20 @@ function addScannedFields(json)
 
 var starmap = new Starmap();
 
-const templateChooseSystem = data => `<div class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-front ui-draggable ui-resizable" tabindex="-1" role="dialog" aria-describedby="systemauswahl" aria-labelledby="ui-id-4" style="position: absolute; height: 184px; width: 400px; inset: 242px auto auto 937px; display: block;">
-<div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix ui-draggable-handle">
-<span id="ui-id-4" class="ui-dialog-title">Kartenausschnitt</span>
-<button type="button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only ui-dialog-titlebar-close" role="button" title="Close">
-<span class="ui-button-icon-primary ui-icon ui-icon-closethick"></span>
-<span class="ui-button-text">Close</span>
-</button>
-</div>
-<div id="systemauswahl" ds-popup="systemSelection" ds-popup-title="Kartenausschnitt" ds-popup-width="400" ng-controller="MapSystemauswahlController" class="ng-scope ui-dialog-content ui-widget-content gfxbox" style="width: auto; min-height: 100px; max-height: none; height: auto;">
+function loadSectorData(x, y, scanship)
+{
+    var system = starmap.getSystem();
 
-<form ng-submit="sternenkarteLaden()" class="ng-pristine ng-valid">
-    <table cellpadding="3">
-        <tbody><tr>
-            <td colspan="2">
-                System<br>
-                <select name="sys" ng-model="systemSelected" ng-options="sys.label for sys in systeme" class="ng-pristine ng-valid"><option value="0" selected="selected">Schatten (80) </option><option value="1">DynJN Testsystem (81) </option><option value="2">test (82) </option><option value="3">Arvas Testsystem1 (83) </option><option value="4">Rho (88) </option><option value="5">Eta Nebular (91) </option><option value="6">Prospekt 1 (92) </option><option value="7">prospekt 2 (93) </option><option value="8">prospekt 3 (94) </option><option value="9">Neu (50x50) 1 (95) </option><option value="10">Neu (50x50) 2 (96) </option><option value="11">Neu (75x75) 1 (97) </option><option value="12">Neu (75x75) 2 (98) </option><option value="13">Neu (100x100) 1 (99) </option><option value="14">Neu (100x100) 2 (100) </option><option value="15">Neu (100x100) 3 (101) </option><option value="16">Neu (100x100) 4 (102) </option></select>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                Position
-            </td>
-            <td>
-                <input type="text" name="xstart" size="3" value="1" ng-model="locationX" class="ng-pristine ng-valid">
-                /
-                <input type="text" name="ystart" size="3" value="1" ng-model="locationY" class="ng-pristine ng-valid">
-            </td>
-        </tr>
-        <tr ng-show="adminSichtVerfuegbar" style="">
-            <td colspan="2">
-                <input type="checkbox" ng-model="adminSicht" id="adminSicht" name="adminSicht" class="ng-pristine ng-valid"><label for="adminSicht">Admin-Sicht</label>
-            </td>
-        </tr>
-    </tbody></table>
-    <input type="submit" value="Sternenkarte laden">
-</form>
-</div>
-<div class="ui-resizable-handle ui-resizable-n" style="z-index: 90;"></div>
-<div class="ui-resizable-handle ui-resizable-e" style="z-index: 90;"></div>
-<div class="ui-resizable-handle ui-resizable-s" style="z-index: 90;"></div>
-<div class="ui-resizable-handle ui-resizable-w" style="z-index: 90;"></div>
-<div class="ui-resizable-handle ui-resizable-se ui-icon ui-icon-gripsmall-diagonal-se" style="z-index: 90;"></div>
-<div class="ui-resizable-handle ui-resizable-sw" style="z-index: 90;"></div>
-<div class="ui-resizable-handle ui-resizable-ne" style="z-index: 90;"></div>
-<div class="ui-resizable-handle ui-resizable-nw" style="z-index: 90;"></div>
-</div>`
+    jQuery.getJSON(DS.getURL(),{FORMAT:'JSON', module:'map', action:'sector', sys:system.system, x:x, y:y, scanship:scanship, admin:system.admin}, function(resp){renderSectorData(resp)});
+}
+
+function renderSectorData(data)
+{
+    var container = document.getElementById("sektoranzeige");
+    container.innerHTML = "";
+
+    for(let index =0; index < data.users.length; index++)
+    {
+        container.appendChild(parseHTML(templateUserFn(data.users[index])));
+    }
+}

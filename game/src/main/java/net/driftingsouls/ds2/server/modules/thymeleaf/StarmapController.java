@@ -125,6 +125,7 @@ public class StarmapController implements DSController, PermissionResolver {
         json.put("system", systemId);
         json.put("width", sys.getWidth());
         json.put("height", sys.getHeight());
+        json.put("admin", admin);
 
         response.getWriter().write(json.toString());
         response.flushBuffer(); // marks response as committed -- if we don't do this the request will go through normally!
@@ -166,25 +167,6 @@ public class StarmapController implements DSController, PermissionResolver {
         {
             content = new PlayerStarmap(user, sys.getID());
         }
-
-      /*jsonData.size = new MapController.MapViewModel.SizeViewModel();
-      jsonData.size.minx = xStart;
-      jsonData.size.miny = yStart;
-      jsonData.size.maxx = xEnd;
-      jsonData.size.maxy = yEnd;
-
-      for (int y = yStart; y <= yEnd; y++)
-      {
-        for (int x = xStart; x <= xEnd; x++)
-        {
-          Location position = new Location(sys.getID(), x, y);
-          MapController.MapViewModel.LocationViewModel locationViewModel = createMapLocationViewModel(content, position);
-          if (locationViewModel != null)
-          {
-            jsonData.locations.add(locationViewModel);
-          }
-        }
-      }*/
 
         // Das Anzeigen sollte keine DB-Aenderungen verursacht haben
         db.clear();
