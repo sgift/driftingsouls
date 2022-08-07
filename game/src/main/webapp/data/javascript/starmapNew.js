@@ -8,6 +8,7 @@ function LoadSystem(systemId)
 
 function renderBaseSystem(data)
 {
+    starmap.setSystem(data);
     var backgroundImages = "";
     var url = DS.getUrl() + "?module=map&action=tile&sys=" + data.system;
     for(y=0;y<data.width/20;y++)

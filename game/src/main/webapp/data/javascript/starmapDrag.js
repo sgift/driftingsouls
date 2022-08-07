@@ -2,11 +2,41 @@ var Starmap = function(){
 
     //maxX = 25*400;
     //maxY = 25*400;
+    var system;
+    var target;
+
+    init();
+
+    function elementWidth()
+    {
+        return parseInt(getComputedStyle(document.getElementById("starmap")).width) -25;
+    }
+
+    function elementHeight()
+    {
+        return parseInt(getComputedStyle(document.getElementById("starmap")).height) -25;
+    }
+
+    function maxX()
+    {
+        var width = system.width*25;
+        return Math.max(0, width-elementWidth());
+    }
+    function maxY()
+    {
+        var height = system.height*25;
+        return Math.max(0, height-elementHeight());
+    }
+
+    function init()
+    {
+        target = document.getElementById("draggable");
+
+    }
 
     document.body.addEventListener("mousedown", function (e) {
         if (e.target &&
             e.target.classList.contains("dragme")) {
-            console.log("test");
             startDrag(e);
             // handle event here
         }
@@ -63,17 +93,24 @@ var Starmap = function(){
         };
         var targ = document.getElementById("draggable");
         // move div element
-        targ.style.left = Math.min(25,coordX + e.clientX - offsetX) + 'px';
-        targ.style.top = Math.min(25,coordY + e.clientY - offsetY) + 'px';
+
+        var newX = coordX + e.clientX - offsetX
+        var newY = coordY + e.clientY - offsetY;
+
+        console.log(newX);
+        console.log(newY); // -260
+
+        targ.style.left = Math.min(25, Math.max(newX, -maxX())) + 'px';
+        targ.style.top = Math.min(25, Math.max(newY, -maxY())) + 'px';
 
         var legendTargetsX = document.querySelectorAll(".scroll-x");
         var legendTargetsY = document.querySelectorAll(".scroll-y");
 
-        legendTargetsX[0].style.left=targ.style.left;
-        legendTargetsX[1].style.left=targ.style.left;
+        legendTargetsX[0].style.left = parseInt(targ.style.left)-25 + 'px';
+        legendTargetsX[1].style.left = parseInt(targ.style.left)-25 + 'px';
 
-        legendTargetsY[0].style.top=targ.style.top;
-        legendTargetsY[1].style.top=targ.style.top;
+        legendTargetsY[0].style.top = parseInt(targ.style.top)-25 + 'px';
+        legendTargetsY[1].style.top = parseInt(targ.style.top)-25 + 'px';
 
         return false;
     }
@@ -81,9 +118,16 @@ var Starmap = function(){
     function stopDrag() {
         drag = false;
     }
+
+    function setSystem(newSystem)
+    {
+        system = newSystem;
+    }
+
     window.onload = function () {
         document.onmousedown = startDrag;
         document.onmouseup = stopDrag;
     }
 
+    this.setSystem = setSystem;
 };
