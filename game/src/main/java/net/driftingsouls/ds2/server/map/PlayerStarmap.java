@@ -29,7 +29,7 @@ import static net.driftingsouls.ds2.server.entities.jooq.tables.UserRelations.US
 public class PlayerStarmap extends PublicStarmap
 {
 	private final Map<Location, Integer> scannedLocationsToScannerId;
-	private final Map<Location, Integer> scannedNebulaLocationsToScannerId;
+	//private final Map<Location, Integer> scannedNebulaLocationsToScannerId;
 	private final Set<Location> sectorsWithAttackingShips;
 	private final Set<Location> bekannteOrte;
 	private final User user;
@@ -55,7 +55,7 @@ public class PlayerStarmap extends PublicStarmap
 		buildFriendlyData();
 
 		this.scannedLocationsToScannerId = new HashMap<>();
-		this.scannedNebulaLocationsToScannerId = new HashMap<>();
+		//this.scannedNebulaLocationsToScannerId = new HashMap<>();
 		buildScannedLocations();
 		buildNonFriendSectors();
 
@@ -78,8 +78,6 @@ public class PlayerStarmap extends PublicStarmap
 		for(var scanShip : nebulaScanShips)
 		{
 			addScanShipToMap(scanShip, scanMap, true);
-			addScanShipToMap(scanShip, nebulaScanMap, true);
-
 		}
 	}
 
@@ -178,16 +176,13 @@ public class PlayerStarmap extends PublicStarmap
 	@Override
 	public boolean isScanned(Location location)
 	{
-		return this.scannedLocationsToScannerId.containsKey(location) || this.scannedNebulaLocationsToScannerId.containsKey(location) || this.bekannteOrte.contains(location);
+		return this.scannedLocationsToScannerId.containsKey(location) || this.bekannteOrte.contains(location);
 	}
 
     @Override
     public int getScanningShip(Location location)
     {
         var scanShipId = this.scannedLocationsToScannerId.getOrDefault(location, -1);
-		if(scanShipId == -1) {
-			scanShipId = this.scannedNebulaLocationsToScannerId.getOrDefault(location, -1);
-		}
 
 		return scanShipId;
     }
@@ -195,7 +190,7 @@ public class PlayerStarmap extends PublicStarmap
 	@Override
 	public SectorImage getUserSectorBaseImage(Location location)
 	{
-		boolean scanned = scannedLocationsToScannerId.containsKey(location) || scannedNebulaLocationsToScannerId.containsKey(location);
+		boolean scanned = scannedLocationsToScannerId.containsKey(location);
 		List<BaseData> positionBases = map.getBaseMap().get(location);
 		if(positionBases != null)
 		{
@@ -224,14 +219,14 @@ public class PlayerStarmap extends PublicStarmap
 		{
 			for(Starmap.JumpNode node: positionNodes)
 			{
-				if(!node.isHidden() || scannedLocationsToScannerId.containsKey(location) || scannedNebulaLocationsToScannerId.containsKey(location))
+				if(!node.isHidden() || scannedLocationsToScannerId.containsKey(location))
 				{
 					return new SectorImage("data/starmap/jumpnode/jumpnode.png", 0, 0);
 				}
 			}
 		}
 
-		if(!map.isNebula(location) || scannedNebulaLocationsToScannerId.containsKey(location))
+		if(!map.isNebula(location) || scannedLocationsToScannerId.containsKey(location))
 		{
 			if(map.getRockPositions().contains(location))
 			{
@@ -250,7 +245,7 @@ public class PlayerStarmap extends PublicStarmap
 	@Override
 	public SectorImage getSectorOverlayImage(Location location)
 	{
-		if( !this.scannedLocationsToScannerId.containsKey(location) && !this.scannedNebulaLocationsToScannerId.containsKey(location))
+		if( !this.scannedLocationsToScannerId.containsKey(location))
 		{
 			return null;
 		}
@@ -359,13 +354,6 @@ public class PlayerStarmap extends PublicStarmap
 			if (scanRange > 0) {
 				//Find sectors scanned from ship
 				findScannedPositions(nebulas, position, scanData, scanRange, scannedLocationsToScannerId);
-
-				var nebulaScanData = nebulaScanMap.get(position);
-				// Nebula scanners can only exist on position which have at least one friendly scanner
-				if (nebulaScanData != null) {
-					int nebulaScanRange = scanData.getScanRange();
-					findScannedPositions(nebulas, position, scanData, nebulaScanRange, scannedNebulaLocationsToScannerId);
-				}
 			}
 		}
 	}
@@ -467,7 +455,7 @@ public class PlayerStarmap extends PublicStarmap
 	@Override
 	public boolean isSchlachtImSektor(Location sektor)
 	{
-		if( !this.scannedLocationsToScannerId.containsKey(sektor) && !this.scannedNebulaLocationsToScannerId.containsKey(sektor) )
+		if( !this.scannedLocationsToScannerId.containsKey(sektor))
 		{
 			return false;
 		}
