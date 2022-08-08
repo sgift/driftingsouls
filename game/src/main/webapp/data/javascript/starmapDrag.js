@@ -9,6 +9,14 @@ var Starmap = function(){
 
     init();
 
+    function init()
+        {
+            //console.log("starmap init");
+            target = document.getElementById("draggable");
+            //console.log(target);
+            document.querySelector("#starmap-mouse-event-target").addEventListener("click", (e) => onclick(e));
+        }
+
     function elementWidth()
     {
         return parseInt(getComputedStyle(document.getElementById("starmap")).width) - fieldSize;
@@ -34,7 +42,11 @@ var Starmap = function(){
     {
         //var node = document.getElementById("scanfield-" + scanship.shipId);
         var scancircle = {x:scanship.location.x, y:scanship.location.y, r:scanship.scanRange+1, id:scanship.shipId };
-        scanships[scanship.shipId] = scancircle;
+
+        if(scanships[scanship.shipId] == null)
+        {
+            scanships[scanship.shipId] = scancircle;
+        }
 
     }
 
@@ -44,22 +56,20 @@ var Starmap = function(){
         var left = Math.floor(parseInt(targ.style.left)/fieldSize);
         var top = Math.floor(parseInt(targ.style.top)/fieldSize);
 
-        var viewRectangle = {x:left, y:-top, w:elementWidth()/fieldSize, h:elementHeight()/fieldSize}
+        var viewRectangle = {x:-left-2, y:-top-2, w:elementWidth()/fieldSize+4, h:elementHeight()/fieldSize+4}
         return viewRectangle;
     }
 
-    var stopUnHiding = false;
+    var lastUnhide;
     function unHidingOnMove()
     {
+        if(lastUnhide == null) lastUnhide = Date.now();
+        else if(Date.now() - lastUnhide < 50) return;
+
         var viewRectangle = getCurrentViewRectangle();
 
         for(const [key, value] of Object.entries(scanships))
         {
-            function myfunction() {
-                 if(stopUnHiding == true)
-                    stopUnHiding = false;
-                    return;
-                }
             var isVisible = RectCircleColliding(value, viewRectangle);
             if(value.node == undefined)
             {
@@ -97,14 +107,6 @@ var Starmap = function(){
         var dx=distX-rect.w/2;
         var dy=distY-rect.h/2;
         return (dx*dx+dy*dy<=(circle.r*circle.r));
-    }
-
-    function init()
-    {
-        //console.log("starmap init");
-        target = document.getElementById("draggable");
-        //console.log(target);
-        document.querySelector("#starmap-mouse-event-target").addEventListener("click", (e) => onclick(e));
     }
 
     document.body.addEventListener("mousedown", function (e) {
@@ -231,18 +233,8 @@ var Starmap = function(){
     async function stopDrag() {
         stopUnHiding = true;
         drag = false;
-        for(const i=0; i<5;i++)
-        {
-            if(stopUnHiding == true)
-            {
-                await new Promise(r => setTimeout(r, 50));
-            }
-            else
-            {
-                unHidingOnMove();
-                return;
-            }
-        }
+        //lastUnhide = Date.now() - 20;
+        await new Promise(r => setTimeout(r, 51));
 
         unHidingOnMove();
     }
@@ -250,6 +242,7 @@ var Starmap = function(){
     function setSystem(newSystem)
     {
         system = newSystem;
+        scanships = {};
     }
 
     window.onload = function () {
@@ -259,7 +252,6 @@ var Starmap = function(){
     function getSystem()
     {
         return system;
-        scanships = {};
     }
 
 
