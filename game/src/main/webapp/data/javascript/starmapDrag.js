@@ -11,9 +11,7 @@ var Starmap = function(){
 
     function init()
         {
-            //console.log("starmap init");
             target = document.getElementById("draggable");
-            //console.log(target);
             document.querySelector("#starmap-mouse-event-target").addEventListener("click", (e) => onclick(e));
         }
 
@@ -71,24 +69,54 @@ var Starmap = function(){
         for(const [key, value] of Object.entries(scanships))
         {
             var isVisible = RectCircleColliding(value, viewRectangle);
-            if(value.node == undefined)
+
+            if(value.maskNode == undefined)
             {
-                value.node = document.getElementById("scanfield-" + key);
-                if(value.node == null) continue;
+                value.maskNode = document.getElementById("scanship-" + key);
+                if(value.maskNode == null) continue;
             }
 
             if(!isVisible)
             {
-                if(value.node.style.display != "none")
+                if(value.maskNode.style.display != "none")
                 {
-                    value.node.style.display = "none";
+                    value.maskNode.style.display = "none";
+                }
+                else
+                {
+                    continue;
                 }
             }
             else
             {
-                if(value.node.style.display == "none")
+                if(value.maskNode.style.display == "none")
                 {
-                    value.node.style.display = "block";
+                    value.maskNode.style.display = "block";
+                }
+                else
+                {
+                    continue;
+                }
+            }
+
+            if(value.fieldsNode == undefined)
+            {
+                value.fieldsNode = document.getElementById("scanfield-" + key);
+                if(value.fieldsNode == null) continue;
+            }
+
+            if(!isVisible)
+            {
+                if(value.fieldsNode.style.display != "none")
+                {
+                    value.fieldsNode.style.display = "none";
+                }
+            }
+            else
+            {
+                if(value.fieldsNode.style.display == "none")
+                {
+                    value.fieldsNode.style.display = "block";
                 }
             }
         }
@@ -117,14 +145,6 @@ var Starmap = function(){
         }
     });
 
-    /*document.body.addEventListener("mouseup", function (e) {
-        if (e.target &&
-            e.target.classList.contains("dragme")) {
-            stopDrag();
-            // handle event here
-        }
-    });*/
-
     function startDrag(e) {
         // determine event object
         if (!e) {
@@ -142,17 +162,17 @@ var Starmap = function(){
         offsetY = e.clientY;
 
         // assign default values for top and left properties
-        if (!targ.style.left) {
+        /*if (!targ.style.left) {
             targ.style.left = '25px'
         };
         if (!targ.style.top) {
             targ.style.top = '25px'
         };
-
+*/
         // calculate integer values for top and left
         // properties
-        coordX = parseInt(targ.style.left);
-        coordY = parseInt(targ.style.top);
+        coordX = lastX;
+        coordY = lastY;
         drag = true;
 
         // move div element
@@ -167,8 +187,6 @@ var Starmap = function(){
             var e = window.event
         };
 
-        stopUnHiding = true;
-
         // move div element
 
         var newX = coordX + e.clientX - offsetX
@@ -178,23 +196,32 @@ var Starmap = function(){
         return false;
     }
 
+    var lastX=0;
+    var lastY=0;
     function setPosition(newX, newY)
     {
         var targ = document.getElementById("draggable");
-        targ.style.left = Math.min(fieldSize, Math.max(newX, -maxX())) + 'px';
-        targ.style.top = Math.min(fieldSize, Math.max(newY, -maxY())) + 'px';
+
+        newX = Math.min(0, Math.max(newX, -maxX()));
+        newY = Math.min(0, Math.max(newY, -maxY()));
+
+        lastX = newX;
+        lastY = newY;
+
+        targ.style.transform = "translate3d("+ newX + "px, " + newY + "px, 0px)";
+        //targ.style.left = newX;
+        //targ.style.top = newY;
 
         var legendTargetsX = document.querySelectorAll(".scroll-x");
         var legendTargetsY = document.querySelectorAll(".scroll-y");
 
-        legendTargetsX[0].style.left = parseInt(targ.style.left)-fieldSize + 'px';
-        legendTargetsX[1].style.left = parseInt(targ.style.left)-fieldSize + 'px';
+        legendTargetsX[0].style.left = newX + 'px';
+        legendTargetsX[1].style.left = newX + 'px';
 
-        legendTargetsY[0].style.top = parseInt(targ.style.top)-fieldSize + 'px';
-        legendTargetsY[1].style.top = parseInt(targ.style.top)-fieldSize + 'px';
+        legendTargetsY[0].style.top = newY + 'px';
+        legendTargetsY[1].style.top = newY + 'px';
 
-        stopUnHiding = false;
-        unHidingOnMove();
+        //unHidingOnMove();
     }
 
     function getPixelByCoordinates(x)
@@ -227,7 +254,19 @@ var Starmap = function(){
 
     function getLocationFromPixels(x, y)
     {
-        return {x: Math.floor(x/fieldSize)+1, y: Math.floor(y/fieldSize)+1};
+        var offset = getTranslateValues(target);
+        return {x: Math.floor((x-offset.x)/fieldSize)+1, y: Math.floor((y-offset.y)/fieldSize)+1};
+    }
+
+    function getTranslateValues(element) {
+        const values = element.style.transform.split(/\w+\(|\);?/);
+        const transform = values[1].split(/,\s?/g).map(numStr => parseInt(numStr));
+
+        return {
+          x: transform[0],
+          y: transform[1],
+          z: transform[2]
+        };
     }
 
     async function stopDrag() {
@@ -236,7 +275,7 @@ var Starmap = function(){
         //lastUnhide = Date.now() - 20;
         await new Promise(r => setTimeout(r, 51));
 
-        unHidingOnMove();
+        //unHidingOnMove();
     }
 
     function setSystem(newSystem)
@@ -262,4 +301,5 @@ var Starmap = function(){
     this.getLocationFromPixels = getLocationFromPixels;
     this.getSystem = getSystem;
     this.registerScanship = registerScanship;
+    this.elementWidth() = elementWidth();
 };
