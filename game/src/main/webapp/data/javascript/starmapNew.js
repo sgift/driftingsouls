@@ -78,6 +78,9 @@ function addScansectors(json) {
     for (let index = 0; index < json.length; index++) {
         const element = json[index];
         container.appendChild(parseHTML(templateScansector(element)));
+
+        var scanship = document.getElementById("scanship-" + element.shipId);
+        starmap.registerScanship(element);
     }
 }
 
@@ -88,9 +91,31 @@ function addScannedFields(json)
 
         for (let index = 0; index < json.locations.length; index++) {
             const element = json.locations[index];
-            container.appendChild(parseHTML(templateScannedSector(element)));
+
+            var scanfield = document.getElementById("scanfield-" + element.scanner);
+
+            if(scanfield == null)
+            {
+                if(element.scanner == -1 || element.scanner == 0)
+                {
+                    container.appendChild(parseHTML('<div id="scanfield-' + element.scanner + '" style="position:absolute;inset:0px;display:block;"></div>'));
+                }
+                else{
+                    container.appendChild(parseHTML('<div id="scanfield-' + element.scanner + '" style="position:absolute;inset:0px;display:none;"></div>'));
+                }
+                scanfield = document.getElementById("scanfield-" + element.scanner);
+            }
+
+            scanfield.appendChild(parseHTML(templateScannedSector(element)));
         }
 }
+
+/*function getRockScannerIndex(x, y)
+{
+    var rockScannerIndexRadius = 15; // equals roughly a square of 20x20
+
+    return -Math.round((Math.ceil(x/rockScannerIndexRadius)+Math.ceil(y/rockScannerIndexRadius) * Math.ceil(starmap.getSystem.width / rockScannerIndexRadius)));
+}*/
 
 var starmap = new Starmap();
 

@@ -70,7 +70,7 @@ const templateTileFn = data => /*html*/
 
 
 const templateScansector = data => /*html*/
-    `<div class="scanrange scanrange${data.scanRange +1}" style="position: absolute; top: ${(((data.location.y - 1) * 25) + 12.5)}px; left: ${(((data.location.x - 1) * 25) + 12.5)}px; background-color: white; "></div>`;
+    `<div id="scanship-${data.shipId}" class="scanrange scanrange${data.scanRange +1}" style="position: absolute; top: ${(((data.location.y - 1) * 25) + 12.5)}px; left: ${(((data.location.x - 1) * 25) + 12.5)}px; background-color: white; "></div>`;
 
 const templateScannedSector = data => `<div onclick="loadSectorData(${data.x}, ${data.y}, ${data.scanner})" style="width:25px;height:25px;position:absolute;top:${data.y*25-25}px;left:${data.x*25-25}px;${data.bg != null && data.bg.image != undefined ? 'background-image:url('+data.bg.image+')' : ''}">
 ${data.fg!=null ? '<img src="'+data.fg+'"/>' : ''}
