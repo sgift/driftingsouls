@@ -1,9 +1,12 @@
 function LoadSystem(systemId)
 {
     var url = getUrl();
-    jQuery.getJSON(url,{action:'get_system_data', system:systemId}, function(resp){renderBaseSystem(resp)});
-    jQuery.getJSON(url, {action:'GET_SCANFIELDS', system:systemId}, function(resp){addScansectors(resp)});
-    jQuery.getJSON(url, {action:'GET_SCANNED_FIELDS', system:systemId}, function(resp){addScannedFields(resp)});
+    jQuery.getJSON(url,{action:'get_system_data', system:systemId}, function(resp)
+    {
+        renderBaseSystem(resp);
+        jQuery.getJSON(url, {action:'GET_SCANFIELDS', system:systemId}, function(resp){addScansectors(resp)});
+        jQuery.getJSON(url, {action:'GET_SCANNED_FIELDS', system:systemId}, function(resp){addScannedFields(resp)});
+    });
 }
 
 function renderBaseSystem(data)
@@ -73,23 +76,64 @@ function getUrl(){
 
 function addScansectors(json) {
     var container = document.getElementById("scansectors");
-    container.innerHTML = "";
+    while (container.firstChild) {
+                container.removeChild(container.lastChild);
+              }
 
     for (let index = 0; index < json.length; index++) {
         const element = json[index];
         container.appendChild(parseHTML(templateScansector(element)));
+
+        var scanship = document.getElementById("scanship-" + element.shipId);
+        starmap.registerScanship(element);
     }
 }
 
 function addScannedFields(json)
 {
     var container = document.getElementById("scannedSectors");
-        container.innerHTML = "";
+        while (container.firstChild) {
+            container.removeChild(container.lastChild);
+          }
 
         for (let index = 0; index < json.locations.length; index++) {
             const element = json.locations[index];
-            container.appendChild(parseHTML(templateScannedSector(element)));
+
+            var scanfield = document.getElementById("scanfield-" + element.scanner);
+
+            if(scanfield == null)
+            {
+                if(element.scanner == -1 || element.scanner == 0)
+                {
+                    var rockScanship = getRockScannerIndex(element.x, element.y);
+                    scanfield = document.getElementById("scanfield-" + rockScanship.shipId);
+                    if(scanfield == null) container.appendChild(parseHTML('<div id="scanfield-' + rockScanship.shipId + '" style="position:absolute;inset:0px;display:block;"></div>'));
+                    scanfield = document.getElementById("scanfield-" + rockScanship.shipId);
+
+                    starmap.registerScanship(rockScanship);
+                }
+                else{
+                    container.appendChild(parseHTML('<div id="scanfield-' + element.scanner + '" style="position:absolute;inset:0px;display:none;"></div>'));
+                    scanfield = document.getElementById("scanfield-" + element.scanner);
+                }
+
+            }
+
+            scanfield.appendChild(parseHTML(templateScannedSector(element)));
         }
+}
+
+function getRockScannerIndex(x, y)
+{
+    var rockScannerWidth = 20; // equals roughly a square of 20x20
+
+    var scanPosX = Math.ceil(x/rockScannerWidth) * rockScannerWidth - rockScannerWidth/2;
+    var scanPosY = Math.ceil(y/rockScannerWidth) * rockScannerWidth - rockScannerWidth/2;
+
+    var shipId = -Math.round((Math.ceil(x/rockScannerWidth)+Math.ceil(y/rockScannerWidth) * Math.ceil(starmap.getSystem().width / rockScannerWidth)));
+    var result = {location:{x:scanPosX, y:scanPosY, system: starmap.getSystem().system}, shipId: shipId, ownerId:-1, scanRange: 16 };
+
+    return result;
 }
 
 var starmap = new Starmap();
