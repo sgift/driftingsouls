@@ -64,8 +64,8 @@ const templateShipFn = ship => `
 `;
 
 const templateTileFn = data => /*html*/
-    `<div style="position:relative;width:500px;height:500px;">
-         <img src="${data}")/>
+    `<div style="position:absolute;width:500px;height:500px;top:${500*data.y}px;left:${500*data.x}px">
+         <img src="${data.url}")/>
      </div>`;
 
 

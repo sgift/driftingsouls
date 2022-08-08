@@ -19,8 +19,8 @@ function renderBaseSystem(data)
         backgroundImages += '<div  class="" style="display: inline-flex; flex-grow: 1; flex-direction: row;">'
         for(x=0;x<data.width/20;x++)
         {
-            var tileUrl = url + "&tileX=" + x + "&tileY=" + y;
-            backgroundImages += templateTileFn(tileUrl);
+            var tile = {url:url + "&tileX=" + x + "&tileY=" + y, x:x, y:y};
+            backgroundImages += templateTileFn(tile);
         }
         backgroundImages += "</div>"
     }

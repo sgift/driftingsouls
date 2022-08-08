@@ -11,9 +11,7 @@ var Starmap = function(){
 
     function init()
         {
-            //console.log("starmap init");
             target = document.getElementById("draggable");
-            //console.log(target);
             document.querySelector("#starmap-mouse-event-target").addEventListener("click", (e) => onclick(e));
         }
 
@@ -71,24 +69,54 @@ var Starmap = function(){
         for(const [key, value] of Object.entries(scanships))
         {
             var isVisible = RectCircleColliding(value, viewRectangle);
-            if(value.node == undefined)
+
+            if(value.maskNode == undefined)
             {
-                value.node = document.getElementById("scanfield-" + key);
-                if(value.node == null) continue;
+                value.maskNode = document.getElementById("scanship-" + key);
+                if(value.maskNode == null) continue;
             }
 
             if(!isVisible)
             {
-                if(value.node.style.display != "none")
+                if(value.maskNode.style.display != "none")
                 {
-                    value.node.style.display = "none";
+                    value.maskNode.style.display = "none";
+                }
+                else
+                {
+                    continue;
                 }
             }
             else
             {
-                if(value.node.style.display == "none")
+                if(value.maskNode.style.display == "none")
                 {
-                    value.node.style.display = "block";
+                    value.maskNode.style.display = "block";
+                }
+                else
+                {
+                    continue;
+                }
+            }
+
+            if(value.fieldsNode == undefined)
+            {
+                value.fieldsNode = document.getElementById("scanfield-" + key);
+                if(value.fieldsNode == null) continue;
+            }
+
+            if(!isVisible)
+            {
+                if(value.fieldsNode.style.display != "none")
+                {
+                    value.fieldsNode.style.display = "none";
+                }
+            }
+            else
+            {
+                if(value.fieldsNode.style.display == "none")
+                {
+                    value.fieldsNode.style.display = "block";
                 }
             }
         }
@@ -116,14 +144,6 @@ var Starmap = function(){
             // handle event here
         }
     });
-
-    /*document.body.addEventListener("mouseup", function (e) {
-        if (e.target &&
-            e.target.classList.contains("dragme")) {
-            stopDrag();
-            // handle event here
-        }
-    });*/
 
     function startDrag(e) {
         // determine event object
@@ -167,8 +187,6 @@ var Starmap = function(){
             var e = window.event
         };
 
-        stopUnHiding = true;
-
         // move div element
 
         var newX = coordX + e.clientX - offsetX
@@ -193,8 +211,7 @@ var Starmap = function(){
         legendTargetsY[0].style.top = parseInt(targ.style.top)-fieldSize + 'px';
         legendTargetsY[1].style.top = parseInt(targ.style.top)-fieldSize + 'px';
 
-        stopUnHiding = false;
-        unHidingOnMove();
+        //unHidingOnMove();
     }
 
     function getPixelByCoordinates(x)
