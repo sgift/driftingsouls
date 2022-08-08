@@ -9,6 +9,13 @@ function LoadSystem(systemId)
     });
 }
 
+function LoadTestSystem()
+{
+jQuery.getJSON(getUrl,{action:'get_system_data', system:80}, function(resp){renderBaseSystem(resp);});
+addScansectors(testScanranges);
+addScannedFields(testScannedFields);
+}
+
 function renderBaseSystem(data)
 {
     starmap.setSystem(data);
@@ -109,6 +116,8 @@ function addScannedFields(json)
 
         for (let index = 0; index < json.locations.length; index++) {
             const element = json.locations[index];
+
+            if(element.fg == null && (element.bg == null || element.bg.image == null)) continue;
 
             var scanfield = document.getElementById("scanfield-" + element.scanner);
 

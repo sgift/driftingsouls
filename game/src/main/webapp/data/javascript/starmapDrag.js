@@ -15,16 +15,25 @@ var Starmap = function(){
             target = document.getElementById("draggable");
             document.querySelector("#starmap-mouse-event-target").addEventListener("click", (e) => onclick(e));
             starmap = document.getElementById("starmap");
+            getElementDimensions();
+
+            addEventListener('resize', getElementDimensions);
         }
+
+    var dimensions;
+    function getElementDimensions()
+    {
+        dimensions = {x:parseInt(getComputedStyle(starmap).width) - 2*fieldSize, y:parseInt(getComputedStyle(starmap).height) - 2*fieldSize};
+    }
 
     function elementWidth()
     {
-        return parseInt(getComputedStyle(starmap).width) - fieldSize;
+        return dimensions.x;
     }
 
     function elementHeight()
     {
-        return parseInt(getComputedStyle(starmap).height) - fieldSize;
+        return dimensions.y;
     }
 
     function maxX()
@@ -38,25 +47,26 @@ var Starmap = function(){
         return Math.max(-fieldSize, height-elementHeight());
     }
 
+
     function registerScanship(scanship)
     {
         //var node = document.getElementById("scanfield-" + scanship.shipId);
-        var scancircle = {x:scanship.location.x, y:scanship.location.y, r:scanship.scanRange+1, id:scanship.shipId };
+        /*var scancircle = {x:scanship.location.x, y:scanship.location.y, r:scanship.scanRange+1, id:scanship.shipId };
 
         if(scanships[scanship.shipId] == null)
         {
             scanships[scanship.shipId] = scancircle;
         }
-
+*/
     }
 
     function getCurrentViewRectangle()
     {
-        var left = Math.floor(parseInt(target.style.left)/fieldSize);
+        /*var left = Math.floor(parseInt(target.style.left)/fieldSize);
         var top = Math.floor(parseInt(target.style.top)/fieldSize);
 
         var viewRectangle = {x:-left-2, y:-top-2, w:elementWidth()/fieldSize+4, h:elementHeight()/fieldSize+4}
-        return viewRectangle;
+        return viewRectangle;*/
     }
 
     var lastUnhide;
@@ -153,32 +163,23 @@ var Starmap = function(){
         }
 
         // IE uses srcElement, others use target
-        var targ = document.getElementById("draggable");
 
-        if (targ.className != 'dragme') {
+        if (target.className != 'dragme') {
             return
         };
         // calculate event X, Y coordinates
         offsetX = e.clientX;
         offsetY = e.clientY;
 
-        // assign default values for top and left properties
-        /*if (!targ.style.left) {
-            targ.style.left = '25px'
-        };
-        if (!targ.style.top) {
-            targ.style.top = '25px'
-        };
-*/
-        // calculate integer values for top and left
-        // properties
         coordX = lastX;
         coordY = lastY;
         drag = true;
 
         // move div element
+        onmousemove = document.onmousemove;
         document.onmousemove = dragDiv;
     }
+    var onmousemove;
 
     function dragDiv(e) {
         if (!drag) {
@@ -218,11 +219,10 @@ var Starmap = function(){
         if(legendTargetsX == null) legendTargetsX = document.querySelectorAll(".scroll-x");
         if(legendTargetsY == null) legendTargetsY = document.querySelectorAll(".scroll-y");
 
-        legendTargetsX[0].style.left = newX + 'px';
-        legendTargetsX[1].style.left = newX + 'px';
-
-        legendTargetsY[0].style.top = newY + 'px';
-        legendTargetsY[1].style.top = newY + 'px';
+        legendTargetsX[0].style.transform = "translate(" + newX + "px, 0px)";
+        legendTargetsX[1].style.transform = "translate(" + newX + "px, 0px)";
+        legendTargetsY[0].style.transform = "translate(0px, " + newY + "px)";
+        legendTargetsY[1].style.transform = "translate(0px, " + newY + "px)";
 
         //unHidingOnMove();
     }
@@ -258,18 +258,15 @@ var Starmap = function(){
 
     function getLocationFromPixels(x, y)
     {
-        var offset = getTranslateValues(target);
+        var offset = getTranslateValues(); //getTranslateValues(target);
         return {x: Math.floor((x-offset.x)/fieldSize)+1, y: Math.floor((y-offset.y)/fieldSize)+1};
     }
 
-    function getTranslateValues(element) {
-        const values = element.style.transform.split(/\w+\(|\);?/);
-        const transform = values[1].split(/,\s?/g).map(numStr => parseInt(numStr));
-
+    function getTranslateValues() {
         return {
-          x: transform[0],
-          y: transform[1],
-          z: transform[2]
+          x: lastX,
+          y: lastY,
+          z: 0
         };
     }
 
@@ -280,6 +277,7 @@ var Starmap = function(){
         //await new Promise(r => setTimeout(r, 51));
 
         //unHidingOnMove();
+        document.onmousemove = onmousemove;
     }
 
     function setSystem(newSystem)
