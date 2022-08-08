@@ -69,6 +69,9 @@
         </div>
     </div>
     <div id="legend-top-left" style="position:absolute;top:0;left:0;width:25px;height:25px;background-color:black;z-index:75;"></div>
+    <div id="legend-top-right" style="position:absolute;top:0;right:0;width:25px;height:25px;background-color:black;z-index:75;"></div>
+    <div id="legend-bottom-right" style="position:absolute;bottom:0;right:0;width:25px;height:25px;background-color:black;z-index:75;"></div>
+    <div id="legend-bottom-left" style="position:absolute;bottom:0;left:0;width:25px;height:25px;background-color:black;z-index:75;"></div>
     <div id="legend-top" style="position:absolute;top:0;height:25px;left:25px;z-index:60;background-color:black;z-index:70;">
         <div class="scroll-x" style="position: absolute;left: 0px;top: 0;bottom: 0;display: flex;font-size: 9px;overflow: hidden;background-color:black;"></div>
     </div>
@@ -81,7 +84,7 @@
     <div id="legend-bottom" style="position:absolute;bottom:0;left:25px;height:25px;z-index:60;background-color:black;z-index:70;">
         <div class="scroll-x" style="position: absolute;left: 0px;top: 0;bottom: 0;display: flex;font-size: 9px;overflow: hidden;background-color:black;"></div>
     </div>
-    <div id="draggable" class="dragme" style="position: absolute;top:25px;left:25px;right:25px;bottom:25px;font-size:0px;">
+    <div id="draggable" class="dragme" style="position: absolute;top:25px;left:25px;right:25px;bottom:25px;font-size:0px;will-change:transform;">
 
         <div id="tiles" style="position:absolute;top:0px;left:0px;">
 
@@ -105,19 +108,19 @@
                     <td colspan="2">
                         System<br>
                         <select name="sys" class="ng-pristine ng-valid">
-                            <option value="80" selected="selected">Eta Nebular (605) </option>
-                            <option value="81">Eta Nebular Gamma Prospect (609) </option>
-                            <option value="82">Eta Nebular Delta Prospect (610) </option>
-                            <option value="83">Eta Nebular Beta Prospect (611) </option>
-                            <option value="84">Rho Carinae (612) </option>
-                            <option value="85">Downfall (613) </option>
-                            <option value="86">Chra'khatach (614) </option>
-                            <option value="87">Rhakasch (615) </option>
-                            <option value="88">Neo Polaris (616) </option>
-                            <option value="89">Amistad (617) </option>
-                            <option value="90">Cogadh (618) </option>
-                            <option value="91">Lyrae (619) </option>
-                            <option value="92">620 (620) </option>
+                            <option value="605" selected="selected">Eta Nebular (605) </option>
+                            <option value="80">Eta Nebular Gamma Prospect (609) </option>
+                            <option value="81">Eta Nebular Delta Prospect (610) </option>
+                            <option value="82">Eta Nebular Beta Prospect (611) </option>
+                            <option value="83">Rho Carinae (612) </option>
+                            <option value="84">Downfall (613) </option>
+                            <option value="85">Chra'khatach (614) </option>
+                            <option value="86">Rhakasch (615) </option>
+                            <option value="87">Neo Polaris (616) </option>
+                            <option value="88">Amistad (617) </option>
+                            <option value="89">Cogadh (618) </option>
+                            <option value="90">Lyrae (619) </option>
+                            <option value="91">620 (620) </option>
                         </select>
                     </td>
                 </tr>

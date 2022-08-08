@@ -4,6 +4,7 @@ var Starmap = function(){
     //maxY = 25*400;
     var system;
     var target;
+    var starmap;
     var scanships = {};
     var fieldSize = 25;
 
@@ -13,16 +14,17 @@ var Starmap = function(){
         {
             target = document.getElementById("draggable");
             document.querySelector("#starmap-mouse-event-target").addEventListener("click", (e) => onclick(e));
+            starmap = document.getElementById("starmap");
         }
 
     function elementWidth()
     {
-        return parseInt(getComputedStyle(document.getElementById("starmap")).width) - fieldSize;
+        return parseInt(getComputedStyle(starmap).width) - fieldSize;
     }
 
     function elementHeight()
     {
-        return parseInt(getComputedStyle(document.getElementById("starmap")).height) - fieldSize;
+        return parseInt(getComputedStyle(starmap).height) - fieldSize;
     }
 
     function maxX()
@@ -50,9 +52,8 @@ var Starmap = function(){
 
     function getCurrentViewRectangle()
     {
-        var targ = document.getElementById("draggable");
-        var left = Math.floor(parseInt(targ.style.left)/fieldSize);
-        var top = Math.floor(parseInt(targ.style.top)/fieldSize);
+        var left = Math.floor(parseInt(target.style.left)/fieldSize);
+        var top = Math.floor(parseInt(target.style.top)/fieldSize);
 
         var viewRectangle = {x:-left-2, y:-top-2, w:elementWidth()/fieldSize+4, h:elementHeight()/fieldSize+4}
         return viewRectangle;
@@ -198,9 +199,11 @@ var Starmap = function(){
 
     var lastX=0;
     var lastY=0;
+    var legendTargetsX;
+    var legendTargetsY;
     function setPosition(newX, newY)
     {
-        var targ = document.getElementById("draggable");
+        //var targ = document.getElementById("draggable");
 
         newX = Math.min(0, Math.max(newX, -maxX()));
         newY = Math.min(0, Math.max(newY, -maxY()));
@@ -208,12 +211,12 @@ var Starmap = function(){
         lastX = newX;
         lastY = newY;
 
-        targ.style.transform = "translate3d("+ newX + "px, " + newY + "px, 0px)";
+        target.style.transform = "translate("+ newX + "px, " + newY + "px)";
         //targ.style.left = newX;
         //targ.style.top = newY;
 
-        var legendTargetsX = document.querySelectorAll(".scroll-x");
-        var legendTargetsY = document.querySelectorAll(".scroll-y");
+        if(legendTargetsX == null) legendTargetsX = document.querySelectorAll(".scroll-x");
+        if(legendTargetsY == null) legendTargetsY = document.querySelectorAll(".scroll-y");
 
         legendTargetsX[0].style.left = newX + 'px';
         legendTargetsX[1].style.left = newX + 'px';
@@ -235,9 +238,10 @@ var Starmap = function(){
         setMarkerToCoordinates(x, y);
     }
 
+    var marker;
     function setMarkerToCoordinates(x, y)
     {
-        var marker = document.getElementById("position-marker");
+        if(marker == null) marker = document.getElementById("position-marker");
         marker.style.display = "block";
         marker.style.left = getPixelByCoordinates(x) + 'px';
         marker.style.top = getPixelByCoordinates(y) + 'px';
@@ -269,11 +273,11 @@ var Starmap = function(){
         };
     }
 
-    async function stopDrag() {
+    function stopDrag() {
         stopUnHiding = true;
         drag = false;
         //lastUnhide = Date.now() - 20;
-        await new Promise(r => setTimeout(r, 51));
+        //await new Promise(r => setTimeout(r, 51));
 
         //unHidingOnMove();
     }
