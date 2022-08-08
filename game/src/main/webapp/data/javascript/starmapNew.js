@@ -13,10 +13,12 @@ function renderBaseSystem(data)
 {
     starmap.setSystem(data);
 
-    /*if(starmap.elementWidth() > data.width*25)
+    if(starmap.elementWidth() > data.width*25)
     {
-        var temp =
-    }*/
+        var temp = document.getElementById("draggable");
+        temp.style.removeProperty("right");
+        temp.style.width = data.width*25 + 'px';
+    }
 
     var backgroundImages = "";
     var url = DS.getUrl() + "?module=map&action=tile&sys=" + data.system;
