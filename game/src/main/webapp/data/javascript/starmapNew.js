@@ -16,13 +16,13 @@ function renderBaseSystem(data)
     var url = DS.getUrl() + "?module=map&action=tile&sys=" + data.system;
     for(y=0;y<data.width/20;y++)
     {
-        backgroundImages += '<div  class="" style="display: inline-flex; flex-grow: 1; flex-direction: row;">'
+        //backgroundImages += '<div  class="" style="display: inline-flex; flex-grow: 1; flex-direction: row;">'
         for(x=0;x<data.width/20;x++)
         {
             var tile = {url:url + "&tileX=" + x + "&tileY=" + y, x:x, y:y};
             backgroundImages += templateTileFn(tile);
         }
-        backgroundImages += "</div>"
+        //backgroundImages += "</div>"
     }
 
     var parent = document.getElementById("tiles");
@@ -76,6 +76,9 @@ function getUrl(){
 
 function addScansectors(json) {
     var container = document.getElementById("scansectors");
+    container.style.width = starmap.getSystem().width*25 +'px';
+    container.style.height = starmap.getSystem().height*25 +'px';
+
     while (container.firstChild) {
                 container.removeChild(container.lastChild);
               }
@@ -113,7 +116,7 @@ function addScannedFields(json)
                     starmap.registerScanship(rockScanship);
                 }
                 else{
-                    container.appendChild(parseHTML('<div id="scanfield-' + element.scanner + '" style="position:absolute;inset:0px;display:none;"></div>'));
+                    container.appendChild(parseHTML('<div id="scanfield-' + element.scanner + '" style="position:absolute;inset:0px;display:block;"></div>'));
                     scanfield = document.getElementById("scanfield-" + element.scanner);
                 }
 
