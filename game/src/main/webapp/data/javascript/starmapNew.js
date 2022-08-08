@@ -12,6 +12,12 @@ function LoadSystem(systemId)
 function renderBaseSystem(data)
 {
     starmap.setSystem(data);
+
+    /*if(starmap.elementWidth() > data.width*25)
+    {
+        var temp =
+    }*/
+
     var backgroundImages = "";
     var url = DS.getUrl() + "?module=map&action=tile&sys=" + data.system;
     for(y=0;y<data.width/20;y++)
