@@ -117,13 +117,13 @@ var Starmap = function(){
         }
     });
 
-    document.body.addEventListener("mouseup", function (e) {
+    /*document.body.addEventListener("mouseup", function (e) {
         if (e.target &&
             e.target.classList.contains("dragme")) {
             stopDrag();
             // handle event here
         }
-    });
+    });*/
 
     function startDrag(e) {
         // determine event object
@@ -246,9 +246,9 @@ var Starmap = function(){
     }
 
     window.onload = function () {
-        document.onmousedown = startDrag;
         document.onmouseup = stopDrag;
     }
+
     function getSystem()
     {
         return system;
