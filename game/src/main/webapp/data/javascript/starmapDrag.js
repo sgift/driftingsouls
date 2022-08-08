@@ -301,5 +301,6 @@ var Starmap = function(){
     this.getLocationFromPixels = getLocationFromPixels;
     this.getSystem = getSystem;
     this.registerScanship = registerScanship;
-    this.elementWidth() = elementWidth();
+    this.elementWidth = elementWidth;
+    this.elementHeight = elementHeight;
 };
