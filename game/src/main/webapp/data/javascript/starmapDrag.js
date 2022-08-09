@@ -204,7 +204,6 @@ var Starmap = function(){
     var legendTargetsY;
     function setPosition(newX, newY)
     {
-        //var targ = document.getElementById("draggable");
 
         newX = Math.min(0, Math.max(newX, -maxX()));
         newY = Math.min(0, Math.max(newY, -maxY()));
@@ -213,8 +212,6 @@ var Starmap = function(){
         lastY = newY;
 
         target.style.transform = "translate("+ newX + "px, " + newY + "px)";
-        //targ.style.left = newX;
-        //targ.style.top = newY;
 
         if(legendTargetsX == null) legendTargetsX = document.querySelectorAll(".scroll-x");
         if(legendTargetsY == null) legendTargetsY = document.querySelectorAll(".scroll-y");
@@ -249,8 +246,8 @@ var Starmap = function(){
 
     function onclick(event)
     {
-        var y = (event.offsetY - parseInt(document.querySelector("#draggable").style.top));
-        var x = (event.offsetX - parseInt(document.querySelector("#draggable").style.left));
+        var y = (event.offsetY - parseInt(target.style.top));
+        var x = (event.offsetX - parseInt(target.style.left));
 
         var location = getLocationFromPixels(x, y);
         setMarkerToCoordinates(location.x, location.y);
