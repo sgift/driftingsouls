@@ -3,27 +3,93 @@ var Starmap = function(){
     //maxX = 25*400;
     //maxY = 25*400;
     var system;
+    var target = document.getElementById("draggable");
+    var starmapCanvas = new StarmapCanvas(this);
+    var scanableLocations = [];
+    var currentShip=-1;
+
+    function setSystem(newSystem)
+    {
+        system = newSystem;
+        scanships = {};
+    }
+
+    function getSystem()
+    {
+        return system;
+    }
+
+    function registerLocation(location)
+    {
+        scanableLocations.push(location);
+    }
+
+    function executeActionAtLocation(location)
+    {
+        if(currentShip == -1)
+        {
+            var locations = scanableLocations.filter(x => x.x == location.x && x.y == location.y);
+            var location = locations[0];
+            if(locations.length > 0)
+            {
+                loadSectorData(location.x, location.y, location.shipId);
+            }
+        }
+    }
+
+    function setCurrentShip(shipId)
+    {
+        currentShip = shipId;
+    }
+
+    this.setSystem = setSystem;
+    this.getSystem = getSystem;
+
+    this.setCoordinates = starmapCanvas.setCoordinates;
+    //this.onclick = onclick;
+    this.setMarkerToCoordinates = starmapCanvas.setMarkerToCoordinates;
+    this.getLocationFromPixels = starmapCanvas.getLocationFromPixels;
+    //this.registerScanship = registerScanship;
+    this.elementWidth = starmapCanvas.elementWidth;
+    this.elementHeight = starmapCanvas.elementHeight;
+    this.executeActionAtLocation = executeActionAtLocation;
+    this.setCurrentShip = setCurrentShip;
+    this.registerLocation = registerLocation;
+};
+
+var StarmapCanvas = function(starmap)
+{
+    var _starmap = starmap;
+    var starmapElement;
     var target;
-    var starmap;
-    var scanships = {};
+    var lastX=0;
+    var lastY=0;
+    var legendTargetsX;
+    var legendTargetsY;
     var fieldSize = 25;
+    var dimensions;
+    var mouseDownPosition = {x:0, y:0};
+    var isMouseClick = true;
 
     init();
 
     function init()
-        {
-            target = document.getElementById("draggable");
-            document.querySelector("#starmap-mouse-event-target").addEventListener("click", (e) => onclick(e));
-            starmap = document.getElementById("starmap");
-            getElementDimensions();
+    {
+        target = document.getElementById("draggable");
+        document.querySelector("#starmap-mouse-event-target").addEventListener("click", (e) => onclick(e));
+        starmapElement = document.getElementById("starmap");
+        getElementDimensions();
 
-            addEventListener('resize', getElementDimensions);
-        }
+        addEventListener('resize', getElementDimensions);
 
-    var dimensions;
+        legendTargetsX = document.querySelectorAll(".scroll-x");
+        legendTargetsY = document.querySelectorAll(".scroll-y");
+    }
+
+
     function getElementDimensions()
     {
-        dimensions = {x:parseInt(getComputedStyle(starmap).width) - 2*fieldSize, y:parseInt(getComputedStyle(starmap).height) - 2*fieldSize};
+        dimensions = {x:parseInt(getComputedStyle(starmapElement).width) - 2*fieldSize, y:parseInt(getComputedStyle(starmapElement).height) - 2*fieldSize};
     }
 
     function elementWidth()
@@ -38,123 +104,24 @@ var Starmap = function(){
 
     function maxX()
     {
-        var width = system.width*fieldSize;
+        var width = _starmap.getSystem().width*fieldSize;
         return Math.max(-fieldSize, width-elementWidth());
     }
     function maxY()
     {
-        var height = system.height*fieldSize;
+        var height = _starmap.getSystem().height*fieldSize;
         return Math.max(-fieldSize, height-elementHeight());
-    }
-
-
-    function registerScanship(scanship)
-    {
-        //var node = document.getElementById("scanfield-" + scanship.shipId);
-        /*var scancircle = {x:scanship.location.x, y:scanship.location.y, r:scanship.scanRange+1, id:scanship.shipId };
-
-        if(scanships[scanship.shipId] == null)
-        {
-            scanships[scanship.shipId] = scancircle;
-        }
-*/
-    }
-
-    function getCurrentViewRectangle()
-    {
-        /*var left = Math.floor(parseInt(target.style.left)/fieldSize);
-        var top = Math.floor(parseInt(target.style.top)/fieldSize);
-
-        var viewRectangle = {x:-left-2, y:-top-2, w:elementWidth()/fieldSize+4, h:elementHeight()/fieldSize+4}
-        return viewRectangle;*/
-    }
-
-    var lastUnhide;
-    function unHidingOnMove()
-    {
-        if(lastUnhide == null) lastUnhide = Date.now();
-        else if(Date.now() - lastUnhide < 50) return;
-
-        var viewRectangle = getCurrentViewRectangle();
-
-        for(const [key, value] of Object.entries(scanships))
-        {
-            var isVisible = RectCircleColliding(value, viewRectangle);
-
-            if(value.maskNode == undefined)
-            {
-                value.maskNode = document.getElementById("scanship-" + key);
-                if(value.maskNode == null) continue;
-            }
-
-            if(!isVisible)
-            {
-                if(value.maskNode.style.display != "none")
-                {
-                    value.maskNode.style.display = "none";
-                }
-                else
-                {
-                    continue;
-                }
-            }
-            else
-            {
-                if(value.maskNode.style.display == "none")
-                {
-                    value.maskNode.style.display = "block";
-                }
-                else
-                {
-                    continue;
-                }
-            }
-
-            if(value.fieldsNode == undefined)
-            {
-                value.fieldsNode = document.getElementById("scanfield-" + key);
-                if(value.fieldsNode == null) continue;
-            }
-
-            if(!isVisible)
-            {
-                if(value.fieldsNode.style.display != "none")
-                {
-                    value.fieldsNode.style.display = "none";
-                }
-            }
-            else
-            {
-                if(value.fieldsNode.style.display == "none")
-                {
-                    value.fieldsNode.style.display = "block";
-                }
-            }
-        }
-    }
-
-    function RectCircleColliding(circle,rect){
-        var distX = Math.abs(circle.x - rect.x-rect.w/2);
-        var distY = Math.abs(circle.y - rect.y-rect.h/2);
-
-        if (distX > (rect.w/2 + circle.r)) { return false; }
-        if (distY > (rect.h/2 + circle.r)) { return false; }
-
-        if (distX <= (rect.w/2)) { return true; }
-        if (distY <= (rect.h/2)) { return true; }
-
-        var dx=distX-rect.w/2;
-        var dy=distY-rect.h/2;
-        return (dx*dx+dy*dy<=(circle.r*circle.r));
     }
 
     document.body.addEventListener("mousedown", function (e) {
         if (e.target &&
             e.target.classList.contains("dragme")) {
             startDrag(e);
-            // handle event here
         }
     });
+
+    document.onmouseup = stopDrag;
+
 
     function startDrag(e) {
         // determine event object
@@ -170,6 +137,10 @@ var Starmap = function(){
         // calculate event X, Y coordinates
         offsetX = e.clientX;
         offsetY = e.clientY;
+
+        mouseDownPosition.x = lastX;
+        mouseDownPosition.y = lastY;
+        isMouseClick = true;
 
         coordX = lastX;
         coordY = lastY;
@@ -194,17 +165,15 @@ var Starmap = function(){
         var newX = coordX + e.clientX - offsetX
         var newY = coordY + e.clientY - offsetY;
 
+        if(Math.sqrt(Math.pow(mouseDownPosition.x-newX, 2) + Math.pow(newY-mouseDownPosition.y, 2)) > 5) isMouseClick = false;
+
         setPosition(newX, newY);
         return false;
     }
 
-    var lastX=0;
-    var lastY=0;
-    var legendTargetsX;
-    var legendTargetsY;
+
     function setPosition(newX, newY)
     {
-
         newX = Math.min(0, Math.max(newX, -maxX()));
         newY = Math.min(0, Math.max(newY, -maxY()));
 
@@ -212,16 +181,10 @@ var Starmap = function(){
         lastY = newY;
 
         target.style.transform = "translate("+ newX + "px, " + newY + "px)";
-
-        if(legendTargetsX == null) legendTargetsX = document.querySelectorAll(".scroll-x");
-        if(legendTargetsY == null) legendTargetsY = document.querySelectorAll(".scroll-y");
-
         legendTargetsX[0].style.transform = "translate(" + newX + "px, 0px)";
         legendTargetsX[1].style.transform = "translate(" + newX + "px, 0px)";
         legendTargetsY[0].style.transform = "translate(0px, " + newY + "px)";
         legendTargetsY[1].style.transform = "translate(0px, " + newY + "px)";
-
-        //unHidingOnMove();
     }
 
     function getPixelByCoordinates(x)
@@ -246,60 +209,31 @@ var Starmap = function(){
 
     function onclick(event)
     {
+        if(!isMouseClick) return;
         var y = (event.offsetY - parseInt(target.style.top));
         var x = (event.offsetX - parseInt(target.style.left));
 
         var location = getLocationFromPixels(x, y);
         setMarkerToCoordinates(location.x, location.y);
+
+        _starmap.executeActionAtLocation({x:location.x, y:location.y});
     }
 
     function getLocationFromPixels(x, y)
     {
-        var offset = getTranslateValues(); //getTranslateValues(target);
-        return {x: Math.floor((x-offset.x)/fieldSize)+1, y: Math.floor((y-offset.y)/fieldSize)+1};
-    }
-
-    function getTranslateValues() {
-        return {
-          x: lastX,
-          y: lastY,
-          z: 0
-        };
+        return {x: Math.floor((x-lastX)/fieldSize)+1, y: Math.floor((y-lastY)/fieldSize)+1};
     }
 
     function stopDrag() {
         stopUnHiding = true;
         drag = false;
-        //lastUnhide = Date.now() - 20;
-        //await new Promise(r => setTimeout(r, 51));
-
-        //unHidingOnMove();
         document.onmousemove = onmousemove;
     }
 
-    function setSystem(newSystem)
-    {
-        system = newSystem;
-        scanships = {};
-    }
-
-    window.onload = function () {
-        document.onmouseup = stopDrag;
-    }
-
-    function getSystem()
-    {
-        return system;
-    }
-
-
-    this.setSystem = setSystem;
     this.setCoordinates = setCoordinates;
-    this.onclick = onclick;
+    //this.onclick = onclick;
     this.setMarkerToCoordinates = setMarkerToCoordinates;
     this.getLocationFromPixels = getLocationFromPixels;
-    this.getSystem = getSystem;
-    this.registerScanship = registerScanship;
     this.elementWidth = elementWidth;
     this.elementHeight = elementHeight;
-};
+}
