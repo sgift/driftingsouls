@@ -183,10 +183,7 @@
 
 
 
-<div id="starmapSectorPopup" class="gfxbox" style="display:none; width: auto; min-height: 0px; max-height: none; height: 347px;" title="Sektorinformationen">
-    <div ng-hide="geladen" class="ng-binding" style="display: none;">
-        Lade Sektor 80:34/34
-    </div>
+<div id="starmapSectorPopup" class="gfxbox" style="display:none; width: auto; min-height: 0px;" title="Sektorinformationen">
     <div style="">
         <div class="header">Sektor 80:34/34</div>
         <!-- uiIf: sektor.roterAlarm -->
@@ -226,12 +223,18 @@
         width: 400
     });
 
+        $("#starmapSectorPopup").dialog({
+        dialogClass: 'starmap-modal',
+        width: 550
+    });
+
     $(".starmap-modal").each(function(){
         $(this).mousedown(function(e){e.originalEvent.stopPropagation();});
     });
 
     $("#systemauswahl").dialog("close");
     $("#goto-location").dialog("close");
+    $("#starmapSectorPopup").dialog("close");
 
 </script>
 
