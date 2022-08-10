@@ -208,7 +208,7 @@ public class PlayerStarmap extends PublicStarmap
 					boolean revealAsteroid = bekannteOrte.contains(location) || (!isNebula && scannedLocationsToScannerId.containsKey(location)) || shipInSector(location) ;
 					String img = null;
 
-					if(base.getOwnerId() != 0 || base.getOwnerId() != -1)
+					if(base.getOwnerId() != 0 && base.getOwnerId() != -1)
 					{
 						img = base.getOverlayImage(location, user, revealAsteroid, areMutualFriends, isBaseOwnerEnemy);
 					}
