@@ -69,7 +69,10 @@ const templateTileFn = data => /*html*/
 
 const templateScansector = data => /*html*/
     `<div id="scanship-${data.shipId}" class="scanrange scanrange${data.scanRange +1}" style="position: absolute; top: ${(((data.location.y - 1) * 25) + 12.5)}px; left: ${(((data.location.x - 1) * 25) + 12.5)}px; background-color: white; "></div>`;
+    //`<div id="scanship-${data.shipId}" class="scanrange scanrange${data.scanRange +1}" style="background-color: white;grid-column-start:${data.location.x-data.scanRange};grid-column-end:${data.location.x+data.scanRange};grid-row-start:${data.location.y-data.scanRange};grid-row-end:${data.location.y+data.scanRange}; "></div>`;
 
-const templateScannedSector = data => `<div onclick="loadSectorData(${data.x}, ${data.y}, ${data.scanner})" style="width:25px;height:25px;position:absolute;top:${data.y*25-25}px;left:${data.x*25-25}px;${data.bg != null && data.bg.image != undefined ? 'background-image:url('+data.bg.image+')' : ''}">
+
+//const templateScannedSector = data => `<div onclick="loadSectorData(${data.x}, ${data.y}, ${data.scanner})" style="width:25px;height:25px;position:absolute;top:${data.y*25-25}px;left:${data.x*25-25}px;${data.bg != null && data.bg.image != undefined ? 'background-image:url('+data.bg.image+')' : ''}">
+const templateScannedSector = data => `<div onclick="loadSectorData(${data.x}, ${data.y}, ${data.scanner})" style="grid-column-start:${data.x};grid-column-end:${data.x};grid-row-start:${data.y};grid-row-end:${data.y};${data.bg != null && data.bg.image != undefined ? 'background-image:url('+data.bg.image+')' : ''}">
 ${data.fg!=null ? '<img src="'+data.fg+'"/>' : ''}
 </div>`;

@@ -30,7 +30,7 @@ var Starmap = function(){
     }
     function registerScanship(scanship)
     {
-        //scanships[scanship.shipId] = {x:scanship.location.x, y:scanship.location.y, r:scanship.scanRange};
+        scanships[scanship.shipId] = {x:scanship.location.x, y:scanship.location.y, r:scanship.scanRange};
     }
 
     function executeActionAtLocation(location)
