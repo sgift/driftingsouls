@@ -114,7 +114,9 @@ function addScansectors(json) {
 function addScannedFields(json)
 {
     var container = document.getElementById("scannedSectors");
-    const display = container.style.display;
+    container.style.gridTemplateColumns = `repeat(${starmap.getSystem().width}, 25px)`;
+    container.style.gridTemplateRows = `repeat(${starmap.getSystem().height}, 25px)`;
+    const display = "grid";
     container.style.display = "none";
         while (container.firstChild) {
             container.removeChild(container.lastChild);
@@ -135,13 +137,13 @@ function addScannedFields(json)
                 {
                     var rockScanship = getRockScannerIndex(element.x, element.y);
                     scanfield = document.getElementById("scanfield-" + rockScanship.shipId);
-                    if(scanfield == null) container.appendChild(parseHTML('<div id="scanfield-' + rockScanship.shipId + '" style="position:absolute;top:0px;left:0px;display:block;"></div>'));
+                    if(scanfield == null) container.appendChild(parseHTML('<div id="scanfield-' + rockScanship.shipId + '" style="position:absolute;top:0px;left:0px;display:contents;"></div>'));
                     scanfield = document.getElementById("scanfield-" + rockScanship.shipId);
 
                     //starmap.registerScanship(rockScanship);
                 }
                 else{
-                    container.appendChild(parseHTML('<div id="scanfield-' + element.scanner + '" style="position:absolute;top:0px;left:0px;display:block;"></div>'));
+                    container.appendChild(parseHTML('<div id="scanfield-' + element.scanner + '" style="position:absolute;top:0px;left:0px;display:contents;"></div>'));
                     scanfield = document.getElementById("scanfield-" + element.scanner);
                 }
 
