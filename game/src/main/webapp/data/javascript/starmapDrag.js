@@ -9,7 +9,8 @@ var Starmap = function(){
 
     var scanableLocations = [];
     var scanships = {};
-    var currentShip=-1;
+    var currentShip;
+    var flight;
 
     function setSystem(newSystem)
     {
@@ -34,7 +35,7 @@ var Starmap = function(){
 
     function executeActionAtLocation(location)
     {
-        if(currentShip == -1)
+        if(currentShip == null || currentShip.id == -1)
         {
             var locations = scanableLocations.filter(x => x.x == location.x && x.y == location.y);
             var location = locations[0];
@@ -45,13 +46,31 @@ var Starmap = function(){
         }
         else
         {
-
+            flight = {shipId: currentShip.id, location:location};
+            starmapCanvas.renderFlightConfirmation(location, currentShip);
         }
     }
 
-    function setCurrentShip(shipId)
+    function setCurrentShip(ship)
     {
-        currentShip = shipId;
+        currentShip = ship;
+        if(ship != null) starmapCanvas.renderShipChosen(ship);
+    }
+    function abortFlight()
+    {
+        setCurrentShip(null);
+        starmapCanvas.derenderMapAction();
+    }
+    function confirmFlight()
+    {
+        //http://localhost:8080/ds/ds?FORMAT=JSON&module=schiffAjax&action=fliegeSchiff&schiff=1857304&x=31&y=33
+        jQuery.getJSON(DS.getUrl(),{FORMAT:'JSON', module:'schiffAjax', action:'fliegeSchiff', schiff:flight.shipId, x:flight.location.x, y:flight.location.y}, function(resp){ReloadSystem();});
+        setCurrentShip(null);
+    }
+
+    function getCurrentShip()
+    {
+        return currentShip;
     }
 
     function getScanships()
@@ -73,6 +92,9 @@ var Starmap = function(){
     this.registerLocation = registerLocation;
     this.registerScanship = registerScanship;
     this.getScanships = getScanships;
+    this.getCurrentShip = getCurrentShip;
+    this.abortFlight = abortFlight;
+    this.confirmFlight = confirmFlight;
 };
 
 var StarmapCanvas = function(starmap)
@@ -259,6 +281,34 @@ var StarmapCanvas = function(starmap)
         return viewRectangle;
     }
 
+    function renderFlightConfirmation(location, ship)
+    {
+        var mapAction = document.getElementById("kartenaktion");
+        mapAction.querySelector(".bestaetigung").style.visibility = "visible";
+        //document.getElementById("kartenaktion").style.display = "block";
+        var flightConfirmationText = mapAction.querySelector("#flightConfirmationText");
+        flightConfirmationText.textContent = `Soll das Schiff ${ship.name} wirklich nach ${location.x}/${location.y} (? Felder) fliegen?`;
+        marker.style.borderColor = "#feb626";
+    }
+
+    function derenderMapAction()
+    {
+        document.getElementById("kartenaktion").style.display = "none";
+        marker.style.borderColor = "blue;"
+    }
+
+    function renderShipChosen(ship)
+    {
+        $("#starmapSectorPopup").dialog("close");
+        var mapAction = document.getElementById("kartenaktion");
+        mapAction.querySelector(".bestaetigung").style.visibility = "hidden";
+
+        var flightConfirmationText = mapAction.querySelector("#flightConfirmationText");
+        flightConfirmationText.textContent = `Bitte wähle die Zielposition für das Schiff ${ship.name} aus...`;
+
+        mapAction.style.display = "block";
+    }
+
     this.setCoordinates = setCoordinates;
     //this.onclick = onclick;
     this.setMarkerToCoordinates = setMarkerToCoordinates;
@@ -266,6 +316,9 @@ var StarmapCanvas = function(starmap)
     this.elementWidth = elementWidth;
     this.elementHeight = elementHeight;
     this.getCurrentViewRectangle = getCurrentViewRectangle;
+    this.renderFlightConfirmation = renderFlightConfirmation;
+    this.derenderMapAction = derenderMapAction;
+    this.renderShipChosen  = renderShipChosen;
 }
 
 /*

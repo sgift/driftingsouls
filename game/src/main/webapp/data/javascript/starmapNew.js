@@ -9,11 +9,12 @@ function LoadSystem(systemId)
     });
 }
 
-function LoadTestSystem()
+function ReloadSystem()
 {
-jQuery.getJSON(getUrl,{action:'get_system_data', system:80}, function(resp){renderBaseSystem(resp);});
-addScansectors(testScanranges);
-addScannedFields(testScannedFields);
+    var url = getUrl();
+    var systemId = starmap.getSystem().system;
+    jQuery.getJSON(url, {action:'GET_SCANFIELDS', system:systemId}, function(resp){addScansectors(resp)});
+    jQuery.getJSON(url, {action:'GET_SCANNED_FIELDS', system:systemId}, function(resp){addScannedFields(resp)});
 }
 
 function renderBaseSystem(data)
@@ -217,10 +218,44 @@ function renderSectorData(data)
                 }
             }
 
-            toggles[j].addEventListener("click", test.bind(null, temp));
+            toggles[j].querySelector(".shiptype").addEventListener("click", test.bind(null, temp));
+
+            /*var ships = toggles[j].querySelectorAll(".can-fly");
+            AddFlyEventToShips(ships);*/
         }
     }
 
+    for(let i=0; i<data.users.length;i++)
+    {
+        for(let j=0;j<data.users[i].shiptypes.length;j++)
+        {
+            for(let k=0;k<data.users[i].shiptypes[j].ships.length;k++)
+            {
+                var ship = data.users[i].shiptypes[j].ships[k];
+                var shipNode = document.querySelector("#s-" + ship.id);
+                //console.log(shipNode);
+
+                var eventFunction = (ship) =>
+                {
+                    starmap.setCurrentShip(ship);
+                };
+
+                shipNode.addEventListener("click", eventFunction.bind(null, ship));
+            }
+        }
+    }
+
+}
+
+function AddFlyEventToShips(ships)
+{
+    /*for(let i=0;i<ships.length;i++)
+    {
+        var ship = ships[i];
+        var shipId = parseInt(ship.id.substring(2));
+
+        ship.addEventListener("click", function(){starmap.setCurrentShip(shipId);}.bind(null, shipId));
+    }*/
 }
 
 function toggleByDataTarget(element, display)
