@@ -173,7 +173,8 @@ function loadSectorData(x, y, scanship)
     var header = document.getElementById("starmapSectorPopup").querySelector(".header");
     header.textContent = `Lade Sektor ${system.system}:${x}/${y}`;
 
-    jQuery.getJSON(DS.getUrl(),{FORMAT:'JSON', module:'map', action:'sector', sys:system.system, x:x, y:y, scanship:scanship, admin:system.admin}, function(resp){renderSectorData(resp)});
+    //starmap?action=GET_SECTOR_INFORMATION&system=sys&x=x&y=y&scanship=id
+    jQuery.getJSON(getUrl(),{action:'GET_SECTOR_INFORMATION', system:system.system, x:x, y:y, scanship:scanship, admin:system.admin}, function(resp){renderSectorData(resp)});
 }
 
 function renderSectorData(data)
@@ -184,7 +185,7 @@ function renderSectorData(data)
     sektor.innerHTML = "";
 
     var header = container.querySelector(".header");
-    //header.textContent = "Sektor 80:34/34";
+    header.textContent = `Sektor ${data.system}:${data.x}/${data.y}`;
 
     for(let index =0; index < data.users.length; index++)
     {

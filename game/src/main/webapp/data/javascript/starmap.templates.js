@@ -11,7 +11,7 @@ const templateUserFn = user =>
  const templateShiptypeFn = shiptype => `
     <li class="ng-scope shiptypetoggle">
         <div class="shiptype">
-            ${shiptype.shipcount}x ${shiptype.name}
+            ${shiptype.count}x ${shiptype.name}
             <a href="./ds?module=schiffinfo&amp;ship=${shiptype.id}">
                 <img class="schiffstypengrafik" src="${shiptype.picture}">
             </a>
