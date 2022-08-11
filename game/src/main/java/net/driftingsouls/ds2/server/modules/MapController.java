@@ -525,6 +525,10 @@ public class MapController extends Controller
 	@ViewModel
 	public static class SectorViewModel
 	{
+		public int system;
+		public int x;
+		public int y;
+
 		public static class UserWithShips
 		{
 			public String name;
@@ -540,6 +544,7 @@ public class MapController extends Controller
 			public String name;
 			public String picture;
 			public int size;
+			public int count;
 			public final List<ShipViewModel> ships = new ArrayList<>();
 		}
 
@@ -550,6 +555,8 @@ public class MapController extends Controller
 			public long gedockt;
 			public int maxGedockt;
 			public ShipFleetViewModel fleet;
+			public boolean isOwner;
+			public int race;
 		}
 
 		public static class OwnShipViewModel extends ShipViewModel
