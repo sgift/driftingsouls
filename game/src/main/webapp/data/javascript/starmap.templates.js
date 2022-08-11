@@ -3,22 +3,20 @@ const templateUserFn = user =>
                      <span>${user.name}</span>
                      <span>${user.shipcount}</span>
                  </div>
-     <ul class="shipclasses toggleContent">
+     <ul class="shipclasses toggleContent user-sectordata">
      					${templateAllShiptypesFn(user.shiptypes)}
-
-
                  `;
 
 
  const templateShiptypeFn = shiptype => `
-    <li class="ng-scope">
+    <li class="ng-scope shiptypetoggle">
         <div class="shiptype">
             ${shiptype.shipcount}x ${shiptype.name}
-            <a href="./ds?module=schiffinfo&amp;ship=${shiptype.id}" onclick="ShiptypeBox.show(${shiptype.id});return false;">
+            <a href="./ds?module=schiffinfo&amp;ship=${shiptype.id}">
                 <img class="schiffstypengrafik" src="${shiptype.picture}">
             </a>
         </div>
-        <table>
+        <table id="${shiptype.userId}-${shiptype.id}" style="display:none;">
             ${templateAllShipsFn(shiptype.ships)}
         </table>
     </li>
@@ -57,7 +55,7 @@ const templateShipFn = ship => `
     </td>
     <td class="aktionen">
         <!-- uiIf: ship.kannFliegen --><a ui-if="ship.kannFliegen" title="Schiff bewegen"  href="">
-            <img ng-src="./data/interface/move.svg" alt="" src="./data/interface/move.svg">
+            <img id="s-${ship.id}" ng-src="./data/interface/move.svg" alt="" src="./data/interface/move.svg">
         </a>
     </td>
 </tr>
