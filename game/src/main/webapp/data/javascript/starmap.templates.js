@@ -34,7 +34,7 @@ const templateUserFn = user =>
 const templateShipFn = ship => `
 <tr>
     <td class="name">
-        <a href="./ds?module=schiff&amp;action=default&amp;ship=1857304">${ship.name}</a>
+        <a href="./ds?module=schiff&amp;action=default&amp;ship=${ship.id}">${ship.name}</a>
         <!-- uiIf: !user.eigener -->
     </td>
     <td class="status">
@@ -54,8 +54,8 @@ const templateShipFn = ship => `
         <!-- uiIf: ship.ueberhitzung>${ship.ueberhitzung} -->
     </td>
     <td class="aktionen">
-        <!-- uiIf: ship.kannFliegen --><a ui-if="ship.kannFliegen" title="Schiff bewegen"  href="">
-            <img id="s-${ship.id}" ng-src="./data/interface/move.svg" alt="" src="./data/interface/move.svg">
+        <!-- uiIf: ship.kannFliegen --><a ui-if="ship.kannFliegen" title="Schiff bewegen"  href="#">
+            <img class="can-fly" id="s-${ship.id}" ng-src="./data/interface/move.svg" alt="" src="./data/interface/move.svg">
         </a>
     </td>
 </tr>
