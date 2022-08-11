@@ -105,7 +105,7 @@ function addScansectors(json) {
         container.appendChild(parseHTML(templateScansector(element)));
 
         var scanship = document.getElementById("scanship-" + element.shipId);
-        //starmap.registerScanship(element);
+        starmap.registerScanship(element);
     }
     container.style.display = display;
 }
@@ -169,19 +169,64 @@ var starmap = new Starmap();
 function loadSectorData(x, y, scanship)
 {
     var system = starmap.getSystem();
-    jQuery.getJSON(DS.getUrl(),{FORMAT:'JSON', module:'map', action:'sector', sys:system.system, x:x, y:y, scanship:scanship, admin:system.admin}, function(resp){renderSectorData(resp)});
+
+    var header = document.getElementById("starmapSectorPopup").querySelector(".header");
+    header.textContent = `Lade Sektor ${system.system}:${x}/${y}`;
+
+    //starmap?action=GET_SECTOR_INFORMATION&system=sys&x=x&y=y&scanship=id
+    jQuery.getJSON(getUrl(),{action:'GET_SECTOR_INFORMATION', system:system.system, x:x, y:y, scanship:scanship, admin:system.admin}, function(resp){renderSectorData(resp)});
 }
 
 function renderSectorData(data)
 {
-    var container = document.getElementById("sektoranzeige");
-    container.innerHTML = "";
+    var container = document.getElementById("starmapSectorPopup");
+    var sektor = container.querySelector("#sektoranzeige");
+    //var container = document.getElementById("sektoranzeige");
+    sektor.innerHTML = "";
+
+    var header = container.querySelector(".header");
+    header.textContent = `Sektor ${data.system}:${data.x}/${data.y}`;
 
     for(let index =0; index < data.users.length; index++)
     {
-        container.appendChild(parseHTML(templateUserFn(data.users[index])));
+        sektor.appendChild(parseHTML(templateUserFn(data.users[index])));
     }
 
-    container.style.display = "block";
+    sektor.style.display = "block";
     $("#starmapSectorPopup").dialog("open");
+
+    var userSectordatas = container.querySelectorAll(".user-sectordata");
+
+    for(var i=0;i<userSectordatas.length;i++)
+    {
+        var toggles = userSectordatas[i].querySelectorAll(".shiptypetoggle");
+        for(var j=0;j<toggles.length;j++)
+        {
+            var temp = toggles[j].querySelector("table");
+
+            var test = (element) =>
+            {
+                console.log(element);
+                if(element.style.display == "none")
+                {
+                    element.style.display = "block";
+                }
+                else
+                {
+                    element.style.display = "none";
+                }
+            }
+
+            toggles[j].addEventListener("click", test.bind(null, temp));
+        }
+    }
+
+}
+
+function toggleByDataTarget(element, display)
+{
+    if(display == null) display = "block";
+    var target = document.getElementById(element.dataset.toggleTarget);
+
+    target.style.display=display;
 }
