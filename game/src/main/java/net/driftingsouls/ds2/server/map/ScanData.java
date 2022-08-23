@@ -9,6 +9,11 @@ public class ScanData implements Locatable {
     private final int ownerId;
     private final int scanRange;
 
+
+    public ScanData(int system, int x, int y, int shipId, int ownerId, int sensorStatus, int scanRange)
+    {
+        this(system, x, y, shipId, ownerId, (sensorStatus*scanRange)/100);
+    }
     public ScanData(int system, int x, int y, int shipId, int ownerId, int scanRange) {
         this.location = new Location(system, x, y);
         this.shipId = shipId;

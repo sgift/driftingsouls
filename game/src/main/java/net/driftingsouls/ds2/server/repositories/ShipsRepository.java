@@ -60,7 +60,7 @@ public class ShipsRepository {
                             .and(FRIENDLY_SCAN_RANGES.STAR_SYSTEM.eq(system)))) {
                 var result = scanDataSelect.fetch();
                 for (var record : result) {
-                    var scanData = new ScanData(system, record.getX(), record.getY(), record.getId(), record.getOwner(), record.getSensorRange().intValue());
+                    var scanData = new ScanData(system, record.getX(), record.getY(), record.getId(), record.getOwner(), record.getSensorStatus().intValue(), record.getSensorRange().intValue());
                     resultlist.add(scanData);
                 }
             }
@@ -82,7 +82,7 @@ public class ShipsRepository {
                             .and(FRIENDLY_NEBEL_SCAN_RANGES.STAR_SYSTEM.eq(system)))) {
                 var result = scanDataSelect.fetch();
                 for (var record : result) {
-                    var scanData = new ScanData(system, record.getX(), record.getY(), record.getId(), record.getOwner(), record.getSensorRange().intValue());
+                    var scanData = new ScanData(system, record.getX(), record.getY(), record.getId(), record.getOwner(), record.getSensorStatus().intValue(), record.getSensorRange().intValue());
                     nebulaScanships.add(scanData);
                 }
             }
