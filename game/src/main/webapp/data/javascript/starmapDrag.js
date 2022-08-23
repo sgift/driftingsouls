@@ -64,7 +64,9 @@ var Starmap = function(){
     function confirmFlight()
     {
         //http://localhost:8080/ds/ds?FORMAT=JSON&module=schiffAjax&action=fliegeSchiff&schiff=1857304&x=31&y=33
-        jQuery.getJSON(DS.getUrl(),{FORMAT:'JSON', module:'schiffAjax', action:'fliegeSchiff', schiff:flight.shipId, x:flight.location.x, y:flight.location.y}, function(resp){ReloadSystem();});
+        jQuery.getJSON(DS.getUrl(),{FORMAT:'JSON', module:'schiffAjax', action:'fliegeSchiff', schiff:flight.shipId, x:flight.location.x, y:flight.location.y})
+        .done(function(resp){ReloadSystem();});
+        //jQuery.getJSON(DS.getUrl(),{FORMAT:'JSON', module:'schiffAjax', action:'fliegeSchiff', schiff:flight.shipId, x:flight.location.x, y:flight.location.y}, function(resp){ReloadSystem();});
         setCurrentShip(null);
     }
 
