@@ -20,10 +20,13 @@ package net.driftingsouls.ds2.server;
 
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.map.PlayerStarmap;
+import net.driftingsouls.ds2.server.ships.MoveableShip;
 import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.Embeddable;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Eine Positionsklasse.
@@ -84,6 +87,41 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 	 */
 	public int getY() {
 		return y;
+	}
+
+	public int getXYDistance(Location otherLocation)
+	{
+		var distance = Math.max(Math.abs(otherLocation.getX()-this.x), Math.abs(otherLocation.getY()-this.y));
+		return distance;
+	}
+	public List<Location> getPathInSystem(Location destination)
+	{
+		var distance = getXYDistance(destination);
+		var result = new ArrayList<Location>(distance);
+
+		var newLocation = new Location(system, x, y);
+
+		System.out.println("newLocation X: " + String.valueOf(newLocation.getX()));
+		System.out.println("newLocation Y: " + String.valueOf(newLocation.getY()));
+		System.out.println("destination X:" + String.valueOf(destination.getX()));
+		System.out.println("destination Y:" + String.valueOf(destination.getY()));
+		System.out.println("distance: " + String.valueOf(distance));
+
+		for(int i=0;i<distance;i++){
+			// calculate direction and normalize
+			var deltaX = destination.getX() - newLocation.getX();
+			deltaX = (int)Math.signum(deltaX) * 1;
+			var deltaY = destination.getY() - newLocation.getY();
+			deltaY = (int)Math.signum(deltaY) * 1;
+
+
+			newLocation = new Location(newLocation.getSystem(), newLocation.getX() + deltaX, newLocation.getY() + deltaY);
+			result.add(newLocation);
+			System.out.println("pathSize: " + String.valueOf(result.size()));
+			// engine damage calculation needs to be calculated here if this method is used for forced flight (flying when heat>=100)
+		}
+
+		return result;
 	}
 
 	/**
