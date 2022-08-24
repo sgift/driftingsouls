@@ -21,20 +21,14 @@ package net.driftingsouls.ds2.server.modules;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.ViewMessage;
 import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
-import net.driftingsouls.ds2.server.ships.Alarmstufe;
-import net.driftingsouls.ds2.server.ships.RouteFactory;
-import net.driftingsouls.ds2.server.ships.SchiffFlugService;
-import net.driftingsouls.ds2.server.ships.SchiffSprungService;
-import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipClasses;
-import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.Waypoint;
+import net.driftingsouls.ds2.server.ships.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -182,6 +176,17 @@ public class SchiffAjaxController extends Controller
 		boolean forceLowHeat = false;
 		Location from = schiff.getLocation();
 		Location to = new Location(from.getSystem(), x, y);
+
+		System.out.println("test1");
+
+		var shipsMovement = new ShipsMovement(schiff.getId(), ContextMap.getContext().getActiveUser().getId());
+		var movementResult = shipsMovement.MoveShips(to);
+
+		SchiffsLogViewModel result = new SchiffsLogViewModel();
+		result.log = "Nur ein Test";
+		return result;
+
+		/*
 		List<Waypoint> route = router.findRoute(from, to);
 		if (route.isEmpty())
 		{
@@ -197,8 +202,7 @@ public class SchiffAjaxController extends Controller
 		SchiffFlugService.FlugErgebnis ergebnis = schiffFlugService.fliege(schiff, route, forceLowHeat);
 
 		SchiffsLogViewModel result = new SchiffsLogViewModel();
-		result.log = ergebnis.getMeldungen().trim();
-		return result;
+		result.log = ergebnis.getMeldungen().trim();*/
 	}
 
 }

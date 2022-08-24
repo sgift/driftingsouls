@@ -171,6 +171,11 @@ public class Nebel implements Locatable {
 			return emp;
 		}
 
+		public boolean isDamage()
+		{
+			return getCode() == 6;
+		}
+
 		/**
 		 * Gibt zurueck, ob ein Nebel diesen Typs das Sammeln
 		 * von Deuterium ermoeglicht.
