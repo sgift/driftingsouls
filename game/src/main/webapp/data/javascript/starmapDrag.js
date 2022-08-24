@@ -68,6 +68,7 @@ var Starmap = function(){
         .done(function(resp){ReloadSystem();});
         //jQuery.getJSON(DS.getUrl(),{FORMAT:'JSON', module:'schiffAjax', action:'fliegeSchiff', schiff:flight.shipId, x:flight.location.x, y:flight.location.y}, function(resp){ReloadSystem();});
         setCurrentShip(null);
+        starmapCanvas.derenderMapAction();
     }
 
     function getCurrentShip()
@@ -296,7 +297,7 @@ var StarmapCanvas = function(starmap)
     function derenderMapAction()
     {
         document.getElementById("kartenaktion").style.display = "none";
-        marker.style.borderColor = "blue;"
+        marker.style.borderColor = "blue"
     }
 
     function renderShipChosen(ship)
