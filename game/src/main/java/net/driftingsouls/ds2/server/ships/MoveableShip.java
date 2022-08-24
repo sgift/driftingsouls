@@ -172,7 +172,7 @@ public class MoveableShip {
                 newNavU = lastReduction.navu;
             }
 
-            int fak = difficulty;
+            double fak = difficulty;
             if( this.spec == 3 ) {
                 fak *= 0.6;
             }
