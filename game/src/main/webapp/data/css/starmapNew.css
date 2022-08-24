@@ -1,4 +1,11 @@
 
+.dashed-list {
+    display: block;
+    border: dashed #c7c7c7;
+    border-width: 0 0 0 1px;
+}
+
+
 .scanrange {
     background-color: white;
     transform: translate(-50%, -50%);

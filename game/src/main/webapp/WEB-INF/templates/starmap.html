@@ -66,6 +66,7 @@
             <a id="showSystemauswahl" title="System auswählen" onclick="$('#systemauswahl').dialog('open')" href="#"><img src="data/interface/impobjects.gif" alt="?"></a>
             <a id="gotoLocation" title="Zu Position springen" onclick="$('#goto-location').dialog('open');" href="#"><img src="data/interface/goto.svg" alt="?"></a>
             <a id="showStarmap" title="Bekannte Sternensysteme" ds-popup-control-open="starmapSystemOverviewPopup" href="#"><img src="data/interface/jumpnode.svg" alt="?"></a>
+            <a id="reloadStarmap" onclick="ReloadSystem()">R</a>
         </div>
     </div>
     <div id="legend-top-left" style="position:absolute;top:0;left:0;width:25px;height:25px;background-color:black;z-index:75;"></div>
@@ -203,7 +204,7 @@
         <!-- uiIf: sektor.brocken.length>0 -->
         <!-- uiIf: sektor.battles.length>0 -->
         <!-- uiIf: sektor.subraumspaltenCount>0 -->
-        <div id="sektoranzeige" class="ships">
+        <div id="sektoranzeige" class="ships" style="display: flex;flex-direction: column;">
 
         </div>
     </div>

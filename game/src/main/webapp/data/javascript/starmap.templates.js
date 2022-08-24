@@ -1,26 +1,92 @@
-const templateUserFn = user =>
-    `<div style="display:flex;flex-direction:row;justify-content:space-between;">
-                     <span>${user.name}</span>
-                     <span>${user.shipcount}</span>
-                 </div>
-     <ul class="shipclasses toggleContent user-sectordata">
-     					${templateAllShiptypesFn(user.shiptypes)}
-                 `;
-
-
- const templateShiptypeFn = shiptype => `
-    <li class="ng-scope shiptypetoggle">
-        <div class="shiptype">
-            ${shiptype.count}x ${shiptype.name}
-            <a href="./ds?module=schiffinfo&amp;ship=${shiptype.id}">
-                <img class="schiffstypengrafik" src="${shiptype.picture}">
-            </a>
+const templateUserFn = user => `
+    <div class="user-toggle-boundary">
+        <div class="user-toggle" style="display:flex;flex-direction:row;justify-content:space-between;">
+            <span><span class="signum">+</span>${user.name}</span>
+            <span>${getCount(user)}</span>
         </div>
-        <table id="${shiptype.userId}-${shiptype.id}" style="display:none;">
-            ${templateAllShipsFn(shiptype.ships)}
-        </table>
+        <ul class="shipclasses dashed-list toggleContent user-sectordata" style="display:none;">
+            ${templateAllShiptypesFn(user.shiptypes)}
+        </ul>
+    </div>
+    `;
+
+
+function getCount(user){
+    let sum = 0;
+    for(let i=0; i<user.shiptypes.length;i++)
+    {
+        sum += user.shiptypes[i].count;
+    }
+    return sum;
+}
+
+const templateJumpnodesFn = jns => `
+    <div ui-if="sektor.jumpnodes.length>0" class="ng-scope">
+        <ul class="jumpnodes">
+            ${templateAllJumpnodes(jns)}
+            <!-- ngRepeat: jumpnode in sektor.jumpnodes -->
+        </ul>
+    </div>
+`;
+
+const templateAllJumpnodes = jns => jns.map(list => { return templateJumpnodeFn(list) + "\n" }).join("");
+
+const templateJumpnodeFn = jn => `
+    <li ng-repeat="jumpnode in sektor.jumpnodes" class="ng-scope">
+        <img src="./data/interface/jumpnode.svg">
+        <div class="name">Sprungpunkt</div>
+        <div class="details ng-binding">
+            ${jn.name}
+            ${jn.blocked ? templateJnBlocked(jn) : ""}
+        </div>
     </li>
- `;
+`;
+
+const templateJnBlocked = jn => `
+    <span> - blockiert</span>
+`;
+
+const templateBasesFn = bases => `
+    <ul class="bases">
+        ${templateAllBasesFn(bases)}
+    </ul>
+`;
+
+const templateAllBasesFn = data => /*html*/
+ data.map(list => { return templateBaseFn(list) + "\n" }).join("");
+
+const templateBaseFn = base => `
+    <li ng-repeat="base in sektor.bases" class="ng-scope">
+        <img src="${base.image}">
+        <div class="name">
+            ${base.eigene ? templateOwnBaseFn(base) : templateForeignBaseFn(base)}
+
+        </div>
+        <div class="typ ng-binding">${base.typ}</div>
+        <div class="owner ng-binding">${base.username}</div>
+    </li>
+`;
+
+const templateOwnBaseFn = base => `
+    <a ui-if="base.eigene" href="./base?col=${base.id}" class="ng-scope ng-binding">${base.name}</a>
+`
+const templateForeignBaseFn = base => `
+    <span class="ng-scope ng-binding">${base.name}</span>
+`
+
+const templateShiptypeFn = shiptype => `
+<li class="ng-scope shiptypetoggle">
+    <div class="shiptype">
+        ${shiptype.count}x ${shiptype.name}
+        <a href="./ds?module=schiffinfo&amp;ship=${shiptype.id}">
+            <img class="schiffstypengrafik" src="${shiptype.picture}">
+        </a>
+    </div>
+    <table id="${shiptype.userId}-${shiptype.id}" style="display:none;">
+        ${templateAllShipsFn(shiptype.ships)}
+    </table>
+</li>
+`;
 
  const templateAllShiptypesFn = data => /*html*/
      data.map(list => { return templateShiptypeFn(list) + "\n" }).join("");
@@ -34,31 +100,65 @@ const templateUserFn = user =>
 const templateShipFn = ship => `
 <tr>
     <td class="name">
-        <a href="./ds?module=schiff&amp;action=default&amp;ship=${ship.id}">${ship.name}</a>
-        <!-- uiIf: !user.eigener -->
+        ${ship.isOwner ? templateNameOwn(ship) : templateNameForeign(ship)}
+        ${ship.fleet != undefined ? templateFleetNameFn(ship) : ""}
     </td>
     <td class="status">
-        <!-- uiIf: ship.maxGedockt>0 -->
-        <span title="gedockte Schiffe">
-            <img alt="" src="./data/interface/schiffe/${ship.ownerrace}/icon_container.gif">
-            ${ship.gedockt}/${ship.maxGedockt}
-        </span>
-        <!-- uiIf: ship.maxGelandet>0 --><span title="gelandete Schiffe">
-            <img alt="" src="./data/interface/schiffe/${ship.ownerrace}/icon_schiff.gif">
-            ${ship.gelandet}/${ship.maxGelandet}
-        </span>
-        <!-- uiIf: ship.maxEnergie>0 --><span title="Energie">
-            <img alt="" src="./data/interface/energie.gif">
-            ${ship.energie}/${ship.maxEnergie}
-        </span>
-        <!-- uiIf: ship.ueberhitzung>${ship.ueberhitzung} -->
+        ${ship.maxGedockt > 0 ? templateGedocktFn(ship) : ""}
+        ${ship.maxGelandet > 0 ? templateGelandetFn(ship) : ""}
+        ${ship.maxEnergie > 0 ? templateMaxEnergyFn(ship) : ""}
+        ${ship.ueberhitzung != undefined ? templateHeatFn(ship) : ""}
     </td>
     <td class="aktionen">
-        <!-- uiIf: ship.kannFliegen --><a ui-if="ship.kannFliegen" title="Schiff bewegen"  href="#">
-            <img class="can-fly" id="s-${ship.id}" ng-src="./data/interface/move.svg" alt="" src="./data/interface/move.svg">
-        </a>
+        ${ship.kannFliegen ? templateCanFlyFn(ship) : ""}
     </td>
 </tr>
+`;
+
+const templateFleetNameFn = ship => `
+<span class="ng-scope ng-binding">
+    ${ship.fleet.name}
+</span>
+`
+
+const templateCanFlyFn = ship => `
+    <a title="Schiff bewegen"  href="#">
+        <img class="can-fly" id="s-${ship.id}" ng-src="./data/interface/move.svg" alt="" src="./data/interface/move.svg">
+    </a>
+`;
+
+const templateHeatFn = ship => `
+    <span title="Triebwerksüberhitzung" class="ng-scope ng-binding">
+        <img ng-src="./data/interface/ueberhitzung.svg" alt="" src="./data/interface/ueberhitzung.svg">
+        ${ship.ueberhitzung}
+    </span>`;
+
+const templateNameOwn = ship => `<a href="./ds?module=schiff&amp;action=default&amp;ship=${ship.id}">${ship.name}</a>`;
+
+const templateNameForeign = ship => `<span>${ship.name}</span>`;
+
+const templateMaxEnergyFn = ship =>
+`
+    <span title="Energie">
+        <img alt="" src="./data/interface/energie.gif">
+        ${ship.energie}/${ship.maxEnergie}
+    </span>
+`;
+
+const templateGedocktFn = ship =>
+`
+    <span title="gedockte Schiffe">
+        <img alt="" src="./data/interface/schiffe/${ship.ownerrace}/icon_container.gif">
+        ${ship.gedockt}/${ship.maxGedockt}
+    </span>
+`;
+
+const templateGelandetFn = ship =>
+`
+    <span title="gelandete Schiffe">
+        <img alt="" src="./data/interface/schiffe/${ship.ownerrace}/icon_schiff.gif">
+        ${ship.gelandet}/${ship.maxGelandet}
+    </span>
 `;
 
 const templateTileFn = data => /*html*/

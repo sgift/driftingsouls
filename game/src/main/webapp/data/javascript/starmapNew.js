@@ -12,7 +12,11 @@ function LoadSystem(systemId)
 function ReloadSystem()
 {
     var url = getUrl();
-    var systemId = starmap.getSystem().system;
+    var system = starmap.getSystem();
+
+    if(system == null) return;
+
+    var systemId = system.system;
     jQuery.getJSON(url, {action:'GET_SCANFIELDS', system:systemId}, function(resp){addScansectors(resp)});
     jQuery.getJSON(url, {action:'GET_SCANNED_FIELDS', system:systemId}, function(resp){addScannedFields(resp)});
 }
@@ -190,14 +194,45 @@ function renderSectorData(data)
     var header = container.querySelector(".header");
     header.textContent = `Sektor ${data.system}:${data.x}/${data.y}`;
 
+
+    if(data.jumpnodes.length > 0) sektor.appendChild(parseHTML(templateJumpnodesFn(data.jumpnodes)))
+    if(data.bases.length > 0) sektor.appendChild(parseHTML(templateBasesFn(data.bases)));
+
+
+
     for(let index =0; index < data.users.length; index++)
     {
         sektor.appendChild(parseHTML(templateUserFn(data.users[index])));
     }
 
-    sektor.style.display = "block";
-    $("#starmapSectorPopup").dialog("open");
+    var userToggles = document.querySelectorAll(".user-toggle-boundary");
+    for(var i=0;i<userToggles.length;i++)
+    {
+        var userToggle = userToggles[i];
 
+        let trigger = userToggle.querySelector(".user-toggle");
+        let switchable = userToggle.querySelector(".shipclasses");
+        let signum = userToggle.querySelector(".signum");
+
+        var eventFunction = () =>
+        {
+            if(switchable.style.display == "none")
+            {
+                switchable.style.removeProperty("display");
+                signum.textContent = "-";
+            }
+            else
+            {
+                switchable.style.display = "none";
+                signum.textContent = "+";
+            }
+        };
+
+        trigger.addEventListener("click", eventFunction.bind(null, switchable, signum) );
+    }
+
+    sektor.style.display = "flex";
+    $("#starmapSectorPopup").dialog("open");
     var userSectordatas = container.querySelectorAll(".user-sectordata");
 
     for(var i=0;i<userSectordatas.length;i++)
@@ -212,7 +247,7 @@ function renderSectorData(data)
                 console.log(element);
                 if(element.style.display == "none")
                 {
-                    element.style.display = "block";
+                    element.style.removeProperty("display");
                 }
                 else
                 {
@@ -246,7 +281,7 @@ function renderSectorData(data)
             }
         }
     }
-
+    document.getElementById("sektoranzeige").style.display = "flex";
 }
 
 function AddFlyEventToShips(ships)
@@ -267,3 +302,5 @@ function toggleByDataTarget(element, display)
 
     target.style.display=display;
 }
+
+document.getElementById("sektoranzeige").style.flexDirection="column";
