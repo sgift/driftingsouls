@@ -5,6 +5,10 @@
     border-width: 0 0 0 1px;
 }
 
+.signum
+{
+    padding-right:5px;
+}
 
 .scanrange {
     background-color: white;

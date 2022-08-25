@@ -315,4 +315,9 @@ public class PlayerFieldView implements FieldView
         Relations relations = user.getRelations();
 		return relations.isOnly(owner, Relation.FRIEND);
 	}
+
+	public Location getLocation()
+	{
+		return location;
+	}
 }

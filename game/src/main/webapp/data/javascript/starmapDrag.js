@@ -290,7 +290,8 @@ var StarmapCanvas = function(starmap)
         mapAction.querySelector(".bestaetigung").style.visibility = "visible";
         //document.getElementById("kartenaktion").style.display = "block";
         var flightConfirmationText = mapAction.querySelector("#flightConfirmationText");
-        flightConfirmationText.textContent = `Soll das Schiff ${ship.name} wirklich nach ${location.x}/${location.y} (? Felder) fliegen?`;
+        var numberOfFields = Math.max(Math.abs(location.x-ship.x), Math.abs(location.y-ship.y))
+        flightConfirmationText.textContent = `Soll das Schiff ${ship.name} wirklich nach ${location.x}/${location.y} (${numberOfFields} ${numberOfFields == 1 ? "Feld" : "Felder"}) fliegen?`;
         marker.style.borderColor = "#feb626";
     }
 

@@ -25,6 +25,7 @@ public class AdminFieldView implements FieldView
 {
 	private final Field field;
 	private final Session db;
+	private final Location location;
 
 	/**
 	 * Legt eine neue Sicht an.
@@ -36,6 +37,7 @@ public class AdminFieldView implements FieldView
 	{
 		this.field = new Field(db, position);
 		this.db = db;
+		this.location = position;
 	}
 
 	@Override
@@ -109,5 +111,10 @@ public class AdminFieldView implements FieldView
 	public boolean isRoterAlarm()
 	{
 		return false;
+	}
+
+	public Location getLocation()
+	{
+		return location;
 	}
 }

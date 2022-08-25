@@ -14,11 +14,23 @@ function ReloadSystem()
     var url = getUrl();
     var system = starmap.getSystem();
 
+    counter = 0;
+    $("#starmaploader").dialog("open");
+
     if(system == null) return;
 
     var systemId = system.system;
-    jQuery.getJSON(url, {action:'GET_SCANFIELDS', system:systemId}, function(resp){addScansectors(resp)});
-    jQuery.getJSON(url, {action:'GET_SCANNED_FIELDS', system:systemId}, function(resp){addScannedFields(resp)});
+    jQuery.getJSON(url, {action:'GET_SCANFIELDS', system:systemId}, function(resp){addScansectors(resp);derenderLoader();});
+    jQuery.getJSON(url, {action:'GET_SCANNED_FIELDS', system:systemId}, function(resp){addScannedFields(resp); derenderLoader();});
+
+
+}
+
+var counter = 0;
+function derenderLoader()
+{
+    counter++;
+    if(counter == 2) $("#starmaploader").dialog("close");
 }
 
 function renderBaseSystem(data)
@@ -181,11 +193,14 @@ function loadSectorData(x, y, scanship)
     header.textContent = `Lade Sektor ${system.system}:${x}/${y}`;
 
     //starmap?action=GET_SECTOR_INFORMATION&system=sys&x=x&y=y&scanship=id
-    jQuery.getJSON(getUrl(),{action:'GET_SECTOR_INFORMATION', system:system.system, x:x, y:y, scanship:scanship, admin:system.admin}, function(resp){renderSectorData(resp)});
+    $("#starmaploader").dialog("open");
+    $("#starmapSectorPopup").dialog("close");
+    jQuery.getJSON(getUrl(),{action:'GET_SECTOR_INFORMATION', system:system.system, x:x, y:y, scanship:scanship, admin:system.admin}, function(resp){renderSectorData(resp); $("#starmaploader").dialog("close");});
 }
 
 function renderSectorData(data)
 {
+
     var container = document.getElementById("starmapSectorPopup");
     var sektor = container.querySelector("#sektoranzeige");
     //var container = document.getElementById("sektoranzeige");
@@ -269,6 +284,7 @@ function renderSectorData(data)
             for(let k=0;k<data.users[i].shiptypes[j].ships.length;k++)
             {
                 var ship = data.users[i].shiptypes[j].ships[k];
+                if(!ship.isOwner) continue;
                 var shipNode = document.querySelector("#s-" + ship.id);
                 //console.log(shipNode);
 
@@ -281,6 +297,7 @@ function renderSectorData(data)
             }
         }
     }
+    $("#starmaploader").dialog("close");
     document.getElementById("sektoranzeige").style.display = "flex";
 }
 

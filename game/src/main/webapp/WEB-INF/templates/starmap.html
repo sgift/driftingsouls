@@ -196,7 +196,7 @@
 
 <div id="starmapSectorPopup" class="gfxbox" style="display:none; width: auto; min-height: 0px;" title="Sektorinformationen">
     <div style="">
-        <div class="header">Sektor 80:34/34</div>
+        <div class="header"></div>
         <!-- uiIf: sektor.roterAlarm -->
         <!-- uiIf: sektor.nebel -->
         <!-- uiIf: sektor.jumpnodes.length>0 -->
@@ -204,12 +204,17 @@
         <!-- uiIf: sektor.brocken.length>0 -->
         <!-- uiIf: sektor.battles.length>0 -->
         <!-- uiIf: sektor.subraumspaltenCount>0 -->
-        <div id="sektoranzeige" class="ships" style="display: flex;flex-direction: column;">
+        <div id="sektoranzeige" class="ships" style="display: flex;flex-direction: column;max-height:650px;overflow-x:hiden;">
 
         </div>
     </div>
 </div>
-
+<div id="starmaploader" class="gfxbox" style="width: 400px;">
+    <div class="content">Empfange Daten...
+        <br>
+        <img src="./data/interface/ajax-loader.gif" alt="Lade">
+    </div>
+</div>
 <style>
     .starmap-modal
     {
@@ -236,16 +241,25 @@
 
         $("#starmapSectorPopup").dialog({
         dialogClass: 'starmap-modal',
-        width: 550
+        width: 550,
+        height: 'auto',
+        maxHeight: 600
     });
 
     $(".starmap-modal").each(function(){
         $(this).mousedown(function(e){e.originalEvent.stopPropagation();});
     });
 
+    $("#starmaploader").dialog({
+        dialogClass: 'starmap-modal',
+        width: 400
+    });
+
     $("#systemauswahl").dialog("close");
     $("#goto-location").dialog("close");
     $("#starmapSectorPopup").dialog("close");
+    $("#starmaploader").dialog("close");
+
 
 </script>
 
