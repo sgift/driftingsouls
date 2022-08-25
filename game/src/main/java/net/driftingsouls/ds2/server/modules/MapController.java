@@ -568,6 +568,8 @@ public class MapController extends Controller
 			public int ueberhitzung;
 			public boolean kannFliegen;
 			public int sensorRange;
+			public int x;
+			public int y;
 		}
 
 		public static class BaseViewModel

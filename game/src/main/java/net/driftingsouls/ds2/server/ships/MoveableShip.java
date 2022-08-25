@@ -17,6 +17,7 @@ public class MoveableShip {
     private int currentEnergy;
     private int currentHeat;
 
+    private final Location startLocation;
     private Location location;
 
 
@@ -46,6 +47,7 @@ public class MoveableShip {
         this.heatIncrement = heatIncrement;
         this.officer = officer;
         this.location = location;
+        this.startLocation = location;
         this.fleet = fleet;
     }
 
@@ -125,6 +127,10 @@ public class MoveableShip {
     }
     public int getEnergy(){ return currentEnergy; }
     public int getHeat(){ return currentHeat; }
+
+    public Location getStartLocation() {
+        return startLocation;
+    }
 
     public static class ShipMovementOfficer{
         private final int id;

@@ -1,5 +1,6 @@
 package net.driftingsouls.ds2.server.map;
 
+import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.entities.Jump;
@@ -65,4 +66,6 @@ public interface FieldView
 	 * @return <code>true</code>, falls dem so ist
 	 */
 	boolean isRoterAlarm();
+
+	Location getLocation();
 }

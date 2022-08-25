@@ -10,7 +10,10 @@ import net.driftingsouls.ds2.server.ships.FleetsOverviewView;
 import net.driftingsouls.ds2.server.ships.ShipBookmarkView;
 import net.driftingsouls.ds2.server.ships.MoveableShip;
 import org.jooq.Name;
+import org.jooq.Query;
 import org.jooq.Records;
+import org.jooq.SQLDialect;
+import org.jooq.conf.ParamType;
 import org.jooq.impl.DSL;
 
 import java.sql.SQLException;
@@ -22,6 +25,7 @@ import static net.driftingsouls.ds2.server.entities.jooq.Tables.*;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.FriendlyNebelScanRanges.FRIENDLY_NEBEL_SCAN_RANGES;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.FriendlyScanRanges.FRIENDLY_SCAN_RANGES;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.Ships.SHIPS;
+import static org.jooq.impl.DSL.update;
 
 public class ShipsRepository {
 
@@ -187,6 +191,9 @@ public class ShipsRepository {
             try(var moveableShipSelect = db
                     .selectFrom(SHIP_MOVEMENT)
                     .where(SHIP_MOVEMENT.FLEET.eq((long)fleet))
+                    .and(SHIP_MOVEMENT.STAR_SYSTEM.eq(ship.getLocation().getSystem()))
+                    .and(SHIP_MOVEMENT.X.eq(ship.getLocation().getX()))
+                    .and(SHIP_MOVEMENT.Y.eq(ship.getLocation().getY()))
 
             ) {
                 //var result = bookmarkDataSelect.fetch();
@@ -200,54 +207,91 @@ public class ShipsRepository {
 
     public static void updateMovedShips(List<MoveableShip> ships)
     {
+        long start = System.nanoTime();
+
         try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
             var db = DBUtil.getDSLContext(conn);
-            db.batched(c -> {
-                for (MoveableShip ship : ships) {
+            var location = ships.get(0).getLocation();
 
-                    var location = ship.getLocation();
-                    c.dsl().update(SHIPS)
-                            .set(SHIPS.X, location.getX())
-                            .set(SHIPS.Y, location.getY())
-                            .set(SHIPS.E, ship.getEnergy())
-                            .set(SHIPS.S, ship.getHeat())
-                            .where(SHIPS.ID.eq(ship.getId()))
-                            .or(SHIPS.DOCKED.eq(String.valueOf(ship.getId())))
-                            .execute(); // This doesn't execute the query yet
 
-                    c.dsl().update(SHIPS)
-                            .set(SHIPS.X, location.getX())
-                            .set(SHIPS.Y, location.getY())
-                            .where(SHIPS.DOCKED.eq(String.valueOf(ship.getId())))
-                            .or(SHIPS.DOCKED.eq("l " + String.valueOf(ship.getId())))
-                            .execute(); // This doesn't execute the query yet
+            var query = db.update(SHIPS)
+                    .set(SHIPS.X, location.getX())
+                    .set(SHIPS.Y, location.getY());
+                    //.set(SHIPS.E, DSL.when(SHIPS.ID.eq(ship.getId()), ship.getEnergy()))
+                    //.set(SHIPS.S, location.getX());
 
-                    var officer = ship.getOfficer();
-                    if(officer.getId() != 0 && officer.getHasChanges())
-                    {
-                        /*
+            var energy = DSL.when(SHIPS.ID.eq(ships.get(0).getId()), ships.get(0).getEnergy());
+            var heat = DSL.when(SHIPS.ID.eq(ships.get(0).getId()), ships.get(0).getHeat());
 
-                        double rangf = (this.ing+this.waf+this.nav+this.sec+this.com)/5.0;
-                        int rang = (int)(rangf/125);
-                        if( rang > Offiziere.MAX_RANG ) {
-                        rang = Offiziere.MAX_RANG;
+            var shipIds = new ArrayList<Integer>(ships.size());
+            var carrierIds = new ArrayList<String>(ships.size());
+            var dockableIds = new ArrayList<String>(ships.size());
 
-                         */
+            for (MoveableShip ship : ships) {
 
-                        c.dsl().update(OFFIZIERE)
-                                .set(OFFIZIERE.NAV, officer.getNav())
-                                .set(OFFIZIERE.NAVU, officer.getNavU())
-                                .set(OFFIZIERE.ING, officer.getIng())
-                                .set(OFFIZIERE.INGU, officer.getIngU())
-                                //.set(OFFIZIERE.RANG, DSL.least(Offiziere.MAX_RANG, DSL.sum<int>(OFFIZIERE.COM, OFFIZIERE.ING, OFFIZIERE.NAV, OFFIZIERE.SEC, OFFIZIERE.WAF) / 5))
-                                .where(OFFIZIERE.ID.eq(officer.getId()))
-                                .execute();
-                    }
+                location = ship.getLocation();
+                energy.when(SHIPS.ID.eq(ship.getId()), ship.getEnergy());
+                heat.when(SHIPS.ID.eq(ship.getId()), ship.getHeat());
+
+                shipIds.add(ship.getId());
+                carrierIds.add("l " + ship.getId());
+                dockableIds.add(String.valueOf(ship.getId()));
+            }
+
+            db.update(SHIPS)
+                .set(SHIPS.X, location.getX())
+                .set(SHIPS.Y, location.getY())
+                .where(SHIPS.DOCKED.in(carrierIds))
+                .or(SHIPS.DOCKED.in(dockableIds))
+                .execute();
+
+            query.set(SHIPS.E, energy)
+                .set(SHIPS.S, heat)
+                .where(SHIPS.ID.in(shipIds))
+                .execute();
+
+            int sum = 0;
+            System.out.println("After ships update: " + String.valueOf(System.nanoTime() - start));
+
+            var officerQuery = db.update(OFFIZIERE);
+            //.set(SHIPS.E, DSL.when(SHIPS.ID.eq(ship.getId()), ship.getEnergy()))
+            //.set(SHIPS.S, location.getX());
+
+            var officer = ships.get(0).getOfficer();
+
+            var nav = DSL.when(OFFIZIERE.ID.eq(officer.getId()), officer.getNav());
+            var navu = DSL.when(OFFIZIERE.ID.eq(officer.getId()), officer.getNavU());
+            var ing = DSL.when(OFFIZIERE.ID.eq(officer.getId()), officer.getIng());
+            var ingu = DSL.when(OFFIZIERE.ID.eq(officer.getId()), officer.getIngU());
+
+            var officerIds = new ArrayList<Integer>();
+
+            for (MoveableShip ship : ships) {
+                officer = ship.getOfficer();
+                if(officer.getId() != 0 && officer.getHasChanges())
+                {
+                    officerIds.add(officer.getId());
+                    nav.when(OFFIZIERE.ID.eq(officer.getId()), officer.getNav());
+                    navu.when(OFFIZIERE.ID.eq(officer.getId()), officer.getNavU());
+                    ing.when(OFFIZIERE.ID.eq(officer.getId()), officer.getIng());
+                    ingu.when(OFFIZIERE.ID.eq(officer.getId()), officer.getIngU());
                 }
-            });
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+            }
+            officerQuery.set(OFFIZIERE.NAV, nav)
+                .set(OFFIZIERE.NAVU, navu)
+                .set(OFFIZIERE.ING, ing)
+                .set(OFFIZIERE.INGU, ingu)
+                .where(OFFIZIERE.ID.in(officerIds))
+                .execute();
 
+
+            System.out.println("After Officers update: " + String.valueOf(System.nanoTime() - start));
+            System.out.println("Number of rows updated:" + String.valueOf(sum));
+
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        long time = System.nanoTime() - start;
+        System.out.println(time);
     }
 }

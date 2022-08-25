@@ -466,6 +466,8 @@ public class StarmapController implements DSController, PermissionResolver {
 
 						ownShip.energie = ship.getEnergy();
 						ownShip.maxEnergie = typeData.getEps();
+                        ownShip.x = field.getLocation().getX();
+                        ownShip.y = field.getLocation().getY();
 
 						ownShip.ueberhitzung = ship.getHeat();
 
