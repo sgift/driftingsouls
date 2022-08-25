@@ -286,6 +286,7 @@ function renderSectorData(data)
                 var ship = data.users[i].shiptypes[j].ships[k];
                 if(!ship.isOwner) continue;
                 var shipNode = document.querySelector("#s-" + ship.id);
+                if(shipNode == null) continue;
                 //console.log(shipNode);
 
                 var eventFunction = (ship) =>
