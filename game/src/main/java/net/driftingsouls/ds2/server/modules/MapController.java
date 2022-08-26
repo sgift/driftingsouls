@@ -2,8 +2,6 @@ package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
-import net.driftingsouls.ds2.server.WellKnownPermission;
-import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.User;
@@ -19,7 +17,6 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
 import net.driftingsouls.ds2.server.map.AdminStarmap;
-import net.driftingsouls.ds2.server.map.FieldView;
 import net.driftingsouls.ds2.server.map.MapArea;
 import net.driftingsouls.ds2.server.map.PlayerStarmap;
 import net.driftingsouls.ds2.server.map.PublicStarmap;
@@ -30,8 +27,6 @@ import net.driftingsouls.ds2.server.modules.viewmodels.JumpNodeViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.ShipFleetViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.UserViewModel;
 import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipType;
-import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import org.apache.commons.io.IOUtils;
 import org.hibernate.Session;
@@ -701,129 +696,5 @@ public class MapController extends Controller
 
 
 		return json;
-	}
-
-	private List<SectorViewModel.BattleViewModel> exportSectorBattles(Session db, FieldView field)
-	{
-		List<SectorViewModel.BattleViewModel> battleListObj = new ArrayList<>();
-		List<Battle> battles = field.getBattles();
-		if (battles.isEmpty())
-		{
-			return battleListObj;
-		}
-
-		User user = (User) getUser();
-		boolean viewable = getContext().hasPermission(WellKnownPermission.SCHLACHT_ALLE_AUFRUFBAR);
-
-		if (!viewable)
-		{
-			Map<ShipType, List<Ship>> ships = field.getShips().get(user);
-			if (ships != null && !ships.isEmpty())
-			{
-				for (ShipType shipType : ships.keySet())
-				{
-					if (shipType.getShipClass().isDarfSchlachtenAnsehen()) {
-						viewable = true;
-						break;
-					}
-				}
-			}
-		}
-
-		for (Battle battle : battles)
-		{
-			SectorViewModel.BattleViewModel battleObj = new SectorViewModel.BattleViewModel();
-			battleObj.id = battle.getId();
-			battleObj.einsehbar = viewable || battle.getSchlachtMitglied(user) != -1;
-
-			for (int i = 0; i < 2; i++)
-			{
-				SectorViewModel.BattleSideViewModel sideObj = new SectorViewModel.BattleSideViewModel();
-				sideObj.commander = UserViewModel.map(battle.getCommander(i));
-				if (battle.getAlly(i) != 0)
-				{
-					Ally ally = (Ally) db.get(Ally.class, battle.getAlly(i));
-					sideObj.ally = AllyViewModel.map(ally);
-				}
-				battleObj.sides.add(sideObj);
-			}
-
-			battleListObj.add(battleObj);
-		}
-		return battleListObj;
-	}
-
-	private List<SectorViewModel.UserWithShips> exportSectorShips(FieldView field)
-	{
-		List<SectorViewModel.UserWithShips> users = new ArrayList<>();
-		for (Map.Entry<User, Map<ShipType, List<Ship>>> owner : field.getShips().entrySet())
-		{
-			SectorViewModel.UserWithShips jsonUser = new SectorViewModel.UserWithShips();
-			jsonUser.name = Common._text(owner.getKey().getName());
-			jsonUser.id = owner.getKey().getId();
-			jsonUser.race = owner.getKey().getRace();
-
-			boolean ownFleet = owner.getKey().getId() == getUser().getId();
-			jsonUser.eigener = ownFleet;
-
-			for (Map.Entry<ShipType, List<Ship>> shiptype : owner.getValue().entrySet())
-			{
-				SectorViewModel.ShipTypeViewModel jsonShiptype = new SectorViewModel.ShipTypeViewModel();
-				jsonShiptype.id = shiptype.getKey().getId();
-				jsonShiptype.name = shiptype.getKey().getNickname();
-				jsonShiptype.picture = shiptype.getKey().getPicture();
-				jsonShiptype.size = shiptype.getKey().getSize();
-
-				for (Ship ship : shiptype.getValue())
-				{
-					ShipTypeData typeData = ship.getTypeData();
-					SectorViewModel.ShipViewModel shipObj;
-					if (ownFleet)
-					{
-						SectorViewModel.OwnShipViewModel ownShip = new SectorViewModel.OwnShipViewModel();
-						ownShip.gelandet = ship.getLandedCount();
-						ownShip.maxGelandet = typeData.getJDocks();
-
-						ownShip.energie = ship.getEnergy();
-						ownShip.maxEnergie = typeData.getEps();
-
-						ownShip.ueberhitzung = ship.getHeat();
-
-						ownShip.kannFliegen = typeData.getCost() > 0 && !ship.isDocked() && !ship.isLanded();
-
-						int sensorRange = ship.getEffectiveScanRange();
-						if (field.getNebel() != null)
-						{
-							if(!ship.getTypeData().hasFlag(ShipTypeFlag.NEBELSCAN))
-							{
-								sensorRange /= 2;
-							}
-						}
-						ownShip.sensorRange = sensorRange;
-
-						shipObj = ownShip;
-					}
-					else
-					{
-						shipObj = new SectorViewModel.ShipViewModel();
-					}
-					shipObj.id = ship.getId();
-					shipObj.name = ship.getName();
-					shipObj.gedockt = ship.getDockedCount();
-					shipObj.maxGedockt = typeData.getADocks();
-
-
-					if (ship.getFleet() != null)
-					{
-						shipObj.fleet = ShipFleetViewModel.map(ship.getFleet());
-					}
-
-					jsonShiptype.ships.add(shipObj);
-				}
-				jsonUser.shiptypes.add(jsonShiptype);
-			}
-			users.add(jsonUser);
-		}
-		return users;
 	}
 }
