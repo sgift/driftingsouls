@@ -259,7 +259,6 @@ function renderSectorData(data)
 
             var test = (element) =>
             {
-                console.log(element);
                 if(element.style.display == "none")
                 {
                     element.style.removeProperty("display");

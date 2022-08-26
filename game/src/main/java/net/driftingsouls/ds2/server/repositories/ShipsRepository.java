@@ -251,12 +251,8 @@ public class ShipsRepository {
                 .execute();
 
             int sum = 0;
-            System.out.println("After ships update: " + String.valueOf(System.nanoTime() - start));
 
             var officerQuery = db.update(OFFIZIERE);
-            //.set(SHIPS.E, DSL.when(SHIPS.ID.eq(ship.getId()), ship.getEnergy()))
-            //.set(SHIPS.S, location.getX());
-
             var officer = ships.get(0).getOfficer();
 
             var nav = DSL.when(OFFIZIERE.ID.eq(officer.getId()), officer.getNav());
@@ -284,14 +280,9 @@ public class ShipsRepository {
                 .where(OFFIZIERE.ID.in(officerIds))
                 .execute();
 
-
-            System.out.println("After Officers update: " + String.valueOf(System.nanoTime() - start));
-            System.out.println("Number of rows updated:" + String.valueOf(sum));
-
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
-        long time = System.nanoTime() - start;
-        System.out.println(time);
+
     }
 }
