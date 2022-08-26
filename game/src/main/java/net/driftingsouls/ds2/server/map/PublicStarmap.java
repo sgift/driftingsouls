@@ -180,6 +180,10 @@ public class PublicStarmap
 		return -1;
 	}
 
+	public boolean hasRocks(Location location) {
+		return map.getRockPositions().contains(location);
+	}
+
 	protected void buildFriendlyData()
 	{
 

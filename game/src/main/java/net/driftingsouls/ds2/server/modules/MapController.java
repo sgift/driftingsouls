@@ -3,12 +3,9 @@ package net.driftingsouls.ds2.server.modules;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.WellKnownPermission;
-import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.Battle;
-import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
-import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -21,11 +18,9 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
-import net.driftingsouls.ds2.server.map.AdminFieldView;
 import net.driftingsouls.ds2.server.map.AdminStarmap;
 import net.driftingsouls.ds2.server.map.FieldView;
 import net.driftingsouls.ds2.server.map.MapArea;
-import net.driftingsouls.ds2.server.map.PlayerFieldView;
 import net.driftingsouls.ds2.server.map.PlayerStarmap;
 import net.driftingsouls.ds2.server.map.PublicStarmap;
 import net.driftingsouls.ds2.server.map.SectorImage;
@@ -638,6 +633,7 @@ public class MapController extends Controller
 
 		SectorViewModel json = new SectorViewModel();
 
+		/*
 		final Location loc = new Location(sys.getID(), x, y);
 
 		FieldView field;
@@ -700,6 +696,8 @@ public class MapController extends Controller
 
 		json.subraumspaltenCount = field.getSubraumspalten().size();
 		json.roterAlarm = field.isRoterAlarm();
+
+		 */
 
 
 		return json;

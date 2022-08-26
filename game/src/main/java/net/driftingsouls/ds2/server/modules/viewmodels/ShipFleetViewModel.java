@@ -12,6 +12,11 @@ public class ShipFleetViewModel
 	public int id;
 	public String name;
 
+	public ShipFleetViewModel(int id, String name) {
+		this.id = id;
+		this.name = name;
+	}
+
 	/**
 	 * Mappt eine Entity zu einer Instanz dieses ViewModels.
 	 * @param model Die zu mappende Entity
@@ -19,19 +24,6 @@ public class ShipFleetViewModel
 	 */
 	public static ShipFleetViewModel map(ShipFleet model)
 	{
-		ShipFleetViewModel viewModel = new ShipFleetViewModel();
-		map(model, viewModel);
-		return viewModel;
-	}
-
-	/**
-	 * Mappt eine Entity zu einer Instanz dieses ViewModels.
-	 * @param model Die zu mappende Entity
-	 * @param viewModel Die Zielinstanz des ViewModels
-	 */
-	public static void map(ShipFleet model, ShipFleetViewModel viewModel)
-	{
-		viewModel.id = model.getId();
-		viewModel.name = model.getName();
+		return new ShipFleetViewModel(model.getId(), model.getName());
 	}
 }

@@ -1,14 +1,7 @@
 package net.driftingsouls.ds2.server.map;
 
 import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.battles.Battle;
-import net.driftingsouls.ds2.server.entities.Jump;
-import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
-import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipType;
 
 import java.util.List;
 import java.util.Map;
@@ -22,43 +15,42 @@ public interface FieldView
 	 * Gibt alle sichtbaren Basen zurueck.
 	 * @return Die Liste der Basen
 	 */
-	List<Base> getBases();
+	List<StationaryObjectData> getBases();
 
 	/**
 	 * Gibt alle sichtbaren Schiffe gruppiert nach Besitzer und Typ zurueck.
 	 * @return Die Schiffe
 	 */
-	Map<User, Map<ShipType, List<Ship>>> getShips();
+	Map<UserData, Map<ShipTypeData, List<ShipData>>> getShips();
 
 	/**
 	 * Gibt alle sichtbaren Spungpunkte zurueck.
 	 * @return Die Sprungpunkte
 	 */
-	List<JumpNode> getJumpNodes();
+	List<NodeData> getJumpNodes();
 
 	/**
 	 * Gibt alle Brocken zurueck.
 	 * @return Die Brocken
 	 */
-	List<Ship> getBrocken();
+	List<StationaryObjectData> getBrocken();
 
 	/**
-	 * Gibt alle sichtbaren Subraumspalten zurueck.
-	 * @return Die Subraumspalten
+	 * Gibt zurück, ob ein Sprung in dieses System stattfindet.
 	 */
-	List<Jump> getSubraumspalten();
+	int getJumpCount();
 
 	/**
 	 * Gibt, sofern an der Stelle vorhanden, den entsprechenden Nebel zurueck.
 	 * @return Der Nebel oder <code>null</code>
 	 */
-	Nebel getNebel();
+	Nebel.Typ getNebel();
 
 	/**
 	 * Gibt alle sichtbaren Schlachten zurueck.
 	 * @return Die Schlachten
 	 */
-	List<Battle> getBattles();
+	List<BattleData> getBattles();
 
 	/**
 	 * Gibt zurueck, ob im Sektor feindliche Schiffe auf rotem (bzw. gelben) Alarm

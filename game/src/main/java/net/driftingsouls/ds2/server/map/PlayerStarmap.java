@@ -29,7 +29,6 @@ import static net.driftingsouls.ds2.server.entities.jooq.tables.UserRelations.US
 public class PlayerStarmap extends PublicStarmap
 {
 	private final Map<Location, Integer> scannedLocationsToScannerId;
-	//private final Map<Location, Integer> scannedNebulaLocationsToScannerId;
 	private final Set<Location> sectorsWithAttackingShips;
 	private final Set<Location> bekannteOrte;
 	private final User user;
@@ -55,7 +54,6 @@ public class PlayerStarmap extends PublicStarmap
 		buildFriendlyData();
 
 		this.scannedLocationsToScannerId = new HashMap<>();
-		//this.scannedNebulaLocationsToScannerId = new HashMap<>();
 		buildScannedLocations();
 		buildNonFriendSectors();
 
@@ -182,9 +180,7 @@ public class PlayerStarmap extends PublicStarmap
     @Override
     public int getScanningShip(Location location)
     {
-        var scanShipId = this.scannedLocationsToScannerId.getOrDefault(location, -1);
-
-		return scanShipId;
+		return this.scannedLocationsToScannerId.getOrDefault(location, -1);
     }
 
 	@Override
