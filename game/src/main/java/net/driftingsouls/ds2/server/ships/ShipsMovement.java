@@ -28,7 +28,7 @@ public class ShipsMovement {
         // maxDistance is the smallest distance one of the ships can fly.
         int maxDistance = Integer.MAX_VALUE;
         for (var ship:ships) {
-            maxDistance = Math.min(ship.computeFlight(destination), maxDistance);
+            maxDistance = Math.min(ship.computeFlight(destination, false), maxDistance);
         }
 
         // reduce maxDistance if we face an emp nebula, damage nebula or an alarm red
