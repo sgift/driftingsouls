@@ -4,6 +4,7 @@ import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.db.DBUtil;
+import net.driftingsouls.ds2.server.repositories.BasesRepository;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import org.jooq.Records;
 import org.jooq.impl.DSL;
@@ -62,29 +63,7 @@ public class PlayerFieldView implements FieldView
 	@Override
 	public List<StationaryObjectData> getBases()
 	{
-        try(var conn = DBUtil.getConnection(em)) {
-			var db = DBUtil.getDSLContext(conn);
-
-			var select = db.select(BASES.ID, BASES.NAME, BASES.OWNER, USERS.NICKNAME, BASE_TYPES.LARGEIMAGE, BASE_TYPES.ID, BASE_TYPES.NAME)
-				.from(BASES)
-				.join(USERS)
-				.on(BASES.OWNER.eq(USERS.ID))
-				.join(BASE_TYPES)
-				.on(BASES.KLASSE.eq(BASE_TYPES.ID))
-				.where(BASES.STAR_SYSTEM.eq(location.getSystem())
-					.and(BASES.X.eq(location.getX()))
-					.and(BASES.Y.eq(location.getY())));
-
-			if(isNotScanned()) {
-				//TODO: Select bases of friends and allies
-				select = select.and(BASES.OWNER.eq(user.getId()));
-			}
-
-			return select.fetch(Records.mapping(StationaryObjectData::new));
-
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
+		return BasesRepository.getBasesHeaderInfo(location, user.getId(), isNotScanned());
 	}
 	private boolean isNotScanned()
 	{
@@ -217,7 +196,7 @@ public class PlayerFieldView implements FieldView
 				.join(defender)
 				.on(BATTLES.COMMANDER2.eq(defender.ID))
 				.leftJoin(attackerAlly)
-				.on(attacker.ALLY.eq(defenderAlly.ID))
+				.on(attacker.ALLY.eq(attackerAlly.ID))
 				.leftJoin(defenderAlly)
 				.on(defender.ALLY.eq(defenderAlly.ID))
 				.where(BATTLES.STAR_SYSTEM.eq(location.getSystem())

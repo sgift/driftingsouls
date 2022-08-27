@@ -12,10 +12,10 @@ public class ShipData {
     public final boolean isDocked;
     public final boolean isLanded;
     public final int sensors;
-    public final int fleetId;
+    public final Integer fleetId;
     public final String fleetName;
 
-    public ShipData(int id, String name, int ownerId, int ownerRaceId, int landedShips, int dockedShips, int energy, int heat, String dockInformation, int sensors, int fleetId, String fleetName) {
+    public ShipData(int id, String name, int ownerId, int ownerRaceId, int landedShips, int dockedShips, int energy, int heat, String dockInformation, int sensors, Integer fleetId, String fleetName) {
         this.id = id;
         this.name = name;
         this.ownerId = ownerId;
