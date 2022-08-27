@@ -64,7 +64,7 @@
         <a id="showSystemauswahl" title="System auswählen" onclick="$('#systemauswahl').dialog('open')" href="#"><img src="data/interface/impobjects.gif" alt="?"></a>
         <a id="gotoLocation" title="Zu Position springen" onclick="$('#goto-location').dialog('open');" href="#"><img src="data/interface/goto.svg" alt="?"></a>
         <a id="showStarmap" title="Bekannte Sternensysteme" ds-popup-control-open="starmapSystemOverviewPopup" href="#"><img src="data/interface/jumpnode.svg" alt="?"></a>
-        <a id="reloadStarmap" onclick="ReloadSystem()">R</a>
+        <a id="reloadStarmap" onclick="ReloadSystem()"><img src="data/interface/reload.svg" alt="?" style="width:19px;"></a>
     </div>
 </div>
 
@@ -244,6 +244,7 @@
         $("#starmapSectorPopup").dialog({
         dialogClass: 'starmap-modal',
         width: 550,
+        minHeight:500,
         height: 'auto',
         maxHeight: 600
     });

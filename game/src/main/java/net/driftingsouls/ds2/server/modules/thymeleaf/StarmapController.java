@@ -88,7 +88,7 @@ public class StarmapController implements DSController, PermissionResolver {
         try {
             action = Action.valueOf(request.getParameter("action").toUpperCase());
         }catch(Exception e){
-            action = Action.GET_SYSTEM_DATA;
+            action = Action.DEFAULT;
         }
 
         int system;
@@ -112,7 +112,23 @@ public class StarmapController implements DSController, PermissionResolver {
             case GET_SECTOR_INFORMATION:
                 sectorInformation(system, request, response);
                 break;
+            case DEFAULT:
+                defaultAction(ctx, request);
+                templateEngine.process("starmap", ctx, response.getWriter());
+                break;
         }
+    }
+
+    /**
+     * Aktion zur Anzeige der Starmap
+     * @param ctx der WebContext
+     * @param request der HttpServletRequest (enthaelt die uebergebenen Parameter)
+     */
+    private void defaultAction(WebContext ctx, HttpServletRequest request){
+
+        User user = (User) context.getActiveUser();
+
+
     }
 
     private void systemData(int systemId, HttpServletResponse response) throws IOException
@@ -448,7 +464,7 @@ public class StarmapController implements DSController, PermissionResolver {
                     shipObj.race = ship.ownerRaceId;
 
 
-					if (ship.fleetId != 0)
+					if (ship.fleetId != null)
 					{
 						shipObj.fleet = new ShipFleetViewModel(ship.fleetId, ship.fleetName);
 					}

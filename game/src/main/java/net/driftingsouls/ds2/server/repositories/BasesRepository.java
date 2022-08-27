@@ -1,8 +1,11 @@
 package net.driftingsouls.ds2.server.repositories;
 
+import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.entities.jooq.tables.Users;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.DBUtil;
 import net.driftingsouls.ds2.server.map.BaseData;
+import net.driftingsouls.ds2.server.map.StationaryObjectData;
 import org.jooq.Condition;
 import org.jooq.Records;
 import org.jooq.impl.DSL;
@@ -67,5 +70,33 @@ public class BasesRepository {
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
+    }
+
+
+    public static List<StationaryObjectData> getBasesHeaderInfo(Location location, int userId, boolean isNotScanned)
+    {
+        try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
+            var db = DBUtil.getDSLContext(conn);
+
+            var select = db.select(BASES.ID, BASES.NAME, BASES.OWNER, Users.USERS.NICKNAME, BASE_TYPES.LARGEIMAGE, BASE_TYPES.ID, BASE_TYPES.NAME)
+                    .from(BASES)
+                    .join(Users.USERS)
+                    .on(BASES.OWNER.eq(Users.USERS.ID))
+                    .join(BASE_TYPES)
+                    .on(BASES.KLASSE.eq(BASE_TYPES.ID))
+                    .where(BASES.STAR_SYSTEM.eq(location.getSystem())
+                            .and(BASES.X.eq(location.getX()))
+                            .and(BASES.Y.eq(location.getY())));
+
+            if(isNotScanned) {
+                //TODO: Select bases of friends and allies
+                select = select.and(BASES.OWNER.eq(userId));
+            }
+
+            return select.fetch(Records.mapping(StationaryObjectData::new));
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
