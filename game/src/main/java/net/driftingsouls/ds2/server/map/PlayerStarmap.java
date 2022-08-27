@@ -370,16 +370,10 @@ public class PlayerStarmap extends PublicStarmap
 				}
 
 				var nebula = nebulae.get(loc);
-
-				if(nebula != null && scannedPositions.containsKey(loc))
-				{
-					if(scanData.getLocation() == loc)
-					{
+				if(nebula == null || nebula.allowsScan()) {
+					if(!scannedPositions.containsKey(loc) || scanData.getLocation().equals(loc)) {
 						scannedPositions.put(loc, scanData.getShipId());
 					}
-				}
-				else if (nebula == null || nebula.allowsScan()) {
-					scannedPositions.put(loc, scanData.getShipId());
 				}
 			}
 		}
