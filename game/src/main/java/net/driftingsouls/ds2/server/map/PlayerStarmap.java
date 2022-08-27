@@ -83,6 +83,12 @@ public class PlayerStarmap extends PublicStarmap
 	{
 		var scannerLocation = scanShip.getLocation();
 
+		if(scanShip.getOwnerId() == user.getId()) {
+			ownShipSectors.add(scanShip.getLocation());
+		} else {
+			allyShipSectors.add(scanShip.getLocation());
+		}
+
 		if (getNebula(scannerLocation) != null && !isNebulaScanner)
 		{
 			scanShip = new ScanData(scanShip.getLocation().getSystem(), scanShip.getLocation().getX(), scanShip.getLocation().getY(), scanShip.getShipId(), scanShip.getOwnerId(), (int)(scanShip.getScanRange() * 0.5));
@@ -91,12 +97,6 @@ public class PlayerStarmap extends PublicStarmap
 		if(!targetMap.containsKey(scannerLocation) || targetMap.get(scannerLocation).getScanRange() < scanShip.getScanRange())
 		{
 			targetMap.put(scannerLocation, scanShip);
-		}
-
-		if(scanShip.getOwnerId() == user.getId()) {
-			ownShipSectors.add(scanShip.getLocation());
-		} else {
-			allyShipSectors.add(scanShip.getLocation());
 		}
 	}
 
