@@ -51,9 +51,10 @@ public class PlayerStarmap extends PublicStarmap
 			throw new IllegalArgumentException("User may not be null.");
 		}
 		this.userRelationsService = new SingleUserRelationsService(user.getId());
-		buildFriendlyData();
 
 		this.scannedLocationsToScannerId = new HashMap<>();
+		buildFriendlyData();
+
 		buildScannedLocations();
 		buildNonFriendSectors();
 
@@ -91,6 +92,7 @@ public class PlayerStarmap extends PublicStarmap
 
 		if (getNebula(scannerLocation) != null && !isNebulaScanner)
 		{
+			if(scanShip.getScanRange() > 0) scannedLocationsToScannerId.put(scanShip.getLocation(),scanShip.getShipId());
 			scanShip = new ScanData(scanShip.getLocation().getSystem(), scanShip.getLocation().getX(), scanShip.getLocation().getY(), scanShip.getShipId(), scanShip.getOwnerId(), (int)(scanShip.getScanRange() * 0.5));
 		}
 
