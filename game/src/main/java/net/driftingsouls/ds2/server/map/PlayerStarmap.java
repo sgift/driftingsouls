@@ -51,9 +51,10 @@ public class PlayerStarmap extends PublicStarmap
 			throw new IllegalArgumentException("User may not be null.");
 		}
 		this.userRelationsService = new SingleUserRelationsService(user.getId());
-		buildFriendlyData();
 
 		this.scannedLocationsToScannerId = new HashMap<>();
+		buildFriendlyData();
+
 		buildScannedLocations();
 		buildNonFriendSectors();
 
@@ -91,6 +92,7 @@ public class PlayerStarmap extends PublicStarmap
 
 		if (getNebula(scannerLocation) != null && !isNebulaScanner)
 		{
+			if(scanShip.getScanRange() > 0) scannedLocationsToScannerId.put(scanShip.getLocation(),scanShip.getShipId());
 			scanShip = new ScanData(scanShip.getLocation().getSystem(), scanShip.getLocation().getX(), scanShip.getLocation().getY(), scanShip.getShipId(), scanShip.getOwnerId(), (int)(scanShip.getScanRange() * 0.5));
 		}
 
@@ -361,8 +363,8 @@ public class PlayerStarmap extends PublicStarmap
 	}
 
 	private void findScannedPositions(Map<Location, Nebel.Typ> nebulae, Location position, ScanData scanData, int scanRange, Map<Location, Integer> scannedPositions) {
-		for (int y = position.getY() - Math.max(1,scanRange); y <= position.getY() + Math.max(1,scanRange); y++) {
-			for (int x = position.getX() - Math.max(1,scanRange); x <= position.getX() + Math.max(1,scanRange); x++) {
+		for (int y = position.getY() - scanRange; y <= position.getY() + scanRange; y++) {
+			for (int x = position.getX() - scanRange; x <= position.getX() + scanRange; x++) {
 				Location loc = new Location(map.getSystem(), x, y);
 
 				if (!position.sameSector(scanRange, loc, 0)) {
