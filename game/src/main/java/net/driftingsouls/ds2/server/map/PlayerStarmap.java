@@ -361,8 +361,8 @@ public class PlayerStarmap extends PublicStarmap
 	}
 
 	private void findScannedPositions(Map<Location, Nebel.Typ> nebulae, Location position, ScanData scanData, int scanRange, Map<Location, Integer> scannedPositions) {
-		for (int y = position.getY() - scanRange; y <= position.getY() + scanRange; y++) {
-			for (int x = position.getX() - scanRange; x <= position.getX() + scanRange; x++) {
+		for (int y = position.getY() - Math.max(1,scanRange); y <= position.getY() + Math.max(1,scanRange); y++) {
+			for (int x = position.getX() - Math.max(1,scanRange); x <= position.getX() + Math.max(1,scanRange); x++) {
 				Location loc = new Location(map.getSystem(), x, y);
 
 				if (!position.sameSector(scanRange, loc, 0)) {
