@@ -19,6 +19,7 @@
 package net.driftingsouls.ds2.server.config;
 
 import net.driftingsouls.ds2.server.Location;
+import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
 import org.apache.commons.lang3.StringUtils;
@@ -456,4 +457,16 @@ public class StarSystem {
 		return felsbrockenKonfigurationen;
 	}
 
+
+	public static Access getAccess(int accessValue)
+	{
+		switch(accessValue)
+		{
+			case 0: return Access.NICHT_SICHTBAR;
+			case 1: return Access.NORMAL;
+			case 2: return Access.NPC;
+			case 3: return Access.ADMIN;
+			default: throw new IllegalArgumentException("There's no system-access with accessValue:" + accessValue);
+		}
+	}
 }

@@ -1,12 +1,15 @@
-function LoadSystem(systemId)
+function LoadSystem(formdata)
 {
+    let systemId = formdata.get('system');
     var url = getUrl();
+    gotoLocation = {x:formdata.get('x'), y:formdata.get('y')};
     jQuery.getJSON(url,{action:'get_system_data', system:systemId}, function(resp)
     {
         renderBaseSystem(resp);
-        jQuery.getJSON(url, {action:'GET_SCANFIELDS', system:systemId}, function(resp){addScansectors(resp)});
-        jQuery.getJSON(url, {action:'GET_SCANNED_FIELDS', system:systemId}, function(resp){addScannedFields(resp)});
+        jQuery.getJSON(url, {action:'GET_SCANFIELDS', system:systemId}, function(resp){addScansectors(resp);derenderLoader();});
+        jQuery.getJSON(url, {action:'GET_SCANNED_FIELDS', system:systemId}, function(resp){addScannedFields(resp);derenderLoader();});
     });
+
 }
 
 function ReloadSystem()
@@ -27,10 +30,16 @@ function ReloadSystem()
 }
 
 var counter = 0;
+var gotoLocation = null;
 function derenderLoader()
 {
     counter++;
     if(counter == 2) $("#starmaploader").dialog("close");
+    if(gotoLocation != null)
+    {
+        starmap.setCoordinates(gotoLocation.x, gotoLocation.y);
+        gotoLocation = null;
+    }
 }
 
 function renderBaseSystem(data)
@@ -209,10 +218,12 @@ function renderSectorData(data)
     var header = container.querySelector(".header");
     header.textContent = `Sektor ${data.system}:${data.x}/${data.y}`;
 
-
-    if(data.jumpnodes.length > 0) sektor.appendChild(parseHTML(templateJumpnodesFn(data.jumpnodes)))
+    if(data.roterAlarm > 0) sektor.appendChild(parseHTML(templateAlarmRedFn(data.roterAlarm)));
+    if(data.nebel != undefined) sektor.appendChild(parseHTML(templateNebulaFn(data.nebel)));
+    if(data.jumpnodes.length > 0) sektor.appendChild(parseHTML(templateJumpnodesFn(data.jumpnodes)));
     if(data.bases.length > 0) sektor.appendChild(parseHTML(templateBasesFn(data.bases)));
-
+    if(data.battles.length>0) sektor.appendChild(parseHTML(templateBattlesFn(data.battles)));
+    if(data.subraumspaltenCount.length>0) sektor.appendChild(parseHTML(templateSubraumspaltenFn(data.subraumspaltenCount)));
 
 
     for(let index =0; index < data.users.length; index++)
@@ -321,3 +332,14 @@ function toggleByDataTarget(element, display)
 }
 
 document.getElementById("sektoranzeige").style.flexDirection="column";
+
+function RenderLog(message)
+{
+    var logContainer = document.querySelector("#kartenaktionslog .logentries");
+
+    var message = `<div class="logentry ng-scope" >
+                        ${message.log}
+                     </div>`;
+
+    logContainer.appendChild(parseHTML(message));
+}

@@ -47,7 +47,7 @@
 		<property name="hibernate.bytecode.use_reflection_optimizer">true</property>
 
         <!-- Echo all executed SQL to stdout -->
-        <property name="hibernate.show_sql">true</property>
+        <property name="hibernate.show_sql">false</property>
        	<property name="hibernate.format_sql">true</property>
 
        	<!-- Statistiken aktivieren -->
