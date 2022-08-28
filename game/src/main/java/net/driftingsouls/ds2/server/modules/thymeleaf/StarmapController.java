@@ -135,7 +135,7 @@ public class StarmapController implements DSController, PermissionResolver {
 
         for (var starsystem: starsystems) {
             if(!starsystem.isVisibleFor(user)) continue;
-            systemsViewModel.add(new StarsystemsSelectList(starsystem.getId(), starsystem.name));
+            systemsViewModel.add(new StarsystemsSelectList(starsystem.id, starsystem.name + " ("+ starsystem.id +")"));
         }
 
         ctx.setVariable("starsystems", systemsViewModel);

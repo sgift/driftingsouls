@@ -91,7 +91,27 @@ public class PlayerFieldView implements FieldView
 
 		try(var conn = DBUtil.getConnection(em)) {
 			var db = DBUtil.getDSLContext(conn);
-			var select = db.select(SHIPS.ID, SHIPS.NAME, SHIPS.OWNER, USERS.RACE, SHIPS.E, SHIPS.S, SHIPS.DOCKED, SHIPS.SENSORS, SHIPS.FLEET, SHIP_FLEETS.NAME, SHIP_TYPES.ID, SHIP_TYPES.NICKNAME, SHIP_TYPES.PICTURE, SHIP_TYPES.SIZE, SHIP_TYPES.JDOCKS, SHIP_TYPES.ADOCKS, SHIP_TYPES.EPS, SHIP_TYPES.COST, SHIP_TYPES.SENSORRANGE, USERS.NICKNAME)
+			var select =
+					db.select(SHIPS.ID,
+									SHIPS.NAME,
+									SHIPS.OWNER,
+									USERS.RACE,
+									SHIPS.E,
+									SHIPS.S,
+									SHIPS.DOCKED,
+									SHIPS.SENSORS,
+									SHIPS.FLEET,
+									SHIP_FLEETS.NAME,
+									SHIP_TYPES.ID,
+									SHIP_TYPES.NICKNAME,
+									SHIP_TYPES.PICTURE,
+									SHIP_TYPES.SIZE,
+									SHIP_TYPES.JDOCKS,
+									SHIP_TYPES.ADOCKS,
+									SHIP_TYPES.EPS,
+									SHIP_TYPES.COST,
+									SHIP_TYPES.SENSORRANGE,
+									USERS.NICKNAME)
 				.from(SHIPS)
 				.join(SHIP_TYPES)
 				.on(SHIPS.TYPE.eq(SHIP_TYPES.ID))
