@@ -1,4 +1,11 @@
 
+.fg.battle{
+    background-color: rgba(255, 0, 0, 0.25);
+}
+.clickable:hover{
+    cursor:pointer;
+}
+
 .dashed-list {
     display: block;
     border: dashed #c7c7c7;

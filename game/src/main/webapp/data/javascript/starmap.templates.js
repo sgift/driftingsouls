@@ -1,6 +1,6 @@
 const templateUserFn = user => `
     <div class="user-toggle-boundary">
-        <div class="user-toggle" style="display:flex;flex-direction:row;justify-content:space-between;">
+        <div class="user-toggle clickable" style="display:flex;flex-direction:row;justify-content:space-between;">
             <span><span class="signum">+</span>${user.name}</span>
             <span>${getCount(user)}</span>
         </div>
@@ -20,6 +20,49 @@ function getCount(user){
     return sum;
 }
 
+const templateAlarmRedFn = ar => `
+<div class="warnung"><span>Warnung: Mindestens ein feindliches Schiff hat seine Waffensysteme aktiviert und wird angreifen, solltest Du mit einem Schiff in diesen Sektor fliegen.</span></div>
+`;
+
+
+const templateBattlesFn = battles => `
+<div ui-if="sektor.battles.length>0" class="ng-scope">
+    <ul class="battles">
+        ${templateAllBattles(battles)}
+    </ul>
+</div>
+`;
+
+const templateAllBattles = battles => battles.map(list => { return templateBattleFn(list) + "\n" }).join("");
+
+const templateBattleFn = battle => `
+<li class="ng-scope">
+            <img src="./data/interface/battle.svg">
+            ${battle.einsehbar ? templateScanableBattleFn(battle) : templateNotScanableBattleFn()}
+            <div class="details">
+                <div class="side ng-scope">
+
+                    ${battle.sides[0].ally ? templateAllySide(battle.sides[0]) : templateNonAllySide(battle.sides[0])}
+                    ${battle.sides[1].ally ? templateAllySide(battle.sides[1]) : templateNonAllySide(battle.sides[1])}
+
+                </div>
+            </div>
+        </li>
+`;
+
+const templateScanableBattleFn = battle => `<div class="name ng-scope"><a href="./ds?module=angriff&amp;battle=${battle.id}">Schlacht</a></div>`;
+const templateNotScanableBattleFn = battle => `<div class="name ng-scope">Schlacht</div>`;
+
+const templateAllySide = side => `<a href="ds?module=allylist&action=details&details=${side.ally.id}}">${side.ally.name}</a>`;
+const templateNonAllySide = side => `<a ui-if="!side.ally" href="ds?module=userprofile&action=default&user=${side.commander.id}">side.commander.name</a>`;
+
+const templateSubraumspaltenFn = subraumspalten => `
+<div class="subraumspalten">
+    <img src='./data/objects/subraumspalt.gif' />
+    <div class="name">${subraumspalten} Subraumspalte${subraumspalten > 1 && 'n' || ''}</div>
+</div>
+`;
+
 const templateJumpnodesFn = jns => `
     <div ui-if="sektor.jumpnodes.length>0" class="ng-scope">
         <ul class="jumpnodes">
@@ -28,6 +71,10 @@ const templateJumpnodesFn = jns => `
         </ul>
     </div>
 `;
+
+const templateNebulaFn = nebula => `
+    <div class="ng-scope" style="margin-bottom:10px;"><img class="nebel" alt="Nebel" src="${nebula.image}"></div>
+`
 
 const templateAllJumpnodes = jns => jns.map(list => { return templateJumpnodeFn(list) + "\n" }).join("");
 
@@ -76,7 +123,7 @@ const templateForeignBaseFn = base => `
 
 const templateShiptypeFn = shiptype => `
 <li class="ng-scope shiptypetoggle">
-    <div class="shiptype">
+    <div class="shiptype clickable">
         ${shiptype.count}x ${shiptype.name}
         <a href="./ds?module=schiffinfo&amp;ship=${shiptype.id}">
             <img class="schiffstypengrafik" src="${shiptype.picture}">
@@ -173,6 +220,6 @@ const templateScansector = data => /*html*/
 
 
 //const templateScannedSector = data => `<div onclick="loadSectorData(${data.x}, ${data.y}, ${data.scanner})" style="width:25px;height:25px;position:absolute;top:${data.y*25-25}px;left:${data.x*25-25}px;${data.bg != null && data.bg.image != undefined ? 'background-image:url('+data.bg.image+')' : ''}">
-const templateScannedSector = data => `<div onclick="loadSectorData(${data.x}, ${data.y}, ${data.scanner})" style="grid-column-start:${data.x};grid-column-end:${data.x};grid-row-start:${data.y};grid-row-end:${data.y};${data.bg != null && data.bg.image != undefined ? 'background-image:url('+data.bg.image+')' : ''}">
-${data.fg!=null ? '<img src="'+data.fg+'"/>' : ''}
+const templateScannedSector = data => `<div class="clickable" onclick="loadSectorData(${data.x}, ${data.y}, ${data.scanner})" style="grid-column-start:${data.x};grid-column-end:${data.x};grid-row-start:${data.y};grid-row-end:${data.y};${data.bg != null && data.bg.image != undefined ? 'background-image:url('+data.bg.image+')' : ''}">
+${data.fg!=null ? data.battle ? '<img class="fg battle" src="'+data.fg+'"/>' : '<img class="fg" src="'+data.fg+'"/>' : ""}
 </div>`;

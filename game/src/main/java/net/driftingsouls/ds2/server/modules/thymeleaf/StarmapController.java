@@ -32,6 +32,7 @@ import net.driftingsouls.ds2.server.modules.MapController;
 import net.driftingsouls.ds2.server.modules.viewmodels.AllyViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.ShipFleetViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.UserViewModel;
+import net.driftingsouls.ds2.server.repositories.StarsystemRepository;
 import org.json.JSONObject;
 import org.springframework.http.HttpHeaders;
 import org.thymeleaf.ITemplateEngine;
@@ -128,7 +129,17 @@ public class StarmapController implements DSController, PermissionResolver {
 
         User user = (User) context.getActiveUser();
 
+        List<StarsystemsSelectList> systemsViewModel = new ArrayList<>();
 
+        var starsystems = StarsystemRepository.getInstance().getStarsystemsData();
+
+        for (var starsystem: starsystems) {
+            if(!starsystem.isVisibleFor(user)) continue;
+            systemsViewModel.add(new StarsystemsSelectList(starsystem.getId(), starsystem.name));
+        }
+
+        ctx.setVariable("starsystems", systemsViewModel);
+        //ctx.setVariable("importantLocations", systemsViewModel);
     }
 
     private void systemData(int systemId, HttpServletResponse response) throws IOException
@@ -520,14 +531,14 @@ public class StarmapController implements DSController, PermissionResolver {
 
             var attacker = new MapController.SectorViewModel.BattleSideViewModel();
             attacker.commander = new UserViewModel(battle.attackerRace, battle.attackerId, battle.attackerName, battle.plainAttackerName);
-            if(battle.attackerAllyId != 0) {
+            if(battle.attackerAllyId != null) {
                 attacker.ally = new AllyViewModel(battle.attackerAllyId, battle.attackerAllyName, battle.plainAttackerAllyName);
             }
             battleObj.sides.add(attacker);
 
             var defender = new MapController.SectorViewModel.BattleSideViewModel();
             defender.commander = new UserViewModel(battle.defenderRace, battle.defenderId, battle.defenderName, battle.plainDefenderName);
-            if(battle.defenderAllyId != 0) {
+            if(battle.defenderAllyId != null) {
                 defender.ally = new AllyViewModel(battle.defenderAllyId, battle.defenderAllyName, battle.plainDefenderAllyName);
             }
             battleObj.sides.add(defender);
@@ -542,6 +553,19 @@ public class StarmapController implements DSController, PermissionResolver {
 
         public Error(String text){
             this.text = text;
+        }
+    }
+
+    public static class StarsystemsSelectList
+    {
+        public final int id;
+        public final String name;
+
+        public StarsystemsSelectList(int id, String name)
+        {
+
+            this.id = id;
+            this.name = name;
         }
     }
 }

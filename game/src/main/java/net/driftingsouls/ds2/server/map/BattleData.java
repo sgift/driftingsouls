@@ -6,18 +6,18 @@ public class BattleData {
     public final int attackerId;
     public final String attackerName;
     public final String plainAttackerName;
-    public final int attackerAllyId;
+    public final Integer attackerAllyId;
     public final String attackerAllyName;
     public final String plainAttackerAllyName;
     public final int defenderRace;
-    public final int defenderId;
+    public final Integer defenderId;
     public final String defenderName;
     public final String plainDefenderName;
-    public final int defenderAllyId;
+    public final Integer defenderAllyId;
     public final String defenderAllyName;
     public final String plainDefenderAllyName;
 
-    public BattleData(int id, int attackerRace, int attackerId, String attackerName, String plainAttackerName, int attackerAllyId, String attackerAllyName, String plainAttackerAllyName, int defenderRace, int defenderId, String defenderName, String plainDefenderName, int defenderAllyId, String defenderAllyName, String plainDefenderAllyName) {
+    public BattleData(int id, int attackerRace, int attackerId, String attackerName, String plainAttackerName, Integer attackerAllyId, String attackerAllyName, String plainAttackerAllyName, int defenderRace, int defenderId, String defenderName, String plainDefenderName, Integer defenderAllyId, String defenderAllyName, String plainDefenderAllyName) {
         this.id = id;
         this.attackerRace = attackerRace;
         this.attackerId = attackerId;

@@ -65,7 +65,7 @@ var Starmap = function(){
     {
         //http://localhost:8080/ds/ds?FORMAT=JSON&module=schiffAjax&action=fliegeSchiff&schiff=1857304&x=31&y=33
         jQuery.getJSON(DS.getUrl(),{FORMAT:'JSON', module:'schiffAjax', action:'fliegeSchiff', schiff:flight.shipId, x:flight.location.x, y:flight.location.y})
-        .done(function(resp){ReloadSystem();});
+        .done(function(resp){ReloadSystem();RenderLog(resp);});
         //jQuery.getJSON(DS.getUrl(),{FORMAT:'JSON', module:'schiffAjax', action:'fliegeSchiff', schiff:flight.shipId, x:flight.location.x, y:flight.location.y}, function(resp){ReloadSystem();});
         setCurrentShip(null);
         starmapCanvas.derenderMapAction();
@@ -166,7 +166,15 @@ var StarmapCanvas = function(starmap)
         }
     });
 
+    document.body.addEventListener("touchstart", function (e) {
+            if (e.target &&
+                e.target.classList.contains("dragme")) {
+                startDrag(e);
+            }
+        });
+
     document.onmouseup = stopDrag;
+    document.addEventListener("touchend", stopDrag);
 
 
     function startDrag(e) {
@@ -194,9 +202,12 @@ var StarmapCanvas = function(starmap)
 
         // move div element
         onmousemove = document.onmousemove;
+        ontouchmove = document.ontouchmove
         document.onmousemove = dragDiv;
+        document.addEventListener("touchmove", dragDiv);
     }
     var onmousemove;
+    var ontouchmove;
 
     function dragDiv(e) {
         if (!drag) {
@@ -274,6 +285,7 @@ var StarmapCanvas = function(starmap)
     function stopDrag() {
         drag = false;
         document.onmousemove = onmousemove;
+        document.removeEventListener("touchmove", dragDiv);
     }
 
     function getCurrentViewRectangle()
@@ -324,102 +336,3 @@ var StarmapCanvas = function(starmap)
     this.derenderMapAction = derenderMapAction;
     this.renderShipChosen  = renderShipChosen;
 }
-
-/*
-var StarmapClipper = function(starmap)
-{
-    var _starmap = starmap;
-    var target = document.getElementById("draggable");
-    var _starmapCanvas;
-    var fieldSize = 25;
-
-    var lastUnhide;
-    function unHidingOnMove(force)
-    {
-        return;
-
-        if(lastUnhide == null) lastUnhide = Date.now();
-        else if(Date.now() - lastUnhide < 50 && !force) return;
-
-        var viewRectangle = _starmapCanvas.getCurrentViewRectangle();
-
-        var scanships = _starmap.getScanships();
-        for(const [key, value] of Object.entries(scanships))
-        {
-            var isVisible = RectCircleColliding(value, viewRectangle);
-
-            if(value.maskNode == undefined)
-            {
-                value.maskNode = document.getElementById("scanship-" + key);
-                if(value.maskNode == null) continue;
-            }
-
-            if(!isVisible)
-            {
-                if(value.maskNode.style.visibility != "hidden")
-                {
-                    value.maskNode.style.visibility = "hidden";
-                }
-                else
-                {
-                    continue;
-                }
-            }
-            else
-            {
-                if(value.maskNode.style.visibility == "hidden")
-                {
-                    value.maskNode.style.visibility = "visible";
-                }
-                else
-                {
-                    continue;
-                }
-            }
-
-            if(value.fieldsNode == undefined)
-            {
-                value.fieldsNode = document.getElementById("scanfield-" + key);
-                if(value.fieldsNode == null) continue;
-            }
-
-            if(!isVisible)
-            {
-                if(value.fieldsNode.style.visibility != "hidden")
-                {
-                    value.fieldsNode.style.visibility = "hidden";
-                }
-            }
-            else
-            {
-                if(value.fieldsNode.style.visibility == "hidden")
-                {
-                    value.fieldsNode.style.visibility = "visible";
-                }
-            }
-        }
-    }
-
-    function RectCircleColliding(circle,rect){
-        var distX = Math.abs(circle.x - rect.x-rect.w/2);
-        var distY = Math.abs(circle.y - rect.y-rect.h/2);
-
-        if (distX > (rect.w/2 + circle.r)) { return false; }
-        if (distY > (rect.h/2 + circle.r)) { return false; }
-
-        if (distX <= (rect.w/2)) { return true; }
-        if (distY <= (rect.h/2)) { return true; }
-
-        var dx=distX-rect.w/2;
-        var dy=distY-rect.h/2;
-        return (dx*dx+dy*dy<=(circle.r*circle.r));
-    }
-
-    function setStarmapCanvas(starmapCanvas)
-    {
-        _starmapCanvas = starmapCanvas;
-    }
-
-    this.setStarmapCanvas = setStarmapCanvas;
-    this.unHidingOnMove = unHidingOnMove;
-}*/

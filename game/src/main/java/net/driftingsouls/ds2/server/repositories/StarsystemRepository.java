@@ -9,9 +9,7 @@ import net.driftingsouls.ds2.server.map.StationaryObjectData;
 import org.jooq.Records;
 
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static net.driftingsouls.ds2.server.entities.jooq.Tables.NEBEL;
 import static net.driftingsouls.ds2.server.entities.jooq.Tables.SYSTEMS;
@@ -28,21 +26,37 @@ public class StarsystemRepository {
         return instance;
     }
 
-    public Map<Integer, StarSystemData> staraystemData = new HashMap<>();
+    public Map<Integer, StarSystemData> starsystemData = new HashMap<>();
 
-    public Map<Location, Nebel.Typ> getNebulaData(int system)
+    public StarSystemData getStarsystemData(int system)
     {
-        if(!staraystemData.containsKey(system)) {
-            synchronized (staraystemData) {
-                if(!staraystemData.containsKey(system)) {
+        if(!starsystemData.containsKey(system)) {
+            synchronized (starsystemData) {
+                if(!starsystemData.containsKey(system)) {
+                    getStarsystemsData();
+                }
+            }
+        }
+
+        if(!starsystemData.containsKey(system)) return null;
+        return starsystemData.get(system);
+    }
+
+    public Collection<StarSystemData> getStarsystemsData()
+    {
+        if(starsystemData.size() == 0) {
+            synchronized (starsystemData) {
+                if(starsystemData.size() == 0) {
                     try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
                         var db = DBUtil.getDSLContext(conn);
                         try(var select = db
                                 .selectFrom(SYSTEMS)
-                                .where(SYSTEMS.ID.eq(system))
                         ) {
                             var result = select.fetch(Records.mapping(StarSystemData::new));
 
+                            for (var row : result) {
+                                starsystemData.put(row.getId(), row);
+                            }
                         }
                     } catch (SQLException e) {
                         throw new RuntimeException(e);
@@ -51,7 +65,6 @@ public class StarsystemRepository {
             }
         }
 
-        return Collections.unmodifiableMap(nebulaData.get(system));
+        return starsystemData.values();
     }
-
 }

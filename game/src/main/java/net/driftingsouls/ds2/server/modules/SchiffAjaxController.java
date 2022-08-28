@@ -183,7 +183,7 @@ public class SchiffAjaxController extends Controller
 		var movementResult = shipsMovement.MoveShips(to);
 
 		SchiffsLogViewModel result = new SchiffsLogViewModel();
-		result.log = "Nur ein Test";
+		result.log = movementResult.getAutomatedMessage();
 		return result;
 
 		/*

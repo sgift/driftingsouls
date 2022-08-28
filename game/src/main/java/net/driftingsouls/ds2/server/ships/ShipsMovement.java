@@ -45,7 +45,7 @@ public class ShipsMovement {
         ShipsRepository.updateMovedShips(ships);
 
         var newLocation = ships.get(0).getLocation();
-        return new SchiffFlugService.FlugErgebnis(flugStatus, "Siehe Flugstatus! ;)");
+        return new SchiffFlugService.FlugErgebnis(flugStatus, "", newLocation);
     }
 
     private int checkPath(Location destination)
