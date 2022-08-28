@@ -23,7 +23,7 @@ public class ShipsMovement {
     {
         // Don't need to move if we are already at the destination
         var start = ships.get(0).getLocation();
-        if(start.getXYDistance(destination) == 0) return new SchiffFlugService.FlugErgebnis(flugStatus, "Schiffe bereits am Zielort!");
+        if(start.getXYDistance(destination) == 0) return new SchiffFlugService.FlugErgebnis(flugStatus, "Schiffe bereits am Zielort!", start);
 
         // maxDistance is the smallest distance one of the ships can fly.
         int maxDistance = Integer.MAX_VALUE;
@@ -34,7 +34,7 @@ public class ShipsMovement {
         // reduce maxDistance if we face an emp nebula, damage nebula or an alarm red
         maxDistance = Math.min(maxDistance, checkPath(destination));
 
-        if(maxDistance == 0) return new SchiffFlugService.FlugErgebnis(flugStatus, "whatever.");
+        if(maxDistance == 0) return new SchiffFlugService.FlugErgebnis(flugStatus, "", start);
 
         // set the new values for the ships that have flown
         for (var ship:ships) {

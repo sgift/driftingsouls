@@ -195,7 +195,7 @@ const templateMaxEnergyFn = ship =>
 const templateGedocktFn = ship =>
 `
     <span title="gedockte Schiffe">
-        <img alt="" src="./data/interface/schiffe/${ship.race}/icon_container.gif">
+        <img alt="" src="./data/interface/schiffe/${ship.ownerrace}/icon_container.gif">
         ${ship.gedockt}/${ship.maxGedockt}
     </span>
 `;

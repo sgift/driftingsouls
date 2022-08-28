@@ -55,6 +55,8 @@ public class MoveableShip {
 
     public int computeFlight(Location destination, boolean force)
     {
+        if(energyCost <= 0) return 0;
+
         int flyableDistance = 0;
         var distance = destination.getXYDistance(location);
         reductions = officer.computeReductions(distance);
@@ -67,7 +69,7 @@ public class MoveableShip {
 
 
         for(int i=0;i<distance;i++){
-            if((!force && heat >= 100) || (energy-Math.max(1, flightCost(i)) <= 0 || engine == engineDamage))
+            if((!force && heat >= 100) || (energy-Math.max(1, flightCost(i)) <= 0 || engine == engineDamage ||engine == 0))
             {
                 break;
             }
