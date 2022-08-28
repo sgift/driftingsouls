@@ -22,6 +22,6 @@ BEGIN
         (ur.target_id is null OR ur.status<>2)
       AND s.star_system = in_star_system
       AND s.owner != userid
-    GROUP BY s.star_system, s.x, s.y, ur.status
+    GROUP BY s.star_system, s.x, s.y, ur.status;
 END;
 //
