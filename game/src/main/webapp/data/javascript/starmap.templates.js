@@ -1,5 +1,5 @@
 const templateUserFn = user => `
-    <div class="user-toggle-boundary">
+    <div class="user-toggle-boundary" id="user-${user.id}">
         <div class="user-toggle clickable" style="display:flex;flex-direction:row;justify-content:space-between;">
             <span><span class="signum">+</span>${user.name}</span>
             <span>${getCount(user)}</span>
@@ -140,12 +140,13 @@ const templateShiptypeFn = shiptype => `
 
 
 
+
   const templateAllShipsFn = data => /*html*/
       data.map(list => { return templateShipFn(list) + "\n" }).join("");
 
 
 const templateShipFn = ship => `
-<tr>
+<tr class="map-shiprow ${ship.landedShips.length > 0 ? " clickable" : ""}" ${ship.landedShips.length > 0 ? 'id="landed-toggle-' + ship.id + '"' : ""}>
     <td class="name">
         ${ship.isOwner ? templateNameOwn(ship) : templateNameForeign(ship)}
         ${ship.fleet != undefined ? templateFleetNameFn(ship) : ""}
@@ -160,7 +161,29 @@ const templateShipFn = ship => `
         ${ship.kannFliegen ? templateCanFlyFn(ship) : ""}
     </td>
 </tr>
+${ship.landedShips.length > 0 ? '<tr id="landed-on-' + ship.landedShips[0].carrierId + '" style="display:none;"><td colspan="3">' : ""}
+${ship.landedShips.length > 0 ? AllLandedShips(ship.landedShips) : ""}
+${ship.landedShips.length > 0 ? '</td></tr>' : ""}
 `;
+
+const AllLandedShips = landedShips => landedShips.map(list => { return templateLandedShipFn(list) + "\n" }).join("");
+
+const templateLandedShipFn = landedShip => `
+<div>
+    <span>
+        ${templateNameOwn(landedShip)}
+    </span>
+    <span>
+       ${landedShip.maxEnergie > 0 ? templateMaxEnergyFn(landedShip) : ""}
+       Munition
+    </span>
+    <span>
+        <a href="./ds?module=schiff&amp;action=default&amp;ship=${landedShip.id}">
+            <img class="schiffstypengrafik" src="${landedShip.picture}" style="height:35px;">
+        </a>
+    </span>
+</div>
+`
 
 const templateFleetNameFn = ship => `
 <span class="ng-scope ng-binding">

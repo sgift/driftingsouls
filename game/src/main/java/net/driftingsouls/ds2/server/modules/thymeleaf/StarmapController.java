@@ -32,6 +32,7 @@ import net.driftingsouls.ds2.server.modules.MapController;
 import net.driftingsouls.ds2.server.modules.viewmodels.AllyViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.ShipFleetViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.UserViewModel;
+import net.driftingsouls.ds2.server.repositories.ShipsRepository;
 import net.driftingsouls.ds2.server.repositories.StarsystemRepository;
 import org.json.JSONObject;
 import org.springframework.http.HttpHeaders;
@@ -71,6 +72,8 @@ public class StarmapController implements DSController, PermissionResolver {
         GET_SECTOR_INFORMATION,
         DEFAULT
     }
+
+    private User user;
 
     /**
      * Erzeugt die StarMapSeite (/starmap).
@@ -127,7 +130,7 @@ public class StarmapController implements DSController, PermissionResolver {
      */
     private void defaultAction(WebContext ctx, HttpServletRequest request){
 
-        User user = (User) context.getActiveUser();
+        user = (User) context.getActiveUser();
 
         List<StarsystemsSelectList> systemsViewModel = new ArrayList<>();
 
@@ -411,6 +414,8 @@ public class StarmapController implements DSController, PermissionResolver {
     private List<MapController.SectorViewModel.UserWithShips> exportSectorShips(FieldView field, User user, Map<UserData, Map<net.driftingsouls.ds2.server.map.ShipTypeData, List<ShipData>>> ships)
 	{
 		List<MapController.SectorViewModel.UserWithShips> users = new ArrayList<>();
+        var allShipTypes = ShipsRepository.getShipTypesData();
+        //ShipsRepository.getShipTypes();
 		for (Map.Entry<UserData, Map<net.driftingsouls.ds2.server.map.ShipTypeData, List<ShipData>>> owner : ships.entrySet())
 		{
             var ownerInformation = owner.getKey();
@@ -436,44 +441,21 @@ public class StarmapController implements DSController, PermissionResolver {
 					MapController.SectorViewModel.ShipViewModel shipObj;
 					if (ownFleet)
 					{
-						MapController.SectorViewModel.OwnShipViewModel ownShip = new MapController.SectorViewModel.OwnShipViewModel();
-						ownShip.gelandet = ship.landedShips;
-						ownShip.maxGelandet = typeData.fighterDocks;
-
-						ownShip.energie = ship.energy;
-						ownShip.maxEnergie = typeData.maxEnergy;
-                        ownShip.x = field.getLocation().getX();
-                        ownShip.y = field.getLocation().getY();
-
-						ownShip.ueberhitzung = ship.heat;
-
-						ownShip.kannFliegen = typeData.movementCost > 0 && !ship.isDocked && !ship.isLanded;
-
-						int sensorRange = (int)Math.floor(typeData.scanRange * ship.sensors/100d);
-                        /* TODO: Adjust for nebel scan .. we probably need a view again
-						if (field.getNebel() != null)
-						{
-							if(!ship.getTypeData().hasFlag(ShipTypeFlag.NEBELSCAN))
-							{
-								sensorRange /= 2;
-							}
-						}
-                         */
-						ownShip.sensorRange = sensorRange;
-
-						shipObj = ownShip;
+						var ownShip = ownShipToViewModel(ship, field, typeData);
+                        if(ship.landedShips.size() > 0)
+                        {
+                            for (var landedShip: ship.landedShips) {
+                                ownShip.landedShips.add(landedShipToViewModel(landedShip, allShipTypes.get(landedShip.type)));
+                            }
+                        }
+                        shipObj = ownShip;
 					}
 					else
 					{
 						shipObj = new MapController.SectorViewModel.ShipViewModel();
 					}
-					shipObj.id = ship.id;
-					shipObj.name = ship.name;
-					shipObj.gedockt = ship.dockedShips;
-					shipObj.maxGedockt = typeData.externalDocks;
-                    shipObj.isOwner = ship.ownerId == user.getId();
-                    shipObj.race = ship.ownerRaceId;
 
+                    addCommonDataToViewModel(shipObj, ship, typeData);
 
 					if (ship.fleetId != null)
 					{
@@ -489,6 +471,69 @@ public class StarmapController implements DSController, PermissionResolver {
 		}
 		return users;
 	}
+
+    private MapController.SectorViewModel.OwnShipViewModel ownShipToViewModel(ShipData ship, FieldView field, net.driftingsouls.ds2.server.map.ShipTypeData typeData)
+    {
+        MapController.SectorViewModel.OwnShipViewModel ownShip = new MapController.SectorViewModel.OwnShipViewModel();
+        ownShip.gelandet = ship.landedShipCount;
+        ownShip.maxGelandet = typeData.fighterDocks;
+
+        ownShip.energie = ship.energy;
+        ownShip.maxEnergie = typeData.maxEnergy;
+        ownShip.x = field.getLocation().getX();
+        ownShip.y = field.getLocation().getY();
+
+        ownShip.ueberhitzung = ship.heat;
+
+        ownShip.kannFliegen = typeData.movementCost > 0 && !ship.isDocked && !ship.isLanded;
+
+        int sensorRange = (int)Math.floor(typeData.scanRange * ship.sensors/100d);
+                        /* TODO: Adjust for nebel scan .. we probably need a view again
+						if (field.getNebel() != null)
+						{
+							if(!ship.getTypeData().hasFlag(ShipTypeFlag.NEBELSCAN))
+							{
+								sensorRange /= 2;
+							}
+						}
+                         */
+        ownShip.sensorRange = sensorRange;
+
+        return ownShip;
+    }
+
+    private MapController.SectorViewModel.LandedShipViewModel landedShipToViewModel(ShipData ship, net.driftingsouls.ds2.server.map.ShipTypeData typeData)
+    {
+        MapController.SectorViewModel.LandedShipViewModel landedShip = new MapController.SectorViewModel.LandedShipViewModel();
+        landedShip.id = ship.id;
+        landedShip.carrierId = ship.carrierId;
+        landedShip.energie = ship.energy;
+        landedShip.maxEnergie = typeData.maxEnergy;
+        landedShip.name = ship.name;
+        landedShip.type = ship.type;
+        landedShip.typeName = typeData.name;
+        landedShip.picture = typeData.picture;
+
+        return landedShip;
+    }
+
+    private void getMinValues(MapController.SectorViewModel.LandedShipViewModel result, MapController.SectorViewModel.LandedShipViewModel second)
+    {
+        result.energie = Math.min(result.energie, second.energie);
+
+        // todo: Ammo and maybe also fuel.
+    }
+
+
+    private void addCommonDataToViewModel(MapController.SectorViewModel.ShipViewModel shipObj, ShipData ship, net.driftingsouls.ds2.server.map.ShipTypeData typeData)
+    {
+        shipObj.id = ship.id;
+        shipObj.name = ship.name;
+        shipObj.gedockt = ship.dockedShips;
+        shipObj.maxGedockt = typeData.externalDocks;
+        shipObj.isOwner = ship.ownerId == user.getId();
+        shipObj.race = ship.ownerRaceId;
+    }
 
     private List<MapController.SectorViewModel.BattleViewModel> exportSectorBattles(FieldView field, boolean hasBattleScanner)
 	{

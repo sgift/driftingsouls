@@ -261,14 +261,7 @@ function renderSectorData(data)
     $("#starmapSectorPopup").dialog("open");
     var userSectordatas = container.querySelectorAll(".user-sectordata");
 
-    for(var i=0;i<userSectordatas.length;i++)
-    {
-        var toggles = userSectordatas[i].querySelectorAll(".shiptypetoggle");
-        for(var j=0;j<toggles.length;j++)
-        {
-            var temp = toggles[j].querySelector("table");
-
-            var test = (element) =>
+    var test = (element) =>
             {
                 if(element.style.display == "none")
                 {
@@ -279,6 +272,15 @@ function renderSectorData(data)
                     element.style.display = "none";
                 }
             }
+
+    for(var i=0;i<userSectordatas.length;i++)
+    {
+        var toggles = userSectordatas[i].querySelectorAll(".shiptypetoggle");
+        for(var j=0;j<toggles.length;j++)
+        {
+            var temp = toggles[j].querySelector("table");
+
+
 
             toggles[j].querySelector(".shiptype").addEventListener("click", test.bind(null, temp));
 
@@ -295,6 +297,9 @@ function renderSectorData(data)
             {
                 var ship = data.users[i].shiptypes[j].ships[k];
                 if(!ship.isOwner) continue;
+
+                var shiprow = document.querySelector("#user-" + data.users[i].id );
+
                 var shipNode = document.querySelector("#s-" + ship.id);
                 if(shipNode == null) continue;
                 //console.log(shipNode);
@@ -305,6 +310,13 @@ function renderSectorData(data)
                 };
 
                 shipNode.addEventListener("click", eventFunction.bind(null, ship));
+
+                if(ship.landedShips.length > 0)
+                {
+                    var temp = document.getElementById("landed-on-" + ship.id);
+                    console.log("#landed-on-" + ship.id);
+                    document.getElementById("landed-toggle-" + ship.id).addEventListener("click", test.bind(null, temp));
+                }
             }
         }
     }

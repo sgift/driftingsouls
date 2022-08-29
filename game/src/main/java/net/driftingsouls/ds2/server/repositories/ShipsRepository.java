@@ -6,6 +6,9 @@ import net.driftingsouls.ds2.server.entities.jooq.routines.GetSectorsWithAttacki
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.DBUtil;
 import net.driftingsouls.ds2.server.map.ScanData;
+import net.driftingsouls.ds2.server.map.ShipData;
+import net.driftingsouls.ds2.server.map.ShipTypeData;
+import net.driftingsouls.ds2.server.map.UserData;
 import net.driftingsouls.ds2.server.ships.FleetsOverviewView;
 import net.driftingsouls.ds2.server.ships.ShipBookmarkView;
 import net.driftingsouls.ds2.server.ships.MoveableShip;
@@ -17,14 +20,15 @@ import org.jooq.conf.ParamType;
 import org.jooq.impl.DSL;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 import static net.driftingsouls.ds2.server.entities.jooq.Tables.*;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.FriendlyNebelScanRanges.FRIENDLY_NEBEL_SCAN_RANGES;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.FriendlyScanRanges.FRIENDLY_SCAN_RANGES;
+import static net.driftingsouls.ds2.server.entities.jooq.tables.ShipFleets.SHIP_FLEETS;
+import static net.driftingsouls.ds2.server.entities.jooq.tables.ShipTypes.SHIP_TYPES;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.Ships.SHIPS;
+import static net.driftingsouls.ds2.server.entities.jooq.tables.Users.USERS;
 import static org.jooq.impl.DSL.update;
 
 public class ShipsRepository {
@@ -284,5 +288,173 @@ public class ShipsRepository {
                 throw new RuntimeException(e);
             }
 
+    }
+
+    public static HashMap<Integer, ShipData.DockedShipCount> getDockedShipsCount
+            (Location location)
+    {
+        try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
+            var db = DBUtil.getDSLContext(conn);
+            try(var scanDataSelect = db
+                    .select(SHIPS.DOCKED)
+                    .from(SHIPS)
+                    .where(SHIPS.STAR_SYSTEM.eq(location.getSystem())
+                            .and(SHIPS.X.eq(location.getX()))
+                            .and(SHIPS.Y.eq(location.getY()))
+                            .and(SHIPS.DOCKED.isNotNull())
+                            .and(SHIPS.DOCKED.notEqual(""))
+                    )) {
+                var result = scanDataSelect.fetch();
+                var map = new HashMap<Integer, ShipData.DockedShipCount>();
+
+                for (var record : result) {
+                    int carrierId = 0;
+                    boolean isLanded = false;
+
+                    String dockedId = record.get(0, String.class);
+                    if(dockedId.startsWith("l"))
+                    {
+                        carrierId = Integer.parseInt(dockedId.substring(2));
+                        isLanded = true;
+                    }
+                    else{
+                        carrierId = Integer.parseInt(dockedId);
+                    }
+
+                    if(!map.containsKey(carrierId))
+                    {
+                        map.put(carrierId, new ShipData.DockedShipCount(carrierId, isLanded ? 0 : 1, isLanded ? 1 : 0));
+                    }
+                    else
+                    {
+                        var dockedShipCount = map.get(carrierId);
+                        if(isLanded) dockedShipCount.landedCount += 1;
+                        else dockedShipCount.externalCount +=1;
+                    }
+                }
+
+                return map;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+    public static Map<UserData, Map<ShipTypeData, List<ShipData>>> getShipsInMapSector(Location location, int userid, int minSize)
+    {
+        Map<UserData, Map<ShipTypeData, List<ShipData>>> ships = new TreeMap<>();
+        var docked = getDockedShipsCount(location);
+        UserData ownerData = new UserData(0, "", 0);
+
+        try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
+            var db = DBUtil.getDSLContext(conn);
+            var select =
+                    db.select(SHIPS.ID,
+                                    SHIPS.NAME,
+                                    SHIPS.OWNER,
+                                    USERS.RACE,
+                                    SHIPS.E,
+                                    SHIPS.S,
+                                    SHIPS.DOCKED,
+                                    SHIPS.SENSORS,
+                                    SHIPS.FLEET,
+                                    SHIPS.CARGO,
+                                    SHIP_FLEETS.NAME,
+                                    SHIP_TYPES.ID,
+                                    SHIP_TYPES.NICKNAME,
+                                    SHIP_TYPES.PICTURE,
+                                    SHIP_TYPES.SIZE,
+                                    SHIP_TYPES.JDOCKS,
+                                    SHIP_TYPES.ADOCKS,
+                                    SHIP_TYPES.EPS,
+                                    SHIP_TYPES.COST,
+                                    SHIP_TYPES.SENSORRANGE,
+                                    USERS.NICKNAME)
+                            .from(SHIPS)
+                            .join(SHIP_TYPES)
+                            .on(SHIPS.TYPE.eq(SHIP_TYPES.ID))
+                            .join(USERS)
+                            .on(SHIPS.OWNER.eq(USERS.ID))
+                            .leftJoin(SHIP_FLEETS)
+                            .on(SHIPS.FLEET.eq(SHIP_FLEETS.ID))
+                            .where(SHIPS.STAR_SYSTEM.eq(location.getSystem())
+                                    .and(SHIPS.X.eq(location.getX()))
+                                    .and(SHIPS.Y.eq(location.getY())));
+
+            var landedShips = new HashMap<Integer, List<ShipData>>();
+            for(var row: select.fetch()) {
+                //TODO: Compute landed and docked ships
+                ShipData.DockedShipCount dockedCount;
+                if(!docked.containsKey(row.get(SHIPS.ID)))
+                {
+                    dockedCount = new ShipData.DockedShipCount(row.get(SHIPS.ID), 0, 0);
+                }
+                else
+                {
+                    dockedCount = docked.get(row.get(SHIPS.ID));
+                }
+
+                var ship = new ShipData(row.get(SHIPS.ID), row.get(SHIPS.NAME), row.get(SHIPS.OWNER), row.get(USERS.RACE), row.get(SHIPS.OWNER) == userid ? dockedCount.landedCount : 0, dockedCount.externalCount, row.get(SHIPS.E), row.get(SHIPS.S), row.get(SHIPS.DOCKED), row.get(SHIPS.SENSORS), row.get(SHIPS.FLEET), row.get(SHIP_FLEETS.NAME), row.get(SHIP_TYPES.ID), row.get(SHIPS.CARGO));
+                if(ship.isLanded)
+                {
+                    if(!landedShips.containsKey(ship.carrierId)) landedShips.put(ship.carrierId, new ArrayList<>());
+                    landedShips.get(ship.carrierId).add(ship);
+                }
+
+
+                var typeData = new ShipTypeData(row.get(SHIP_TYPES.ID), row.get(SHIP_TYPES.NICKNAME), row.get(SHIP_TYPES.PICTURE), row.get(SHIP_TYPES.SIZE), row.get(SHIP_TYPES.JDOCKS), row.get(SHIP_TYPES.ADOCKS), row.get(SHIP_TYPES.EPS), row.get(SHIP_TYPES.COST), row.get(SHIP_TYPES.SENSORRANGE));
+                var userData = new UserData(row.get(SHIPS.OWNER), row.get(USERS.NICKNAME) , row.get(USERS.RACE));
+
+                if(userData.id == userid) ownerData = userData;
+
+
+                //TODO: Handle the whole "cannot see enemies if sector not scanned, has nebula and ships are small" thing
+
+                if(ship.isLanded) continue;
+                ships.computeIfAbsent(userData, data -> new TreeMap<>())
+                        .computeIfAbsent(typeData, data -> new ArrayList<>())
+                        .add(ship);
+
+            }
+
+            if(ships.containsKey(ownerData))
+            {
+                for (var shiptypes: ships.get(ownerData).values()) {
+                    for (var ship:shiptypes
+                         ) {
+                        if(landedShips.containsKey(ship.id))
+                        {
+                            ship.landedShips.addAll(landedShips.get(ship.id));
+                        }
+                    }
+                }
+            }
+
+
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return ships;
+    }
+
+    public static Map<Integer, ShipTypeData> getShipTypesData()
+    {
+        var map = new HashMap<Integer, ShipTypeData>();
+        try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
+            var db = DBUtil.getDSLContext(conn);
+            var select =
+                    db.select(SHIP_TYPES.ID, SHIP_TYPES.NICKNAME, SHIP_TYPES.PICTURE, SHIP_TYPES.SIZE, SHIP_TYPES.JDOCKS, SHIP_TYPES.ADOCKS, SHIP_TYPES.EPS, SHIP_TYPES.COST, SHIP_TYPES.SENSORRANGE)
+                            .from(SHIP_TYPES);
+
+            for(var row: select.fetch()) {
+                var typeData = new ShipTypeData(row.get(SHIP_TYPES.ID), row.get(SHIP_TYPES.NICKNAME), row.get(SHIP_TYPES.PICTURE), row.get(SHIP_TYPES.SIZE), row.get(SHIP_TYPES.JDOCKS), row.get(SHIP_TYPES.ADOCKS), row.get(SHIP_TYPES.EPS), row.get(SHIP_TYPES.COST), row.get(SHIP_TYPES.SENSORRANGE));
+                map.put(typeData.id, typeData);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return map;
     }
 }
