@@ -1,8 +1,13 @@
 const templateUserFn = user => `
     <div class="user-toggle-boundary" id="user-${user.id}">
-        <div class="user-toggle clickable" style="display:flex;flex-direction:row;justify-content:space-between;">
-            <span><span class="signum">+</span>${user.name}</span>
-            <span>${getCount(user)}</span>
+        <div class="user-toggle clickable">
+            <div style="display:flex;flex-direction:row;justify-content:space-between;">
+                <div>
+                    <span class="signum">+</span>
+                    ${$('<div/>').html(user.name).text()}
+                </div>
+                <span>${getCount(user)}</span>
+            </div>
         </div>
         <ul class="shipclasses dashed-list toggleContent user-sectordata" style="display:none;">
             ${templateAllShiptypesFn(user.shiptypes)}
@@ -123,13 +128,15 @@ const templateForeignBaseFn = base => `
 
 const templateShiptypeFn = shiptype => `
 <li class="ng-scope shiptypetoggle">
-    <div class="shiptype clickable">
-        ${shiptype.count}x ${shiptype.name}
-        <a href="./ds?module=schiffinfo&amp;ship=${shiptype.id}">
+    <div class="shiptype clickable" style="display:flex; flex-direction:row;justify-content:space-between;">
+        <div>
+            ${shiptype.count}x ${shiptype.name}
+        </div>
+        <button data-click="${shiptype.id}" class="shiptype-bind" style="border:none;background-color:transparent;">
             <img class="schiffstypengrafik" src="${shiptype.picture}">
-        </a>
+        </button>
     </div>
-    <table id="${shiptype.userId}-${shiptype.id}" style="display:none;">
+    <table id="${shiptype.userId}-${shiptype.id}" style="display:none;border-left: white dashed 1px;margin-top: 2px;">
         ${templateAllShipsFn(shiptype.ships)}
     </table>
 </li>
@@ -146,7 +153,7 @@ const templateShiptypeFn = shiptype => `
 
 
 const templateShipFn = ship => `
-<tr class="map-shiprow ${ship.landedShips.length > 0 ? " clickable" : ""}" ${ship.landedShips.length > 0 ? 'id="landed-toggle-' + ship.id + '"' : ""}>
+<tr class="map-shiprow ${ship.isOwner ? "scanner" : ""} ${ship.landedShips != null && ship.landedShips.length > 0 ? " clickable" : ""}" ${ship.landedShips != null && ship.landedShips.length > 0 ? 'id="landed-toggle-' + ship.id + '"' : ""} data-click="${ship.isOwner ? ship.sensorRange : "0"}">
     <td class="name">
         ${ship.isOwner ? templateNameOwn(ship) : templateNameForeign(ship)}
         ${ship.fleet != undefined ? templateFleetNameFn(ship) : ""}
@@ -161,29 +168,42 @@ const templateShipFn = ship => `
         ${ship.kannFliegen ? templateCanFlyFn(ship) : ""}
     </td>
 </tr>
-${ship.landedShips.length > 0 ? '<tr id="landed-on-' + ship.landedShips[0].carrierId + '" style="display:none;"><td colspan="3">' : ""}
-${ship.landedShips.length > 0 ? AllLandedShips(ship.landedShips) : ""}
-${ship.landedShips.length > 0 ? '</td></tr>' : ""}
+${ship.landedShips != null && ship.landedShips.length > 0 ? '<tr id="landed-on-' + ship.landedShips[0].carrierId + '" style="display:none;"><td colspan="3">' : ""}
+${ship.landedShips != null && ship.landedShips.length > 0 ? AllLandedShips(ship.landedShips) : ""}
+${ship.landedShips != null && ship.landedShips.length > 0 ? '</td></tr>' : ""}
 `;
 
 const AllLandedShips = landedShips => landedShips.map(list => { return templateLandedShipFn(list) + "\n" }).join("");
 
 const templateLandedShipFn = landedShip => `
-<div>
-    <span>
-        ${templateNameOwn(landedShip)}
-    </span>
-    <span>
-       ${landedShip.maxEnergie > 0 ? templateMaxEnergyFn(landedShip) : ""}
-       Munition
-    </span>
-    <span>
+<div style="display:flex;flex-direction:row;wrap:no-wrap;justify-content:space-between;">
+    <div>
+        ${landedShip.count}x ${landedShip.typeName} <br/>
+        Minimale Beladung:
+    </div>
+    <div>
+        <div>
+            ${landedShip.maxEnergie > 0 ? templateMaxEnergyFn(landedShip) : ""}
+        </div>
+        <div style="display:flex;flex-direction:row;">
+            ${landedShip.ammoCargo.length > 0 ? allAvailableMinAmmo(landedShip.ammoCargo) : ""}
+        </div>
+
+
+    </div>
+    <div>
         <a href="./ds?module=schiff&amp;action=default&amp;ship=${landedShip.id}">
             <img class="schiffstypengrafik" src="${landedShip.picture}" style="height:35px;">
         </a>
-    </span>
+    </div>
 </div>
 `
+
+const allAvailableMinAmmo = availableAmmos => availableAmmos.map(list => { return templateAmmoFn(list) + "\n" }).join("");
+
+const templateAmmoFn = ammo => `
+    <span><img class="schiffstypengrafik" src="${ammo.picture}" style="height:25px;">${ammo.amount}</span>
+`;
 
 const templateFleetNameFn = ship => `
 <span class="ng-scope ng-binding">
@@ -218,7 +238,7 @@ const templateMaxEnergyFn = ship =>
 const templateGedocktFn = ship =>
 `
     <span title="gedockte Schiffe">
-        <img alt="" src="./data/interface/schiffe/${ship.ownerrace}/icon_container.gif">
+        <img alt="" src="./data/interface/schiffe/${ship.race}/icon_container.gif">
         ${ship.gedockt}/${ship.maxGedockt}
     </span>
 `;
@@ -226,7 +246,7 @@ const templateGedocktFn = ship =>
 const templateGelandetFn = ship =>
 `
     <span title="gelandete Schiffe">
-        <img alt="" src="./data/interface/schiffe/${ship.ownerrace}/icon_schiff.gif">
+        <img alt="" src="./data/interface/schiffe/${ship.race}/icon_schiff.gif">
         ${ship.gelandet}/${ship.maxGelandet}
     </span>
 `;

@@ -295,7 +295,7 @@ function renderSectorData(data)
         {
             for(let k=0;k<data.users[i].shiptypes[j].ships.length;k++)
             {
-                var ship = data.users[i].shiptypes[j].ships[k];
+                let ship = data.users[i].shiptypes[j].ships[k];
                 if(!ship.isOwner) continue;
 
                 var shiprow = document.querySelector("#user-" + data.users[i].id );
@@ -317,9 +317,27 @@ function renderSectorData(data)
                     console.log("#landed-on-" + ship.id);
                     document.getElementById("landed-toggle-" + ship.id).addEventListener("click", test.bind(null, temp));
                 }
+
+                var scanrangeToggleNode = shipNode.closest(".scanner");
+                scanrangeToggleNode.addEventListener("mouseover", function(){showScanrange(ship);}.bind(null, ship));
+                scanrangeToggleNode.addEventListener("mouseout", function(){removeScanrange();});
+
             }
         }
     }
+
+    var shiptypeLinks = document.querySelectorAll(".shiptype-bind");
+
+    for(let i=0;i<shiptypeLinks.length; i++)
+    {
+        let shiptypelink = shiptypeLinks[i];
+        let typeId = shiptypelink.getAttribute("data-click");
+
+        shiptypelink.addEventListener("click", function(){
+            getShiptypeData(typeId)
+         }.bind(null, typeId));
+    }
+
     $("#starmaploader").dialog("close");
     document.getElementById("sektoranzeige").style.display = "flex";
 }
@@ -354,4 +372,34 @@ function RenderLog(message)
                      </div>`;
 
     logContainer.appendChild(parseHTML(message));
+}
+
+function getShiptypeData(type)
+{
+    console.log(type);
+    ShiptypeBox.show(type);
+    document.getElementById("shiptypeBox").closest(".ui-dialog").style.zIndex = 300;
+}
+
+var highlightScanrange;
+function showScanrange(ship)
+{
+    console.log(ship);
+    var marker = document.getElementById("scanrange-marker");
+    highlightScanrange = "scanrange" + (ship.sensorRange+1);
+
+    marker.classList.add(highlightScanrange);
+
+    marker.style.top = ((ship.y -1) * 25) + 12.5 + "px";
+    marker.style.left = ((ship.x - 1) *25) +12.5 +"px";
+
+    marker.style.backgroundColor = "rgba(0, 255, 0, 0.15)";
+    marker.style.removeProperty("display");
+}
+
+function removeScanrange()
+{
+    var marker = document.getElementById("scanrange-marker");
+    marker.classList.remove(highlightScanrange);
+    marker.style.display = "none";
 }

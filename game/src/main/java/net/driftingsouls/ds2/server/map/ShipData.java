@@ -1,9 +1,12 @@
 package net.driftingsouls.ds2.server.map;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.config.items.Munition;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ShipData {
     public final int id;
@@ -93,8 +96,33 @@ public class ShipData {
         landedShips.add(landedShip);
     }
 
-    public void getRocketsAndTorpedos()
+    public Map<Integer, ShipDataAmmo> getAmmo()
     {
+        var map = new HashMap<Integer, ShipDataAmmo>();
+        var ammos = cargo.getItems();
 
+        for (var ammo: ammos) {
+            if(ammo.isAmmo())
+            {
+                var shipAmmo = new ShipDataAmmo(ammo.getItemID(), ammo.getCount(), ammo.getItem().getPicture());
+                map.put(ammo.getItemID(), shipAmmo);
+            }
+        }
+
+        return map;
+    }
+
+
+    public static class ShipDataAmmo{
+        public int id;
+        public long amount;
+        public String picture;
+
+        public ShipDataAmmo(int id, long amount, String picture)
+        {
+            this.id=id;
+            this.amount = amount;
+            this.picture = picture;
+        }
     }
 }

@@ -1,6 +1,7 @@
 package net.driftingsouls.ds2.server.repositories;
 
 import net.driftingsouls.ds2.server.cargo.ItemData;
+import net.driftingsouls.ds2.server.config.items.Munition;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.DBUtil;
 import org.jooq.Records;
@@ -15,7 +16,6 @@ public class ItemRepository {
     private final static ItemRepository instance = new ItemRepository();
 
     private final Map<Integer, ItemData> itemsDisplayData = new HashMap<>();
-
 
     private ItemRepository() {}
 

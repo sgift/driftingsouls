@@ -15,23 +15,12 @@ import net.driftingsouls.ds2.server.framework.PermissionDescriptor;
 import net.driftingsouls.ds2.server.framework.PermissionResolver;
 import net.driftingsouls.ds2.server.framework.db.DBUtil;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
-import net.driftingsouls.ds2.server.map.AdminFieldView;
-import net.driftingsouls.ds2.server.map.AdminStarmap;
-import net.driftingsouls.ds2.server.map.BattleData;
-import net.driftingsouls.ds2.server.map.FieldView;
-import net.driftingsouls.ds2.server.map.MapArea;
-import net.driftingsouls.ds2.server.map.NodeData;
-import net.driftingsouls.ds2.server.map.PlayerFieldView;
-import net.driftingsouls.ds2.server.map.PlayerStarmap;
-import net.driftingsouls.ds2.server.map.PublicStarmap;
-import net.driftingsouls.ds2.server.map.SectorImage;
-import net.driftingsouls.ds2.server.map.ShipData;
-import net.driftingsouls.ds2.server.map.StationaryObjectData;
-import net.driftingsouls.ds2.server.map.UserData;
+import net.driftingsouls.ds2.server.map.*;
 import net.driftingsouls.ds2.server.modules.MapController;
 import net.driftingsouls.ds2.server.modules.viewmodels.AllyViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.ShipFleetViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.UserViewModel;
+import net.driftingsouls.ds2.server.repositories.ItemRepository;
 import net.driftingsouls.ds2.server.repositories.ShipsRepository;
 import net.driftingsouls.ds2.server.repositories.StarsystemRepository;
 import org.json.JSONObject;
@@ -45,9 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static net.driftingsouls.ds2.server.entities.jooq.tables.BattlesShips.BATTLES_SHIPS;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.Ships.SHIPS;
@@ -444,8 +431,16 @@ public class StarmapController implements DSController, PermissionResolver {
 						var ownShip = ownShipToViewModel(ship, field, typeData);
                         if(ship.landedShips.size() > 0)
                         {
+                            var minResultLandedShip = ship.landedShips.get(0);
+                            var landedShipTypes = new HashMap<Integer, List<ShipData>>();
+
                             for (var landedShip: ship.landedShips) {
-                                ownShip.landedShips.add(landedShipToViewModel(landedShip, allShipTypes.get(landedShip.type)));
+                                if(!landedShipTypes.containsKey(landedShip.type)) landedShipTypes.put(landedShip.type, new ArrayList<>());
+                                landedShipTypes.get(landedShip.type).add(landedShip);
+                            }
+
+                            for (var landedShiptype: landedShipTypes.keySet()) {
+                                ownShip.landedShips.add(getLandedShipMinValues(landedShipTypes.get(landedShiptype), allShipTypes.get(landedShiptype)));
                             }
                         }
                         shipObj = ownShip;
@@ -517,11 +512,50 @@ public class StarmapController implements DSController, PermissionResolver {
         return landedShip;
     }
 
-    private void getMinValues(MapController.SectorViewModel.LandedShipViewModel result, MapController.SectorViewModel.LandedShipViewModel second)
+    private MapController.SectorViewModel.LandedShipViewModel getLandedShipMinValues(List<ShipData> landedShips, ShipTypeData typeData)
     {
-        result.energie = Math.min(result.energie, second.energie);
+        //result.energie = Math.min(result.energie, second.energie);
+        int energy = Integer.MAX_VALUE;
+        Map<Integer, ShipData.ShipDataAmmo> minAmmos = new HashMap<>();
+        HashSet<Integer> ammoIds = new HashSet<>();
 
-        // todo: Ammo and maybe also fuel.
+        for (var landedShip: landedShips) {
+            ammoIds.addAll(landedShip.getAmmo().keySet());
+        }
+        for (var ammoId: ammoIds) {
+            minAmmos.put(ammoId, new ShipData.ShipDataAmmo(ammoId, Long.MAX_VALUE, ""));
+        }
+
+        for(var landedShip: landedShips)
+        {
+            var cargoedAmmos = landedShip.getAmmo();
+            for (var ammoId: ammoIds) {
+                if(cargoedAmmos.containsKey(ammoId))
+                {
+                    minAmmos.put(ammoId, new ShipData.ShipDataAmmo(ammoId, Math.min(cargoedAmmos.get(ammoId).amount, minAmmos.get(ammoId).amount), ItemRepository.getInstance().getItemData(ammoId).getPicture()));
+                }
+                else minAmmos.put(ammoId, new ShipData.ShipDataAmmo(ammoId, 0, ItemRepository.getInstance().getItemData(ammoId).getPicture()));
+            }
+            energy = Math.min(energy, landedShip.energy);
+        }
+
+        var firstShip = landedShips.get(0);
+        var result = new MapController.SectorViewModel.LandedShipViewModel();
+        result.carrierId = firstShip.carrierId;
+        result.ammoCargo = new ArrayList<>();
+        result.energie = energy;
+        result.picture = typeData.picture;
+        result.maxEnergie = typeData.maxEnergy;
+        result.type = typeData.id;
+        result.typeName = typeData.name;
+        result.count = landedShips.size();
+
+
+        for (var minAmmo: minAmmos.values()) {
+            result.ammoCargo.add(new MapController.SectorViewModel.LandedShipViewModel.AmmoCargo(minAmmo.id, minAmmo.amount, minAmmo.picture));
+        }
+
+        return result;
     }
 
 

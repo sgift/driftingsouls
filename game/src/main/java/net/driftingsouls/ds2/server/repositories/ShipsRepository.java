@@ -3,6 +3,7 @@ package net.driftingsouls.ds2.server.repositories;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.config.Offiziere;
 import net.driftingsouls.ds2.server.entities.jooq.routines.GetSectorsWithAttackingShips;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.DBUtil;
 import net.driftingsouls.ds2.server.map.ScanData;
@@ -369,7 +370,7 @@ public class ShipsRepository {
                                     SHIP_TYPES.EPS,
                                     SHIP_TYPES.COST,
                                     SHIP_TYPES.SENSORRANGE,
-                                    USERS.NICKNAME)
+                                    USERS.NAME)
                             .from(SHIPS)
                             .join(SHIP_TYPES)
                             .on(SHIPS.TYPE.eq(SHIP_TYPES.ID))
@@ -403,7 +404,7 @@ public class ShipsRepository {
 
 
                 var typeData = new ShipTypeData(row.get(SHIP_TYPES.ID), row.get(SHIP_TYPES.NICKNAME), row.get(SHIP_TYPES.PICTURE), row.get(SHIP_TYPES.SIZE), row.get(SHIP_TYPES.JDOCKS), row.get(SHIP_TYPES.ADOCKS), row.get(SHIP_TYPES.EPS), row.get(SHIP_TYPES.COST), row.get(SHIP_TYPES.SENSORRANGE));
-                var userData = new UserData(row.get(SHIPS.OWNER), row.get(USERS.NICKNAME) , row.get(USERS.RACE));
+                var userData = new UserData(row.get(SHIPS.OWNER), Common._text(row.get(USERS.NAME)) , row.get(USERS.RACE));
 
                 if(userData.id == userid) ownerData = userData;
 
