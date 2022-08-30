@@ -5,6 +5,7 @@ import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.db.DBUtil;
 import net.driftingsouls.ds2.server.repositories.BasesRepository;
+import net.driftingsouls.ds2.server.repositories.ShipsRepository;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import org.jooq.Records;
 import org.jooq.impl.DSL;
@@ -76,10 +77,9 @@ public class PlayerFieldView implements FieldView
 	@Override
 	public Map<UserData, Map<ShipTypeData, List<ShipData>>> getShips()
 	{
-		Map<UserData, Map<ShipTypeData, List<ShipData>>> ships = new TreeMap<>();
         if(isNotScanned())
         {
-            return ships;
+            return new TreeMap<>();
         }
 
 		int minSize;
@@ -89,57 +89,7 @@ public class PlayerFieldView implements FieldView
 			minSize = 0;
 		}
 
-		try(var conn = DBUtil.getConnection(em)) {
-			var db = DBUtil.getDSLContext(conn);
-			var select =
-					db.select(SHIPS.ID,
-									SHIPS.NAME,
-									SHIPS.OWNER,
-									USERS.RACE,
-									SHIPS.E,
-									SHIPS.S,
-									SHIPS.DOCKED,
-									SHIPS.SENSORS,
-									SHIPS.FLEET,
-									SHIP_FLEETS.NAME,
-									SHIP_TYPES.ID,
-									SHIP_TYPES.NICKNAME,
-									SHIP_TYPES.PICTURE,
-									SHIP_TYPES.SIZE,
-									SHIP_TYPES.JDOCKS,
-									SHIP_TYPES.ADOCKS,
-									SHIP_TYPES.EPS,
-									SHIP_TYPES.COST,
-									SHIP_TYPES.SENSORRANGE,
-									USERS.NICKNAME)
-				.from(SHIPS)
-				.join(SHIP_TYPES)
-				.on(SHIPS.TYPE.eq(SHIP_TYPES.ID))
-				.join(USERS)
-				.on(SHIPS.OWNER.eq(USERS.ID))
-				.leftJoin(SHIP_FLEETS)
-				.on(SHIPS.FLEET.eq(SHIP_FLEETS.ID))
-				.where(SHIPS.STAR_SYSTEM.eq(location.getSystem())
-					.and(SHIPS.X.eq(location.getX()))
-					.and(SHIPS.Y.eq(location.getY())));
-
-			for(var row: select.fetch()) {
-				//TODO: Compute landed and docked ships
-				var ship = new ShipData(row.get(SHIPS.ID), row.get(SHIPS.NAME), row.get(SHIPS.OWNER), row.get(USERS.RACE), 0, 0, row.get(SHIPS.E), row.get(SHIPS.S), row.get(SHIPS.DOCKED), row.get(SHIPS.SENSORS), row.get(SHIPS.FLEET), row.get(SHIP_FLEETS.NAME));
-				var typeData = new ShipTypeData(row.get(SHIP_TYPES.ID), row.get(SHIP_TYPES.NICKNAME), row.get(SHIP_TYPES.PICTURE), row.get(SHIP_TYPES.SIZE), row.get(SHIP_TYPES.JDOCKS), row.get(SHIP_TYPES.ADOCKS), row.get(SHIP_TYPES.EPS), row.get(SHIP_TYPES.COST), row.get(SHIP_TYPES.SENSORRANGE));
-				var userData = new UserData(row.get(SHIPS.OWNER), row.get(USERS.NICKNAME) , row.get(USERS.RACE));
-
-				//TODO: Handle the whole "cannot see enemies if sector not scanned, has nebula and ships are small" thing
-
-				ships.computeIfAbsent(userData, data -> new TreeMap<>())
-					.computeIfAbsent(typeData, data -> new ArrayList<>())
-					.add(ship);
-			}
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-
-		return ships;
+		return ShipsRepository.getShipsInMapSector(this.location, user.getId(), minSize);
 	}
 
 	@Override

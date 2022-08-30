@@ -176,21 +176,35 @@ var StarmapCanvas = function(starmap)
     document.onmouseup = stopDrag;
     document.addEventListener("touchend", stopDrag);
 
+    document.getElementById("draggable").style.touchAction = 'none';
+
 
     function startDrag(e) {
         // determine event object
         if (!e) {
             var e = window.event;
         }
-
         // IE uses srcElement, others use target
 
         if (target.className != 'dragme') {
             return
         };
         // calculate event X, Y coordinates
-        offsetX = e.clientX;
-        offsetY = e.clientY;
+
+        offsetX = 0;
+        offsetY = 0;
+
+        if(e.type == "touchstart")
+        {
+            offsetX = e.touches[0].clientX;
+            offsetY = e.touches[0].clientY;
+        }
+        else
+        {
+            offsetX = e.clientX;
+            offsetY = e.clientY;
+        }
+
 
         mouseDownPosition.x = lastX;
         mouseDownPosition.y = lastY;
@@ -204,7 +218,7 @@ var StarmapCanvas = function(starmap)
         onmousemove = document.onmousemove;
         ontouchmove = document.ontouchmove
         document.onmousemove = dragDiv;
-        document.addEventListener("touchmove", dragDiv);
+        document.addEventListener("touchmove", function(e){dragDiv(e);});
     }
     var onmousemove;
     var ontouchmove;
@@ -219,11 +233,22 @@ var StarmapCanvas = function(starmap)
 
         // move div element
 
-        var newX = coordX + e.clientX - offsetX
-        var newY = coordY + e.clientY - offsetY;
+        var newX = 0;
+        var newY = 0;
+
+        if(e.type == "touchmove")
+        {
+            newX = coordX + e.touches[0].clientX - offsetX;
+            newY = coordY + e.touches[0].clientY - offsetY;
+        }
+        else
+        {
+            newX = coordX + e.clientX - offsetX;
+            newY = coordY + e.clientY - offsetY;
+        }
 
         if(Math.sqrt(Math.pow(mouseDownPosition.x-newX, 2) + Math.pow(newY-mouseDownPosition.y, 2)) > 5) isMouseClick = false;
-
+        //isMouseClick = false;
         setPosition(newX, newY);
 
         return false;
@@ -285,7 +310,7 @@ var StarmapCanvas = function(starmap)
     function stopDrag() {
         drag = false;
         document.onmousemove = onmousemove;
-        document.removeEventListener("touchmove", dragDiv);
+        document.removeEventListener("touchmove", function(e){dragDiv(e);});
     }
 
     function getCurrentViewRectangle()

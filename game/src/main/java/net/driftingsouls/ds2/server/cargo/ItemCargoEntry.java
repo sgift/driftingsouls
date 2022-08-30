@@ -132,13 +132,17 @@ public class ItemCargoEntry<T extends Item> {
 
 	public Munition getAmmo()
 	{
-		var itemTyp = getItem().getType();
-		if(itemTyp != ItemEffect.Type.AMMO) {
-			return null;
-		}
+		if(!isAmmo()) return null;
 
 		var db = ContextMap.getContext().getEM();
 		return db.find(Munition.class, itemid);
+	}
+	public boolean isAmmo()
+	{
+		var itemTyp = getItem().getType();
+		if(itemTyp != ItemEffect.Type.AMMO) return false;
+
+		return true;
 	}
 
 	public Schiffsmodul getShipModule()

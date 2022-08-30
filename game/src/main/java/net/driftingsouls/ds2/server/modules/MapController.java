@@ -560,6 +560,33 @@ public class MapController extends Controller
 			public int sensorRange;
 			public int x;
 			public int y;
+			public ArrayList<LandedShipViewModel> landedShips = new ArrayList<>();
+		}
+
+		public static class LandedShipViewModel {
+			public int id;
+			public int carrierId;
+			public int energie;
+			public int maxEnergie;
+			public String name;
+			public int type;
+			public String typeName;
+			public String picture;
+			public List<AmmoCargo> ammoCargo;
+			public int count;
+
+			public static class AmmoCargo
+			{
+				public AmmoCargo(int id, long amount, String picture)
+				{
+					this.id = id;
+					this.amount = amount;
+					this.picture = picture;
+				}
+				int id;
+				long amount;
+				String picture;
+			}
 		}
 
 		public static class BaseViewModel
