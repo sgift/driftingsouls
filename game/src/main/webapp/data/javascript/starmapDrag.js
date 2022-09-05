@@ -81,6 +81,33 @@ var Starmap = function(){
         return scanships;
     }
 
+    function loadImpObjects()
+    {
+        jQuery.getJSON(DS.getUrl(),{FORMAT:'JSON', module:'impobjects', action:'json', system:system.system})
+        .done(function(resp){
+            let container = document.querySelector("#goto-location-form .bekannteObjekte");
+            container.innerHTML = "";
+            container.appendChild(parseHTML(templateKnownPlaces(resp)));
+
+            let destinations = document.querySelectorAll(".single-goto-location.clickable");
+
+            for(let i=0;i<destinations.length;i++)
+            {
+                let destination = destinations[i];
+                var listElement = destination.closest("li");
+                let x = listElement.querySelector("[name=x]").value;
+                let y = listElement.querySelector("[name=y]").value;
+
+                destination.addEventListener("click", function(){
+                    starmap.setCoordinates(x, y);
+                }.bind(null, x, y));
+            }
+
+            $('#goto-location').dialog('open');
+        });
+
+    }
+
     this.setSystem = setSystem;
     this.getSystem = getSystem;
 
@@ -98,6 +125,7 @@ var Starmap = function(){
     this.getCurrentShip = getCurrentShip;
     this.abortFlight = abortFlight;
     this.confirmFlight = confirmFlight;
+    this.loadImpObjects = loadImpObjects;
 };
 
 var StarmapCanvas = function(starmap)

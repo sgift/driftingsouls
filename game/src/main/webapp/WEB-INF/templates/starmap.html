@@ -9,6 +9,7 @@
     <link rel="stylesheet" type="text/css" href="./data/css/ui-darkness/00_jquery-ui-1.8.20.css"/>
     <link rel="stylesheet" type="text/css" href="./data/css/ui-darkness/10_jquery-ui.css"/>
     <link rel="stylesheet" type="text/css" href="./data/css/starmapNew.css"/>
+    <link rel="stylesheet" type="text/css" href="./data/css/starmapScanfields.css"/>
 
     <input type="hidden" name="currentDsModule" id="currentDsModule" value="base">
     <script src="./data/javascript/jquery.js" type="text/javascript"></script>
@@ -62,7 +63,7 @@
 <div id="mapmenubar" class="gfxbox ng-scope">
     <div class="content">
         <a id="showSystemauswahl" title="System auswählen" onclick="$('#systemauswahl').dialog('open')" href="#"><img src="data/interface/impobjects.gif" alt="?"></a>
-        <a id="gotoLocation" title="Zu Position springen" onclick="$('#goto-location').dialog('open');" href="#"><img src="data/interface/goto.svg" alt="?"></a>
+        <a id="gotoLocation" title="Zu Position springen" onclick="starmap.loadImpObjects()" href="#"><img src="data/interface/goto.svg" alt="?"></a>
         <a id="showStarmap" title="Bekannte Sternensysteme" ds-popup-control-open="starmapSystemOverviewPopup" href="#"><img src="data/interface/jumpnode.svg" alt="?"></a>
         <a id="reloadStarmap" onclick="ReloadSystem()"><img src="data/interface/reload.svg" alt="?" style="width:19px;" class="clickable"></a>
     </div>
@@ -163,31 +164,7 @@
 <div id="goto-location" class="gfxbox" style="display:none; width: auto; min-height: 0px; max-height: none; height: 328px;" title="Zur Position springen">
     <form id="goto-location-form">
         <div class="bekannteObjekte">
-            <ul>
-                <li ng-show="sprungpunkte.length>0" style="display: none;">Sprungpunkte
-                    <ul>
-                        <!-- ngRepeat: sprungpunkt in sprungpunkte -->
-                    </ul>
-                </li>
-                <li ng-show="posten.length>0" style="">Handelsposten
-                    <ul>
-                        <!-- ngRepeat: hp in posten --><li ng-repeat="hp in posten" class="ng-scope">
-                        <a ds-popup-control-close="@this" ng-click="zurPositionSpringen(hp)" href="" class="ng-binding">1/1 - GTU Dropzone Sherkat</a>
-                    </li><li ng-repeat="hp in posten" class="ng-scope">
-                        <a ds-popup-control-close="@this" ng-click="zurPositionSpringen(hp)" href="" class="ng-binding">2/2 - YoYoYoMOSSERFAGGA</a>
-                    </li><li ng-repeat="hp in posten" class="ng-scope">
-                        <a ds-popup-control-close="@this" ng-click="zurPositionSpringen(hp)" href="" class="ng-binding">10/10 - Arcadia</a>
-                    </li>
-                    </ul>
-                </li>
-                <li ng-show="basen.length>0" style="">Basen
-                    <ul>
-                        <!-- ngRepeat: basis in basen --><li ng-repeat="basis in basen" class="ng-scope">
-                        <a ds-popup-control-close="@this" ng-click="zurPositionSpringen(basis)" href="" class="ng-binding">30/30 - Verlassener Asteroid</a>
-                    </li>
-                    </ul>
-                </li>
-            </ul>
+
         </div>
         <label>Eigene Position eingeben</label>
         <input id="goto-x" type="text" size="3" class="" value="1">/
