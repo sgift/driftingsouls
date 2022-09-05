@@ -13,6 +13,7 @@ import net.driftingsouls.ds2.server.map.UserData;
 import net.driftingsouls.ds2.server.ships.FleetsOverviewView;
 import net.driftingsouls.ds2.server.ships.ShipBookmarkView;
 import net.driftingsouls.ds2.server.ships.MoveableShip;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
 import org.jooq.Name;
 import org.jooq.Query;
 import org.jooq.Records;
@@ -23,6 +24,7 @@ import org.jooq.impl.DSL;
 import java.sql.SQLException;
 import java.util.*;
 
+import static java.util.stream.Collectors.toUnmodifiableSet;
 import static net.driftingsouls.ds2.server.entities.jooq.Tables.*;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.FriendlyNebelScanRanges.FRIENDLY_NEBEL_SCAN_RANGES;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.FriendlyScanRanges.FRIENDLY_SCAN_RANGES;
@@ -66,8 +68,12 @@ public class ShipsRepository {
             var db = DBUtil.getDSLContext(conn);
             try(var scanDataSelect = db
                     .selectFrom(FRIENDLY_SCAN_RANGES)
-                    .where(FRIENDLY_SCAN_RANGES.TARGET_ID.eq(userid)
-                            .and(FRIENDLY_SCAN_RANGES.STAR_SYSTEM.eq(system)))) {
+                    .where(FRIENDLY_SCAN_RANGES.STAR_SYSTEM.eq(system)
+                            .and((FRIENDLY_SCAN_RANGES.TARGET_ID.eq(userid)
+                                    .and(FRIENDLY_SCAN_RANGES.STATUS1.eq(2L)
+                                    .and(FRIENDLY_SCAN_RANGES.STATUS2.eq(2L))))
+                                    .or(FRIENDLY_SCAN_RANGES.OWNER.eq(userid))))
+                        ) {
                 var result = scanDataSelect.fetch();
                 for (var record : result) {
                     var scanData = new ScanData(system, record.getX(), record.getY(), record.getId(), record.getOwner(), record.getSensorStatus().intValue(), record.getSensorRange().intValue());
@@ -88,8 +94,11 @@ public class ShipsRepository {
             var db = DBUtil.getDSLContext(conn);
             try(var scanDataSelect = db
                     .selectFrom(FRIENDLY_NEBEL_SCAN_RANGES)
-                    .where(FRIENDLY_NEBEL_SCAN_RANGES.TARGET_ID.eq(userid)
-                            .and(FRIENDLY_NEBEL_SCAN_RANGES.STAR_SYSTEM.eq(system)))) {
+                    .where(FRIENDLY_NEBEL_SCAN_RANGES.STAR_SYSTEM.eq(system)
+                            .and((FRIENDLY_NEBEL_SCAN_RANGES.TARGET_ID.eq(userid)
+                                    .and(FRIENDLY_NEBEL_SCAN_RANGES.STATUS1.eq(2L)
+                                            .and(FRIENDLY_NEBEL_SCAN_RANGES.STATUS2.eq(2L))))
+                                    .or(FRIENDLY_NEBEL_SCAN_RANGES.OWNER.eq(userid))))) {
                 var result = scanDataSelect.fetch();
                 for (var record : result) {
                     var scanData = new ScanData(system, record.getX(), record.getY(), record.getId(), record.getOwner(), record.getSensorStatus().intValue(), record.getSensorRange().intValue());
@@ -457,5 +466,30 @@ public class ShipsRepository {
             throw new RuntimeException(e);
         }
         return map;
+    }
+
+    public static Set<Location> getRockPositions(int system)
+    {
+
+        try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
+            var db = DBUtil.getDSLContext(conn);
+
+            var rockSelect = db.select(SHIPS.X, SHIPS.Y)
+                    .from(SHIPS)
+                    .join(SHIP_TYPES)
+                    .on(SHIP_TYPES.CLASS.eq(ShipClasses.FELSBROCKEN.ordinal()).and(SHIP_TYPES.ID.eq(SHIPS.TYPE)))
+                    .where(SHIPS.STAR_SYSTEM.eq(system));
+
+            try(rockSelect; var rocks = rockSelect.stream()) {
+                var rockPositions = rocks
+                        .map(rock -> new Location(system, rock.value1(), rock.value2()))
+                        .collect(toUnmodifiableSet());
+                return rockPositions;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+
     }
 }

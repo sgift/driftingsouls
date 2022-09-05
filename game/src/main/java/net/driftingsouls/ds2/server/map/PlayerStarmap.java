@@ -77,6 +77,7 @@ public class PlayerStarmap extends PublicStarmap
 		for(var scanShip : nebulaScanShips)
 		{
 			addScanShipToMap(scanShip, scanMap, true);
+			addScanShipToMap(scanShip, nebulaScanMap, true);
 		}
 	}
 
@@ -230,21 +231,28 @@ public class PlayerStarmap extends PublicStarmap
 			}
 		}
 
-		if(!map.isNebula(location) || scannedLocationsToScannerId.containsKey(location))
+		if(map.getRockPositions().contains(location))
 		{
-			if(map.getRockPositions().contains(location))
+			boolean isRockVisible = false;
+			if(map.isNebula(location))
 			{
-
-				return new SectorImage("data/starmap/base/brocken.png", 0, 0);
-
+				for (var nebelscanner: nebulaScanMap.values()) {
+					isRockVisible = isRockVisible || (nebelscanner.getLocation().sameSector(nebelscanner.getScanRange(), location, 0));
+					if(isRockVisible) break;
+				}
 			}
+			else{ isRockVisible = true; }
+
+			if(isRockVisible) return new SectorImage("data/starmap/base/brocken.png", 0, 0);
+		}
+
+		else
+		{
+
 		}
 
 		return null;
 	}
-
-
-
 
 	@Override
 	public SectorImage getSectorOverlayImage(Location location)
@@ -274,13 +282,22 @@ public class PlayerStarmap extends PublicStarmap
 			.filter(base -> base.getOwnerId() != -1)
 			.anyMatch(base -> base.getOwnerId() == user.getId());
 
+
+		Nebel.Typ nebula = this.map.getNebulaMap().get(location);
+		int minSize;
+		if(nebula != null) {
+			minSize = nebula.getMinScansize();
+		} else {
+			minSize = 0;
+		}
+
+
 		int maxEnemyShipSize;
 		int maxNeutralShipSize;
 
 		if(baseInSector || isScanned(location))
 		{
 			boolean scanningShipInSector = scanMap.containsKey(location);
-			Nebel.Typ nebula = this.map.getNebulaMap().get(location);
 			if(!baseInSector && !scanningShipInSector && nebula != null && !nebula.allowsScan()) {
 				maxNeutralShipSize = -1;
 				maxEnemyShipSize = -1;
@@ -320,13 +337,12 @@ public class PlayerStarmap extends PublicStarmap
 		{
 			imageName += "_fa";
 		}
-
-		Nebel.Typ nebula = this.map.getNebulaMap().get(location);
-		int minSize;
-		if(nebula != null) {
-			minSize = nebula.getMinScansize();
-		} else {
-			minSize = 0;
+		else if(oneSidedAllyShipMap.containsKey(location))
+		{
+			if(oneSidedAllyShipMap.get(location).getSize() > minSize)
+			{
+				imageName += "_fa";
+			}
 		}
 
 		if(maxEnemyShipSize > minSize)
@@ -385,6 +401,7 @@ public class PlayerStarmap extends PublicStarmap
 	{
 		var newEnemyShipMap = new HashMap<Location, NonFriendScanData>();
 		var newNeutralShipMap = new HashMap<Location, NonFriendScanData>();
+		var newOneSidedAllyShipMap = new HashMap<Location, NonFriendScanData>();
 
 		var routine = new GetEnemyShipsInSystem();
 		routine.setUserid(user.getId());
@@ -403,15 +420,20 @@ public class PlayerStarmap extends PublicStarmap
 							record.get(SHIPS.X),
 							record.get(SHIPS.Y),
 							record.get("max_size", Long.class).intValue(),
-							Objects.requireNonNullElse(record.get(USER_RELATIONS.STATUS), 0) == 1
+							record.get("relation_to_user", Long.class).intValue(),
+							record.get("relation_from_user", Long.class).intValue()
 						);
 
-						if (scanData.getIsEnemy())
+						if (scanData.getRelation() == User.Relation.FRIEND)
+						{
+							newOneSidedAllyShipMap.put(scanData.getLocation(), scanData);
+						}
+						else if(scanData.getRelation() == User.Relation.NEUTRAL) {
+							newNeutralShipMap.put(scanData.getLocation(), scanData);
+						}
+						else
 						{
 							newEnemyShipMap.put(scanData.getLocation(), scanData);
-						}
-						else {
-							newNeutralShipMap.put(scanData.getLocation(), scanData);
 						}
 					}
 				}
@@ -428,6 +450,7 @@ public class PlayerStarmap extends PublicStarmap
 
 		neutralShipMap = newNeutralShipMap;
 		enemyShipMap = newEnemyShipMap;
+		oneSidedAllyShipMap = newOneSidedAllyShipMap;
 	}
 
 	/**
