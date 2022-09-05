@@ -266,3 +266,29 @@ const templateScansector = data => /*html*/
 const templateScannedSector = data => `<div class="clickable" onclick="loadSectorData(${data.x}, ${data.y}, ${data.scanner})" style="grid-column-start:${data.x};grid-column-end:${data.x};grid-row-start:${data.y};grid-row-end:${data.y};${data.bg != null && data.bg.image != undefined ? 'background-image:url('+data.bg.image+')' : ''}">
 ${data.fg!=null ? data.battle ? '<img class="fg battle" src="'+data.fg+'"/>' : '<img class="fg" src="'+data.fg+'"/>' : ""}
 </div>`;
+
+const templateKnownPlaces = data => `
+    <ul>
+        <li>Sprungpunkte
+            ${data.jumpnodes != null && data.jumpnodes.length > 0 ? "<ul>" + allKnownJns(data.jumpnodes) + "</ul>": ""}
+        </li>
+        <li>Handelsposten
+            ${data.posten != null && data.posten.length > 0 ? "<ul>" + allKnownTps(data.posten) + "</ul>": ""}
+        </li>
+        <li>Basen
+            ${data.bases != null && data.bases.length > 0 ? "<ul>" + allKnownBases(data.bases) + "</ul>": ""}
+        </li>
+    </ul>
+`;
+
+const allKnownJns = jns => jns.map(list => { return templateKnownPlacesNode(list) + "\n" }).join("");
+const allKnownTps = tps => tps.map(list => { return templateKnownPlacesNode(list) + "\n" }).join("");
+const allKnownBases = bases => bases.map(list => { return templateKnownPlacesNode(list) + "\n" }).join("");
+
+const templateKnownPlacesNode = node => `
+    <li>
+        <input name="x" type="hidden" value="${node.x}"/>
+        <input name="y" type="hidden" value="${node.y}"/>
+        <input class="single-goto-location clickable goto-link" type="button" value="${node.x}/${node.y} - ${node.name}">
+    </li>
+`;

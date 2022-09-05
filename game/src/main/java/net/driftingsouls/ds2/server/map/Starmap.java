@@ -4,8 +4,7 @@ import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.DBUtil;
-import net.driftingsouls.ds2.server.repositories.BasesRepository;
-import net.driftingsouls.ds2.server.repositories.NebulaRepository;
+import net.driftingsouls.ds2.server.repositories.*;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 
 import java.sql.SQLException;
@@ -30,7 +29,7 @@ import static net.driftingsouls.ds2.server.entities.jooq.tables.Ships.SHIPS;
  *
  * @author Sebastian Gift
  */
-class Starmap
+public class Starmap
 {
 	private final int system;
 
@@ -64,23 +63,7 @@ class Starmap
 	Set<Location> getRockPositions()
 	{
 		if( this.rockPositions == null ) {
-			try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
-				var db = DBUtil.getDSLContext(conn);
-
-				var rockSelect = db.select(SHIPS.X, SHIPS.Y)
-					.from(SHIPS)
-					.join(SHIP_TYPES)
-					.on(SHIP_TYPES.CLASS.eq(ShipClasses.FELSBROCKEN.ordinal()).and(SHIP_TYPES.ID.eq(SHIPS.TYPE)))
-					.where(SHIPS.STAR_SYSTEM.eq(system));
-
-				try(rockSelect; var rocks = rockSelect.stream()) {
-					rockPositions = rocks
-						.map(rock -> new Location(system, rock.value1(), rock.value2()))
-						.collect(toUnmodifiableSet());
-				}
-			} catch (SQLException e) {
-				throw new RuntimeException(e);
-			}
+			rockPositions = ShipsRepository.getRockPositions(system);
 		}
 		return rockPositions;
 	}
@@ -103,23 +86,7 @@ class Starmap
 	 */
 	Set<Location> getBattlePositions()
 	{
-		if( this.battlePositions == null ) {
-			try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
-				var db = DBUtil.getDSLContext(conn);
-				var battleSelect = db
-					.select(BATTLES.X, BATTLES.Y)
-					.from(BATTLES)
-					.where(BATTLES.STAR_SYSTEM.eq(system));
-
-				try(battleSelect; var battles = battleSelect.stream()) {
-					this.battlePositions = battles
-						.map(battle -> new Location(system, battle.value1(), battle.value2()))
-						.collect(toUnmodifiableSet());
-				}
-			} catch (SQLException e) {
-				throw new RuntimeException(e);
-			}
-		}
+		if( this.battlePositions == null ) this.battlePositions = BattleRepository.getBattlePositionsInSystem(system);
 		return battlePositions;
 	}
 
@@ -155,20 +122,14 @@ class Starmap
 			return;
 		}
 
-		var nodes = new HashSet<JumpNode>();
-		try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
-			var db = DBUtil.getDSLContext(conn);
-			var result = db.select(JUMPNODES.X, JUMPNODES.Y, JUMPNODES.HIDDEN)
-				.from(JUMPNODES)
-				.where(JUMPNODES.STAR_SYSTEM.eq(system))
-				.fetch();
-			for(var record: result) {
-				nodes.add(new JumpNode(record.value1(), record.value2(), record.value3() != 0));
-			}
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
+		var newJumpNodes = new HashSet<JumpNode>();
+		var jumpnodes = JumpNodeRepository.getInstance().getJumpNodesInSystem(system);
+
+		for (var jumpnode : jumpnodes.values()) {
+			newJumpNodes.add(jumpnode);
 		}
-		this.nodes = Collections.unmodifiableSet(nodes);
+
+		this.nodes = Collections.unmodifiableSet(newJumpNodes);
 	}
 
 	/**
@@ -215,12 +176,12 @@ class Starmap
 		return baseMap;
 	}
 
-	protected static class JumpNode {
+	public static class JumpNode {
 		private final int x;
 		private final int y;
 		private final boolean hidden;
 
-		protected JumpNode(int x, int y, boolean hidden) {
+		public JumpNode(int x, int y, boolean hidden) {
 			this.x = x;
 			this.y = y;
 			this.hidden = hidden;
