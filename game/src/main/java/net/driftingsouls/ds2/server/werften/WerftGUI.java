@@ -797,7 +797,7 @@ public class WerftGUI {
 		}
 
 		Cargo cargo = werft.getCargo(false);
-		List<ItemCargoEntry<Schiffsmodul>> itemlist = cargo.getItemsOfType(Schiffsmodul.class);
+		List<ItemCargoEntry<Schiffsmodul>> itemlist = cargo.getShipModules();
 
 		// Slots (Mit Belegung) ausgeben
 		for (String[] aslot : moduleslots)
@@ -820,16 +820,27 @@ public class WerftGUI {
 			}
 			else
 			{
+				System.out.println("else in usedSlots.containsKey()");
+				System.out.println(itemlist.size());
+
 				for (ItemCargoEntry<Schiffsmodul> anItemlist : itemlist)
 				{
 					IEModule effect = anItemlist.getShipModule().getEffect();
+
+					System.out.println(ModuleSlots.get().slot(aslot[1]).getName());
+					System.out.println(aslot[1]);
 					if (!ModuleSlots.get().slot(aslot[1]).isMemberIn(effect.getSlots()))
 					{
+						System.out.println("continue caused by");
+						System.out.println(ModuleSlots.get().slot(aslot[1]).getName());
+						System.out.println(aslot[1]);
 						continue;
 					}
 					var itemData = anItemlist.getItem();
 					if (itemData.getAccessLevel() > user.getAccessLevel())
 					{
+						System.out.println(itemData.getAccessLevel());
+						System.out.println(user.getAccessLevel());
 						continue;
 					}
 
