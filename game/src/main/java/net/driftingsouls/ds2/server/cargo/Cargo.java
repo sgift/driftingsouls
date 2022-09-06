@@ -18,7 +18,8 @@
  */
 package net.driftingsouls.ds2.server.cargo;
 
-import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.config.items.*;
+import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.repositories.ItemRepository;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
@@ -1078,19 +1079,47 @@ public class Cargo implements Cloneable {
 		var itemDao = ItemRepository.getInstance();
 		List<ItemCargoEntry<T>> itemlist = new ArrayList<>();
 
+		var type = ItemEffect.Type.NONE;
+
+		if(itemType == Schiffsmodul.class) type = ItemEffect.Type.MODULE;
+		else if(itemType == IffDeaktivierenItem.class) type = ItemEffect.Type.DISABLE_IFF;
+		else if(itemType == Munition.class) type = ItemEffect.Type.AMMO;
+		else if(itemType == Munitionsbauplan.class) type = ItemEffect.Type.DRAFT_AMMO;
+		else if(itemType == Schiffsbauplan.class) type = ItemEffect.Type.DRAFT_SHIP;
+		else if(itemType == Schiffsverbot.class) type = ItemEffect.Type.DISABLE_SHIP;
+		else if(itemType == Ware.class) type = ItemEffect.Type.NONE;
+
+
 		for (Long[] aitem : items)
 		{
 			final int itemid = aitem[0].intValue();
 			var item = itemDao.getItemData(itemid);
 
-			if (item == null)
+			if (item == null || item.getType() != type)
 			{
 				continue;
 			}
-			if (!itemType.isInstance(item))
+
+			itemlist.add(new ItemCargoEntry<>(this, item.getId(), aitem[1], aitem[2].intValue(), aitem[3].intValue()));
+		}
+
+		return itemlist;
+	}
+	public List<ItemCargoEntry<Schiffsmodul>> getShipModules()
+	{
+		var itemDao = ItemRepository.getInstance();
+		List<ItemCargoEntry<Schiffsmodul>> itemlist = new ArrayList<>();
+
+		for (Long[] aitem : items)
+		{
+			final int itemid = aitem[0].intValue();
+			var item = itemDao.getItemData(itemid);
+
+			if (item == null || item.getType() != ItemEffect.Type.MODULE)
 			{
 				continue;
 			}
+
 			itemlist.add(new ItemCargoEntry<>(this, item.getId(), aitem[1], aitem[2].intValue(), aitem[3].intValue()));
 		}
 

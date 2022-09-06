@@ -100,6 +100,7 @@ var Starmap = function(){
 
                 destination.addEventListener("click", function(){
                     starmap.setCoordinates(x, y);
+                    $('#goto-location').dialog('close');
                 }.bind(null, x, y));
             }
 
