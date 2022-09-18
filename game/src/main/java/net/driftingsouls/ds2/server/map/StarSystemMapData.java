@@ -12,6 +12,7 @@ public class StarSystemMapData {
     public List<Integer> jns;
     public boolean ships;
     public StarSystemMapAlliance alliance;
+    public String color;
 
 
     public StarSystemMapData(int id, String name, int mapX, int mapY, int radius, List<Integer> jns, boolean ships, StarSystemMapAlliance alliance) {
@@ -23,6 +24,7 @@ public class StarSystemMapData {
         this.jns = jns;
         this.ships = ships;
         this.alliance = alliance;
+        this.color = alliance.color;
     }
 
     public static class StarSystemMapAlliance

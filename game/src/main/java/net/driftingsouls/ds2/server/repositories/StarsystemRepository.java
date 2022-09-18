@@ -81,6 +81,7 @@ public class StarsystemRepository {
 
             try(var select = db
                     .selectFrom(SYSTEMS)
+                    .where(SYSTEMS.ACCESS.eq(1))
             ) {
                 var fetch = select.fetch();
                 var result = new ArrayList<StarSystemMapData>();
@@ -109,6 +110,7 @@ public class StarsystemRepository {
 
             try(var select = db
                     .selectFrom(JUMPNODES)
+                        .where(JUMPNODES.HIDDEN.eq(0))
             ) {
                 var jumpnodes = select.fetch();
                 var result = new HashMap<Integer, List<Integer>>();
