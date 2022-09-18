@@ -97,8 +97,8 @@ public class ShipsRepository {
                     .where(FRIENDLY_NEBEL_SCAN_RANGES.STAR_SYSTEM.eq(system)
                             .and((FRIENDLY_NEBEL_SCAN_RANGES.TARGET_ID.eq(userid)
                                     .and(FRIENDLY_NEBEL_SCAN_RANGES.STATUS1.eq(2L)
-                                            .and(FRIENDLY_NEBEL_SCAN_RANGES.STATUS2.eq(2L))))
-                                    .or(FRIENDLY_NEBEL_SCAN_RANGES.OWNER.eq(userid))))) {
+                                    .and(FRIENDLY_NEBEL_SCAN_RANGES.STATUS2.eq(2L))))
+                                .or(FRIENDLY_NEBEL_SCAN_RANGES.OWNER.eq(userid))))) {
                 var result = scanDataSelect.fetch();
                 for (var record : result) {
                     var scanData = new ScanData(system, record.getX(), record.getY(), record.getId(), record.getOwner(), record.getSensorStatus().intValue(), record.getSensorRange().intValue());
@@ -132,7 +132,8 @@ public class ShipsRepository {
                     .from(SHIPS)
                     .innerJoin(SHIP_TYPES).on(SHIP_TYPES.ID.eq(SHIPS.TYPE))
                     .innerJoin(SCHIFF_EINSTELLUNGEN).on(SHIPS.EINSTELLUNGEN_ID.eq(SCHIFF_EINSTELLUNGEN.ID))
-                    .where(SHIPS.OWNER.eq(userid))) {
+                    .where(SHIPS.OWNER.eq(userid))
+                    .and(SCHIFF_EINSTELLUNGEN.BOOKMARK.isTrue())) {
                 return bookmarkDataSelect.fetch(Records.mapping(ShipBookmarkView::new));
             }
         } catch (SQLException e) {
@@ -382,18 +383,21 @@ public class ShipsRepository {
                                     USERS.NAME)
                             .from(SHIPS)
                             .join(SHIP_TYPES)
-                            .on(SHIPS.TYPE.eq(SHIP_TYPES.ID))
+                                .on(SHIPS.TYPE.eq(SHIP_TYPES.ID))
                             .join(USERS)
-                            .on(SHIPS.OWNER.eq(USERS.ID))
+                                .on(SHIPS.OWNER.eq(USERS.ID))
                             .leftJoin(SHIP_FLEETS)
-                            .on(SHIPS.FLEET.eq(SHIP_FLEETS.ID))
+                                .on(SHIPS.FLEET.eq(SHIP_FLEETS.ID))
+                            .leftJoin(SHIPS_MODULES)
+                                .on(SHIPS_MODULES.ID.eq(SHIPS.MODULES))
                             .where(SHIPS.STAR_SYSTEM.eq(location.getSystem())
                                     .and(SHIPS.X.eq(location.getX()))
-                                    .and(SHIPS.Y.eq(location.getY())));
+                                    .and(SHIPS.Y.eq(location.getY())))
+                            .and((SHIPS_MODULES.SIZE.isNotNull().and(SHIPS_MODULES.SIZE.greaterThan(minSize)).or(SHIPS_MODULES.SIZE.isNull().and(SHIP_TYPES.SIZE.greaterThan(minSize)))))
+                    ;
 
             var landedShips = new HashMap<Integer, List<ShipData>>();
             for(var row: select.fetch()) {
-                //TODO: Compute landed and docked ships
                 ShipData.DockedShipCount dockedCount;
                 if(!docked.containsKey(row.get(SHIPS.ID)))
                 {
@@ -417,10 +421,8 @@ public class ShipsRepository {
 
                 if(userData.id == userid) ownerData = userData;
 
-
-                //TODO: Handle the whole "cannot see enemies if sector not scanned, has nebula and ships are small" thing
-
                 if(ship.isLanded) continue;
+
                 ships.computeIfAbsent(userData, data -> new TreeMap<>())
                         .computeIfAbsent(typeData, data -> new ArrayList<>())
                         .add(ship);

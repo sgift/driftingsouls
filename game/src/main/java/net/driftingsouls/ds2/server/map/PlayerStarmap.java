@@ -73,11 +73,15 @@ public class PlayerStarmap extends PublicStarmap
 		for(var scanship : scanShips)
 		{
 			addScanShipToMap(scanship, scanMap,false);
+			var nebula = this.map.getNebulaMap().get(scanship.getLocation());
+			//int system, int x, int y, int shipId, int ownerId, int scanRange
+			if( nebula != null && !nebula.isEmp() ) addScanShipToMap(new ScanData(scanship.getLocation().getSystem(), scanship.getLocation().getX(), scanship.getLocation().getY(), scanship.getShipId(), scanship.getOwnerId(), 1), nebulaScanMap, true);
 		}
-		for(var scanShip : nebulaScanShips)
+
+		for(var scanship : nebulaScanShips)
 		{
-			addScanShipToMap(scanShip, scanMap, true);
-			addScanShipToMap(scanShip, nebulaScanMap, true);
+			addScanShipToMap(scanship, scanMap, true);
+			addScanShipToMap(scanship, nebulaScanMap, true);
 		}
 	}
 

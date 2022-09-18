@@ -64,7 +64,7 @@
     <div class="content">
         <a id="showSystemauswahl" title="System auswählen" onclick="$('#systemauswahl').dialog('open')" href="#"><img src="data/interface/impobjects.gif" alt="?"></a>
         <a id="gotoLocation" title="Zu Position springen" onclick="starmap.loadImpObjects()" href="#"><img src="data/interface/goto.svg" alt="?"></a>
-        <a id="showStarmap" title="Bekannte Sternensysteme" ds-popup-control-open="starmapSystemOverviewPopup" href="#"><img src="data/interface/jumpnode.svg" alt="?"></a>
+        <a id="showStarmap" title="Bekannte Sternensysteme" onclick="loadStarSystemMap()" href="#"><img src="data/interface/jumpnode.svg" alt="?"></a>
         <a id="reloadStarmap" onclick="ReloadSystem()"><img src="data/interface/reload.svg" alt="?" style="width:19px;" class="clickable"></a>
     </div>
 </div>
@@ -201,6 +201,87 @@
 
 </div>
 
+<div id="starsystem-map">
+    <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 800 600" version="1.1" style="width:100%;height:100%;">
+
+        <style>
+						.system{
+							fill:none;
+							stroke-width:2;
+							stroke:rgb(0, 100, 0);
+						}
+						.system-text{
+
+						}
+						.spherelines
+						{
+							stroke:rgb(0,150,0);
+							fill: transparent;
+							stroke-width: 0.5;
+						}
+						.systemConnection{
+							stroke-width:2;
+							stroke:rgb(50, 50, 50);
+							stroke-linecap: round;
+							pointer-events: all;
+						}
+						.systemConnection:hover{
+							stroke-width:4;
+							cursor: pointer;
+						}
+						.systemRing{
+							pointer-events: all;
+						}
+						.systemRing:hover{
+							cursor: pointer;
+						}
+						path{
+							pointer-events: none;
+						}
+						circle{
+							pointer-events: none;
+						}
+						line{
+							pointer-events:none;
+						}
+					</style>
+
+        <defs id="defs">
+            <filter id="lightingFilter" filterUnits="objectBoundingBox">
+                <feGaussianBlur stdDeviation="30" result="blur1"/>
+                <feSpecularLighting result="specOut" in="blur1" specularConstant="4" specularExponent="30" lighting-color="limegreen">
+                    <feDistantLight azimuth="225" elevation="45"/>
+                </feSpecularLighting>
+                <feComposite in="SourceGraphic" in2="specOut" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="result"/>
+                <feComposite operator="atop" in2="SourceGraphic"/>
+                <feColorMatrix type="matrix" values=
+                        "1 0 0 0 0,
+					0 1 0 0 0,
+					0 0 1 0 0,
+					0 0 0 0.6 0" result="fullOpacity"/>
+                <feColorMatrix in="SourceAlpha" type="matrix" values=
+                        "0 0 0 0 0,
+					0 0 0 0 0,
+					0 0 0 0 0,
+					0 0 0 5 0" result="fullOpacitySource"/>
+                <feComposite operator="in" in="fullOpacity" in2="fullOpacitySource" result="COMPOSITE"/>
+            </filter>
+
+            <radialGradient id="defaultRingGradient">
+                <stop offset="5%" stop-color="rgba(0, 80, 0, 1)" />
+                <stop offset="45%" stop-color="rgba(0, 100, 0, 0.6)" />
+                <stop offset="80%" stop-color="rgba(0, 100, 0, 0.4)" />
+                <stop offset="100%" stop-color="rgba(0, 100, 0, 0.3)" />
+            </radialGradient>
+        </defs>
+
+        <g id="starsystemmap-svg">
+
+
+        </g>
+    </svg>
+</div>
+
 <style>
     .starmap-modal
     {
@@ -213,6 +294,7 @@
 <script src="./data/javascript/starmap.templates.js" type="text/javascript"></script>
 <script src="./data/javascript/starmapDrag.js" type="text/javascript"></script>
 <script src="./data/javascript/starmapNew.js" type="text/javascript"></script>
+<script src="./data/javascript/starmapVoronoi.js" type="text/javascript"></script>
 <script>
 let systemFormData = new FormData();
 systemFormData.set("system", 80);
@@ -246,10 +328,17 @@ systemFormData.set("y", 1);
         width: 400
     });
 
+    $("#starsystem-map").dialog({
+        dialogClass: 'starmap-modal',
+        width: 900,
+        height: 700
+    });
+
     $("#systemauswahl").dialog("close");
     $("#goto-location").dialog("close");
     $("#starmapSectorPopup").dialog("close");
     $("#starmaploader").dialog("close");
+    $("#starsystem-map").dialog("close");
 
     $(document.querySelector(".log")).find('.toggleSize').on('click', function(event) {
         let element = $(document.querySelector(".log"));

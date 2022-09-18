@@ -207,6 +207,11 @@ function loadSectorData(x, y, scanship)
     jQuery.getJSON(getUrl(),{action:'GET_SECTOR_INFORMATION', system:system.system, x:x, y:y, scanship:scanship, admin:system.admin}, function(resp){renderSectorData(resp); $("#starmaploader").dialog("close");});
 }
 
+function loadStarSystemMap()
+{
+    jQuery.getJSON(getUrl(),{action:'GET_STARSYSTEM_MAP_DATA'}, function(resp){generateSystemMap(resp); $("#starsystem-map").dialog("open");});
+}
+
 function renderSectorData(data)
 {
 

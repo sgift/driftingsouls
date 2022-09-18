@@ -89,6 +89,8 @@ public class PlayerFieldView implements FieldView
 			minSize = 0;
 		}
 
+		if(!starmap.isScanned(location) || (getNebel() != null && getNebel().isEmp())) minSize = Integer.MAX_VALUE;
+
 		return ShipsRepository.getShipsInMapSector(this.location, user.getId(), minSize);
 	}
 
