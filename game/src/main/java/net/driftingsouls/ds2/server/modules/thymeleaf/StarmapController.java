@@ -57,6 +57,7 @@ public class StarmapController implements DSController, PermissionResolver {
         GET_SCANFIELDS,
         GET_SCANNED_FIELDS,
         GET_SECTOR_INFORMATION,
+        GET_STARSYSTEM_MAP_DATA,
         DEFAULT
     }
 
@@ -102,6 +103,9 @@ public class StarmapController implements DSController, PermissionResolver {
                 break;
             case GET_SECTOR_INFORMATION:
                 sectorInformation(system, request, response);
+                break;
+            case GET_STARSYSTEM_MAP_DATA:
+                getStarSystemMapData(request, response);
                 break;
             case DEFAULT:
                 defaultAction(ctx, request);
@@ -396,6 +400,17 @@ public class StarmapController implements DSController, PermissionResolver {
         {
             throw new ValidierungException("Sie haben keine entsprechenden Karten");
         }
+    }
+
+    public void getStarSystemMapData(HttpServletRequest request, HttpServletResponse response) throws IOException
+    {
+        prepareResponseForJSON(response);
+
+        var data = StarsystemRepository.getStarSystemMapData(user.getId());
+
+        var json = new Gson().toJson(data);
+        response.getWriter().write(json);
+        response.flushBuffer();
     }
 
     private List<MapController.SectorViewModel.UserWithShips> exportSectorShips(FieldView field, User user, Map<UserData, Map<net.driftingsouls.ds2.server.map.ShipTypeData, List<ShipData>>> ships)
