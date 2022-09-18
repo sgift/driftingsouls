@@ -110,7 +110,7 @@ public class StarsystemRepository {
 
             try(var select = db
                     .selectFrom(JUMPNODES)
-                        .where(JUMPNODES.HIDDEN.isFalse())
+                        .where(JUMPNODES.HIDDEN.eq(0))
             ) {
                 var jumpnodes = select.fetch();
                 var result = new HashMap<Integer, List<Integer>>();
