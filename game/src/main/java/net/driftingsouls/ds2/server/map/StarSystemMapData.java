@@ -39,6 +39,7 @@ public class StarSystemMapData {
             this.id = id;
             this.name = name;
             this.plainname = plainname;
+            this.color = color;
         }
     }
 }
