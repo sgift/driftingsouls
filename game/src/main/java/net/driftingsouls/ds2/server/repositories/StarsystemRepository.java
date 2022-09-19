@@ -76,6 +76,7 @@ public class StarsystemRepository {
         var systemOwners = getSystemOwners();
         var jns = getSystemsJns();
 
+
         try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
             var db = DBUtil.getDSLContext(conn);
 
