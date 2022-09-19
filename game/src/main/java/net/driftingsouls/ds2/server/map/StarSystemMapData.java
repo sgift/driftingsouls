@@ -24,7 +24,7 @@ public class StarSystemMapData {
         this.jns = jns;
         this.ships = ships;
         this.alliance = alliance;
-        this.color = alliance.color;
+        this.color = alliance != null ? alliance.color : "";
     }
 
     public static class StarSystemMapAlliance
