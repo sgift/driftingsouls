@@ -18,16 +18,10 @@ function generateSystemMap(newData)
 	maxR = Math.max(...newData.map(o => o.radius));
     minR = Math.min(...newData.map(o => o.radius));
 
-    console.log(maxR);
-    console.log(minR);
-
 	for (let i=0;i<newData.length;i++) {
             let system = newData[i];
 			system.cr = Math.round(0.24 * system.radius + 14,2);
     }
-
-    console.log(Math.max(...newData.map(o => o.cr)));
-    console.log(Math.min(...newData.map(o => o.cr)));
 
     maxMapX = Math.max(...newData.map(o => o.mapX+o.cr));
     minMapX = Math.min(...newData.map(o => o.mapX-o.cr));
@@ -83,7 +77,7 @@ function drawSystem(system)
             <stop offset="100%" stop-color="rgba(0, 80, 0, 1)" />
         </radialGradient>`;
 
-    if(system.color != undefined)
+    if(system.color != "")
     {
         var gradientDef = `
         <radialGradient id="ringGradient${ringGradient}" >
@@ -94,7 +88,7 @@ function drawSystem(system)
 
     defContainer.innerHTML += gradientDef;
 
-    let color = system.color != undefined ? system.color : "0, 68, 65";
+    let color = system.color != "" ? system.color : "0, 68, 65";
 
     let innerGradientDef = `<radialGradient id="${system.id}innerGradient" >
 		<stop offset="5%" stop-color="rgba(${color}, 1)" />
