@@ -90,10 +90,10 @@ public class StarsystemRepository {
                     //StarSystemMapData(int id, String name, int mapX, int mapY, int radius, List<Integer> jns, boolean ships, StarSystemMapAlliance alliance)
                     var systemId = system.get(SYSTEMS.ID);
                     var systemJns = jns.get(systemId);
-                    var alliance = alliances.get(systemId);
+                    var alliance = alliances.get(systemOwners.get(systemId));
 
                     var systemMapData = new StarSystemMapData(systemId, system.get(SYSTEMS.NAME), system.get(SYSTEMS.MAPX), system.get(SYSTEMS.MAPY),
-                            (int)Math.round(Math.sqrt(system.get(SYSTEMS.WIDTH)*system.get(SYSTEMS.WIDTH) + system.get(SYSTEMS.HEIGHT) * system.get(SYSTEMS.HEIGHT))), systemJns, systemsWithShips.contains(systemId), alliance);
+                            (int)Math.round(0.5 * Math.sqrt(system.get(SYSTEMS.WIDTH) * system.get(SYSTEMS.HEIGHT))), systemJns, systemsWithShips.contains(systemId), alliance);
                     result.add(systemMapData);
                 }
 
@@ -144,7 +144,7 @@ public class StarsystemRepository {
                         .on(USERS.ID.eq(SHIPS.OWNER))
                     .leftJoin(SHIPS_MODULES)
                         .on(SHIPS_MODULES.ID.eq(SHIPS.MODULES))
-                    .where("Locate('nebelscan', ships_modules.flags) OR Locate('nebelscan', ship_types.flags)")
+                    .where("Locate('Tradepost', ships_modules.flags) OR Locate('Tradepost', ship_types.flags)")
                     .groupBy(SHIPS.STAR_SYSTEM, USERS.ALLY)
                     .orderBy(SHIPS.STAR_SYSTEM, DSL.sum(SHIP_TYPES.SIZE).desc())
             ) {

@@ -116,12 +116,12 @@ function drawSystem(system)
 
     if(system.ships)
     {
-      let image = `<image x="${system.cx + system.cr - 10}" y="${system.cy - system.cr - 10}" width="15" height="auto" xlink:href="./icon_schiff.gif" />`;
+      let image = `<image x="${system.cx + system.cr - 10}" y="${system.cy - system.cr - 10}" width="15" xlink:href="../ds/data/interface/schiffe/1/icon_schiff.gif" />`;
       svg += image;
     }
     if(system.group != undefined)
     {
-        let image = `<image x="${system.cx - system.cr - 10}" y="${system.cy + system.cr - 10}" width="15" height="auto" xlink:href="./${system.group}" />`;
+        let image = `<image x="${system.cx - system.cr - 10}" y="${system.cy + system.cr - 10}" width="15" xlink:href="./${system.group}" />`;
         svg += image;
     }
 
@@ -142,10 +142,20 @@ function drawConnection(systemOne, systemTwo)
     dirY = dirY / length;
 
     let color = "rgb(50, 50, 50)";
-    if(systemOne.color == systemTwo.color) color = "rgb(" + systemOne.color + ")";
+    if(systemOne.color == systemTwo.color && systemOne.color != "") color = "rgb(" + systemOne.color + ")";
+
+    let x1 = Math.round(systemOne.cx + (dirX * (systemOne.cr+minDist)), 2);
+    let x2 = Math.round(systemTwo.cx - dirX * (systemTwo.cr+minDist), 2);
+    let y1 = Math.round(systemOne.cy + (dirY * (systemOne.cr+minDist)), 2);
+    let y2 = Math.round(systemTwo.cy - dirY * (systemTwo.cr+minDist), 2);
+
+    if(isNaN(x1) || isNaN(y1) || isNaN(x2) || isNaN(y2))
+    {
+        return "";
+    }
 
 
-    return `<line style="stroke:${color}" class="systemConnection" x1="${Math.round(systemOne.cx + (dirX * (systemOne.cr+minDist)), 2)}" y1="${Math.round(systemOne.cy + (dirY * (systemOne.cr+minDist)), 2)}" x2="${Math.round(systemTwo.cx - dirX * (systemTwo.cr+minDist), 2)}" y2="${Math.round(systemTwo.cy - dirY * (systemTwo.cr+minDist), 2)}" />`;
+    return `<line style="stroke:${color}" class="systemConnection" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" />`;
 
 }
 

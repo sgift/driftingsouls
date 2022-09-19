@@ -32,3 +32,9 @@ input.goto-link{
     background-color: white;
     transform: translate(-50%, -50%);
 }
+
+#starsystem-map{
+    background-image: url('../interface/bg2.jpg');
+    background-color: rgba(0,0,0,0.8);
+    background-blend-mode: overlay;
+}
