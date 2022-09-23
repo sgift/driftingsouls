@@ -349,10 +349,10 @@ public class PlayerStarmap extends PublicStarmap
 			}
 		}
 
-		if(maxEnemyShipSize > minSize)
+		if(maxEnemyShipSize >= minSize)
 		{
 			imageName += "_fe";
-		} else if(maxNeutralShipSize > minSize) {
+		} else if(maxNeutralShipSize >= minSize) {
 			// We only show neutral ships if there are no enemies
 			// enemy ships are more important, and we don't want to clutter the UI
 			imageName += "_fn";

@@ -393,7 +393,7 @@ public class ShipsRepository {
                             .where(SHIPS.STAR_SYSTEM.eq(location.getSystem())
                                     .and(SHIPS.X.eq(location.getX()))
                                     .and(SHIPS.Y.eq(location.getY())))
-                            .and((SHIPS_MODULES.SIZE.isNotNull().and(SHIPS_MODULES.SIZE.greaterThan(minSize)).or(SHIPS_MODULES.SIZE.isNull().and(SHIP_TYPES.SIZE.greaterThan(minSize)))))
+                            .and((SHIPS_MODULES.SIZE.isNotNull().and(SHIPS_MODULES.SIZE.greaterOrEqual(minSize)).or(SHIPS_MODULES.SIZE.isNull().and(SHIP_TYPES.SIZE.greaterOrEqual(minSize)))))
                     ;
 
             var landedShips = new HashMap<Integer, List<ShipData>>();
