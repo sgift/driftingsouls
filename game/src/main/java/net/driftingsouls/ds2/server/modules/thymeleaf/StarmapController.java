@@ -108,7 +108,7 @@ public class StarmapController implements DSController, PermissionResolver {
                 getStarSystemMapData(request, response);
                 break;
             case DEFAULT:
-                defaultAction(ctx, request);
+                defaultAction(system, ctx, request);
                 templateEngine.process("starmap", ctx, response.getWriter());
                 break;
         }
@@ -119,9 +119,21 @@ public class StarmapController implements DSController, PermissionResolver {
      * @param ctx der WebContext
      * @param request der HttpServletRequest (enthaelt die uebergebenen Parameter)
      */
-    private void defaultAction(WebContext ctx, HttpServletRequest request){
+    private void defaultAction(int system, WebContext ctx, HttpServletRequest request){
 
         user = (User) context.getActiveUser();
+
+
+        int x = 1;
+        int y = 1;
+        try {
+            x = Integer.parseInt(request.getParameter("x"));
+            y = Integer.parseInt(request.getParameter("y"));
+        }catch(Exception e){}
+
+        ctx.setVariable("system", system);
+        ctx.setVariable("x", x);
+        ctx.setVariable("y", y);
 
         List<StarsystemsSelectList> systemsViewModel = new ArrayList<>();
 

@@ -44,13 +44,21 @@ public class SingleUserRelationsService {
                             (
                                 USER_RELATIONS.USER_ID.eq(userId)
                                     .or(USER_RELATIONS.TARGET_ID.eq(userId))
+                                    .or(USER_RELATIONS.TARGET_ID.eq(0))
                             )
                 ) {
                 var result = userRelations.fetch();
 
                 for (var row : result) {
                     var urd = new UserRelationData(row.getValue(USER_RELATIONS.USER_ID), row.getValue(USER_RELATIONS.TARGET_ID), row.getValue(USER_RELATIONS.STATUS));
-                    if (urd.getUserId() == userId) // Meine Beziehung zu anderen Spielern
+                    if(urd.getTargetUserId() == 0)
+                    {
+                        if (!userRelationData.containsKey(0)) {
+                            userRelationData.put(0, new ArrayList<>());
+                        }
+                        userRelationData.get(0).add(urd);
+                    }
+                    else if (urd.getUserId() == userId) // Meine Beziehung zu anderen Spielern
                     {
                         if (!userRelationData.containsKey(urd.getTargetUserId())) {
                             userRelationData.put(urd.getTargetUserId(), new ArrayList<>());
@@ -76,26 +84,35 @@ public class SingleUserRelationsService {
     public boolean isMutualFriendTo(int targetId) {
         var userRelations = getUserRelationData();
 
-        var areMutualFriends = false;
-        if (userRelations.containsKey(targetId))
-            areMutualFriends = userRelations.get(targetId).stream().filter(x -> x.getStatus() == 2).count() == 2;
-
-        return areMutualFriends;
+        if(beziehungVon(targetId) == User.Relation.FRIEND && beziehungZu(targetId) == User.Relation.FRIEND )
+        {
+            return true;
+        }
+        else return false;
     }
 
     public User.Relation beziehungZu(User otherUser){return beziehungZu(otherUser.getId());}
     public User.Relation beziehungZu(int otherUserId)
     {
+        System.out.println("Beziehung zu user: " + otherUserId);
+
         var userRelations = getUserRelationData();
 
-        if (!userRelations.containsKey(otherUserId) ||userRelations.get(otherUserId).size() == 0)
+        User.Relation myDefaultRelation = User.Relation.ENEMY;
+        for (var relation:userRelations.get(0)) {
+            if(relation.getUserId() == userId) myDefaultRelation = User.getRelation(relation.getStatus());
+        }
+        System.out.println("Beziehung zu default: " + myDefaultRelation.toString());
+
+        if(!userRelations.containsKey(otherUserId))
         {
-            return User.Relation.NEUTRAL;
+            System.out.println("Beziehung zu default wird verwendet: " + myDefaultRelation.toString());
+            return myDefaultRelation;
         }
         else{
             var relations = userRelations.get(otherUserId);
 
-            var resultRelation = User.Relation.NEUTRAL;
+            var resultRelation = myDefaultRelation;
             for(var relation : relations)
             {
                 if(relation.getUserId() == userId)
@@ -103,6 +120,8 @@ public class SingleUserRelationsService {
                     resultRelation = User.Relation.values()[relation.getStatus()];
                 }
             }
+
+            System.out.println("Beziehung zu else: " + resultRelation.toString());
             return resultRelation;
         }
     }
@@ -115,16 +134,26 @@ public class SingleUserRelationsService {
      */
     public User.Relation beziehungVon(int otherUserId)
     {
+        System.out.println("Beziehung von user: " + otherUserId);
         var userRelations = getUserRelationData();
 
-        if (!userRelations.containsKey(otherUserId) ||userRelations.get(otherUserId).size() == 0)
-        {
-            return User.Relation.NEUTRAL;
+        User.Relation othersDefaultRelation = User.Relation.ENEMY;
+        for (var relation:userRelations.get(0)) {
+            if(relation.getUserId() == otherUserId) othersDefaultRelation = User.getRelation(relation.getStatus());
         }
+        System.out.println("Beziehung von default: " + othersDefaultRelation.toString());
+
+
+        if(!userRelations.containsKey(otherUserId))
+        {
+            System.out.println("Beziehung von default verwendet: " + othersDefaultRelation.toString());
+            return othersDefaultRelation;
+        }
+
         else{
             var relations = userRelations.get(otherUserId);
 
-            var resultRelation = User.Relation.NEUTRAL;
+            var resultRelation = othersDefaultRelation;
             for(var relation : relations)
             {
                 if(relation.getTargetUserId() == userId)
@@ -132,6 +161,8 @@ public class SingleUserRelationsService {
                     resultRelation = User.Relation.values()[relation.getStatus()];
                 }
             }
+            System.out.println("Beziehung von else: " + resultRelation.toString());
+
             return resultRelation;
         }
     }

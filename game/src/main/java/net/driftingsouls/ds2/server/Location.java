@@ -27,6 +27,7 @@ import javax.persistence.Embeddable;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Eine Positionsklasse.
@@ -313,23 +314,59 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 		Nebel.Typ nebulaType = Nebel.getNebula(this);
 
 		StringBuilder text = new StringBuilder(8);
+		text.append("system=");
 		text.append(system);
-		text.append("/");
+		text.append("&");
+		text.append("x=");
+
+		Random rand = new Random();
+		var signX = rand.nextInt(10);
+		var signY = rand.nextInt(10);
 
 		if( nebulaType == Nebel.Typ.LOW_EMP ) {
-			text.append(x / 10);
-			text.append("x/");
-			text.append(y / 10);
-			text.append('x');
+			var randX = rand.nextInt(8)+3;
+			var randY = rand.nextInt(8)+3;
+
+			if(signX <= 4) randX *= -1;
+			if(signY <= 4) randY *= -1;
+
+
+			text.append(x+randX);
+			text.append("&y=");
+			text.append(y+randY);
+
 
 			return text.toString();
 		}
-		else if( (nebulaType == Nebel.Typ.MEDIUM_EMP) || (nebulaType == Nebel.Typ.STRONG_EMP) ) {
-			text.append("xx/xx");
+		else if( (nebulaType == Nebel.Typ.MEDIUM_EMP)) {
+			var randX = rand.nextInt(10)+8;
+			var randY = rand.nextInt(10)+8;
+
+
+			if(signX <= 4) randX *= -1;
+			if(signY <= 4) randY *= -1;
+
+			text.append(x+randX);
+			text.append("&y=");
+			text.append(y+randY);
+
+			return text.toString();
+		}
+		else if((nebulaType == Nebel.Typ.STRONG_EMP))
+		{
+			var randX = rand.nextInt(15)+15;
+			var randY = rand.nextInt(15)+15;
+
+			if(signX <= 4) randX *= -1;
+			if(signY <= 4) randY *= -1;
+
+			text.append(x+randX);
+			text.append("&y=");
+			text.append(y+randY);
 			return text.toString();
 		}
 		text.append(x);
-		text.append('/');
+		text.append("&y=");
 		text.append(y);
 
 		return text.toString();
