@@ -21,7 +21,7 @@
 	<table class="show" cellspacing="3" cellpadding="3">
 	<tr>
 		<td class="schiff">
-			{ship.name} ({ship.id}) {if ! ship.islanded} - <a class="forschinfo" href="./client#/map/{ship.location.url}">{ship.location}</a> {/endif}
+			{ship.name} ({ship.id}) {if ! ship.islanded} - <a class="forschinfo" href="./starmap?{ship.location.url}">{ship.location}</a> {/endif}
 		</td>
 		<td class="schiff">Navigation</td>
 		<td class="schiff" style="width:10px" align="right">

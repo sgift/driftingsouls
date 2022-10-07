@@ -38,3 +38,8 @@ input.goto-link{
     background-color: rgba(0,0,0,0.8);
     background-blend-mode: overlay;
 }
+
+.roter-alarm
+{
+    background-color: rgba(255,164,0,0.25);
+}

@@ -72,7 +72,7 @@
                     <div class="col gfxbox" style="flex-direction:row;justify-content:space-between;display:flex;">
                         <span>
                             <input type="hidden" id="baseId" th:value="${base.getId()}" style="margin-left:5px;margin-right:5px;"/>
-                            <a style="margin-left:5px;margin-right:5px;display: inline-flex;" title="Zur Sternenkarte wechseln" class="forschinfo" th:href="'ds?module=client#/map/'+${base.getSystem()}+'/'+${base.getX()}+'/'+${base.getY()}" >
+                            <a style="margin-left:5px;margin-right:5px;display: inline-flex;" title="Zur Sternenkarte wechseln" class="forschinfo" th:href="'starmap?system='+${base.getSystem()}+'&x='+${base.getX()}+'&y='+${base.getY()}" >
                                 <img src="data/interface/impobjects.gif" alt="?"><span style="align-self: baseline;">[(${base.getSystem()})]:[(${base.getX()})]/[(${base.getY()})]</span>
                             </a>
                             <span style="margin-left:2px;margin-right:2px;" id="baseName" th:utext="${base.getPlainName()}+' ('+${base.getId()}+')'">Koloniename (ID)</span>

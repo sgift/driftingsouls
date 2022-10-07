@@ -120,6 +120,17 @@ public class User extends BasicUser {
 		FRIEND		// 2
 	}
 
+	public static User.Relation getRelation(int relation)
+	{
+		switch(relation)
+		{
+			case 0: return Relation.NEUTRAL;
+			case 1: return Relation.ENEMY;
+			case 2: return Relation.FRIEND;
+			default: throw new IllegalArgumentException("There's no relation with index:" + relation);
+		}
+	}
+
 	/**
 	 * Klasse, welche die Beziehungen eines Spielers zu anderen
 	 * Spielern enthaelt.

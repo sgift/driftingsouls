@@ -264,7 +264,7 @@ const templateScansector = data => /*html*/
 
 //const templateScannedSector = data => `<div onclick="loadSectorData(${data.x}, ${data.y}, ${data.scanner})" style="width:25px;height:25px;position:absolute;top:${data.y*25-25}px;left:${data.x*25-25}px;${data.bg != null && data.bg.image != undefined ? 'background-image:url('+data.bg.image+')' : ''}">
 const templateScannedSector = data => `<div class="clickable" onclick="loadSectorData(${data.x}, ${data.y}, ${data.scanner})" style="grid-column-start:${data.x};grid-column-end:${data.x};grid-row-start:${data.y};grid-row-end:${data.y};${data.bg != null && data.bg.image != undefined ? 'background-image:url('+data.bg.image+')' : ''}">
-${data.fg!=null ? data.battle ? '<img class="fg battle" src="'+data.fg+'"/>' : '<img class="fg" src="'+data.fg+'"/>' : ""}
+${data.fg!=null ? data.battle ? '<img class="fg '+ (data.roterAlarm ? 'roter-alarm' : '') +' battle" src="'+data.fg+'"/>' : '<img class="fg '+ (data.roterAlarm ? 'roter-alarm' : '') +'" src="'+data.fg+'"/>' : ""}
 </div>`;
 
 const templateKnownPlaces = data => `
