@@ -473,7 +473,9 @@ public class PlayerStarmap extends PublicStarmap
 		List<BaseData> bases = map.getBaseMap().get(position);
 		if( bases != null && !bases.isEmpty()  )
 		{
-			return true;
+			for (var base:bases) {
+				if(base.getSize() <= 2) return true;
+			}
 		}
 
 		List<Starmap.JumpNode> nodes = map.getNodeMap().get(position);

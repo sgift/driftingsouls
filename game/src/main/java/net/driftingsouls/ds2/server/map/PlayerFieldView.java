@@ -37,10 +37,10 @@ import static net.driftingsouls.ds2.server.entities.jooq.tables.Users.USERS;
  */
 public class PlayerFieldView implements FieldView
 {
-	private final User user;
-	private final Location location;
-	private final PublicStarmap starmap;
-	private final EntityManager em;
+	protected final User user;
+	protected final Location location;
+	protected final PublicStarmap starmap;
+	protected final EntityManager em;
 
     /**
 	 * Legt eine neue Sicht an.
@@ -82,6 +82,15 @@ public class PlayerFieldView implements FieldView
             return new TreeMap<>();
         }
 
+		int minSize = getMinSize();
+
+		if(!starmap.isScanned(location) || (getNebel() != null && getNebel().isEmp())) minSize = Integer.MAX_VALUE;
+
+		return ShipsRepository.getShipsInMapSector(this.location, user.getId(), minSize);
+	}
+
+	protected int getMinSize()
+	{
 		int minSize;
 		if(!starmap.ownShipSectors.contains(location) && !starmap.allyShipSectors.contains(location) && getNebel() != null) {
 			minSize = getNebel().getMinScansize();
@@ -91,7 +100,7 @@ public class PlayerFieldView implements FieldView
 
 		if(!starmap.isScanned(location) || (getNebel() != null && getNebel().isEmp())) minSize = Integer.MAX_VALUE;
 
-		return ShipsRepository.getShipsInMapSector(this.location, user.getId(), minSize);
+		return minSize;
 	}
 
 	@Override
