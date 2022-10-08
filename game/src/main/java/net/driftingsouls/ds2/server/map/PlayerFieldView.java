@@ -212,6 +212,7 @@ public class PlayerFieldView implements FieldView
 	@Override
 	public boolean isRoterAlarm()
 	{
+		if(isNotScanned()) return false;
 		return starmap.isRoterAlarmImSektor(location);
 	}
 
