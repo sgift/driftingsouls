@@ -10,6 +10,7 @@ import net.driftingsouls.ds2.server.repositories.ShipsRepository;
 import net.driftingsouls.ds2.server.services.SingleUserRelationsService;
 
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -53,22 +54,44 @@ public class PlayerStarmap extends PublicStarmap
 		this.userRelationsService = new SingleUserRelationsService(user.getId());
 
 		this.scannedLocationsToScannerId = new HashMap<>();
+
+		System.out.println("Before buildFriendlyData");
+		System.out.println(new SimpleDateFormat("HH.mm.ss.SSS").format(new java.util.Date()));
 		buildFriendlyData();
 
+		System.out.println("Before buildScannedLocations");
+		System.out.println(new SimpleDateFormat("HH.mm.ss.SSS").format(new java.util.Date()));
 		buildScannedLocations();
+
+		System.out.println("Before nonFriendSectors");
+		System.out.println(new SimpleDateFormat("HH.mm.ss.SSS").format(new java.util.Date()));
 		buildNonFriendSectors();
 
+		System.out.println("Before findWellKnownLocations");
+		System.out.println(new SimpleDateFormat("HH.mm.ss.SSS").format(new java.util.Date()));
 		this.bekannteOrte = findWellKnownLocations();
-		this.sectorsWithAttackingShips = findVisibleSectorsWithAlerts();
 
+		System.out.println("Before findVisibleSectorsWithAlerts");
+		System.out.println(new SimpleDateFormat("HH.mm.ss.SSS").format(new java.util.Date()));
+		this.sectorsWithAttackingShips = findVisibleSectorsWithAlerts();
+		System.out.println("After findVisibleSectorsWithAlerts");
+		System.out.println(new SimpleDateFormat("HH.mm.ss.SSS").format(new java.util.Date()));
 	}
 
 
 	@Override
 	protected void buildFriendlyData()
 	{
+		System.out.println("Before getScanships");
+		System.out.println(new SimpleDateFormat("HH.mm.ss.SSS").format(new java.util.Date()));
 		var scanShips = ShipsRepository.getScanships(user.getId(), map.getSystem());
+
+		System.out.println("Before getNebulaScanships");
+		System.out.println(new SimpleDateFormat("HH.mm.ss.SSS").format(new java.util.Date()));
 		var nebulaScanShips = ShipsRepository.getNebulaScanships(user.getId(), map.getSystem());
+		System.out.println("After getNebulaScanships");
+		System.out.println(new SimpleDateFormat("HH.mm.ss.SSS").format(new java.util.Date()));
+
 
 		for(var scanship : scanShips)
 		{
@@ -413,7 +436,13 @@ public class PlayerStarmap extends PublicStarmap
 
 		try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
 			var db = DBUtil.getDSLContext(conn);
+
+			System.out.println("Before routine getEnemyShipsInSystem");
+			System.out.println(new SimpleDateFormat("HH.mm.ss.SSS").format(new java.util.Date()));
 			routine.execute(db.configuration());
+			System.out.println("After routine getEnemyShipsInSystem");
+			System.out.println(new SimpleDateFormat("HH.mm.ss.SSS").format(new java.util.Date()));
+
 			try{
 				var result = routine.getResults();
 				for(var row : result)
@@ -424,8 +453,8 @@ public class PlayerStarmap extends PublicStarmap
 							record.get(SHIPS.X),
 							record.get(SHIPS.Y),
 							record.get("max_size", Long.class).intValue(),
-							record.get("relation_to_user", Long.class).intValue(),
-							record.get("relation_from_user", Long.class).intValue()
+							record.get("relation_to", Long.class).intValue(),
+							record.get("relation_from", Long.class).intValue()
 						);
 
 						if (scanData.getRelation() == User.Relation.FRIEND)

@@ -69,10 +69,10 @@ public class ShipsRepository {
             try(var scanDataSelect = db
                     .selectFrom(FRIENDLY_SCAN_RANGES)
                     .where(FRIENDLY_SCAN_RANGES.STAR_SYSTEM.eq(system)
-                            .and((FRIENDLY_SCAN_RANGES.TARGET_ID.eq(userid)
-                                    .and(FRIENDLY_SCAN_RANGES.STATUS1.eq(2L)
-                                    .and(FRIENDLY_SCAN_RANGES.STATUS2.eq(2L))))
-                                    .or(FRIENDLY_SCAN_RANGES.OWNER.eq(userid))))
+                            .and((FRIENDLY_SCAN_RANGES.TARGET.eq(userid)
+                                    .and(FRIENDLY_SCAN_RANGES.RELATION_TO.eq(2L)
+                                    .and(FRIENDLY_SCAN_RANGES.RELATION_FROM.eq(2L))))
+                                    .or(FRIENDLY_SCAN_RANGES.OWNER.eq(userid).and(FRIENDLY_SCAN_RANGES.TARGET.eq(userid)))))
                         ) {
                 var result = scanDataSelect.fetch();
                 for (var record : result) {
@@ -95,10 +95,10 @@ public class ShipsRepository {
             try(var scanDataSelect = db
                     .selectFrom(FRIENDLY_NEBEL_SCAN_RANGES)
                     .where(FRIENDLY_NEBEL_SCAN_RANGES.STAR_SYSTEM.eq(system)
-                            .and((FRIENDLY_NEBEL_SCAN_RANGES.TARGET_ID.eq(userid)
-                                    .and(FRIENDLY_NEBEL_SCAN_RANGES.STATUS1.eq(2L)
-                                    .and(FRIENDLY_NEBEL_SCAN_RANGES.STATUS2.eq(2L))))
-                                .or(FRIENDLY_NEBEL_SCAN_RANGES.OWNER.eq(userid))))) {
+                            .and((FRIENDLY_NEBEL_SCAN_RANGES.TARGET.eq(userid)
+                                    .and(FRIENDLY_NEBEL_SCAN_RANGES.RELATION_TO.eq(2L)
+                                    .and(FRIENDLY_NEBEL_SCAN_RANGES.RELATION_FROM.eq(2L))))
+                                .or(FRIENDLY_NEBEL_SCAN_RANGES.OWNER.eq(userid).and(FRIENDLY_NEBEL_SCAN_RANGES.TARGET.eq(userid)))))) {
                 var result = scanDataSelect.fetch();
                 for (var record : result) {
                     var scanData = new ScanData(system, record.getX(), record.getY(), record.getId(), record.getOwner(), record.getSensorStatus().intValue(), record.getSensorRange().intValue());

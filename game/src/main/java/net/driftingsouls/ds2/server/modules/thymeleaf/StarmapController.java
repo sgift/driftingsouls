@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static net.driftingsouls.ds2.server.entities.jooq.tables.BattlesShips.BATTLES_SHIPS;
@@ -169,6 +170,8 @@ public class StarmapController implements DSController, PermissionResolver {
 
     private void scanFields(int systemId, HttpServletResponse response) throws IOException
     {
+        //System.out.println(new SimpleDateFormat("HH.mm.ss.SSS").format(new java.util.Date())); // Code to time method executions to find roots of slow performance
+
         prepareResponseForJSON(response);
         org.hibernate.Session db = context.getDB();
         User user = (User) context.getActiveUser();
