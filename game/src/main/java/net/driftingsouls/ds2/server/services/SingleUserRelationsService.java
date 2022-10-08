@@ -94,7 +94,6 @@ public class SingleUserRelationsService {
     public User.Relation beziehungZu(User otherUser){return beziehungZu(otherUser.getId());}
     public User.Relation beziehungZu(int otherUserId)
     {
-        System.out.println("Beziehung zu user: " + otherUserId);
 
         var userRelations = getUserRelationData();
 
@@ -102,11 +101,9 @@ public class SingleUserRelationsService {
         for (var relation:userRelations.get(0)) {
             if(relation.getUserId() == userId) myDefaultRelation = User.getRelation(relation.getStatus());
         }
-        System.out.println("Beziehung zu default: " + myDefaultRelation.toString());
 
         if(!userRelations.containsKey(otherUserId))
         {
-            System.out.println("Beziehung zu default wird verwendet: " + myDefaultRelation.toString());
             return myDefaultRelation;
         }
         else{
@@ -121,7 +118,6 @@ public class SingleUserRelationsService {
                 }
             }
 
-            System.out.println("Beziehung zu else: " + resultRelation.toString());
             return resultRelation;
         }
     }
@@ -134,19 +130,16 @@ public class SingleUserRelationsService {
      */
     public User.Relation beziehungVon(int otherUserId)
     {
-        System.out.println("Beziehung von user: " + otherUserId);
         var userRelations = getUserRelationData();
 
         User.Relation othersDefaultRelation = User.Relation.ENEMY;
         for (var relation:userRelations.get(0)) {
             if(relation.getUserId() == otherUserId) othersDefaultRelation = User.getRelation(relation.getStatus());
         }
-        System.out.println("Beziehung von default: " + othersDefaultRelation.toString());
 
 
         if(!userRelations.containsKey(otherUserId))
         {
-            System.out.println("Beziehung von default verwendet: " + othersDefaultRelation.toString());
             return othersDefaultRelation;
         }
 
@@ -161,7 +154,6 @@ public class SingleUserRelationsService {
                     resultRelation = User.Relation.values()[relation.getStatus()];
                 }
             }
-            System.out.println("Beziehung von else: " + resultRelation.toString());
 
             return resultRelation;
         }
