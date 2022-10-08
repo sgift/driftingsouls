@@ -294,7 +294,7 @@ public class StarmapController implements DSController, PermissionResolver {
 		FieldView field;
 		if (admin && hasPermission(WellKnownAdminPermission.STARMAP_VIEW))
 		{
-			field = new AdminFieldView(db, loc, new AdminStarmap(sys.getID(), user));
+			field = new AdminFieldView(user, loc, new AdminStarmap(sys.getID(), user), context.getEM());
 		}
 		else
 		{
