@@ -371,7 +371,7 @@ public class StarmapController implements DSController, PermissionResolver {
 
         if(!content.isHasSectorContent(position)) return null;
 
-        if (scannable && content.isHasSectorContent(position))
+        if (scannable)
         {
             posObj.scanner = content.getScanningShip(position);
             if(posObj.scanner == -1) return null;
