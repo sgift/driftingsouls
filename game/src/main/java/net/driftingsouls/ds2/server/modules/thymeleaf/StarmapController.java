@@ -357,7 +357,7 @@ public class StarmapController implements DSController, PermissionResolver {
     private MapController.MapViewModel.LocationViewModel createMapLocationViewModel(PublicStarmap content, Location position)
     {
         boolean scannable = content.isScanned(position);
-        if(!scannable) return null;
+        //if(!scannable) return null;
 
         SectorImage sectorImage = content.getUserSectorBaseImage(position);
         SectorImage sectorOverlayImage = content.getSectorOverlayImage(position);
@@ -374,7 +374,7 @@ public class StarmapController implements DSController, PermissionResolver {
         if (scannable)
         {
             posObj.scanner = content.getScanningShip(position);
-            if(posObj.scanner == -1) return null;
+            //if(posObj.scanner == -1) return null;
         }
 
         if (sectorImage != null)

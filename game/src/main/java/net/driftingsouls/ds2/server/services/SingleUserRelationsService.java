@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import static net.driftingsouls.ds2.server.entities.jooq.Tables.V_TOTAL_USER_RELATIONS;
 import static net.driftingsouls.ds2.server.entities.jooq.tables.UserRelations.USER_RELATIONS;
 
 
@@ -27,50 +28,28 @@ public class SingleUserRelationsService {
         getUserRelationData();
     }
 
-    protected Map<Integer, ArrayList<UserRelationData>> userRelationData;
+    protected Map<Integer, UserRelationData> userRelationData;
 
-    public Map<Integer, ArrayList<UserRelationData>> getUserRelationData() {
+    public Map<Integer, UserRelationData> getUserRelationData() {
         if (this.userRelationData != null) {
             return this.userRelationData;
         }
-        Map<Integer, ArrayList<UserRelationData>> userRelationData = new HashMap<>();
+        Map<Integer, UserRelationData> userRelationData = new HashMap<>();
         try (var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
             var db = DBUtil.getDSLContext(conn);
             try
                 (
                     var userRelations = db
-                        .selectFrom(USER_RELATIONS)
-                        .where
-                            (
-                                USER_RELATIONS.USER_ID.eq(userId)
-                                    .or(USER_RELATIONS.TARGET_ID.eq(userId))
-                                    .or(USER_RELATIONS.TARGET_ID.eq(0))
-                            )
+                        .selectFrom(V_TOTAL_USER_RELATIONS)
+                        .where(V_TOTAL_USER_RELATIONS.ID.eq(userId))
                 ) {
                 var result = userRelations.fetch();
 
                 for (var row : result) {
-                    var urd = new UserRelationData(row.getValue(USER_RELATIONS.USER_ID), row.getValue(USER_RELATIONS.TARGET_ID), row.getValue(USER_RELATIONS.STATUS));
-                    if(urd.getTargetUserId() == 0)
-                    {
-                        if (!userRelationData.containsKey(0)) {
-                            userRelationData.put(0, new ArrayList<>());
-                        }
-                        userRelationData.get(0).add(urd);
-                    }
-                    else if (urd.getUserId() == userId) // Meine Beziehung zu anderen Spielern
-                    {
-                        if (!userRelationData.containsKey(urd.getTargetUserId())) {
-                            userRelationData.put(urd.getTargetUserId(), new ArrayList<>());
-                        }
-                        userRelationData.get(urd.getTargetUserId()).add(urd);
-                    } else // Die Beziehung anderer Spieler zu mir
-                    {
-                        if (!userRelationData.containsKey(urd.getUserId())) {
-                            userRelationData.put(urd.getUserId(), new ArrayList<>());
-                        }
-                        userRelationData.get(urd.getUserId()).add(urd);
-                    }
+                    var urd = new UserRelationData(row.getValue(V_TOTAL_USER_RELATIONS.ID), row.getValue(V_TOTAL_USER_RELATIONS.TARGET), row.getValue(V_TOTAL_USER_RELATIONS.RELATION_TO).intValue(), row.getValue(V_TOTAL_USER_RELATIONS.RELATION_FROM).intValue());
+
+                    userRelationData.put(urd.getTargetUserId(), urd);
+
                 }
                 this.userRelationData = userRelationData;
             }
@@ -82,7 +61,6 @@ public class SingleUserRelationsService {
     }
 
     public boolean isMutualFriendTo(int targetId) {
-        var userRelations = getUserRelationData();
 
         if(beziehungVon(targetId) == User.Relation.FRIEND && beziehungZu(targetId) == User.Relation.FRIEND )
         {
@@ -94,32 +72,10 @@ public class SingleUserRelationsService {
     public User.Relation beziehungZu(User otherUser){return beziehungZu(otherUser.getId());}
     public User.Relation beziehungZu(int otherUserId)
     {
-
         var userRelations = getUserRelationData();
+        var relation = userRelations.get(otherUserId);
 
-        User.Relation myDefaultRelation = User.Relation.ENEMY;
-        for (var relation:userRelations.get(0)) {
-            if(relation.getUserId() == userId) myDefaultRelation = User.getRelation(relation.getStatus());
-        }
-
-        if(!userRelations.containsKey(otherUserId))
-        {
-            return myDefaultRelation;
-        }
-        else{
-            var relations = userRelations.get(otherUserId);
-
-            var resultRelation = myDefaultRelation;
-            for(var relation : relations)
-            {
-                if(relation.getUserId() == userId)
-                {
-                    resultRelation = User.Relation.values()[relation.getStatus()];
-                }
-            }
-
-            return resultRelation;
-        }
+        return User.getRelation(relation.getRelationTo());
     }
 
     public User.Relation beziehungVon(User otherUser){return beziehungVon(otherUser.getId());}
@@ -132,30 +88,7 @@ public class SingleUserRelationsService {
     {
         var userRelations = getUserRelationData();
 
-        User.Relation othersDefaultRelation = User.Relation.ENEMY;
-        for (var relation:userRelations.get(0)) {
-            if(relation.getUserId() == otherUserId) othersDefaultRelation = User.getRelation(relation.getStatus());
-        }
-
-
-        if(!userRelations.containsKey(otherUserId))
-        {
-            return othersDefaultRelation;
-        }
-
-        else{
-            var relations = userRelations.get(otherUserId);
-
-            var resultRelation = othersDefaultRelation;
-            for(var relation : relations)
-            {
-                if(relation.getTargetUserId() == userId)
-                {
-                    resultRelation = User.Relation.values()[relation.getStatus()];
-                }
-            }
-
-            return resultRelation;
-        }
+        var relation = userRelations.get(otherUserId);
+        return User.getRelation(relation.getRelationFrom());
     }
 }
