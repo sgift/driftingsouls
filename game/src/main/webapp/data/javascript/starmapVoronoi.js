@@ -77,7 +77,7 @@ function drawSystem(system)
             <stop offset="100%" stop-color="rgba(0, 80, 0, 1)" />
         </radialGradient>`;
 
-    if(system.color != "")
+    if(system.color != undefined && system.color != "")
     {
         var gradientDef = `
         <radialGradient id="ringGradient${ringGradient}" >
@@ -88,7 +88,7 @@ function drawSystem(system)
 
     defContainer.innerHTML += gradientDef;
 
-    let color = system.color != "" ? system.color : "0, 68, 65";
+    let color = (system.color != undefined && system.color != "") ? system.color : "0, 68, 65";
 
     let innerGradientDef = `<radialGradient id="${system.id}innerGradient" >
 		<stop offset="5%" stop-color="rgba(${color}, 1)" />
