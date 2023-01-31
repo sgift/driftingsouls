@@ -279,7 +279,7 @@ public class StarSystem {
 	 * Gibt an, ob Kaempfe im System zugelassen sind.
 	 * @return <code>true</code>, falls Kaempfe zugelassen sind
 	 */
-	public boolean isMilitaryAllowed() {
+	public boolean isBattleAllowed() {
 		return this.allowBattles;
 	}
 
@@ -287,7 +287,7 @@ public class StarSystem {
 	 * Setzt, ob Kaempfe im System zugelassen sind.
 	 * @param allowed <code>true</code> wenn erlaubt, ansonsten <code>false</code>
 	 */
-	public void setMilitaryAllowed(boolean allowed) {
+	public void setBattleAllowed(boolean allowed) {
 		this.allowBattles = allowed;
 	}
 

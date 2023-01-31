@@ -4,6 +4,7 @@ import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.battles.*;
 import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
@@ -484,6 +485,12 @@ public class SchlachtErstellenService
 		if (disable_iff)
 		{
 			throw new IllegalArgumentException("Dieses Schiff kann nicht angegriffen werden (egal wieviel Du mit der URL rumspielst!)");
+		}
+		Context context = ContextMap.getContext();
+		org.hibernate.Session db = context.getDB();
+		StarSystem system = (StarSystem) db.get(StarSystem.class, ownShip.getSystem());
+		if(!system.isBattleAllowed()){
+			throw new IllegalArgumentException("In diesem System sind Kämpfe untersagt.");
 		}
 	}
 
