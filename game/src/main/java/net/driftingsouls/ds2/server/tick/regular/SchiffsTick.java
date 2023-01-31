@@ -41,6 +41,8 @@ import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.units.TransientUnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo.Crew;
+import net.driftingsouls.ds2.server.config.StarSystem;
+import net.driftingsouls.ds2.server.config.StarSystem.Access;
 import org.hibernate.CacheMode;
 import org.hibernate.FetchMode;
 import org.hibernate.Session;
@@ -249,17 +251,20 @@ public class SchiffsTick extends TickController {
 		//poduziere Items
 		produziereItems(shipd, shiptd, shipc);
 
-		berechneNahrungsverbrauch(shipd, shiptd, feedingBases);
-
-		//Damage ships which don't have enough crew
-		if( !berechneVerfallWegenCrewmangel(shipd, shiptd) )
+		StarSystem system = (StarSystem)db.get(StarSystem.class, shipd.getSystem());
+		//Verbrauch und Verfall im HOMESYSTEM abgeschaltet
+		if(system.getAccess() != Access.HOMESYSTEM)
 		{
-			return;
+			berechneNahrungsverbrauch(shipd, shiptd, feedingBases);
+
+			//Damage ships which don't have enough crew
+			if( !berechneVerfallWegenCrewmangel(shipd, shiptd) )
+			{
+				return;
+			}
+			//Pay sold and maintenance
+			berechneSoldUndWartung(db, shipd, shiptd, schiffsReKosten);
 		}
-
-		//Pay sold and maintenance
-		berechneSoldUndWartung(db, shipd, shiptd, schiffsReKosten);
-
 		//Berechnung der Energie
 		this.log("\tEnergie:");
 		int e = shipd.getEnergy();

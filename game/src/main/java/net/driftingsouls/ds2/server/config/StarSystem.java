@@ -57,7 +57,12 @@ public class StarSystem {
 		/**
 		 * Admin Zugriffslevel - Nur Admins koennen das System sehen.
 		 */
-		ADMIN
+		ADMIN,
+
+		/**
+		 * Auch ein normales System, aber Schiffe verbrauchen weder Nahrung noch RE
+		 */
+		HOMESYSTEM
 	}
 
 	@Column(name="Name", nullable = false)
@@ -68,7 +73,7 @@ public class StarSystem {
 	private int height = 200;
 	private int maxColonies = -1;
 	@Column(name="military", nullable = false)
-	private boolean allowMilitary = true;
+	private boolean allowBattles = true;
 	@Column(name="access", nullable = false)
 	@Enumerated(EnumType.ORDINAL)
 	private Access starmap = Access.NORMAL;
@@ -271,19 +276,19 @@ public class StarSystem {
 	}
 
 	/**
-	 * Gibt an, ob militaerische Einheiten im System zugelassen sind.
-	 * @return <code>true</code>, falls militaerische Einheiten zugelassen sind
+	 * Gibt an, ob Kaempfe im System zugelassen sind.
+	 * @return <code>true</code>, falls Kaempfe zugelassen sind
 	 */
 	public boolean isMilitaryAllowed() {
-		return this.allowMilitary;
+		return this.allowBattles;
 	}
 
 	/**
-	 * Setzt, ob militaerische Einheiten im System zugelassen sind.
+	 * Setzt, ob Kaempfe im System zugelassen sind.
 	 * @param allowed <code>true</code> wenn erlaubt, ansonsten <code>false</code>
 	 */
 	public void setMilitaryAllowed(boolean allowed) {
-		this.allowMilitary = allowed;
+		this.allowBattles = allowed;
 	}
 
 	/**
@@ -466,6 +471,7 @@ public class StarSystem {
 			case 1: return Access.NORMAL;
 			case 2: return Access.NPC;
 			case 3: return Access.ADMIN;
+			case 4: return Access.HOMESYSTEM;
 			default: throw new IllegalArgumentException("There's no system-access with accessValue:" + accessValue);
 		}
 	}
