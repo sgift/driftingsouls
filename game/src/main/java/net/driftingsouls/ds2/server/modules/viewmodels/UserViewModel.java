@@ -10,10 +10,17 @@ import net.driftingsouls.ds2.server.framework.ViewModel;
 @ViewModel
 public class UserViewModel
 {
-	public int race;
-	public int id;
-	public String name;
-	public String plainname;
+	public final int race;
+	public final int id;
+	public final String name;
+	public final String plainname;
+
+	public UserViewModel(int race, int id, String name, String plainname) {
+		this.race = race;
+		this.id = id;
+		this.name = Common._title(name);
+		this.plainname = plainname;
+	}
 
 	/**
 	 * Mappt eine User-Entity zu einer Instanz dieses ViewModels.
@@ -22,12 +29,6 @@ public class UserViewModel
 	 */
 	public static UserViewModel map(User user)
 	{
-		UserViewModel viewModel = new UserViewModel();
-		viewModel.race = user.getRace();
-		viewModel.id = user.getId();
-		viewModel.name = Common._title(user.getName());
-		viewModel.plainname = user.getPlainname();
-
-		return viewModel;
+		return new UserViewModel(user.getRace(), user.getId(), user.getName(), user.getPlainname());
 	}
 }

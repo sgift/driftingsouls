@@ -42,6 +42,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.modules.viewmodels.ItemViewModel;
+import net.driftingsouls.ds2.server.repositories.ItemRepository;
 import net.driftingsouls.ds2.server.ships.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -745,7 +746,7 @@ public class ItemInfoController extends Controller
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
 		org.hibernate.Session db = getDB();
-		List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
+		var itemlist = ItemRepository.getInstance().getItemsData();
 
 		StatUserCargo ownCargoRow = (StatUserCargo) db.createQuery("from StatUserCargo where user=:user")
 				.setEntity("user", user)
@@ -777,12 +778,9 @@ public class ItemInfoController extends Controller
 		final String shipimage = "<td class='noBorderX' style='text-align:right'><img style='vertical-align:middle' src='./data/interface/schiffe/" + user.getRace() + "/icon_schiff.gif' alt='' title='Schiff' /></td>";
 		final String baseimage = "<td class='noBorderX' style='text-align:right'><img style='vertical-align:middle;width:15px;height:15px' src='./data/starmap/asti/asti.png' alt='' title='Asteroid' /></td>";
 
-		for (Item aitem : itemlist)
+		for (var aitem : itemlist.values())
 		{
-			int itemid = aitem.getID();
-
-			ItemEffect itemeffect = aitem.getEffect();
-
+			int itemid = aitem.getId();
 			if (!user.canSeeItem(aitem))
 			{
 				continue;
@@ -849,7 +847,7 @@ public class ItemInfoController extends Controller
 			t.setVar("item.picture", aitem.getPicture(),
 					"item.id", itemid,
 					"item.name", name,
-					"item.class", itemeffect.getType().getName(),
+					"item.class", aitem.getType().getName(),
 					"item.cargo", Common.ln(aitem.getCargo()),
 					"item.locationtext", tooltip,
 					"item.count", Common.ln(owncargo.getResourceCount(new ItemID(itemid))));
@@ -873,12 +871,11 @@ public class ItemInfoController extends Controller
 	public AjaxViewModel ajaxAction()
 	{
 		User user = (User) getUser();
-		org.hibernate.Session db = getDB();
-		List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
+		var itemlist = ItemRepository.getInstance().getItemsData();
 
 		AjaxViewModel result = new AjaxViewModel();
 
-		for (Item aitem : itemlist)
+		for (var aitem : itemlist.values())
 		{
 			if (!user.canSeeItem(aitem))
 			{

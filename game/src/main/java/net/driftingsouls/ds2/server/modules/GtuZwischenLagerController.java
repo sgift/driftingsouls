@@ -320,8 +320,8 @@ public class GtuZwischenLagerController extends Controller
 			List<ItemCargoEntry<Item>> itemlist = tradecargo.getItems();
 			for (ItemCargoEntry<Item> item : itemlist)
 			{
-				Item itemobject = item.getItem();
-				if (itemobject.isUnknownItem())
+				var itemData = item.getItem();
+				if (itemData.isUnknownItem())
 				{
 					user.addKnownItem(item.getItemID());
 				}

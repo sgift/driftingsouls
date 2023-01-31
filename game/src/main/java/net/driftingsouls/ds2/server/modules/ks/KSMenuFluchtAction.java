@@ -112,7 +112,7 @@ public class KSMenuFluchtAction extends BasicKSMenuAction {
 
             if (!aship.hasFlag(BattleShipFlag.FLUCHT) && !aship.hasFlag(BattleShipFlag.DESTROYED) &&
                     !aship.hasFlag(BattleShipFlag.FLUCHT) && !ownShip.getShip().isLanded() && !ownShip.getShip().isDocked() && (aship.getShip().getEngine() > 0) &&
-                    !aship.getShip().isBattleAction() && gotone)
+                    gotone)
             {
 
                 fluchtidlist++;

@@ -83,6 +83,20 @@ public abstract class Building
 		return (Building) db.get(Building.class, id);
 	}
 
+	public static Map<Integer, Building> getBuildings()
+	{
+		var map = new HashMap<Integer, Building>();
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		List<Building> buildings = db.createQuery("from Building").list();
+
+		for(var building : buildings)
+		{
+			map.put(building.getId(), building);
+		}
+
+		return map;
+	}
+
 	@Id @GeneratedValue
 	private int id;
 	private int bewohner;

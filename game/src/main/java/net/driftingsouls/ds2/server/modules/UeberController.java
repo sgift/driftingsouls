@@ -28,6 +28,7 @@ import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.IntTutorial;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
@@ -43,6 +44,8 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
+import net.driftingsouls.ds2.server.repositories.MessageRepository;
+import net.driftingsouls.ds2.server.repositories.ShipsRepository;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipFleet;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -59,6 +62,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
+import static net.driftingsouls.ds2.server.repositories.ShipsRepository.getShipBookmarkViewData;
 
 /**
  * Die Uebersicht.
@@ -148,14 +153,16 @@ public class UeberController extends Controller
 		String ticktime = getTickTime();
 
 		String race = "???";
-		if (Rassen.get().rasse(user.getRace()) != null)
+		var spezies = Rassen.get().rasse(user.getRace());
+		if (spezies != null)
 		{
-			race = Rassen.get().rasse(user.getRace()).getName();
+			race = spezies.getName();
 		}
 
 		int ticks = getContext().get(ContextCommon.class).getTick();
 
 		long[] fullbalance = user.getFullBalance();
+
 
 		t.setVar("user.name", Common._title(user.getName()),
 				"user.race", race,
@@ -183,9 +190,7 @@ public class UeberController extends Controller
 		// auf neue Nachrichten checken
 		//------------------------------
 
-		long newCount = (Long) db.createQuery("select count(*) from PM where empfaenger= :user and gelesen=0")
-				.setEntity("user", user)
-				.iterate().next();
+		int newCount = MessageRepository.getNewMessageCount(user.getId());
 		t.setVar("user.newmsgs", Common.ln(newCount));
 
 		//------------------------------
@@ -243,43 +248,29 @@ public class UeberController extends Controller
 		t.setVar("show.bookmarks", 1);
 
 		long start = System.nanoTime();
-		List<Ship> bookmarks = Common.cast(db.createQuery("from Ship s LEFT JOIN FETCH s.einstellungen se where s.id>0 and se.bookmark=true and owner=:owner order by s.id desc")
-			.setEntity("owner", user)
-			.list());
+		var bookmarks = ShipsRepository.getShipBookmarkViewData(user.getId());
 		long duration = System.nanoTime() - start;
 		log.info("Bookmark loading took: {}ms", TimeUnit.NANOSECONDS.toMillis(duration));
 
-		for (Ship bookmark : bookmarks)
+		for (var bookmark : bookmarks)
 		{
-			ShipTypeData shiptype = bookmark.getTypeData();
+			//ShipTypeData shiptype = bookmark.getTypeData();
 			t.setVar("bookmark.shipid", bookmark.getId(),
 					"bookmark.shipname", bookmark.getName(),
 					"bookmark.location", bookmark.getLocation().displayCoordinates(false),
-					"bookmark.shiptype", shiptype.getNickname(),
-					"bookmark.description", bookmark.getEinstellungen().getDestSystem() + ":" + bookmark.getEinstellungen().getDestX() + "/" + bookmark.getEinstellungen().getDestY() + "<br />" + bookmark.getEinstellungen().getDestCom().replace("\r\n", "<br />"));
+					"bookmark.shiptype", bookmark.getTypeName(),
+					"bookmark.description", bookmark.getDestLocation().getSystem() + ":" + bookmark.getDestLocation().getY() + "/" + bookmark.getDestLocation().getY() + "<br />" + bookmark.getDestCom().replace("\r\n", "<br />"));
 			t.parse("bookmarks.list", "bookmarks.listitem", true);
 		}
 		// Flotten zusammenbauen
 		t.setVar("show.fleets", 1);
 		boolean jdocked = false;
 
-		List<?> fleets = db.createQuery("select count(*),s.fleet from Ship s " +
-				"where s.id>0 and s.owner= :user and s.fleet.id!=0 " +
-				"group by s.fleet,s.docked,s.system,s.x,s.y " +
-				"order by s.docked,s.system,s.x,s.y")
-				.setEntity("user", user)
-				.list();
-		for (Object fleet1 : fleets)
+		var fleets = ShipsRepository.getFleetsOverviewViewData(user.getId());
+
+		for (var fleet : fleets)
 		{
-			Object[] data = (Object[]) fleet1;
-			long count = (Long) data[0];
-			ShipFleet fleet = (ShipFleet) data[1];
-
-			Ship aship = (Ship) db.createQuery("from Ship where fleet=:fleet")
-					.setEntity("fleet", fleet)
-					.iterate().next();
-
-			if (!jdocked && aship.isLanded())
+			if (!jdocked && fleet.isLandedFleet())
 			{
 				jdocked = true;
 				t.setVar("fleet.jaegerfleet", 1);
@@ -289,13 +280,10 @@ public class UeberController extends Controller
 				t.setVar("fleet.jaegerfleet", 0);
 			}
 
-
-			String locationText = aship.getLocation().displayCoordinates(false);
-			
-			t.setVar("fleet.shipid", aship.getId(),
+			t.setVar("fleet.shipid", fleet.getFleetShipId(),
 					"fleet.name", fleet.getName(),
-					"fleet.location", locationText,
-					"fleet.shipcount", count);
+					"fleet.location", fleet.getLocation().displayCoordinates(false),
+					"fleet.shipcount", fleet.getShipCount());
 			t.parse("fleets.list", "fleets.listitem", true);
 		}
 
@@ -440,12 +428,12 @@ public class UeberController extends Controller
 		int bw = 0;
 		int bases = 0;
 
-		List<?> basen = db.createQuery("from Base where owner= :user order by id")
+		List<Base> basen = db.createQuery("from Base b left join fetch b.core where owner= :user order by b.id")
 				.setEntity("user", user)
 				.list();
-		for (Object aBasen : basen)
+
+		for (Base base : basen)
 		{
-			Base base = (Base) aBasen;
 			bases++;
 
 			BaseStatus basedata = Base.getStatus(base);

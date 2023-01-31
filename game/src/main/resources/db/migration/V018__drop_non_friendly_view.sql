@@ -1,0 +1,1 @@
+DROP VIEW IF EXISTS non_friendly_ship_locations;

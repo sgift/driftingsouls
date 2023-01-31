@@ -2,13 +2,8 @@ package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
-import net.driftingsouls.ds2.server.WellKnownPermission;
-import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.battles.Battle;
-import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
-import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -21,10 +16,8 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
-import net.driftingsouls.ds2.server.map.AdminFieldView;
 import net.driftingsouls.ds2.server.map.AdminStarmap;
-import net.driftingsouls.ds2.server.map.FieldView;
-import net.driftingsouls.ds2.server.map.PlayerFieldView;
+import net.driftingsouls.ds2.server.map.MapArea;
 import net.driftingsouls.ds2.server.map.PlayerStarmap;
 import net.driftingsouls.ds2.server.map.PublicStarmap;
 import net.driftingsouls.ds2.server.map.SectorImage;
@@ -34,8 +27,6 @@ import net.driftingsouls.ds2.server.modules.viewmodels.JumpNodeViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.ShipFleetViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.UserViewModel;
 import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipType;
-import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import org.apache.commons.io.IOUtils;
 import org.hibernate.Session;
@@ -309,7 +300,7 @@ public class MapController extends Controller
 			tileY = 0;
 		}
 
-		TileCache cache = TileCache.forSystem(sys);
+		TileCache cache = TileCache.forSystem(sys.getID());
 		File tileCacheFile = cache.getTile(tileX, tileY);
 
 		try (InputStream in = new FileInputStream(tileCacheFile))
@@ -435,13 +426,14 @@ public class MapController extends Controller
 		}
 
 		PublicStarmap content;
+		var mapArea = new MapArea(xstart, xend - xstart, ystart, yend - ystart);
 		if (admin && hasPermission(WellKnownAdminPermission.STARMAP_VIEW))
 		{
-			content = new AdminStarmap(sys, user, new int[]{xstart, ystart, xend - xstart, yend - ystart});
+			content = new AdminStarmap(sys.getID(), user);
 		}
 		else
 		{
-			content = new PlayerStarmap(user, sys, new int[]{xstart, ystart, xend - xstart, yend - ystart});
+			content = new PlayerStarmap(user, sys.getID());
 		}
 
 		json.size = new MapViewModel.SizeViewModel();
@@ -523,6 +515,10 @@ public class MapController extends Controller
 	@ViewModel
 	public static class SectorViewModel
 	{
+		public int system;
+		public int x;
+		public int y;
+
 		public static class UserWithShips
 		{
 			public String name;
@@ -538,6 +534,7 @@ public class MapController extends Controller
 			public String name;
 			public String picture;
 			public int size;
+			public int count;
 			public final List<ShipViewModel> ships = new ArrayList<>();
 		}
 
@@ -548,6 +545,8 @@ public class MapController extends Controller
 			public long gedockt;
 			public int maxGedockt;
 			public ShipFleetViewModel fleet;
+			public boolean isOwner;
+			public int race;
 		}
 
 		public static class OwnShipViewModel extends ShipViewModel
@@ -559,6 +558,35 @@ public class MapController extends Controller
 			public int ueberhitzung;
 			public boolean kannFliegen;
 			public int sensorRange;
+			public int x;
+			public int y;
+			public ArrayList<LandedShipViewModel> landedShips = new ArrayList<>();
+		}
+
+		public static class LandedShipViewModel {
+			public int id;
+			public int carrierId;
+			public int energie;
+			public int maxEnergie;
+			public String name;
+			public int type;
+			public String typeName;
+			public String picture;
+			public List<AmmoCargo> ammoCargo;
+			public int count;
+
+			public static class AmmoCargo
+			{
+				public AmmoCargo(int id, long amount, String picture)
+				{
+					this.id = id;
+					this.amount = amount;
+					this.picture = picture;
+				}
+				int id;
+				long amount;
+				String picture;
+			}
 		}
 
 		public static class BaseViewModel
@@ -627,6 +655,7 @@ public class MapController extends Controller
 
 		SectorViewModel json = new SectorViewModel();
 
+		/*
 		final Location loc = new Location(sys.getID(), x, y);
 
 		FieldView field;
@@ -690,131 +719,9 @@ public class MapController extends Controller
 		json.subraumspaltenCount = field.getSubraumspalten().size();
 		json.roterAlarm = field.isRoterAlarm();
 
+		 */
+
 
 		return json;
-	}
-
-	private List<SectorViewModel.BattleViewModel> exportSectorBattles(Session db, FieldView field)
-	{
-		List<SectorViewModel.BattleViewModel> battleListObj = new ArrayList<>();
-		List<Battle> battles = field.getBattles();
-		if (battles.isEmpty())
-		{
-			return battleListObj;
-		}
-
-		User user = (User) getUser();
-		boolean viewable = getContext().hasPermission(WellKnownPermission.SCHLACHT_ALLE_AUFRUFBAR);
-
-		if (!viewable)
-		{
-			Map<ShipType, List<Ship>> ships = field.getShips().get(user);
-			if (ships != null && !ships.isEmpty())
-			{
-				for (ShipType shipType : ships.keySet())
-				{
-					if (shipType.getShipClass().isDarfSchlachtenAnsehen()) {
-						viewable = true;
-						break;
-					}
-				}
-			}
-		}
-
-		for (Battle battle : battles)
-		{
-			SectorViewModel.BattleViewModel battleObj = new SectorViewModel.BattleViewModel();
-			battleObj.id = battle.getId();
-			battleObj.einsehbar = viewable || battle.getSchlachtMitglied(user) != -1;
-
-			for (int i = 0; i < 2; i++)
-			{
-				SectorViewModel.BattleSideViewModel sideObj = new SectorViewModel.BattleSideViewModel();
-				sideObj.commander = UserViewModel.map(battle.getCommander(i));
-				if (battle.getAlly(i) != 0)
-				{
-					Ally ally = (Ally) db.get(Ally.class, battle.getAlly(i));
-					sideObj.ally = AllyViewModel.map(ally);
-				}
-				battleObj.sides.add(sideObj);
-			}
-
-			battleListObj.add(battleObj);
-		}
-		return battleListObj;
-	}
-
-	private List<SectorViewModel.UserWithShips> exportSectorShips(FieldView field)
-	{
-		List<SectorViewModel.UserWithShips> users = new ArrayList<>();
-		for (Map.Entry<User, Map<ShipType, List<Ship>>> owner : field.getShips().entrySet())
-		{
-			SectorViewModel.UserWithShips jsonUser = new SectorViewModel.UserWithShips();
-			jsonUser.name = Common._text(owner.getKey().getName());
-			jsonUser.id = owner.getKey().getId();
-			jsonUser.race = owner.getKey().getRace();
-
-			boolean ownFleet = owner.getKey().getId() == getUser().getId();
-			jsonUser.eigener = ownFleet;
-
-			for (Map.Entry<ShipType, List<Ship>> shiptype : owner.getValue().entrySet())
-			{
-				SectorViewModel.ShipTypeViewModel jsonShiptype = new SectorViewModel.ShipTypeViewModel();
-				jsonShiptype.id = shiptype.getKey().getId();
-				jsonShiptype.name = shiptype.getKey().getNickname();
-				jsonShiptype.picture = shiptype.getKey().getPicture();
-				jsonShiptype.size = shiptype.getKey().getSize();
-
-				for (Ship ship : shiptype.getValue())
-				{
-					ShipTypeData typeData = ship.getTypeData();
-					SectorViewModel.ShipViewModel shipObj;
-					if (ownFleet)
-					{
-						SectorViewModel.OwnShipViewModel ownShip = new SectorViewModel.OwnShipViewModel();
-						ownShip.gelandet = ship.getLandedCount();
-						ownShip.maxGelandet = typeData.getJDocks();
-
-						ownShip.energie = ship.getEnergy();
-						ownShip.maxEnergie = typeData.getEps();
-
-						ownShip.ueberhitzung = ship.getHeat();
-
-						ownShip.kannFliegen = typeData.getCost() > 0 && !ship.isDocked() && !ship.isLanded();
-
-						int sensorRange = ship.getEffectiveScanRange();
-						if (field.getNebel() != null)
-						{
-							if(!ship.getTypeData().hasFlag(ShipTypeFlag.NEBELSCAN))
-							{
-								sensorRange /= 2;
-							}
-						}
-						ownShip.sensorRange = sensorRange;
-
-						shipObj = ownShip;
-					}
-					else
-					{
-						shipObj = new SectorViewModel.ShipViewModel();
-					}
-					shipObj.id = ship.getId();
-					shipObj.name = ship.getName();
-					shipObj.gedockt = ship.getDockedCount();
-					shipObj.maxGedockt = typeData.getADocks();
-
-
-					if (ship.getFleet() != null)
-					{
-						shipObj.fleet = ShipFleetViewModel.map(ship.getFleet());
-					}
-
-					jsonShiptype.ships.add(shipObj);
-				}
-				jsonUser.shiptypes.add(jsonShiptype);
-			}
-			users.add(jsonUser);
-		}
-		return users;
 	}
 }

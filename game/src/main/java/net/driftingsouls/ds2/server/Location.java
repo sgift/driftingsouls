@@ -20,10 +20,14 @@ package net.driftingsouls.ds2.server;
 
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.map.PlayerStarmap;
+import net.driftingsouls.ds2.server.ships.MoveableShip;
 import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.Embeddable;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 /**
  * Eine Positionsklasse.
@@ -84,6 +88,34 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 	 */
 	public int getY() {
 		return y;
+	}
+
+	public int getXYDistance(Location otherLocation)
+	{
+		var distance = Math.max(Math.abs(otherLocation.getX()-this.x), Math.abs(otherLocation.getY()-this.y));
+		return distance;
+	}
+	public List<Location> getPathInSystem(Location destination)
+	{
+		var distance = getXYDistance(destination);
+		var result = new ArrayList<Location>(distance);
+
+		var newLocation = new Location(system, x, y);
+
+		for(int i=0;i<distance;i++){
+			// calculate direction and normalize
+			var deltaX = destination.getX() - newLocation.getX();
+			deltaX = (int)Math.signum(deltaX) * 1;
+			var deltaY = destination.getY() - newLocation.getY();
+			deltaY = (int)Math.signum(deltaY) * 1;
+
+
+			newLocation = new Location(newLocation.getSystem(), newLocation.getX() + deltaX, newLocation.getY() + deltaY);
+			result.add(newLocation);
+			// engine damage calculation needs to be calculated here if this method is used for forced flight (flying when heat>=100)
+		}
+
+		return result;
 	}
 
 	/**
@@ -260,14 +292,14 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 	}
 	public String displayCoordinates(boolean noSystem, PlayerStarmap starmap)
 	{
-		Nebel nebula = starmap.getNebula(this);
+		Nebel.Typ nebula = starmap.getNebula(this);
 
 		if(nebula == null)
 		{
 			return displayCoordinates(noSystem, (Nebel.Typ) null);
 		}
 
-		return displayCoordinates(noSystem, nebula.getType());
+		return displayCoordinates(noSystem, nebula);
 	}
 
 	/**
@@ -282,23 +314,59 @@ public final class Location implements Serializable, Locatable, Comparable<Locat
 		Nebel.Typ nebulaType = Nebel.getNebula(this);
 
 		StringBuilder text = new StringBuilder(8);
+		text.append("system=");
 		text.append(system);
-		text.append("/");
+		text.append("&");
+		text.append("x=");
+
+		Random rand = new Random();
+		var signX = rand.nextInt(10);
+		var signY = rand.nextInt(10);
 
 		if( nebulaType == Nebel.Typ.LOW_EMP ) {
-			text.append(x / 10);
-			text.append("x/");
-			text.append(y / 10);
-			text.append('x');
+			var randX = rand.nextInt(8)+3;
+			var randY = rand.nextInt(8)+3;
+
+			if(signX <= 4) randX *= -1;
+			if(signY <= 4) randY *= -1;
+
+
+			text.append(x+randX);
+			text.append("&y=");
+			text.append(y+randY);
+
 
 			return text.toString();
 		}
-		else if( (nebulaType == Nebel.Typ.MEDIUM_EMP) || (nebulaType == Nebel.Typ.STRONG_EMP) ) {
-			text.append("xx/xx");
+		else if( (nebulaType == Nebel.Typ.MEDIUM_EMP)) {
+			var randX = rand.nextInt(10)+8;
+			var randY = rand.nextInt(10)+8;
+
+
+			if(signX <= 4) randX *= -1;
+			if(signY <= 4) randY *= -1;
+
+			text.append(x+randX);
+			text.append("&y=");
+			text.append(y+randY);
+
+			return text.toString();
+		}
+		else if((nebulaType == Nebel.Typ.STRONG_EMP))
+		{
+			var randX = rand.nextInt(15)+15;
+			var randY = rand.nextInt(15)+15;
+
+			if(signX <= 4) randX *= -1;
+			if(signY <= 4) randY *= -1;
+
+			text.append(x+randX);
+			text.append("&y=");
+			text.append(y+randY);
 			return text.toString();
 		}
 		text.append(x);
-		text.append('/');
+		text.append("&y=");
 		text.append(y);
 
 		return text.toString();

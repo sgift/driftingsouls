@@ -1,15 +1,6 @@
 package net.driftingsouls.ds2.server.framework;
 
-import net.driftingsouls.ds2.server.modules.thymeleaf.DSController;
-import net.driftingsouls.ds2.server.modules.thymeleaf.LoginController;
-import net.driftingsouls.ds2.server.modules.thymeleaf.LogoutController;
-import net.driftingsouls.ds2.server.modules.thymeleaf.PortalController;
-import net.driftingsouls.ds2.server.modules.thymeleaf.RegisterController;
-import net.driftingsouls.ds2.server.modules.thymeleaf.SendPasswordController;
-import net.driftingsouls.ds2.server.modules.thymeleaf.ComNetController;
-import net.driftingsouls.ds2.server.modules.thymeleaf.BaseController;
-import net.driftingsouls.ds2.server.modules.thymeleaf.StaticController;
-import net.driftingsouls.ds2.server.modules.thymeleaf.ChoffController;
+import net.driftingsouls.ds2.server.modules.thymeleaf.*;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
@@ -61,6 +52,7 @@ public class DSApplication {
         this.controllersByURL.put("/choff", new ChoffController());
         this.controllersByURL.put("/comnet", new ComNetController());
         this.controllersByURL.put("/base", new BaseController());
+        this.controllersByURL.put("/starmap", new StarmapController());
     }
 
     public TemplateEngine getTemplateEngine() {

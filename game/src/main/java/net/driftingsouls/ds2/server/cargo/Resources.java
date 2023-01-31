@@ -18,13 +18,9 @@
  */
 package net.driftingsouls.ds2.server.cargo;
 
-import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.repositories.ItemRepository;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -110,7 +106,19 @@ public class Resources {
 	 */
 	public static final ResourceID RE = new ItemID(6);
 	
-	private static volatile Cargo resourceList;
+	private final static Cargo resourceList;
+
+	static {
+		Cargo resList = new Cargo();
+
+		var items = ItemRepository.getInstance().getItemsData();
+		for( var itemId : items.keySet() )
+		{
+			resList.addResource(new ItemID(itemId), 1);
+		}
+
+		resourceList = new UnmodifiableCargo(resList);
+	}
 	
 	/**
 	 * Gibt einen Cargo zurueck, in dem jede Resource genau einmal vorkommt. 
@@ -119,34 +127,7 @@ public class Resources {
 	 */
 	public static Cargo getResourceList()
 	{
-		// double-checked locking idiom - seit Java 5 funktionsfaehig
-		if( resourceList == null )
-		{
-			synchronized(Resources.class)
-			{
-				if( resourceList == null )
-				{
-					initResourceList();
-				}
-			}
-		}
-		
 		return resourceList;
-	}
-	
-	private static void initResourceList() {
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-		Cargo resList = new Cargo();
-		
-		List<Item> items = Common.cast(db.createQuery("from Item").list());
-		
-		for( Item item : items )
-		{
-			resList.addResource(new ItemID(item.getID()), 1);
-		}
-		
-		resourceList = new UnmodifiableCargo(resList);
 	}
 
 	/**

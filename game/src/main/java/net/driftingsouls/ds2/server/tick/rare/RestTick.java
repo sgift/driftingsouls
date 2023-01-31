@@ -27,6 +27,7 @@ import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleItemModule;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.Munition;
+import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.GtuZwischenlager;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.statistik.StatAktiveSpieler;
@@ -177,7 +178,7 @@ public class RestTick extends TickController {
 				List<ItemCargoEntry<Item>> itemlist = bcargo.getItems();
 				for (ItemCargoEntry<Item> aitem : itemlist)
 				{
-					if (aitem.getItem() instanceof Munition)
+					if (aitem.getItem().getType() == ItemEffect.Type.AMMO)
 					{
 						continue;
 					}
@@ -240,7 +241,7 @@ public class RestTick extends TickController {
 				List<ItemCargoEntry<Item>> itemlist = scargo.getItems();
 				for (ItemCargoEntry<Item> aitem : itemlist)
 				{
-					if (aitem.getItem() instanceof Munition)
+					if (aitem.getItem().getType() == ItemEffect.Type.AMMO)
 					{
 						continue;
 					}
@@ -312,7 +313,7 @@ public class RestTick extends TickController {
 			List<ItemCargoEntry<Item>> itemlist = acargo.getItems();
 			for (ItemCargoEntry<Item> aitem : itemlist)
 			{
-				if (aitem.getItem() instanceof Munition)
+				if (aitem.getItem().getType() == ItemEffect.Type.AMMO)
 				{
 					continue;
 				}
@@ -345,7 +346,7 @@ public class RestTick extends TickController {
 			itemlist = acargo.getItems();
 			for (ItemCargoEntry<Item> aitem : itemlist)
 			{
-				if (aitem.getItem() instanceof Munition)
+				if (aitem.getItem().getType() == ItemEffect.Type.AMMO)
 				{
 					continue;
 				}

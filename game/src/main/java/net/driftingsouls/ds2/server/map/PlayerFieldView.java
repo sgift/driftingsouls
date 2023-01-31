@@ -1,28 +1,32 @@
 package net.driftingsouls.ds2.server.map;
 
 import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.MutableLocation;
-import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.battles.Battle;
-import net.driftingsouls.ds2.server.entities.Jump;
-import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.User.Relation;
-import net.driftingsouls.ds2.server.entities.User.Relations;
-import net.driftingsouls.ds2.server.entities.ally.Ally;
-import net.driftingsouls.ds2.server.framework.BasicUser;
-import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipType;
-import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
-import org.hibernate.Session;
+import net.driftingsouls.ds2.server.framework.db.DBUtil;
+import net.driftingsouls.ds2.server.repositories.BasesRepository;
+import net.driftingsouls.ds2.server.repositories.ShipsRepository;
+import net.driftingsouls.ds2.server.ships.ShipClasses;
+import org.jooq.Records;
+import org.jooq.impl.DSL;
 
+import javax.persistence.EntityManager;
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
+
+import static net.driftingsouls.ds2.server.entities.jooq.tables.Ally.ALLY;
+import static net.driftingsouls.ds2.server.entities.jooq.tables.BaseTypes.BASE_TYPES;
+import static net.driftingsouls.ds2.server.entities.jooq.tables.Bases.BASES;
+import static net.driftingsouls.ds2.server.entities.jooq.tables.Battles.BATTLES;
+import static net.driftingsouls.ds2.server.entities.jooq.tables.Jumpnodes.JUMPNODES;
+import static net.driftingsouls.ds2.server.entities.jooq.tables.Jumps.JUMPS;
+import static net.driftingsouls.ds2.server.entities.jooq.tables.ShipFleets.SHIP_FLEETS;
+import static net.driftingsouls.ds2.server.entities.jooq.tables.ShipTypes.SHIP_TYPES;
+import static net.driftingsouls.ds2.server.entities.jooq.tables.Ships.SHIPS;
+import static net.driftingsouls.ds2.server.entities.jooq.tables.Users.USERS;
 
 /**
  * Eine Sicht auf ein bestimmtes Sternenkartenfeld.
@@ -33,29 +37,24 @@ import java.util.stream.Collectors;
  */
 public class PlayerFieldView implements FieldView
 {
-	private final Session db;
-	private final Field field;
-	private final User user;
-	private final Ship scanShip;
-	private final Location location;
-	private final boolean inScanRange;
+	protected final User user;
+	protected final Location location;
+	protected final PublicStarmap starmap;
+	protected final EntityManager em;
 
     /**
 	 * Legt eine neue Sicht an.
 	 *
-	 * @param db Ein aktives Hibernate Sessionobjekt.
 	 * @param user Der Spieler fuer den die Sicht gelten soll.
 	 * @param position Der gesuchte Sektor.
-     * @param scanShip Schiff mit dem der Spieler den Sektor scannt.
+     * @param starmap Die Sternenkarte des Systems.
 	 */
-	public PlayerFieldView(Session db, User user, Location position, Ship scanShip)
+	public PlayerFieldView(User user, Location position, PublicStarmap starmap, EntityManager em)
 	{
-		this.field = new Field(db, position);
 		this.user = user;
-        this.scanShip = scanShip;
-		this.db = db;
         this.location = position;
-		this.inScanRange = this.isInScanRange();
+		this.starmap = starmap;
+		this.em = em;
 	}
 
 	/**
@@ -63,256 +62,177 @@ public class PlayerFieldView implements FieldView
 	 * @return Die Basenliste
 	 */
 	@Override
-	public List<Base> getBases()
+	public List<StationaryObjectData> getBases()
 	{
-        boolean shipInSector = isSameSector();
-
-        List<Base> bases = new ArrayList<>();
-		for( Base base : this.field.getBases() )
-		{
-			if( base.getOwner().getId() == this.user.getId() )
-			{
-				bases.add(base);
-			}
-			else if( (this.user.getAlly() != null && user.getAlly().equals(base.getOwner().getAlly())) ||
-					 this.user.getRelations().isOnly(base.getOwner(), Relation.FRIEND) )
-			{
-				bases.add(base);
-			}
-		}
-
-		boolean nebula = !shipInSector && this.field.isNebula() && !this.field.getNebula().allowsScan();
-		if( nebula )
-		{
-			nebula = bases.isEmpty();
-		}
-
-		if( !nebula && this.inScanRange )
-		{
-			bases.addAll(this.field.getBases().stream().filter(base -> !bases.contains(base)).collect(Collectors.toList()));
-		}
-
-		return bases;
+		return BasesRepository.getBasesHeaderInfo(location, user.getId(), isNotScanned());
 	}
-
-	private boolean isSameSector()
+	private boolean isNotScanned()
 	{
-		return scanShip != null && scanShip.getLocation().sameSector(0, this.location, 0);
-	}
-
-	private boolean isInScanRange()
-	{
-		if(!canUse())
-        {
-            return false;
-        }
-
-        int scanRange = scanShip.getEffectiveScanRange();
-        Nebel nebula = (Nebel)db.get(Nebel.class, new MutableLocation(scanShip.getLocation()));
-        if(nebula != null)
-        {
-			//Mit Nebelscannern wird die Sichtweite im Nebel nicht eingeschraenkt
-			if(!scanShip.getTypeData().hasFlag(ShipTypeFlag.NEBELSCAN))
-            {
-				scanRange /= 2;
-			}
-			//Ausser natuerlich, es ist ein EMP. Da funktionieren auch die nicht
-            if(!nebula.allowsScan())
-            {
-                return false;
-            }
-        }
-
-        if(!scanShip.getLocation().sameSector(scanRange, location, 0))
-        {
-            return false;
-        }
-
-		Nebel targetNebula = field.getNebula();
-		if( targetNebula != null ) {
-			return targetNebula.allowsScan();
-		}
-
-        return true;
+		return !starmap.isScanned(location);
 	}
 
 	/**
 	 * @return Die Schiffe, die der Spieler sehen kann.
 	 */
 	@Override
-	public Map<User, Map<ShipType, List<Ship>>> getShips()
+	public Map<UserData, Map<ShipTypeData, List<ShipData>>> getShips()
 	{
-		Map<User, Map<ShipType, List<Ship>>> ships = new TreeMap<>(BasicUser.PLAINNAME_ORDER);
-        if(!this.inScanRange)
+        if(isNotScanned())
         {
-            return ships;
+            return new TreeMap<>();
         }
 
-        boolean shipInSector = isSameSector();
+		int minSize = getMinSize();
 
-		if(!shipInSector && this.field.isNebula() && !this.field.getNebula().allowsScan() )
-		{
-			return ships;
+		if(!starmap.isScanned(location) || (getNebel() != null && getNebel().isEmp())) minSize = Integer.MAX_VALUE;
+
+		return ShipsRepository.getShipsInMapSector(this.location, user.getId(), minSize);
+	}
+
+	protected int getMinSize()
+	{
+		int minSize;
+		if(!starmap.ownShipSectors.contains(location) && !starmap.allyShipSectors.contains(location) && getNebel() != null) {
+			minSize = getNebel().getMinScansize();
+		} else {
+			minSize = 0;
 		}
 
-		Ally ally = this.user.getAlly();
-		Relations relations = this.user.getRelations();
-		for (Ship viewableShip : field.getShips())
-		{
-			if (viewableShip.isLanded())
-			{
-				continue;
-			}
+		if(!starmap.isScanned(location) || (getNebel() != null && getNebel().isEmp())) minSize = Integer.MAX_VALUE;
 
-			final ShipType type = (ShipType) db.get(ShipType.class, viewableShip.getType());
-			final User owner = viewableShip.getOwner();
-
-			boolean enemy = false;
-			if (!viewableShip.getOwner().equals(this.user))
-			{
-				if (ally != null)
-				{
-					Ally ownerAlly = viewableShip.getOwner().getAlly();
-					if (ownerAlly == null || !ownerAlly.equals(this.user.getAlly()))
-					{
-						enemy = true;
-					}
-				}
-				else
-				{
-					if( !relations.isOnly(viewableShip.getOwner(), Relation.FRIEND) )
-					{
-						enemy = true;
-					}
-				}
-			}
-
-			if (enemy)
-			{
-				if (!shipInSector)
-				{
-					if (type.hasFlag(ShipTypeFlag.SEHR_KLEIN))
-					{
-						continue;
-					}
-
-					if (viewableShip.isDocked())
-					{
-						Ship mship = viewableShip.getBaseShip();
-						if (mship.getTypeData().hasFlag(ShipTypeFlag.SEHR_KLEIN))
-						{
-							continue;
-						}
-					}
-
-					if (this.field.isNebula() &&
-							this.field.getNebula().getType().getMinScanbareSchiffsgroesse() > type.getSize())
-					{
-						continue;
-					}
-				}
-			}
-
-			if (!ships.containsKey(owner))
-			{
-				ships.put(owner, new HashMap<>());
-			}
-
-			if (!ships.get(owner).containsKey(type))
-			{
-				ships.get(owner).put(type, new ArrayList<>());
-			}
-
-			ships.get(owner).get(type).add(viewableShip);
-		}
-
-		return ships;
+		return minSize;
 	}
 
 	@Override
-	public List<JumpNode> getJumpNodes()
+	public List<NodeData> getJumpNodes()
 	{
-		return this.field.getNodes().stream().filter(jumpNode -> !jumpNode.isHidden() || this.inScanRange).collect(Collectors.toList());
+		try(var conn = DBUtil.getConnection(em)) {
+			var db = DBUtil.getDSLContext(conn);
+
+			var condition = JUMPNODES.STAR_SYSTEM.eq(location.getSystem())
+				.and(JUMPNODES.X.eq(location.getX()))
+				.and(JUMPNODES.Y.eq(location.getY()));
+			if(isNotScanned()) {
+				condition = condition.and(JUMPNODES.HIDDEN.eq(0));
+			}
+
+			var select = db.select(JUMPNODES.ID, JUMPNODES.NAME, JUMPNODES.GCPCOLONISTBLOCK)
+				.from(JUMPNODES)
+				.where(condition);
+
+			return select.fetch().map(Records.mapping(NodeData::new));
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
-	public List<Jump> getSubraumspalten()
+	public int getJumpCount()
 	{
-		if( !this.inScanRange )
+		if(isNotScanned())
+		{
+			return 0;
+		}
+
+		try(var conn = DBUtil.getConnection(em)) {
+			var db = DBUtil.getDSLContext(conn);
+
+
+			@SuppressWarnings("ConstantConditions")
+			int count = db.select(DSL.count()).from(JUMPS).where(
+					JUMPS.STAR_SYSTEM.eq(location.getSystem())
+					.and(JUMPS.X.eq(location.getX()))
+					.and(JUMPS.Y.eq(location.getY()))
+				)
+				.fetchOne(DSL.count());
+			return count;
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public List<BattleData> getBattles()
+	{
+		if(isNotScanned())
 		{
 			return new ArrayList<>();
 		}
-		return field.getSubraumspalten();
+
+		try(var conn = DBUtil.getConnection(em)) {
+			var db = DBUtil.getDSLContext(conn);
+
+			var attacker = USERS.as("attacker");
+			var defender = USERS.as("defender");
+			var attackerAlly = ALLY.as("attacker_ally");
+			var defenderAlly = ALLY.as("defender_ally");
+
+			var select = db.select(BATTLES.ID,
+					attacker.RACE, attacker.ID, attacker.NICKNAME, attacker.PLAINNAME, attackerAlly.ID, attackerAlly.NAME, attackerAlly.PLAINNAME,
+					defender.RACE, defender.ID, defender.NICKNAME, defender.PLAINNAME, defenderAlly.ID, defenderAlly.NAME, defenderAlly.PLAINNAME)
+				.from(BATTLES)
+				.join(attacker)
+				.on(BATTLES.COMMANDER1.eq(attacker.ID))
+				.join(defender)
+				.on(BATTLES.COMMANDER2.eq(defender.ID))
+				.leftJoin(attackerAlly)
+				.on(attacker.ALLY.eq(attackerAlly.ID))
+				.leftJoin(defenderAlly)
+				.on(defender.ALLY.eq(defenderAlly.ID))
+				.where(BATTLES.STAR_SYSTEM.eq(location.getSystem())
+					.and(BATTLES.X.eq(location.getX()))
+					.and(BATTLES.Y.eq(location.getY())));
+
+			return select.fetch(Records.mapping(BattleData::new));
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
-	public List<Battle> getBattles()
+	public List<StationaryObjectData> getBrocken()
 	{
-		if( !this.inScanRange )
+		if( isNotScanned() || !starmap.hasRocks(location) )
 		{
 			return new ArrayList<>();
 		}
-		return this.field.getBattles();
-	}
 
-	@Override
-	public List<Ship> getBrocken()
-	{
-		if( !this.inScanRange )
-		{
-			return new ArrayList<>();
+		try(var conn = DBUtil.getConnection(em)) {
+			var db = DBUtil.getDSLContext(conn);
+
+			var rockSelect = db.select(SHIPS.ID, SHIPS.NAME, SHIPS.OWNER, USERS.NICKNAME, SHIP_TYPES.PICTURE, SHIPS.TYPE, SHIP_TYPES.NICKNAME)
+				.from(SHIPS)
+				.join(SHIP_TYPES)
+				.on(SHIP_TYPES.CLASS.eq(ShipClasses.FELSBROCKEN.ordinal()).and(SHIP_TYPES.ID.eq(SHIPS.TYPE)))
+				.join(USERS)
+				.on(SHIPS.OWNER.eq(USERS.ID))
+				.where(
+					SHIPS.STAR_SYSTEM.eq(location.getSystem())
+					.and(SHIPS.X.eq(location.getX()))
+					.and(SHIPS.Y.eq(location.getY())));
+
+			return rockSelect.fetch(Records.mapping(StationaryObjectData::new));
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
 		}
-		return this.field.getBrocken();
 	}
 
 	@Override
 	public boolean isRoterAlarm()
 	{
-		if( this.scanShip == null )
-		{
-			return false;
-		}
-		// Nur den Status in benachbarten Sektoren ermitteln
-		if( Math.abs(this.scanShip.getLocation().getX()-this.location.getX()) > 1 )
-		{
-			return false;
-		}
-		if( Math.abs(this.scanShip.getLocation().getY()-this.location.getY()) > 1 )
-		{
-			return false;
-		}
-		return !Ship.getAlertStatus(this.user, this.location).isEmpty();
+		if(isNotScanned()) return false;
+		return starmap.isRoterAlarmImSektor(location);
 	}
 
 	@Override
-	public Nebel getNebel()
+	public Nebel.Typ getNebel()
 	{
-		return field.getNebula();
+		return starmap.getNebula(location);
 	}
 
-	/**
-     * @return <code>true</code>, wenn der Spieler das Schiff zum Scannen nutzen darf, <code>false</code> ansonsten.
-     */
-    private boolean canUse()
-    {
-		if( scanShip == null )
-		{
-			return false;
-		}
-        User owner = scanShip.getOwner();
-        if(owner.getId() == user.getId())
-        {
-            return true;
-        }
-
-        Ally userAlly = user.getAlly();
-        Ally ownerAlly = owner.getAlly();
-        if( userAlly != null && ownerAlly != null && userAlly.getId() == ownerAlly.getId())
-        {
-            return true;
-        }
-
-        Relations relations = user.getRelations();
-		return relations.isOnly(owner, Relation.FRIEND);
+	public Location getLocation()
+	{
+		return location;
 	}
 }

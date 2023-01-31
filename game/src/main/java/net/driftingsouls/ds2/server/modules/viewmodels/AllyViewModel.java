@@ -10,9 +10,15 @@ import net.driftingsouls.ds2.server.framework.ViewModel;
 @ViewModel
 public class AllyViewModel
 {
-	public int id;
-	public String name;
-	public String plainname;
+	public final int id;
+	public final String name;
+	public final String plainname;
+
+	public AllyViewModel(int id, String name, String plainname) {
+		this.id = id;
+		this.name = Common._title(name);
+		this.plainname = plainname;
+	}
 
 	/**
 	 * Mappt eine Entity zu einer Instanz dieses ViewModels.
@@ -21,20 +27,6 @@ public class AllyViewModel
 	 */
 	public static AllyViewModel map(Ally model)
 	{
-		AllyViewModel viewModel = new AllyViewModel();
-		map(model, viewModel);
-		return viewModel;
-	}
-
-	/**
-	 * Mappt eine Entity zu einer Instanz dieses ViewModels.
-	 * @param model Die zu mappende Entity
-	 * @param viewModel Die Zielinstanz des ViewModels
-	 */
-	public static void map(Ally model, AllyViewModel viewModel)
-	{
-		viewModel.id = model.getId();
-		viewModel.name = Common._title(model.getName());
-		viewModel.plainname = model.getPlainname();
+		return new AllyViewModel(model.getId(), model.getName(), model.getPlainname());
 	}
 }

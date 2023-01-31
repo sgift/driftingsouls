@@ -18,9 +18,13 @@
  */
 package net.driftingsouls.ds2.server.cargo;
 
-import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.config.items.*;
+import net.driftingsouls.ds2.server.config.items.effects.IEModule;
+import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
+import net.driftingsouls.ds2.server.entities.FactoryEntry;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.repositories.ItemRepository;
 
 // TODO: Readonly-Version anfertigen
 /**
@@ -29,7 +33,6 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
  *
  */
 public class ItemCargoEntry<T extends Item> {
-	private T item = null;
 	private final Cargo cargo;
 	private final int itemid;
 	private final long count;
@@ -37,12 +40,7 @@ public class ItemCargoEntry<T extends Item> {
 	private final int data;
 
 	protected ItemCargoEntry( Cargo cargo, T item, long count, int uses, int data ) {
-		this.cargo = cargo;
-		this.itemid = item.getID();
-		this.count = count;
-		this.uses = uses;
-		this.data = data;
-		this.item = item;
+		this(cargo, item.getID(), count, uses, data);
 	}
 
 	protected ItemCargoEntry( Cargo cargo, int itemid, long count, int uses, int data ) {
@@ -117,18 +115,70 @@ public class ItemCargoEntry<T extends Item> {
 	 * Gibt den Itemtyp als Objekt zurueck.
 	 * @return Der Itemtyp
 	 */
-	@SuppressWarnings("unchecked")
-	public T getItem() {
-		if( item != null )
-		{
-			return item;
+	public ItemData getItem() {
+		return ItemRepository.getInstance().getItemData(itemid);
+	}
+
+	public FactoryEntry getFactoryEntry()
+	{
+		var itemTyp = getItem().getType();
+		if(itemTyp != ItemEffect.Type.DRAFT_AMMO) {
+			return null;
 		}
 
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-		
-		return (T)db.get(Item.class, itemid);
+		var db = ContextMap.getContext().getEM();
+		return db.find(FactoryEntry.class, itemid);
 	}
+
+	public Munition getAmmo()
+	{
+		if(!isAmmo()) return null;
+
+		var db = ContextMap.getContext().getEM();
+		return db.find(Munition.class, itemid);
+	}
+	public boolean isAmmo()
+	{
+		var itemTyp = getItem().getType();
+		if(itemTyp != ItemEffect.Type.AMMO) return false;
+
+		return true;
+	}
+
+	public Schiffsmodul getShipModule()
+	{
+		var itemTyp = getItem().getType();
+		if(itemTyp != ItemEffect.Type.MODULE) {
+			return null;
+		}
+
+		var db = ContextMap.getContext().getEM();
+		return db.find(Schiffsmodul.class, itemid);
+	}
+
+	public Schiffsverbot getDisableShip()
+	{
+		var itemTyp = getItem().getType();
+		if(itemTyp != ItemEffect.Type.DISABLE_SHIP) {
+			return null;
+		}
+
+		var db = ContextMap.getContext().getEM();
+		return db.find(Schiffsverbot.class, itemid);
+	}
+
+	public Schiffsbauplan getShipDraft()
+	{
+		var itemTyp = getItem().getType();
+		if(itemTyp != ItemEffect.Type.DRAFT_SHIP) {
+			return null;
+		}
+
+		var db = ContextMap.getContext().getEM();
+		return db.find(Schiffsbauplan.class, itemid);
+	}
+
+
 
 	/**
 	 * Gibt die im Cargo vorhandene Menge des Items zurueck.

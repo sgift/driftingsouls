@@ -26,7 +26,7 @@
 		<property name="hibernate.hikari.dataSource.elideSetAutoCommits">true</property>
 		<property name="hibernate.hikari.dataSource.maintainTimeStats">false</property>
 		<!-- For performance reason we should limit us to the default 10, but Hibernate (for our usage) needs more -->
-		<property name="hibernate.hikari.dataSource.maximumPoolSize">100</property>
+		<property name="hibernate.hikari.maximumPoolSize">100</property>
 
         <!-- SQL dialect -->
         <property name="dialect">org.hibernate.dialect.MySQL5InnoDBDialect</property>
@@ -47,7 +47,7 @@
 		<property name="hibernate.bytecode.use_reflection_optimizer">true</property>
 
         <!-- Echo all executed SQL to stdout -->
-        <property name="hibernate.show_sql">true</property>
+        <property name="hibernate.show_sql">false</property>
        	<property name="hibernate.format_sql">true</property>
 
        	<!-- Statistiken aktivieren -->
