@@ -26,6 +26,7 @@ import net.driftingsouls.ds2.server.bases.Werft;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
+import net.driftingsouls.ds2.server.config.StarSystem.Access;
 import net.driftingsouls.ds2.server.entities.*;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
