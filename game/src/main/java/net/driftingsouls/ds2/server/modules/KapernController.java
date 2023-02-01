@@ -24,6 +24,8 @@ import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.config.StarSystem;
+import net.driftingsouls.ds2.server.config.StarSystem.Access;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.*;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -164,6 +166,12 @@ public class KapernController extends Controller
 		if (zielSchiff.getStatus().contains("disable_iff"))
 		{
 			throw new ValidierungException("Das Schiff besitzt keine IFF-Kennung und kann daher nicht gekapert/gepl&uuml;ndert werden.", errorurl);
+		}
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		StarSystem system = (StarSystem) db.get(StarSystem.class, eigenesSchiff.getSystem());
+		if(!system.isBattleAllowed() || system.getAccess() == Access.HOMESYSTEM)
+		{
+			throw new ValidierungException("In diesem System sind Kaperungen und Pl&uuml;nderungen nicht erlaubt.", errorurl);
 		}
 	}
 
