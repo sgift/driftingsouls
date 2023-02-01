@@ -16,7 +16,7 @@
 		</span>
 		<span style="color:white">
 			{if ownship.location.system}
-				<a class="forschinfo" href='./ds?module=client#/map/{ownship.location.system}/{ownship.location.x}/{ownship.location.y}'>{ownship.coordinates}</a>
+				<a class="forschinfo" href='./starmap?system={ownship.location.system}&x={ownship.location.x}&y={ownship.location.y}'>{ownship.coordinates}</a>
 			{else}
 				{ownship.coordinates}
 			{/endif}
