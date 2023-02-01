@@ -647,11 +647,12 @@ public class SensorsDefault implements SchiffPlugin {
 				{
 					if ((user.getAlly() == null) || (aship.getOwner().getAlly() != user.getAlly()))
 					{
-						if (!ashiptype.hasFlag(ShipTypeFlag.NICHT_KAPERBAR))
+						if (!ashiptype.hasFlag(ShipTypeFlag.NICHT_KAPERBAR) && system.isBattleAllowed() && system.getAccess() != Access.HOMESYSTEM)
 						{
 							t.setVar("sships.action.kapern", 1);
 						}
-						else
+						//In Kampffreien Systemen sowie in HOMESYSTEMs ist das Pluendern untersagt, ausser es handelt sich um Schrott
+						else if (( system.isBattleAllowed() && system.getAccess() != Access.HOMESYSTEM) || (ashiptype.getShipClass() == ShipClasses.SCHROTT ))
 						{
 							t.setVar("sships.action.pluendern", 1);
 						}
