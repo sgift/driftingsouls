@@ -6,6 +6,7 @@ import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.repositories.ShipsRepository;
+import net.driftingsouls.ds2.server.repositories.StarsystemRepository;
 
 import java.util.List;
 
