@@ -198,6 +198,10 @@ public class WellKnownConfigValue<T> implements ConfigValueDescriptor<T>
 	 */
 	public static final ConfigValueDescriptor<Boolean> REQUIRE_SHIP_COSTS = new WellKnownConfigValue<>(Boolean.class, "require_ship_costs", "true", "Schiffs-Wartungskosten");
 	/**
+	 * Nahrungsverbrauch von Schiffen (de)aktivieren
+	 */
+	public static final ConfigValueDescriptor<Boolean> REQUIRE_SHIP_FOOD = new WellKnownConfigValue<>(Boolean.class, "require_ship_food", "true", "Schiffs-Nahrungsverbrauch");
+	/**
 	 * Meldung, wenn AGB nicht akzeptiert sind
 	 */
 	public static final ConfigValueDescriptor<String> ACCEPT_AGB_MESSAGE = new WellKnownConfigValue<>(String.class, "agb_accept_message", "Die AGB müssen akzeptiert werden zur Registrierung", "Text, wenn die Checkbox AGB akzeptieren nicht angehakt wurde");
