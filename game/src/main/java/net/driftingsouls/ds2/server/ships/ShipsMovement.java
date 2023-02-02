@@ -25,6 +25,14 @@ public class ShipsMovement {
         var start = ships.get(0).getLocation();
         if(start.getXYDistance(destination) == 0) return new SchiffFlugService.FlugErgebnis(flugStatus, "Schiffe bereits am Zielort!", start);
 
+        var starsystem =StarsystemRepository.getInstance().getStarsystemData(destination.getSystem());
+
+        destination.setX(Integer.max(0, destination.getX()));
+        destination.setX(Integer.min(starsystem.mapX, destination.getX()));
+
+        destination.setY(Integer.max(0, destination.getY()));
+        destination.setY(Integer.min(starsystem.mapY, destination.getY()));
+        
         // maxDistance is the smallest distance one of the ships can fly.
         int maxDistance = Integer.MAX_VALUE;
         for (var ship:ships) {
