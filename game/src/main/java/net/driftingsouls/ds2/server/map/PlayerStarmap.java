@@ -76,7 +76,7 @@ public class PlayerStarmap extends PublicStarmap
 			addScanShipToMap(scanship, scanMap,false);
 			var nebula = this.map.getNebulaMap().get(scanship.getLocation());
 			//int system, int x, int y, int shipId, int ownerId, int scanRange
-			if( nebula != null && !nebula.isEmp() ) addScanShipToMap(new ScanData(scanship.getLocation().getSystem(), scanship.getLocation().getX(), scanship.getLocation().getY(), scanship.getShipId(), scanship.getOwnerId(), 1), nebulaScanMap, true);
+			if( nebula != null && !nebula.isEmp() ) addScanShipToMap(new ScanData(scanship.getLocation().getSystem(), scanship.getLocation().getX(), scanship.getLocation().getY(), scanship.getShipId(), scanship.getOwnerId(),scanship.getSensorStatus(), 1), nebulaScanMap, true);
 		}
 
 		for(var scanship : nebulaScanShips)
@@ -99,7 +99,7 @@ public class PlayerStarmap extends PublicStarmap
 		if (getNebula(scannerLocation) != null && !isNebulaScanner)
 		{
 			if(scanShip.getScanRange() > 0) scannedLocationsToScannerId.put(scanShip.getLocation(),scanShip.getShipId());
-			scanShip = new ScanData(scanShip.getLocation().getSystem(), scanShip.getLocation().getX(), scanShip.getLocation().getY(), scanShip.getShipId(), scanShip.getOwnerId(), (int)(scanShip.getScanRange() * 0.5));
+			scanShip = new ScanData(scanShip.getLocation().getSystem(), scanShip.getLocation().getX(), scanShip.getLocation().getY(), scanShip.getShipId(), scanShip.getOwnerId(), scanShip.getSensorStatus(), (int)Math.max(scanShip.getScanRange() * 0.5, 1));
 		}
 
 		if(!targetMap.containsKey(scannerLocation) || targetMap.get(scannerLocation).getScanRange() < scanShip.getScanRange())
@@ -376,7 +376,7 @@ public class PlayerStarmap extends PublicStarmap
 			ScanData scanData = entry.getValue();
 
 			int scanRange = scanData.getScanRange();
-			if (scanRange > 0) {
+			if (scanRange > 0 || scanData.getSensorStatus() > 0) {
 				//Find sectors scanned from ship
 				findScannedPositions(nebulas, position, scanData, scanRange, scannedLocationsToScannerId);
 			}
