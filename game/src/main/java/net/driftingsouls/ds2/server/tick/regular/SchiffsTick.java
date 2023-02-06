@@ -253,10 +253,13 @@ public class SchiffsTick extends TickController {
 
 		StarSystem system = (StarSystem)db.get(StarSystem.class, shipd.getSystem());
 		//Verbrauch und Verfall im HOMESYSTEM abgeschaltet
+
+
 		if(system.getAccess() != Access.HOMESYSTEM)
 		{
-			berechneNahrungsverbrauch(shipd, shiptd, feedingBases);
-
+			if(!new ConfigService().getValue(WellKnownConfigValue.REQUIRE_SHIP_FOOD)) {
+				berechneNahrungsverbrauch(shipd, shiptd, feedingBases);
+			}
 			//Damage ships which don't have enough crew
 			if( !berechneVerfallWegenCrewmangel(shipd, shiptd) )
 			{
