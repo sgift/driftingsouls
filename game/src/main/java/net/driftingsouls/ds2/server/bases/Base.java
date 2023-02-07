@@ -40,6 +40,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.units.BaseUnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo;
@@ -1080,8 +1081,13 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		stat.substractResource( Resources.NAHRUNG, (long)Math.ceil(base.getBewohner()/10.0) );
 		stat.substractResource( Resources.NAHRUNG, base.getUnits().getNahrung() );
         // RE nicht mit in constat rein. Dies wird im Tick benutzt, der betrachtet RE-Verbrauch aber separat.
+		Context context = ContextMap.getContext();
 
-		stat.substractResource( Resources.RE, base.getUnits().getRE() );
+		org.hibernate.Session db = context.getDB();
+		StarSystem starsystem = (StarSystem) db.get(StarSystem.class, base.getSystem());
+		if(starsystem.getAccess() != StarSystem.Access.HOMESYSTEM){
+			stat.substractResource( Resources.RE, base.getUnits().getRE() );
+		}
 
 		return new BaseStatus(stat, prodstat, constat, e, bewohner, arbeiter, Collections.unmodifiableMap(buildinglocs), bebon);
 	}
@@ -1679,6 +1685,15 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 
 	public boolean feedMarines(Cargo baseCargo)
 	{
+		Context context = ContextMap.getContext();
+
+		org.hibernate.Session db = context.getDB();
+		StarSystem starsystem = (StarSystem) db.get(StarSystem.class, this.getSystem());
+
+		if(starsystem.getAccess() == StarSystem.Access.HOMESYSTEM ){
+			return true;
+		}
+
 		int hungryPeople = (int)Math.ceil(getUnits().getNahrung());
 		int fleeingPeople = feedPeople(hungryPeople, baseCargo);
 
@@ -1693,6 +1708,15 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 
     public boolean payMarines(Cargo baseCargo)
     {
+				Context context = ContextMap.getContext();
+
+				org.hibernate.Session db = context.getDB();
+				StarSystem starsystem = (StarSystem) db.get(StarSystem.class, this.getSystem());
+
+				if(starsystem.getAccess() == StarSystem.Access.HOMESYSTEM ){
+					return true;
+				}
+
         long marinesold = getUnits().getRE();
         long re = baseCargo.getResourceCount(Resources.RE);
 
