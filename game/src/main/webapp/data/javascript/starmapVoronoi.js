@@ -44,11 +44,11 @@ function generateSystemMap(newData)
 
     for (let i=0;i<newData.length;i++) {
         let system = newData[i];
-        let svg = `<g id="${system.id}-container">`;
+        let svg = `<a id="${system.id}-container" href="./starmap?system=${system.id}">`;
         svg += drawSystem(system);
         svg += drawSystemGrid(system);
 
-        svg += "</g>";
+        svg += "</a>";
 
         container.innerHTML += svg;
 
