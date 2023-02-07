@@ -355,32 +355,11 @@ public class BaseType
 		this.largeImage = largeImage;
 	}
 
-	/**
-	 * Gibt das Bild der in einem Sektor der Sternenkarte zurueck.
-	 * Dabei wird die Ausdehnung beruecksichtigt. Zudem
-	 * kann das zurueckgelieferte Bild mehrere Sektoren umfassen. Der korrekte
-	 * Offset zur Darstellung des angefragten Sektors kann mittels
-	 * {@link #getSectorImageOffset(net.driftingsouls.ds2.server.Location,net.driftingsouls.ds2.server.Location)}
-	 * ermittelt werden.
-	 *
-	 * @param location Koordinate fuer die das Bild der Basis ermittelt werden soll.
-	 * @param baseLocation Die Koordinate der Basis (Mittelpunkt)
-	 * @return Der Bildstring der Basis oder einen Leerstring, wenn die Basis die Koordinaten nicht schneidet
-	 */
-	public String getSectorImage(Location location, Location baseLocation)
-	{
-		if(!location.sameSector(0, baseLocation, size))
-		{
-			return "";
-		}
 
-		return starmapImage;
-	}
 
 	/**
 	 * Gibt den Pfad zum Bild auf der Sternenkarte zurueck. Das Bild kann mehrere Sektoren umfassen. Fuer
 	 * die Abfrage zwecks Darstellung in einem Sektor sollte die Methode
-	 * {@link #getSectorImage(net.driftingsouls.ds2.server.Location, net.driftingsouls.ds2.server.Location)}
 	 * verwendet werden.
 	 * @return Der Pfad zum Bild
 	 */
@@ -398,40 +377,4 @@ public class BaseType
 		this.starmapImage = starmapImage;
 	}
 
-	/**
-	 * Ermittelt den Offset in Sektoren fuer die Darstellung des von
-	 * {@link #getSectorImage(net.driftingsouls.ds2.server.Location,net.driftingsouls.ds2.server.Location)} ermittelten Bildes.
-	 * Der ermittelte Offset ist immer Negativ oder <code>0</code> und stellt
-	 * die Verschiebung der Grafik selbst dar (vgl. CSS-Sprites).
-	 *
-	 * @param location Koordinate fuer die das Bild der Basis ermittelt werden soll.
-	 * @param baseLocation Die Koordinate der Basis (Mittelpunkt)
-	 * @return Der Offset als Array (<code>[x,y]</code>)
-	 */
-	public int[] getSectorImageOffset(Location location, Location baseLocation)
-	{
-		if( size == 0 || !location.sameSector(0, baseLocation, size))
-		{
-			return new int[] {0,0};
-		}
-
-		for(int by = baseLocation.getY() - getSize(); by <= baseLocation.getY() + getSize(); by++)
-		{
-			for(int bx = baseLocation.getX() - getSize(); bx <= baseLocation.getX() + getSize(); bx++)
-			{
-				Location loc = new Location(baseLocation.getSystem(), bx, by);
-
-				if( !baseLocation.sameSector(0, loc, getSize()))
-				{
-					continue;
-				}
-
-				if(location.equals(loc))
-				{
-					return new int[] {-bx+baseLocation.getX()-size, -by+baseLocation.getY()-size};
-				}
-			}
-		}
-		return new int[] {0,0};
-	}
 }

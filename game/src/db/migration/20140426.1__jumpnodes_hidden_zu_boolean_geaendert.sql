@@ -1,1 +1,0 @@
-ALTER TABLE jumpnodes MODIFY hidden BOOLEAN NOT NULL;

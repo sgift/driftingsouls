@@ -18,9 +18,10 @@
  */
 package net.driftingsouls.ds2.server.cargo;
 
-import net.driftingsouls.ds2.server.config.items.Item;
+import net.driftingsouls.ds2.server.config.items.*;
+import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
+import net.driftingsouls.ds2.server.repositories.ItemRepository;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.xml.XMLUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -520,18 +521,18 @@ public class Cargo implements Cloneable {
 	 * @return Die Gesamtmasse
 	 */
 	public long getMass() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
+		var itemDao = ItemRepository.getInstance();
 		long tmp = 0;
 
 		for (Long[] item1 : items)
 		{
-			Item item = (Item) db.get(Item.class, item1[0].intValue());
-			if (item == null)
+			var itemType = itemDao.getItemData(item1[0].intValue());
+			if (itemType == null)
 			{
 				log.warn("Unbekanntes Item " + item1[0] + " geortet");
 				continue;
 			}
-			tmp += item1[1] * item.getCargo();
+			tmp += item1[1] * itemType.getCargo();
 		}
 
 		return tmp;
@@ -543,12 +544,13 @@ public class Cargo implements Cloneable {
 	 * @return Eine Resourcenliste
 	 */
 	public ResourceList getResourceList() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
 		ResourceList reslist = new ResourceList();
+		var itemDao = ItemRepository.getInstance();
+		var itemsDisplayData = itemDao.getItemsData();
 
 		if( !items.isEmpty() ) {
 			for( Long[] item : items  ) {
-				Item itemType = (Item)db.get(Item.class, item[0].intValue());
+				var itemType = itemsDisplayData.get(item[0].intValue());
 				if( itemType == null )
 				{
 					log.warn("Unbekanntes Item "+item[0]+" geortet");
@@ -564,7 +566,7 @@ public class Cargo implements Cloneable {
 				}
 				else {
 					large = true;
-					image = itemType.getLargePicture();
+					image = itemType.getLargepicture();
 					if( image == null ) {
 						large = false;
 						image = itemType.getPicture();
@@ -683,7 +685,9 @@ public class Cargo implements Cloneable {
 	 */
 	public ResourceList compare( Cargo cargoObj, boolean echoBothSides, boolean basis, boolean baukosten) {
 		ResourceList reslist = new ResourceList();
-		org.hibernate.Session db = ContextMap.getContext().getDB();
+
+		var itemDao = ItemRepository.getInstance();
+		var itemsData = itemDao.getItemsData();
 
 		List<Long[]> items = cargoObj.getItemArray();
 
@@ -711,7 +715,7 @@ public class Cargo implements Cloneable {
 			itemlist.sort(new ResourceIDComparator(false));
 
 			for( ItemID aitem : itemlist ) {
-				Item item = (Item)db.get(Item.class, aitem.getItemID());
+				var item = itemsData.get(aitem.getItemID());
 				if( item == null ) {
 					log.warn("Ungueliges Item (Data: "+aitem+") entdeckt");
 					continue;
@@ -779,7 +783,7 @@ public class Cargo implements Cloneable {
 				}
 				else {
 					large = true;
-					image = item.getLargePicture();
+					image = item.getLargepicture();
 					if( image == null) {
 						image = item.getPicture();
 						large = false;
@@ -970,7 +974,8 @@ public class Cargo implements Cloneable {
 	 */
 	public Cargo cutCargo( long mass ) {
 		Cargo retcargo;
-		org.hibernate.Session db = ContextMap.getContext().getDB();
+
+
 
 		if( mass >= getMass() ) {
 			retcargo = (Cargo)clone();
@@ -983,10 +988,14 @@ public class Cargo implements Cloneable {
 		long currentmass = 0;
 
 		if( currentmass != mass ) {
+
+			var itemDao = ItemRepository.getInstance();
+			var itemsData = itemDao.getItemsData();
+
 			for( int i=0; i < items.size(); i++ ) {
 				Long[] aitem = items.get(i);
 
-				Item item = (Item)db.get(Item.class, aitem[0].intValue());
+				var item = itemsData.get(aitem[0].intValue());
 				if( item.getCargo()*aitem[1] + currentmass < mass ) {
 					currentmass += item.getCargo()*aitem[1];
 					retcargo.getItemArray().add(aitem);
@@ -1040,11 +1049,12 @@ public class Cargo implements Cloneable {
 	 */
 	public <T extends Item> ItemCargoEntry<T> getItemOfType( Class<T> itemType )
 	{
-		org.hibernate.Session db = ContextMap.getContext().getDB();
+		var itemDao = ItemRepository.getInstance();
+
 		for (Long[] aitem : items)
 		{
 			final int itemid = aitem[0].intValue();
-			@SuppressWarnings("unchecked") T item = (T) db.get(Item.class, itemid);
+			var item = itemDao.getItemData(itemid);
 			if (item == null)
 			{
 				throw new RuntimeException("Unbekanntes Item " + itemid);
@@ -1053,7 +1063,7 @@ public class Cargo implements Cloneable {
 			{
 				continue;
 			}
-			return new ItemCargoEntry<>(this, item, aitem[1], aitem[2].intValue(), aitem[3].intValue());
+			return new ItemCargoEntry<>(this, item.getId(), aitem[1], aitem[2].intValue(), aitem[3].intValue());
 		}
 		return null;
 	}
@@ -1066,23 +1076,51 @@ public class Cargo implements Cloneable {
 	 */
 	public <T extends Item> List<ItemCargoEntry<T>> getItemsOfType(Class<T> itemType)
 	{
+		var itemDao = ItemRepository.getInstance();
 		List<ItemCargoEntry<T>> itemlist = new ArrayList<>();
-		org.hibernate.Session db = ContextMap.getContext().getDB();
+
+		var type = ItemEffect.Type.NONE;
+
+		if(itemType == Schiffsmodul.class) type = ItemEffect.Type.MODULE;
+		else if(itemType == IffDeaktivierenItem.class) type = ItemEffect.Type.DISABLE_IFF;
+		else if(itemType == Munition.class) type = ItemEffect.Type.AMMO;
+		else if(itemType == Munitionsbauplan.class) type = ItemEffect.Type.DRAFT_AMMO;
+		else if(itemType == Schiffsbauplan.class) type = ItemEffect.Type.DRAFT_SHIP;
+		else if(itemType == Schiffsverbot.class) type = ItemEffect.Type.DISABLE_SHIP;
+		else if(itemType == Ware.class) type = ItemEffect.Type.NONE;
+
 
 		for (Long[] aitem : items)
 		{
 			final int itemid = aitem[0].intValue();
-			@SuppressWarnings("unchecked") T item = (T) db.get(Item.class, itemid);
+			var item = itemDao.getItemData(itemid);
 
-			if (item == null)
+			if (item == null || item.getType() != type)
 			{
 				continue;
 			}
-			if (!itemType.isInstance(item))
+
+			itemlist.add(new ItemCargoEntry<>(this, item.getId(), aitem[1], aitem[2].intValue(), aitem[3].intValue()));
+		}
+
+		return itemlist;
+	}
+	public List<ItemCargoEntry<Schiffsmodul>> getShipModules()
+	{
+		var itemDao = ItemRepository.getInstance();
+		List<ItemCargoEntry<Schiffsmodul>> itemlist = new ArrayList<>();
+
+		for (Long[] aitem : items)
+		{
+			final int itemid = aitem[0].intValue();
+			var item = itemDao.getItemData(itemid);
+
+			if (item == null || item.getType() != ItemEffect.Type.MODULE)
 			{
 				continue;
 			}
-			itemlist.add(new ItemCargoEntry<>(this, item, aitem[1], aitem[2].intValue(), aitem[3].intValue()));
+
+			itemlist.add(new ItemCargoEntry<>(this, item.getId(), aitem[1], aitem[2].intValue(), aitem[3].intValue()));
 		}
 
 		return itemlist;
@@ -1181,12 +1219,10 @@ public class Cargo implements Cloneable {
 	 * @return Der Pfad zum Bild
 	 */
 	public static String getResourceImage( ResourceID resid ) {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
+		var item = ItemRepository.getInstance().getItemData(resid.getItemID());
 
-		Item item = (Item)db.get(Item.class, resid.getItemID());
-		if( item != null ) {
-			return item.getPicture();
-		}
+		if(item != null) return item.getPicture();
+
 		return "Kein passendes Item gefunden";
 	}
 
@@ -1196,12 +1232,10 @@ public class Cargo implements Cloneable {
 	 * @return Der Name
 	 */
 	public static String getResourceName( ResourceID resid ) {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
+		var item = ItemRepository.getInstance().getItemData(resid.getItemID());
 
-		Item item = (Item)db.get(Item.class, resid.getItemID());
-		if( item != null ) {
-			return item.getName();
-		}
+		if(item != null) return item.getName();
+
 		return "Kein passendes Item gefunden";
 	}
 
@@ -1214,9 +1248,8 @@ public class Cargo implements Cloneable {
 	 */
 	public static long getResourceMass( ResourceID resourceid, long count ) {
 		long tmp = 0;
-		org.hibernate.Session db = ContextMap.getContext().getDB();
+		var item = ItemRepository.getInstance().getItemData(resourceid.getItemID());
 
-		Item item = (Item)db.get(Item.class, resourceid.getItemID());
 		if( item != null ) {
 			tmp = count * item.getCargo();
 		}

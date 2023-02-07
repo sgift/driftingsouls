@@ -172,16 +172,16 @@ public class AutoFire
             List<ItemCargoEntry<Munition>> itemList = mycargo.getItemsOfType(Munition.class);
             if(weapon.hasFlag(Weapon.Flags.AMMO_SELECT))
             {
-				ammos.addAll(itemList.stream().map(ItemCargoEntry::getItem).collect(Collectors.toList()));
+				ammos.addAll(itemList.stream().map(ItemCargoEntry::getAmmo).collect(Collectors.toList()));
             }
             else
             {
 				for (ItemCargoEntry<Munition> item : itemList)
 				{
-					IEAmmo effect = item.getItem().getEffect();
+					IEAmmo effect = item.getAmmo().getEffect();
 					if (weapon.getMunitionstypen().contains(effect.getAmmo().getType()))
 					{
-						ammos.add(item.getItem());
+						ammos.add(item.getAmmo());
 						break;
 					}
 				}

@@ -793,6 +793,20 @@ public class Ship implements Locatable,Transfering,Feeding {
 	}
 
 	private static final int MANGEL_TICKS = 9;
+	private int GetMangelTicksReaktorByType(ShipTypeData type)
+	{
+		if( (this.alarm != Alarmstufe.GREEN) && (type.getShipClass() != ShipClasses.GESCHUETZ) ) {
+			return MANGEL_TICKS;
+		}
+
+		//Jäger und Bomber benötigen in der Regel nur für 3 Runden Treibstoff -> 4/2 (Turns) = 2 -> ab 2 Ticks gilt Mangel
+		if(type.getShipClass() == ShipClasses.JAEGER || type.getShipClass() == ShipClasses.BOMBER)
+		{
+			return 4;
+		}
+
+		return MANGEL_TICKS;
+	}
 
 	/**
 	 * Berechnet das Status-Feld des Schiffes neu. Diese Aktion sollte nach jeder
@@ -811,20 +825,52 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * @return der neue Status-String
 	 */
 	public String recalculateShipStatus(boolean nahrungPruefen) {
-		if( this.id < 0 ) {
-			throw new UnsupportedOperationException("recalculateShipStatus kann nur bei Schiffen mit positiver ID ausgefuhert werden!");
-		}
-
-		org.hibernate.Session db = ContextMap.getContext().getDB();
 
 		ShipTypeData type = this.getTypeData();
-
 		Cargo cargo = this.cargo;
 
-		List<String> status = new ArrayList<>();
-
 		// Alten Status lesen und ggf Elemente uebernehmen
+		List<String> status = getPersistentStatus(nahrungPruefen);
+
+		// Treibstoffverbrauch berechnen
+		if(hasFuelShortage(type, cargo))
+		{
+			status.add("mangel_reaktor");
+		}
+
+		// Die Items nach IFF und Hydros durchsuchen
+		if( cargo.getItemOfType(IffDeaktivierenItem.class) != null ) {
+			status.add("disable_iff");
+		}
+
+		// Ist ein Offizier an Bord?
+		Offizier offi = getOffizier();
+		if( offi != null ) {
+			status.add("offizier");
+		}
+
+		if( nahrungPruefen && lackOfFood() ) {
+			status.add("mangel_nahrung");
+		}
+
+		this.status = Common.implode(" ", status);
+
+		if( type.getWerft() != 0 ) {
+			ensureWerftSanity();
+		}
+
+		return this.status;
+	}
+
+	/**
+	 * Nimmt den alten Status und schreibt gibt alle die bleiben sollen als Liste zurück
+	 * @param nahrungPruefen
+	 * @return
+	 */
+	private List<String> getPersistentStatus(boolean nahrungPruefen)
+	{
 		String[] oldstatus = StringUtils.split(this.status, ' ');
+		List<String> status = new ArrayList<>();
 
 		if( oldstatus.length > 0 ) {
 			for (String astatus : oldstatus)
@@ -845,12 +891,48 @@ public class Ship implements Locatable,Transfering,Feeding {
 				status.add(astatus);
 			}
 		}
+		return status;
+	}
 
-		// Treibstoffverbrauch berechnen
+	/**
+	 * Ueberprueft, ob ein evt vorhandener Werftkomplex nicht exisitert,
+	 * oder ein Link zu einem Asteroiden resettet werden muss.
+	 */
+	private void ensureWerftSanity()
+	{
+		org.hibernate.Session db = ContextMap.getContext().getDB();
+		ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=:ship")
+				.setEntity("ship", this)
+				.uniqueResult();
+
+		if(werft != null) {
+			if (werft.getKomplex() != null) {
+				werft.getKomplex().checkWerftLocations();
+			}
+			if(werft.isLinked()) {
+				if(!werft.getLinkedBase().getLocation().sameSector(werft.getLinkedBase().getSize(), getLocation(), 0)) {
+					werft.resetLink();
+				}
+			}
+		}
+		else
+		{
+			log.error("Das Schiff "+this.id+" besitzt keinen Werfteintrag");
+		}
+	}
+
+	/**
+	 * Prüft ob das Schiff einen Treibstoffmangel hat
+	 * @param type
+	 * @param cargo
+	 * @return
+	 */
+	private boolean hasFuelShortage(ShipTypeData type, Cargo cargo)
+	{
 		if( type.getRm() > 0 ) {
 			long ep = cargo.getResourceCount( Resources.URAN ) * type.getRu() +
-			cargo.getResourceCount( Resources.DEUTERIUM ) * type.getRd() +
-			cargo.getResourceCount( Resources.ANTIMATERIE ) * type.getRa();
+					cargo.getResourceCount( Resources.DEUTERIUM ) * type.getRd() +
+					cargo.getResourceCount( Resources.ANTIMATERIE ) * type.getRa();
 			long er = ep/type.getRm();
 
 			int turns = 2;
@@ -858,53 +940,12 @@ public class Ship implements Locatable,Transfering,Feeding {
 				turns = 4;
 			}
 
-			if( er <= MANGEL_TICKS/turns ) {
-				status.add("mangel_reaktor");
+			if( er <= GetMangelTicksReaktorByType(type)/turns ) {
+				return false;
 			}
+			return true;
 		}
-
-		// Die Items nach IFF und Hydros durchsuchen
-
-		if( cargo.getItemOfType(IffDeaktivierenItem.class) != null ) {
-			status.add("disable_iff");
-		}
-
-		// Ist ein Offizier an Bord?
-		Offizier offi = getOffizier();
-		if( offi != null ) {
-			status.add("offizier");
-		}
-
-		if( nahrungPruefen && lackOfFood() ) {
-			status.add("mangel_nahrung");
-		}
-
-		this.status = Common.implode(" ", status);
-
-		// Ueberpruefen, ob ein evt vorhandener Werftkomplex nicht exisitert.
-        // Oder ein Link zu einem Asteroiden resettet werden muss.
-		if( type.getWerft() != 0 ) {
-			ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=:ship")
-				.setEntity("ship", this)
-				.uniqueResult();
-
-			if(werft != null) {
-                if (werft.getKomplex() != null) {
-                    werft.getKomplex().checkWerftLocations();
-                }
-                if(werft.isLinked()) {
-                    if(!werft.getLinkedBase().getLocation().sameSector(werft.getLinkedBase().getSize(), getLocation(), 0)) {
-                        werft.resetLink();
-                    }
-                }
-            }
-			else
-			{
-				log.error("Das Schiff "+this.id+" besitzt keinen Werfteintrag");
-			}
-		}
-
-		return this.status;
+		return false;
 	}
 
 	/**
@@ -2335,7 +2376,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		Cargo cargo = this.cargo;
 		List<ItemCargoEntry<Item>> itemlist = cargo.getItems();
 		for( ItemCargoEntry<Item> item : itemlist ) {
-			Item itemobject = item.getItem();
+			var itemobject = item.getItem();
 			if( itemobject.isUnknownItem() ) {
 				newowner.addKnownItem(item.getItemID());
 			}

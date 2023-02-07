@@ -25,6 +25,8 @@ import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.bases.Werft;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.config.StarSystem;
+import net.driftingsouls.ds2.server.config.StarSystem.Access;
 import net.driftingsouls.ds2.server.entities.*;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -559,7 +561,8 @@ public class SensorsDefault implements SchiffPlugin {
 				}
 
 				//Angreifen
-				if (!disableIFF && (aship.getOwner().getId() != user.getId()) && (aship.getBattle() == null) && shiptype.isMilitary() && !(ashiptype.getShipClass() == ShipClasses.FELSBROCKEN))
+				StarSystem system = (StarSystem) db.get(StarSystem.class, aship.getSystem());
+				if (!disableIFF && (aship.getOwner().getId() != user.getId()) && (aship.getBattle() == null) && shiptype.isMilitary() && !(ashiptype.getShipClass() == ShipClasses.FELSBROCKEN) && system.isBattleAllowed() && system.getAccess() != Access.HOMESYSTEM)
 				{
 					if (user.getAlly() == null || (aship.getOwner().getAlly() != user.getAlly()))
 					{
@@ -644,11 +647,12 @@ public class SensorsDefault implements SchiffPlugin {
 				{
 					if ((user.getAlly() == null) || (aship.getOwner().getAlly() != user.getAlly()))
 					{
-						if (!ashiptype.hasFlag(ShipTypeFlag.NICHT_KAPERBAR))
+						if (!ashiptype.hasFlag(ShipTypeFlag.NICHT_KAPERBAR) && system.isBattleAllowed() && system.getAccess() != Access.HOMESYSTEM)
 						{
 							t.setVar("sships.action.kapern", 1);
 						}
-						else
+						//In Kampffreien Systemen sowie in HOMESYSTEMs ist das Pluendern untersagt, ausser es handelt sich um Schrott
+						else if (( system.isBattleAllowed() && system.getAccess() != Access.HOMESYSTEM) || (ashiptype.getShipClass() == ShipClasses.SCHROTT ))
 						{
 							t.setVar("sships.action.pluendern", 1);
 						}

@@ -144,7 +144,7 @@ Mérignac
 Ajaccio
 Issy-les-Moulineaux
 Levallois-Perret
-Villeneuve-d’Ascq
+Villeneuve-d'Ascq
 Quimper
 Valence
 Noisy-le-Grand
@@ -838,7 +838,7 @@ Córdoba
 Valladolid
 Vigo
 Gijón
-L’Hospitalet de Llobregat
+L'Hospitalet de Llobregat
 A Coruña
 Granada
 Vitoria-Gasteiz
@@ -1092,7 +1092,7 @@ Zinder
 Tahoua
 Agadez
 Arlit
-Birni-N’Konni
+Birni-N'Konni
 Dogondoutchi
 San Antonio
 Garapan
@@ -1149,7 +1149,7 @@ Chongqing
 Shenyang
 Tianjin
 Guangzhou
-Xi’an
+Xi'an
 Hangzhou
 Harbin
 Cluj-Napoca
@@ -1273,7 +1273,7 @@ Kurikka
 Kolonia
 Ulithi
 Nomwin
-Saint Paul’s
+Saint Paul's
 Tabernacle
 Cayon
 Barrouallie
@@ -1389,7 +1389,7 @@ Mandeville
 Portmore
 Half Way Tree
 Savanna-la-Mar
-Saint Ann’s Bay
+Saint Ann's Bay
 Old Harbour
 Santa Cruz
 Runaway Bay
@@ -1665,7 +1665,7 @@ Koudougou
 Banfora
 Ouahigouya
 Kaya
-Fada N’Gourma
+Fada N'Gourma
 Dédougou
 Garango
 Thimphu
@@ -1717,7 +1717,7 @@ Kópavogur
 Akureyri
 Akranes
 Seltjarnarnes
-Saint John’s
+Saint John's
 Piggotts
 Luanda
 Lubango
@@ -1745,7 +1745,7 @@ Sint-Jans-Molenbeek
 Hasselt
 Sint-Lambrechts-Woluwe
 Jette
-Braine-l’Alleud
+Braine-l'Alleud
 Ottignies-Louvain-la-Neuve
 Bilzen
 Houthalen-Helchteren
@@ -1761,9 +1761,9 @@ Solito
 Pos Chikito
 Savaneta
 Pjöngjang
-Namp’o
+Namp'o
 Haeju
-Kimch’aek
+Kimch'aek
 Aardenburg
 Reimerswaal
 Bergen op Zoom
@@ -2040,7 +2040,7 @@ San Fernando
 Point Fortín
 Tacarigua
 St. Joseph
-N’Djamena
+N'Djamena
 Sarh
 Bojanov
 Choltice
@@ -2089,7 +2089,7 @@ Maldonado
 Minas
 Toshkent
 Namangan
-Kattaqoʻrgʻon
+Kattaq'rg'on
 Maracaibo
 Caracas
 Valencia

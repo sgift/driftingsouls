@@ -25,6 +25,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+import net.driftingsouls.ds2.server.map.MapArea;
 import net.driftingsouls.ds2.server.map.PlayerStarmap;
 import net.driftingsouls.ds2.server.map.SectorImage;
 import net.driftingsouls.ds2.server.modules.SchiffController;
@@ -158,21 +159,12 @@ public class NavigationDefault implements SchiffPlugin {
 				t.setVar("schiff.navigation.showmessage","Unbekanntes Sternensystem! Wende Dich an einen Admin!");
 				log.error(String.format("ship: %s -- unknown system: %s", data.getId(), sys));
 			} else {
-				PlayerStarmap map = new PlayerStarmap(user, system, new int[]{x - 1, y - 1, 3, 3});
+				var mapArea = new MapArea(x - 1, 3, y - 1, 3);
+				PlayerStarmap map = new PlayerStarmap(user, system.getID());
 
 				int tmp = 0;
 
-				Location[] locs = new Location[8];
-				for (int ny = 0, index = 0; ny <= 2; ny++) {
-					for (int nx = 0; nx <= 2; nx++) {
-						if (nx == 1 && ny == 1) {
-							continue;
-						}
-						locs[index++] = new Location(sys, x + nx - 1, y + ny - 1);
-					}
-				}
-
-				Set<Location> alertStatus = map.getSektorenMitRotemAlarm();
+				Set<Location> alertStatus = map.getSectorsWithAttackingShips();
 
 				boolean newrow;
 
@@ -192,7 +184,7 @@ public class NavigationDefault implements SchiffPlugin {
 							t.setVar("schiff.navigation.nav.sectorimage", "");
 						}
 						t.setVar("schiff.navigation.nav.direction", tmp,
-								"schiff.navigation.nav.location", sector.displayCoordinates(true),
+								"schiff.navigation.nav.location", sector.displayCoordinates(true, map),
 								"schiff.navigation.nav.tile", "./ds?module=map&action=tile&sys=" + sys + "&tileX=" + (sector.getX() - 1) / 20 + "&tileY=" + (sector.getY() - 1) / 20,
 								"schiff.navigation.nav.tile.x", ((sector.getX() - 1) % 20) * 25,
 								"schiff.navigation.nav.tile.y", ((sector.getY() - 1) % 20) * 25,

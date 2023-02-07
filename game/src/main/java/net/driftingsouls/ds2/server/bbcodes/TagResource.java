@@ -30,6 +30,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeFunction;
+import net.driftingsouls.ds2.server.repositories.ItemRepository;
 
 import java.util.Iterator;
 
@@ -66,7 +67,7 @@ public class TagResource implements BBCodeFunction {
 				return unknstr;
 			}
 
-			Item item = (Item)db.get(Item.class, rid.getItemID());
+			var item = ItemRepository.getInstance().getItemData(rid.getItemID());
 
 			if( item == null ) {
 				return unknstr;
@@ -81,7 +82,7 @@ public class TagResource implements BBCodeFunction {
 					return unknstr;
 				}
 
-				if( item.isUnknownItem() && !user.isKnownItem(item.getID()) && !context.hasPermission(WellKnownPermission.ITEM_UNBEKANNTE_SICHTBAR) ) {
+				if( item.isUnknownItem() && !user.isKnownItem(item.getId()) && !context.hasPermission(WellKnownPermission.ITEM_UNBEKANNTE_SICHTBAR) ) {
 					return unknstr;
 				}
 			}

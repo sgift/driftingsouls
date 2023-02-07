@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 
 import javax.persistence.EntityManager;
+import java.io.IOException;
 
 /**
  * Basisklasse fuer Datenbank-Tests via Hibernate. Kuemmert sich um das Starten und Stoppen von
@@ -19,16 +20,13 @@ import javax.persistence.EntityManager;
 public class DBTest
 {
 	@BeforeClass
-	public static void setUpHibernateConfig()
-	{
+	public static void setUpHibernateConfig() throws IOException {
 		DBTestUtils.ladeHibernateKonfiguration();
 	}
 
 	@Before
 	public void setUpDB()
 	{
-		DBTestUtils.startDerby();
-		DBTestUtils.erzeugeDbSchema();
 		DBTestUtils.starteHibernate();
 		DBTestUtils.erzeugeContext();
 
@@ -41,7 +39,6 @@ public class DBTest
 		DBTestUtils.stoppeEntityManager();
 		DBTestUtils.stoppeContext();
 		DBTestUtils.stoppeHibernate();
-		DBTestUtils.stopDerby();
 	}
 
 	/**

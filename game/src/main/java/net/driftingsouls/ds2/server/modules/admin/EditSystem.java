@@ -32,6 +32,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
+import net.driftingsouls.ds2.server.repositories.BasesRepository;
 import net.driftingsouls.ds2.server.ships.Ship;
 import org.hibernate.Session;
 
@@ -59,7 +60,7 @@ public class EditSystem implements EntityEditor<StarSystem>
 		form.field("Name", String.class, StarSystem::getName, StarSystem::setName);
 		form.field("Breite", Integer.class, StarSystem::getWidth, StarSystem::setWidth);
 		form.field("Höhe", Integer.class, StarSystem::getHeight, StarSystem::setHeight);
-		form.field("Allow Military", Boolean.class, StarSystem::isMilitaryAllowed, StarSystem::setMilitaryAllowed);
+		form.field("Allow Battles", Boolean.class, StarSystem::isBattleAllowed, StarSystem::setBattleAllowed);
 		form.field("Max Colonies (-1 = keine Begrenzung)", Integer.class, StarSystem::getMaxColonies, StarSystem::setMaxColonies);
 		form.field("In Sternenkarte sichtbar", Boolean.class, StarSystem::isStarmapVisible, StarSystem::setStarmapVisible);
 		form.field("OrderLocations(Form: x/y|x/y)", String.class, StarSystem::getOrderLocationString, StarSystem::setOrderLocations);
@@ -101,6 +102,10 @@ public class EditSystem implements EntityEditor<StarSystem>
 						.list()),
 				this::entferneNebel
 		);
+
+		form.postUpdateTask("Basen cache leeren", (oldSystem, newSystem) -> {
+			BasesRepository.getInstance().clearSystem(newSystem.getID());
+		});
 
 
 

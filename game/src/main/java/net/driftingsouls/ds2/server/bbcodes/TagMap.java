@@ -35,7 +35,7 @@ public class TagMap implements BBCodeFunction
 			Location loc = Location.fromString(content);
 
 			return "<a target=\"main\" class=\"profile\" " +
-				   "href=\"./ds?module=client#/map/" + loc.getSystem() + "/" + loc.getX() + "/" + loc.getY() + "\">"+content+"</a>";
+				   "href=\"./starmap?system=" + loc.getSystem() + "&x=" + loc.getX() + "&y=" + loc.getY() + "\">"+content+"</a>";
 		}
 		catch( RuntimeException e ) {
 			return content;

@@ -1,1 +1,0 @@
-INSERT INTO `user_values` (`user_id`, `name`, `value`, `version`) VALUES (0, 'GAMEPLAY/user/battle_pm', 'false', 0);

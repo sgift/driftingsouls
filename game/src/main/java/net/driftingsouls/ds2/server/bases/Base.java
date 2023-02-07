@@ -1013,7 +1013,6 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 */
 	public static BaseStatus getStatus( Base base )
 	{
-
         Fabrik.ContextVars vars = ContextMap.getContext().get(Fabrik.ContextVars.class);
         vars.clear();
 
@@ -1041,6 +1040,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 
 		Integer[] bebauung = base.getBebauung();
 		Integer[] bebon = base.getActive();
+		var buildings = Building.getBuildings();
 
 		for( int o=0; o < base.getWidth() * base.getHeight(); o++ )
 		{
@@ -1049,7 +1049,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 				continue;
 			}
 
-			Building building = Building.getBuilding(bebauung[o]);
+			Building building = buildings.get(bebauung[o]);
 
 			if( !buildinglocs.containsKey(building.getId()) ) {
 				buildinglocs.put(building.getId(), o);
@@ -1080,6 +1080,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		stat.substractResource( Resources.NAHRUNG, (long)Math.ceil(base.getBewohner()/10.0) );
 		stat.substractResource( Resources.NAHRUNG, base.getUnits().getNahrung() );
         // RE nicht mit in constat rein. Dies wird im Tick benutzt, der betrachtet RE-Verbrauch aber separat.
+
 		stat.substractResource( Resources.RE, base.getUnits().getRE() );
 
 		return new BaseStatus(stat, prodstat, constat, e, bewohner, arbeiter, Collections.unmodifiableMap(buildinglocs), bebon);
@@ -1351,36 +1352,6 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	}
 
 	/**
-	 * Ermittelt den Offset in Sektoren fuer die Darstellung des von
-	 * {@link #getBaseImage(net.driftingsouls.ds2.server.Location)} ermittelten Bildes.
-	 * Der ermittelte Offset ist immer Negativ oder <code>0</code> und stellt
-	 * die Verschiebung der Grafik selbst dar (vgl. CSS-Sprites).
-	 *
-	 * @param location Koordinate fuer die das Bild der Basis ermittelt werden soll.
-	 * @return Der Offset als Array (<code>[x,y]</code>)
-	 */
-	public int[] getBaseImageOffset(Location location)
-	{
-		return this.klasse.getSectorImageOffset(location, this.getLocation());
-	}
-
-	/**
-	 * Gibt das Bild der Basis zurueck.
-	 * Dabei werden Ausdehnung und Besitzer beruecksichtigt. Zudem
-	 * kann das zurueckgelieferte Bild mehrere Sektoren umfassen. Der korrekte
-	 * Offset zur Darstellung des angefragten Sektors kann mittels
-	 * {@link #getBaseImageOffset(net.driftingsouls.ds2.server.Location)}
-	 * ermittelt werden.
-	 *
-	 * @param location Koordinate fuer die das Bild der Basis ermittelt werden soll.
-	 * @return Der Bildstring der Basis oder einen Leerstring, wenn die Basis die Koordinaten nicht schneidet
-	 */
-	public String getBaseImage(Location location)
-	{
-		return this.klasse.getSectorImage(location, this.getLocation());
-	}
-
-	/**
 	 * @return The current amount of food on the object.
 	 */
 	@Override
@@ -1421,7 +1392,6 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	public long getNahrungsBalance()
 	{
 		BaseStatus status = getStatus(this );
-
 		Cargo produktion = status.getProduction();
 
 		return produktion.getResourceCount( Resources.NAHRUNG );

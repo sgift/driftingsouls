@@ -2,6 +2,15 @@ body {
 	margin:0px;
 }
 
+.signum{
+    padding: 0 5px 0 0;
+}
+
+.signum:hover
+{
+    cursor:pointer;
+}
+
 #mapmenubar {
 	position:fixed;
 	left:-20px;

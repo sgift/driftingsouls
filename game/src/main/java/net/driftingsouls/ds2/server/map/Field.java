@@ -1,8 +1,5 @@
 package net.driftingsouls.ds2.server.map;
 
-import java.util.Collections;
-import java.util.List;
-
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.MutableLocation;
 import net.driftingsouls.ds2.server.bases.Base;
@@ -13,8 +10,10 @@ import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
-
 import org.hibernate.Session;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Ein Feld auf einer Sternenkarte.
@@ -31,7 +30,6 @@ class Field
 	private final List<Battle> battles;
 	private final List<Jump> subraumspalten;
 	private final Nebel nebula;
-	private final Location position;
 	private final List<Ship> brocken;
 
 	Field(Session db, Location position)
@@ -71,8 +69,6 @@ class Field
 				.setParameter("x", position.getX())
 				.setParameter("y", position.getY())
 				.list());
-
-		this.position = position;
 	}
 
 	boolean isNebula()
@@ -113,21 +109,5 @@ class Field
 	List<Jump> getSubraumspalten()
 	{
 		return Collections.unmodifiableList(subraumspalten);
-	}
-
-	Location getPosition()
-	{
-		return this.position;
-	}
-
-	boolean isScannableInLrs(Ship ship)
-	{
-		if(!isNebula())
-		{
-			return true;
-		}
-
-		Nebel.Typ type = nebula.getType();
-		return type.getMinScansize() <= ship.getTypeData().getSize();
 	}
 }

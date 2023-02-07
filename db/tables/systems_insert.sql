@@ -1,2 +1,0 @@
-INSERT INTO `systems` (`id`, `Name`, `width`, `height`, `military`, `maxColonies`, `starmap`, `orderloc`, `gtuDropZone`, `access`, `descrip`, spawnableress, mapX, mapY) VALUES ('1', 'Vorlagen', '500', '500', '0', '1', '0', null, null, '0', null, '',0, 0);
-UPDATE `systems` SET `id`='0' WHERE `id`='1';

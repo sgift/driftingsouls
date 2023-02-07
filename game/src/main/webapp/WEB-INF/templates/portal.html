@@ -14,6 +14,7 @@
     <script type="text/javascript" src="data/javascript/jquery.js"></script>
     <script type="text/javascript" src="data/javascript/facebox.js"></script>
     <script type="text/javascript">
+
         jQuery(document).ready(function ($) {
             $('a[rel*=facebox]').facebox()
         })
@@ -24,9 +25,6 @@
 <body>
 <input type='hidden' name='currentDsModule' id='currentDsModule' value=''/>
 <div id="error-placeholder"></div>
-<audio autoplay loop volume="0.2">
-    <source src="data/sounds/welcome.mp3" type="audio/mp3">
-</audio>
 <div id="header">
 
     <!-- hier sind die Drifting Souls Bilder der ersten Portalseite-->
@@ -165,6 +163,7 @@
         parent.setCurrentPage('', 'null');
         parent.completePage();
     }
+
 </script>
 </body>
 </html>

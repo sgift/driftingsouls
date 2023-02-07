@@ -4,7 +4,6 @@ import net.driftingsouls.ds2.server.framework.AnnotationUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.EJB3NamingStrategy;
@@ -12,8 +11,6 @@ import org.hibernate.dialect.MySQL5InnoDBDialect;
 import org.hibernate.dialect.function.SQLFunctionTemplate;
 import org.hibernate.dialect.function.StandardSQLFunction;
 import org.hibernate.ejb.EntityManagerFactoryImpl;
-import org.hibernate.engine.spi.CollectionKey;
-import org.hibernate.engine.spi.EntityKey;
 import org.hibernate.internal.util.StringHelper;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.service.ServiceRegistryBuilder;
@@ -31,9 +28,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.SortedMap;
 import java.util.SortedSet;
-import java.util.TreeMap;
 
 /**
  * Eine Hilfsklasse, um die Hibernate SessionFactory zu initialisieren.
@@ -158,42 +153,6 @@ public class HibernateUtil
     }
 	public synchronized static Configuration getConfiguration() { return configuration; }
 	public synchronized static EntityManagerFactory getEntityManagerFactory() { return entityManagerFactory; }
-
-    /**
-     * Gibt den momentanen Inhalt der Session, aufgelistet nach Entitynamen/Collectionrolle und der zugehoerigen Anzahl
-     * an Eintraegen in der Session zurueck.
-     * @param db Die Session zu der die Daten ermittelt werden sollen
-     * @return Die Daten, wobei der Schluessel der Entityname/die Collectionrolle ist
-     */
-    public static SortedMap<String,Integer> getSessionContentStatistics(Session db)
-    {
-    	SortedMap<String,Integer> counter = new TreeMap<>();
-		for( Object obj : db.getStatistics().getEntityKeys() )
-		{
-			EntityKey key = (EntityKey)obj;
-			if( !counter.containsKey(key.getEntityName()) )
-			{
-				counter.put(key.getEntityName(), 1);
-			}
-			else
-			{
-				counter.put(key.getEntityName(), counter.get(key.getEntityName())+1);
-			}
-		}
-		for( Object obj : db.getStatistics().getCollectionKeys() )
-		{
-			CollectionKey key = (CollectionKey)obj;
-			if( !counter.containsKey(key.getRole()) )
-			{
-				counter.put(key.getRole(), 1);
-			}
-			else
-			{
-				counter.put(key.getRole(), counter.get(key.getRole())+1);
-			}
-		}
-		return counter;
-    }
 
 	public static void shutdown()
 	{

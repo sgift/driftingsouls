@@ -25,6 +25,7 @@ import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.repositories.NebulaRepository;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.Ships;
@@ -62,30 +63,7 @@ public class Nebel implements Locatable {
 	 */
 	@SuppressWarnings("unchecked")
 	public static synchronized Typ getNebula(Location loc) {
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-
-		// Hibernate cachet nur Ergebnisse, die nicht leer waren.
-		// Da es jedoch viele Positionen ohne Nebel gibt wuerden viele Abfragen
-		// mehrfach durchgefuehrt. Daher wird in der Session vermerkt, welche
-		// Positionen bereits geprueft wurden
-
-		Set<Location> emptySpace = (Set<Location>)context.getVariable(Ships.class, "getNebula(Location)#EmptySpace");
-		if( emptySpace == null ) {
-			emptySpace = new HashSet<>();
-			context.putVariable(Ships.class, "getNebula(Location)#EmptySpace", emptySpace);
-		}
-		if(!emptySpace.contains(loc) ) {
-			Nebel nebel = (Nebel)db.get(Nebel.class, new MutableLocation(loc));
-			if( nebel == null ) {
-				emptySpace.add(loc);
-				return null;
-			}
-
-			return nebel.getType();
-		}
-
-		return null;
+		return NebulaRepository.getInstance().getNebula(loc);
 	}
 
 	/**
@@ -96,15 +74,15 @@ public class Nebel implements Locatable {
 		/**
 		 * Normaler Deutnebel.
 		 */
-		MEDIUM_DEUT(0, 7, false, 0, 7,"normaler Deuteriumnebel"),
+		MEDIUM_DEUT(0, 7, false, 0, 0,"normaler Deuteriumnebel"),
 		/**
 		 * Schwacher Deutnebel.
 		 */
-		LOW_DEUT(1, 5, false, -1, 5,"schwacher Deuteriumnebel"),
+		LOW_DEUT(1, 5, false, -1, 0,"schwacher Deuteriumnebel"),
 		/**
 		 * Dichter Deutnebel.
 		 */
-		STRONG_DEUT(2, 11, false, 1, 11,"starker Deuteriumnebel"),
+		STRONG_DEUT(2, 11, false, 1, 0,"starker Deuteriumnebel"),
 		/**
 		 * Schwacher EMP-Nebel.
 		 */
@@ -120,13 +98,12 @@ public class Nebel implements Locatable {
 		/**
 		 * Schadensnebel.
 		 */
-		DAMAGE(6, 7, false, Integer.MIN_VALUE, 9, "Schadensnebel");
+		DAMAGE(6, 7, false, Integer.MIN_VALUE, 0, "Schadensnebel");
 
 		private final int code;
 		private final int minScansize;
 		private final boolean emp;
 		private final int deutfaktor;
-		private final int minScanbareSchiffsgroesse;
 		private final String beschreibung;
 
 		Typ(int code, int minScansize, boolean emp, int deutfaktor, int minScanbareSchiffsgroesse, String beschreibung)
@@ -135,7 +112,6 @@ public class Nebel implements Locatable {
 			this.minScansize = minScansize;
 			this.emp = emp;
 			this.deutfaktor = deutfaktor;
-			this.minScanbareSchiffsgroesse = minScanbareSchiffsgroesse;
 			this.beschreibung = beschreibung;
 		}
 
@@ -193,6 +169,11 @@ public class Nebel implements Locatable {
 			return emp;
 		}
 
+		public boolean isDamage()
+		{
+			return getCode() == 6;
+		}
+
 		/**
 		 * Gibt zurueck, ob ein Nebel diesen Typs das Sammeln
 		 * von Deuterium ermoeglicht.
@@ -245,19 +226,6 @@ public class Nebel implements Locatable {
 			Set<Typ> nebula = new HashSet<>();
 			nebula.add(DAMAGE);
 			return nebula;
-		}
-
-		/**
-		 * Gibt die minimale mittels LRS scanbare Schiffsgroesse zurueck.
-		 * Schiffe, deren Groesse kleiner als die angegebene Groesse ist,
-		 * werden mittels LRS in einem Nebel diesen Typs nicht erkannt.
-		 * Der Wert <code>0</code> bedeutet, das alle Schiffe mittels
-		 * LRS geortet werden koennen.
-		 * @return Die minimale Groesse
-		 */
-		public int getMinScanbareSchiffsgroesse()
-		{
-			return this.minScanbareSchiffsgroesse;
 		}
 
 		/**

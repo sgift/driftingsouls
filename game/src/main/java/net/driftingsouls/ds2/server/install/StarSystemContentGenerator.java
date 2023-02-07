@@ -144,7 +144,7 @@ public class StarSystemContentGenerator
 
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		List<BaseType> baseTypes = Common.cast(db.createCriteria(BaseType.class).list());
-		TileCache.forSystem(sys).resetCache();
+		TileCache.forSystem(sys.getID()).resetCache();
 		fuelleSystemMitAsteroiden(sys, baseTypes.stream().filter((bt) -> bt.getSize() == 0).collect(Collectors.toList()), (size) -> (int) Math.pow(size, 0.6));
 		fuelleSystemMitAsteroiden(sys, baseTypes.stream().filter((bt) -> bt.getSize() > 0).collect(Collectors.toList()), (size) -> (int) Math.pow(size, 0.2));
 		fuelleSystemMitNebeln(sys);

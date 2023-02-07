@@ -8,6 +8,7 @@ import org.hibernate.Session;
 import org.junit.*;
 
 import javax.persistence.EntityManager;
+import java.io.IOException;
 
 /**
  * Variante des {@link DBTest}, in dem die Transaktionsverwaltung automatisch erfolgt
@@ -17,11 +18,8 @@ import javax.persistence.EntityManager;
 public class DBSingleTransactionTest
 {
 	@BeforeClass
-	public static void setUpDatabase()
-	{
+	public static void setUpDatabase() throws IOException {
 		DBTestUtils.ladeHibernateKonfiguration();
-		DBTestUtils.startDerby();
-		DBTestUtils.erzeugeDbSchema();
 		DBTestUtils.starteHibernate();
 		DBTestUtils.erzeugeContext();
 	}
@@ -44,7 +42,6 @@ public class DBSingleTransactionTest
 		DBTestUtils.stoppeEntityManager();
 		DBTestUtils.stoppeContext();
 		DBTestUtils.stoppeHibernate();
-		DBTestUtils.stopDerby();
 	}
 
 	/**

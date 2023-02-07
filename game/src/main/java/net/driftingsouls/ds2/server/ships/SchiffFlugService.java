@@ -451,11 +451,21 @@ public class SchiffFlugService
 	public static class FlugErgebnis {
 		private final FlugStatus status;
 		private final String messages;
+		private final Location location;
+
+
+		public FlugErgebnis(FlugStatus status, @Nonnull String messages, Location location)
+		{
+			this.status = status;
+			this.messages = messages;
+			this.location = location;
+		}
 
 		public FlugErgebnis(FlugStatus status, @Nonnull String messages)
 		{
 			this.status = status;
 			this.messages = messages;
+			this.location = new Location(0,0,0);
 		}
 
 		/**
@@ -465,6 +475,31 @@ public class SchiffFlugService
 		public FlugStatus getStatus()
 		{
 			return status;
+		}
+
+		public String getAutomatedMessage()
+		{
+			switch (status)
+			{
+				case SUCCESS:
+					return "Ankunft bei " + location.getSystem() + ":" + location.getX() + "/" + location.getY();
+				case BLOCKED_BY_EMP:
+					return "Stoppe bei "+ location.getSystem() + ":" + location.getX() + "/" + location.getY() +" aufgrund eines EMP Nebels.";
+				case BLOCKED_BY_ALERT:
+					return "Stoppe bei "+ location.getSystem() + ":" + location.getX() + "/" + location.getY() +" aufgrund eines Alarm rot";
+				case SHIP_FAILURE:
+					return "Schiff wurde bei folgenden Koordinaten vernichtet: "+ location.getSystem() + ":" + location.getX() + "/" + location.getY();
+				case BLOCKED_BY_DAMAGE_NEBULA:
+					return "Stoppe bei "+ location.getSystem() + ":" + location.getX() + "/" + location.getY() +" aufgrund eines Schadensnebels";
+				default: return "";
+			}
+
+/*
+			SUCCESS,
+			BLOCKED_BY_EMP,
+			BLOCKED_BY_ALERT,
+			SHIP_FAILURE,
+			BLOCKED_BY_DAMAGE_NEBULA,*/
 		}
 
 		/**

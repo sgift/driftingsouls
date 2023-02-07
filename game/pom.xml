@@ -12,6 +12,11 @@
     <artifactId>driftingsouls-game</artifactId>
     <packaging>war</packaging>
 
+    <properties>
+        <db_username>root</db_username>
+        <db_password>build</db_password>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>net.driftingsouls</groupId>
@@ -82,23 +87,11 @@
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-ehcache</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-c3p0</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate</groupId>
             <artifactId>hibernate-entitymanager</artifactId>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-jpamodelgen</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.mchange</groupId>
-            <artifactId>c3p0</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -123,6 +116,16 @@
         <dependency>
             <groupId>org.quartz-scheduler</groupId>
             <artifactId>quartz</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.mchange</groupId>
+                    <artifactId>c3p0</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.zaxxer</groupId>
+                    <artifactId>HikariCP-java7</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.reflections</groupId>
@@ -160,6 +163,10 @@
             <groupId>org.jooq</groupId>
             <artifactId>jooq</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>junit</groupId>
@@ -179,6 +186,11 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>mysql</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -203,7 +215,7 @@
                 <artifactId>build-helper-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>add-source</id>
+                        <id>add-templates</id>
                         <phase>generate-sources</phase>
                         <goals>
                             <goal>add-source</goal>
@@ -211,6 +223,18 @@
                         <configuration>
                             <sources>
                                 <source>${project.build.directory}/generated-sources/templates</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>add-jooq</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/generated-sources/jooq</source>
                             </sources>
                         </configuration>
                     </execution>
@@ -258,6 +282,94 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.gmaven</groupId>
+                <artifactId>groovy-maven-plugin</artifactId>
+                <version>2.1.1</version>
+                <executions>
+                    <execution>
+                        <!-- Start the container in any phase before the actual code
+                             generation is required, i.e. at the latest in
+                             generate-sources -->
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <source>
+                                import org.testcontainers.containers.MySQLContainer
+
+                                db = new MySQLContainer(
+                                        "mysql:latest")
+                                        .withUsername("${db_username}")
+                                        .withDatabaseName("ds")
+                                        .withPassword("${db_password}")
+
+                                // After you've started the container, collect its generated
+                                // JDBC URL (which contains a random port)
+                                db.start()
+                                project.properties.setProperty('db_url', db.getJdbcUrl())
+                            </source>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>write-project-properties</goal>
+                        </goals>
+                        <configuration>
+                            <outputFile>${project.build.outputDirectory}/build.properties</outputFile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <configuration>
+                    <skip>false</skip>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>migrate</goal>
+                        </goals>
+                        <configuration>
+                            <!--suppress MavenModelInspection -->
+                            <url>${db_url}</url>
+                            <user>${db_username}</user>
+                            <password>${db_password}</password>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jooq</groupId>
+                <artifactId>jooq-codegen-maven</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <jdbc>
+                        <!--suppress MavenModelInspection -->
+                        <url>${db_url}</url>
+                        <user>${db_username}</user>
+                        <password>${db_password}</password>
+                    </jdbc>
+                </configuration>
             </plugin>
         </plugins>
     </build>

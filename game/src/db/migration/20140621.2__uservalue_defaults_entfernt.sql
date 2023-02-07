@@ -1,1 +1,0 @@
-DELETE FROM user_values WHERE user_id = 0;

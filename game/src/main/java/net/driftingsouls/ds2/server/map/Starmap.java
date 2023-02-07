@@ -1,22 +1,26 @@
 package net.driftingsouls.ds2.server.map;
 
-import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.battles.Battle;
-import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.framework.db.DBUtil;
+import net.driftingsouls.ds2.server.repositories.*;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import static java.util.stream.Collectors.toUnmodifiableSet;
+import static net.driftingsouls.ds2.server.entities.jooq.tables.Battles.BATTLES;
+import static net.driftingsouls.ds2.server.entities.jooq.tables.Jumpnodes.JUMPNODES;
+import static net.driftingsouls.ds2.server.entities.jooq.tables.ShipTypes.SHIP_TYPES;
+import static net.driftingsouls.ds2.server.entities.jooq.tables.Ships.SHIPS;
 
 /**
  * Eine Systemkarte.
@@ -25,17 +29,15 @@ import java.util.Map;
  *
  * @author Sebastian Gift
  */
-class Starmap
+public class Starmap
 {
 	private final int system;
 
-	private List<JumpNode> nodes;
-	private Map<Location, List<Ship>> shipMap;
-	private Map<Location, Nebel> nebulaMap;
+	private Set<JumpNode> nodes;
 	private Map<Location, List<JumpNode>> nodeMap;
-	private Map<Location, List<Base>> baseMap;
-	private Map<Location, List<Battle>> battleMap;
-	private Map<Location, List<Ship>> brockenMap;
+	protected Map<Location, List<BaseData>> baseMap;
+	private Set<Location> battlePositions;
+	private Set<Location> rockPositions;
 
 	Starmap(int system)
 	{
@@ -56,80 +58,43 @@ class Starmap
 	}
 
 	/**
-	 * @return Die JumpNodes im System.
+	 * @return Die Liste der Brocken im System sortiert nach Sektoren.
 	 */
-	Collection<JumpNode> getJumpNodes()
+	Set<Location> getRockPositions()
 	{
-		loadNodes();
-		return Collections.unmodifiableCollection(this.nodes);
+		if( this.rockPositions == null ) {
+			rockPositions = ShipsRepository.getRockPositions(system);
+		}
+		return rockPositions;
 	}
 
 	/**
-	 * @return Die Liste der Schiffe im System, sortiert nach Sektoren.
+	 * @return Die Liste der Basen im System sortiert nach Sektoren.
 	 */
-	Map<Location, List<Ship>> getShipMap()
-	{
-		if( this.shipMap == null ) {
-			org.hibernate.Session db = ContextMap.getContext().getDB();
-			List<Ship> ships = Common.cast(db
-					.createQuery("from Ship where system=:system and shiptype.shipClass!=:shipClasses ")
-					.setInteger("system", this.system)
-					.setParameter("shipClasses", ShipClasses.FELSBROCKEN)
-					.list());
-			this.shipMap = buildLocatableMap(ships);
-		}
-		return Collections.unmodifiableMap(this.shipMap);
-	}
-
-		/**
-	 * @return Die Liste der Schiffe im System, sortiert nach Sektoren.
-	 */
-	Map<Location, List<Ship>> getBrockenMap()
-	{
-		if( this.brockenMap == null ) {
-			org.hibernate.Session db = ContextMap.getContext().getDB();
-			List<Ship> brocken = Common.cast(db
-					.createQuery("from Ship where system=:system and shiptype.shipClass=:shipClasses")
-					.setInteger("system", this.system)
-					.setParameter("shipClasses", ShipClasses.FELSBROCKEN)
-					.list());
-			this.brockenMap = buildLocatableMap(brocken);
-		}
-		return Collections.unmodifiableMap(this.brockenMap);
-	}
-
-	/**
-	 * @return Die Liste der Basen im System, sortiert nach Sektoren.
-	 */
-	Map<Location, List<Base>> getBaseMap()
+	Map<Location, List<BaseData>> getBaseMap()
 	{
 		if( this.baseMap == null ) {
-			org.hibernate.Session db = ContextMap.getContext().getDB();
-			List<Base> bases = Common.cast(db
-					.createQuery("from Base where system=:system")
-					.setInteger("system", this.system)
-					.list());
-
-			this.baseMap = buildBaseMap(bases);
+			var bases = BasesRepository.getInstance().getBaseDataBySystem(this.system);
+			this.baseMap = this.buildBaseMap(bases);
 		}
+
 		return Collections.unmodifiableMap(this.baseMap);
 	}
 
 	/**
-	 * @return Die Liste der Schlachten im System, sortiert nach Sektoren.
+	 * @return Die Liste der Sektoren mit Schlachten.
 	 */
-	Map<Location, List<Battle>> getBattleMap()
+	Set<Location> getBattlePositions()
 	{
-		if( this.battleMap == null ) {
-			org.hibernate.Session db = ContextMap.getContext().getDB();
-			List<Battle> battles = Common.cast(db
-					.createQuery("from Battle where system=:system")
-					.setInteger("system", this.system)
-					.list());
+		if( this.battlePositions == null ) this.battlePositions = BattleRepository.getBattlePositionsInSystem(system);
+		return battlePositions;
+	}
 
-			this.battleMap = buildLocatableMap(battles);
+	Set<JumpNode> getNodes() {
+		if(nodes == null) {
+			loadNodes();
 		}
-		return Collections.unmodifiableMap(this.battleMap);
+		return nodes;
 	}
 
 	/**
@@ -139,9 +104,15 @@ class Starmap
 	{
 		if( this.nodeMap == null ) {
 			loadNodes();
-			this.nodeMap = buildLocatableMap(nodes);
+
+			var nodeMap = new HashMap<Location, List<JumpNode>>();
+			for(var node: nodes) {
+				var location = new Location(system, node.getX(), node.getY());
+				nodeMap.computeIfAbsent(location, k -> new ArrayList<>()).add(node);
+			}
+			this.nodeMap = Collections.unmodifiableMap(nodeMap);
 		}
-		return Collections.unmodifiableMap(this.nodeMap);
+		return this.nodeMap;
 	}
 
 	private void loadNodes()
@@ -150,100 +121,82 @@ class Starmap
 		{
 			return;
 		}
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		this.nodes = Common.cast(db
-				.createQuery("from JumpNode where system=:system")
-				.setInteger("system", this.system)
-				.list());
+
+		var newJumpNodes = new HashSet<JumpNode>();
+		var jumpnodes = JumpNodeRepository.getInstance().getJumpNodesInSystem(system);
+
+		for (var jumpnode : jumpnodes.values()) {
+			newJumpNodes.add(jumpnode);
+		}
+
+		this.nodes = Collections.unmodifiableSet(newJumpNodes);
 	}
 
 	/**
-	 * @return Die Liste der Schiffe im System, sortiert nach Sektoren.
+	 * @return Die Liste der Schiffe im System sortiert nach Sektoren.
 	 */
-	Map<Location, Nebel> getNebulaMap()
+	Map<Location, Nebel.Typ> getNebulaMap()
 	{
-		if( this.nebulaMap == null ) {
-			org.hibernate.Session db = ContextMap.getContext().getDB();
-			List<Nebel> nebulas = Common.cast(db
-					.createQuery("from Nebel where loc.system=:system")
-					.setInteger("system", this.system)
-					.list());
-			this.nebulaMap = buildNebulaMap(nebulas);
-		}
-		return Collections.unmodifiableMap(this.nebulaMap);
+		return NebulaRepository.getInstance().getNebulaData(this.system);
 	}
 
-	protected Map<Location, Nebel> buildNebulaMap(List<Nebel> nebulas)
+	protected Map<Location, List<BaseData>> buildBaseMap(List<BaseData> bases)
 	{
-		Map<Location, Nebel> nebulaMap = new HashMap<>();
+		Map<Location, List<BaseData>> baseMap = new HashMap<>();
 
-		for(Nebel nebula: nebulas)
+		for(var base: bases)
 		{
-			nebulaMap.put(nebula.getLocation(), nebula);
-		}
-
-		return nebulaMap;
-	}
-
-	protected <T extends Locatable> Map<Location, List<T>> buildLocatableMap(List<T> nodes)
-	{
-		Map<Location, List<T>> nodeMap = new HashMap<>();
-
-		for(T node: nodes)
-		{
-			Location position = node.getLocation();
-
-			if(!nodeMap.containsKey(position))
-			{
-				nodeMap.put(position, new ArrayList<>());
-			}
-
-			nodeMap.get(position).add(node);
-		}
-
-		return nodeMap;
-	}
-
-	protected Map<Location, List<Base>> buildBaseMap(List<Base> bases)
-	{
-		Map<Location, List<Base>> baseMap = new HashMap<>();
-
-		for(Base base: bases)
-		{
-			Location position = base.getLocation();
-			if(!baseMap.containsKey(position))
-			{
-				baseMap.put(position, new ArrayList<>());
-			}
+			Location baseCenterLocation = base.getLocation();
 
 			int size = base.getSize();
 			if(size > 0)
 			{
-				for(int y = base.getY() - size; y <= base.getY() + size; y++)
+				var locations = base.getLocationsMap();
+
+				for (var location : locations.entrySet())
 				{
-					for(int x = base.getX() - size; x <= base.getX() + size; x++)
+					if(!baseMap.containsKey(location.getKey()))
 					{
-						Location loc = new Location(position.getSystem(), x, y);
-
-						if( !position.sameSector( 0, loc, base.getSize() ) ) {
-							continue;
-						}
-
-						if(!baseMap.containsKey(loc))
-						{
-							baseMap.put(loc, new ArrayList<>());
-						}
-
-						baseMap.get(loc).add(0, base); //Big objects are always printed first
+						baseMap.put(location.getKey(), new ArrayList<>());
 					}
+
+					baseMap.get(location.getKey()).add(0, location.getValue()); //Big objects are always printed first
 				}
 			}
 			else
 			{
-				baseMap.get(position).add(base);
+				if(!baseMap.containsKey(baseCenterLocation))
+				{
+					baseMap.put(baseCenterLocation, new ArrayList<>());
+				}
+				baseMap.get(baseCenterLocation).add(base);
 			}
 		}
 
 		return baseMap;
+	}
+
+	public static class JumpNode {
+		private final int x;
+		private final int y;
+		private final boolean hidden;
+
+		public JumpNode(int x, int y, boolean hidden) {
+			this.x = x;
+			this.y = y;
+			this.hidden = hidden;
+		}
+
+		public int getX() {
+			return x;
+		}
+
+		public int getY() {
+			return y;
+		}
+
+		public boolean isHidden() {
+			return hidden;
+		}
 	}
 }
