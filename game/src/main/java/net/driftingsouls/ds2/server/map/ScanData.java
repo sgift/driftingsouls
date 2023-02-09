@@ -37,7 +37,7 @@ public class ScanData implements Locatable {
     public int getOwnerId() {
         return ownerId;
     }
-
+    
     public int getSensorStatus(){
         return sensorStatus;
     }

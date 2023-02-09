@@ -28,6 +28,7 @@ import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.config.Rang;
 import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.config.StarSystem.Access;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.entities.ally.AllyPosten;
@@ -1365,16 +1366,20 @@ public class User extends BasicUser {
 		Long schiffsKosten = (Long)db
 			.createQuery("select sum(coalesce(sm.reCost,st.reCost)) " +
 				"from Ship s join s.shiptype st left join s.modules sm " +
-				"where s.owner=:user and s.docked not like 'l %'")
+				" join starsystem ss " +
+				"where s.owner=:user and s.docked not like 'l %' and ss.access !=:access")
 			.setParameter("user", this)
+			.setParameter("access", Access.HOMESYSTEM)
 			.iterate().next();
 
 		// Kosten der auf den Schiffen stationierten Einheiten ermitteln
 		Long einheitenKosten = (Long)db
 			.createQuery("select sum(ceil(u.amount*u.unittype.recost)) " +
 				"from Ship s join s.units u "+
-				"where s.owner=:user and s.docked not like 'l %'")
+				" join starsystem ss " +
+				"where s.owner=:user and s.docked not like 'l %' and ss.access !=:access")
 			.setParameter("user", this)
+			.setParameter("access", Access.HOMESYSTEM)
 			.iterate().next();
 
 		if( schiffsKosten == null )
@@ -1866,6 +1871,6 @@ public class User extends BasicUser {
 	{
 		this.ApiKey = ApiKey;
 		this.setUserValue(WellKnownUserValue.APIKEY, ApiKey);
-		
+
 	}
 }

@@ -33,6 +33,7 @@ import net.driftingsouls.ds2.server.cargo.modules.Module;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleType;
 import net.driftingsouls.ds2.server.config.Weapons;
+import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.items.IffDeaktivierenItem;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.Feeding;
@@ -1124,7 +1125,11 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * @return Amount of food this ship consumes
 	 */
 	public int getFoodConsumption() {
-		if(this.getOwner().hasFlag(UserFlag.NO_FOOD_CONSUMPTION) || this.isLanded() || this.isDocked())
+		Context context = ContextMap.getContext();
+
+		org.hibernate.Session db = context.getDB();
+		StarSystem starsystem = (StarSystem) db.get(StarSystem.class, this.getSystem());
+		if(this.getOwner().hasFlag(UserFlag.NO_FOOD_CONSUMPTION) || this.isLanded() || this.isDocked() || starsystem.getAccess() == StarSystem.Access.HOMESYSTEM)
 		{
 			return 0;
 		}
