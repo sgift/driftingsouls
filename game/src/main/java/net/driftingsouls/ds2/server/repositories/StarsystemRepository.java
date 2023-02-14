@@ -7,6 +7,7 @@ import net.driftingsouls.ds2.server.framework.db.DBUtil;
 import net.driftingsouls.ds2.server.map.StarSystemData;
 import net.driftingsouls.ds2.server.map.StarSystemMapData;
 import net.driftingsouls.ds2.server.map.StationaryObjectData;
+import net.driftingsouls.ds2.server.entities.User;
 import org.jooq.Records;
 import org.jooq.impl.DSL;
 
@@ -69,20 +70,20 @@ public class StarsystemRepository {
         return starsystemData.values();
     }
 
-    public static Collection<StarSystemMapData> getStarSystemMapData(int userid)
+    public static Collection<StarSystemMapData> getStarSystemMapData(User user)
     {
-        var systemsWithShips = getSystemsWithShips(userid);
+        var systemsWithShips = getSystemsWithShips(user.getId());
         var alliances = AllianceRepository.getStarSystemMapAlliances();
         var systemOwners = getSystemOwners();
         var jns = getSystemsJns();
-
+        List<Integer> AccessLevels = user.getStarSystemAccessLevels();
 
         try(var conn = DBUtil.getConnection(ContextMap.getContext().getEM())) {
             var db = DBUtil.getDSLContext(conn);
 
             try(var select = db
                     .selectFrom(SYSTEMS)
-                    .where(SYSTEMS.ACCESS.eq(1))
+                    .where(SYSTEMS.ACCESS.in(AccessLevels))
             ) {
                 var fetch = select.fetch();
                 var result = new ArrayList<StarSystemMapData>();

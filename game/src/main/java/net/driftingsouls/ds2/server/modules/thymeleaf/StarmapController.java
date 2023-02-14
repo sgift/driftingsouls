@@ -424,7 +424,7 @@ public class StarmapController implements DSController, PermissionResolver {
     {
         prepareResponseForJSON(response);
 
-        var data = StarsystemRepository.getStarSystemMapData(user.getId());
+        var data = StarsystemRepository.getStarSystemMapData(user);
 
         var json = new Gson().toJson(data);
         response.getWriter().write(json);
