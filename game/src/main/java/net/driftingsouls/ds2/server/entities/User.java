@@ -1367,8 +1367,8 @@ public class User extends BasicUser {
 		// Kosten der Schiffe ermitteln
 		Long schiffsKosten = (Long)db
 			.createQuery("select sum(coalesce(sm.reCost,st.reCost)) " +
-				"from Ship s, systems sys join s.shiptype st left join s.modules sm " +
-				"where s.owner=:user and s.docked not like 'l %' and s.star_system = sys.id and sys.access =:access")
+				"from Ship s, StarSystem sys join s.shiptype st left join s.modules sm " +
+				"where s.owner=:user and s.docked not like 'l %' and s.system = sys.id and sys.starmap =:access")
 			.setParameter("user", this)
 			.setParameter("access", Access.NORMAL)
 			.iterate().next();
@@ -1376,8 +1376,8 @@ public class User extends BasicUser {
 		// Kosten der auf den Schiffen stationierten Einheiten ermitteln
 		Long einheitenKosten = (Long)db
 			.createQuery("select sum(ceil(u.amount*u.unittype.recost)) " +
-				"from Ship s, systems sys  join s.units u "+
-				"where s.owner=:user and s.docked not like 'l %' and sys.id = s.star_system and sys.access =:access")
+				"from Ship s, StarSystem sys  join s.units u "+
+				"where s.owner=:user and s.docked not like 'l %' and sys.id = s.system and sys.starmap =:access")
 			.setParameter("user", this)
 			.setParameter("access", Access.NORMAL)
 			.iterate().next();
