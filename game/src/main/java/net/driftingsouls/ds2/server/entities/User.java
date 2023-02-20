@@ -28,6 +28,8 @@ import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.config.Rang;
 import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.config.StarSystem;
+import net.driftingsouls.ds2.server.config.StarSystem.Access;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.entities.ally.AllyPosten;
@@ -77,6 +79,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -1364,17 +1367,19 @@ public class User extends BasicUser {
 		// Kosten der Schiffe ermitteln
 		Long schiffsKosten = (Long)db
 			.createQuery("select sum(coalesce(sm.reCost,st.reCost)) " +
-				"from Ship s join s.shiptype st left join s.modules sm " +
-				"where s.owner=:user and s.docked not like 'l %'")
+				"from Ship s, StarSystem sys join s.shiptype st left join s.modules sm " +
+				"where s.owner=:user and s.docked not like 'l %' and s.system = sys.id and sys.starmap =:access")
 			.setParameter("user", this)
+			.setParameter("access", Access.NORMAL)
 			.iterate().next();
 
 		// Kosten der auf den Schiffen stationierten Einheiten ermitteln
 		Long einheitenKosten = (Long)db
 			.createQuery("select sum(ceil(u.amount*u.unittype.recost)) " +
-				"from Ship s join s.units u "+
-				"where s.owner=:user and s.docked not like 'l %'")
+				"from Ship s, StarSystem sys  join s.units u "+
+				"where s.owner=:user and s.docked not like 'l %' and sys.id = s.system and sys.starmap =:access")
 			.setParameter("user", this)
+			.setParameter("access", Access.NORMAL)
 			.iterate().next();
 
 		if( schiffsKosten == null )
@@ -1866,6 +1871,27 @@ public class User extends BasicUser {
 	{
 		this.ApiKey = ApiKey;
 		this.setUserValue(WellKnownUserValue.APIKEY, ApiKey);
-		
+
+	}
+
+	/**
+	 * gibt die Liste mit den Access-Level-Ordinals zurueck, die der User sehen darf
+	 * @return die Liste mit Access-Levels
+	 */
+	public List<Integer> getStarSystemAccessLevels(){
+
+		List<Integer> AccessLevels = new ArrayList<>();
+		//Default-Zugriffsrechte
+		AccessLevels.add(Access.NORMAL.ordinal());
+		AccessLevels.add(Access.HOMESYSTEM.ordinal());
+		//NPCs + Admins
+		if (hasFlag(UserFlag.VIEW_SYSTEMS)){
+			AccessLevels.add(Access.NPC.ordinal());
+		}
+		if(hasFlag(UserFlag.VIEW_ALL_SYSTEMS) )
+		{
+			AccessLevels.add(Access.ADMIN.ordinal());
+		}
+		return AccessLevels;
 	}
 }

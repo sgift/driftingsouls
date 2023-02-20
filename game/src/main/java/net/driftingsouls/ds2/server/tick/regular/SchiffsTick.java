@@ -257,7 +257,7 @@ public class SchiffsTick extends TickController {
 
 		if(system.getAccess() != Access.HOMESYSTEM)
 		{
-			if(!new ConfigService().getValue(WellKnownConfigValue.REQUIRE_SHIP_FOOD)) {
+			if(new ConfigService().getValue(WellKnownConfigValue.REQUIRE_SHIP_FOOD)) {
 				berechneNahrungsverbrauch(shipd, shiptd, feedingBases);
 			}
 			//Damage ships which don't have enough crew
