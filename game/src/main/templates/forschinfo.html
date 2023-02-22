@@ -23,7 +23,7 @@
 			,<br />
 		{/endif}
 		{if tech.needs.item.researchable}
-			{!link_to $tech.needs.item.name, default, res:$tech.needs.item.id}
+			<a class="forschinfo" href="./forschinfo?res={tech.needs.item.id}">{tech.needs.item.name}</a>
 		{else}
 			### Nicht erf&uuml;lbar
 		{/endif}
