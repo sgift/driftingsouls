@@ -13,6 +13,7 @@ import net.driftingsouls.ds2.server.repositories.StarsystemRepository;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.WebContext;
 
@@ -77,7 +78,7 @@ public class GameMasterController implements DSController {
      * @param request der HttpServletRequest (enthaelt die uebergebenen Parameter)
      * @param user der User, der den Tick startet
      */
-    private void tickAction(WebContext ctx, HttpServletRequest request, User user){
+    private void tickAction(WebContext ctx, HttpServletRequest request, User user) throws ClassNotFoundException {
       //ToDos:
         //Aus der Liste die Systeme auswaehlen und dann den Tick fuer diese Systeme starten
 
