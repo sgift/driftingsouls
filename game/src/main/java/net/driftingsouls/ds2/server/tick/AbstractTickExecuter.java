@@ -21,6 +21,7 @@ package net.driftingsouls.ds2.server.tick;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
+import net.driftingsouls.ds2.server.map.StarSystemData;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
@@ -29,6 +30,7 @@ import org.hibernate.Transaction;
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -85,7 +87,7 @@ public abstract class AbstractTickExecuter extends TickController
 	 * @param tickname Eine Instanz des Tickscripts
 	 * @param useSTDOUT Soll STDOUT oder eine Logdatei mit dem Namen des Ticks verwendet werden?
 	 */
-	protected void execTick(Class<? extends TickController> tickname, boolean useSTDOUT)
+	protected void execTick(Class<? extends TickController> tickname, boolean useSTDOUT, List<StarSystemData> systeme)
 	{
 		long start = System.currentTimeMillis();
 		try
@@ -101,7 +103,7 @@ public abstract class AbstractTickExecuter extends TickController
 				tick.addLogTarget(STDOUT, false);
 			}
 
-			tick.execute();
+			tick.execute(systeme);
 			tick.dispose();
 		}
 		catch( Exception e )
@@ -170,18 +172,24 @@ public abstract class AbstractTickExecuter extends TickController
 		return this.status;
 	}
 
+
+	@Override
+	protected void tick() {
+		tick(null);
+	}
+
 	/**
 	 * Vor- und Nachbereitung der Tickausfuehrung.
 	 */
 	@Override
-	protected final void tick() {
+	protected final void tick(List<StarSystemData> systeme) {
 		if (getContext().getRequest().getParameterString("only").length() > 0) {
 
 			try {
 				execTick(Class.forName(getContext().getRequest().getParameterString("only"))
-						.asSubclass(TickController.class), true);
+						.asSubclass(TickController.class), true, systeme);
 			} catch (Exception e) {
-				System.err.println("Ausfuehrung des Ticks " 
+				System.err.println("Ausfuehrung des Ticks "
 						+ getContext().getRequest().getParameterString("only")
 						+ " fehlgeschlagen: " + e);
 				e.printStackTrace();
@@ -201,7 +209,7 @@ public abstract class AbstractTickExecuter extends TickController
 			}
 		}
 
-		executeTicks();
+		executeTicks(systeme);
 
 		copyLogs(ticknr);
 
@@ -237,6 +245,7 @@ public abstract class AbstractTickExecuter extends TickController
 
 	/**
 	 * Fuehrt alle Einzelticks aus.
+	 * @param systeme
 	 */
-	protected abstract void executeTicks();
+	protected abstract void executeTicks(List<StarSystemData> systeme);
 }

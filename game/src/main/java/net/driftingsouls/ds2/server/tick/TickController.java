@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.tick;
 
+import net.driftingsouls.ds2.server.map.StarSystemData;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -36,6 +37,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 /**
  * Basisklasse fuer Ticks.
@@ -99,17 +101,18 @@ public abstract class TickController implements ApplicationContextAware
 	/**
 	 * Der eigendliche Tick...
 	 */
+	protected abstract void tick(List<StarSystemData> systeme);
 	protected abstract void tick();
 
 	/**
 	 * Startet die Tickausfuehrung.
 	 */
-	public void execute() {
+	public void execute(List<StarSystemData> systeme) {
 		try {
 			log("-----------------"+Common.date("d.m.Y H:i:s")+"-------------------");
 			prepare();
 			if( getErrorList().length == 0 ) {
-				tick();
+				tick(systeme);
 			}
 
 			if( getErrorList().length > 0 ) {

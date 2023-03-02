@@ -28,6 +28,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
+import net.driftingsouls.ds2.server.map.StarSystemData;
 import org.hibernate.Session;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -38,7 +39,7 @@ import java.util.List;
 
 /**
  * Tick fuer Aktionen, die sich auf den gesamten Account beziehen.
- * 
+ *
  * @author Sebastian Gift
  */
 @Service
@@ -46,7 +47,7 @@ import java.util.List;
 public class UserTick extends TickController
 {
 	private Session db;
-	
+
 	@Override
 	protected void prepare()
 	{
@@ -54,11 +55,19 @@ public class UserTick extends TickController
 	}
 
 	@Override
-	protected void tick()
+	protected void tick() {
+		tick(null);
+	}
+
+	@Override
+	protected void tick(List<StarSystemData> systeme)
 	{
+		if(systeme != null) {
+			return;
+		}
 		final long deleteThreshould = Common.time() - 60*60*24*14;
 		log("DeleteThreshould is " + deleteThreshould);
-		
+
 		List<Integer> users = Common.cast(db.createQuery("select id from User").list());
 		new EvictableUnitOfWork<Integer>("User Tick")
 		{
@@ -66,9 +75,9 @@ public class UserTick extends TickController
 			@Override
 			public void doWork(Integer userID) {
 				Session db = getDB();
-				
+
 				User user = (User)db.get(User.class, userID);
-				
+
 				if(user.isInVacation())
 				{
 					//Set vacation points
@@ -79,7 +88,7 @@ public class UserTick extends TickController
 				{
 					int pointsPerTick = new ConfigService().getValue(WellKnownConfigValue.VAC_POINTS_PER_PLAYED_TICK);
 					user.setVacpoints(user.getVacpoints() + pointsPerTick);
-					
+
 					//Delete all pms older than 14 days from inbox
 					Ordner trashCan = Ordner.getTrash(user);
 					if(trashCan != null)
@@ -96,19 +105,19 @@ public class UserTick extends TickController
 					{
 						log("User hat keinen Muelleimer.");
 					}
-					
+
 					//Subtract costs for trade ads
 					long adCount = (Long)db.createQuery("select count(*) from Handel where who=:who")
 									 	   .setParameter("who", user)
 									 	   .uniqueResult();
-					
+
 					int adCost = new ConfigService().getValue(WellKnownConfigValue.AD_COST);
-					
+
 					BigInteger account = user.getKonto();
-					
+
 					log("Ads: " + adCount);
 					log("Costs: " + adCost);
-					
+
 					if(adCount > 0)
 					{
 						//Not enough money in account
@@ -119,34 +128,34 @@ public class UserTick extends TickController
 							BigInteger adCountBI = BigInteger.valueOf(adCount);
 							BigInteger adCostBI = BigInteger.valueOf(adCost);
 							int wasteAdCount = adCountBI.subtract(account.divide(adCostBI)).intValue();
-												
+
 							List<Handel> wasteAds = Common.cast(db.createQuery("from Handel where who=:who order by time asc")
 																  .setParameter("who", user)
 																  .setMaxResults(wasteAdCount)
 																  .list());
-							
+
 							log(wasteAdCount + " ads zu loeschen.");
-							
+
 							costs = BigInteger.valueOf((adCount - wasteAdCount)*adCost);
-							
+
 							for(Handel wasteAd: wasteAds)
 							{
 								db.delete(wasteAd);
 							}
-							
+
 							PM.send(user, user.getId(), "Handelsinserate gel&ouml;scht", wasteAdCount + " Ihrer Handelsinserate wurden gel&ouml;scht, weil Sie die Kosten nicht aufbringen konnten.");
 						}
-						
+
 						log("Geld f&uuml;r Handelsinserate " + costs);
 						User nobody = (User)db.get(User.class, -1);
-						nobody.transferMoneyFrom(user.getId(), costs, 
-								"Kosten f&uuml;r Handelsinserate - User: " + user.getName() + " (" + user.getId() + ")", 
+						nobody.transferMoneyFrom(user.getId(), costs,
+								"Kosten f&uuml;r Handelsinserate - User: " + user.getName() + " (" + user.getId() + ")",
 								false, UserMoneyTransfer.Transfer.AUTO);
 					}
 				}
-				
+
 			}
-			
+
 		}
 		.setFlushSize(10)
 		.executeFor(users);

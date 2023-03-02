@@ -20,11 +20,13 @@ package net.driftingsouls.ds2.server.tick;
 
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
+import net.driftingsouls.ds2.server.map.StarSystemData;
 import net.driftingsouls.ds2.server.tick.rare.RestTick;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * Der seltene Tick.
@@ -36,7 +38,7 @@ public class RareTick extends AbstractTickExecuter
 	private static final Log log = LogFactory.getLog(RareTick.class);
 	
 	@Override
-	protected void executeTicks()
+	protected void executeTicks(List<StarSystemData> systeme)
 	{
 		try
 		{
@@ -45,7 +47,7 @@ public class RareTick extends AbstractTickExecuter
 			try
 			{
 				publishStatus("berechne Sonstiges");
-				execTick(RestTick.class, false);
+				execTick(RestTick.class, false, systeme);
 			}
 			finally
 			{

@@ -34,6 +34,7 @@ import net.driftingsouls.ds2.server.entities.fraktionsgui.VersteigerungResource;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.VersteigerungSchiff;
 import net.driftingsouls.ds2.server.entities.statistik.StatGtu;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.map.StarSystemData;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.tick.TickController;
@@ -69,6 +70,11 @@ public class RTCTick extends TickController {
 		transaction.commit();
 
 		this.log("tick: "+this.ticks);
+	}
+
+	@Override
+	protected void tick(List<StarSystemData> systeme) {
+		tick();
 	}
 
 	@Override

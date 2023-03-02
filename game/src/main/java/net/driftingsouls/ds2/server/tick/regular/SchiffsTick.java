@@ -36,6 +36,7 @@ import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.framework.db.batch.UnitOfWork;
+import net.driftingsouls.ds2.server.map.StarSystemData;
 import net.driftingsouls.ds2.server.ships.*;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.units.TransientUnitCargo;
@@ -53,6 +54,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Berechnung des Ticks fuer Schiffe.
@@ -95,6 +97,7 @@ public class SchiffsTick extends TickController {
 
 	private Map<String,ResourceID> esources;
 	private Map<Location,List<Ship>> versorgerlist;
+	private List<StarSystemData> systeme;
 
 	@Override
 	protected void prepare()
@@ -833,13 +836,19 @@ public class SchiffsTick extends TickController {
 	protected void tickUser(org.hibernate.Session db, User auser)
 	{
 		Map<Location, List<Base>> feedingBases = new HashMap<>();
-
+		List<Integer> systemIds = null;
+		if(systeme != null && systeme.size() > 0) {
+			systemIds = systeme.stream().map(StarSystemData::getId).collect(Collectors.toList());
+		}
 		for(Base base: auser.getBases())
 		{
 			if( !base.isFeeding() ) {
 				continue;
 			}
 			Location location = base.getLocation();
+			if(systemIds != null && !systemIds.contains(location.getSystem())){
+				continue;
+			}
 			if(!feedingBases.containsKey(location))
 			{
 				feedingBases.put(location, new ArrayList<>());
@@ -861,6 +870,9 @@ public class SchiffsTick extends TickController {
 			}
 			if( ship.getSystem() == 0 )
 			{
+				continue;
+			}
+			if(systemIds != null && !systemIds.contains(ship.getSystem())){
 				continue;
 			}
 			try
@@ -900,8 +912,14 @@ public class SchiffsTick extends TickController {
 	}
 
 	@Override
-	protected void tick()
+	protected void tick() {
+		tick(null);
+	}
+
+	@Override
+	protected void tick(List<StarSystemData> systeme)
 	{
+		this.systeme = systeme;
 		org.hibernate.Session db = getDB();
 
 		CacheMode cacheMode = db.getCacheMode();
@@ -929,12 +947,25 @@ public class SchiffsTick extends TickController {
 		this.log("");
 		this.log("Behandle Schadensnebel");
 
-		List<Integer> ships = Common.cast(db
-				.createQuery("select s.id from Ship as s, Nebel as n " +
-						"where s.system=n.loc.system and s.x=n.loc.x and s.y=n.loc.y and " +
-						"n.type=6 and (s.owner.vaccount=0 or s.owner.wait4vac>0) and " +
-						"s.docked not like 'l %'")
-				.list());
+		List<Integer> ships = null;
+		if(systeme != null && systeme.size()>0) {
+			List<Integer> systemIds = systeme.stream().map(StarSystemData::getId).collect(Collectors.toList());
+			ships = Common.cast(db.createQuery("select s.id from Ship as s, Nebel as n " +
+							"where s.system=n.loc.system and s.x=n.loc.x and s.y=n.loc.y and " +
+							"n.type=6 and (s.owner.vaccount=0 or s.owner.wait4vac>0) and " +
+							"s.docked not like 'l %' and s.system in (:system)")
+							.setParameterList("system", systemIds)
+							.list());
+		}
+		else{
+			ships = Common.cast(db
+							.createQuery("select s.id from Ship as s, Nebel as n " +
+											"where s.system=n.loc.system and s.x=n.loc.x and s.y=n.loc.y and " +
+											"n.type=6 and (s.owner.vaccount=0 or s.owner.wait4vac>0) and " +
+											"s.docked not like 'l %'")
+							.list());
+		}
+
 		new EvictableUnitOfWork<Integer>("SchiffsTick - Schadensnebel")
 		{
 			@Override
@@ -958,9 +989,19 @@ public class SchiffsTick extends TickController {
 		this.log("");
 		this.log("Zerstoere Schiffe mit 'destroy'-status");
 
-		List<Integer> shipIds = Common.cast(db
-				.createQuery("select id from Ship where id>0 and locate('destroy',status)!=0")
-				.list());
+		List<Integer> shipIds = null;
+		if(systeme != null && systeme.size()>0) {
+			List<Integer> systemIds = systeme.stream().map(StarSystemData::getId).collect(Collectors.toList());
+			shipIds = Common.cast(db.createQuery("select id from Ship where id>0 and locate('destroy',status)!=0 and system in (:system)")
+							.setParameterList("system", systemIds)
+							.list());
+		}
+		else{
+			shipIds = Common.cast(db
+							.createQuery("select id from Ship where id>0 and locate('destroy',status)!=0")
+							.list());
+		}
+
 		new EvictableUnitOfWork<Integer>("SchiffsTick - destroy-status") {
 			@Override
 			public void doWork(Integer shipId) {
@@ -1011,9 +1052,19 @@ public class SchiffsTick extends TickController {
 
 	private void doShipFlags(org.hibernate.Session db)
 	{
-		List<ShipFlag> flags = Common.cast(db
-				.createQuery("from ShipFlag")
-				.list());
+		List<ShipFlag> flags = null;
+		if(systeme != null && systeme.size()>0) {
+			List<Integer> systemIds = systeme.stream().map(StarSystemData::getId).collect(Collectors.toList());
+			flags = Common.cast(db
+							.createQuery("from ShipFlag f where f.ship.system in (:system)")
+							.setParameterList("system", systemIds)
+							.list());
+		}
+		else{
+			flags = Common.cast(db
+							.createQuery("from ShipFlag")
+							.list());
+		}
 		new UnitOfWork<ShipFlag>("SchiffsTick - flags")
 		{
 			@Override

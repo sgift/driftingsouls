@@ -26,12 +26,15 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.services.BaseTickerService;
 import net.driftingsouls.ds2.server.tick.TickController;
+import net.driftingsouls.ds2.server.map.StarSystemData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
  * <h1>Berechnung des Ticks fuer Basen.</h1>
@@ -40,7 +43,7 @@ import java.util.List;
  */
 @Service
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class BaseTick extends TickController 
+public class BaseTick extends TickController
 {
 	private final BaseTickerService baseTickerService;
 
@@ -51,34 +54,46 @@ public class BaseTick extends TickController
 	}
 
 	@Override
-	protected void prepare() 
+	protected void prepare()
 	{
 	}
 
-	private void tickBases() 
+	private void tickBases(List<StarSystemData> systeme)
 	{
 		org.hibernate.Session db = getDB();
-		
+
 		List<Integer> userIds = Common.cast(db.createQuery("select u.id from User u where u.id != 0 and (u.vaccount=0 or u.wait4vac>0) order by u.id").list());
-		
+
 		new EvictableUnitOfWork<Integer>("Base Tick")
 		{
 			@Override
 			public void doWork(Integer userId) {
 				// Get all bases, take everything with them - we need it all.
-				List<Base> bases = Common.cast(getDB().createQuery("from Base b fetch all properties where b.owner=:owner")
+				List<Base> bases = null;
+				if(systeme != null && systeme.size()>0){
+					List<Integer> systemIds = systeme.stream().map(StarSystemData::getId).collect(Collectors.toList());
+					bases = Common.cast(getDB().createQuery("from Base b fetch all properties where b.owner=:owner and b.system in (:systems)")
+						.setInteger("owner", userId)
+						.setParameterList("systems", systemIds)
+						.setFetchSize(5000)
+						.list());
+				}
+				else
+				{
+					bases = Common.cast(getDB().createQuery("from Base b fetch all properties where b.owner=:owner")
 						.setInteger("owner", userId)
 						.setFetchSize(5000)
-						.list());	
-				
+						.list());
+				}
+
 				log(userId+":");
 
 				StringBuilder messages = new StringBuilder();
 				for(Base base: bases)
-				{						
+				{
 					messages.append(baseTickerService.tick(base));
 				}
-				
+
 				if(!messages.toString().trim().equals(""))
 				{
 					User sourceUser = (User)getDB().get(User.class, -1);
@@ -95,9 +110,15 @@ public class BaseTick extends TickController
 	}
 
 	@Override
-	protected void tick() 
+	protected void tick(List<StarSystemData> systeme)
 	{
-		tickBases();
+		tickBases(systeme);
 		getDB().clear();
+	}
+
+	@Override
+	protected void tick()
+	{
+		tick(null);
 	}
 }

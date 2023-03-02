@@ -29,14 +29,17 @@ import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.framework.db.batch.SingleUnitOfWork;
+import net.driftingsouls.ds2.server.map.StarSystemData;
 import net.driftingsouls.ds2.server.tick.TickController;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * <h1>Berechnung des Ticks fuer Akademien.</h1>
@@ -72,10 +75,23 @@ public class AcademyTick extends TickController {
 	@Override
 	protected void tick()
 	{
-		org.hibernate.Session db = getDB();
+		tick(null);
+	}
 
-		List<Integer> accList = Common.cast(db.createQuery("select a.id from Academy a " +
-			"where a.train=true and (a.base.owner.vaccount=0 or a.base.owner.wait4vac!=0)").list());
+	@Override
+	protected void tick(List<StarSystemData> systeme)
+	{
+		org.hibernate.Session db = getDB();
+		List<Integer> accList = null;
+		if(systeme != null && systeme.size()>0) {
+			List<Integer> systemIds = systeme.stream().map(StarSystemData::getId).collect(Collectors.toList());
+			accList = Common.cast(db.createQuery("select a.id from Academy a " +
+							"where a.train=true and (a.base.owner.vaccount=0 or a.base.owner.wait4vac!=0) and a.base.system in (:systeme)").setParameterList("systeme", systemIds).list());
+		}
+		else{
+			accList = Common.cast(db.createQuery("select a.id from Academy a " +
+							"where a.train=true and (a.base.owner.vaccount=0 or a.base.owner.wait4vac!=0)").list());
+		}
 
 		new EvictableUnitOfWork<Integer>("Academy Tick")
 		{

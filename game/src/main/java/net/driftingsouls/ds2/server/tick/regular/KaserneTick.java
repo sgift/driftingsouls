@@ -26,6 +26,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
+import net.driftingsouls.ds2.server.map.StarSystemData;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.units.UnitType;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -33,6 +34,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <h1>Berechnung des Ticks fuer Kasernen.</h1>
@@ -49,15 +51,25 @@ public class KaserneTick extends TickController {
 	{}
 
 	@Override
-	protected void tick()
+	protected void tick() {
+		tick(null);
+	}
+
+	@Override
+	protected void tick(List<StarSystemData> systeme)
 	{
 		org.hibernate.Session db = getDB();
 
 		final User sourceUser = (User)db.get(User.class, -1);
-
-		List<Integer> kasernen = Common.cast(
-				db.createQuery("select k.id from Kaserne k where k.entries is not empty").list()
-		);
+		List<Integer> kasernen = null;
+		if(systeme != null && systeme.size()>0) {
+			List<Integer> systemIds = systeme.stream().map(StarSystemData::getId).collect(Collectors.toList());
+			kasernen = Common.cast(
+							db.createQuery("select k.id from Kaserne k where k.entries is not empty and k.base.system in (:systeme)").setParameterList("systeme", systemIds).list());
+		}
+		else{
+			kasernen = Common.cast(db.createQuery("select k.id from Kaserne k where k.entries is not empty").list());
+		}
 		new EvictableUnitOfWork<Integer>("Kasernen Tick")
 		{
 			@Override

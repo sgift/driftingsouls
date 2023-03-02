@@ -4,10 +4,13 @@ import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.db.batch.SingleUnitOfWork;
+import net.driftingsouls.ds2.server.map.StarSystemData;
 import net.driftingsouls.ds2.server.tick.TickController;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * Setzt die allgemeine Ticksperre.
@@ -20,6 +23,11 @@ public class TicksperreSetzenTick extends TickController
 	protected void prepare()
 	{
 		// EMPTY
+	}
+
+	@Override
+	protected void tick(List<StarSystemData> systeme) {
+		tick();
 	}
 
 	@Override

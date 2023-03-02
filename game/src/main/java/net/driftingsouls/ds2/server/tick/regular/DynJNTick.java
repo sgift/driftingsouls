@@ -19,13 +19,16 @@
 package net.driftingsouls.ds2.server.tick.regular;
 
 import net.driftingsouls.ds2.server.entities.DynamicJumpNode;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
+import net.driftingsouls.ds2.server.map.StarSystemData;
 import net.driftingsouls.ds2.server.tick.TickController;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Berechnet dynamische JumpNodes.
@@ -40,10 +43,18 @@ public class DynJNTick extends TickController {
         // EMPTY
     }
 
-    private void decreaseRemainingTime() {
+    private void decreaseRemainingTime(List<StarSystemData> systeme) {
         org.hibernate.Session db = getDB();
-        @SuppressWarnings("unchecked")
-        List<DynamicJumpNode> dynamicJumpNodes = db.createQuery("from DynamicJumpNode").list();
+        List<DynamicJumpNode> dynamicJumpNodes = null;
+        if(systeme != null && systeme.size()>0) {
+            List<Integer> systemIds = systeme.stream().map(StarSystemData::getId).collect(Collectors.toList());
+            dynamicJumpNodes = db.createQuery("from DynamicJumpNode jn where jn.base.system in (:systeme)")
+                    .setParameterList("system", systemIds)
+                    .list();
+        }
+        else{
+            dynamicJumpNodes = db.createQuery("from DynamicJumpNode").list();
+        }
 
         new EvictableUnitOfWork<DynamicJumpNode>("DynJNTick - decreaseRemainingTime") {
             @Override
@@ -57,10 +68,18 @@ public class DynJNTick extends TickController {
         }.executeFor(dynamicJumpNodes);
     }
 
-    private void moveDynJN() {
+    private void moveDynJN(List<StarSystemData> systeme) {
         org.hibernate.Session db = getDB();
-        @SuppressWarnings("unchecked")
-        List<DynamicJumpNode> dynamicJumpNodes = db.createQuery("from DynamicJumpNode").list();
+        List<DynamicJumpNode> dynamicJumpNodes = null;
+        if(systeme != null && systeme.size()>0) {
+            List<Integer> systemIds = systeme.stream().map(StarSystemData::getId).collect(Collectors.toList());
+            dynamicJumpNodes = db.createQuery("from DynamicJumpNode jn where jn.base.system in (:systeme)")
+                    .setParameterList("system", systemIds)
+                    .list();
+        }
+        else{
+            dynamicJumpNodes = db.createQuery("from DynamicJumpNode").list();
+        }
 
         new EvictableUnitOfWork<DynamicJumpNode>("DynJNTick - moveDynJN") {
             @Override
@@ -75,11 +94,16 @@ public class DynJNTick extends TickController {
     }
 
     @Override
-    protected void tick() {
+    protected void tick(List<StarSystemData> systeme) {
         this.log("Reduziere Zeit.");
-        this.decreaseRemainingTime();
+        this.decreaseRemainingTime(systeme);
 
         this.log("Setze um.");
-        this.moveDynJN();
+        this.moveDynJN(systeme);
+    }
+
+    @Override
+    protected void tick() {
+        tick(null);
     }
 }

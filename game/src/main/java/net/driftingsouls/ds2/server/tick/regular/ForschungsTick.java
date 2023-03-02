@@ -27,12 +27,14 @@ import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
+import net.driftingsouls.ds2.server.map.StarSystemData;
 import net.driftingsouls.ds2.server.tick.TickController;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <h1>Der Forschungstick.</h1>
@@ -50,14 +52,31 @@ public class ForschungsTick extends TickController {
 	}
 
 	@Override
-	protected void tick()
+	protected void tick() {
+		tick(null);
+	}
+
+	@Override
+	protected void tick(List<StarSystemData> systeme)
 	{
 		org.hibernate.Session db = getDB();
+		List<Integer> fzList = null;
+		if(systeme != null && systeme.size()>0) {
+			List<Integer> systemIds = systeme.stream().map(StarSystemData::getId).collect(Collectors.toList());
+			fzList = Common.cast(db
+							.createQuery("select id from Forschungszentrum " +
+											"where (base.owner.vaccount=0 or base.owner.wait4vac!=0) and forschung!=null and base.system in (:systeme)")
+							.setParameterList("system", systemIds)
+							.list());
+		}
+		else{
+			fzList = Common.cast(db
+							.createQuery("select id from Forschungszentrum " +
+											"where (base.owner.vaccount=0 or base.owner.wait4vac!=0) and forschung!=null")
+							.list());
+		}
 
-		List<Integer> fzList = Common.cast(db
-			.createQuery("select id from Forschungszentrum " +
-				"where (base.owner.vaccount=0 or base.owner.wait4vac!=0) and forschung!=null")
-			.list());
+
 		new EvictableUnitOfWork<Integer>("Forschungstick")
 		{
 			@Override

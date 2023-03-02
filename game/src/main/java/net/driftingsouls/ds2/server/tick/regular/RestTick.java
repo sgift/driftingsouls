@@ -37,6 +37,7 @@ import net.driftingsouls.ds2.server.entities.statistik.StatShips;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
+import net.driftingsouls.ds2.server.map.StarSystemData;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.tasks.Task;
@@ -51,6 +52,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 /**
  * Berechnet sonstige Tick-Aktionen, welche keinen eigenen TickController haben.
@@ -70,14 +72,23 @@ public class RestTick extends TickController {
 	/*
 		Sprungantrieb
 	*/
-	private void doJumps()
+	private void doJumps(List<StarSystemData> systeme)
 	{
 		org.hibernate.Session db = getDB();
 		Transaction transaction = db.beginTransaction();
 		try
 		{
 			this.log("Sprungantrieb");
-			List<?> jumps = db.createQuery("from Jump as j inner join fetch j.ship").list();
+			List<?> jumps = null;
+			if(systeme != null && systeme.size()>0) {
+				List<Integer> systemIds = systeme.stream().map(StarSystemData::getId).collect(Collectors.toList());
+				jumps = db.createQuery("from Jump as j inner join fetch j.ship where j.ship.system in (:system)")
+								.setParameterList("system", systemIds)
+								.list();
+			}
+			else{
+				jumps = db.createQuery("from Jump as j inner join fetch j.ship").list();
+			}
 			for (Object jump1 : jumps)
 			{
 				Jump jump = (Jump) jump1;
@@ -311,7 +322,7 @@ public class RestTick extends TickController {
 		Neue Felsbrocken spawnen lassen
 
 	*/
-	private void doFelsbrocken()
+	private void doFelsbrocken(List<StarSystemData> systeme)
 	{
 		org.hibernate.Session db = getDB();
 		Transaction transaction = db.beginTransaction();
@@ -324,10 +335,18 @@ public class RestTick extends TickController {
 			this.log("Fuege Felsbrocken ein");
 
 			int shouldId = 9999;
-
-			List<?> systemList = db
-				.createQuery("from ConfigFelsbrockenSystem cfs")
-				.list();
+			List<?> systemList = null;
+			if(systeme != null && systeme.size()>0) {
+				systemList = db
+								.createQuery("from ConfigFelsbrockenSystem cfs where cfs.system in (:systeme)")
+								.setParameterList("systeme", systeme)
+								.list();
+			}
+			else{
+				systemList = db
+								.createQuery("from ConfigFelsbrockenSystem cfs")
+								.list();
+			}
 			for( Object obj : systemList )
 			{
 				ConfigFelsbrockenSystem cfs = (ConfigFelsbrockenSystem)obj;
@@ -462,6 +481,12 @@ public class RestTick extends TickController {
 	}
 
 	@Override
+	protected void tick(List<StarSystemData> systeme) {
+		this.doJumps(systeme);
+		this.doFelsbrocken(systeme);
+	}
+
+	@Override
 	protected void tick()
 	{
 		org.hibernate.Session db = getDB();
@@ -491,11 +516,11 @@ public class RestTick extends TickController {
 			throw e;
 		}
 
-		this.doJumps();
+		this.doJumps(null);
 		this.doStatistics();
 		this.doVacation();
 		this.doNoobProtection();
-		this.doFelsbrocken();
+		this.doFelsbrocken(null);
 		this.doTasks();
 	}
 }

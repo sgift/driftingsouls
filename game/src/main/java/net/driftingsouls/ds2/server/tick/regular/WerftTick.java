@@ -23,6 +23,7 @@ import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.map.StarSystemData;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
@@ -37,6 +38,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Berechnung des Ticks fuer Werften.
@@ -48,10 +50,20 @@ import java.util.List;
 public class WerftTick extends TickController
 {
 
+	private List<Integer> systemIds;
+
 	@Override
 	protected void prepare()
 	{
 		// EMPTY
+	}
+
+	@Override
+	protected void tick(List<StarSystemData> systeme) {
+		if(systeme != null && systeme.size() > 0) {
+			systemIds = systeme.stream().map(StarSystemData::getId).collect(Collectors.toList());
+		}
+		tick();
 	}
 
 	@Override
@@ -103,6 +115,16 @@ public class WerftTick extends TickController
 
 			if (!werft.isBuilding())
 			{
+				return;
+			}
+
+			if((werft instanceof ShipWerft) && (!systemIds.contains(((ShipWerft) werft).getLocation().getSystem()))){
+				return;
+			}
+			if((werft instanceof BaseWerft) && (!systemIds.contains(((BaseWerft) werft).getLocation().getSystem()))){
+				return;
+			}
+			if((werft instanceof WerftKomplex) && (!systemIds.contains(((WerftKomplex) werft).getLocation().getSystem()))){
 				return;
 			}
 

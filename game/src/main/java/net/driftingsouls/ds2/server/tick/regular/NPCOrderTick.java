@@ -34,6 +34,7 @@ import net.driftingsouls.ds2.server.entities.npcorders.OrderableOffizier;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.framework.db.batch.SingleUnitOfWork;
+import net.driftingsouls.ds2.server.map.StarSystemData;
 import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
 import net.driftingsouls.ds2.server.ships.SchiffHinzufuegenService;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -47,6 +48,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 /**
  * Berechnet NPC-Bestellungen.
@@ -59,6 +61,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class NPCOrderTick extends TickController {
 	private static final int OFFIZIERSSCHIFF = 71;
 	private static final Location DEFAULT_LOCATION = new Location(2,30,35);
+	private List<Integer> systemIds;
 
 	private Map<Integer,StringBuilder> pmcache;
 
@@ -77,8 +80,16 @@ public class NPCOrderTick extends TickController {
 	}
 
 	@Override
-	protected void tick()
+	protected void tick() {
+		tick(null);
+	}
+
+	@Override
+	protected void tick(List<StarSystemData> systeme)
 	{
+		if(systeme != null && systeme.size()>0) {
+			systemIds = systeme.stream().map(StarSystemData::getId).collect(Collectors.toList());
+		}
 		org.hibernate.Session db = getDB();
 
 		List<Integer> orders = Common.cast(db
@@ -101,6 +112,9 @@ public class NPCOrderTick extends TickController {
 				User user = order.getUser();
 
 				Location loc = ermittleLieferposition(user);
+				if (!systemIds.contains(loc.getSystem())){
+					return;
+				}
 
 				log("  Lieferung erfolgt bei "+loc.getSystem()+":"+loc.getX()+"/"+loc.getY());
 

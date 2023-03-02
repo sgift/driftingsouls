@@ -22,12 +22,14 @@ import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.SchlachtLogRundeBeendet;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
+import net.driftingsouls.ds2.server.map.StarSystemData;
 import net.driftingsouls.ds2.server.tick.TickController;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Fuehrt den Tick fuer Schlachten aus.
@@ -45,6 +47,11 @@ public class BattleTick extends TickController {
 
 	@Override
 	protected void tick() {
+		tick(null);
+	}
+
+	@Override
+	protected void tick(List<StarSystemData> systeme) {
 		org.hibernate.Session db = getDB();
 
 		/*
@@ -52,9 +59,17 @@ public class BattleTick extends TickController {
 		 */
 
 		final long lastacttime = Common.time()-1800;
-
-		List<Integer> battles = Common.cast(db.createQuery("select id from Battle")
-											 .list());
+		List<Integer> battles = null;
+		if(systeme != null && systeme.size()>0) {
+			List<Integer> systemIds = systeme.stream().map(StarSystemData::getId).collect(Collectors.toList());
+			battles = Common.cast(db.createQuery("select id from Battle battle where battle.system in (:systeme)")
+							.setParameterList("system", systemIds)
+							.list());
+		}
+		else{
+			battles = Common.cast(db.createQuery("select id from Battle")
+							.list());
+		}
 
 		new EvictableUnitOfWork<Integer>("Battle Tick")
 		{
