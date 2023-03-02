@@ -74,7 +74,7 @@ public class ScheduledTick extends QuartzJobBean
 			AbstractTickExecuter tick = cls.getDeclaredConstructor().newInstance();
 			basicContext.autowireBean(tick);
 			tick.addLogTarget(TickController.STDOUT, false);
-			tick.execute();
+			tick.execute(null);
 			tick.dispose();
 		}
 		catch( IOException | ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e )

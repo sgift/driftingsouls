@@ -1,17 +1,13 @@
 package net.driftingsouls.ds2.server.modules.thymeleaf;
 
 import net.driftingsouls.ds2.server.TickAdminCommand;
-import net.driftingsouls.ds2.server.entities.NewsEntry;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.map.StarSystemData;
-import net.driftingsouls.ds2.server.map.StarSystemMapData;
 import net.driftingsouls.ds2.server.repositories.StarsystemRepository;
 import net.driftingsouls.ds2.server.tick.TickController;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.thymeleaf.ITemplateEngine;
@@ -21,10 +17,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 
 public class GameMasterController implements DSController {
     private Context context;

@@ -36,6 +36,7 @@ import net.driftingsouls.ds2.server.entities.statistik.StatItemLocations;
 import net.driftingsouls.ds2.server.entities.statistik.StatUserCargo;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.map.StarSystemData;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipModules;
 import net.driftingsouls.ds2.server.tick.TickController;
@@ -69,6 +70,13 @@ public class RestTick extends TickController {
 	protected void prepare()
 	{
 		this.tick = ContextMap.getContext().get(ContextCommon.class).getTick();
+	}
+
+	@Override
+	protected void tick(List<StarSystemData> systeme) {
+		if(systeme == null) {
+			tick();
+		}
 	}
 
 	@Override
