@@ -942,9 +942,9 @@ public class Ship implements Locatable,Transfering,Feeding {
 			}
 
 			if( er <= GetMangelTicksReaktorByType(type)/turns ) {
-				return false;
+				return true;
 			}
-			return true;
+			return false;
 		}
 		return false;
 	}
