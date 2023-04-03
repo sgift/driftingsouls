@@ -44,7 +44,7 @@
 		{if tech.allows.item.hidden}
 			<a class="error" style="font-style:italic" href="./ds?module=forschinfo&res={tech.allows.item.id}">[{tech.allows.item.name}]</a>
 		{else}
-			{!link_to $tech.allows.item.name, default, res:$tech.allows.item.id}
+			<a class="forschinfo" href="./forschinfo?res={tech.allows.item.id}">{tech.allows.item.name}</a>
 		{/endif}
 	<!-- END tech.allows.listitem -->
 	</td>
@@ -233,7 +233,7 @@
 						{if tech.ship.tech.break}
 							,<br />
 						{/endif}
-						{!link_to $tech.ship.tech.name, default, res:$tech.ship.tech.id}
+						<a class="forschinfo" href="./forschinfo?res={tech.ship.tech.id}">{tech.ship.tech.name}</a>
 					<!-- END tech.ship.techs.listitem -->
 				</td>
 			</tr>
