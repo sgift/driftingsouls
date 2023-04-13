@@ -50,8 +50,6 @@ public abstract class AbstractTickExecuter extends TickController
 	private String status = null;
 	private final Map<Class<? extends TickController>, Long> tickTimes = new LinkedHashMap<>();
 
-	private Set<Integer> affectedSystems = new HashSet<>();
-
 	private final Splitter systemSplitter = Splitter.on(';');
 
 	public AbstractTickExecuter()

@@ -74,9 +74,16 @@ public class AcademyTick extends TickController {
 	{
 		org.hibernate.Session db = getDB();
 
-		List<Integer> accList = Common.cast(db.createQuery("select a.id from Academy a " +
-			"where a.train=true and (a.base.owner.vaccount=0 or a.base.owner.wait4vac!=0)").list());
+		List<Integer> accList = null;
+		if(isCampaignTick()) {
 
+			accList = Common.cast(db.createQuery("select a.id from Academy a " +
+					"where a.train=true and (a.base.owner.vaccount=0 or a.base.owner.wait4vac!=0) and a.base.system in (:systeme)").setParameterList("systeme", affectedSystems).list());
+		}
+		else{
+			accList = Common.cast(db.createQuery("select a.id from Academy a " +
+					"where a.train=true and (a.base.owner.vaccount=0 or a.base.owner.wait4vac!=0)").list());
+		}
 		new EvictableUnitOfWork<Integer>("Academy Tick")
 		{
 			@Override

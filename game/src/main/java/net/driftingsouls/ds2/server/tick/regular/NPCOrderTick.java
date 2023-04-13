@@ -79,6 +79,10 @@ public class NPCOrderTick extends TickController {
 	@Override
 	protected void tick()
 	{
+		//Im Kampagnentick brauchen die NPCOrder nicht bearbeitet zu werden
+		if(isCampaignTick()){
+			return;
+		}
 		org.hibernate.Session db = getDB();
 
 		List<Integer> orders = Common.cast(db

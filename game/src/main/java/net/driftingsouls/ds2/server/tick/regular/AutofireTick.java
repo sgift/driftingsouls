@@ -25,6 +25,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
+import org.hibernate.Session;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -47,7 +48,7 @@ public class AutofireTick extends TickController {
 
 	@Override
 	protected void tick() {
-		org.hibernate.Session db = getDB();
+		Session db = getDB();
         boolean isAutoFire = new ConfigService().getValue(WellKnownConfigValue.AUTOFIRE);
 
         if(!isAutoFire)
@@ -55,12 +56,19 @@ public class AutofireTick extends TickController {
             return;
         }
 
-        List<Integer> battles = Common.cast(db.createQuery("select id from Battle battle where battle.commander1.id < 0").list());
+        List<Integer> battles = null;
+        if(isCampaignTick()) {
+            battles = Common.cast(db.createQuery("select id from Battle battle where battle.commander1.id < 0 and battle.system in (:systeme)").setParameterList("systeme", affectedSystems).list());
+        }
+        else {
+            battles = Common.cast(db.createQuery("select id from Battle battle where battle.commander1.id < 0").list());
+        }
+
 		new EvictableUnitOfWork<Integer>("Battle Tick")
 		{
 			@Override
 			public void doWork(Integer battleId) {
-				org.hibernate.Session db = getDB();
+				Session db = getDB();
 				Battle battle = (Battle)db.get(Battle.class, battleId);
 				battle.load( battle.getCommander(0), null, null, 0 );
                 log("Automatisches Feuer aktiviert für Spieler: " + battle.getCommander(0).getId());
@@ -74,7 +82,7 @@ public class AutofireTick extends TickController {
         {
             @Override
             public void doWork(Integer battleId) {
-                org.hibernate.Session db = getDB();
+                Session db = getDB();
                 Battle battle = (Battle)db.get(Battle.class, battleId);
                 battle.load( battle.getCommander(1), null, null, 0 );
                 log("Automatisches Feuer aktiviert für Spieler: " + battle.getCommander(1).getId());

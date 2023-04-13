@@ -43,7 +43,15 @@ public class DynJNTick extends TickController {
     private void decreaseRemainingTime() {
         org.hibernate.Session db = getDB();
         @SuppressWarnings("unchecked")
-        List<DynamicJumpNode> dynamicJumpNodes = db.createQuery("from DynamicJumpNode").list();
+        List<DynamicJumpNode> dynamicJumpNodes = null;
+        if(isCampaignTick()) {
+            dynamicJumpNodes = db.createQuery("from DynamicJumpNode jn where jn.base.system in (:systeme)")
+                    .setParameterList("system", affectedSystems)
+                    .list();
+        }
+        else{
+            dynamicJumpNodes = db.createQuery("from DynamicJumpNode").list();
+        }
 
         new EvictableUnitOfWork<DynamicJumpNode>("DynJNTick - decreaseRemainingTime") {
             @Override
@@ -60,7 +68,15 @@ public class DynJNTick extends TickController {
     private void moveDynJN() {
         org.hibernate.Session db = getDB();
         @SuppressWarnings("unchecked")
-        List<DynamicJumpNode> dynamicJumpNodes = db.createQuery("from DynamicJumpNode").list();
+        List<DynamicJumpNode> dynamicJumpNodes = null;
+        if(isCampaignTick()) {
+            dynamicJumpNodes = db.createQuery("from DynamicJumpNode jn where jn.base.system in (:systeme)")
+                    .setParameterList("system", affectedSystems)
+                    .list();
+        }
+        else{
+            dynamicJumpNodes = db.createQuery("from DynamicJumpNode").list();
+        }
 
         new EvictableUnitOfWork<DynamicJumpNode>("DynJNTick - moveDynJN") {
             @Override
