@@ -97,6 +97,7 @@ public abstract class AbstractTickExecuter extends TickController
 		try
 		{
 			TickController tick = this.getContext().getBean(tickname, null);
+			tick.affectedSystems = affectedSystems;
 
 			if( !useSTDOUT )
 			{
