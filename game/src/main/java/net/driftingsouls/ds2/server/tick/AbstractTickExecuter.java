@@ -18,6 +18,7 @@
  */
 package net.driftingsouls.ds2.server.tick;
 
+import com.google.common.base.Splitter;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -28,8 +29,10 @@ import org.hibernate.Transaction;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Klasse zur Ausfuehrung von mehreren Ticks.
@@ -46,6 +49,11 @@ public abstract class AbstractTickExecuter extends TickController
 	private String name = "";
 	private String status = null;
 	private final Map<Class<? extends TickController>, Long> tickTimes = new LinkedHashMap<>();
+
+	private Set<Integer> affectedSystems = new HashSet<>();
+
+	private final Splitter systemSplitter = Splitter.on(';');
+
 	public AbstractTickExecuter()
 	{
 		this.loxpath = Configuration.getLogPath();
@@ -187,6 +195,14 @@ public abstract class AbstractTickExecuter extends TickController
 				e.printStackTrace();
 			}
 			return;
+		}
+
+		this.affectedSystems = new HashSet<>();
+		String affectedSystems = getContext().getRequest().getParameter("affectedSystems");
+		if(!affectedSystems.isBlank()) {
+			for(String part: systemSplitter.split(affectedSystems)) {
+				this.affectedSystems.add(Integer.valueOf(part));
+			}
 		}
 
 		Session db = getDB();
