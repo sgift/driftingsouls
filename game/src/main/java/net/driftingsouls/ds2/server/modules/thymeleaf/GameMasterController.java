@@ -1,7 +1,6 @@
 package net.driftingsouls.ds2.server.modules.thymeleaf;
 
 import net.driftingsouls.ds2.server.AdminCommands;
-import net.driftingsouls.ds2.server.TickAdminCommand;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -11,7 +10,6 @@ import net.driftingsouls.ds2.server.repositories.StarsystemRepository;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.KeineTicksperre;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.WebContext;
 
