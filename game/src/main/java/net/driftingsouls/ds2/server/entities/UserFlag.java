@@ -79,7 +79,11 @@ public enum UserFlag
 	/**
 	 * Dieser Spieler braucht keine Nahrung.
 	 */
-	NO_FOOD_CONSUMPTION("nofoodconsumption");
+	NO_FOOD_CONSUMPTION("nofoodconsumption"),
+	/**
+	 * Dieser Spieler ist GameMaster und kann Kampagnen steuern
+	 */
+	GAMEMASTER("gamemaster");
 
 	private final String flag;
 

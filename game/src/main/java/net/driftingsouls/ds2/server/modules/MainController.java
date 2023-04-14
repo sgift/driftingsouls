@@ -128,6 +128,8 @@ public class MainController extends Controller {
 		t.setVar(
 				"user.npc", user.hasFlag(UserFlag.ORDER_MENU),
 				"user.adminSichtbar", hasPermission(WellKnownAdminPermission.SICHTBAR),
+				"user.gamemaster", user.hasFlag(UserFlag.GAMEMASTER),
+				"user.spezial", user.hasFlag(UserFlag.ORDER_MENU) || hasPermission(WellKnownAdminPermission.SICHTBAR) || user.hasFlag(UserFlag.GAMEMASTER),
 				"admin.showconsole", hasPermission(WellKnownAdminPermission.CONSOLE),
 				"user.notizen", user.getUserValue(WellKnownUserValue.TBLORDER_MAIN_NOTIZEN),
 				"user.battle", isUserInBattle(db, user),
