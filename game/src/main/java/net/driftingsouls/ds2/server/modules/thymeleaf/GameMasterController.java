@@ -6,8 +6,10 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.repositories.StarsystemRepository;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.KeineTicksperre;
+import net.driftingsouls.ds2.server.WellKnownConfigValue;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.thymeleaf.ITemplateEngine;
@@ -22,8 +24,6 @@ import java.util.ArrayList;
 @KeineTicksperre
 public class GameMasterController implements DSController {
     private Context context;
-    @Autowired
-		private TickAdminCommand tickAdminCommand;
 
     private enum Action{
       TICK,
@@ -58,7 +58,7 @@ public class GameMasterController implements DSController {
             tickAction(ctx, request);
             break;
           default:
-            defaultAction(ctx, request, user, response);
+            defaultAction(ctx, request, user, response, templateEngine);
             break;
         }
 
@@ -89,10 +89,10 @@ public class GameMasterController implements DSController {
      * @param request der HttpServletRequest (enthaelt die uebergebenen Parameter)
      * @param user der User, der die Seite aufruft
      */
-    private void defaultAction(WebContext ctx, HttpServletRequest request, User user, HttpServletResponse response){
+    private void defaultAction(WebContext ctx, HttpServletRequest request, User user, HttpServletResponse response, ITemplateEngine templateEngine){
 
       int tick = new ConfigService().get(WellKnownConfigValue.TICK);
-      if(tick){
+      if(tick == 1){
         Error error = new Error("Es l&auml;uft bereits ein Tick.");
         ctx.setVariable("error",error);
         templateEngine.process("gamemaster", ctx, response.getWriter());
