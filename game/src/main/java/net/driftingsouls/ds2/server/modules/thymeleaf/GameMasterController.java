@@ -58,7 +58,7 @@ public class GameMasterController implements DSController {
             tickAction(ctx, request);
             break;
           default:
-            defaultAction(ctx, request, user, response, templateEngine);
+            defaultAction(ctx, request, user);
             break;
         }
 
@@ -89,13 +89,12 @@ public class GameMasterController implements DSController {
      * @param request der HttpServletRequest (enthaelt die uebergebenen Parameter)
      * @param user der User, der die Seite aufruft
      */
-    private void defaultAction(WebContext ctx, HttpServletRequest request, User user, HttpServletResponse response, ITemplateEngine templateEngine){
+    private void defaultAction(WebContext ctx, HttpServletRequest request, User user){
 
-      int tick = new ConfigService().get(WellKnownConfigValue.TICK);
+      Integer tick = Integer.valueOf(new ConfigService().get(WellKnownConfigValue.TICK).getValue());
       if(tick == 1){
         Error error = new Error("Es l&auml;uft bereits ein Tick.");
         ctx.setVariable("error",error);
-        templateEngine.process("gamemaster", ctx, response.getWriter());
         return;
       }
 
