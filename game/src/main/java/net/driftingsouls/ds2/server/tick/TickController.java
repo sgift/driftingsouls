@@ -35,7 +35,9 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Basisklasse fuer Ticks.
@@ -56,6 +58,12 @@ public abstract class TickController implements ApplicationContextAware
 	private final Map<String,Writer> logTargets;
 	private final Session db;
 	private Context context;
+
+	protected Set<Integer> affectedSystems = new HashSet<>();
+
+	public Boolean isCampaignTick(){
+		return affectedSystems != null && !affectedSystems.isEmpty();
+	}
 	/**
 	 * Erstellt eine neue Instanz.
 	 */

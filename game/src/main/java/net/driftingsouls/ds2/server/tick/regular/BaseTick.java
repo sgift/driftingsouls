@@ -66,10 +66,21 @@ public class BaseTick extends TickController
 			@Override
 			public void doWork(Integer userId) {
 				// Get all bases, take everything with them - we need it all.
-				List<Base> bases = Common.cast(getDB().createQuery("from Base b fetch all properties where b.owner=:owner")
-						.setInteger("owner", userId)
-						.setFetchSize(5000)
-						.list());	
+				List<Base> bases = null;
+				if(isCampaignTick()){
+					bases = Common.cast(getDB().createQuery("from Base b fetch all properties where b.owner=:owner and b.system in (:systems)")
+							.setInteger("owner", userId)
+							.setParameterList("systems", affectedSystems)
+							.setFetchSize(5000)
+							.list());
+				}
+				else
+				{
+					bases = Common.cast(getDB().createQuery("from Base b fetch all properties where b.owner=:owner")
+							.setInteger("owner", userId)
+							.setFetchSize(5000)
+							.list());
+				}
 				
 				log(userId+":");
 

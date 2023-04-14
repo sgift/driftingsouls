@@ -71,6 +71,10 @@ public class WerftTick extends TickController
 				org.hibernate.Session db = getDB();
 				WerftObject werft = (WerftObject) db.get(WerftObject.class, werftId);
 
+				//Kampagnentick und die Werft steht nicht in einem der ausgewaehlten Systeme
+				if(isCampaignTick() && !affectedSystems.contains(werft.getSystem())){
+					return;
+				}
 				processWerft(sourceUser, werft);
 			}
 

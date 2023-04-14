@@ -53,8 +53,17 @@ public class BattleTick extends TickController {
 
 		final long lastacttime = Common.time()-1800;
 
-		List<Integer> battles = Common.cast(db.createQuery("select id from Battle")
-											 .list());
+		List<Integer> battles = null;
+		if(isCampaignTick()) {
+			battles = Common.cast(db.createQuery("select id from Battle battle where battle.system in (:systeme)")
+					.setParameterList("system", affectedSystems)
+					.list());
+		}
+		else{
+			battles = Common.cast(db.createQuery("select id from Battle")
+					.list());
+		}
+
 
 		new EvictableUnitOfWork<Integer>("Battle Tick")
 		{

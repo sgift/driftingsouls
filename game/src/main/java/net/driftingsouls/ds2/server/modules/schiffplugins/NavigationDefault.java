@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.modules.schiffplugins;
 
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.config.StarSystem;
+import net.driftingsouls.ds2.server.config.StarSystem.Access;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
@@ -189,7 +190,8 @@ public class NavigationDefault implements SchiffPlugin {
 								"schiff.navigation.nav.tile.x", ((sector.getX() - 1) % 20) * 25,
 								"schiff.navigation.nav.tile.y", ((sector.getY() - 1) % 20) * 25,
 								"schiff.navigation.nav.newrow", newrow,
-								"schiff.navigation.nav.warn", ((1 != nx || 1 != ny) && alertStatus.contains(sector)));
+								"schiff.navigation.nav.warn", ((1 != nx || 1 != ny) && alertStatus.contains(sector)),
+								"schiff.navigation.nav.block", ((1 != nx || 1 != ny) && alertStatus.contains(sector)) && ( system.getAccess() == Access.HOMESYSTEM || !system.isBattleAllowed()));
 
 						t.parse("schiff.navigation.nav.list", "schiff.navigation.nav.listitem", true);
 						newrow = false;

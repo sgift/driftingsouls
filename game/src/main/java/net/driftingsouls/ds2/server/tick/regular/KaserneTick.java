@@ -55,9 +55,14 @@ public class KaserneTick extends TickController {
 
 		final User sourceUser = (User)db.get(User.class, -1);
 
-		List<Integer> kasernen = Common.cast(
-				db.createQuery("select k.id from Kaserne k where k.entries is not empty").list()
-		);
+		List<Integer> kasernen = null;
+		if(isCampaignTick()) {
+			kasernen = Common.cast(
+					db.createQuery("select k.id from Kaserne k where k.entries is not empty and k.base.system in (:systeme)").setParameterList("systeme", affectedSystems).list());
+		}
+		else{
+			kasernen = Common.cast(db.createQuery("select k.id from Kaserne k where k.entries is not empty").list());
+		}
 		new EvictableUnitOfWork<Integer>("Kasernen Tick")
 		{
 			@Override
