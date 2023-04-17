@@ -75,7 +75,7 @@ public class GameMasterController implements DSController {
         String[] systems = request.getParameterValues("systemcheckbox");
 
         new AdminCommands().executeCommand("tick campaign run "+String.join(";", systems));
-        ctx.setVariable("out", "Kampagnentick gestartet");
+        ctx.setVariable("out", "Kampagnentick f&uuml;r Systeme "+String.join(", ",systems)+" gestartet");
 
     }
 
