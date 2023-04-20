@@ -54,10 +54,20 @@ public class ForschungsTick extends TickController {
 	{
 		org.hibernate.Session db = getDB();
 
-		List<Integer> fzList = Common.cast(db
-			.createQuery("select id from Forschungszentrum " +
-				"where (base.owner.vaccount=0 or base.owner.wait4vac!=0) and forschung!=null")
-			.list());
+		List<Integer> fzList = null;
+		if(isCampaignTick()) {
+			fzList = Common.cast(db
+					.createQuery("select id from Forschungszentrum " +
+							"where (base.owner.vaccount=0 or base.owner.wait4vac!=0) and forschung!=null and base.system in (:systeme)")
+					.setParameterList("system", affectedSystems)
+					.list());
+		}
+		else{
+			fzList = Common.cast(db
+					.createQuery("select id from Forschungszentrum " +
+							"where (base.owner.vaccount=0 or base.owner.wait4vac!=0) and forschung!=null")
+					.list());
+		}
 		new EvictableUnitOfWork<Integer>("Forschungstick")
 		{
 			@Override

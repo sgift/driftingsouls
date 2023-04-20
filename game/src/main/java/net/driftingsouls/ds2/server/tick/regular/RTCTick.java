@@ -73,6 +73,10 @@ public class RTCTick extends TickController {
 
 	@Override
 	protected void tick() {
+		//Im Kampagnentick brauchen die Versteigerungen nicht bearbeitet zu werden
+		if(isCampaignTick()){
+			return;
+		}
 		org.hibernate.Session db = getDB();
 
 		Transaction transaction = db.beginTransaction();

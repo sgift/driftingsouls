@@ -77,7 +77,15 @@ public class RestTick extends TickController {
 		try
 		{
 			this.log("Sprungantrieb");
-			List<?> jumps = db.createQuery("from Jump as j inner join fetch j.ship").list();
+			List<?> jumps = null;
+			if(isCampaignTick()) {
+				jumps = db.createQuery("from Jump as j inner join fetch j.ship where j.ship.system in (:system)")
+						.setParameterList("system", affectedSystems)
+						.list();
+			}
+			else{
+				jumps = db.createQuery("from Jump as j inner join fetch j.ship").list();
+			}
 			for (Object jump1 : jumps)
 			{
 				Jump jump = (Jump) jump1;
@@ -325,9 +333,18 @@ public class RestTick extends TickController {
 
 			int shouldId = 9999;
 
-			List<?> systemList = db
-				.createQuery("from ConfigFelsbrockenSystem cfs")
-				.list();
+			List<?> systemList = null;
+			if(isCampaignTick()) {
+				systemList = db
+						.createQuery("from ConfigFelsbrockenSystem cfs where cfs.system in (:systeme)")
+						.setParameterList("systeme", affectedSystems)
+						.list();
+			}
+			else{
+				systemList = db
+						.createQuery("from ConfigFelsbrockenSystem cfs")
+						.list();
+			}
 			for( Object obj : systemList )
 			{
 				ConfigFelsbrockenSystem cfs = (ConfigFelsbrockenSystem)obj;

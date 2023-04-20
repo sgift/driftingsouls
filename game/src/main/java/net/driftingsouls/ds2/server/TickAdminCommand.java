@@ -100,13 +100,17 @@ public class TickAdminCommand
 	
 	/**
 	 * Fuehrt einen Teil des normalen DS-Tick aus.
-	 * @param tickPart der auszufuehrende Teiltick
+	 * @param tickPart der auszufuehrende Teiltick (optional, null)
+	 * @param affectedSystems die Systeme, fuer die der Tick ausgefuehrt werden soll (optional, "")
 	 */
-	public void runRegularTick(Class<? extends TickController> tickPart) {
+	public void runRegularTick(Class<? extends TickController> tickPart, String affectedSystems) {
 		try
 		{
 			JobDataMap map = new JobDataMap();
-			map.put("onlyTick", tickPart);
+			if(tickPart != null) {
+				map.put("onlyTick", tickPart);
+			}
+			map.put("affectedSystems", affectedSystems);
 			
 			log.info("RegularTick '"+tickPart+"' wird manuell gestartet");
 			scheduler.triggerJob(this.regularTick.getJobKey(), map);

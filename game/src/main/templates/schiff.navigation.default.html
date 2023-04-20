@@ -32,12 +32,16 @@
 						</div>
 					{/endif}
 					<div class="sectorlabel {if schiff.navigation.nav.warn}warn{/endif}">
-						{if schiff.navigation.nav.warn}
-							<div class="label" onclick="DS.ask('Wenn Sie in diese Richtung fliegen, werden alarmierte Schiffe auf sie feuern!\nWollen Sie diese Aktion wirklich ausführen?',DS.getUrl()+'?module=schiff&amp;ship={ship.id}&amp;action=plugin&amp;plugin={global.pluginid}&amp;navigation_ops[act]={schiff.navigation.nav.direction}&amp;navigation_ops[count]=1')">
+						{if schiff.navigation.nav.block}
+							<div class="label" onclick="alert('Dieses System steht unter dem Schutz des Commonwealth.</span><br />Ihnen ist der Einflug in gesicherte Sektoren untersagt<br />')">
 						{else}
-							<div class="label" onclick="document.location.href=DS.getUrl()+'?module=schiff&amp;ship={ship.id}&amp;action=plugin&amp;plugin={global.pluginid}&amp;navigation_ops[act]={schiff.navigation.nav.direction}&amp;navigation_ops[count]=1'">
+							{if schiff.navigation.nav.warn}
+								<div class="label" onclick="DS.ask('Wenn Sie in diese Richtung fliegen, werden alarmierte Schiffe auf sie feuern!\nWollen Sie diese Aktion wirklich ausführen?',DS.getUrl()+'?module=schiff&amp;ship={ship.id}&amp;action=plugin&amp;plugin={global.pluginid}&amp;navigation_ops[act]={schiff.navigation.nav.direction}&amp;navigation_ops[count]=1')">
+							{else}
+								<div class="label" onclick="document.location.href=DS.getUrl()+'?module=schiff&amp;ship={ship.id}&amp;action=plugin&amp;plugin={global.pluginid}&amp;navigation_ops[act]={schiff.navigation.nav.direction}&amp;navigation_ops[count]=1'">
+							{/endif}
+								{schiff.navigation.nav.location}
 						{/endif}
-							{schiff.navigation.nav.location}
 						</div>
 					</div>
 				</div>

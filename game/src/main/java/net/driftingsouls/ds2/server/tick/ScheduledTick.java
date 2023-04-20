@@ -67,6 +67,10 @@ public class ScheduledTick extends QuartzJobBean
 				request.setParameter("only", ((Class<?>)context.getMergedJobDataMap().get("onlyTick")).getName());
 			}
 
+			if( context.getMergedJobDataMap().containsKey("affectedSystems") ) {
+				request.setParameter("affectedSystems", (String)context.getMergedJobDataMap().get("affectedSystems"));
+			}
+
 			Class<? extends AbstractTickExecuter> cls = Class
 				.forName(tick)
 				.asSubclass(AbstractTickExecuter.class);

@@ -836,6 +836,9 @@ public class SchiffsTick extends TickController {
 
 		for(Base base: auser.getBases())
 		{
+			if(isCampaignTick() && !affectedSystems.contains(base.getSystem())){
+				continue;
+			}
 			if( !base.isFeeding() ) {
 				continue;
 			}
@@ -861,6 +864,9 @@ public class SchiffsTick extends TickController {
 			}
 			if( ship.getSystem() == 0 )
 			{
+				continue;
+			}
+			if( isCampaignTick() && !affectedSystems.contains(ship.getSystem())){
 				continue;
 			}
 			try
@@ -929,12 +935,23 @@ public class SchiffsTick extends TickController {
 		this.log("");
 		this.log("Behandle Schadensnebel");
 
-		List<Integer> ships = Common.cast(db
-				.createQuery("select s.id from Ship as s, Nebel as n " +
-						"where s.system=n.loc.system and s.x=n.loc.x and s.y=n.loc.y and " +
-						"n.type=6 and (s.owner.vaccount=0 or s.owner.wait4vac>0) and " +
-						"s.docked not like 'l %'")
-				.list());
+		List<Integer> ships = null;
+		if(isCampaignTick()) {
+			ships = Common.cast(db.createQuery("select s.id from Ship as s, Nebel as n " +
+							"where s.system=n.loc.system and s.x=n.loc.x and s.y=n.loc.y and " +
+							"n.type=6 and (s.owner.vaccount=0 or s.owner.wait4vac>0) and " +
+							"s.docked not like 'l %' and s.system in (:system)")
+					.setParameterList("system", affectedSystems)
+					.list());
+		}
+		else{
+			ships = Common.cast(db
+					.createQuery("select s.id from Ship as s, Nebel as n " +
+							"where s.system=n.loc.system and s.x=n.loc.x and s.y=n.loc.y and " +
+							"n.type=6 and (s.owner.vaccount=0 or s.owner.wait4vac>0) and " +
+							"s.docked not like 'l %'")
+					.list());
+		}
 		new EvictableUnitOfWork<Integer>("SchiffsTick - Schadensnebel")
 		{
 			@Override
@@ -958,9 +975,17 @@ public class SchiffsTick extends TickController {
 		this.log("");
 		this.log("Zerstoere Schiffe mit 'destroy'-status");
 
-		List<Integer> shipIds = Common.cast(db
-				.createQuery("select id from Ship where id>0 and locate('destroy',status)!=0")
-				.list());
+		List<Integer> shipIds = null;
+		if(isCampaignTick()) {
+			shipIds = Common.cast(db.createQuery("select id from Ship where id>0 and locate('destroy',status)!=0 and system in (:system)")
+					.setParameterList("system", affectedSystems)
+					.list());
+		}
+		else{
+			shipIds = Common.cast(db
+					.createQuery("select id from Ship where id>0 and locate('destroy',status)!=0")
+					.list());
+		}
 		new EvictableUnitOfWork<Integer>("SchiffsTick - destroy-status") {
 			@Override
 			public void doWork(Integer shipId) {
@@ -1011,9 +1036,18 @@ public class SchiffsTick extends TickController {
 
 	private void doShipFlags(org.hibernate.Session db)
 	{
-		List<ShipFlag> flags = Common.cast(db
-				.createQuery("from ShipFlag")
-				.list());
+		List<ShipFlag> flags = null;
+		if(isCampaignTick()) {
+			flags = Common.cast(db
+					.createQuery("from ShipFlag f where f.ship.system in (:system)")
+					.setParameterList("system", affectedSystems)
+					.list());
+		}
+		else{
+			flags = Common.cast(db
+					.createQuery("from ShipFlag")
+					.list());
+		}
 		new UnitOfWork<ShipFlag>("SchiffsTick - flags")
 		{
 			@Override

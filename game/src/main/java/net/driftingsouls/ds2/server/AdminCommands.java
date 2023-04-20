@@ -30,11 +30,7 @@ import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.ViewModel;
+import net.driftingsouls.ds2.server.framework.*;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.map.TileCache;
 import net.driftingsouls.ds2.server.repositories.NebulaRepository;
@@ -255,58 +251,58 @@ public class AdminCommands {
 		private TickAdminCommand tickAdminCommand;
 
 		@Override
-		public String execute(Context context, String[] command)
-		{
-			if( command.length < 2 ) {
+		public String execute(Context context, String[] command) {
+			if (command.length < 2) {
 				return "";
 			}
 
-			if( "regular".equals(command[1]) ) {
-				if( "run".equals(command[2]) ) {
-					if( command.length > 3 ) {
+			if ("regular".equals(command[1])) {
+				if ("run".equals(command[2])) {
+					if (command.length > 3) {
 						String only = command[3];
-						if( !only.startsWith("net.driftingsouls") ) {
-							only = "net.driftingsouls.ds2.server.tick.regular."+only;
+						if (!only.startsWith("net.driftingsouls")) {
+							only = "net.driftingsouls.ds2.server.tick.regular." + only;
 						}
-						try
-						{
+						try {
 							Class<? extends TickController> clazz = Class.forName(only)
-								.asSubclass(TickController.class);
-							tickAdminCommand.runRegularTick(clazz);
-						}
-						catch( ClassNotFoundException e )
-						{
+									.asSubclass(TickController.class);
+							tickAdminCommand.runRegularTick(clazz, "");
+						} catch (ClassNotFoundException e) {
 							throw new CommandFailedException("Unbekannter Teiltick");
 						}
-					}
-					else {
+					} else {
 						tickAdminCommand.runRegularTick();
 					}
 					return "Tick wird ausgefuehrt";
 				}
-			}
-			else if( "rare".equals(command[1]) ) {
-				if( "run".equals(command[2]) ) {
-					if( command.length > 3 ) {
+			} else if ("rare".equals(command[1])) {
+				if ("run".equals(command[2])) {
+					if (command.length > 3) {
 						String only = command[3];
-						if( !only.startsWith("net.driftingsouls") ) {
-							only = "net.driftingsouls.ds2.server.tick.rare."+only;
+						if (!only.startsWith("net.driftingsouls")) {
+							only = "net.driftingsouls.ds2.server.tick.rare." + only;
 						}
-						try
-						{
+						try {
 							Class<? extends TickController> clazz = Class.forName(only)
-								.asSubclass(TickController.class);
+									.asSubclass(TickController.class);
 							tickAdminCommand.runRareTick(clazz);
-						}
-						catch( ClassNotFoundException e )
-						{
+						} catch (ClassNotFoundException e) {
 							throw new CommandFailedException("Unbekannter Teiltick");
 						}
-					}
-					else {
+					} else {
 						tickAdminCommand.runRareTick();
 					}
 					return "Raretick wird ausgefuehrt";
+				}
+			} else if ("campaign".equals(command[1])) {
+				if ("run".equals(command[2])) {
+					if (command.length > 3) {
+						String affectedSystems = command[3];
+						tickAdminCommand.runRegularTick(null, affectedSystems);
+					} else {
+						throw new CommandFailedException("Campaign always needs system parameter - usage: campaign run <systems split by ;>");
+					}
+					return "Tick wird ausgefuehrt";
 				}
 			}
 			throw new CommandFailedException("Unbekannter befehl");

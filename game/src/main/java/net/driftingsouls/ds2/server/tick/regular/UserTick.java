@@ -56,6 +56,10 @@ public class UserTick extends TickController
 	@Override
 	protected void tick()
 	{
+		//Im Kampagnentick brauchen die Inserate etc nicht bearbeitet zu werden
+		if(isCampaignTick()){
+			return;
+		}
 		final long deleteThreshould = Common.time() - 60*60*24*14;
 		log("DeleteThreshould is " + deleteThreshould);
 		
