@@ -198,7 +198,7 @@ public abstract class AbstractTickExecuter extends TickController
 
 		this.affectedSystems = new HashSet<>();
 		String affectedSystems = getContext().getRequest().getParameter("affectedSystems");
-		if(!affectedSystems.isBlank()) {
+		if(affectedSystems != null && !affectedSystems.isBlank()) {
 			for(String part: systemSplitter.split(affectedSystems)) {
 				this.affectedSystems.add(Integer.valueOf(part));
 			}
