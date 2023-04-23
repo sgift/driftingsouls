@@ -56,7 +56,7 @@ public class BattleTick extends TickController {
 		List<Integer> battles = null;
 		if(isCampaignTick()) {
 			battles = Common.cast(db.createQuery("select id from Battle battle where battle.system in (:systeme)")
-					.setParameterList("system", affectedSystems)
+					.setParameterList("systeme", affectedSystems)
 					.list());
 		}
 		else{
