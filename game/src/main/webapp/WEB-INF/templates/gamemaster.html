@@ -34,11 +34,11 @@
       <ul class="systems" >
         <li th:each="system: ${starsystems}">
           <input type="checkbox"
-              th:field="System_${system.id}"
+              th:field="'System_'+${system.id}"
               th:value="${system.id}"
               th:name="systemcheckbox" />
           <label
-              th:for="System_${system.id}"
+              th:for="'System_'+${system.id}"
               th:text="${system.name}"></label>
         </li>
       </ul>
