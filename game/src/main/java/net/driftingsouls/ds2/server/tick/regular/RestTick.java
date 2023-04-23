@@ -484,34 +484,38 @@ public class RestTick extends TickController {
 		org.hibernate.Session db = getDB();
 
 		Transaction transaction = db.beginTransaction();
-		try
-		{
-			this.log("Transmissionen - gelesen+1");
-			db.createQuery("UPDATE PM SET gelesen = gelesen+1 WHERE gelesen>=2").executeUpdate();
+		if(! isCampaignTick()){
+			try
+			{
+				this.log("Transmissionen - gelesen+1");
+				db.createQuery("UPDATE PM SET gelesen = gelesen+1 WHERE gelesen>=2").executeUpdate();
 
-			this.log("Loesche alte Transmissionen");
-			db.createQuery("DELETE FROM PM WHERE gelesen>=10").executeUpdate();
+				this.log("Loesche alte Transmissionen");
+				db.createQuery("DELETE FROM PM WHERE gelesen>=10").executeUpdate();
 
-			this.log("Erhoehe Inaktivitaet der Spieler");
-			db.createQuery("update User set inakt=inakt+1 where vaccount=0")
-				.executeUpdate();
+				this.log("Erhoehe Inaktivitaet der Spieler");
+				db.createQuery("update User set inakt=inakt+1 where vaccount=0")
+					.executeUpdate();
 
-			this.log("Erhoehe Tickzahl");
-			ConfigValue value = new ConfigService().get(WellKnownConfigValue.TICKS);
-			int ticks = Integer.parseInt(value.getValue()) + 1;
-			value.setValue(Integer.toString(ticks));
-			transaction.commit();
-		}
-		catch(RuntimeException e)
-		{
-			transaction.rollback();
-			throw e;
+				this.log("Erhoehe Tickzahl");
+				ConfigValue value = new ConfigService().get(WellKnownConfigValue.TICKS);
+				int ticks = Integer.parseInt(value.getValue()) + 1;
+				value.setValue(Integer.toString(ticks));
+				transaction.commit();
+			}
+			catch(RuntimeException e)
+			{
+				transaction.rollback();
+				throw e;
+			}
 		}
 
 		this.doJumps();
 		this.doStatistics();
-		this.doVacation();
-		this.doNoobProtection();
+		if( ! isCampaignTick()){
+			this.doVacation();
+			this.doNoobProtection();
+		}
 		this.doFelsbrocken();
 		this.doTasks();
 	}

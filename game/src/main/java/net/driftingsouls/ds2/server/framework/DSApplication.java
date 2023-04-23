@@ -53,6 +53,7 @@ public class DSApplication {
         this.controllersByURL.put("/comnet", new ComNetController());
         this.controllersByURL.put("/base", new BaseController());
         this.controllersByURL.put("/starmap", new StarmapController());
+        this.controllersByURL.put("/gamemaster", new GameMasterController());
     }
 
     public TemplateEngine getTemplateEngine() {
