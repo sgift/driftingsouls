@@ -483,10 +483,11 @@ public class RestTick extends TickController {
 	{
 		org.hibernate.Session db = getDB();
 
-		Transaction transaction = db.beginTransaction();
 		if(! isCampaignTick()){
+			Transaction transaction = db.beginTransaction();
 			try
 			{
+				
 				this.log("Transmissionen - gelesen+1");
 				db.createQuery("UPDATE PM SET gelesen = gelesen+1 WHERE gelesen>=2").executeUpdate();
 
