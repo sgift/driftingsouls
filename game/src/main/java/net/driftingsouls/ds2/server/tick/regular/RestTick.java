@@ -483,8 +483,9 @@ public class RestTick extends TickController {
 	{
 		org.hibernate.Session db = getDB();
 
-		Transaction transaction = db.beginTransaction();
+
 		if(! isCampaignTick()){
+			Transaction transaction = db.beginTransaction();
 			try
 			{
 				this.log("Transmissionen - gelesen+1");
