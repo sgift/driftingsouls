@@ -286,8 +286,8 @@ public class User extends BasicUser {
 	@Transient
 	private final Context context;
 
-	private Boolean tick_ready = false;
-	private Boolean campaign_participant = false;
+	private Boolean tick_ready;
+	private Boolean campaign_participant;
 
 
 	/**

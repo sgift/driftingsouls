@@ -33,7 +33,7 @@
     </div>
     <div id="adminplugin">
 
-      <div id="out" th:style="${out ? 'display:block' : 'display:none'}" >
+      <div id="out" th:style="${out == null ? 'display:none' : 'display:block'}" >
         <span class="smallfont" th:if="${out && not out.isEmpty()}" th:text="${out}"><br /><br /></span>
       </div>
 

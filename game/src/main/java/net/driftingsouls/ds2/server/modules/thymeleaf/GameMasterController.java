@@ -59,13 +59,13 @@ public class GameMasterController implements DSController {
 
         switch(action){
           case TICK:
-            tickAction(ctx, request);
+            tickAction(ctx, request, user);
             break;
           case START:
-            startAction(ctx, request);
+            startAction(ctx, request, user);
             break;
           case END:
-            endAction(ctx, request);
+            endAction(ctx, request, user);
             break;
           default:
             defaultAction(ctx, request, user);
@@ -81,12 +81,13 @@ public class GameMasterController implements DSController {
      * @param ctx der WebContext
      * @param request der HttpServletRequest (enthaelt die uebergebenen Parameter)
      */
-    private void tickAction(WebContext ctx, HttpServletRequest request) throws ClassNotFoundException {
+    private void tickAction(WebContext ctx, HttpServletRequest request, User user) throws ClassNotFoundException {
 
       Integer tick = Integer.valueOf(new ConfigService().get(WellKnownConfigValue.TICK).getValue());
       if(tick == 1){
         Error error = new Error("Es l&auml;uft bereits ein Tick.", "./gamemaster");
         ctx.setVariable("error",error);
+        defaultAction(ctx, request, user);
         return;
       }
 
@@ -94,6 +95,7 @@ public class GameMasterController implements DSController {
 
         new AdminCommands().executeCommand("tick campaign run "+String.join(";", systems));
         ctx.setVariable("out", "Kampagnentick f&uuml;r Systeme "+String.join(", ",systems)+" gestartet");
+        defaultAction(ctx, request, user);
 
     }
 
@@ -103,7 +105,7 @@ public class GameMasterController implements DSController {
      * @param ctx der WebContext
      * @param request der HttpServletRequest (enthaelt die uebergebenen Parameter)
      */
-    private void startAction(WebContext ctx, HttpServletRequest request) throws ClassNotFoundException {
+    private void startAction(WebContext ctx, HttpServletRequest request, User user) throws ClassNotFoundException {
 
       String query = "select u from User u ";
       org.hibernate.Session db = context.getDB();
@@ -112,6 +114,7 @@ public class GameMasterController implements DSController {
         if(u.isCampaignParticipant()){
           Error error = new Error("Es wurde bereits eine Kampagne gestartet", "./gamemaster");
           ctx.setVariable("error",error);
+          defaultAction(ctx, request, user);
           return;
         }
       }
@@ -121,6 +124,7 @@ public class GameMasterController implements DSController {
         Error error = new Error("Ohne Spieler keine Kampagne.", "./gamemaster");
         ctx.setVariable("error",error);
         ctx.setVariable("link","./gamemaster");
+        defaultAction(ctx, request, user);
         return;
       }
 
@@ -134,6 +138,7 @@ public class GameMasterController implements DSController {
         u.setCampaignParticipant(true);
       }
       ctx.setVariable("out", "Kampagne fuuml;r User "+String.join(", ",users)+" gestartet");
+      defaultAction(ctx, request, user);
 
     }
 
@@ -142,7 +147,7 @@ public class GameMasterController implements DSController {
      * @param ctx der WebContext
      * @param request der HttpServletRequest (enthaelt die uebergebenen Parameter)
      */
-    private void endAction(WebContext ctx, HttpServletRequest request) throws ClassNotFoundException {
+    private void endAction(WebContext ctx, HttpServletRequest request, User user) throws ClassNotFoundException {
 
 
       //Iterate over all Users and set campaign_participant = false
@@ -153,7 +158,7 @@ public class GameMasterController implements DSController {
         u.setCampaignParticipant(false);
       }
       ctx.setVariable("out", "Kampagne beendet. Teilnehmerstatus zur&uuml;ckgesetzt.");
-
+      defaultAction(ctx, request, user);
     }
 
     /**
