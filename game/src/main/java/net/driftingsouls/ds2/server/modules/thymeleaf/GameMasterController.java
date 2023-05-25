@@ -164,27 +164,39 @@ public class GameMasterController implements DSController {
      */
     private void defaultAction(WebContext ctx, HttpServletRequest request, User user){
 
-      List<StarsystemsList> systemsViewModel = new ArrayList<>();
-
-      var starsystems = StarsystemRepository.getInstance().getStarsystemsData();
-
-      for (var starsystem: starsystems) {
-          if(!starsystem.isVisibleFor(user)) continue;
-          systemsViewModel.add(new StarsystemsList(starsystem.id, starsystem.name + " ("+ starsystem.id +")"));
-      }
-
-      ctx.setVariable("starsystems", systemsViewModel);
-
       String query = "";
       if( (user == null) || !context.hasPermission(WellKnownPermission.STATISTIK_ERWEITERTE_SPIELERLISTE) ) {
         query = "select u from User u where locate('hide',u.flags)=0 order by u.id";
       }
       else{
-        query = "select u from User u left join fetch u.ally a order by ";
+        query = "select u from User u left join fetch u.ally a order by u.id";
       }
+
+      //Liste aller Spieler
       org.hibernate.Session db = context.getDB();
       List<User> userlist = Common.cast(db.createQuery(query).list());
       ctx.setVariable("users", userlist);
+
+      //Liste nicht bereiter Spieler
+      query = "select u from User u where u.campaign_participant = 1 and u.tick_ready = 0 order by u.id";
+      userlist = Common.cast(db.createQuery(query).list());
+      ctx.setVariable("not_ready_users", userlist);
+
+      List<StarsystemsList> systemsViewModel = new ArrayList<>();
+
+      var starsystems = StarsystemRepository.getInstance().getStarsystemsData();
+
+      query = "select u from User u where u.campaign_participant = 1 order by u.id";
+      userlist = Common.cast(db.createQuery(query).list());
+      //keine Teilnehmer = keine Kampagne, also lassen wir auch keine Systeme fuer den Tick auswaehlen
+      if(userlist.size() > 0){
+        for (var starsystem: starsystems) {
+            if(!starsystem.isVisibleFor(user)) continue;
+            systemsViewModel.add(new StarsystemsList(starsystem.id, starsystem.name + " ("+ starsystem.id +")"));
+        }
+      }
+
+      ctx.setVariable("starsystems", systemsViewModel);
     }
 
     private static class Error{
