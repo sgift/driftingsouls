@@ -45,7 +45,7 @@ public class DynJNTick extends TickController {
         @SuppressWarnings("unchecked")
         List<DynamicJumpNode> dynamicJumpNodes = null;
         if(isCampaignTick()) {
-            dynamicJumpNodes = db.createQuery("from DynamicJumpNode jn where jn.base.system in (:systeme)")
+            dynamicJumpNodes = db.createQuery("from DynamicJumpNode jn where jn.jumpnode.system in (:systeme)")
                     .setParameterList("systeme", affectedSystems)
                     .list();
         }
@@ -70,7 +70,7 @@ public class DynJNTick extends TickController {
         @SuppressWarnings("unchecked")
         List<DynamicJumpNode> dynamicJumpNodes = null;
         if(isCampaignTick()) {
-            dynamicJumpNodes = db.createQuery("from DynamicJumpNode jn where jn.base.system in (:systeme)")
+            dynamicJumpNodes = db.createQuery("from DynamicJumpNode jn where jn.jumpnode.system in (:systeme)")
                     .setParameterList("systeme", affectedSystems)
                     .list();
         }

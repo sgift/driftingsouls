@@ -5,10 +5,12 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.repositories.StarsystemRepository;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.KeineTicksperre;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
+import net.driftingsouls.ds2.server.WellKnownPermission;
 
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.WebContext;
@@ -18,6 +20,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 @KeineTicksperre
 public class GameMasterController implements DSController {
@@ -25,6 +29,8 @@ public class GameMasterController implements DSController {
 
     private enum Action{
       TICK,
+      START,
+      END,
       DEFAULT
     }
 
@@ -40,7 +46,7 @@ public class GameMasterController implements DSController {
 
         User user = (User) context.getActiveUser();
         if(! user.hasFlag(UserFlag.GAMEMASTER)) {
-          Error error = new Error("Du hast keine Berechtigung f&uuml;r diese Seite.");
+          Error error = new Error("Du hast keine Berechtigung f&uuml;r diese Seite.","./ds?module=ueber&amp;action=default");
           ctx.setVariable("error",error);
           templateEngine.process("gamemaster", ctx, response.getWriter());
           return;
@@ -55,6 +61,12 @@ public class GameMasterController implements DSController {
           case TICK:
             tickAction(ctx, request);
             break;
+          case START:
+            startAction(ctx, request);
+            break;
+          case END:
+            endAction(ctx, request);
+            break;
           default:
             defaultAction(ctx, request, user);
             break;
@@ -65,12 +77,18 @@ public class GameMasterController implements DSController {
 
 
     /**
-     * Zeigt die GameMasterSeite an
+     * Startet den Kampagnentick
      * @param ctx der WebContext
      * @param request der HttpServletRequest (enthaelt die uebergebenen Parameter)
-     * @param user der User, der den Tick startet
      */
     private void tickAction(WebContext ctx, HttpServletRequest request) throws ClassNotFoundException {
+
+      Integer tick = Integer.valueOf(new ConfigService().get(WellKnownConfigValue.TICK).getValue());
+      if(tick == 1){
+        Error error = new Error("Es l&auml;uft bereits ein Tick.", "./gamemaster");
+        ctx.setVariable("error",error);
+        return;
+      }
 
         String[] systems = request.getParameterValues("systemcheckbox");
 
@@ -80,6 +98,63 @@ public class GameMasterController implements DSController {
     }
 
 
+    /**
+     * Startet die Kampagne fuer die ausgewaehlten Spieler
+     * @param ctx der WebContext
+     * @param request der HttpServletRequest (enthaelt die uebergebenen Parameter)
+     */
+    private void startAction(WebContext ctx, HttpServletRequest request) throws ClassNotFoundException {
+
+      String query = "select u from User u ";
+      org.hibernate.Session db = context.getDB();
+      List<User> userlist = Common.cast(db.createQuery(query).list());
+      for(User u: userlist){
+        if(u.isCampaignParticipant()){
+          Error error = new Error("Es wurde bereits eine Kampagne gestartet", "./gamemaster");
+          ctx.setVariable("error",error);
+          return;
+        }
+      }
+
+      String[] users = request.getParameterValues("usercheckbox");
+      if(users.length == 0){
+        Error error = new Error("Ohne Spieler keine Kampagne.", "./gamemaster");
+        ctx.setVariable("error",error);
+        ctx.setVariable("link","./gamemaster");
+        return;
+      }
+
+      Set<Integer> selectedUsers = new HashSet<>();
+      for(String u : users) {
+          selectedUsers.add(Integer.valueOf(u));
+      }
+      query = "select u from User u where u.id in (:ids)";
+      userlist = Common.cast(db.createQuery(query).setParameterList("ids", selectedUsers).list());
+      for(User u: userlist){
+        u.setCampaignParticipant(true);
+      }
+      ctx.setVariable("out", "Kampagne fuuml;r User "+String.join(", ",users)+" gestartet");
+
+    }
+
+    /**
+     * Beendet die Kampagne fuer die ausgewaehlten Spieler
+     * @param ctx der WebContext
+     * @param request der HttpServletRequest (enthaelt die uebergebenen Parameter)
+     */
+    private void endAction(WebContext ctx, HttpServletRequest request) throws ClassNotFoundException {
+
+
+      //Iterate over all Users and set campaign_participant = false
+      String query = "select u from User u ";
+      org.hibernate.Session db = context.getDB();
+      List<User> userlist = Common.cast(db.createQuery(query).list());
+      for(User u: userlist){
+        u.setCampaignParticipant(false);
+      }
+      ctx.setVariable("out", "Kampagne beendet. Teilnehmerstatus zur&uuml;ckgesetzt.");
+
+    }
 
     /**
      * Zeigt die GameMasterSeite an
@@ -89,20 +164,36 @@ public class GameMasterController implements DSController {
      */
     private void defaultAction(WebContext ctx, HttpServletRequest request, User user){
 
-      Integer tick = Integer.valueOf(new ConfigService().get(WellKnownConfigValue.TICK).getValue());
-      if(tick == 1){
-        Error error = new Error("Es l&auml;uft bereits ein Tick.");
-        ctx.setVariable("error",error);
-        return;
+      String query = "";
+      if( (user == null) || !context.hasPermission(WellKnownPermission.STATISTIK_ERWEITERTE_SPIELERLISTE) ) {
+        query = "select u from User u where locate('hide',u.flags)=0 order by u.id";
       }
+      else{
+        query = "select u from User u left join fetch u.ally a order by u.id";
+      }
+
+      //Liste aller Spieler
+      org.hibernate.Session db = context.getDB();
+      List<User> userlist = Common.cast(db.createQuery(query).list());
+      ctx.setVariable("users", userlist);
+
+      //Liste nicht bereiter Spieler
+      query = "select u from User u where u.campaign_participant = 1 and u.tick_ready = 0 order by u.id";
+      userlist = Common.cast(db.createQuery(query).list());
+      ctx.setVariable("not_ready_users", userlist);
 
       List<StarsystemsList> systemsViewModel = new ArrayList<>();
 
       var starsystems = StarsystemRepository.getInstance().getStarsystemsData();
 
-      for (var starsystem: starsystems) {
-          if(!starsystem.isVisibleFor(user)) continue;
-          systemsViewModel.add(new StarsystemsList(starsystem.id, starsystem.name + " ("+ starsystem.id +")"));
+      query = "select u from User u where u.campaign_participant = 1 order by u.id";
+      userlist = Common.cast(db.createQuery(query).list());
+      //keine Teilnehmer = keine Kampagne, also lassen wir auch keine Systeme fuer den Tick auswaehlen
+      if(userlist.size() > 0){
+        for (var starsystem: starsystems) {
+            if(!starsystem.isVisibleFor(user)) continue;
+            systemsViewModel.add(new StarsystemsList(starsystem.id, starsystem.name + " ("+ starsystem.id +")"));
+        }
       }
 
       ctx.setVariable("starsystems", systemsViewModel);
@@ -110,9 +201,11 @@ public class GameMasterController implements DSController {
 
     private static class Error{
       public final String text;
+      public final String link;
 
-      public Error(String text){
+      public Error(String text, String link){
         this.text = text;
+        this.link = link;
       }
     }
 
