@@ -34,7 +34,7 @@
     <div id="adminplugin">
 
       <div id="out" th:style="${out ? 'display:block' : 'display:none'}" >
-        <span class="smallfont" th:if="${not out.isEmpty()}" th:text="${out}"><br /><br /></span>
+        <span class="smallfont" th:if="${out && not out.isEmpty()}" th:text="${out}"><br /><br /></span>
       </div>
 
       <div id="tickbox" class="gfxbox gmbox" style="display: none;">
@@ -68,7 +68,7 @@
                   th:name="usercheckbox" />
               <label
                   th:for="'User_'+${user.getId()}"
-                  th:text="${user.getId()} &nbsp; &nbsp; ${user.getName()}"></label>
+                  th:text="${user.getId()} + ' ' + ${user.getName()}"></label>
             </li>
           </ul>
           <input type="hidden" name="action" value="start">
@@ -105,8 +105,7 @@
       //output-Box ausblenden
       document.getElementById("out").style.display = "none";
       //ausgewaehlte Box anzeigen
-      let box = document.getElementById(ele.dataset.box);
-      box.toggleAttribute("display");
+      document.getElementById(ele.dataset.box).style.display = "block";
     }
   </script>
 </body>
