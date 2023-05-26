@@ -26,9 +26,9 @@
   <div id="admin">
     <div class="gfxbox treemenu">
       <ul style="display: block;">
-        <li><img src="data/interface/admin/editor.png"><a class="forschinfo " href="#" onclick="toggleBoxes(this)" data-box="startbox" >Kampagne starten</a></li>
-        <li><img src="data/interface/admin/editor.png"><a class="forschinfo " href="#" onclick="toggleBoxes(this)" data-box="tickbox" >Kampagnentick</a></li>
-        <li><img src="data/interface/admin/editor.png"><a class="forschinfo " href="#" onclick="toggleBoxes(this)" data-box="endbox" >Kampagne beenden</a></li>
+        <li><img src="data/interface/admin/editor.png"><a class="forschinfo " href="./gamemaster?show=start" >Kampagne starten</a></li>
+        <li><img src="data/interface/admin/editor.png"><a class="forschinfo " href="./gamemaster?show=tick" >Kampagnentick</a></li>
+        <li><img src="data/interface/admin/editor.png"><a class="forschinfo " href="./gamemaster?show=end" >Kampagne beenden</a></li>
       </ul>
     </div>
     <div id="adminplugin">
@@ -37,7 +37,7 @@
         <span class="smallfont" th:if="${out && not out.isEmpty()}" th:text="${out}"><br /><br /></span>
       </div>
 
-      <div id="tickbox" class="gfxbox gmbox" style="display: none; flex-direction: row">
+      <div id="tickbox" class="gfxbox gmbox" th:style="'display: '+${show='TICK' ? 'flex' :  'none'} + ''; flex-direction: row'">
         <div>
           Teilnehmerstatus:
           <table class="noBorderX" width="100%" cellspacing="2" cellpadding="2"  style="margin-right: 15px;">
@@ -65,6 +65,7 @@
           <div>Systeme f&uuml;r Kampagnentick ausw&auml;hlen:</div>
           <input type="hidden" name="action" value="tick">
           <input type="hidden" name="module" value="gamemaster">
+          <input type="hidden" name="show" value="tick">
           <ul class="systems" >
             <li th:each="system: ${starsystems}">
               <input type="checkbox"
@@ -80,7 +81,7 @@
         </form>
       </div>
 
-      <div id="startbox" class="gfxbox gmbox" style="display: none;flex-direction: row">
+      <div id="startbox" class="gfxbox gmbox" th:style="'display: '+${show='START' ? 'flex' :  'none'} + ''; flex-direction: row'">
         <form action="./gamemaster" method="post">
           <div>Teilnehmende Spieler ausw&auml;hlen:</div>
           <ul class="users" >
@@ -96,14 +97,39 @@
           </ul>
           <input type="hidden" name="action" value="start">
           <input type="hidden" name="module" value="gamemaster">
+          <input type="hidden" name="show" value="start">
           <input type="submit" value="Kampagne starten">
         </form>
       </div>
 
-      <div id="endbox" class="gfxbox gmbox" style="display: none;flex-direction: row">
+      <div id="endbox" class="gfxbox gmbox" th:style="'display: '+${show='END' ? 'flex' :  'none'} + ''; flex-direction: row'">
+        <div>
+          Teilnehmerstatus:
+          <table class="noBorderX" width="100%" cellspacing="2" cellpadding="2"  style="margin-right: 15px;">
+            <thead>
+              <tr>
+                <td class="noBorderX" >ID</td>
+                <td class="noBorderX" >Name</td>
+                <td class="noBorderX" >Status</td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="user: ${participants}">
+                <td th:text="${user.getId()}" class="noBorderX" align="center"></td>
+                <td th:utext="${user.getFormatedName()}"></td>
+                <td class="noBorderX" align="center">
+                  <span class="nobr">
+                    <img th:src="'./data/interface/diplomacy/' + ${user.isTickReady() ? 'friend' : 'enemy' } + '1.png'" alt="" th:title="${user.isTickReady() ? 'bereit' : 'spielt' }"><img th:src="'./data/interface/diplomacy/' + ${user.isTickReady() ? 'friend' : 'enemy' } + '2.png'" alt="" th:title="${user.isTickReady() ? 'bereit' : 'spielt' }">
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
         <form action="./gamemaster" method="post">
           <input type="hidden" name="action" value="end">
           <input type="hidden" name="module" value="gamemaster">
+          <input type="hidden" name="show" value="end">
           <input type="submit" value="Kampagne beenden">
         </form>
       </div>
@@ -117,19 +143,6 @@
     if (parent && parent.setCurrentPage) {
       parent.setCurrentPage('gamemaster','GameMaster');
       parent.completePage();
-    }
-
-    function toggleBoxes(ele){
-      //alle Boxen ausblenden
-      let gmboxes = document.getElementsByClassName("gmbox");
-      for(var i = 0; i < gmboxes.length;i++){
-        gmboxes[i].style.display = "none";
-      }
-      //output-Box ausblenden
-      document.getElementById("out").style.display = "none";
-      //ausgewaehlte Box anzeigen
-      document.getElementById(ele.dataset.box).style.display = "flex";
-      document.getElementById("error-placeholder").style.display = "none";
     }
   </script>
 </body>
