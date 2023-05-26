@@ -37,7 +37,30 @@
         <span class="smallfont" th:if="${out && not out.isEmpty()}" th:text="${out}"><br /><br /></span>
       </div>
 
-      <div id="tickbox" class="gfxbox gmbox" style="display: none;">
+      <div id="tickbox" class="gfxbox gmbox" style="display: none; flex-direction: row">
+        <div>
+          Teilnehmerstatus:
+          <table class="noBorderX" width="100%" cellspacing="2" cellpadding="2"  style="margin-right: 15px;">
+            <thead>
+              <tr>
+                <td class="noBorderX" >ID</td>
+                <td class="noBorderX" >Name</td>
+                <td class="noBorderX" >Status</td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="user: ${participants}">
+                <td th:text="${user.getId()}" class="noBorderX" align="center"></td>
+                <td th:utext="${user.getFormatedName()}"></td>
+                <td class="noBorderX" align="center">
+                  <span class="nobr">
+                    <img th:src="'./data/interface/diplomacy/' + ${user.isTickReady() ? 'friend' : 'enemy' } + '1.png'" alt="" th:title="${user.isTickReady() ? 'bereit' : 'spielt' }"><img th:src="'./data/interface/diplomacy/' + ${user.isTickReady() ? 'friend' : 'enemy' } + '2.png'" alt="" th:title="${user.isTickReady() ? 'bereit' : 'spielt' }">
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
         <form action="./gamemaster" method="post">
           <div>Systeme f&uuml;r Kampagnentick ausw&auml;hlen:</div>
           <input type="hidden" name="action" value="tick">
@@ -57,7 +80,7 @@
         </form>
       </div>
 
-      <div id="startbox" class="gfxbox gmbox" style="display: none;">
+      <div id="startbox" class="gfxbox gmbox" style="display: none;flex-direction: row">
         <form action="./gamemaster" method="post">
           <div>Teilnehmende Spieler ausw&auml;hlen:</div>
           <ul class="users" >
@@ -68,7 +91,7 @@
                   th:name="usercheckbox" />
               <label
                   th:for="'User_'+${user.getId()}"
-                  th:text="${user.getId()} + ' ' + ${user.getName()}"></label>
+                  th:utext="${user.getFormatedName()} + ' (' + ${user.getId()} + ')'"></label>
             </li>
           </ul>
           <input type="hidden" name="action" value="start">
@@ -77,7 +100,7 @@
         </form>
       </div>
 
-      <div id="endbox" class="gfxbox gmbox" style="display: none;">
+      <div id="endbox" class="gfxbox gmbox" style="display: none;flex-direction: row">
         <form action="./gamemaster" method="post">
           <input type="hidden" name="action" value="end">
           <input type="hidden" name="module" value="gamemaster">
@@ -105,7 +128,8 @@
       //output-Box ausblenden
       document.getElementById("out").style.display = "none";
       //ausgewaehlte Box anzeigen
-      document.getElementById(ele.dataset.box).style.display = "block";
+      document.getElementById(ele.dataset.box).style.display = "flex";
+      document.getElementById("error-placeholder").style.display = "none";
     }
   </script>
 </body>

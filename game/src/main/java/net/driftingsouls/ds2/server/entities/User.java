@@ -1749,8 +1749,7 @@ public class User extends BasicUser {
 				.setString("name", valueDesc.getName())
 				.list());
 
-		if( values.isEmpty() )
-		{
+		if( values.isEmpty() )		{
 			return Collections.singletonList(StringToTypeConverter.convert(valueDesc.getType(), valueDesc.getDefaultValue()));
 		}
 
@@ -1914,6 +1913,10 @@ public class User extends BasicUser {
 	}
 	public Boolean isCampaignParticipant(){
 		return campaign_participant;
+	}
+
+	public String getFormatedName(){
+		return Common._title(this.getName());
 	}
 
 }

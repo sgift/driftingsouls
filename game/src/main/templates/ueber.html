@@ -89,10 +89,10 @@
 				{if user.wait4vac}Achtung! Sie haben den Vacation-Modus (Urlaubsmodus) aktiviert. Dieser wird in {user.wait4vac} Ticks in Kraft gesetzt. {!link_to abbrechen, stopWait4Vac, css_class:error}<br /><br />{/endif}
 				{if global.survey}{!link_to Es gibt eine neue Umfrage, an der Sie teilnehmen können, default, module:survey, css_style:color:orange;font-weight:bold}<br /><br />{/endif}
 				{if user.campaign_participant}
-					{if !user.tick_ready}
-						<button>Bereit f&uuml;r Tick</button>
-					{else}
+					{if user.tick_ready}
 						Warte auf Kampagnentick
+					{else}
+						<button>Bereit f&uuml;r Tick</button>
 					{/endif}
 				{/endif}
 			</td>
