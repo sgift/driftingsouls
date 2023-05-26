@@ -219,7 +219,7 @@ public class GameMasterController implements DSController {
         default:
           break;
       }
-      ctx.setVariable("show", show);
+      ctx.setVariable("show", show.name());
     }
 
     private static class Error{

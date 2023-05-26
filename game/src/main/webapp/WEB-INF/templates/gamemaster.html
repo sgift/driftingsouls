@@ -37,7 +37,7 @@
         <span class="smallfont" th:if="${out && not out.isEmpty()}" th:text="${out}"><br /><br /></span>
       </div>
 
-      <div id="tickbox" class="gfxbox gmbox" th:style="'display: '+${show='TICK' ? 'flex' :  'none'} + ''; flex-direction: row'">
+      <div id="tickbox" class="gfxbox gmbox" th:style="'display: '+${show == 'TICK' ? 'flex' : 'none'} + '; flex-direction: row'">
         <div>
           Teilnehmerstatus:
           <table class="noBorderX" width="100%" cellspacing="2" cellpadding="2"  style="margin-right: 15px;">
@@ -81,7 +81,7 @@
         </form>
       </div>
 
-      <div id="startbox" class="gfxbox gmbox" th:style="'display: '+${show='START' ? 'flex' :  'none'} + ''; flex-direction: row'">
+      <div id="startbox" class="gfxbox gmbox" th:style="'display: '+${show=='START' ? 'flex' :  'none'} + '; flex-direction: row'">
         <form action="./gamemaster" method="post">
           <div>Teilnehmende Spieler ausw&auml;hlen:</div>
           <ul class="users" >
@@ -102,7 +102,7 @@
         </form>
       </div>
 
-      <div id="endbox" class="gfxbox gmbox" th:style="'display: '+${show='END' ? 'flex' :  'none'} + ''; flex-direction: row'">
+      <div id="endbox" class="gfxbox gmbox" th:style="'display: '+${show=='END' ? 'flex' :  'none'} + '; flex-direction: row'">
         <div>
           Teilnehmerstatus:
           <table class="noBorderX" width="100%" cellspacing="2" cellpadding="2"  style="margin-right: 15px;">
@@ -125,13 +125,14 @@
               </tr>
             </tbody>
           </table>
+
+          <form action="./gamemaster" method="post">
+            <input type="hidden" name="action" value="end">
+            <input type="hidden" name="module" value="gamemaster">
+            <input type="hidden" name="show" value="end">
+            <input type="submit" value="Kampagne beenden">
+          </form>
         </div>
-        <form action="./gamemaster" method="post">
-          <input type="hidden" name="action" value="end">
-          <input type="hidden" name="module" value="gamemaster">
-          <input type="hidden" name="show" value="end">
-          <input type="submit" value="Kampagne beenden">
-        </form>
       </div>
 
     </div>
