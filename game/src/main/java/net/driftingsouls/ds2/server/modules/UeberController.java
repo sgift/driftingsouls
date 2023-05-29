@@ -141,6 +141,14 @@ public class UeberController extends Controller
 		return new RedirectViewResult("default");
 	}
 
+	@Action(ActionType.DEFAULT)
+	public RedirectViewResult tickAction()
+	{
+		User user = (User)getUser();
+		user.setTickReady(true);
+		return new RedirectViewResult("default");
+	}
+
 	/**
 	 * Zeigt die Uebersicht an.
 	 */
