@@ -1,194 +1,210 @@
 <table class="noBorder">
-<tr>
-	<td class="noBorder" valign="top">
-		<table class="noBorder">
-		<tr>
-			<td class="noBorderS" valign="top">
-				{!link_to $user.name, default, css_class:profile, css_style:font-size:16px, module:userprofile, user:$user.id} ({user.id}) - {user.race}<br />
-				<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
-				Letzter Tick: {global.ticktime}<br />
-				Zeitpunkt: {time.current} ({global.ticks})<br />
-				<a title="Zum Konto" class="error" href="./ds?module=ersteigern&action=default&faction=-8"><img src="{res.re.image}" alt="Kontostand:" /></a>{user.konto} RE
-				{if user.balance.plain > 0}
-					<span style="color:green">+{user.balance}</span>
-				{/endif}
-				{if user.balance.plain < 0}
-					<span style="color:red">{user.balance}</span>
-				{/endif}
-				<br />
-				Nahrungsbilanz:
-				{if user.nahrung.new.plain < 0}
-					&nbsp;<span style="color:red">{user.nahrung.new}</span>
-				{else}
-					&nbsp;<span style="color:green">+{user.nahrung.new}</span>
-				{/endif}
-				<br />
-				<!-- <img src="data/interface/forschung/specpoints.gif" alt="Spezialisierungspunkte" />{user.specpoints} / {user.maxspecpoints} -->
-			</td>
-			<td class="noBorderS" style="width:180px; text-align:center">
-				<table class="noBorder">
-				<tr>
-					<td class="noBorderS" valign="middle" align="center">
-						<img src="data/logos/user/{user.id}.gif" width="75" height="75" alt="Kein Logo vorhanden" />
-					</td>
-
-					{if ally.logo}
-						<td class="noBorderS" valign="middle" align="center">
-							<img src="data/logos/ally/{ally.logo}.gif" width="75" height="75" alt="Kein Allianzlogo vorhanden" />
-						</td>
+	<tr>
+		<td class="noBorder" valign="top">
+			<table class="noBorder">
+			<tr>
+				<td class="noBorderS" valign="top">
+					{!link_to $user.name, default, css_class:profile, css_style:font-size:16px, module:userprofile, user:$user.id} ({user.id}) - {user.race}<br />
+					<hr style="height:1px; border:0px; background-color:#606060; color:#606060" />
+					Letzter Tick: {global.ticktime}<br />
+					Zeitpunkt: {time.current} ({global.ticks})<br />
+					<a title="Zum Konto" class="error" href="./ds?module=ersteigern&action=default&faction=-8"><img src="{res.re.image}" alt="Kontostand:" /></a>{user.konto} RE
+					{if user.balance.plain > 0}
+						<span style="color:green">+{user.balance}</span>
 					{/endif}
-
-				</tr>
-				</table>
-			</td>
-		</tr>
-		</table>
-
-		<table class="noBorder" style="height:300px">
-		<tr>
-			<td class="noBorderS">
-				{if message}
-					<div class="gfxbox" style="width:590px">
-						{message}
-					</div>
+					{if user.balance.plain < 0}
+						<span style="color:red">{user.balance}</span>
+					{/endif}
 					<br />
-				{/endif}
-				{if interactivetutorial.show}
+					Nahrungsbilanz:
+					{if user.nahrung.new.plain < 0}
+						&nbsp;<span style="color:red">{user.nahrung.new}</span>
+					{else}
+						&nbsp;<span style="color:green">+{user.nahrung.new}</span>
+					{/endif}
 					<br />
-					<div class="gfxbox" width="740px">
-						<table style="width:100%" class="noBorderX">
-						<tr>
-							<td class="noBorderX" valign="top">
-								<img src="{sheet.headpic}" alt="" />
+					<!-- <img src="data/interface/forschung/specpoints.gif" alt="Spezialisierungspunkte" />{user.specpoints} / {user.maxspecpoints} -->
+				</td>
+				<td class="noBorderS" style="width:180px; text-align:center">
+					<table class="noBorder">
+					<tr>
+						<td class="noBorderS" valign="middle" align="center">
+							<img src="data/logos/user/{user.id}.gif" width="75" height="75" alt="Kein Logo vorhanden" />
+						</td>
+	
+						{if ally.logo}
+							<td class="noBorderS" valign="middle" align="center">
+								<img src="data/logos/ally/{ally.logo}.gif" width="75" height="75" alt="Kein Allianzlogo vorhanden" />
 							</td>
-							<td class="noBorderX" valign="top">
-								&nbsp;
-							</td>
-							<td class="noBorderX" valign="top">
-								{sheet.text}
-								{if sheet.endtutorial}
-									<br /><br />
-									<div style="text-align:center">{!link_to &gt; Ende &lt;,tutorial, css_class : ok, tutorial: -1}</div>
-								{/endif}
-								{if sheet.nextsheet}
-									<br /><br />
-									<div style="text-align:center">{!link_to &gt; Weiter &lt;, tutorial, css_class:ok, tutorial:1}</div>
-								{/endif}
-							</td>
-						</tr>
-						</table>
-					</div>
-				{/endif}
-				<br />
-				{if global.battlelist}
-					{global.battlelist}
-				{else}
-					<br />
-				{/endif}
-
-				{if user.wait4vac}Achtung! Sie haben den Vacation-Modus (Urlaubsmodus) aktiviert. Dieser wird in {user.wait4vac} Ticks in Kraft gesetzt. {!link_to abbrechen, stopWait4Vac, css_class:error}<br /><br />{/endif}
-				{if global.survey}{!link_to Es gibt eine neue Umfrage, an der Sie teilnehmen können, default, module:survey, css_style:color:orange;font-weight:bold}<br /><br />{/endif}
-			</td>
-		</tr>
-		</table>
-	</td>
-	<td class="noBorderS" valign="top">
-	</td>
-</tr>
-</table>
-
-<table class="noBorder">
-<tr>
-	<td class="noBorderS">
-		<div class="gfxbox" style="width:480px">
-			<div style="text-align:center; font-weight:bold">
-				Bookmarks
-			</div>
-			<div style="height:260px; overflow:auto; padding:4px; font-size:13px">
-				<!-- BEGIN bookmarks.listitem -->
-					<a style="font-size:13px" class="forschinfo tooltip" href="./ds?module=schiff&amp;ship={bookmark.shipid}">
-						{bookmark.shipname}
-						<div class="ttcontent">
-							<span style="font-size:13px">{bookmark.description}</span>
+						{/endif}
+	
+					</tr>
+					</table>
+				</td>
+			</tr>
+			</table>
+	
+			<table class="noBorder" style="height:300px">
+			<tr>
+				<td class="noBorderS">
+					{if message}
+						<div class="gfxbox" style="width:590px">
+							{message}
 						</div>
-					</a> ({bookmark.shipid})
-					- {bookmark.shiptype} - {bookmark.location}<br />
-				<!-- END bookmarks.listitem -->
+						<br />
+					{/endif}
+					{if interactivetutorial.show}
+						<br />
+						<div class="gfxbox" width="740px">
+							<table style="width:100%" class="noBorderX">
+							<tr>
+								<td class="noBorderX" valign="top">
+									<img src="{sheet.headpic}" alt="" />
+								</td>
+								<td class="noBorderX" valign="top">
+									&nbsp;
+								</td>
+								<td class="noBorderX" valign="top">
+									{sheet.text}
+									{if sheet.endtutorial}
+										<br /><br />
+										<div style="text-align:center">{!link_to &gt; Ende &lt;,tutorial, css_class : ok, tutorial: -1}</div>
+									{/endif}
+									{if sheet.nextsheet}
+										<br /><br />
+										<div style="text-align:center">{!link_to &gt; Weiter &lt;, tutorial, css_class:ok, tutorial:1}</div>
+									{/endif}
+								</td>
+							</tr>
+							</table>
+						</div>
+					{/endif}
+					<br />
+					{if global.battlelist}
+						{global.battlelist}
+					{else}
+						<br />
+					{/endif}
+	
+					{if user.wait4vac}Achtung! Sie haben den Vacation-Modus (Urlaubsmodus) aktiviert. Dieser wird in {user.wait4vac} Ticks in Kraft gesetzt. {!link_to abbrechen, stopWait4Vac, css_class:error}<br /><br />{/endif}
+					{if global.survey}{!link_to Es gibt eine neue Umfrage, an der Sie teilnehmen können, default, module:survey, css_style:color:orange;font-weight:bold}<br /><br />{/endif}
+				</td>
+			</tr>
+			<tr>
+				<td>
+					{if user.campaign_participant}
+					<div>
+						<div class="gfxbox" style="margin-left: -40px;width: 250px;padding-left: 30px">
+							Kampagne<br /><br />
+							{if user.tick_ready}
+							<span style="color: orange;font-weight:bold">Warte auf Kampagnentick</span>
+							{else}
+							{!link_to Bereit für Tick, tick, css_style:color:#0060f0;font-weight:bold}
+							{/endif}
+						</div>
+					</div>
+					{/endif}
+				</td>
+			</tr>
+			</table>
+		</td>
+		<td class="noBorderS" valign="top">
+		</td>
+	</tr>
+	</table>
+	
+	<table class="noBorder">
+	<tr>
+		<td class="noBorderS">
+			<div class="gfxbox" style="width:480px">
+				<div style="text-align:center; font-weight:bold">
+					Bookmarks
+				</div>
+				<div style="height:260px; overflow:auto; padding:4px; font-size:13px">
+					<!-- BEGIN bookmarks.listitem -->
+						<a style="font-size:13px" class="forschinfo tooltip" href="./ds?module=schiff&amp;ship={bookmark.shipid}">
+							{bookmark.shipname}
+							<div class="ttcontent">
+								<span style="font-size:13px">{bookmark.description}</span>
+							</div>
+						</a> ({bookmark.shipid})
+						- {bookmark.shiptype} - {bookmark.location}<br />
+					<!-- END bookmarks.listitem -->
+				</div>
 			</div>
-		</div>
-	</td>
-	<td class="noBorderS" valign="top">
-		<div class="gfxbox" style="width:480px">
-			<div style="text-align:center; font-weight:bold">
-				Flotten
+		</td>
+		<td class="noBorderS" valign="top">
+			<div class="gfxbox" style="width:480px">
+				<div style="text-align:center; font-weight:bold">
+					Flotten
+				</div>
+				<div style="height:260px; overflow:auto; padding:4px; font-size:13px">
+					<!-- BEGIN fleets.listitem -->
+						{if fleet.jaegerfleet}<br />+++ gelandete Jäger- / Bomberstaffeln +++<br />{/endif}
+						{!link_to $fleet.name, default, css_style:font-size:13px, module:schiff, ship:$fleet.shipid}
+						- {fleet.shipcount} Schiffe - {fleet.location}<br />
+					<!-- END fleets.listitem -->
+				</div>
 			</div>
-			<div style="height:260px; overflow:auto; padding:4px; font-size:13px">
-				<!-- BEGIN fleets.listitem -->
-					{if fleet.jaegerfleet}<br />+++ gelandete Jäger- / Bomberstaffeln +++<br />{/endif}
-					{!link_to $fleet.name, default, css_style:font-size:13px, module:schiff, ship:$fleet.shipid}
-					- {fleet.shipcount} Schiffe - {fleet.location}<br />
-				<!-- END fleets.listitem -->
-			</div>
-		</div>
-	</td>
-</tr>
-<tr>
-	<td class="noBorderS" colspan="2" valign="top" align="center" style="font-size:17px">
-			<a title="Schiffe mit Vorräten für weniger als 10 Runden" class="error" href="./ds?module=schiffe&amp;low=9">
-				{if schiffe.mangel}
-					<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_mangel.gif" alt="" />
-				{else}
-					<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_mangel_none.gif" alt="" />
-				{/endif}
-			</a>
-			{schiffe.mangel}
-			 -
-			<a title="Schiffe ohne volle Besatzungsstärke" class="error" href="./ds?module=schiffe&amp;crewless=1">
-				{if schiffe.nocrew}
-					<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_nocrew.gif" alt="" />
-				{else}
-					<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_nocrew_none.gif" alt="" />
-				{/endif}
-			</a>
-			{schiffe.nocrew}
-			 -
-			<a title="Asteroiden mit Vorräten, welche für weniger als 10 Runden reichen" class="error" href="./ds?module=basen">
-				{if astis.mangel}
-					<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_mangel_asti.gif" alt="" />
-				{else}
-					<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_mangel_asti_none.gif" alt="" />
-				{/endif}
-			</a>
-			{astis.mangel}
-			 -
-			<a title="neue, ungelesene Nachrichten" class="error" href="./ds?module=comm&amp;action=showInbox">
-				{if user.newmsgs}
-					<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_pm.gif" alt="" />
-				{else}
-					<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_pm_none.gif" alt="" />
-				{/endif}
-			</a>
-			{user.newmsgs}
-			 -
-			<a title="verlorene Schlachten" class="error" href="./ds?module=stats&action=default&show=4">
-				<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_battle_lost.gif" alt="" />
-			</a>
-			{user.lostBattles}
-			 -
-			<a title="siegreiche Schlachten" class="error" href="./ds?module=stats&action=default&show=4">
-				<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_battle_won.gif" alt="" />
-			</a>
-			{user.wonBattles}
-			 -
-			<a title="Anzahl der verlorenen, eigenen Schiffe" class="error" href="./ds?module=stats&action=default&show=4">
-				<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_lost_ships.gif" alt="" />
-			</a>
-			{user.lostShips}
-			 -
-			<a title="Anzahl der feindlichen Schiffe, die von eigenen Schiffen zerstört wurden" class="error" href="./ds?module=stats&action=default&show=4">
-				<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_destroyed_ships.gif" alt="" />
-			</a>
-			{user.destroyedShips}
-	</td>
-</tr>
-</table>
+		</td>
+	</tr>
+	<tr>
+		<td class="noBorderS" colspan="2" valign="top" align="center" style="font-size:17px">
+				<a title="Schiffe mit Vorräten für weniger als 10 Runden" class="error" href="./ds?module=schiffe&amp;low=9">
+					{if schiffe.mangel}
+						<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_mangel.gif" alt="" />
+					{else}
+						<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_mangel_none.gif" alt="" />
+					{/endif}
+				</a>
+				{schiffe.mangel}
+				 -
+				<a title="Schiffe ohne volle Besatzungsstärke" class="error" href="./ds?module=schiffe&amp;crewless=1">
+					{if schiffe.nocrew}
+						<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_nocrew.gif" alt="" />
+					{else}
+						<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_nocrew_none.gif" alt="" />
+					{/endif}
+				</a>
+				{schiffe.nocrew}
+				 -
+				<a title="Asteroiden mit Vorräten, welche für weniger als 10 Runden reichen" class="error" href="./ds?module=basen">
+					{if astis.mangel}
+						<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_mangel_asti.gif" alt="" />
+					{else}
+						<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_mangel_asti_none.gif" alt="" />
+					{/endif}
+				</a>
+				{astis.mangel}
+				 -
+				<a title="neue, ungelesene Nachrichten" class="error" href="./ds?module=comm&amp;action=showInbox">
+					{if user.newmsgs}
+						<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_pm.gif" alt="" />
+					{else}
+						<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_pm_none.gif" alt="" />
+					{/endif}
+				</a>
+				{user.newmsgs}
+				 -
+				<a title="verlorene Schlachten" class="error" href="./ds?module=stats&action=default&show=4">
+					<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_battle_lost.gif" alt="" />
+				</a>
+				{user.lostBattles}
+				 -
+				<a title="siegreiche Schlachten" class="error" href="./ds?module=stats&action=default&show=4">
+					<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_battle_won.gif" alt="" />
+				</a>
+				{user.wonBattles}
+				 -
+				<a title="Anzahl der verlorenen, eigenen Schiffe" class="error" href="./ds?module=stats&action=default&show=4">
+					<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_lost_ships.gif" alt="" />
+				</a>
+				{user.lostShips}
+				 -
+				<a title="Anzahl der feindlichen Schiffe, die von eigenen Schiffen zerstört wurden" class="error" href="./ds?module=stats&action=default&show=4">
+					<img style="vertical-align:middle; border:0px" src="data/interface/uebersicht/icon_destroyed_ships.gif" alt="" />
+				</a>
+				{user.destroyedShips}
+		</td>
+	</tr>
+	</table>

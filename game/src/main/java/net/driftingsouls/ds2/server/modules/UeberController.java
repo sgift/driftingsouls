@@ -142,6 +142,17 @@ public class UeberController extends Controller
 	}
 
 	/**
+	 * Setzt Bereitschaft des Spielers fuer Kampagnentick
+	 */
+	@Action(ActionType.DEFAULT)
+	public RedirectViewResult tickAction()
+	{
+		User user = (User)getUser();
+		user.setTickReady(true);
+		return new RedirectViewResult("default");
+	}
+
+	/**
 	 * Zeigt die Uebersicht an.
 	 */
 	@Action(value = ActionType.DEFAULT, readOnly = true)

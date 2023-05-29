@@ -286,6 +286,10 @@ public class User extends BasicUser {
 	@Transient
 	private final Context context;
 
+	private Boolean tick_ready;
+	private Boolean campaign_participant;
+
+
 	/**
 	 * Konstruktor.
 	 *
@@ -348,6 +352,8 @@ public class User extends BasicUser {
 		this.bases = new HashSet<>();
 		this.ships = new HashSet<>();
 		this.ApiKey = "";
+		this.tick_ready = false;
+		this.campaign_participant = false;
 
 		// Users are friends of themselves, this simplifies starmap calculations
 		UserRelation selfRelation = new UserRelation(this, this, Relation.FRIEND.ordinal());
@@ -388,7 +394,9 @@ public class User extends BasicUser {
 				pre+"lostShips", this.lostShips,
 				pre+"knownItems", this.knownItems,
 				pre+"vaccount", this.vaccount,
-				pre+"wait4vac", this.wait4vac);
+				pre+"wait4vac", this.wait4vac,
+				pre+"campaign_participant", this.campaign_participant,
+				pre+"tick_ready", this.tick_ready);
 	}
 
 	/**
@@ -1741,8 +1749,7 @@ public class User extends BasicUser {
 				.setString("name", valueDesc.getName())
 				.list());
 
-		if( values.isEmpty() )
-		{
+		if( values.isEmpty() )		{
 			return Collections.singletonList(StringToTypeConverter.convert(valueDesc.getType(), valueDesc.getDefaultValue()));
 		}
 
@@ -1894,4 +1901,22 @@ public class User extends BasicUser {
 		}
 		return AccessLevels;
 	}
+
+	public void setTickReady(Boolean ready){
+		this.tick_ready = ready;
+	}
+	public Boolean isTickReady(){
+		return tick_ready;
+	}
+	public void setCampaignParticipant(Boolean participant){
+		this.campaign_participant = participant;
+	}
+	public Boolean isCampaignParticipant(){
+		return campaign_participant;
+	}
+
+	public String getFormatedName(){
+		return Common._title(this.getName());
+	}
+
 }

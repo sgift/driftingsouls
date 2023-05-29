@@ -17,35 +17,129 @@
       <div class="gfxbox" style="width:470px">
         <div style="text-align:center; font-size:14px; font-weight:bold">Es sind Fehler aufgetreten:</div>
         <ul>
-          <li><a class="error" style="font-size:14px; font-weight:normal" href="./ds?module=ueber&amp;action=default" th:utext="${error.text}">Der Zugang zu dieser Seite ist gesperrt!</a></li>
+          <li><a class="error" style="font-size:14px; font-weight:normal" th:href="${error.link}" href="./ds?module=ueber&amp;action=default" th:utext="${error.text}">Der Zugang zu dieser Seite ist gesperrt!</a></li>
         </ul>
       </div>
     </div>
   </div>
 
-  <div th:if="${out}">
-    <span class="smallfont" th:if="${not out.isEmpty()}" th:text="${out}"><br /><br /></span>
-  </div>
-
-  <div th:if="${starsystems}" id="gamemasterbox" class="gfxbox">
-    <form action="./gamemaster" method="post">
-      <input type="hidden" name="action" value="tick">
-      <input type="hidden" name="module" value="gamemaster">
-      <ul class="systems" >
-        <li th:each="system: ${starsystems}">
-          <input type="checkbox"
-              th:field="'System_'+${system.id}"
-              th:value="${system.id}"
-              th:name="systemcheckbox" />
-          <label
-              th:for="'System_'+${system.id}"
-              th:text="${system.name}"></label>
-        </li>
+  <div id="admin">
+    <div class="gfxbox treemenu">
+      <ul style="display: block;">
+        <li><img src="data/interface/admin/editor.png"><a th:class="${not campaign ? 'forschinfo' : 'error'}" th:href="${not campaign ? './gamemaster?show=start': '#'}" >Kampagne starten</a></li>
+        <li><img src="data/interface/admin/editor.png"><a th:class="${    campaign ? 'forschinfo' : 'error'}" th:href="${    campaign ? './gamemaster?show=tick' : '#'}" >Kampagnentick</a></li>
+        <li><img src="data/interface/admin/editor.png"><a th:class="${    campaign ? 'forschinfo' : 'error'}" th:href="${    campaign ? './gamemaster?show=end'  : '#'}" >Kampagne beenden</a></li>
       </ul>
+    </div>
+    <div id="adminplugin">
 
-      <input type="submit" value="Kampagnentick f&uuml;r ausgew&auml;hlte Systeme">
-    </form>
+      <div id="out" th:style="${out == null ? 'display:none' : 'display:block'}" >
+        <span class="smallfont" th:if="${out && not out.isEmpty()}" th:text="${out}"><br /><br /></span>
+      </div>
+
+      <div id="tickbox" class="gfxbox gmbox" th:style="'display: '+${show == 'TICK' ? 'flex' : 'none'} + '; flex-direction: row'">
+        <div>
+          Teilnehmerstatus:
+          <table class="noBorderX" width="100%" cellspacing="2" cellpadding="2"  style="margin-right: 15px;">
+            <thead>
+              <tr>
+                <td class="noBorderX" >ID</td>
+                <td class="noBorderX" >Name</td>
+                <td class="noBorderX" >Status</td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="user: ${participants}">
+                <td th:text="${user.getId()}" class="noBorderX" align="center"></td>
+                <td th:utext="${user.getFormatedName()}"></td>
+                <td class="noBorderX" align="center">
+                  <span class="nobr">
+                    <img th:src="'./data/interface/diplomacy/' + ${user.isTickReady() ? 'friend' : 'enemy' } + '1.png'" alt="" th:title="${user.isTickReady() ? 'bereit' : 'spielt' }"><img th:src="'./data/interface/diplomacy/' + ${user.isTickReady() ? 'friend' : 'enemy' } + '2.png'" alt="" th:title="${user.isTickReady() ? 'bereit' : 'spielt' }">
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <form action="./gamemaster" method="post">
+          <div>Systeme f&uuml;r Kampagnentick ausw&auml;hlen:</div>
+          <input type="hidden" name="action" value="tick">
+          <input type="hidden" name="module" value="gamemaster">
+          <input type="hidden" name="show" value="tick">
+          <ul class="systems" >
+            <li th:each="system: ${starsystems}">
+              <input type="checkbox"
+                  th:field="'System_'+${system.id}"
+                  th:value="${system.id}"
+                  th:name="systemcheckbox" />
+              <label
+                  th:for="'System_'+${system.id}"
+                  th:text="${system.name}"></label>
+            </li>
+          </ul>
+          <input type="submit" value="Kampagnentick ausf&uuml;hren">
+        </form>
+      </div>
+
+      <div id="startbox" class="gfxbox gmbox" th:style="'display: '+${show=='START' ? 'flex' :  'none'} + '; flex-direction: row'">
+        <form action="./gamemaster" method="post">
+          <div>Teilnehmende Spieler ausw&auml;hlen:</div>
+          <ul class="users" >
+            <li th:each="user: ${users}">
+              <input type="checkbox"
+                  th:field="'User_'+${user.getId()}"
+                  th:value="${user.getId()}"
+                  th:name="usercheckbox" />
+              <label
+                  th:for="'User_'+${user.getId()}"
+                  th:utext="${user.getFormatedName()} + ' (' + ${user.getId()} + ')'"></label>
+            </li>
+          </ul>
+          <input type="hidden" name="action" value="start">
+          <input type="hidden" name="module" value="gamemaster">
+          <input type="hidden" name="show" value="start">
+          <input type="submit" value="Kampagne starten">
+        </form>
+      </div>
+
+      <div id="endbox" class="gfxbox gmbox" th:style="'display: '+${show=='END' ? 'flex' :  'none'} + '; flex-direction: row'">
+        <div>
+          Teilnehmerstatus:
+          <table class="noBorderX" width="100%" cellspacing="2" cellpadding="2"  style="margin-right: 15px;">
+            <thead>
+              <tr>
+                <td class="noBorderX" >ID</td>
+                <td class="noBorderX" >Name</td>
+                <td class="noBorderX" >Status</td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="user: ${participants}">
+                <td th:text="${user.getId()}" class="noBorderX" align="center"></td>
+                <td th:utext="${user.getFormatedName()}"></td>
+                <td class="noBorderX" align="center">
+                  <span class="nobr">
+                    <img th:src="'./data/interface/diplomacy/' + ${user.isTickReady() ? 'friend' : 'enemy' } + '1.png'" alt="" th:title="${user.isTickReady() ? 'bereit' : 'spielt' }"><img th:src="'./data/interface/diplomacy/' + ${user.isTickReady() ? 'friend' : 'enemy' } + '2.png'" alt="" th:title="${user.isTickReady() ? 'bereit' : 'spielt' }">
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <form action="./gamemaster" method="post">
+            <input type="hidden" name="action" value="end">
+            <input type="hidden" name="module" value="gamemaster">
+            <input type="hidden" name="show" value="end">
+            <input type="submit" value="Kampagne beenden">
+          </form>
+        </div>
+      </div>
+
+    </div>
   </div>
+
+
+
   <script type="text/javascript">
     if (parent && parent.setCurrentPage) {
       parent.setCurrentPage('gamemaster','GameMaster');
