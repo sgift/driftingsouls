@@ -219,6 +219,8 @@ public class GameMasterController implements DSController {
         default:
           break;
       }
+      query = "select count(*) from User u where u.campaign_participant = 1";
+      ctx.setVariable("campaign", ((Long) db.createQuery(query).uniqueResult()) > 0);
       ctx.setVariable("show", show.name());
     }
 

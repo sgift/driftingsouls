@@ -141,6 +141,9 @@ public class UeberController extends Controller
 		return new RedirectViewResult("default");
 	}
 
+	/**
+	 * Setzt Bereitschaft des Spielers fuer Kampagnentick
+	 */
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult tickAction()
 	{

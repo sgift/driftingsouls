@@ -93,13 +93,13 @@
 			<tr>
 				<td>
 					{if user.campaign_participant}
-					<div id="admin">
-						<div class="gfxbox" style="margin-left: -300px;width: 250px;">
-							Kampagnensteuerung:<br />
+					<div>
+						<div class="gfxbox" style="margin-left: -40px;width: 250px;padding-left: 30px">
+							Kampagne<br /><br />
 							{if user.tick_ready}
-							Warte auf Kampagnentick
+							<span style="color: orange;font-weight:bold">Warte auf Kampagnentick</span>
 							{else}
-							{!link_to Bereit für den nächsten Tick, tick, css_style:color:orange;font-weight:bold}
+							{!link_to Bereit für Tick, tick, css_style:color:#0060f0;font-weight:bold}
 							{/endif}
 						</div>
 					</div>

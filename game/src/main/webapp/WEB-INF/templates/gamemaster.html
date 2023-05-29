@@ -26,9 +26,9 @@
   <div id="admin">
     <div class="gfxbox treemenu">
       <ul style="display: block;">
-        <li><img src="data/interface/admin/editor.png"><a class="forschinfo " href="./gamemaster?show=start" >Kampagne starten</a></li>
-        <li><img src="data/interface/admin/editor.png"><a class="forschinfo " href="./gamemaster?show=tick" >Kampagnentick</a></li>
-        <li><img src="data/interface/admin/editor.png"><a class="forschinfo " href="./gamemaster?show=end" >Kampagne beenden</a></li>
+        <li><img src="data/interface/admin/editor.png"><a th:class="${not campaign ? 'forschinfo' : 'error'}" th:href="${not campaign ? './gamemaster?show=start': '#'}" >Kampagne starten</a></li>
+        <li><img src="data/interface/admin/editor.png"><a th:class="${    campaign ? 'forschinfo' : 'error'}" th:href="${    campaign ? './gamemaster?show=tick' : '#'}" >Kampagnentick</a></li>
+        <li><img src="data/interface/admin/editor.png"><a th:class="${    campaign ? 'forschinfo' : 'error'}" th:href="${    campaign ? './gamemaster?show=end'  : '#'}" >Kampagne beenden</a></li>
       </ul>
     </div>
     <div id="adminplugin">
