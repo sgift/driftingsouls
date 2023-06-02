@@ -331,18 +331,25 @@
 		</dd>
 	</dl>
 </li>
-{if user.npc}
+{if user.spezial}
 	<li>
 		<dl>
 			<dt>
 				Spezial <img src="./data/interface/menubar/submenu.png" alt="" />
 			</dt>
-			<dd>
-				<a id="page_npcorder" href="./ds?module=client#/npc/order" target="main">NPC</a>
-			</dd>
+			{if user.npc}
+				<dd>
+					<a id="page_npcorder" href="./ds?module=client#/npc/order" target="main">NPC</a>
+				</dd>
+			{/endif}
 			{if user.adminSichtbar}
 				<dd>
 					<a id="page_admin" href="./ds?module=admin" target="main">Admin</a>
+				</dd>
+			{/endif}
+			{if user.gamemaster}
+				<dd>
+					<a id="page_gamemaster" href="./gamemaster" target="main">GameMaster</a>
 				</dd>
 			{/endif}
 			<dd class="lastelement">
@@ -350,22 +357,6 @@
 			</dd>
 		</dl>
 	</li>
-{else}
-	{if user.adminSichtbar}
-		<li>
-			<dl>
-				<dt>
-					Spezial <img src="./data/interface/menubar/submenu.png" alt="" />
-				</dt>
-				<dd>
-					<a id="page_admin" href="./ds?module=admin" target="main">Admin</a>
-				</dd>
-				<dd class="lastelement">
-					<span></span>
-				</dd>
-			</dl>
-		</li>
-	{/endif}
 {/endif}
 <li class="actionfield">
 	<a href="#" onclick="document.getElementById('audio').play()">

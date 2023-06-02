@@ -59,7 +59,7 @@ public class ForschungsTick extends TickController {
 			fzList = Common.cast(db
 					.createQuery("select id from Forschungszentrum " +
 							"where (base.owner.vaccount=0 or base.owner.wait4vac!=0) and forschung!=null and base.system in (:systeme)")
-					.setParameterList("system", affectedSystems)
+					.setParameterList("systeme", affectedSystems)
 					.list());
 		}
 		else{
