@@ -151,178 +151,195 @@ public class PlayerDelete implements AdminPlugin
 	}
 
 	public void deleteUser(int userId) {
-		log.info("Beginne Loeschung Spieler "+userId);
+		try {
+			log.info(userId + ": Delete player");
 
 
-		var context = ContextMap.getContext();
-		var db = context.getEM();
-		User user = db.find(User.class, userId);
-		if( user.getAlly() != null )
-		{
-			Ally ally = user.getAlly();
+			var context = ContextMap.getContext();
+			var db = context.getEM();
+			User user = db.find(User.class, userId);
+			if (user.getAlly() != null) {
+				log.info(userId + ": Check if ally still has enough members after player is deleted");
+				Ally ally = user.getAlly();
 
-			// Allianzen mit einem NPC als Praesidenten koennen auch mit 1 oder 2 Membern existieren
-			if( ally.getPresident().getId() > 0 )
-			{
-				long count = ally.getMemberCount() - 1;
-				if( count < 2 )
-				{
-					Taskmanager.getInstance().addTask(Taskmanager.Types.ALLY_LOW_MEMBER, 21,
-							Integer.toString(ally.getId()), "", "");
+				// Allianzen mit einem NPC als Praesidenten koennen auch mit 1 oder 2 Membern existieren
+				if (ally.getPresident().getId() > 0) {
+					long count = ally.getMemberCount() - 1;
+					if (count < 2) {
+						log.info(userId + ": Not enough players left, starting ally low warning");
+						Taskmanager.getInstance().addTask(Taskmanager.Types.ALLY_LOW_MEMBER, 21,
+								Integer.toString(ally.getId()), "", "");
 
-					final User sourceUser = db.find(User.class, 0);
+						final User sourceUser = db.find(User.class, 0);
 
-					AllianzService allianzService = context.getBean(AllianzService.class, null);
-					List<User> supermembers = allianzService.getAllianzfuehrung(ally);
-					for( User supermember : supermembers )
-					{
-						if( supermember.getId() == userId )
-						{
-							continue;
+						AllianzService allianzService = context.getBean(AllianzService.class, null);
+						List<User> supermembers = allianzService.getAllianzfuehrung(ally);
+						for (User supermember : supermembers) {
+							if (supermember.getId() == userId) {
+								continue;
+							}
+
+							PM.send(
+									sourceUser,
+									supermember.getId(),
+									"Drohende Allianzauflösung",
+									"[Automatische Nachricht]\nAchtung!\n"
+											+ "Durch das Löschen eines Allianzmitglieds hat Deine Allianz zu wenig Mitglieder, "
+											+ "um weiterhin zu bestehen. Du hast nun 21 Ticks Zeit, diesen Zustand zu ändern. "
+											+ "Anderenfalls wird die Allianz aufgelöst.");
 						}
-
-						PM.send(
-								sourceUser,
-								supermember.getId(),
-								"Drohende Allianzauflösung",
-								"[Automatische Nachricht]\nAchtung!\n"
-										+ "Durch das Löschen eines Allianzmitglieds hat Deine Allianz zu wenig Mitglieder, "
-										+ "um weiterhin zu bestehen. Du hast nun 21 Ticks Zeit, diesen Zustand zu ändern. "
-										+ "Anderenfalls wird die Allianz aufgelöst.");
 					}
 				}
 			}
-		}
 
-		db.createQuery("delete from GtuZwischenlager where user1=:user")
-				.setParameter("user", userId)
-				.executeUpdate();
-		db.createQuery("delete from GtuZwischenlager where user2=:user")
-				.setParameter("user", userId)
-				.executeUpdate();
+			log.info(userId + ": Deleting gtu stash");
+			db.createQuery("delete from GtuZwischenlager where user1=:user or user2=:user")
+					.setParameter("user", userId)
+					.executeUpdate();
 
-        db.createQuery("delete from UserValue where user=:user")
-                .setParameter("user", userId)
-                .executeUpdate();
+			log.info(userId + ": Deleting user values");
+			db.createQuery("delete from UserValue where user=:user")
+					.setParameter("user", userId)
+					.executeUpdate();
 
-        db.createQuery("delete from ComNetVisit where user=:user")
-                .setParameter("user", userId)
-                .executeUpdate();
+			log.info(userId + ": Deleting comnet visits");
+			db.createQuery("delete from ComNetVisit where user=:user")
+					.setParameter("user", userId)
+					.executeUpdate();
 
-        db.createQuery("update ComNetEntry set user=0 where user=:user")
-                .setParameter("user", userId)
-                .executeUpdate();
+			log.info(userId + ": Setting owner of comnet posts to 0");
+			db.createQuery("update ComNetEntry set user=0 where user=:user")
+					.setParameter("user", userId)
+					.executeUpdate();
 
-        db.createQuery("delete from UserRank where userRankKey.owner=:user")
-                .setParameter("user", userId)
-                .executeUpdate();
+			log.info(userId + ": Removing user ranks");
+			db.createQuery("delete from UserRank where userRankKey.owner=:user")
+					.setParameter("user", userId)
+					.executeUpdate();
 
-        db.createQuery("delete from FraktionAktionsMeldung where gemeldetVon=:user")
-                .setParameter("user", userId)
-                .executeUpdate();
+			log.info(userId + ": Removing faction notes");
+			db.createQuery("delete from FraktionAktionsMeldung where gemeldetVon=:user")
+					.setParameter("user", userId)
+					.executeUpdate();
 
-        var ships = db.createQuery("from Ship where owner=:user", Ship.class)
-				.setParameter("user", userId)
-				.getResultList();
-		for (Ship ship : ships)
-		{
-			ship.destroy();
-		}
-
-		var baseList = db.createQuery("from Base where owner=:user", Base.class)
-				.setParameter("user", userId)
-				.getResultList();
-
-		User nullUser = db.find(User.class, 0);
-
-		for( Base base : baseList )
-		{
-			Integer[] bebauung = base.getBebauung();
-			for( int i = 0; i < bebauung.length; i++ )
-			{
-				if( bebauung[i] == 0 )
-				{
-					continue;
-				}
-
-				Building building = Building.getBuilding(bebauung[i]);
-				building.cleanup(context, base, bebauung[i]);
-				bebauung[i] = 0;
+			log.info(userId + ": Deleting ships");
+			var ships = db.createQuery("from Ship where owner=:user", Ship.class)
+					.setParameter("user", userId)
+					.getResultList();
+			for (Ship ship : ships) {
+				ship.destroy();
 			}
-			base.setBebauung(bebauung);
 
-			base.setOwner(nullUser);
-			base.setName("Verlassener Asteroid");
-			base.setActive(new Integer[] { 0 });
-			base.setCore(null);
-			base.setCoreActive(false);
-			base.setEnergy(0);
-			base.setBewohner(0);
-			base.setArbeiter(0);
-			base.setCargo(new Cargo());
-			base.setAutoGTUActs(new ArrayList<>());
+			log.info(userId + ": Vacating bases");
+			var baseList = db.createQuery("from Base where owner=:user", Base.class)
+					.setParameter("user", userId)
+					.getResultList();
+
+			User nullUser = db.find(User.class, 0);
+
+			for (Base base : baseList) {
+				Integer[] bebauung = base.getBebauung();
+				for (int i = 0; i < bebauung.length; i++) {
+					if (bebauung[i] == 0) {
+						continue;
+					}
+
+					Building building = Building.getBuilding(bebauung[i]);
+					building.cleanup(context, base, bebauung[i]);
+					bebauung[i] = 0;
+				}
+				base.setBebauung(bebauung);
+
+				base.setOwner(nullUser);
+				base.setName("Verlassener Asteroid");
+				base.setActive(new Integer[]{0});
+				base.setCore(null);
+				base.setCoreActive(false);
+				base.setEnergy(0);
+				base.setBewohner(0);
+				base.setArbeiter(0);
+				base.setCargo(new Cargo());
+				base.setAutoGTUActs(new ArrayList<>());
+			}
+
+			log.info(userId + ": Deleting trade entries");
+			db.createQuery("delete from Handel where who=:user")
+					.setParameter("user", userId)
+					.executeUpdate();
+
+			log.info(userId + ": Transfer auction bids to GTU");
+			db.createQuery("update Versteigerung set bieter=-2 where bieter=:user")
+					.setParameter("user", userId)
+					.executeUpdate();
+
+			log.info(userId + ": Transfer auctioneer position to GTU");
+			db.createQuery("update Versteigerung set owner=-2 where owner=:user")
+					.setParameter("user", userId)
+					.executeUpdate();
+
+			log.info(userId + ": Delete PMs");
+			db.createQuery("delete from PM where empfaenger = :user")
+					.setParameter("user", userId)
+					.executeUpdate();
+
+			log.info(userId + ": Remove Player as PM sender");
+			db.createQuery("update PM set sender=0 where sender = :user")
+					.setParameter("user", userId)
+					.executeUpdate();
+
+			log.info(userId + ": Remove PM folders");
+			db.createQuery("delete from Ordner where owner=:user")
+					.setParameter("user", userId)
+					.executeUpdate();
+
+			log.info(userId + ": Remove relation entries");
+			db.createQuery("delete from UserRelation where user=:user1 or target=:user2")
+					.setParameter("user1", userId)
+					.setParameter("user2", userId)
+					.executeUpdate();
+
+			log.info(userId + ": Remove bank transfer logs");
+			db.createQuery("delete from UserMoneyTransfer umt where umt.from= :user or umt.to = :user")
+					.setParameter("user", user)
+					.executeUpdate();
+
+			try {
+				Files.delete(Path.of(Configuration.getAbsolutePath() + "data/logos/user/" + userId + ".gif"));
+			} catch (IOException ignored) {
+				// Nothing to do
+			}
+
+			log.info(userId + ": Remove officers");
+			db.createQuery("delete from Offizier where owner=:user")
+					.setParameter("user", userId)
+					.executeUpdate();
+
+			log.info(userId + ": Remove faction shop orders");
+			db.createQuery("delete from FactionShopOrder where user=:user")
+					.setParameter("user", userId)
+					.executeUpdate();
+
+			log.info(userId + ": Remove item statistics");
+			db.createQuery("delete from StatItemLocations where user=:user")
+					.setParameter("user", userId)
+					.executeUpdate();
+
+			log.info(userId + ": Remove user cargo statistics");
+			db.createQuery("delete from StatUserCargo where user=:user")
+					.setParameter("user", userId)
+					.executeUpdate();
+
+			log.info(userId + ": Remove session entries");
+			db.createQuery("delete from PermanentSession where user=:user")
+					.setParameter("user", user)
+					.executeUpdate();
+
+			db.flush();
+			db.remove(user);
+			log.info(userId + ": Player deleted");
+		} catch (Exception e) {
+			log.error(userId + ": Unable to delete user", e);
+			throw new RuntimeException(e);
 		}
-
-        db.createQuery("delete from Handel where who=:user")
-                .setParameter("user", userId)
-                .executeUpdate();
-
-        db.createQuery("update Versteigerung set bieter=-2 where bieter=:user")
-				.setParameter("user", userId)
-				.executeUpdate();
-
-		db.createQuery("update Versteigerung set owner=-2 where owner=:user")
-				.setParameter("user", userId)
-				.executeUpdate();
-
-        db.createQuery("delete from PM where empfaenger = :user")
-                .setParameter("user", userId)
-                .executeUpdate();
-
-        db.createQuery("update PM set sender=0 where sender = :user")
-				.setParameter("user", userId)
-				.executeUpdate();
-
-        db.createQuery("delete from Ordner where owner=:user")
-                .setParameter("user", userId)
-                .executeUpdate();
-
-        db.createQuery("delete from UserRelation where user=:user1 or target=:user2")
-                .setParameter("user1", userId)
-                .setParameter("user2", userId)
-                .executeUpdate();
-
-        db.createQuery("delete from UserMoneyTransfer umt where umt.from= :user or umt.to = :user")
-				.setParameter("user", user)
-				.executeUpdate();
-
-        try {
-            Files.delete(Path.of(Configuration.getAbsolutePath() + "data/logos/user/" + userId + ".gif"));
-        } catch (IOException ignored) {
-            // Nothing to do
-        }
-
-        db.createQuery("delete from Offizier where owner=:user")
-                .setParameter("user", userId)
-                .executeUpdate();
-
-        db.createQuery("delete from FactionShopOrder where user=:user")
-                .setParameter("user", userId)
-                .executeUpdate();
-
-        db.createQuery("delete from StatItemLocations where user=:user")
-                .setParameter("user", userId)
-                .executeUpdate();
-
-        db.createQuery("delete from StatUserCargo where user=:user")
-                .setParameter("user", userId)
-                .executeUpdate();
-
-        db.createQuery("delete from PermanentSession where user=:user")
-                .setParameter("user", user)
-                .executeUpdate();
-
-        db.flush();
-		db.remove(user);
 	}
 }
