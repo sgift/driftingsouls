@@ -23,24 +23,15 @@ import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.battles.Battle;
-import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
-import net.driftingsouls.ds2.server.cargo.ResourceID;
-import net.driftingsouls.ds2.server.cargo.Resources;
-import net.driftingsouls.ds2.server.cargo.Transfer;
-import net.driftingsouls.ds2.server.cargo.Transfering;
+import net.driftingsouls.ds2.server.cargo.*;
 import net.driftingsouls.ds2.server.cargo.modules.Module;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleType;
-import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.config.StarSystem;
+import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.config.items.IffDeaktivierenItem;
 import net.driftingsouls.ds2.server.config.items.Item;
-import net.driftingsouls.ds2.server.entities.Feeding;
-import net.driftingsouls.ds2.server.entities.Nebel;
-import net.driftingsouls.ds2.server.entities.Offizier;
-import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.UserFlag;
+import net.driftingsouls.ds2.server.entities.*;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
@@ -54,39 +45,13 @@ import net.driftingsouls.ds2.server.werften.ShipWerft;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Index;
-import org.hibernate.annotations.NotFound;
-import org.hibernate.annotations.NotFoundAction;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.*;
 
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.Version;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import javax.persistence.*;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -2166,31 +2131,28 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * Entfernt das Schiff aus der Datenbank.
 	 */
 	public void destroy() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
+		var db = ContextMap.getContext().getEM();
 
-		// Checken wir mal ob die Flotte danach noch bestehen darf....
+		// Checken wir mal, ob die Flotte danach noch bestehen darf....
 		if( this.fleet != null ) {
-			long fleetcount = (Long)db.createQuery("select count(*) from Ship where fleet=:fleet")
-			.setInteger("fleet", fleet.getId())
-			.iterate().next();
+			long fleetcount = db.createQuery("select count(*) from Ship where fleet=:fleet")
+			.setParameter("fleet", fleet)
+			.getFirstResult();
 			if( fleetcount <= 2 ) {
-				final ShipFleet fleet = this.fleet;
+				final ShipFleet currentFleet = this.fleet;
 
-				final Iterator<?> shipIter = db.createQuery("from Ship where fleet=:fleet")
-					.setEntity("fleet", this.fleet)
-					.iterate();
-				while( shipIter.hasNext() ) {
-					Ship aship = (Ship)shipIter.next();
-					aship.setFleet(null);
-				}
+				var shipList = db.createQuery("from Ship where fleet=:fleet", Ship.class)
+					.setParameter("fleet", this.fleet)
+						.getResultList();
+				shipList.forEach(ship -> ship.setFleet(null));
 
-				db.delete(fleet);
+				db.remove(currentFleet);
 			}
 		}
 
-		// Ist das Schiff selbst gedockt? -> Abdocken
-		if(this.docked != null && !this.docked.equals("") && (this.docked.charAt(0) != 'l') ) {
-			Ship docked = (Ship)db.get(Ship.class, Integer.parseInt(this.docked));
+		// Ist das Schiff selbst gedockt? → Abdocken
+		if(this.docked != null && !this.docked.isEmpty() && (this.docked.charAt(0) != 'l') ) {
+			Ship docked = db.find(Ship.class, Integer.parseInt(this.docked));
 			if(docked != null)
 			{
 				docked.undock(this);
@@ -2210,7 +2172,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			start();
 		}
 
-		// Gibts bereits eine Loesch-Task? Wenn ja, dann diese entfernen
+		// Gibts bereits einen Loesch-Task? Wenn ja, dann diesen entfernen
 		Taskmanager taskmanager = Taskmanager.getInstance();
 		Task[] tasks = taskmanager.getTasksByData( Taskmanager.Types.SHIP_DESTROY_COUNTDOWN, Integer.toString(this.id), "*", "*");
 		for (Task task : tasks)
@@ -2222,16 +2184,16 @@ public class Ship implements Locatable,Transfering,Feeding {
 		this.flags.clear();
 
 		db.createQuery("delete from Offizier where stationiertAufSchiff=:dest")
-			.setEntity("dest", this)
+			.setParameter("dest", this)
 			.executeUpdate();
 
 		db.createQuery("delete from Jump where ship=:id")
-			.setEntity("id", this)
+			.setParameter("id", this)
 			.executeUpdate();
 
-		ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=:ship")
-			.setInteger("ship", this.id)
-			.uniqueResult();
+		ShipWerft werft = db.createQuery("from ShipWerft where ship=:ship", ShipWerft.class)
+			.setParameter("ship", this)
+			.getSingleResult();
 
 		if( werft != null ) {
 			werft.destroy();
@@ -2246,17 +2208,17 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		if(units != null)
 		{
-			units.forEach(db::delete);
+			units.forEach(db::remove);
 		}
 
 		if( this.einstellungen != null )
 		{
-			db.delete(this.einstellungen);
+			db.remove(this.einstellungen);
 			this.einstellungen = null;
 		}
 
 		db.flush(); //Damit auch wirklich alle Daten weg sind und Hibernate nicht auf dumme Gedanken kommt *sfz*
-		db.delete(this);
+		db.remove(this);
 
 		this.destroyed = true;
 	}
