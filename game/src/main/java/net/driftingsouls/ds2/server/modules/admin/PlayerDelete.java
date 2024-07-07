@@ -151,12 +151,17 @@ public class PlayerDelete implements AdminPlugin
 	}
 
 	public void deleteUser(int userId) {
+		var context = ContextMap.getContext();
+		var db = context.getEM();
+		var transaction = db.getTransaction();
+		var wasActive = transaction.isActive();
+		if(!wasActive) {
+			transaction.begin();
+		}
 		try {
 			log.info(userId + ": Delete player");
 
 
-			var context = ContextMap.getContext();
-			var db = context.getEM();
 			User user = db.find(User.class, userId);
 			if (user.getAlly() != null) {
 				log.info(userId + ": Check if ally still has enough members after player is deleted");
@@ -335,9 +340,15 @@ public class PlayerDelete implements AdminPlugin
 
 			db.flush();
 			db.remove(user);
+			if(!wasActive) {
+				transaction.commit();
+			}
 			log.info(userId + ": Player deleted");
 		} catch (Exception e) {
 			log.error(userId + ": Unable to delete user", e);
+			if(!wasActive) {
+				transaction.rollback();
+			}
 			throw new RuntimeException(e);
 		}
 	}
