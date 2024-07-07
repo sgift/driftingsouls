@@ -42,6 +42,7 @@ import net.driftingsouls.ds2.server.units.ShipUnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargoEntry;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
+import net.driftingsouls.ds2.server.werften.WerftObject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -2191,15 +2192,11 @@ public class Ship implements Locatable,Transfering,Feeding {
 			.setParameter("id", this)
 			.executeUpdate();
 
-		ShipWerft werft = db.createQuery("from ShipWerft where ship=:ship", ShipWerft.class)
-			.setParameter("ship", this)
-			.getSingleResult();
+        db.createQuery("from ShipWerft where ship=:ship", ShipWerft.class)
+                .setParameter("ship", this)
+                .getResultList().stream().findFirst().ifPresent(WerftObject::destroy);
 
-		if( werft != null ) {
-			werft.destroy();
-		}
-
-		// Delete Trade Limits if necessary
+        // Delete Trade Limits if necessary
 		if (this.isTradepost())
 		{
 			db.createQuery("delete from ResourceLimit where ship=:ship").setParameter("ship", this).executeUpdate();
