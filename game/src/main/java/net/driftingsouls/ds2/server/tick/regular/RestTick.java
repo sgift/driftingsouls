@@ -37,6 +37,8 @@ import net.driftingsouls.ds2.server.entities.statistik.StatShips;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
+import net.driftingsouls.ds2.server.framework.db.DBUtil;
+import net.driftingsouls.ds2.server.modules.admin.PlayerDelete;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.tasks.Task;
@@ -51,6 +53,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+
+import static net.driftingsouls.ds2.server.entities.jooq.tables.Users.USERS;
 
 /**
  * Berechnet sonstige Tick-Aktionen, welche keinen eigenen TickController haben.
@@ -478,6 +482,21 @@ public class RestTick extends TickController {
 		}
 	}
 
+	private void cleanupUninterested() {
+		try(var conn = DBUtil.getConnection(getContext().getEM())) {
+			var db = DBUtil.getDSLContext(conn);
+			var deleteCommand = new PlayerDelete();
+			try(var select = db.select(USERS.ID).from(USERS)
+					.where(USERS.NICKNAME.equalIgnoreCase("Kolonist"), USERS.INAKT.ge(100))) {
+				for (var id: select.fetch(USERS.ID)) {
+					deleteCommand.deleteUser(id);
+				}
+			}
+		} catch (Exception e) {
+			Common.mailThrowable(e, "RestTick Exception", "cleanupUninterested failed");
+        }
+    }
+
 	@Override
 	protected void tick()
 	{
@@ -519,5 +538,6 @@ public class RestTick extends TickController {
 		}
 		this.doFelsbrocken();
 		this.doTasks();
+		this.cleanupUninterested();
 	}
 }
