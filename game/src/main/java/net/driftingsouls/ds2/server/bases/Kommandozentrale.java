@@ -78,7 +78,7 @@ public class Kommandozentrale extends DefaultBuilding {
 	@Override
 	public void cleanup(Context context, Base base, int building) {
 		super.cleanup(context, base, building);
-		org.hibernate.Session db = context.getDB();
+		var db = context.getEM();
 
 		// Loesche alle GTU-Aktionen
 		base.setAutoGTUActs(new ArrayList<>());
@@ -104,13 +104,13 @@ public class Kommandozentrale extends DefaultBuilding {
 
 		// Ueberstelle Offiziere
 		db.createQuery("update Offizier set owner=:owner where stationiertAufBasis=:dest")
-		  .setEntity("owner", nullUser)
-		  .setEntity("dest", base)
+		  .setParameter("owner", nullUser)
+				.setParameter("dest", base)
 		  .executeUpdate();
 
 		// Loesche Verbindungen
 		db.createQuery("update ShipWerft set linked=null where linked=:base")
-			.setEntity("base", base)
+			.setParameter("base", base)
 			.executeUpdate();
 
 		// Loesche Eintraege der Basiswerft
@@ -130,14 +130,14 @@ public class Kommandozentrale extends DefaultBuilding {
 		}
 
 		// Auftraege der Kaserne loeschen
-		Kaserne kaserne = (Kaserne)db.createQuery("from Kaserne where base=:base")
-			.setEntity("base", base)
-			.uniqueResult();
+		Kaserne kaserne = db.createQuery("from Kaserne where base=:base", Kaserne.class)
+			.setParameter("base", base)
+				.getResultList().stream().findFirst().orElse(null);
 
 		if( kaserne != null ) {
 			for( KaserneEntry entry : kaserne.getQueueEntries() )
 			{
-				db.delete(entry);
+				db.remove(entry);
 			}
 		}
 

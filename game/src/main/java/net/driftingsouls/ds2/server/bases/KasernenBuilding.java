@@ -73,10 +73,10 @@ public class KasernenBuilding extends DefaultBuilding {
 	public void cleanup(Context context, Base base, int building) {
 		super.cleanup(context, base, building);
 
-		org.hibernate.Session db = context.getDB();
-		Kaserne kaserne = (Kaserne)db.createQuery("from Kaserne where base=:base")
-			.setEntity("base", base)
-			.uniqueResult();
+		var db = context.getEM();
+		Kaserne kaserne = db.createQuery("from Kaserne where base=:base", Kaserne.class)
+			.setParameter("base", base)
+			.getSingleResult();
 
 		if( kaserne != null ) {
 			kaserne.destroy();

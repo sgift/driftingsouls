@@ -86,8 +86,8 @@ public class ForschungszentrumBuilding extends DefaultBuilding {
 		}
 		base.setForschungszentrum(null);
 
-		org.hibernate.Session db = context.getDB();
-		db.delete(fz);
+		var db = context.getEM();
+		db.remove(fz);
 	}
 
 	@Override
