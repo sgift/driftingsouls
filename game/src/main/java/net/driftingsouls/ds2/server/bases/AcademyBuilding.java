@@ -95,7 +95,7 @@ public class AcademyBuilding extends DefaultBuilding {
 	@Override
 	public void cleanup(Context context, Base base, int building) {
 		super.cleanup(context, base, building);
-		org.hibernate.Session db = context.getDB();
+		var db = context.getEM();
 
 
 		Academy academy = base.getAcademy();
@@ -105,7 +105,7 @@ public class AcademyBuilding extends DefaultBuilding {
 			academy.getQueueEntries().clear();
 
 			base.setAcademy(null);
-			db.delete(academy);
+			db.remove(academy);
 		}
 
 

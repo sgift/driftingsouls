@@ -306,7 +306,7 @@ public class Fabrik extends DefaultBuilding
 	@Override
 	public void cleanup(Context context, Base base, int buildingid)
 	{
-		org.hibernate.Session db = context.getDB();
+		var db = context.getEM();
 
 		Factory wf = loadFactoryEntity(base, buildingid);
 		if (wf == null)
@@ -324,7 +324,7 @@ public class Fabrik extends DefaultBuilding
 				int id = aPlist.getId();
 				int count = aPlist.getCount();
 
-				FactoryEntry entry = (FactoryEntry) db.get(FactoryEntry.class, id);
+				FactoryEntry entry = db.find(FactoryEntry.class, id);
 
 				usedcapacity = usedcapacity.add(entry.getDauer().multiply(new BigDecimal(count)));
 			}
@@ -338,7 +338,7 @@ public class Fabrik extends DefaultBuilding
 					int id = plist[i].getId();
 					int count = plist[i].getCount();
 
-					FactoryEntry entry = (FactoryEntry) db.get(FactoryEntry.class, id);
+					FactoryEntry entry = db.find(FactoryEntry.class, id);
 
 					BigDecimal capUsed = new BigDecimal(count).multiply(entry.getDauer());
 
@@ -365,7 +365,7 @@ public class Fabrik extends DefaultBuilding
 		}
 		else
 		{
-			db.delete(wf);
+			db.remove(wf);
 			base.getFactories().remove(wf);
 		}
 	}
