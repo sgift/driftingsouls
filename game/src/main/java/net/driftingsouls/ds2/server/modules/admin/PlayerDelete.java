@@ -194,37 +194,37 @@ public class PlayerDelete implements AdminPlugin
 
 			log.info(userId + ": Deleting gtu stash");
 			db.createQuery("delete from GtuZwischenlager where user1=:user or user2=:user")
-					.setParameter("user", userId)
+					.setParameter("user", user)
 					.executeUpdate();
 
 			log.info(userId + ": Deleting user values");
 			db.createQuery("delete from UserValue where user=:user")
-					.setParameter("user", userId)
+					.setParameter("user", user)
 					.executeUpdate();
 
 			log.info(userId + ": Deleting comnet visits");
 			db.createQuery("delete from ComNetVisit where user=:user")
-					.setParameter("user", userId)
+					.setParameter("user", user)
 					.executeUpdate();
 
 			log.info(userId + ": Setting owner of comnet posts to 0");
 			db.createQuery("update ComNetEntry set user=0 where user=:user")
-					.setParameter("user", userId)
+					.setParameter("user", user)
 					.executeUpdate();
 
 			log.info(userId + ": Removing user ranks");
 			db.createQuery("delete from UserRank where userRankKey.owner=:user")
-					.setParameter("user", userId)
+					.setParameter("user", user)
 					.executeUpdate();
 
 			log.info(userId + ": Removing faction notes");
 			db.createQuery("delete from FraktionAktionsMeldung where gemeldetVon=:user")
-					.setParameter("user", userId)
+					.setParameter("user", user)
 					.executeUpdate();
 
 			log.info(userId + ": Deleting ships");
 			var ships = db.createQuery("from Ship where owner=:user", Ship.class)
-					.setParameter("user", userId)
+					.setParameter("user", user)
 					.getResultList();
 			for (Ship ship : ships) {
 				ship.destroy();
@@ -232,7 +232,7 @@ public class PlayerDelete implements AdminPlugin
 
 			log.info(userId + ": Vacating bases");
 			var baseList = db.createQuery("from Base where owner=:user", Base.class)
-					.setParameter("user", userId)
+					.setParameter("user", user)
 					.getResultList();
 
 			User nullUser = db.find(User.class, 0);
@@ -264,38 +264,37 @@ public class PlayerDelete implements AdminPlugin
 
 			log.info(userId + ": Deleting trade entries");
 			db.createQuery("delete from Handel where who=:user")
-					.setParameter("user", userId)
+					.setParameter("user", user)
 					.executeUpdate();
 
 			log.info(userId + ": Transfer auction bids to GTU");
 			db.createQuery("update Versteigerung set bieter=-2 where bieter=:user")
-					.setParameter("user", userId)
+					.setParameter("user", user)
 					.executeUpdate();
 
 			log.info(userId + ": Transfer auctioneer position to GTU");
 			db.createQuery("update Versteigerung set owner=-2 where owner=:user")
-					.setParameter("user", userId)
+					.setParameter("user", user)
 					.executeUpdate();
 
 			log.info(userId + ": Delete PMs");
 			db.createQuery("delete from PM where empfaenger = :user")
-					.setParameter("user", userId)
+					.setParameter("user", user)
 					.executeUpdate();
 
 			log.info(userId + ": Remove Player as PM sender");
 			db.createQuery("update PM set sender=0 where sender = :user")
-					.setParameter("user", userId)
+					.setParameter("user", user)
 					.executeUpdate();
 
 			log.info(userId + ": Remove PM folders");
 			db.createQuery("delete from Ordner where owner=:user")
-					.setParameter("user", userId)
+					.setParameter("user", user)
 					.executeUpdate();
 
 			log.info(userId + ": Remove relation entries");
-			db.createQuery("delete from UserRelation where user=:user1 or target=:user2")
-					.setParameter("user1", userId)
-					.setParameter("user2", userId)
+			db.createQuery("delete from UserRelation where user=:user or target=:user")
+					.setParameter("user", user)
 					.executeUpdate();
 
 			log.info(userId + ": Remove bank transfer logs");
@@ -311,22 +310,22 @@ public class PlayerDelete implements AdminPlugin
 
 			log.info(userId + ": Remove officers");
 			db.createQuery("delete from Offizier where owner=:user")
-					.setParameter("user", userId)
+					.setParameter("user", user)
 					.executeUpdate();
 
 			log.info(userId + ": Remove faction shop orders");
 			db.createQuery("delete from FactionShopOrder where user=:user")
-					.setParameter("user", userId)
+					.setParameter("user", user)
 					.executeUpdate();
 
 			log.info(userId + ": Remove item statistics");
 			db.createQuery("delete from StatItemLocations where user=:user")
-					.setParameter("user", userId)
+					.setParameter("user", user)
 					.executeUpdate();
 
 			log.info(userId + ": Remove user cargo statistics");
 			db.createQuery("delete from StatUserCargo where user=:user")
-					.setParameter("user", userId)
+					.setParameter("user", user)
 					.executeUpdate();
 
 			log.info(userId + ": Remove session entries");
