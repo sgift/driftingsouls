@@ -89,6 +89,10 @@ public class SingleUserRelationsService {
         var userRelations = getUserRelationData();
 
         var relation = userRelations.get(otherUserId);
+
+        if(relation == null) {
+            return User.Relation.ENEMY;
+        }
         return User.getRelation(relation.getRelationFrom());
     }
 }
