@@ -2133,89 +2133,97 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 */
 	public void destroy() {
 		var db = ContextMap.getContext().getEM();
+		var transaction = db.getTransaction();
+		var wasActive = transaction.isActive();
+		if(!wasActive) {
+			transaction.begin();
+		}
 
-		// Checken wir mal, ob die Flotte danach noch bestehen darf....
-		if( this.fleet != null ) {
-			long fleetcount = db.createQuery("select count(*) from Ship where fleet=:fleet")
-			.setParameter("fleet", fleet)
-			.getFirstResult();
-			if( fleetcount <= 2 ) {
-				final ShipFleet currentFleet = this.fleet;
+		try {
+			// Checken wir mal, ob die Flotte danach noch bestehen darf....
+			if (this.fleet != null) {
+				long fleetcount = db.createQuery("select count(*) from Ship where fleet=:fleet")
+						.setParameter("fleet", fleet)
+						.getFirstResult();
+				if (fleetcount <= 2) {
+					final ShipFleet currentFleet = this.fleet;
 
-				var shipList = db.createQuery("from Ship where fleet=:fleet", Ship.class)
-					.setParameter("fleet", this.fleet)
-						.getResultList();
-				shipList.forEach(ship -> ship.setFleet(null));
+					var shipList = db.createQuery("from Ship where fleet=:fleet", Ship.class)
+							.setParameter("fleet", this.fleet)
+							.getResultList();
+					shipList.forEach(ship -> ship.setFleet(null));
 
-				db.remove(currentFleet);
+					db.remove(currentFleet);
+				}
 			}
-		}
 
-		// Ist das Schiff selbst gedockt? → Abdocken
-		if(this.docked != null && !this.docked.isEmpty() && (this.docked.charAt(0) != 'l') ) {
-			Ship docked = db.find(Ship.class, Integer.parseInt(this.docked));
-			if(docked != null)
-			{
-				docked.undock(this);
+			// Ist das Schiff selbst gedockt? → Abdocken
+			if (this.docked != null && !this.docked.isEmpty() && (this.docked.charAt(0) != 'l')) {
+				Ship docked = db.find(Ship.class, Integer.parseInt(this.docked));
+				if (docked != null) {
+					docked.undock(this);
+				} else {
+					log.debug("Docked entry of ship was illegal: " + this.docked);
+				}
 			}
-			else
-			{
-				log.debug("Docked entry of ship was illegal: " + this.docked);
+
+			// Evt. gedockte Schiffe abdocken
+			ShipTypeData type = this.getTypeData();
+			if (type.getADocks() != 0) {
+				undock();
 			}
+			if (type.getJDocks() != 0) {
+				start();
+			}
+
+			// Gibts bereits einen Loesch-Task? Wenn ja, dann diesen entfernen
+			Taskmanager taskmanager = Taskmanager.getInstance();
+			Task[] tasks = taskmanager.getTasksByData(Taskmanager.Types.SHIP_DESTROY_COUNTDOWN, Integer.toString(this.id), "*", "*");
+			for (Task task : tasks) {
+				taskmanager.removeTask(task.getTaskID());
+			}
+
+			// Und nun loeschen wir es...
+			this.flags.clear();
+
+			db.createQuery("delete from Offizier where stationiertAufSchiff=:dest")
+					.setParameter("dest", this)
+					.executeUpdate();
+
+			db.createQuery("delete from Jump where ship=:id")
+					.setParameter("id", this)
+					.executeUpdate();
+
+			db.createQuery("from ShipWerft where ship=:ship", ShipWerft.class)
+					.setParameter("ship", this)
+					.getResultList().stream().findFirst().ifPresent(WerftObject::destroy);
+
+			// Delete Trade Limits if necessary
+			if (this.isTradepost()) {
+				db.createQuery("delete from ResourceLimit where ship=:ship").setParameter("ship", this).executeUpdate();
+				db.createQuery("delete from SellLimit where ship=:ship").setParameter("ship", this).executeUpdate();
+			}
+
+			if (units != null) {
+				units.forEach(db::remove);
+			}
+
+			if (this.einstellungen != null) {
+				db.remove(this.einstellungen);
+				this.einstellungen = null;
+			}
+
+			db.flush(); //Damit auch wirklich alle Daten weg sind und Hibernate nicht auf dumme Gedanken kommt *sfz*
+			db.remove(this);
+			if(!wasActive) {
+				transaction.commit();
+			}
+		} catch (Exception ex) {
+			if(!wasActive) {
+				transaction.rollback();
+			}
+			throw ex;
 		}
-
-		// Evt. gedockte Schiffe abdocken
-		ShipTypeData type = this.getTypeData();
-		if( type.getADocks() != 0 ) {
-			undock();
-		}
-		if( type.getJDocks() != 0 ) {
-			start();
-		}
-
-		// Gibts bereits einen Loesch-Task? Wenn ja, dann diesen entfernen
-		Taskmanager taskmanager = Taskmanager.getInstance();
-		Task[] tasks = taskmanager.getTasksByData( Taskmanager.Types.SHIP_DESTROY_COUNTDOWN, Integer.toString(this.id), "*", "*");
-		for (Task task : tasks)
-		{
-			taskmanager.removeTask(task.getTaskID());
-		}
-
-		// Und nun loeschen wir es...
-		this.flags.clear();
-
-		db.createQuery("delete from Offizier where stationiertAufSchiff=:dest")
-			.setParameter("dest", this)
-			.executeUpdate();
-
-		db.createQuery("delete from Jump where ship=:id")
-			.setParameter("id", this)
-			.executeUpdate();
-
-        db.createQuery("from ShipWerft where ship=:ship", ShipWerft.class)
-                .setParameter("ship", this)
-                .getResultList().stream().findFirst().ifPresent(WerftObject::destroy);
-
-        // Delete Trade Limits if necessary
-		if (this.isTradepost())
-		{
-			db.createQuery("delete from ResourceLimit where ship=:ship").setParameter("ship", this).executeUpdate();
-			db.createQuery("delete from SellLimit where ship=:ship").setParameter("ship", this).executeUpdate();
-		}
-
-		if(units != null)
-		{
-			units.forEach(db::remove);
-		}
-
-		if( this.einstellungen != null )
-		{
-			db.remove(this.einstellungen);
-			this.einstellungen = null;
-		}
-
-		db.flush(); //Damit auch wirklich alle Daten weg sind und Hibernate nicht auf dumme Gedanken kommt *sfz*
-		db.remove(this);
 
 		this.destroyed = true;
 	}
