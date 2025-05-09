@@ -43,6 +43,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,8 +94,8 @@ public class NPCOrderTick extends TickController {
 			@Override
 			public void doWork(Integer orderId)
 			{
-				org.hibernate.Session db = getDB();
-				Order order = (Order)db.get(Order.class, orderId);
+				var db = getEM();
+				Order order = db.find(Order.class, orderId);
 
 				if( order.getTick() != 1 )
 				{
@@ -124,7 +125,7 @@ public class NPCOrderTick extends TickController {
 					newShip.recalculateShipStatus();
 				}
 
-				db.delete(order);
+				db.remove(order);
 			}
 		}
 		.setFlushSize(5)
@@ -135,8 +136,8 @@ public class NPCOrderTick extends TickController {
 		{
 			@Override
 			public void doWork() {
-				org.hibernate.Session db = getDB();
-				final User sourceUser = (User)db.get(User.class, -1);
+				var db = getEM();
+				final User sourceUser = db.find(User.class, -1);
 				for( Map.Entry<Integer, StringBuilder> entry : pmcache.entrySet() )
 				{
 					PM.send(sourceUser, entry.getKey(), "NPC-Lieferservice", entry.getValue().toString());
@@ -153,7 +154,7 @@ public class NPCOrderTick extends TickController {
 		{
 			@Override
 			public void doWork(Integer userId) {
-				User user = (User)getDB().get(User.class, userId);
+				User user = getEM().find(User.class, userId);
 				user.setNpcPunkte(user.getNpcPunkte()+1);
 			}
 		}
@@ -201,11 +202,11 @@ public class NPCOrderTick extends TickController {
 		return newShip;
 	}
 
-	private Ship processOrderOffizier(org.hibernate.Session db, Order order, User user, Location loc)
+	private Ship processOrderOffizier(EntityManager db, Order order, User user, Location loc)
 	{
 		List<Base> bases = Base.byLocationAndBesitzer(loc, user);
 
-		ShipType shipd = (ShipType)db.get(ShipType.class, OFFIZIERSSCHIFF);
+		ShipType shipd = db.find(ShipType.class, OFFIZIERSSCHIFF);
 
 		Ship newShip = null;
 		if( bases.isEmpty() )
@@ -220,7 +221,7 @@ public class NPCOrderTick extends TickController {
 			this.log("* Order "+order.getId()+" ready: Offizier wird zu User "+order.getUser().getId()+" - Basis "+bases.get(0).getId()+" geliefert");
 		}
 
-		OrderableOffizier offizier = (OrderableOffizier)db.get(OrderableOffizier.class, ((OrderOffizier)order).getType());
+		OrderableOffizier offizier = db.find(OrderableOffizier.class, ((OrderOffizier)order).getType());
 		int special = ThreadLocalRandom.current().nextInt(1, 7);
 
 		Offizier offi = new Offizier(user, this.getOffiName(user));

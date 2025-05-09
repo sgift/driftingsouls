@@ -13,15 +13,10 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
 
+import javax.persistence.EntityManager;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -30,7 +25,7 @@ import java.util.stream.Collectors;
  */
 public class AutoFire
 {
-    public AutoFire(Session db, Battle battle)
+    public AutoFire(EntityManager db, Battle battle)
     {
         if(db == null)
         {
@@ -64,7 +59,7 @@ public class AutoFire
             }
 
             Map<Weapon, Integer> shipWeapons = getShipWeapons(firingShip);
-            if(shipWeapons.size() == 0)
+            if(shipWeapons.isEmpty())
             {
                 log.info("\tShip has no weapons. Stopping.");
                 continue;
@@ -336,7 +331,6 @@ public class AutoFire
                         if(target.getTypeData().getSize() > ShipType.SMALL_SHIP_MAXSIZE && attackSmall)
                         {
                             log.info("\t\tKill desire: " + currentKillDesire + " equals best kill desire, but new target has preferred size - Switching target.");
-                            killDesire = currentKillDesire;
                             firingAction = currentFiringAction;
                             target = possibleTarget.getShip();
                         }
@@ -344,7 +338,6 @@ public class AutoFire
                         if(target.getTypeData().getSize() <= ShipType.SMALL_SHIP_MAXSIZE && !attackSmall)
                         {
                             log.info("\t\tKill desire: " + currentKillDesire + " equals best kill desire, but new target has preferred size - Switching target.");
-                            killDesire = currentKillDesire;
                             firingAction = currentFiringAction;
                             target = possibleTarget.getShip();
                         }
@@ -387,7 +380,7 @@ public class AutoFire
     }
 
     private final Battle battle;
-    private final Session db;
+    private final EntityManager db;
 
     private static final Log log = LogFactory.getLog(AutoFire.class);
 }

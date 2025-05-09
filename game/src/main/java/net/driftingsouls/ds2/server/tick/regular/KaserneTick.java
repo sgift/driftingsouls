@@ -67,8 +67,8 @@ public class KaserneTick extends TickController {
 		{
 			@Override
 			public void doWork(Integer object) {
-				org.hibernate.Session db = getDB();
-				Kaserne kaserne = (Kaserne)db.get(Kaserne.class, object);
+				var db = getEM();
+				Kaserne kaserne = db.find(Kaserne.class, object);
 				Base base = kaserne.getBase();
 
 				log("Kaserne "+base.getId()+":");

@@ -7,6 +7,8 @@ import net.driftingsouls.ds2.server.framework.pipeline.Response;
 import org.hibernate.Session;
 import org.springframework.context.ApplicationContext;
 
+import javax.persistence.EntityManager;
+
 /**
  * A tick specific context, which does not use the default database session handling.
  * This class does neither open nor close a database connection.
@@ -17,22 +19,28 @@ public class TickContext extends BasicContext
 	/**
 	 * Initialisiert den Tick-Context.
 	 *
-	 * @param db Die fuer den Tick verwendete Session.
+	 * @param em Die fuer den Tick verwendete EntityManager.
 	 * @param request Das Requestobjekt.
 	 * @param response Das Responseobjekt.
 	 * @param applicationContext Der zu verwendende Spring {@link ApplicationContext}.
 	 */
-	public TickContext(Session db, Request request, Response response, ApplicationContext applicationContext)
+	public TickContext(EntityManager em, Request request, Response response, ApplicationContext applicationContext)
 	{
 		super(request, response, new EmptyPermissionResolver(), applicationContext);
-		this.db = db;
+		this.em = em;
+	}
+
+	@Override
+	public EntityManager getEM()
+	{
+		return em;
 	}
 
 	@Override
 	public Session getDB()
 	{
-		return db;
+		return (Session) em.getDelegate();
 	}
 
-	private final Session db;
+	private final EntityManager em;
 }

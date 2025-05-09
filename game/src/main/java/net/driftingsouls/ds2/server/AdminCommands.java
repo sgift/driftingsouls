@@ -58,13 +58,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -198,7 +193,7 @@ public class AdminCommands {
 			return new AdminCommandResultViewModel("Unbekannter Befehl", false);
 		}
 
-		if( output.length() == 0 ) {
+		if(output.isEmpty()) {
 			return new AdminCommandResultViewModel("ok", true);
 		}
 
@@ -233,7 +228,7 @@ public class AdminCommands {
             }
             battle.load(battle.getCommander(side), null, null, 0);
 
-            final AutoFire autoFire = new AutoFire(context.getDB(), battle);
+            final AutoFire autoFire = new AutoFire(context.getEM(), battle);
             autoFire.fireShips();
 
             return "Autofeuer ausgefuehrt fuer Schlacht " + command[1];
@@ -1134,7 +1129,7 @@ public class AdminCommands {
 						break;
 				}
 			}
-			if( sql.size() > 0 ) {
+			if(!sql.isEmpty()) {
 				org.hibernate.Session db = context.getDB();
 
 				List<?> ships = db.createQuery("from Ship where "+Common.implode(" and ",sql)).list();
@@ -1257,7 +1252,7 @@ public class AdminCommands {
 			try {
 				BufferedImage image = ImageIO.read(
 						new BufferedInputStream(
-								AdminCommands.class.getClassLoader().getResourceAsStream(baseimg+".png")
+                                Objects.requireNonNull(AdminCommands.class.getClassLoader().getResourceAsStream(baseimg + ".png"))
 						)
 				);
 
@@ -1342,7 +1337,7 @@ public class AdminCommands {
 								fleet += "_fe";
 							}
 
-							if (fleet.length() == 0)
+							if (fleet.isEmpty())
 							{
 								continue;
 							}
@@ -1448,7 +1443,7 @@ public class AdminCommands {
 
 				@Override
 				public void doWork(Integer object) {
-					Ship ship = (Ship)getDB().get(Ship.class, object);
+					Ship ship = getEM().find(Ship.class, object);
 					ship.recalculateModules();
 					count.incrementAndGet();
 

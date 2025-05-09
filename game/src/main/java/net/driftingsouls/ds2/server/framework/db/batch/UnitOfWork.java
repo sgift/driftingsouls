@@ -24,12 +24,16 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.AssertionFailure;
-import org.hibernate.FlushMode;
 import org.hibernate.StaleObjectStateException;
-import org.hibernate.Transaction;
 import org.hibernate.exception.GenericJDBCException;
 
-import java.util.*;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
+import javax.persistence.FlushModeType;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * <p>Klasse zur Durchfuehrung isolierter Arbeitsaufgaben (= 1 Transaktion) im Tick.
@@ -47,10 +51,10 @@ public abstract class UnitOfWork<T>
 
 	private final String name;
 	private int flushSize = 50;
-	private final org.hibernate.Session db;
+	private final EntityManager db;
 	private final List<T> unsuccessfulWork;
 	private UnitOfWorkErrorReporter<T> errorReporter;
-	
+
 	/**
 	 * Konstruktor.
 	 * @param name Der Name der Arbeitsaufgabe
@@ -58,7 +62,7 @@ public abstract class UnitOfWork<T>
 	public UnitOfWork(String name)
 	{
 		this.name = name;
-		this.db = ContextMap.getContext().getDB();
+		this.db = ContextMap.getContext().getEM();
 		this.unsuccessfulWork = new ArrayList<>();
 		this.errorReporter = UnitOfWork::mailException;
 	}
@@ -94,16 +98,16 @@ public abstract class UnitOfWork<T>
 		this.flushSize = size;
 		return this;
 	}
-	
+
 	/**
 	 * Gibt die aktuelle Instanz der Hibernate-Session zurueck.
 	 * @return Die Session;
 	 */
-	public final org.hibernate.Session getDB()
+	public final EntityManager getEM()
 	{
 		return db;
 	}
-	
+
 	/**
 	 * Fuehrt die Verarbeitung fuer eine Menge von Objekten aus. Jedes Objekt
 	 * stellt dabei eine isoliert zu verarbeitende Instanz dar.
@@ -111,10 +115,11 @@ public abstract class UnitOfWork<T>
 	 */
 	public void executeFor(Collection<T> work)
 	{
-		FlushMode oldMode = db.getFlushMode();
+		var oldMode = db.getFlushMode();
 		try {
-			db.setFlushMode(FlushMode.MANUAL);
-			Transaction transaction = db.beginTransaction();
+			db.setFlushMode(FlushModeType.COMMIT);
+			var transaction = db.getTransaction();
+			transaction.begin();
 
 			List<T> unflushedObjects = new ArrayList<>();
 
@@ -123,7 +128,8 @@ public abstract class UnitOfWork<T>
 			{
 				if (!tryWork(db, transaction, workObject))
 				{
-					transaction = db.beginTransaction();
+					transaction = db.getTransaction();
+					transaction.begin();
 				}
 
 				unflushedObjects.add(workObject);
@@ -137,12 +143,13 @@ public abstract class UnitOfWork<T>
 
 					unflushedObjects.clear();
 
-					transaction = db.beginTransaction();
+					transaction = db.getTransaction();
+					transaction.begin();
 				}
 			}
 
 			flushAndCommit(transaction, unflushedObjects);
-			
+
 			onFlushed();
 		}
 		finally {		
@@ -150,7 +157,7 @@ public abstract class UnitOfWork<T>
 		}
 	}
 
-	private void flushAndCommit(Transaction transaction, List<T> unflushedObjects)
+	private void flushAndCommit(EntityTransaction transaction, List<T> unflushedObjects)
 	{
 		try {
 			db.flush();
@@ -162,8 +169,12 @@ public abstract class UnitOfWork<T>
 
 			if( e instanceof StaleObjectStateException) {
 				StaleObjectStateException sose = (StaleObjectStateException)e;
-				final Object staleObject = db.get(sose.getEntityName(), sose.getIdentifier());
-				db.evict(staleObject);
+                try {
+                    var clazz = Class.forName(sose.getEntityName());
+					db.getEntityManagerFactory().getCache().evict(clazz, sose.getIdentifier());
+                } catch (ClassNotFoundException ex) {
+					assert false;
+                }
 			}
 			else if( e instanceof GenericJDBCException) {
 				GenericJDBCException ge = (GenericJDBCException)e;
@@ -176,10 +187,12 @@ public abstract class UnitOfWork<T>
 						String id = entity.substring(entity.indexOf('#')+1);
 						entity = entity.substring(0, entity.indexOf('#'));
 						if( NumberUtils.isCreatable(id) ) {
-							Object entityObj = db.get(entity, NumberUtils.toInt(id));
-							if( entityObj != null ) {
-								db.evict(entityObj);
-							}
+                            try {
+                                var clazz = Class.forName(entity);
+								db.getEntityManagerFactory().getCache().evict(clazz, NumberUtils.toInt(id));
+                            } catch (ClassNotFoundException ex) {
+                                assert false;
+                            }
 						}
 					}
 				}
@@ -208,7 +221,7 @@ public abstract class UnitOfWork<T>
 	public List<T> getUnsuccessfulWork() {
 		return new ArrayList<>(this.unsuccessfulWork);
 	}
-	
+
 	/**
 	 * Callback nach einem Flush. Kann u.a. zum Aufraeumen
 	 * der Hibernate-Session eingesetzt werden.
@@ -218,7 +231,7 @@ public abstract class UnitOfWork<T>
 		// EMPTY
 	}
 
-	private boolean tryWork(org.hibernate.Session db, Transaction transaction, T workObject)
+	private boolean tryWork(EntityManager db, EntityTransaction transaction, T workObject)
 	{
 		try
 		{
@@ -227,26 +240,31 @@ public abstract class UnitOfWork<T>
 		catch(Exception e)
 		{
 			transaction.rollback();
-			
-			if( e instanceof StaleObjectStateException ) {
+
+			if( e instanceof StaleObjectStateException) {
 				StaleObjectStateException sose = (StaleObjectStateException)e;
-				final Object staleObject = db.get(sose.getEntityName(), sose.getIdentifier());
-				db.evict(staleObject);
+                try {
+                    var clazz = Class.forName(sose.getEntityName());
+                    final Object staleObject = db.find(clazz, sose.getIdentifier());
+                    db.detach(staleObject);
+                } catch (ClassNotFoundException ex) {
+                    assert false;
+                }
 			}
-			
+
 			if( db.contains(workObject) )
 			{
-				db.evict(workObject);
+				db.detach(workObject);
 			}
 
 			LOG.warn(name + " - Object: " + workObject, e);
 			errorReporter.report(this, Collections.singletonList(workObject), e);
-			
+
 			return false;
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Fuehrt den isolierten Verarbeitunsschritt fuer das angegebene Objekt aus.
 	 * Diese Methode ist von entsprechenden Unterklassen zu implementieren.

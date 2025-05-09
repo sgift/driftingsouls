@@ -68,11 +68,11 @@ public class AutofireTick extends TickController {
 		{
 			@Override
 			public void doWork(Integer battleId) {
-				Session db = getDB();
-				Battle battle = (Battle)db.get(Battle.class, battleId);
+				var db = getEM();
+				Battle battle = db.find(Battle.class, battleId);
 				battle.load( battle.getCommander(0), null, null, 0 );
                 log("Automatisches Feuer aktiviert für Spieler: " + battle.getCommander(0).getId());
-                AutoFire autoFire = new AutoFire(getDB(), battle);
+                AutoFire autoFire = new AutoFire(db, battle);
                 autoFire.fireShips();
 			}
 		}.setFlushSize(1).executeFor(battles);
@@ -82,11 +82,11 @@ public class AutofireTick extends TickController {
         {
             @Override
             public void doWork(Integer battleId) {
-                Session db = getDB();
-                Battle battle = (Battle)db.get(Battle.class, battleId);
+                var db = getEM();
+                Battle battle = (Battle)db.find(Battle.class, battleId);
                 battle.load( battle.getCommander(1), null, null, 0 );
                 log("Automatisches Feuer aktiviert für Spieler: " + battle.getCommander(1).getId());
-                AutoFire autoFire = new AutoFire(getDB(), battle);
+                AutoFire autoFire = new AutoFire(db, battle);
                 autoFire.fireShips();
             }
         }.setFlushSize(1).executeFor(battles);

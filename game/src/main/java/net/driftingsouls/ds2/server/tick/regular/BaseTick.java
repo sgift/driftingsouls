@@ -57,31 +57,29 @@ public class BaseTick extends TickController
 
 	private void tickBases() 
 	{
-		org.hibernate.Session db = getDB();
-		
-		List<Integer> userIds = Common.cast(db.createQuery("select u.id from User u where u.id != 0 and (u.vaccount=0 or u.wait4vac>0) order by u.id").list());
-		
+		javax.persistence.EntityManager em = getEM();
+
+		List<Integer> userIds = Common.cast(em.createQuery("select u.id from User u where u.id != 0 and (u.vaccount=0 or u.wait4vac>0) order by u.id").getResultList());
+
 		new EvictableUnitOfWork<Integer>("Base Tick")
 		{
 			@Override
 			public void doWork(Integer userId) {
 				// Get all bases, take everything with them - we need it all.
-				List<Base> bases = null;
+				List<Base> bases;
 				if(isCampaignTick()){
-					bases = Common.cast(getDB().createQuery("from Base b fetch all properties where b.owner=:owner and b.system in (:systems)")
-							.setInteger("owner", userId)
-							.setParameterList("systems", affectedSystems)
-							.setFetchSize(5000)
-							.list());
+					bases = Common.cast(getEM().createQuery("from Base b fetch all properties where b.owner=:owner and b.system in (:systems)")
+							.setParameter("owner", userId)
+							.setParameter("systems", affectedSystems)
+							.getResultList());
 				}
 				else
 				{
-					bases = Common.cast(getDB().createQuery("from Base b fetch all properties where b.owner=:owner")
-							.setInteger("owner", userId)
-							.setFetchSize(5000)
-							.list());
+					bases = Common.cast(getEM().createQuery("from Base b fetch all properties where b.owner=:owner")
+							.setParameter("owner", userId)
+							.getResultList());
 				}
-				
+
 				log(userId+":");
 
 				StringBuilder messages = new StringBuilder();
@@ -89,11 +87,11 @@ public class BaseTick extends TickController
 				{						
 					messages.append(baseTickerService.tick(base));
 				}
-				
-				if(!messages.toString().trim().equals(""))
+
+				if(!messages.toString().isBlank())
 				{
-					User sourceUser = (User)getDB().get(User.class, -1);
-                    User baseUser = (User)getDB().get(User.class, userId);
+					User sourceUser = getEM().find(User.class, -1);
+                    User baseUser = getEM().find(User.class, userId);
 
 					if(baseUser.getUserValue(WellKnownUserValue.GAMEPLAY_USER_BASE_DOWN_PM)) {
                         PM.send(sourceUser, userId, "Basis-Tick", messages.toString());
@@ -109,6 +107,6 @@ public class BaseTick extends TickController
 	protected void tick() 
 	{
 		tickBases();
-		getDB().clear();
+		getEM().clear();
 	}
 }

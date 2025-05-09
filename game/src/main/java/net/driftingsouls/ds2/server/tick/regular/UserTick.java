@@ -28,11 +28,12 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
-import org.hibernate.Session;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -45,12 +46,12 @@ import java.util.List;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class UserTick extends TickController
 {
-	private Session db;
+	private EntityManager em;
 
 	@Override
 	protected void prepare()
 	{
-		this.db = getDB();
+		this.em = getEM();
 	}
 
 	@Override
@@ -59,15 +60,15 @@ public class UserTick extends TickController
 		final long deleteThreshould = Common.time() - 60*60*24*14;
 		log("DeleteThreshould is " + deleteThreshould);
 
-		List<Integer> users = Common.cast(db.createQuery("select id from User").list());
+		List<Integer> users = em.createQuery("select id from User", Integer.class).getResultList();
 		new EvictableUnitOfWork<Integer>("User Tick")
 		{
 
 			@Override
 			public void doWork(Integer userID) {
-				Session db = getDB();
+				EntityManager em = getEM();
 
-				User user = (User)db.get(User.class, userID);
+				User user = em.find(User.class, userID);
 				//Im Kampagnentick brauchen die Inserate etc nicht bearbeitet zu werden
 				//wir muesse nur den TickReady-Status zuruecksetzen
 				if(isCampaignTick()){
@@ -90,11 +91,11 @@ public class UserTick extends TickController
 					if(trashCan != null)
 					{
 						int trash = trashCan.getId();
-						db.createQuery("update PM set gelesen=2, ordner= :trash where empfaenger= :user and ordner= :ordner and time < :time")
-						  .setInteger("trash", trash)
-						  .setEntity("user", user)
-						  .setInteger("ordner", 0)
-						  .setLong("time", deleteThreshould)
+						em.createQuery("update PM set gelesen=2, ordner= :trash where empfaenger= :user and ordner= :ordner and time < :time")
+						  .setParameter("trash", trash)
+						  .setParameter("user", user)
+						  .setParameter("ordner", 0)
+						  .setParameter("time", deleteThreshould)
 						  .executeUpdate();
 					}
 					else
@@ -103,9 +104,9 @@ public class UserTick extends TickController
 					}
 
 					//Subtract costs for trade ads
-					long adCount = (Long)db.createQuery("select count(*) from Handel where who=:who")
-									 	   .setParameter("who", user)
-									 	   .uniqueResult();
+					TypedQuery<Long> query = em.createQuery("select count(*) from Handel where who=:who", Long.class);
+					query.setParameter("who", user);
+					long adCount = query.getSingleResult();
 
 					int adCost = new ConfigService().getValue(WellKnownConfigValue.AD_COST);
 
@@ -125,10 +126,10 @@ public class UserTick extends TickController
 							BigInteger adCostBI = BigInteger.valueOf(adCost);
 							int wasteAdCount = adCountBI.subtract(account.divide(adCostBI)).intValue();
 
-							List<Handel> wasteAds = Common.cast(db.createQuery("from Handel where who=:who order by time asc")
-																  .setParameter("who", user)
-																  .setMaxResults(wasteAdCount)
-																  .list());
+							TypedQuery<Handel> wasteQuery = em.createQuery("from Handel where who=:who order by time asc", Handel.class);
+							wasteQuery.setParameter("who", user);
+							wasteQuery.setMaxResults(wasteAdCount);
+							List<Handel> wasteAds = wasteQuery.getResultList();
 
 							log(wasteAdCount + " ads zu loeschen.");
 
@@ -136,14 +137,14 @@ public class UserTick extends TickController
 
 							for(Handel wasteAd: wasteAds)
 							{
-								db.delete(wasteAd);
+								em.remove(wasteAd);
 							}
 
 							PM.send(user, user.getId(), "Handelsinserate gel&ouml;scht", wasteAdCount + " Ihrer Handelsinserate wurden gel&ouml;scht, weil Sie die Kosten nicht aufbringen konnten.");
 						}
 
 						log("Geld f&uuml;r Handelsinserate " + costs);
-						User nobody = (User)db.get(User.class, -1);
+						User nobody = em.find(User.class, -1);
 						nobody.transferMoneyFrom(user.getId(), costs,
 								"Kosten f&uuml;r Handelsinserate - User: " + user.getName() + " (" + user.getId() + ")",
 								false, UserMoneyTransfer.Transfer.AUTO);
