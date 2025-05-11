@@ -20,12 +20,7 @@ package net.driftingsouls.ds2.server.tick.regular;
 
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.comm.PM;
-import net.driftingsouls.ds2.server.entities.Forschung;
-import net.driftingsouls.ds2.server.entities.Forschungszentrum;
-import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.UserFlag;
-import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
-import net.driftingsouls.ds2.server.framework.Common;
+import net.driftingsouls.ds2.server.entities.*;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -52,30 +47,25 @@ public class ForschungsTick extends TickController {
 	@Override
 	protected void tick()
 	{
-		org.hibernate.Session db = getDB();
+		var db = getEM();
 
-		List<Integer> fzList = null;
+		List<Forschungszentrum> fzList;
 		if(isCampaignTick()) {
-			fzList = Common.cast(db
-					.createQuery("select id from Forschungszentrum " +
-							"where (base.owner.vaccount=0 or base.owner.wait4vac!=0) and forschung!=null and base.system in (:systeme)")
-					.setParameterList("systeme", affectedSystems)
-					.list());
+			fzList = db.createQuery("from Forschungszentrum " +
+							"where (base.owner.vaccount=0 or base.owner.wait4vac!=0) and forschung!=null and base.system in (:systeme)", Forschungszentrum.class)
+					.setParameter("systeme", affectedSystems)
+					.getResultList();
 		}
 		else{
-			fzList = Common.cast(db
-					.createQuery("select id from Forschungszentrum " +
-							"where (base.owner.vaccount=0 or base.owner.wait4vac!=0) and forschung!=null")
-					.list());
+			fzList = db.createQuery("from Forschungszentrum " +
+							"where (base.owner.vaccount=0 or base.owner.wait4vac!=0) and forschung!=null", Forschungszentrum.class)
+					.getResultList();
 		}
-		new EvictableUnitOfWork<Integer>("Forschungstick")
+		new EvictableUnitOfWork<Forschungszentrum>("Forschungstick")
 		{
 			@Override
-			public void doWork(Integer fzId)
+			public void doWork(Forschungszentrum fz)
 			{
-				var db = getEM();
-				Forschungszentrum fz = db.find(Forschungszentrum.class, fzId);
-
 				if( fz.getDauer() > 1 )
 				{
 					fz.setDauer(fz.getDauer()-1);

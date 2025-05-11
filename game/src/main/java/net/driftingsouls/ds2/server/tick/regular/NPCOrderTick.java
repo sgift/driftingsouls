@@ -31,7 +31,6 @@ import net.driftingsouls.ds2.server.entities.npcorders.Order;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderOffizier;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderShip;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderableOffizier;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.framework.db.batch.SingleUnitOfWork;
 import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
@@ -84,19 +83,15 @@ public class NPCOrderTick extends TickController {
 		if(isCampaignTick()){
 			return;
 		}
-		org.hibernate.Session db = getDB();
+		var db = getEM();
 
-		List<Integer> orders = Common.cast(db
-				.createQuery("select id from Order order by user.id")
-				.list());
-		new EvictableUnitOfWork<Integer>("NPCOrderTick")
+		List<Order> orders = db.createQuery("from Order order by user.id", Order.class)
+				.getResultList();
+		new EvictableUnitOfWork<Order>("NPCOrderTick")
 		{
 			@Override
-			public void doWork(Integer orderId)
+			public void doWork(Order order)
 			{
-				var db = getEM();
-				Order order = db.find(Order.class, orderId);
-
 				if( order.getTick() != 1 )
 				{
 					order.setTick(order.getTick()-1);
@@ -147,14 +142,12 @@ public class NPCOrderTick extends TickController {
 		.execute();
 
 		this.log("Verteile NPC-Punkte...");
-		List<Integer> users = Common.cast(db
-				.createQuery("select id from User where locate('ordermenu',flags)!=0")
-				.list());
-		new EvictableUnitOfWork<Integer>("NPCOrderTick - NPC-Punkte")
+		List<User> users = db.createQuery("from User where locate('ordermenu',flags)!=0", User.class)
+				.getResultList();
+		new EvictableUnitOfWork<User>("NPCOrderTick - NPC-Punkte")
 		{
 			@Override
-			public void doWork(Integer userId) {
-				User user = getEM().find(User.class, userId);
+			public void doWork(User user) {
 				user.setNpcPunkte(user.getNpcPunkte()+1);
 			}
 		}
@@ -274,9 +267,9 @@ public class NPCOrderTick extends TickController {
 	private Ship createShip(User user, ShipType shipd, Location loc)
 	{
 		Cargo cargo = new Cargo();
-		cargo.addResource( Resources.DEUTERIUM, shipd.getRd()*10 );
-		cargo.addResource( Resources.URAN, shipd.getRu()*10 );
-		cargo.addResource( Resources.ANTIMATERIE, shipd.getRa()*10 );
+		cargo.addResource( Resources.DEUTERIUM, shipd.getRd()* 10L);
+		cargo.addResource( Resources.URAN, shipd.getRu()* 10L);
+		cargo.addResource( Resources.ANTIMATERIE, shipd.getRa()* 10L);
 
 		SchiffHinzufuegenService schiffHinzufuegenService = new SchiffHinzufuegenService();
 		Ship ship = schiffHinzufuegenService.erstelle(user, shipd, loc, "[hide]NPC-Order[/hide]");

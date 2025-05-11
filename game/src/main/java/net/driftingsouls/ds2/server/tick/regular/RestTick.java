@@ -44,7 +44,6 @@ import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import net.driftingsouls.ds2.server.tick.TickController;
-import org.hibernate.StaleObjectStateException;
 import org.hibernate.Transaction;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -76,37 +75,37 @@ public class RestTick extends TickController {
 	*/
 	private void doJumps()
 	{
-		org.hibernate.Session db = getDB();
-		Transaction transaction = db.beginTransaction();
+		var db = getEM();
+		var transaction = db.getTransaction();
+
+		transaction.begin();
 		try
 		{
 			this.log("Sprungantrieb");
-			List<?> jumps = null;
+			List<Jump> jumps;
 			if(isCampaignTick()) {
-				jumps = db.createQuery("from Jump as j inner join fetch j.ship where j.ship.system in (:system)")
-						.setParameterList("system", affectedSystems)
-						.list();
+				jumps = db.createQuery("from Jump as j inner join fetch j.ship where j.ship.system in (:system)", Jump.class)
+						.setParameter("system", affectedSystems)
+						.getResultList();
 			}
 			else{
-				jumps = db.createQuery("from Jump as j inner join fetch j.ship").list();
+				jumps = db.createQuery("from Jump as j inner join fetch j.ship", Jump.class).getResultList();
 			}
-			for (Object jump1 : jumps)
+			for (Jump jump : jumps)
 			{
-				Jump jump = (Jump) jump1;
-
 				this.log(jump.getShip().getId() + " springt nach " + jump.getSystem() + ":" + jump.getX() + "/" + jump.getY());
 
 				jump.getShip().setLocation(jump);
 
 				db.createQuery("update Ship set x= :x, y= :y, system= :system where docked in (:dock,:land)")
-						.setInteger("x", jump.getX())
-						.setInteger("y", jump.getY())
-						.setInteger("system", jump.getSystem())
-						.setString("dock", Integer.toString(jump.getShip().getId()))
-						.setString("land", "l " + jump.getShip().getId())
+						.setParameter("x", jump.getX())
+						.setParameter("y", jump.getY())
+						.setParameter("system", jump.getSystem())
+						.setParameter("dock", Integer.toString(jump.getShip().getId()))
+						.setParameter("land", "l " + jump.getShip().getId())
 						.executeUpdate();
 
-				db.delete(jump);
+				db.remove(jump);
 			}
 			transaction.commit();
 		}
@@ -116,11 +115,6 @@ public class RestTick extends TickController {
 			this.log("Fehler beim Verarbeiten der Sprungantriebe: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "RestTick Exception", "doJumps failed");
-
-			if( e instanceof StaleObjectStateException ) {
-				StaleObjectStateException sose = (StaleObjectStateException)e;
-				db.evict(db.get(sose.getEntityName(), sose.getIdentifier()));
-			}
 		}
 	}
 
@@ -129,15 +123,16 @@ public class RestTick extends TickController {
 	*/
 	private void doStatistics()
 	{
-		org.hibernate.Session db = getDB();
-		Transaction transaction = db.beginTransaction();
+		var db = getEM();
+		var transaction = db.getTransaction();
+		transaction.begin();
 		try
 		{
 			this.log("");
 			this.log("Erstelle Statistiken");
 
-			Long shipcount = (Long)db.createQuery("select count(*) from Ship where id>0 and owner.id>0").iterate().next();
-			Long crewcount = (Long)db.createQuery("select sum(crew) from Ship where id>0 and owner.id>0").iterate().next();
+			Long shipcount = db.createQuery("select count(*) from Ship where id>0 and owner.id>0", Long.class).getSingleResult();
+			Long crewcount = db.createQuery("select sum(s.crew) from Ship s where s.id>0 and s.owner.id>0", Long.class).getSingleResult();
 
 			StatShips stat = new StatShips(shipcount != null ? shipcount : 0, crewcount != null ? crewcount : 0);
 			db.persist(stat);
@@ -149,11 +144,6 @@ public class RestTick extends TickController {
 			this.log("Fehler beim Anlegen der Statistiken: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "RestTick Exception", "doStatistics failed");
-
-			if( e instanceof StaleObjectStateException ) {
-				StaleObjectStateException sose = (StaleObjectStateException)e;
-				db.evict(db.get(sose.getEntityName(), sose.getIdentifier()));
-			}
 		}
 	}
 
@@ -162,17 +152,17 @@ public class RestTick extends TickController {
 	*/
 	private void doVacation()
 	{
-		org.hibernate.Session db = getDB();
-		Transaction transaction = db.beginTransaction();
+		var db = getEM();
+		var transaction = db.getTransaction();
+		transaction.begin();
 		try
 		{
 			this.log("");
 			this.log("Bearbeite Vacation-Modus");
 
-			List<?> vacLeaveUsers = db.createQuery("from User where vaccount=1").list();
-			for (Object vacLeaveUser : vacLeaveUsers)
+			List<User> vacLeaveUsers = db.createQuery("from User where vaccount=1", User.class).getResultList();
+			for (User user : vacLeaveUsers)
 			{
-				User user = (User) vacLeaveUser;
 				user.setName(user.getName().replace(" [VAC]", ""));
 				user.setNickname(user.getNickname().replace(" [VAC]", ""));
 
@@ -182,24 +172,23 @@ public class RestTick extends TickController {
 			db.createQuery("update User set vaccount=vaccount-1 where vaccount>0 and wait4vac=0")
 				.executeUpdate();
 
-			List<User> users = Common.cast(db.createQuery("from User where wait4vac=1").list());
+			List<User> users = db.createQuery("from User where wait4vac=1", User.class).getResultList();
 			for( User user : users )
 			{
 				User newcommander = null;
 				if( user.getAlly() != null )
 				{
-					newcommander = (User)db.createQuery("from User where ally= :ally  and inakt <= 7 and vaccount=0 and (wait4vac>6 or wait4vac=0)")
-						.setEntity("ally", user.getAlly())
-						.setMaxResults(1)
-						.uniqueResult();
+					newcommander = getEM().createQuery("select u from User u where u.ally = :ally and u.inakt <= 7 and u.vaccount = 0 and (u.wait4vac > 6 or u.wait4vac = 0)", User.class)
+							.setParameter("ally", user.getAlly())
+							.setMaxResults(1)
+							.getSingleResult();
 				}
 
-				List<?> battles = db.createQuery("from Battle where commander1= :user or commander2= :user")
-					.setEntity("user", user)
-					.list();
-				for (Object battle1 : battles)
+				List<Battle> battles = db.createQuery("from Battle where commander1= :user or commander2= :user", Battle.class)
+					.setParameter("user", user)
+					.getResultList();
+				for (var battle : battles)
 				{
-					Battle battle = (Battle) battle1;
 					battle.load(user, null, null, 0);
 
 					if (newcommander != null)
@@ -255,11 +244,6 @@ public class RestTick extends TickController {
 			this.log("Fehler beim Verarbeiten der Vacationdaten: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "RestTick Exception", "doVacation failed");
-
-			if( e instanceof StaleObjectStateException ) {
-				StaleObjectStateException sose = (StaleObjectStateException)e;
-				db.evict(db.get(sose.getEntityName(), sose.getIdentifier()));
-			}
 		}
 	}
 
@@ -268,21 +252,19 @@ public class RestTick extends TickController {
 	 */
 	private void doNoobProtection()
 	{
-		org.hibernate.Session db = getDB();
-		Transaction transaction = db.beginTransaction();
-
+		var db = getEM();
+		var transaction = db.getTransaction();
+		transaction.begin();
 		try
 		{
 			this.log("");
 			this.log("Bearbeite Noob-Protection");
 
-			List<?> noobUsers = db.createQuery("from User where id>0 and flags LIKE '%" + UserFlag.NOOB.getFlag()+"%'").list();
+			List<User> noobUsers = db.createQuery("from User where id>0 and flags LIKE '%" + UserFlag.NOOB.getFlag()+"%'", User.class).getResultList();
 			int noobDays = 30;
 			int noobTime = 24*60*60*noobDays;
-			for (Object noobUser : noobUsers)
+			for (var user : noobUsers)
 			{
-				User user = (User) noobUser;
-
 				if (!user.hasFlag(UserFlag.NOOB))
 				{
 					continue;
@@ -293,7 +275,7 @@ public class RestTick extends TickController {
 					user.setFlag(UserFlag.NOOB, false);
 					this.log("Entferne Noob-Schutz bei " + user.getId());
 
-					User nullUser = (User) db.get(User.class, 0);
+					User nullUser = db.find(User.class, 0);
 					PM.send(nullUser, user.getId(), "GCP-Schutz aufgehoben",
 							"Ihr GCP-Schutz wurde durch das System aufgehoben. " +
 									"Dies passiert automatisch " + noobDays + " Tage nach der Registrierung. " +
@@ -310,11 +292,6 @@ public class RestTick extends TickController {
 			this.log("Fehler beim Aufheben des Noobschutzes: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "RestTick Exception", "doNoobProtecttion failed");
-
-			if( e instanceof StaleObjectStateException ) {
-				StaleObjectStateException sose = (StaleObjectStateException)e;
-				db.evict(db.get(sose.getEntityName(), sose.getIdentifier()));
-			}
 		}
 	}
 
@@ -325,11 +302,12 @@ public class RestTick extends TickController {
 	*/
 	private void doFelsbrocken()
 	{
-		org.hibernate.Session db = getDB();
-		Transaction transaction = db.beginTransaction();
+		var db = getEM();
+		var transaction = db.getTransaction();
+		transaction.begin();
 		try
 		{
-			User owner = (User)db.get(User.class, -1);
+			User owner = db.find(User.class, -1);
 			String currentTime = Common.getIngameTime(getContext().get(ContextCommon.class).getTick());
 
 			this.log("");
@@ -337,30 +315,24 @@ public class RestTick extends TickController {
 
 			int shouldId = 9999;
 
-			List<?> systemList = null;
+			List<ConfigFelsbrockenSystem> systemList;
 			if(isCampaignTick()) {
 				systemList = db
-						.createQuery("from ConfigFelsbrockenSystem cfs where cfs.system in (:systeme)")
-						.setParameterList("systeme", affectedSystems)
-						.list();
+						.createQuery("from ConfigFelsbrockenSystem cfs where cfs.system in (:systeme)", ConfigFelsbrockenSystem.class)
+						.setParameter("systeme", affectedSystems)
+						.getResultList();
 			}
 			else{
 				systemList = db
-						.createQuery("from ConfigFelsbrockenSystem cfs")
-						.list();
+						.createQuery("from ConfigFelsbrockenSystem cfs", ConfigFelsbrockenSystem.class)
+						.getResultList();
 			}
-			for( Object obj : systemList )
+			for(var cfs : systemList)
 			{
-				ConfigFelsbrockenSystem cfs = (ConfigFelsbrockenSystem)obj;
-
-				long shipcount = (Long)db.createQuery("select count(*) " +
-						"from Ship s " +
-						"where s.system=:system and " +
-							"s.shiptype in (select shiptype from ConfigFelsbrocken where system=:cfs)")
-					.setInteger("system", cfs.getSystem().getID())
-					.setEntity("cfs", cfs)
-					.iterate().next();
-
+				long shipcount = db.createQuery("select count(s) from Ship s where s.system=:system and s.shiptype in (select f.shiptype from ConfigFelsbrocken f where f.system=:cfs)", Long.class)
+						.setParameter("system", cfs.getSystem().getID())
+						.setParameter("cfs", cfs)
+						.getSingleResult();
 				this.log("\tSystem "+cfs.getSystem().getID()+"("+cfs.getName()+"): "+shipcount+" / "+cfs.getCount()+" Felsbrocken");
 
 				if( cfs.getCount() < shipcount )
@@ -391,9 +363,9 @@ public class RestTick extends TickController {
 						int x = ThreadLocalRandom.current().nextInt(1, thissystem.getWidth()+1);
 						int y = ThreadLocalRandom.current().nextInt(1, thissystem.getHeight()+1);
 
-						shouldId = (Integer)db.createSQLQuery("select newIntelliShipId( ? )")
-							.setInteger(0, ++shouldId)
-							.uniqueResult();
+						shouldId = (Integer) db.createNativeQuery("select newIntelliShipId( ? )")
+								.setParameter(1, ++shouldId)
+								.getSingleResult();
 
 						this.log("\t*System "+cfs.getSystem().getID()+": Fuege "+cfs.getName()+" "+shouldId+" ein");
 
@@ -424,7 +396,7 @@ public class RestTick extends TickController {
 						brocken.setEnergy(shiptype.getEps());
 
 						// Schiffseintrag einfuegen
-						db.save(brocken);
+						db.persist(brocken);
 
 						this.log("");
 
@@ -452,7 +424,9 @@ public class RestTick extends TickController {
 	 */
 	private void doTasks()
 	{
-		Transaction transaction = getDB().beginTransaction();
+		var db = getEM();
+		var transaction = db.getTransaction();
+		transaction.begin();
 		try
 		{
 			this.log("Bearbeite Tasks [tick_timeout]");
@@ -474,11 +448,6 @@ public class RestTick extends TickController {
 			this.log("Fehler beim Bearbeiten der Tasks: "+e);
 			e.printStackTrace();
 			Common.mailThrowable(e, "RestTick Exception", "doTasks failed");
-
-			if( e instanceof StaleObjectStateException ) {
-				StaleObjectStateException sose = (StaleObjectStateException)e;
-				getDB().evict(getDB().get(sose.getEntityName(), sose.getIdentifier()));
-			}
 		}
 	}
 

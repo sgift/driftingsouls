@@ -43,6 +43,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
 import java.util.List;
 
 /**
@@ -77,22 +78,21 @@ public class RTCTick extends TickController {
 		if(isCampaignTick()){
 			return;
 		}
-		org.hibernate.Session db = getDB();
+		var db = getEM();
+		var transaction = db.getTransaction();
+		transaction.begin();
 
-		Transaction transaction = db.beginTransaction();
-		final User sourceUser = (User)db.get(User.class, -1);
+		final User sourceUser = db.find(User.class, -1);
 
 		/*
 			Einzelversteigerungen
 		*/
 
-		List<?> entries = db.createQuery("from Versteigerung where tick<= :tick order by id")
-			.setInteger("tick", this.ticks)
-			.list();
-		for (Object entry1 : entries)
+		List<Versteigerung> entries = db.createQuery("from Versteigerung where tick<= :tick order by id", Versteigerung.class)
+			.setParameter("tick", this.ticks)
+			.getResultList();
+		for (var entry : entries)
 		{
-			Versteigerung entry = (Versteigerung) entry1;
-
 			try
 			{
 				if (entry.getBieter() == this.gtuuser)
@@ -107,13 +107,13 @@ public class RTCTick extends TickController {
 				User winner = entry.getBieter();
 				long price = entry.getPreis();
 				int dropzone = winner.getGtuDropZone();
-				StarSystem system = (StarSystem) db.get(StarSystem.class, dropzone);
+				StarSystem system = db.find(StarSystem.class, dropzone);
 
 				Location loc = system.getDropZone();
 
 				if (loc == null)
 				{
-					system = (StarSystem) db.get(StarSystem.class, 605);
+					system = db.find(StarSystem.class, 605);
 
 					loc = system.getDropZone();
 				}
@@ -153,9 +153,9 @@ public class RTCTick extends TickController {
 					ship.setWeapons(100);
 					ship.setComm(100);
 					ship.setSensors(100);
-					ship.setNahrungCargo(Math.min(shiptype.getNahrungCargo(), ship.getFoodConsumption() * 3));
+					ship.setNahrungCargo(Math.min(shiptype.getNahrungCargo(), ship.getFoodConsumption() * 3L));
 
-					db.save(ship);
+					db.persist(ship);
 
 					if (shiptype.getWerft() != 0)
 					{
@@ -231,10 +231,9 @@ public class RTCTick extends TickController {
 
 				StatGtu stat = new StatGtu(entry, gtucost);
 				db.persist(stat);
-				db.delete(entry);
+				db.remove(entry);
 
 				transaction.commit();
-				transaction = db.beginTransaction();
 			}
 			catch (RuntimeException e)
 			{
@@ -250,35 +249,34 @@ public class RTCTick extends TickController {
 		transaction.commit();
 	}
 
-	private Ship findBestTradepostForLocation(org.hibernate.Session db, Location loc)
+	private Ship findBestTradepostForLocation(EntityManager db, Location loc)
 	{
-		List<User> gtuUsers = Common.cast(db
-			.createQuery("from User where race=:rasse")
-			.setInteger("rasse", Faction.GTU_RASSE)
-			.list());
-		Ship posten = (Ship)db.createQuery("from Ship " +
-				"where id>0 and locate('tradepost',status)!=0 and owner in (:userlist) and system=:sys and x=:x and y=:y")
-			.setParameterList("userlist", gtuUsers)
-			.setInteger("sys", loc.getSystem())
-			.setInteger("x", loc.getX())
-			.setInteger("y", loc.getY())
+		List<User> gtuUsers = db.createQuery("from User where race=:rasse", User.class)
+			.setParameter("rasse", Faction.GTU_RASSE)
+			.getResultList();
+		Ship posten = db.createQuery("from Ship " +
+				"where id>0 and locate('tradepost',status)!=0 and owner in (:userlist) and system=:sys and x=:x and y=:y", Ship.class)
+			.setParameter("userlist", gtuUsers)
+			.setParameter("sys", loc.getSystem())
+			.setParameter("x", loc.getX())
+			.setParameter("y", loc.getY())
 			.setMaxResults(1)
-			.uniqueResult();
+			.getSingleResult();
 
 		if( posten == null ) {
-			posten = (Ship)db.createQuery("from Ship " +
-					"where id>0 and locate('tradepost',status)!=0 and owner in (:userlist) and system=:sys")
-				.setParameterList("userlist", gtuUsers)
-				.setInteger("sys", loc.getSystem())
+			posten = db.createQuery("from Ship " +
+					"where id>0 and locate('tradepost',status)!=0 and owner in (:userlist) and system=:sys", Ship.class)
+				.setParameter("userlist", gtuUsers)
+				.setParameter("sys", loc.getSystem())
 				.setMaxResults(1)
-				.uniqueResult();
+				.getSingleResult();
 		}
 		if( posten == null ) {
-			posten = (Ship)db.createQuery("from Ship " +
-					"where id>0 and locate('tradepost',status)!=0 and owner in (:userlist)")
-				.setParameterList("userlist", gtuUsers)
+			posten = db.createQuery("from Ship " +
+					"where id>0 and locate('tradepost',status)!=0 and owner in (:userlist)", Ship.class)
+				.setParameter("userlist", gtuUsers)
 				.setMaxResults(1)
-				.uniqueResult();
+				.getSingleResult();
 		}
 		return posten;
 	}

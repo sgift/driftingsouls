@@ -24,7 +24,6 @@ import net.driftingsouls.ds2.server.entities.Kaserne;
 import net.driftingsouls.ds2.server.entities.KaserneEntry;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.units.UnitType;
@@ -51,24 +50,24 @@ public class KaserneTick extends TickController {
 	@Override
 	protected void tick()
 	{
-		org.hibernate.Session db = getDB();
+		var db = getEM();
 
-		final User sourceUser = (User)db.get(User.class, -1);
+		final User sourceUser = db.find(User.class, -1);
 
-		List<Integer> kasernen = null;
+		List<Kaserne> kasernen;
 		if(isCampaignTick()) {
-			kasernen = Common.cast(
-					db.createQuery("select k.id from Kaserne k where k.entries is not empty and k.base.system in (:systeme)").setParameterList("systeme", affectedSystems).list());
+			kasernen = db.createQuery("from Kaserne k where k.entries is not empty and k.base.system in (:systeme)", Kaserne.class)
+							.setParameter("systeme", affectedSystems)
+							.getResultList();
 		}
 		else{
-			kasernen = Common.cast(db.createQuery("select k.id from Kaserne k where k.entries is not empty").list());
+			kasernen = db.createQuery("from Kaserne k where k.entries is not empty", Kaserne.class)
+					.getResultList();
 		}
-		new EvictableUnitOfWork<Integer>("Kasernen Tick")
+		new EvictableUnitOfWork<Kaserne>("Kasernen Tick")
 		{
 			@Override
-			public void doWork(Integer object) {
-				var db = getEM();
-				Kaserne kaserne = db.find(Kaserne.class, object);
+			public void doWork(Kaserne kaserne) {
 				Base base = kaserne.getBase();
 
 				log("Kaserne "+base.getId()+":");

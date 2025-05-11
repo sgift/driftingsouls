@@ -45,7 +45,7 @@ public class BattleTick extends TickController {
 
 	@Override
 	protected void tick() {
-		org.hibernate.Session db = getDB();
+		var db = getEM();
 
 		/*
 				Schlachten
@@ -53,25 +53,21 @@ public class BattleTick extends TickController {
 
 		final long lastacttime = Common.time()-1800;
 
-		List<Integer> battles = null;
+		List<Battle> battles;
 		if(isCampaignTick()) {
-			battles = Common.cast(db.createQuery("select id from Battle battle where battle.system in (:systeme)")
-					.setParameterList("systeme", affectedSystems)
-					.list());
-		}
-		else{
-			battles = Common.cast(db.createQuery("select id from Battle")
-					.list());
+			battles = db.createQuery("from Battle battle where battle.system in (:systeme)", Battle.class)
+					.setParameter("systeme", affectedSystems)
+					.getResultList();
+		} else {
+			battles = db.createQuery("from Battle", Battle.class)
+					.getResultList();
 		}
 
 
-		new EvictableUnitOfWork<Integer>("Battle Tick")
+		new EvictableUnitOfWork<Battle>("Battle Tick")
 		{
 			@Override
-			public void doWork(Integer battleId) {
-				var db = getEM();
-				Battle battle = db.find(Battle.class, battleId);
-
+			public void doWork(Battle battle) {
 				if( battle.getBlockCount() > 0 && battle.getLetzteRunde() <= lastacttime )
 				{
 					battle.decrementBlockCount();
