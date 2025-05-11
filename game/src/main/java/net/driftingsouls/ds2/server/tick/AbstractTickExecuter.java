@@ -24,15 +24,12 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Klasse zur Ausfuehrung von mehreren Ticks.
@@ -94,6 +91,12 @@ public abstract class AbstractTickExecuter extends TickController
 	protected void execTick(Class<? extends TickController> tickname, boolean useSTDOUT)
 	{
 		long start = System.currentTimeMillis();
+		var transaction = getEM().getTransaction();
+		var wasOpen = transaction.isActive();
+		boolean error = false;
+		if(!wasOpen) {
+			transaction.begin();
+		}
 		try
 		{
 			TickController tick = this.getContext().getBean(tickname, null);
@@ -115,6 +118,16 @@ public abstract class AbstractTickExecuter extends TickController
 		{
 			// Alle Exceptions hier fangen und lediglich ausgeben
 			e.printStackTrace();
+			error = true;
+		}
+		finally {
+			if(!wasOpen && transaction.isActive()) {
+				if(!error) {
+					transaction.commit();
+				} else {
+					transaction.rollback();
+				}
+			}
 		}
 
 		this.tickTimes.put(tickname, System.currentTimeMillis()-start);
@@ -182,7 +195,7 @@ public abstract class AbstractTickExecuter extends TickController
 	 */
 	@Override
 	protected final void tick() {
-		if (getContext().getRequest().getParameterString("only").length() > 0) {
+		if (!getContext().getRequest().getParameterString("only").isEmpty()) {
 
 			try {
 				execTick(Class.forName(getContext().getRequest().getParameterString("only"))
@@ -204,10 +217,7 @@ public abstract class AbstractTickExecuter extends TickController
 			}
 		}
 
-		Session db = getDB();
-		Transaction transaction = db.beginTransaction();
 		int ticknr = getContext().get(ContextCommon.class).getTick() + 1;
-		transaction.commit();
 
 		if (!new File(loxpath + "/" + ticknr).isDirectory()) {
 			boolean result = new File(loxpath + "/" + ticknr).mkdir();
@@ -222,7 +232,7 @@ public abstract class AbstractTickExecuter extends TickController
 
 		try {
 			addLogTarget(Configuration.getLogPath() + "tix.log", true);
-			if (name.length() != 0) {
+			if (!name.isEmpty()) {
 				slog(name + ": ");
 			}
 			addLogTarget(Configuration.getLogPath() + "ticktime.log", false);
