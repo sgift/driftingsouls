@@ -26,7 +26,6 @@ import net.driftingsouls.ds2.server.entities.Academy;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.framework.db.batch.SingleUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
@@ -72,24 +71,25 @@ public class AcademyTick extends TickController {
 	@Override
 	protected void tick()
 	{
-		org.hibernate.Session db = getDB();
+		var db = getEM();
 
-		List<Integer> accList = null;
+		List<Academy> accList;
 		if(isCampaignTick()) {
 
-			accList = Common.cast(db.createQuery("select a.id from Academy a " +
-					"where a.train=true and (a.base.owner.vaccount=0 or a.base.owner.wait4vac!=0) and a.base.system in (:systeme)").setParameterList("systeme", affectedSystems).list());
+			accList = db.createQuery("select a.id from Academy a " +
+					"where a.train=true and (a.base.owner.vaccount=0 or a.base.owner.wait4vac!=0) and a.base.system in (:systeme)", Academy.class)
+					.setParameter("systeme", affectedSystems)
+					.getResultList();
 		}
 		else{
-			accList = Common.cast(db.createQuery("select a.id from Academy a " +
-					"where a.train=true and (a.base.owner.vaccount=0 or a.base.owner.wait4vac!=0)").list());
+			accList = db.createQuery("select a.id from Academy a " +
+					"where a.train=true and (a.base.owner.vaccount=0 or a.base.owner.wait4vac!=0)", Academy.class)
+					.getResultList();
 		}
-		new EvictableUnitOfWork<Integer>("Academy Tick")
+		new EvictableUnitOfWork<Academy>("Academy Tick")
 		{
 			@Override
-			public void doWork(Integer accId) {
-				var db = getEM();
-				Academy acc = db.find(Academy.class, accId);
+			public void doWork(Academy acc) {
 
 				Base base = acc.getBase();
 
@@ -179,10 +179,10 @@ public class AcademyTick extends TickController {
 		.execute();
 
 		//da es immer mal wieder zu Problemem mit Offizieren kommt, die gefunden werden, setzen wir den Trainingsstatus des Offiziers zurueck, wenn wir ihn nicht mehr in einem Trainingseintrag finden
-		List<Offizier> offiziere = Common.cast(db.createQuery("from Offizier where id not in (select training from AcademyQueueEntry)").list());
+		List<Offizier> offiziere = db.createQuery("from Offizier where id not in (select training from AcademyQueueEntry)", Offizier.class)
+				.getResultList();
 		for(Offizier offizier : offiziere){
 				offizier.setTraining(false);
 		}
 	}
-
 }

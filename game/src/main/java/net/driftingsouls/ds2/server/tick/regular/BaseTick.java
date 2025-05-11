@@ -20,6 +20,7 @@ package net.driftingsouls.ds2.server.tick.regular;
 
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -59,28 +60,29 @@ public class BaseTick extends TickController
 	{
 		javax.persistence.EntityManager em = getEM();
 
-		List<Integer> userIds = Common.cast(em.createQuery("select u.id from User u where u.id != 0 and (u.vaccount=0 or u.wait4vac>0) order by u.id").getResultList());
+		List<User> users = em.createQuery("from User u where u.id != 0 and (u.vaccount=0 or u.wait4vac>0) order by u.id", User.class).getResultList();
 
-		new EvictableUnitOfWork<Integer>("Base Tick")
+		new EvictableUnitOfWork<User>("Base Tick")
 		{
 			@Override
-			public void doWork(Integer userId) {
+			public void doWork(User user) {
 				// Get all bases, take everything with them - we need it all.
 				List<Base> bases;
 				if(isCampaignTick()){
+					List<StarSystem> systems = getEM().createQuery("from StarSystem s where s.id in (:systems)", StarSystem.class).getResultList();
 					bases = Common.cast(getEM().createQuery("from Base b fetch all properties where b.owner=:owner and b.system in (:systems)")
-							.setParameter("owner", userId)
-							.setParameter("systems", affectedSystems)
+							.setParameter("owner", user)
+							.setParameter("systems", systems)
 							.getResultList());
 				}
 				else
 				{
 					bases = Common.cast(getEM().createQuery("from Base b fetch all properties where b.owner=:owner")
-							.setParameter("owner", userId)
+							.setParameter("owner", user)
 							.getResultList());
 				}
 
-				log(userId+":");
+				log(user+":");
 
 				StringBuilder messages = new StringBuilder();
 				for(Base base: bases)
@@ -91,16 +93,16 @@ public class BaseTick extends TickController
 				if(!messages.toString().isBlank())
 				{
 					User sourceUser = getEM().find(User.class, -1);
-                    User baseUser = getEM().find(User.class, userId);
+                    User baseUser = getEM().find(User.class, user);
 
 					if(baseUser.getUserValue(WellKnownUserValue.GAMEPLAY_USER_BASE_DOWN_PM)) {
-                        PM.send(sourceUser, userId, "Basis-Tick", messages.toString());
+                        PM.send(sourceUser, user.getId(), "Basis-Tick", messages.toString());
                     }
 				}
 			}
 		}
 		.setFlushSize(10)
-		.executeFor(userIds);
+		.executeFor(users);
 	}
 
 	@Override

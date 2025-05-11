@@ -21,11 +21,9 @@ package net.driftingsouls.ds2.server.tick.regular;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.battles.AutoFire;
 import net.driftingsouls.ds2.server.battles.Battle;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
-import org.hibernate.Session;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -48,7 +46,7 @@ public class AutofireTick extends TickController {
 
 	@Override
 	protected void tick() {
-		Session db = getDB();
+		var db = getEM();
         boolean isAutoFire = new ConfigService().getValue(WellKnownConfigValue.AUTOFIRE);
 
         if(!isAutoFire)
@@ -56,20 +54,21 @@ public class AutofireTick extends TickController {
             return;
         }
 
-        List<Integer> battles = null;
+        List<Battle> battles;
         if(isCampaignTick()) {
-            battles = Common.cast(db.createQuery("select id from Battle battle where battle.commander1.id < 0 and battle.system in (:systeme)").setParameterList("systeme", affectedSystems).list());
+            battles = db.createQuery("from Battle battle where battle.commander1.id < 0 and battle.system in (:systeme)", Battle.class)
+                    .setParameter("systeme", affectedSystems)
+                    .getResultList();
         }
         else {
-            battles = Common.cast(db.createQuery("select id from Battle battle where battle.commander1.id < 0").list());
+            battles = db.createQuery("from Battle battle where battle.commander1.id < 0", Battle.class)
+                    .getResultList();
         }
 
-		new EvictableUnitOfWork<Integer>("Battle Tick")
+		new EvictableUnitOfWork<Battle>("Battle Tick")
 		{
 			@Override
-			public void doWork(Integer battleId) {
-				var db = getEM();
-				Battle battle = db.find(Battle.class, battleId);
+			public void doWork(Battle battle) {
 				battle.load( battle.getCommander(0), null, null, 0 );
                 log("Automatisches Feuer aktiviert für Spieler: " + battle.getCommander(0).getId());
                 AutoFire autoFire = new AutoFire(db, battle);
@@ -77,13 +76,13 @@ public class AutofireTick extends TickController {
 			}
 		}.setFlushSize(1).executeFor(battles);
 
-        battles = Common.cast(db.createQuery("select id from Battle battle where battle.commander2.id < 0").list());
-        new EvictableUnitOfWork<Integer>("Battle Tick")
+        battles = db.createQuery("from Battle battle where battle.commander2.id < 0", Battle.class)
+                .getResultList();
+        new EvictableUnitOfWork<Battle>("Battle Tick")
         {
             @Override
-            public void doWork(Integer battleId) {
+            public void doWork(Battle battle) {
                 var db = getEM();
-                Battle battle = (Battle)db.find(Battle.class, battleId);
                 battle.load( battle.getCommander(1), null, null, 0 );
                 log("Automatisches Feuer aktiviert für Spieler: " + battle.getCommander(1).getId());
                 AutoFire autoFire = new AutoFire(db, battle);

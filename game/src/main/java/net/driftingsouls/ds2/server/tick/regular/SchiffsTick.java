@@ -40,7 +40,6 @@ import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.units.TransientUnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo.Crew;
-import org.hibernate.CacheMode;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -360,7 +359,7 @@ public class SchiffsTick extends TickController {
 					mass = mass == 0 ? 1 : mass;
 					rest = (int)( (shiptd.getCargo()-shipc.getMass())/ mass );
 					//nochmal absichern, nicht, dass ich irgendwo einen Fehler gemacht habe
-					amount = amount < rest ? amount : rest;
+					amount = Math.min(amount, rest);
 					this.slog("[maxcargo]");
 				}
 			}
@@ -436,7 +435,7 @@ public class SchiffsTick extends TickController {
 							tmpe -= tmphull-1;
 							tmphull = 1;
 							String status = aShip.recalculateShipStatus();
-							if (status.length() > 0){
+							if (!status.isEmpty()){
 								if( !status.contains("pluenderbar")){
 									status += " pluenderbar";
 								}
@@ -574,13 +573,13 @@ public class SchiffsTick extends TickController {
 			shipd.setNahrungCargo(shiptd.getNahrungCargo());
 		}
 
-		//Crew die nicht versorgt werden konnte verhungern lassen
+		//Crew, die nicht versorgt werden konnte, verhungern lassen
 		if(crewToFeed > 0)
 		{
 			this.log("\tCrew verhungert - ");
 			if(crewToFeed >= shipd.getUnits().getNahrung())
 			{
-				crewToFeed = crewToFeed - (int)Math.ceil(shipd.getUnits().getNahrung());
+				crewToFeed = crewToFeed - (int) (double) shipd.getUnits().getNahrung();
 				shipd.setUnits(new TransientUnitCargo());
 				int maxverhungernfactor = new ConfigService().getValue(WellKnownConfigValue.MAX_VERHUNGERN);
 				int maxverhungernvalue = (int)Math.ceil(shiptd.getCrew() * (maxverhungernfactor/100.0));
@@ -903,11 +902,7 @@ public class SchiffsTick extends TickController {
 	@Override
 	protected void tick()
 	{
-		org.hibernate.Session db = getDB();
-
-		CacheMode cacheMode = db.getCacheMode();
-		db.setCacheMode(CacheMode.IGNORE);
-
+		var db = getEM();
 		doShipFlags(db);
 
 		//Schadensnebel muessen vor den Usern berechnet werden:
@@ -918,11 +913,9 @@ public class SchiffsTick extends TickController {
 		doUsers(db);
 
 		doDestroyStatus(db);
-
-		db.setCacheMode(cacheMode);
 	}
 
-	private void doSchadensnebel(org.hibernate.Session db)
+	private void doSchadensnebel(EntityManager db)
 	{
 		/*
 		 * Schadensnebel
@@ -930,31 +923,27 @@ public class SchiffsTick extends TickController {
 		this.log("");
 		this.log("Behandle Schadensnebel");
 
-		List<Integer> ships = null;
+		List<Ship> ships;
 		if(isCampaignTick()) {
-			ships = Common.cast(db.createQuery("select s.id from Ship as s, Nebel as n " +
+			ships = db.createQuery("select s.id from Ship as s, Nebel as n " +
 							"where s.system=n.loc.system and s.x=n.loc.x and s.y=n.loc.y and " +
 							"n.type=6 and (s.owner.vaccount=0 or s.owner.wait4vac>0) and " +
-							"s.docked not like 'l %' and s.system in (:system)")
-					.setParameterList("system", affectedSystems)
-					.list());
+							"s.docked not like 'l %' and s.system in (:system)", Ship.class)
+					.setParameter("system", affectedSystems)
+					.getResultList();
 		}
 		else{
-			ships = Common.cast(db
+			ships = db
 					.createQuery("select s.id from Ship as s, Nebel as n " +
 							"where s.system=n.loc.system and s.x=n.loc.x and s.y=n.loc.y and " +
 							"n.type=6 and (s.owner.vaccount=0 or s.owner.wait4vac>0) and " +
-							"s.docked not like 'l %'")
-					.list());
+							"s.docked not like 'l %'", Ship.class)
+					.getResultList();
 		}
-		new EvictableUnitOfWork<Integer>("SchiffsTick - Schadensnebel")
+		new EvictableUnitOfWork<Ship>("SchiffsTick - Schadensnebel")
 		{
 			@Override
-			public void doWork(Integer shipId) {
-				var db = getEM();
-
-				Ship ship = db.find(Ship.class, shipId);
-
+			public void doWork(Ship ship) {
 				log("* "+ship.getId());
 				Nebel.Typ.DAMAGE.damageShip(ship, new ConfigService());
 			}
@@ -962,7 +951,7 @@ public class SchiffsTick extends TickController {
 		.executeFor(ships);
 	}
 
-	private void doDestroyStatus(org.hibernate.Session db)
+	private void doDestroyStatus(EntityManager db)
 	{
 		/*
 			Schiffe mit destroy-tag im status-Feld entfernen
@@ -970,76 +959,55 @@ public class SchiffsTick extends TickController {
 		this.log("");
 		this.log("Zerstoere Schiffe mit 'destroy'-status");
 
-		List<Integer> shipIds = null;
+		List<Ship> ships;
 		if(isCampaignTick()) {
-			shipIds = Common.cast(db.createQuery("select id from Ship where id>0 and locate('destroy',status)!=0 and system in (:system)")
-					.setParameterList("system", affectedSystems)
-					.list());
+			ships = db.createQuery("select id from Ship where id>0 and locate('destroy',status)!=0 and system in (:system)", Ship.class)
+					.setParameter("system", affectedSystems)
+					.getResultList();
 		}
 		else{
-			shipIds = Common.cast(db
-					.createQuery("select id from Ship where id>0 and locate('destroy',status)!=0")
-					.list());
+			ships = db.createQuery("select id from Ship where id>0 and locate('destroy',status)!=0", Ship.class)
+					.getResultList();
 		}
-		new EvictableUnitOfWork<Integer>("SchiffsTick - destroy-status") {
+		new EvictableUnitOfWork<Ship>("SchiffsTick - destroy-status") {
 			@Override
-			public void doWork(Integer shipId) {
-				var db = getContext().getEM();
-
-				Ship aship = db.find(Ship.class, shipId);
-				log("\tEntferne "+aship.getId());
-				aship.destroy();
+			public void doWork(Ship ship) {
+				log("\tEntferne "+ship.getId());
+				ship.destroy();
 			}
-
 		}
 		.setFlushSize(1)
-		.executeFor(shipIds);
+		.executeFor(ships);
 	}
 
-	private void doUsers(org.hibernate.Session db)
+	private void doUsers(EntityManager db)
 	{
-		List<Integer> userIds = Common.cast(db.createQuery("select distinct u.id " +
-				"from User u "+
-				"where u.id!=0 and (u.vaccount=0 or u.wait4vac>0) order by u.id asc")
-				.list());
+		List<User> userIds = db.createQuery("from User u where u.id!=0 and (u.vaccount=0 or u.wait4vac>0) order by u.id asc", User.class)
+				.getResultList();
 
-		new EvictableUnitOfWork<Integer>("SchiffsTick - user")
+		new EvictableUnitOfWork<User>("SchiffsTick - user")
 		{
 			@Override
-			public void doWork(Integer userId) {
-				var db = getEM();
-
-				log("###### User "+userId+" ######");
-
-				User auser = db.createQuery("SELECT DISTINCT u FROM User u " +
-								"LEFT JOIN FETCH u.bases b " +
-								"LEFT JOIN FETCH u.ships s " +
-								"LEFT JOIN FETCH s.modules " +
-								"LEFT JOIN FETCH s.einstellungen " +
-								"WHERE u.id = :userId", User.class)
-						.setParameter("userId", userId)
-						.getSingleResult();
-
-				tickUser(db, auser);
+			public void doWork(User user) {
+				log("###### User "+user+" ######");
+				tickUser(db, user);
 			}
 		}
 		.setFlushSize(1)
 		.executeFor(userIds);
 	}
 
-	private void doShipFlags(org.hibernate.Session db)
+	private void doShipFlags(EntityManager db)
 	{
-		List<ShipFlag> flags = null;
+		List<ShipFlag> flags;
 		if(isCampaignTick()) {
-			flags = Common.cast(db
-					.createQuery("from ShipFlag f where f.ship.system in (:system)")
-					.setParameterList("system", affectedSystems)
-					.list());
+			flags = db
+					.createQuery("from ShipFlag f where f.ship.system in (:system)", ShipFlag.class)
+					.setParameter("system", affectedSystems)
+					.getResultList();
 		}
 		else{
-			flags = Common.cast(db
-					.createQuery("from ShipFlag")
-					.list());
+			flags = db.createQuery("from ShipFlag", ShipFlag.class).getResultList();
 		}
 		new UnitOfWork<ShipFlag>("SchiffsTick - flags")
 		{

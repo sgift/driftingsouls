@@ -41,16 +41,16 @@ public class DynJNTick extends TickController {
     }
 
     private void decreaseRemainingTime() {
-        org.hibernate.Session db = getDB();
-        @SuppressWarnings("unchecked")
-        List<DynamicJumpNode> dynamicJumpNodes = null;
+        var db = getEM();
+
+        List<DynamicJumpNode> dynamicJumpNodes;
         if(isCampaignTick()) {
-            dynamicJumpNodes = db.createQuery("from DynamicJumpNode jn where jn.jumpnode.system in (:systeme)")
-                    .setParameterList("systeme", affectedSystems)
-                    .list();
+            dynamicJumpNodes = db.createQuery("from DynamicJumpNode jn where jn.jumpnode.system in (:systeme)", DynamicJumpNode.class)
+                    .setParameter("systeme", affectedSystems)
+                    .getResultList();
         }
         else{
-            dynamicJumpNodes = db.createQuery("from DynamicJumpNode").list();
+            dynamicJumpNodes = db.createQuery("from DynamicJumpNode", DynamicJumpNode.class).getResultList();
         }
 
         new EvictableUnitOfWork<DynamicJumpNode>("DynJNTick - decreaseRemainingTime") {
@@ -66,16 +66,16 @@ public class DynJNTick extends TickController {
     }
 
     private void moveDynJN() {
-        org.hibernate.Session db = getDB();
-        @SuppressWarnings("unchecked")
-        List<DynamicJumpNode> dynamicJumpNodes = null;
+        var db = getEM();
+
+        List<DynamicJumpNode> dynamicJumpNodes;
         if(isCampaignTick()) {
-            dynamicJumpNodes = db.createQuery("from DynamicJumpNode jn where jn.jumpnode.system in (:systeme)")
-                    .setParameterList("systeme", affectedSystems)
-                    .list();
+            dynamicJumpNodes = db.createQuery("from DynamicJumpNode jn where jn.jumpnode.system in (:systeme)", DynamicJumpNode.class)
+                    .setParameter("systeme", affectedSystems)
+                    .getResultList();
         }
         else{
-            dynamicJumpNodes = db.createQuery("from DynamicJumpNode").list();
+            dynamicJumpNodes = db.createQuery("from DynamicJumpNode", DynamicJumpNode.class).getResultList();
         }
 
         new EvictableUnitOfWork<DynamicJumpNode>("DynJNTick - moveDynJN") {
