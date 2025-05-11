@@ -31,8 +31,8 @@ import net.driftingsouls.ds2.server.entities.npcorders.Order;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderOffizier;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderShip;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderableOffizier;
-import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.framework.db.batch.SingleUnitOfWork;
+import net.driftingsouls.ds2.server.framework.db.batch.UnitOfWork;
 import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
 import net.driftingsouls.ds2.server.ships.SchiffHinzufuegenService;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -87,7 +87,7 @@ public class NPCOrderTick extends TickController {
 
 		List<Order> orders = db.createQuery("from Order order by user.id", Order.class)
 				.getResultList();
-		new EvictableUnitOfWork<Order>("NPCOrderTick")
+		new UnitOfWork<Order>("NPCOrderTick")
 		{
 			@Override
 			public void doWork(Order order)
@@ -144,7 +144,7 @@ public class NPCOrderTick extends TickController {
 		this.log("Verteile NPC-Punkte...");
 		List<User> users = db.createQuery("from User where locate('ordermenu',flags)!=0", User.class)
 				.getResultList();
-		new EvictableUnitOfWork<User>("NPCOrderTick - NPC-Punkte")
+		new UnitOfWork<User>("NPCOrderTick - NPC-Punkte")
 		{
 			@Override
 			public void doWork(User user) {

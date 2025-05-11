@@ -22,7 +22,7 @@ import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.battles.AutoFire;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
+import net.driftingsouls.ds2.server.framework.db.batch.UnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -65,7 +65,7 @@ public class AutofireTick extends TickController {
                     .getResultList();
         }
 
-		new EvictableUnitOfWork<Battle>("Battle Tick")
+		new UnitOfWork<Battle>("Battle Tick")
 		{
 			@Override
 			public void doWork(Battle battle) {
@@ -78,7 +78,7 @@ public class AutofireTick extends TickController {
 
         battles = db.createQuery("from Battle battle where battle.commander2.id < 0", Battle.class)
                 .getResultList();
-        new EvictableUnitOfWork<Battle>("Battle Tick")
+        new UnitOfWork<Battle>("Battle Tick")
         {
             @Override
             public void doWork(Battle battle) {

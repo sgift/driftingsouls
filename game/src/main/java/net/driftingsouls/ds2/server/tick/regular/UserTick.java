@@ -26,7 +26,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
+import net.driftingsouls.ds2.server.framework.db.batch.UnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -61,7 +61,7 @@ public class UserTick extends TickController
 		log("DeleteThreshould is " + deleteThreshould);
 
 		List<Integer> users = em.createQuery("select id from User", Integer.class).getResultList();
-		new EvictableUnitOfWork<Integer>("User Tick")
+		new UnitOfWork<Integer>("User Tick")
 		{
 
 			@Override

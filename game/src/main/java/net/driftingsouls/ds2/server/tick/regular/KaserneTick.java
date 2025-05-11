@@ -24,7 +24,7 @@ import net.driftingsouls.ds2.server.entities.Kaserne;
 import net.driftingsouls.ds2.server.entities.KaserneEntry;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
-import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
+import net.driftingsouls.ds2.server.framework.db.batch.UnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.units.UnitType;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -64,7 +64,7 @@ public class KaserneTick extends TickController {
 			kasernen = db.createQuery("from Kaserne k where k.entries is not empty", Kaserne.class)
 					.getResultList();
 		}
-		new EvictableUnitOfWork<Kaserne>("Kasernen Tick")
+		new UnitOfWork<Kaserne>("Kasernen Tick")
 		{
 			@Override
 			public void doWork(Kaserne kaserne) {

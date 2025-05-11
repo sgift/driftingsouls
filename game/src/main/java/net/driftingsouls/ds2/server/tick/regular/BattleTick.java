@@ -21,7 +21,7 @@ package net.driftingsouls.ds2.server.tick.regular;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.battles.SchlachtLogRundeBeendet;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
+import net.driftingsouls.ds2.server.framework.db.batch.UnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -64,7 +64,7 @@ public class BattleTick extends TickController {
 		}
 
 
-		new EvictableUnitOfWork<Battle>("Battle Tick")
+		new UnitOfWork<Battle>("Battle Tick")
 		{
 			@Override
 			public void doWork(Battle battle) {

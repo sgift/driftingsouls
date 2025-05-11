@@ -21,7 +21,7 @@ package net.driftingsouls.ds2.server.tick.regular;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.*;
-import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
+import net.driftingsouls.ds2.server.framework.db.batch.UnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -61,7 +61,7 @@ public class ForschungsTick extends TickController {
 							"where (base.owner.vaccount=0 or base.owner.wait4vac!=0) and forschung!=null", Forschungszentrum.class)
 					.getResultList();
 		}
-		new EvictableUnitOfWork<Forschungszentrum>("Forschungstick")
+		new UnitOfWork<Forschungszentrum>("Forschungstick")
 		{
 			@Override
 			public void doWork(Forschungszentrum fz)

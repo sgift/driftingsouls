@@ -5,8 +5,8 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.framework.db.batch.SingleUnitOfWork;
+import net.driftingsouls.ds2.server.framework.db.batch.UnitOfWork;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.utils.StringToTypeConverter;
 import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
@@ -378,7 +378,7 @@ public class EditPlugin8<T> implements AdminPlugin
 		{
 			@SuppressWarnings("unchecked") final Job<T, Object> updateTask1 = (Job<T, Object>) updateTask;
 			Collection<Object> jobData = updateTask1.supplier.apply(updatedEntity);
-            new EvictableUnitOfWork<>(updateTask.name) {
+            new UnitOfWork<>(updateTask.name) {
                 @Override
                 public void doWork(Object object) {
                     updateTask1.job.accept(entity, updatedEntity, object);
