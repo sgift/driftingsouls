@@ -989,6 +989,8 @@ public class SchiffsTick extends TickController {
 		{
 			@Override
 			public void doWork(User user) {
+				var db = getEM();
+				db.merge(user);
 				log("###### User "+user+" ######");
 				tickUser(db, user);
 			}
