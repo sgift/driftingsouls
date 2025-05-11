@@ -1,14 +1,9 @@
 package net.driftingsouls.ds2.server.install;
 
-import net.driftingsouls.ds2.server.framework.BasicContext;
-import net.driftingsouls.ds2.server.framework.CmdLineRequest;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.EmptyPermissionResolver;
-import net.driftingsouls.ds2.server.framework.SimpleResponse;
+import net.driftingsouls.ds2.server.framework.*;
 import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
-import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.framework.db.batch.SingleUnitOfWork;
+import net.driftingsouls.ds2.server.framework.db.batch.UnitOfWork;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -149,7 +144,7 @@ public final class InstallUtils
 	public static <T> void mitTransaktion(final String name, final Supplier<? extends Collection<T>> jobDataGenerator, final Consumer<T> job)
 	{
 		LOG.info(name);
-		new EvictableUnitOfWork<T>(name) {
+		new UnitOfWork<T>(name) {
 			@Override
 			public void doWork(T object) {
 				job.accept(object);

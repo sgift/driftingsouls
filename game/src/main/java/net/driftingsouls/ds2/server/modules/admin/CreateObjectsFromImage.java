@@ -31,7 +31,6 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.framework.db.batch.UnitOfWork;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.map.TileCache;
@@ -339,12 +338,12 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 											 .setInteger("sys", systemid)
 											 .list());
 
-		UnitOfWork<Integer> euw = new EvictableUnitOfWork<Integer>(this.getClass().getName() + ": delete bases")
+		UnitOfWork<Integer> euw = new UnitOfWork<Integer>(this.getClass().getName() + ": delete bases")
 		{
 			@Override
 			public void doWork(Integer baseId) {
 				var db = getEM();
-				Base base = (Base) db.find(Base.class, baseId);
+				Base base = db.find(Base.class, baseId);
 				Integer[] bebauung = base.getBebauung();
 				for (int i = 0; i < bebauung.length; i++)
 				{

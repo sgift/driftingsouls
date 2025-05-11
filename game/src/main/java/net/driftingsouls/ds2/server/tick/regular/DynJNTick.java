@@ -19,7 +19,7 @@
 package net.driftingsouls.ds2.server.tick.regular;
 
 import net.driftingsouls.ds2.server.entities.DynamicJumpNode;
-import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
+import net.driftingsouls.ds2.server.framework.db.batch.UnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -53,7 +53,7 @@ public class DynJNTick extends TickController {
             dynamicJumpNodes = db.createQuery("from DynamicJumpNode", DynamicJumpNode.class).getResultList();
         }
 
-        new EvictableUnitOfWork<DynamicJumpNode>("DynJNTick - decreaseRemainingTime") {
+        new UnitOfWork<DynamicJumpNode>("DynJNTick - decreaseRemainingTime") {
             @Override
             public void doWork(DynamicJumpNode dynamicJumpNode) {
                 if (dynamicJumpNode.getRemainingLiveTime() == 0) {
@@ -78,7 +78,7 @@ public class DynJNTick extends TickController {
             dynamicJumpNodes = db.createQuery("from DynamicJumpNode", DynamicJumpNode.class).getResultList();
         }
 
-        new EvictableUnitOfWork<DynamicJumpNode>("DynJNTick - moveDynJN") {
+        new UnitOfWork<DynamicJumpNode>("DynJNTick - moveDynJN") {
             @Override
             public void doWork(DynamicJumpNode dynjn) {
                 if (dynjn.getRemainingTicksUntilMove() <= 1) {

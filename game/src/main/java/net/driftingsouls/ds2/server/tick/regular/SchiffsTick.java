@@ -33,7 +33,6 @@ import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.*;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.framework.db.batch.UnitOfWork;
 import net.driftingsouls.ds2.server.ships.*;
 import net.driftingsouls.ds2.server.tick.TickController;
@@ -946,7 +945,7 @@ public class SchiffsTick extends TickController {
 							"s.docked not like 'l %'", Ship.class)
 					.getResultList();
 		}
-		new EvictableUnitOfWork<Ship>("SchiffsTick - Schadensnebel")
+		new UnitOfWork<Ship>("SchiffsTick - Schadensnebel")
 		{
 			@Override
 			public void doWork(Ship ship) {
@@ -975,7 +974,7 @@ public class SchiffsTick extends TickController {
 			ships = db.createQuery("from Ship where id>0 and locate('destroy',status)!=0", Ship.class)
 					.getResultList();
 		}
-		new EvictableUnitOfWork<Ship>("SchiffsTick - destroy-status") {
+		new UnitOfWork<Ship>("SchiffsTick - destroy-status") {
 			@Override
 			public void doWork(Ship ship) {
 				log("\tEntferne "+ship.getId());
@@ -991,7 +990,7 @@ public class SchiffsTick extends TickController {
 		List<User> userIds = db.createQuery("from User u where u.id!=0 and (u.vaccount=0 or u.wait4vac>0) order by u.id asc", User.class)
 				.getResultList();
 
-		new EvictableUnitOfWork<User>("SchiffsTick - user")
+		new UnitOfWork<User>("SchiffsTick - user")
 		{
 			@Override
 			public void doWork(User user) {

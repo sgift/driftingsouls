@@ -23,7 +23,7 @@ import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
-import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
+import net.driftingsouls.ds2.server.framework.db.batch.UnitOfWork;
 import net.driftingsouls.ds2.server.services.BaseTickerService;
 import net.driftingsouls.ds2.server.tick.TickController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +61,7 @@ public class BaseTick extends TickController
 
 		List<User> users = em.createQuery("from User u where u.id != 0 and (u.vaccount=0 or u.wait4vac>0) order by u.id", User.class).getResultList();
 
-		new EvictableUnitOfWork<User>("Base Tick")
+		new UnitOfWork<User>("Base Tick")
 		{
 			@Override
 			public void doWork(User user) {

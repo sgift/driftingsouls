@@ -26,8 +26,8 @@ import net.driftingsouls.ds2.server.entities.Academy;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
-import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.framework.db.batch.SingleUnitOfWork;
+import net.driftingsouls.ds2.server.framework.db.batch.UnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -87,7 +87,7 @@ public class AcademyTick extends TickController {
 					.getResultList();
 		}
 		
-		new EvictableUnitOfWork<Academy>("Academy Tick")
+		new UnitOfWork<Academy>("Academy Tick")
 		{
 			@Override
 			public void doWork(Academy acc) {

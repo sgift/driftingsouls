@@ -31,7 +31,7 @@ import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.*;
-import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
+import net.driftingsouls.ds2.server.framework.db.batch.UnitOfWork;
 import net.driftingsouls.ds2.server.map.TileCache;
 import net.driftingsouls.ds2.server.repositories.NebulaRepository;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -1439,7 +1439,7 @@ public class AdminCommands {
 				ships.add(Integer.parseInt(command[1]));
 			}
 
-			new EvictableUnitOfWork<Integer>("AdminCommand: RecalculateShipModules") {
+			new UnitOfWork<Integer>("AdminCommand: RecalculateShipModules") {
 
 				@Override
 				public void doWork(Integer object) {

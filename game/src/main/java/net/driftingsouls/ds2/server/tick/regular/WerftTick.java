@@ -23,7 +23,7 @@ import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
+import net.driftingsouls.ds2.server.framework.db.batch.UnitOfWork;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.werften.*;
@@ -60,7 +60,7 @@ public class WerftTick extends TickController
 
 		List<Integer> werften = em.createQuery("select w.id from WerftObject w where size(w.queue)>0")
 								.getResultList();
-		new EvictableUnitOfWork<Integer>("Werft Tick")
+		new UnitOfWork<Integer>("Werft Tick")
 		{
 			@Override
 			public void doWork(Integer werftId) {
