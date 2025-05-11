@@ -1687,10 +1687,10 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	{
 		Context context = ContextMap.getContext();
 
-		org.hibernate.Session db = context.getDB();
-		StarSystem starsystem = (StarSystem) db.get(StarSystem.class, this.getSystem());
+		var db = context.getEM();
+		StarSystem starsystem = db.find(StarSystem.class, this.getSystem());
 
-		if(starsystem.getAccess() == StarSystem.Access.HOMESYSTEM ){
+		if(starsystem == null || starsystem.getAccess() == StarSystem.Access.HOMESYSTEM ){
 			return true;
 		}
 
@@ -1706,32 +1706,28 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		return true;
 	}
 
-    public boolean payMarines(Cargo baseCargo)
-    {
-				Context context = ContextMap.getContext();
+    public boolean payMarines(Cargo baseCargo) {
+		Context context = ContextMap.getContext();
 
-				org.hibernate.Session db = context.getDB();
-				StarSystem starsystem = (StarSystem) db.get(StarSystem.class, this.getSystem());
+		var db = context.getEM();
+		StarSystem starsystem = db.find(StarSystem.class, this.getSystem());
 
-				if(starsystem.getAccess() == StarSystem.Access.HOMESYSTEM ){
-					return true;
-				}
+		if (starsystem == null || starsystem.getAccess() == StarSystem.Access.HOMESYSTEM) {
+			return true;
+		}
 
-        long marinesold = getUnits().getRE();
-        long re = baseCargo.getResourceCount(Resources.RE);
+		long marinesold = getUnits().getRE();
+		long re = baseCargo.getResourceCount(Resources.RE);
 
-        if(marinesold > re)
-        {
-            getUnits().getMeuterer(re);
-            baseCargo.setResource(Resources.RE, 0);
-            return false;
-        }
-        else
-        {
-            baseCargo.substractResource(Resources.RE, marinesold);
-        }
-        return true;
-    }
+		if (marinesold > re) {
+			getUnits().getMeuterer(re);
+			baseCargo.setResource(Resources.RE, 0);
+			return false;
+		} else {
+			baseCargo.substractResource(Resources.RE, marinesold);
+		}
+		return true;
+	}
 
 
 	public boolean feedInhabitants(Cargo baseCargo)
