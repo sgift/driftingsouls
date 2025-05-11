@@ -91,7 +91,7 @@ public class AcademyTick extends TickController {
 		{
 			@Override
 			public void doWork(Academy acc) {
-				getEM().persist(acc);
+				getEM().merge(acc);
 				Base base = acc.getBase();
 
 				log("Akademie "+acc.getId()+":");

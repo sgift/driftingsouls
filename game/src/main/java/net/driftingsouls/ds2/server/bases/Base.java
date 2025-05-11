@@ -1083,9 +1083,9 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
         // RE nicht mit in constat rein. Dies wird im Tick benutzt, der betrachtet RE-Verbrauch aber separat.
 		Context context = ContextMap.getContext();
 
-		org.hibernate.Session db = context.getDB();
-		StarSystem starsystem = (StarSystem) db.get(StarSystem.class, base.getSystem());
-		if(starsystem.getAccess() != StarSystem.Access.HOMESYSTEM){
+		var db = context.getEM();
+		StarSystem starsystem = db.find(StarSystem.class, base.getSystem());
+		if(starsystem == null || starsystem.getAccess() != StarSystem.Access.HOMESYSTEM) {
 			stat.substractResource( Resources.RE, base.getUnits().getRE() );
 		}
 
