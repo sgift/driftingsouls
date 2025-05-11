@@ -925,7 +925,7 @@ public class SchiffsTick extends TickController {
 
 		List<Ship> ships;
 		if(isCampaignTick()) {
-			ships = db.createQuery("select s.id from Ship as s, Nebel as n " +
+			ships = db.createQuery("from Ship as s, Nebel as n " +
 							"where s.system=n.loc.system and s.x=n.loc.x and s.y=n.loc.y and " +
 							"n.type=6 and (s.owner.vaccount=0 or s.owner.wait4vac>0) and " +
 							"s.docked not like 'l %' and s.system in (:system)", Ship.class)
@@ -934,7 +934,7 @@ public class SchiffsTick extends TickController {
 		}
 		else{
 			ships = db
-					.createQuery("select s.id from Ship as s, Nebel as n " +
+					.createQuery("from Ship as s, Nebel as n " +
 							"where s.system=n.loc.system and s.x=n.loc.x and s.y=n.loc.y and " +
 							"n.type=6 and (s.owner.vaccount=0 or s.owner.wait4vac>0) and " +
 							"s.docked not like 'l %'", Ship.class)
@@ -961,12 +961,12 @@ public class SchiffsTick extends TickController {
 
 		List<Ship> ships;
 		if(isCampaignTick()) {
-			ships = db.createQuery("select id from Ship where id>0 and locate('destroy',status)!=0 and system in (:system)", Ship.class)
+			ships = db.createQuery("from Ship where id>0 and locate('destroy',status)!=0 and system in (:system)", Ship.class)
 					.setParameter("system", affectedSystems)
 					.getResultList();
 		}
 		else{
-			ships = db.createQuery("select id from Ship where id>0 and locate('destroy',status)!=0", Ship.class)
+			ships = db.createQuery("from Ship where id>0 and locate('destroy',status)!=0", Ship.class)
 					.getResultList();
 		}
 		new EvictableUnitOfWork<Ship>("SchiffsTick - destroy-status") {
