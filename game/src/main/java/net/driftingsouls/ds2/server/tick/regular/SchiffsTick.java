@@ -925,7 +925,7 @@ public class SchiffsTick extends TickController {
 
 		List<Ship> ships;
 		if(isCampaignTick()) {
-			ships = db.createQuery("from Ship as s, Nebel as n " +
+			ships = db.createQuery("select s from Ship as s, Nebel as n " +
 							"where s.system=n.loc.system and s.x=n.loc.x and s.y=n.loc.y and " +
 							"n.type=6 and (s.owner.vaccount=0 or s.owner.wait4vac>0) and " +
 							"s.docked not like 'l %' and s.system in (:system)", Ship.class)
@@ -934,7 +934,7 @@ public class SchiffsTick extends TickController {
 		}
 		else{
 			ships = db
-					.createQuery("from Ship as s, Nebel as n " +
+					.createQuery("select s from Ship as s, Nebel as n " +
 							"where s.system=n.loc.system and s.x=n.loc.x and s.y=n.loc.y and " +
 							"n.type=6 and (s.owner.vaccount=0 or s.owner.wait4vac>0) and " +
 							"s.docked not like 'l %'", Ship.class)

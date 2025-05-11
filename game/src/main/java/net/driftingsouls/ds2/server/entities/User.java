@@ -28,17 +28,11 @@ import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.config.Rang;
 import net.driftingsouls.ds2.server.config.Rassen;
-import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.StarSystem.Access;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.entities.ally.AllyPosten;
-import net.driftingsouls.ds2.server.framework.BasicUser;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.UserValue;
+import net.driftingsouls.ds2.server.framework.*;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.utils.StringToTypeConverter;
 import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
@@ -57,34 +51,9 @@ import org.hibernate.annotations.Index;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.Lob;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -312,7 +281,7 @@ public class User extends BasicUser {
 	public User(String name, String password, int race, String history, Cargo cargo, String email) {
 		super();
 		context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
+		var db = context.getEM();
 		setPassword(password);
 		setName("Kolonist");
 		this.race = race;
@@ -338,7 +307,7 @@ public class User extends BasicUser {
 		this.lostShips = 0;
 		this.wonBattles = Short.parseShort("0");
 		this.destroyedShips = 0;
-		Integer newUserId = (Integer)db.createQuery("SELECT max(id) from User").uniqueResult();
+		Integer newUserId = db.createQuery("SELECT max(id) from User", Integer.class).getSingleResult();
 		setId(newUserId != null ? ++newUserId : 1);
 		this.knownItems = "";
         bounty = BigInteger.ZERO;
@@ -528,30 +497,29 @@ public class User extends BasicUser {
 		if( this.relations == null ) {
 			Relations relations = new Relations(this);
 
-			org.hibernate.Session db = context.getDB();
+			var db = context.getEM();
 
 			Map<User,Relation> defaults = new HashMap<>();
 
-			List<?> relationlist = db.createQuery("from UserRelation " +
+			List<UserRelation> relationlist = db.createQuery("from UserRelation " +
 					"where user= :user OR target= :user OR (user!= :user AND target.id=0) " +
-					"order by abs(target.id) desc")
-				.setEntity("user", this)
-				.list();
+					"order by abs(target.id) desc", UserRelation.class)
+				.setParameter("user", this)
+				.getResultList();
 
-			for (Object aRelationlist : relationlist)
+			for (var userRelation : relationlist)
 			{
-				UserRelation relation = (UserRelation) aRelationlist;
-				if (relation.getUser().getId() == this.getId())
+                if (userRelation.getUser().getId() == this.getId())
 				{
-					relations.toOther.put(relation.getTarget().getId(), Relation.values()[relation.getStatus()]);
+					relations.toOther.put(userRelation.getTarget().getId(), Relation.values()[userRelation.getStatus()]);
 				}
-				else if( relation.getTarget().getId() == 0 )
+				else if( userRelation.getTarget().getId() == 0 )
 				{
-					defaults.put(relation.getUser(), Relation.values()[relation.getStatus()]);
+					defaults.put(userRelation.getUser(), Relation.values()[userRelation.getStatus()]);
 				}
 				else
 				{
-					relations.fromOther.put(relation.getUser().getId(), Relation.values()[relation.getStatus()]);
+					relations.fromOther.put(userRelation.getUser().getId(), Relation.values()[userRelation.getStatus()]);
 				}
 			}
 
@@ -594,7 +562,7 @@ public class User extends BasicUser {
 		}
 
 		if( user == null ) {
-			user = (User)context.getDB().get(User.class, 0);
+			user = context.getEM().find(User.class, 0);
 		}
 
 		if( this.ally != null && this.ally.getMembers().contains(user) )
@@ -605,17 +573,17 @@ public class User extends BasicUser {
 		Relation rel = Relation.NEUTRAL;
 
 		if( relations == null ) {
-			UserRelation currelation = (UserRelation)context.getDB()
-				.createQuery("from UserRelation WHERE user=:user AND target=:userid")
-				.setInteger("user", this.getId())
-				.setInteger("userid", user.getId())
-				.uniqueResult();
-
+			UserRelation currelation = context.getEM()
+					.createQuery("from UserRelation WHERE user=:user AND target=:userid", UserRelation.class)
+					.setParameter("user", this.getId())
+					.setParameter("userid", user.getId())
+					.getResultList().stream().findFirst().orElse(null);
+			
 			if( currelation == null ) {
-				currelation = (UserRelation)context.getDB()
-					.createQuery("from UserRelation WHERE user=:user AND target.id=0")
-					.setInteger("user", this.getId())
-					.uniqueResult();
+				currelation = context.getEM()
+						.createQuery("from UserRelation WHERE user=:user AND target.id=0", UserRelation.class)
+						.setParameter("user", this.getId())
+						.getResultList().stream().findFirst().orElse(null);
 			}
 
 			if( currelation != null ) {
@@ -637,32 +605,32 @@ public class User extends BasicUser {
 	 * @param relation Der neue Status der Beziehungen
 	 */
 	public void setRelation( int userid, Relation relation ) {
-		org.hibernate.Session db = context.getDB();
+		var db = context.getEM();
 
 		if( userid == this.getId() ) {
 			return;
 		}
 
-		UserRelation currelation = (UserRelation)db
-			.createQuery("from UserRelation WHERE user=:user AND target=:targetid")
-			.setInteger("user", this.getId())
-			.setInteger("targetid", userid)
-			.uniqueResult();
+		UserRelation currelation = db
+			.createQuery("from UserRelation WHERE user=:user AND target=:targetid", UserRelation.class)
+			.setParameter("user", this.getId())
+			.setParameter("targetid", userid)
+			.getResultList().stream().findFirst().orElse(null);
 		if( userid != 0 ) {
 			if( (relation != Relation.FRIEND) && (getAlly() != null) ) {
-				User targetuser = (User)context.getDB().get(User.class, userid);
+				User targetuser = db.find(User.class, userid);
 				if( targetuser.getAlly() == getAlly() ) {
 					log.warn("Versuch die allyinterne Beziehung von User "+this.getId()+" zu "+userid+" auf "+relation+" zu aendern", new Throwable());
 					return;
 				}
 			}
-			UserRelation defrelation = (UserRelation)db
-				.createQuery("from UserRelation WHERE user=:user AND target.id=0")
-				.setInteger("user", this.getId())
-				.uniqueResult();
+			UserRelation defrelation = db
+				.createQuery("from UserRelation WHERE user=:user AND target.id=0", UserRelation.class)
+				.setParameter("user", this.getId())
+				.getResultList().stream().findFirst().orElse(null);
 
 			if( defrelation == null ) {
-				User nullUser = (User)db.get(User.class, 0);
+				User nullUser = db.find(User.class, 0);
 
 				defrelation = new UserRelation(this, nullUser, Relation.NEUTRAL.ordinal());
 			}
@@ -673,7 +641,7 @@ public class User extends BasicUser {
 						relations.toOther.remove(userid);
 					}
 
-					db.delete(currelation);
+					db.remove(currelation);
 				}
 			}
 			else {
@@ -684,7 +652,7 @@ public class User extends BasicUser {
 					currelation.setStatus(relation.ordinal());
 				}
 				else {
-					User user = (User)db.get(User.class, userid);
+					User user = db.find(User.class, userid);
 					currelation = new UserRelation(this, user, relation.ordinal());
 					db.persist(currelation);
 				}
@@ -696,7 +664,7 @@ public class User extends BasicUser {
 					relations.toOther.put(0, Relation.NEUTRAL);
 				}
 				db.createQuery("delete from UserRelation where user=:user and target.id=0")
-					.setInteger("user", this.getId())
+					.setParameter("user", this.getId())
 					.executeUpdate();
 			}
 			else {
@@ -707,15 +675,15 @@ public class User extends BasicUser {
 					currelation.setStatus(relation.ordinal());
 				}
 				else {
-					User nullUser = (User)db.get(User.class, 0);
+					User nullUser = db.find(User.class, 0);
 
 					currelation = new UserRelation(this, nullUser, relation.ordinal());
 					db.persist(currelation);
 				}
 			}
 			db.createQuery("delete from UserRelation where user=:user and status=:status AND target.id!=0")
-				.setInteger("user", this.getId())
-				.setInteger("status", relation.ordinal())
+				.setParameter("user", this.getId())
+				.setParameter("status", relation.ordinal())
 				.executeUpdate();
 		}
 	}
@@ -749,8 +717,8 @@ public class User extends BasicUser {
 		BigInteger biCount = BigInteger.valueOf(count);
 		if(!biCount.equals(BigInteger.ZERO))
 		{
-			User fromUser = (User)context.getDB().get(User.class, fromID);
-			if( (fromID != 0))
+			User fromUser = context.getEM().find(User.class, fromID);
+			if(fromID != 0)
 			{
 				fromUser.setKonto(fromUser.getKonto().subtract(biCount));
 			}
@@ -773,10 +741,10 @@ public class User extends BasicUser {
 	 * @see UserMoneyTransfer.Transfer
 	 */
 	public void transferMoneyFrom( int fromID, BigInteger count, String text, boolean faketransfer, UserMoneyTransfer.Transfer transfertype) {
-		org.hibernate.Session db = context.getDB();
+		var db = context.getEM();
 
 		if( !count.equals(BigInteger.ZERO) ) {
-			User fromUser = (User)context.getDB().get(User.class, fromID);
+			User fromUser = db.find(User.class, fromID);
 			if( (fromID != 0) && !faketransfer ) {
 				fromUser.setKonto(fromUser.getKonto().subtract(count));
 			}
@@ -1367,37 +1335,28 @@ public class User extends BasicUser {
 		int baseRe = 0;
 		for(Base base: this.bases)
 		{
-			baseRe += base.getBalance();
+			baseRe += (int) base.getBalance();
 		}
 
-		org.hibernate.Session db = ContextMap.getContext().getDB();
+		var db = ContextMap.getContext().getEM();
 
 		// Kosten der Schiffe ermitteln
-		Long schiffsKosten = (Long)db
-			.createQuery("select sum(coalesce(sm.reCost,st.reCost)) " +
-				"from Ship s, StarSystem sys join s.shiptype st left join s.modules sm " +
-				"where s.owner=:user and s.docked not like 'l %' and s.system = sys.id and sys.starmap =:access")
-			.setParameter("user", this)
-			.setParameter("access", Access.NORMAL)
-			.iterate().next();
+		Long schiffsKosten = db
+				.createQuery("select sum(coalesce(sm.reCost,st.reCost)) " +
+						"from Ship s, StarSystem sys join s.shiptype st left join s.modules sm " +
+						"where s.owner=:user and s.docked not like 'l %' and s.system = sys.id and sys.starmap =:access", Long.class)
+				.setParameter("user", this)
+				.setParameter("access", Access.NORMAL)
+				.getResultList().stream().findFirst().orElse(0L);
 
 		// Kosten der auf den Schiffen stationierten Einheiten ermitteln
-		Long einheitenKosten = (Long)db
-			.createQuery("select sum(ceil(u.amount*u.unittype.recost)) " +
-				"from Ship s, StarSystem sys  join s.units u "+
-				"where s.owner=:user and s.docked not like 'l %' and sys.id = s.system and sys.starmap =:access")
-			.setParameter("user", this)
-			.setParameter("access", Access.NORMAL)
-			.iterate().next();
-
-		if( schiffsKosten == null )
-		{
-			schiffsKosten = 0L;
-		}
-		if( einheitenKosten == null )
-		{
-			einheitenKosten = 0L;
-		}
+		Long einheitenKosten = db
+				.createQuery("select sum(ceil(u.amount*u.unittype.recost)) " +
+						"from Ship s, StarSystem sys  join s.units u " +
+						"where s.owner=:user and s.docked not like 'l %' and sys.id = s.system and sys.starmap =:access", Long.class)
+				.setParameter("user", this)
+				.setParameter("access", Access.NORMAL)
+				.getResultList().stream().findFirst().orElse(0L);
 
 		return baseRe - SchiffsReKosten.berecheKosten(schiffsKosten, einheitenKosten).longValue();
 	}
@@ -1461,14 +1420,14 @@ public class User extends BasicUser {
 	 */
 	public long getFreeSpecializationPoints()
 	{
-		org.hibernate.Session db = ContextMap.getContext().getDB();
+		var db = ContextMap.getContext().getEM();
 		int usedSpecpoints =  this.forschungen.stream().mapToInt(Forschung::getSpecializationCosts).sum();
 
 		//Add researchs, which are currently developed in research centers
-		List<Forschungszentrum> researchcenters = Common.cast(db
-				.createQuery("from Forschungszentrum where forschung is not null and base.owner=:owner")
-				.setEntity("owner", this)
-				.list());
+		List<Forschungszentrum> researchcenters = db
+				.createQuery("from Forschungszentrum where forschung is not null and base.owner=:owner", Forschungszentrum.class)
+				.setParameter("owner", this)
+				.getResultList();
 		for(Forschungszentrum researchcenter: researchcenters)
 		{
 			usedSpecpoints += researchcenter.getForschung().getSpecializationCosts();
@@ -1490,10 +1449,10 @@ public class User extends BasicUser {
 		}
 
 		//Drop dependent researchs
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		List<Forschung> dependentResearchs = Common.cast(db.createQuery("from Forschung where req1= :fid or req2= :fid or req3= :fid")
-									  			  .setInteger("fid", research.getID())
-									  			  .list());
+		var db = ContextMap.getContext().getEM();
+		List<Forschung> dependentResearchs = db.createQuery("from Forschung where req1= :fid or req2= :fid or req3= :fid", Forschung.class)
+				.setParameter("fid", research.getID())
+				.getResultList();
 
 		dependentResearchs.forEach(this::dropResearch);
 		this.forschungen.remove(research);
@@ -1509,38 +1468,23 @@ public class User extends BasicUser {
 		{
 			return true;
 		}
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		long baseunit;
-		long shipunit = 0;
+		var db = ContextMap.getContext().getEM();
 
-		Object baseunitsuserobject = db.createQuery("select sum(e.amount) " +
-				"from BaseUnitCargoEntry as e " +
-				"where e.unittype=:unittype and e.basis.owner=:user")
-				.setInteger("unittype", unitType.getId())
-				.setEntity("user", this)
-				.iterate()
-				.next();
-		if( baseunitsuserobject != null)
+		long baseunit = db.createQuery("select sum(e.amount) from BaseUnitCargoEntry e where e.unittype=:unittype and e.basis.owner=:user", Long.class)
+				.setParameter("unittype", unitType.getId())
+				.setParameter("user", this)
+				.getResultList().stream().findFirst().orElse(0L);
+		if( baseunit > 0 )
 		{
-			baseunit = (Long)baseunitsuserobject;
-			if( baseunit > 0 )
-			{
-				return true;
-			}
+			return true;
 		}
 
-		Object shipunitsuserobject = db.createQuery("select sum(e.amount) " +
-				"from ShipUnitCargoEntry as e " +
-				"where e.unittype=:unittype and e.schiff.owner=:user")
-				.setInteger("unittype", unitType.getId())
-				.setEntity("user", this)
-				.iterate()
-				.next();
-
-		if( shipunitsuserobject != null)
-		{
-			shipunit = (Long)shipunitsuserobject;
-		}
+		long shipunit = db.createQuery("select sum(e.amount) " +
+						"from ShipUnitCargoEntry e " +
+						"where e.unittype=:unittype and e.schiff.owner=:user", Long.class)
+				.setParameter("unittype", unitType.getId())
+				.setParameter("user", this)
+				.getResultList().stream().findFirst().orElse(0L);
 
 		return shipunit > 0;
 	}
@@ -1555,6 +1499,7 @@ public class User extends BasicUser {
 	 */
 	public void setRank(User rankGiver, int rank)
 	{
+		var db = ContextMap.getContext().getEM();
 		for (UserRank rang : this.userRanks)
 		{
 			if (rang.getRankGiver().getId() == rankGiver.getId())
@@ -1562,8 +1507,7 @@ public class User extends BasicUser {
 				if( rank == 0 )
 				{
 					this.userRanks.remove(rang);
-					org.hibernate.Session db = ContextMap.getContext().getDB();
-					db.delete(rang);
+					db.remove(rang);
 					return;
 				}
 
@@ -1577,7 +1521,6 @@ public class User extends BasicUser {
 		UserRank userRank = new UserRank(key, rank);
 		this.userRanks.add(userRank);
 
-		org.hibernate.Session db = ContextMap.getContext().getDB();
 		db.persist(userRank);
 	}
 
@@ -1684,12 +1627,12 @@ public class User extends BasicUser {
 		{
 			return null;
 		}
-		org.hibernate.Session db = ContextMap.getContext().getDB();
+		var db = ContextMap.getContext().getEM();
 		if( NumberUtils.isCreatable(identifier) )
 		{
 			try
 			{
-				User user = (User)db.get(User.class, Integer.parseInt(identifier));
+				User user = db.find(User.class, Integer.parseInt(identifier));
 				if( user != null && user.getId() != 0 )
 				{
 					return user;
@@ -1701,11 +1644,10 @@ public class User extends BasicUser {
 			}
 		}
 
-		List<User> users = Common.cast(
-			db.createQuery("select u from User u where plainname like :name and id<>0")
+		List<User> users = db.createQuery("from User u where plainname like :name and id<>0", User.class)
 				.setParameter("name", "%"+identifier+"%")
 				.setMaxResults(2)
-				.list());
+				.getResultList();
 
 		if( users.size() == 1 )
 		{
@@ -1725,12 +1667,12 @@ public class User extends BasicUser {
 	 * @return Wert des User-Values
 	 */
 	public <T> T getUserValue( WellKnownUserValue<T> valueDesc ) {
-		UserValue value = (UserValue)context.getDB()
-				.createQuery("from UserValue where user=:user and name=:name order by id")
-				.setEntity("user", this)
-				.setString("name", valueDesc.getName())
+		UserValue value = context.getEM()
+				.createQuery("from UserValue where user=:user and name=:name order by id", UserValue.class)
+				.setParameter("user", this)
+				.setParameter("name", valueDesc.getName())
 				.setMaxResults(1)
-				.uniqueResult();
+				.getSingleResult();
 
 		return StringToTypeConverter.convert(valueDesc.getType(), value != null ? value.getValue() : valueDesc.getDefaultValue());
 	}
@@ -1743,11 +1685,11 @@ public class User extends BasicUser {
 	 * @return Werte des User-Values
 	 */
 	public <T> List<T> getUserValues( WellKnownUserValue<T> valueDesc ) {
-		List<UserValue> values = Common.cast(context.getDB()
-				.createQuery("from UserValue where user=:user and name=:name order by id")
-				.setEntity("user", this)
-				.setString("name", valueDesc.getName())
-				.list());
+		List<UserValue> values = context.getEM()
+				.createQuery("from UserValue where user=:user and name=:name order by id", UserValue.class)
+				.setParameter("user", this)
+				.setParameter("name", valueDesc.getName())
+				.getResultList();
 
 		if( values.isEmpty() )		{
 			return Collections.singletonList(StringToTypeConverter.convert(valueDesc.getType(), valueDesc.getDefaultValue()));
@@ -1765,21 +1707,27 @@ public class User extends BasicUser {
 	 * @param newvalue neuer Wert des User-Values
 	 */
 	public <T> void setUserValue( WellKnownUserValue<T> valueDesc, T newvalue ) {
-		UserValue valuen = (UserValue)context.getDB().createQuery("from UserValue where user=:user and name=:name order by id")
-				.setEntity("user", this)
-				.setString("name", valueDesc.getName())
-				.uniqueResult();
+		UserValue valuen = null;
+
+		try {
+			valuen = context.getEM().createQuery("from UserValue where user=:user and name=:name order by id", UserValue.class)
+					.setParameter("user", this)
+					.setParameter("name", valueDesc.getName())
+					.getSingleResult();
+		} catch (NoResultException e) {
+			//Ugly, but that's how it is in JPA
+		}
 
 		// Existiert noch kein Eintag?
 		if( valuen == null && newvalue != null) {
 			valuen = new UserValue(this, valueDesc.getName(), newvalue.toString());
-			context.getDB().persist(valuen);
+			context.getEM().persist(valuen);
 		}
 		else if( newvalue != null ) {
 			valuen.setValue(newvalue.toString());
 		}
 		else {
-			context.getDB().delete(valuen);
+			context.getEM().remove(valuen);
 		}
 	}
 

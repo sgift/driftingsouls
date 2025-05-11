@@ -86,11 +86,11 @@ public class AcademyTick extends TickController {
 					"where a.train=true and (a.base.owner.vaccount=0 or a.base.owner.wait4vac!=0)", Academy.class)
 					.getResultList();
 		}
+		
 		new EvictableUnitOfWork<Academy>("Academy Tick")
 		{
 			@Override
 			public void doWork(Academy acc) {
-
 				Base base = acc.getBase();
 
 				log("Akademie "+acc.getId()+":");
