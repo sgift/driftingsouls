@@ -229,6 +229,9 @@ public class SchiffsTick extends TickController {
 
 		ShipTypeData shiptd = shipd.getTypeData();
 
+		// Force initialization of the ship class
+		shiptd.getShipClass();
+
 		Cargo shipc = shipd.getCargo();
 
 		this.log("\tAlt: crew "+shipd.getCrew()+" e "+shipd.getEnergy() +" nc "+shipd.getNahrungCargo());
