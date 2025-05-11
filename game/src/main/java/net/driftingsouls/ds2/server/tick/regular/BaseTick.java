@@ -23,7 +23,6 @@ import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.services.BaseTickerService;
 import net.driftingsouls.ds2.server.tick.TickController;
@@ -70,16 +69,16 @@ public class BaseTick extends TickController
 				List<Base> bases;
 				if(isCampaignTick()){
 					List<StarSystem> systems = getEM().createQuery("from StarSystem s where s.id in (:systems)", StarSystem.class).getResultList();
-					bases = Common.cast(getEM().createQuery("from Base b fetch all properties where b.owner=:owner and b.system in (:systems)")
+					bases = getEM().createQuery("from Base b fetch all properties where b.owner=:owner and b.system in (:systems)", Base.class)
 							.setParameter("owner", user)
 							.setParameter("systems", systems)
-							.getResultList());
+							.getResultList();
 				}
 				else
 				{
-					bases = Common.cast(getEM().createQuery("from Base b fetch all properties where b.owner=:owner")
+					bases = getEM().createQuery("from Base b fetch all properties where b.owner=:owner", Base.class)
 							.setParameter("owner", user)
-							.getResultList());
+							.getResultList();
 				}
 
 				log(user+":");
@@ -93,9 +92,7 @@ public class BaseTick extends TickController
 				if(!messages.toString().isBlank())
 				{
 					User sourceUser = getEM().find(User.class, -1);
-                    User baseUser = getEM().find(User.class, user);
-
-					if(baseUser.getUserValue(WellKnownUserValue.GAMEPLAY_USER_BASE_DOWN_PM)) {
+					if(user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_BASE_DOWN_PM)) {
                         PM.send(sourceUser, user.getId(), "Basis-Tick", messages.toString());
                     }
 				}
