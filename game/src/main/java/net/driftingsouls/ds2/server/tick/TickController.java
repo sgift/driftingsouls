@@ -91,8 +91,6 @@ public abstract class TickController implements ApplicationContextAware
 				// EMPTY
 			}
 		}
-
-		em.close();
 	}
 
 	/**
