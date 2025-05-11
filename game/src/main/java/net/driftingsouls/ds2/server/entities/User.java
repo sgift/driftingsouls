@@ -1672,7 +1672,7 @@ public class User extends BasicUser {
 				.setParameter("user", this)
 				.setParameter("name", valueDesc.getName())
 				.setMaxResults(1)
-				.getSingleResult();
+				.getResultList().stream().findFirst().orElse(null);
 
 		return StringToTypeConverter.convert(valueDesc.getType(), value != null ? value.getValue() : valueDesc.getDefaultValue());
 	}
