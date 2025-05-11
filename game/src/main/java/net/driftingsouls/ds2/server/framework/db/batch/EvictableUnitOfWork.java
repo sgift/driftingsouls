@@ -41,8 +41,6 @@ public abstract class EvictableUnitOfWork<T> extends UnitOfWork<T>
 	public void onFlushed()
 	{
 		super.onFlushed();
-		
-		getEM().clear();
 	}
 	
 }

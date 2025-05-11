@@ -76,13 +76,13 @@ public class AcademyTick extends TickController {
 		List<Academy> accList;
 		if(isCampaignTick()) {
 
-			accList = db.createQuery("from Academy a " +
+			accList = db.createQuery("from Academy a left join fetch a.queue " +
 					"where a.train=true and (a.base.owner.vaccount=0 or a.base.owner.wait4vac!=0) and a.base.system in (:systeme)", Academy.class)
 					.setParameter("systeme", affectedSystems)
 					.getResultList();
 		}
 		else{
-			accList = db.createQuery("from Academy a " +
+			accList = db.createQuery("from Academy a left join fetch a.queue " +
 					"where a.train=true and (a.base.owner.vaccount=0 or a.base.owner.wait4vac!=0)", Academy.class)
 					.getResultList();
 		}
