@@ -73,8 +73,8 @@ public class ForschungsTick extends TickController {
 			@Override
 			public void doWork(Integer fzId)
 			{
-				org.hibernate.Session db = getDB();
-				Forschungszentrum fz = (Forschungszentrum)db.get(Forschungszentrum.class, fzId);
+				var db = getEM();
+				Forschungszentrum fz = db.find(Forschungszentrum.class, fzId);
 
 				if( fz.getDauer() > 1 )
 				{
@@ -103,7 +103,7 @@ public class ForschungsTick extends TickController {
 					log("\t"+user.getId()+" steht nicht laenger unter gcp-schutz");
 				}
 
-				final User sourceUser = (User)db.get(User.class, -1);
+				final User sourceUser = (User)db.find(User.class, -1);
                 if(base.getOwner().getUserValue(WellKnownUserValue.GAMEPLAY_USER_RESEARCH_PM)) {
                     PM.send(sourceUser, base.getOwner().getId(), "Forschung abgeschlossen", msg);
                 }

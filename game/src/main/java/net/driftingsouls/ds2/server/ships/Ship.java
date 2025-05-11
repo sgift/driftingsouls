@@ -46,12 +46,35 @@ import net.driftingsouls.ds2.server.werften.WerftObject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.annotations.*;
-
+// JPA imports
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
-import javax.persistence.*;
+import javax.persistence.Transient;
+import javax.persistence.Version;
+
+// Hibernate imports (to be replaced with JPA equivalents)
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Index;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+import org.hibernate.annotations.Type;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -62,14 +85,8 @@ import java.util.stream.Collectors;
  */
 @Entity
 @Table(name="ships")
-@BatchSize(size=50)
-@org.hibernate.annotations.Table(
-		appliesTo = "ships",
-		indexes = {
-				@Index(name="ship_coords", columnNames = {"star_system", "x", "y"}),
-				@Index(name="ship_owner", columnNames = {"owner", "id"})
-		}
-)
+// JPA 2.0 doesn't support @Index annotation, we'll need to create indexes in the database schema
+// JPA has no direct equivalent for @BatchSize, but we can use fetch strategies or entity graphs instead
 public class Ship implements Locatable,Transfering,Feeding {
 	private static final Log log = LogFactory.getLog(Ship.class);
 
@@ -116,7 +133,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	private int system;
 
 	@Column(nullable = false)
-	@Index(name = "ship_status")
+	// JPA 2.0 doesn't support @Index annotation, we'll need to create indexes in the database schema
 	private String status;
 
 	private int crew;
@@ -136,7 +153,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	private int sensors;
 
 	@Column(nullable = false)
-	@Index(name = "ship_docked")
+	// JPA 2.0 doesn't support @Index annotation, we'll need to create indexes in the database schema
 	private String docked;
 
 	@Enumerated(EnumType.ORDINAL)
@@ -867,10 +884,16 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 */
 	private void ensureWerftSanity()
 	{
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=:ship")
-				.setEntity("ship", this)
-				.uniqueResult();
+		EntityManager em = ContextMap.getContext().getEM();
+		ShipWerft werft = null;
+		try {
+			werft = em.createQuery("SELECT w FROM ShipWerft w WHERE w.ship = :ship", ShipWerft.class)
+					.setParameter("ship", this)
+					.getSingleResult();
+		}
+		catch (javax.persistence.NoResultException e) {
+			// No result found, werft remains null
+		}
 
 		if(werft != null) {
 			if (werft.getKomplex() != null) {
@@ -921,18 +944,23 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 */
 	private Ship getVersorger()
 	{
-		org.hibernate.Session db = ContextMap.getContext().getDB();
+		EntityManager em = ContextMap.getContext().getEM();
 
-		return (Ship)db.createQuery("select s from Ship as s left join s.modules m" +
-								" where (s.shiptype.versorger!=false or m.versorger!=false)" +
-								" and s.owner=:owner and s.system=:sys and s.x=:x and s.y=:y and s.nahrungcargo > 0 and s.einstellungen.isfeeding != false " +
-								"ORDER BY s.nahrungcargo DESC")
-								.setEntity("owner", this.owner)
-								.setInteger("sys", this.system)
-								.setInteger("x", this.x)
-								.setInteger("y", this.y)
+		try {
+			return em.createQuery("SELECT s FROM Ship s LEFT JOIN s.modules m" +
+								" WHERE (s.shiptype.versorger != false OR m.versorger != false)" +
+								" AND s.owner = :owner AND s.system = :sys AND s.x = :x AND s.y = :y AND s.nahrungcargo > 0 AND s.einstellungen.isfeeding != false " +
+								"ORDER BY s.nahrungcargo DESC", Ship.class)
+								.setParameter("owner", this.owner)
+								.setParameter("sys", this.system)
+								.setParameter("x", this.x)
+								.setParameter("y", this.y)
 								.setMaxResults(1)
-								.uniqueResult();
+								.getSingleResult();
+		}
+		catch (javax.persistence.NoResultException e) {
+			return null;
+		}
 	}
 
 	/**
@@ -964,37 +992,35 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 	private long getSectorTimeUntilLackOfFood()
 	{
-		Context context = ContextMap.getContext();
+		EntityManager em = ContextMap.getContext().getEM();
 
-		org.hibernate.Session db = context.getDB();
-
-		Object unitsnahrung = db.createQuery("select sum(e.amount*e.unittype.nahrungcost) from ShipUnitCargoEntry as e where e.schiff.system=:system and e.schiff.x=:x and e.schiff.y=:y and e.schiff.owner = :user")
-									.setInteger("system", this.system)
-									.setInteger("x", this.x)
-									.setInteger("y", this.y)
-									.setEntity("user", this.owner)
-									.iterate()
-									.next();
+		// Get unit food consumption
+		Double unitsnahrung = em.createQuery("SELECT SUM(e.amount * e.unittype.nahrungcost) FROM ShipUnitCargoEntry e WHERE e.schiff.system = :system AND e.schiff.x = :x AND e.schiff.y = :y AND e.schiff.owner = :user", Double.class)
+									.setParameter("system", this.system)
+									.setParameter("x", this.x)
+									.setParameter("y", this.y)
+									.setParameter("user", this.owner)
+									.getSingleResult();
 
 		// Die bloeden Abfragen muessen sein weil die Datenbank meint NULL anstatt 0 zurueckgeben zu muessen.
 		double unitstofeed = 0;
 		if(unitsnahrung != null)
 		{
-			unitstofeed = (Double)unitsnahrung;
+			unitstofeed = unitsnahrung;
 		}
 
-		Object crewnahrung = db.createQuery("select sum(crew) from Ship where system=:system and x=:x and y=:y and owner=:user")
-							.setInteger("system", this.system)
-							.setInteger("x", this.x)
-							.setInteger("y", this.y)
-							.setEntity("user", this.owner)
-							.iterate()
-							.next();
+		// Get crew food consumption
+		Long crewnahrung = em.createQuery("SELECT SUM(s.crew) FROM Ship s WHERE s.system = :system AND s.x = :x AND s.y = :y AND s.owner = :user", Long.class)
+							.setParameter("system", this.system)
+							.setParameter("x", this.x)
+							.setParameter("y", this.y)
+							.setParameter("user", this.owner)
+							.getSingleResult();
 
 		long crewtofeed = 0;
-		if( crewnahrung != null)
+		if(crewnahrung != null)
 		{
-			crewtofeed = (Long)crewnahrung;
+			crewtofeed = crewnahrung;
 		}
 
 		long nahrungtofeed = (long)Math.ceil(unitstofeed + crewtofeed/10.0);
@@ -1004,28 +1030,29 @@ public class Ship implements Locatable,Transfering,Feeding {
 			return Long.MAX_VALUE;
 		}
 
-		Object versorger = db.createQuery("select sum(s.nahrungcargo) from Ship as s left join s.modules m " +
-								" where (s.shiptype.versorger!=false or m.versorger!=false)" +
-								" and s.owner=:user and s.system=:system and s.x=:x and s.y=:y and s.einstellungen.isfeeding != false")
-						.setInteger("system", this.system)
-						.setInteger("x", this.x)
-						.setInteger("y", this.y)
-						.setEntity("user", this.owner)
-						.iterate()
-						.next();
+		// Get food from supply ships
+		Long versorger = em.createQuery("SELECT SUM(s.nahrungcargo) FROM Ship s LEFT JOIN s.modules m " +
+								" WHERE (s.shiptype.versorger != false OR m.versorger != false)" +
+								" AND s.owner = :user AND s.system = :system AND s.x = :x AND s.y = :y AND s.einstellungen.isfeeding != false", Long.class)
+						.setParameter("system", this.system)
+						.setParameter("x", this.x)
+						.setParameter("y", this.y)
+						.setParameter("user", this.owner)
+						.getSingleResult();
 
 		long versorgernahrung = 0;
-		if( versorger != null)
+		if(versorger != null)
 		{
-			versorgernahrung = (Long)versorger;
+			versorgernahrung = versorger;
 		}
 
-		List<Base> bases = Common.cast(db.createQuery("from Base where owner=:user and system=:system and x=:x and y=:y and isfeeding=true")
-						.setEntity("user", this.owner)
-						.setInteger("system", this.system)
-						.setInteger("x", this.x)
-						.setInteger("y", this.y)
-						.list());
+		// Get food from bases
+		List<Base> bases = em.createQuery("SELECT b FROM Base b WHERE b.owner = :user AND b.system = :system AND b.x = :x AND b.y = :y AND b.isfeeding = true", Base.class)
+						.setParameter("user", this.owner)
+						.setParameter("system", this.system)
+						.setParameter("x", this.x)
+						.setParameter("y", this.y)
+						.getResultList();
 
 		int basenahrung = 0;
 		for(Base base : bases)
@@ -1042,16 +1069,16 @@ public class Ship implements Locatable,Transfering,Feeding {
 	}
 
 	private boolean isBaseInSector() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
+		EntityManager em = ContextMap.getContext().getEM();
 
-		List<?> bases = db.createQuery("from Base where owner=:owner and system=:sys and x=:x and y=:y")
-							.setEntity("owner", this.owner)
-							.setInteger("sys", this.system)
-							.setInteger("x", this.x)
-							.setInteger("y", this.y)
-							.list();
+		List<Base> bases = em.createQuery("SELECT b FROM Base b WHERE b.owner = :owner AND b.system = :sys AND b.x = :x AND b.y = :y", Base.class)
+							.setParameter("owner", this.owner)
+							.setParameter("sys", this.system)
+							.setParameter("x", this.x)
+							.setParameter("y", this.y)
+							.getResultList();
 
-		return bases.size() > 0;
+		return !bases.isEmpty();
 	}
 
 	private long timeUntilLackOfFood() {
@@ -1093,8 +1120,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 	public int getFoodConsumption() {
 		Context context = ContextMap.getContext();
 
-		org.hibernate.Session db = context.getDB();
-		StarSystem starsystem = (StarSystem) db.get(StarSystem.class, this.getSystem());
+		EntityManager em = context.getEM();
+		StarSystem starsystem = em.find(StarSystem.class, this.getSystem());
 		if(this.getOwner().hasFlag(UserFlag.NO_FOOD_CONSUMPTION) || this.isLanded() || this.isDocked() || starsystem.getAccess() == StarSystem.Access.HOMESYSTEM)
 		{
 			return 0;
@@ -1223,7 +1250,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		StringBuilder output = MESSAGE.get();
 
-		org.hibernate.Session db = ContextMap.getContext().getDB();
+		EntityManager em = ContextMap.getContext().getEM();
 
 		int jdockcount = (int)this.getLandedCount();
 		if( jdockcount > shiptype.getJDocks() ) {
@@ -1264,17 +1291,24 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 		if( shiptype.getWerft() == 0 ) {
-			db.createQuery("delete from ShipWerft where ship=:ship")
-					.setEntity("ship", this)
+			em.createQuery("DELETE FROM ShipWerft w WHERE w.ship = :ship")
+					.setParameter("ship", this)
 					.executeUpdate();
 		}
 		else {
-			ShipWerft w = (ShipWerft)db.createQuery("from ShipWerft where ship=:ship")
-					.setEntity("ship", this)
-					.uniqueResult();
+			ShipWerft w = null;
+			try {
+				w = em.createQuery("SELECT w FROM ShipWerft w WHERE w.ship = :ship", ShipWerft.class)
+						.setParameter("ship", this)
+						.getSingleResult();
+			}
+			catch (javax.persistence.NoResultException e) {
+				// No result found, w remains null
+			}
+
 			if( w == null ) {
 				w = new ShipWerft(this);
-				db.persist(w);
+				em.persist(w);
 			}
 		}
 
@@ -1297,12 +1331,12 @@ public class Ship implements Locatable,Transfering,Feeding {
 			throw new UnsupportedOperationException("addModules kann nur bei Schiffen mit positiver ID ausgefuhert werden!");
 		}
 
-		org.hibernate.Session db = ContextMap.getContext().getDB();
+		EntityManager em = ContextMap.getContext().getEM();
 
 		ShipModules shipModules = this.modules;
 		if( shipModules == null ) {
 			shipModules = new ShipModules(this);
-			db.persist(shipModules);
+			em.persist(shipModules);
 
 			this.modules = shipModules;
 		}
@@ -1407,7 +1441,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			throw new UnsupportedOperationException("addModules kann nur bei Schiffen mit positiver ID ausgefuhert werden!");
 		}
 
-		org.hibernate.Session db = ContextMap.getContext().getDB();
+		EntityManager em = ContextMap.getContext().getEM();
 
 		if( this.modules == null ) {
 			return;
@@ -1464,7 +1498,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 			writeTypeToShipModule(shipModules, type);
 		}
 		else {
-			db.delete(shipModules);
+			em.remove(shipModules);
 
 			this.modules = null;
 		}
@@ -1597,20 +1631,19 @@ public class Ship implements Locatable,Transfering,Feeding {
 			return results;
 		}
 
-		org.hibernate.Session db = ContextMap.getContext().getDB();
+		EntityManager em = ContextMap.getContext().getEM();
 
-
-		List<Ship> ships = Common.cast(db.createQuery("from Ship s inner join fetch s.owner " +
-				"where s.e > 0 and s.alarm!=:green and s.docked='' and " +
-				"	s.crew!=0 and s.system=:system and s.owner!=:owner and " +
-				"   (s.owner.vaccount=0 or s.owner.wait4vac>0) and " +
-				"	s.x in (:xSektoren) and s.y in (:ySektoren)")
+		List<Ship> ships = em.createQuery("SELECT s FROM Ship s JOIN FETCH s.owner " +
+				"WHERE s.e > 0 AND s.alarm != :green AND s.docked = '' AND " +
+				"s.crew != 0 AND s.system = :system AND s.owner != :owner AND " +
+				"(s.owner.vaccount = 0 OR s.owner.wait4vac > 0) AND " +
+				"s.x IN (:xSektoren) AND s.y IN (:ySektoren)", Ship.class)
 			.setParameter("green", Alarmstufe.GREEN)
 			.setParameter("system", locs[0].getSystem())
 			.setParameter("owner", user)
-			.setParameterList("xSektoren", xSektoren)
-			.setParameterList("ySektoren", ySektoren)
-			.list());
+			.setParameter("xSektoren", xSektoren)
+			.setParameter("ySektoren", ySektoren)
+			.getResultList();
 
 		User.Relations relationlist = user.getRelations();
 		for(Ship ship: ships)
@@ -1689,7 +1722,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
+		EntityManager em = context.getEM();
 		StringBuilder outputbuffer = MESSAGE.get();
 
 		dockships = Arrays.stream(dockships)
@@ -1711,11 +1744,10 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 		//Check for type fighter
-		List<Ship> ships = Common.cast(
-			db.createQuery("from Ship s where locate(:fighter, shiptype.flags) > -1 and s in (:dockships)")
-				.setParameterList("dockships", dockships)
+		List<Ship> ships = em.createQuery("SELECT s FROM Ship s WHERE locate(:fighter, s.shiptype.flags) > -1 AND s IN (:dockships)", Ship.class)
+				.setParameter("dockships", Arrays.asList(dockships))
 				.setParameter("fighter", ShipTypeFlag.JAEGER.getFlag())
-				.list());
+				.getResultList();
 
 		if(ships.size() < dockships.length)
 		{
@@ -1745,8 +1777,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 			return errors;
 		}
 
-		db.createQuery("update Ship s set docked=:docked where s in (:dockships) and battle is null")
-			.setParameterList("dockships", dockships)
+		em.createQuery("UPDATE Ship s SET s.docked = :docked WHERE s IN (:dockships) AND s.battle IS NULL")
+			.setParameter("dockships", Arrays.asList(dockships))
 			.setParameter("docked", "l "+this.getId())
 			.executeUpdate();
 
@@ -1770,10 +1802,10 @@ public class Ship implements Locatable,Transfering,Feeding {
 	public void start(Ship... dockships)
 	{
 		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
+		EntityManager em = context.getEM();
 		if(dockships == null || dockships.length == 0)
 		{
-			db.createQuery("update Ship set docked='', system=:system, x=:x, y=:y where docked=:docked")
+			em.createQuery("UPDATE Ship s SET s.docked = '', s.system = :system, s.x = :x, s.y = :y WHERE s.docked = :docked")
 			  .setParameter("system", system)
 			  .setParameter("x", x)
 			  .setParameter("y", y)
@@ -1782,8 +1814,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 		else
 		{
-			db.createQuery("update Ship s set docked='', system=:system, x=:x, y=:y where docked=:docked and s in (:dockships)")
-				.setParameterList("dockships", dockships)
+			em.createQuery("UPDATE Ship s SET s.docked = '', s.system = :system, s.x = :x, s.y = :y WHERE s.docked = :docked AND s IN (:dockships)")
+				.setParameter("dockships", Arrays.asList(dockships))
 				.setParameter("system", system)
 				.setParameter("x", x)
 				.setParameter("y", y)
@@ -1878,10 +1910,10 @@ public class Ship implements Locatable,Transfering,Feeding {
 		{
 			return new ArrayList<>();
 		}
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		return Common.cast(db.createQuery("from Ship where id>0 and docked= :docked")
-			.setString("docked", Integer.toString(this.id))
-			.list());
+		EntityManager em = ContextMap.getContext().getEM();
+		return em.createQuery("SELECT s FROM Ship s WHERE s.id > 0 AND s.docked = :docked", Ship.class)
+			.setParameter("docked", Integer.toString(this.id))
+			.getResultList();
 	}
 
 	/**
@@ -1894,10 +1926,10 @@ public class Ship implements Locatable,Transfering,Feeding {
 		{
 			return new ArrayList<>();
 		}
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		return Common.cast(db.createQuery("from Ship where id>0 and docked= :docked")
-				.setString("docked", "l " + this.id)
-				.list());
+		EntityManager em = ContextMap.getContext().getEM();
+		return em.createQuery("SELECT s FROM Ship s WHERE s.id > 0 AND s.docked = :docked", Ship.class)
+				.setParameter("docked", "l " + this.id)
+				.getResultList();
 	}
 
 	/**
@@ -1909,11 +1941,11 @@ public class Ship implements Locatable,Transfering,Feeding {
 			return new ArrayList<>();
 		}
 
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		return Common.cast(db.createQuery("from Ship where id>0 and docked in (:docked,:landed)")
-				.setString("docked", Integer.toString(this.id))
-				.setString("landed", "l "+this.id)
-				.list());
+		EntityManager em = ContextMap.getContext().getEM();
+		return em.createQuery("SELECT s FROM Ship s WHERE s.id > 0 AND s.docked IN (:docked, :landed)", Ship.class)
+				.setParameter("docked", Integer.toString(this.id))
+				.setParameter("landed", "l "+this.id)
+				.getResultList();
 	}
 
 	/**
@@ -1931,7 +1963,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		boolean superdock = owner.hasFlag(UserFlag.SUPER_DOCK);
 		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
+		EntityManager em = context.getEM();
 		StringBuilder outputbuffer = MESSAGE.get();
 
 		Ship[] help = performLandingChecks(superdock, dockships);
@@ -1951,11 +1983,10 @@ public class Ship implements Locatable,Transfering,Feeding {
 		if(!superdock)
 		{
 			//Check for size
-			List<Ship> ships = Common.cast(
-				db.createQuery("from Ship s where shiptype.size <= :maxsize and s in (:dockships)")
-					.setParameterList("dockships", dockships)
+			List<Ship> ships = em.createQuery("SELECT s FROM Ship s WHERE s.shiptype.size <= :maxsize AND s IN (:dockships)", Ship.class)
+					.setParameter("dockships", Arrays.asList(dockships))
 					.setParameter("maxsize", ShipType.SMALL_SHIP_MAXSIZE)
-					.list());
+					.getResultList();
 
 			if(ships.size() < dockships.length)
 			{
@@ -2030,16 +2061,15 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
+		EntityManager em = context.getEM();
 
 		//Enforce position
-		List<Ship> ships = Common.cast(
-			db.createQuery("from Ship s where system=:system and x=:x and y=:y and s in (:dockships)")
-				.setParameterList("dockships", dockships)
+		List<Ship> ships = em.createQuery("SELECT s FROM Ship s WHERE s.system = :system AND s.x = :x AND s.y = :y AND s IN (:dockships)", Ship.class)
+				.setParameter("dockships", Arrays.asList(dockships))
 				.setParameter("system", system)
 				.setParameter("x", x)
 				.setParameter("y", y)
-				.list());
+				.getResultList();
 
 		if(ships.size() < dockships.length)
 		{
@@ -2053,10 +2083,9 @@ public class Ship implements Locatable,Transfering,Feeding {
 		}
 
 		//Check already docked
-		ships = Common.cast(
-			db.createQuery("from Ship s where docked='' and s in (:dockships)")
-				.setParameterList("dockships", dockships)
-				.list());
+		ships = em.createQuery("SELECT s FROM Ship s WHERE s.docked = '' AND s IN (:dockships)", Ship.class)
+				.setParameter("dockships", Arrays.asList(dockships))
+				.getResultList();
 
 		if(ships.size() < dockships.length)
 		{
@@ -2072,11 +2101,10 @@ public class Ship implements Locatable,Transfering,Feeding {
 		//Enforce owner
 		if(!superdock)
 		{
-			ships = Common.cast(
-				db.createQuery("from Ship s where owner=:owner and s in (:dockships)")
-					.setParameterList("dockships", dockships)
+			ships = em.createQuery("SELECT s FROM Ship s WHERE s.owner = :owner AND s IN (:dockships)", Ship.class)
+					.setParameter("dockships", Arrays.asList(dockships))
 					.setParameter("owner", owner)
-					.list());
+					.getResultList();
 
 			if(ships.size() < dockships.length)
 			{
@@ -2142,13 +2170,13 @@ public class Ship implements Locatable,Transfering,Feeding {
 		try {
 			// Checken wir mal, ob die Flotte danach noch bestehen darf....
 			if (this.fleet != null) {
-				long fleetcount = db.createQuery("select count(*) from Ship where fleet=:fleet")
+				long fleetcount = db.createQuery("SELECT COUNT(s) FROM Ship s WHERE s.fleet = :fleet", Long.class)
 						.setParameter("fleet", fleet)
-						.getFirstResult();
+						.getSingleResult();
 				if (fleetcount <= 2) {
 					final ShipFleet currentFleet = this.fleet;
 
-					var shipList = db.createQuery("from Ship where fleet=:fleet", Ship.class)
+					var shipList = db.createQuery("SELECT s FROM Ship s WHERE s.fleet = :fleet", Ship.class)
 							.setParameter("fleet", this.fleet)
 							.getResultList();
 					shipList.forEach(ship -> ship.setFleet(null));
@@ -2247,7 +2275,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * @return <code>true</code>, falls ein Fehler bei der Uebergabe aufgetaucht ist (Uebergabe nicht erfolgreich)
 	 */
 	public boolean consign( User newowner, boolean testonly ) {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
+		EntityManager em = ContextMap.getContext().getEM();
 
 		if( this.id < 0 ) {
 			throw new UnsupportedOperationException("consign kann nur bei Schiffen mit positiver ID ausgefuhert werden!");
@@ -2300,9 +2328,15 @@ public class Ship implements Locatable,Transfering,Feeding {
 			}
 
 			if( getTypeData().getWerft() != 0 ) {
-				ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=:shipid")
-					.setEntity("shipid", this)
-					.uniqueResult();
+				ShipWerft werft = null;
+				try {
+					werft = em.createQuery("SELECT w FROM ShipWerft w WHERE w.ship = :shipid", ShipWerft.class)
+						.setParameter("shipid", this)
+						.getSingleResult();
+				}
+				catch (javax.persistence.NoResultException e) {
+					// No result found, werft remains null
+				}
 
 				if(werft != null)
 				{
@@ -2385,8 +2419,8 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 * @return die Typen-Daten
 	 */
 	public static ShipTypeData getShipType( int shiptype ) {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		return (ShipType)db.get(ShipType.class, shiptype);
+		EntityManager em = ContextMap.getContext().getEM();
+		return em.find(ShipType.class, shiptype);
 	}
 
 	/**
@@ -2399,9 +2433,9 @@ public class Ship implements Locatable,Transfering,Feeding {
 			return null;
 		}
 
-		org.hibernate.Session db = ContextMap.getContext().getDB();
+		EntityManager em = ContextMap.getContext().getEM();
 
-		return (Ship)db.get(Ship.class, baseShipId);
+		return em.find(Ship.class, baseShipId);
 	}
 
 	private int getBaseShipId() {
@@ -2463,11 +2497,11 @@ public class Ship implements Locatable,Transfering,Feeding {
 		if( getTypeData().getADocks() == 0 ) {
 			return 0;
 		}
-		org.hibernate.Session db = ContextMap.getContext().getDB();
+		EntityManager em = ContextMap.getContext().getEM();
 
-		return (Long)db.createQuery("select count(*) from Ship where id>0 AND docked=:docked")
-			.setString("docked", Integer.toString(this.id))
-			.iterate().next();
+		return em.createQuery("SELECT COUNT(s) FROM Ship s WHERE s.id > 0 AND s.docked = :docked", Long.class)
+			.setParameter("docked", Integer.toString(this.id))
+			.getSingleResult();
 	}
 
 	/**
@@ -2478,11 +2512,11 @@ public class Ship implements Locatable,Transfering,Feeding {
 		if( getTypeData().getJDocks() == 0 ) {
 			return 0;
 		}
-		org.hibernate.Session db = ContextMap.getContext().getDB();
+		EntityManager em = ContextMap.getContext().getEM();
 
-		return (Long)db.createQuery("select count(*) from Ship where id>0 AND docked=:landed")
-			.setString("landed", "l "+this.id)
-			.iterate().next();
+		return em.createQuery("SELECT COUNT(s) FROM Ship s WHERE s.id > 0 AND s.docked = :landed", Long.class)
+			.setParameter("landed", "l "+this.id)
+			.getSingleResult();
 	}
 
 	/**
@@ -2493,12 +2527,12 @@ public class Ship implements Locatable,Transfering,Feeding {
 		if( getTypeData().getJDocks() == 0 && getTypeData().getADocks() == 0 ) {
 			return 0;
 		}
-		org.hibernate.Session db = ContextMap.getContext().getDB();
+		EntityManager em = ContextMap.getContext().getEM();
 
-		return (Long)db.createQuery("select count(*) from Ship where id>0 AND docked in (:landed,:docked)")
-				.setString("landed", "l " + this.id)
-				.setString("docked", Integer.toString(this.id))
-				.iterate().next();
+		return em.createQuery("SELECT COUNT(s) FROM Ship s WHERE s.id > 0 AND s.docked IN (:landed, :docked)", Long.class)
+				.setParameter("landed", "l " + this.id)
+				.setParameter("docked", Integer.toString(this.id))
+				.getSingleResult();
 	}
 
 	/**
@@ -2733,8 +2767,8 @@ public class Ship implements Locatable,Transfering,Feeding {
         {
             ShipFlag shipFlag = new ShipFlag(flag, this, remaining);
 
-            org.hibernate.Session db = ContextMap.getContext().getDB();
-            db.persist(shipFlag);
+            EntityManager em = ContextMap.getContext().getEM();
+            em.persist(shipFlag);
 
             flags.add(shipFlag);
         }
@@ -2754,8 +2788,8 @@ public class Ship implements Locatable,Transfering,Feeding {
         {
             flags.remove(shipFlag);
 
-            org.hibernate.Session db = ContextMap.getContext().getDB();
-            db.delete(shipFlag);
+            EntityManager em = ContextMap.getContext().getEM();
+            em.remove(shipFlag);
         }
     }
 
@@ -2888,7 +2922,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 	public static Ship getShipById(int id){
 		try{
-			return (Ship) ContextMap.getContext().getDB().get(Ship.class, id);
+			return ContextMap.getContext().getEM().find(Ship.class, id);
 		}catch(Exception e)
 		{
 			return null;

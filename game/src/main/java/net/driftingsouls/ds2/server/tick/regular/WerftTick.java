@@ -23,19 +23,15 @@ import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
+import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tick.TickController;
-import net.driftingsouls.ds2.server.werften.BaseWerft;
-import net.driftingsouls.ds2.server.werften.ShipWerft;
-import net.driftingsouls.ds2.server.werften.WerftKomplex;
-import net.driftingsouls.ds2.server.werften.WerftObject;
-import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
-import org.hibernate.FlushMode;
+import net.driftingsouls.ds2.server.werften.*;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.FlushModeType;
 import java.util.List;
 
 /**
@@ -58,18 +54,18 @@ public class WerftTick extends TickController
 	@SuppressWarnings("unchecked")
 	protected void tick()
 	{
-		org.hibernate.Session db = getDB();
-		db.setFlushMode(FlushMode.MANUAL);
-		final User sourceUser = (User) db.get(User.class, -1);
+		javax.persistence.EntityManager em = getEM();
+		em.setFlushMode(FlushModeType.COMMIT);
+		final User sourceUser = em.find(User.class, -1);
 
-		List<Integer> werften = db.createQuery("select w.id from WerftObject w where size(w.queue)>0")
-								.list();
+		List<Integer> werften = em.createQuery("select w.id from WerftObject w where size(w.queue)>0")
+								.getResultList();
 		new EvictableUnitOfWork<Integer>("Werft Tick")
 		{
 			@Override
 			public void doWork(Integer werftId) {
-				org.hibernate.Session db = getDB();
-				WerftObject werft = (WerftObject) db.get(WerftObject.class, werftId);
+				javax.persistence.EntityManager em = getEM();
+				WerftObject werft = em.find(WerftObject.class, werftId);
 
 				//Kampagnentick und die Werft steht nicht in einem der ausgewaehlten Systeme
 				if(isCampaignTick() && !affectedSystems.contains(werft.getSystem())){
@@ -86,7 +82,7 @@ public class WerftTick extends TickController
 	{
 		try
 		{
-			org.hibernate.Session db = getDB();
+			javax.persistence.EntityManager em = getEM();
 
 			if ((werft instanceof ShipWerft) && (((ShipWerft) werft).getShipID() < 0))
 			{
@@ -123,7 +119,7 @@ public class WerftTick extends TickController
 
 				if (entry.getRequiredItem() > -1)
 				{
-					Item item = (Item) db.get(Item.class, entry.getRequiredItem());
+					Item item = em.find(Item.class, entry.getRequiredItem());
 					this.log("\tItem benoetigt: " + item.getName() + " (" + entry.getRequiredItem() + ")");
 				}
 

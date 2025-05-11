@@ -29,11 +29,8 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import javax.persistence.EntityManager;
+import java.io.*;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -56,7 +53,7 @@ public abstract class TickController implements ApplicationContextAware
 	private final long exectime;
 
 	private final Map<String,Writer> logTargets;
-	private final Session db;
+	private final EntityManager em;
 	private Context context;
 
 	protected Set<Integer> affectedSystems = new HashSet<>();
@@ -71,14 +68,14 @@ public abstract class TickController implements ApplicationContextAware
 	{
 		logTargets = new HashMap<>();
 		exectime = System.currentTimeMillis();
-		db = HibernateUtil.getSessionFactory().openSession();
+		em = HibernateUtil.getCurrentEntityManager();
 	}
 
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException
 	{
 		Context context = ContextMap.getContext();
-		this.context = new TickContext(db, context.getRequest(), context.getResponse(), applicationContext);
+		this.context = new TickContext(em, context.getRequest(), context.getResponse(), applicationContext);
 	}
 
 	/**
@@ -95,7 +92,7 @@ public abstract class TickController implements ApplicationContextAware
 			}
 		}
 
-		db.close();
+		em.close();
 	}
 
 	/**
@@ -232,7 +229,16 @@ public abstract class TickController implements ApplicationContextAware
 	 */
 	public Session getDB()
 	{
-		return db;
+		return (Session) em.getDelegate();
+	}
+	
+	/**
+	 * Gibt den EntityManager des Kontexts zurueck.
+	 * @return der EntityManager
+	 */
+	public EntityManager getEM()
+	{
+		return em;
 	}
 
 	/**

@@ -88,8 +88,8 @@ public class AcademyTick extends TickController {
 		{
 			@Override
 			public void doWork(Integer accId) {
-				org.hibernate.Session db = getDB();
-				Academy acc = (Academy)db.get(Academy.class, accId);
+				var db = getEM();
+				Academy acc = db.find(Academy.class, accId);
 
 				Base base = acc.getBase();
 
@@ -137,7 +137,7 @@ public class AcademyTick extends TickController {
 					{
 						acc.rescheduleQueue();
 						// Nachricht versenden
-						final User sourceUser = (User)db.get(User.class, -1);
+						final User sourceUser = db.find(User.class, -1);
                         User accUser = base.getOwner();
                         if(accUser.getUserValue(WellKnownUserValue.GAMEPLAY_USER_OFFICER_BUILD_PM)) {
                             PM.send(sourceUser, base.getOwner().getId(), "Ausbildung abgeschlossen", msg.toString());
@@ -164,13 +164,13 @@ public class AcademyTick extends TickController {
 		new SingleUnitOfWork("Academy Tick - Offiziere befoerdern") {
 			@Override
 			public void doWork() {
-				org.hibernate.Session db = getDB();
+				var db = getEM();
 				int count = 0;
 				for( int i = Offiziere.MAX_RANG; i > 0; i-- ) {
 					count += db.createQuery("update Offizier " +
 							"set rang= :rang " +
 					"where rang < :rang and (ing+waf+nav+sec+com)/125 >= :rang")
-					.setInteger("rang", i)
+					.setParameter("rang", i)
 					.executeUpdate();
 				}
 				log(count+" Offizier(e) befoerdert");

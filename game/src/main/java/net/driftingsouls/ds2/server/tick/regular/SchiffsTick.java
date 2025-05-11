@@ -23,17 +23,16 @@ import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
-import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceID;
-import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Faction;
+import net.driftingsouls.ds2.server.config.StarSystem;
+import net.driftingsouls.ds2.server.config.StarSystem.Access;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.*;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.batch.EvictableUnitOfWork;
 import net.driftingsouls.ds2.server.framework.db.batch.UnitOfWork;
 import net.driftingsouls.ds2.server.ships.*;
@@ -41,16 +40,12 @@ import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.units.TransientUnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo.Crew;
-import net.driftingsouls.ds2.server.config.StarSystem;
-import net.driftingsouls.ds2.server.config.StarSystem.Access;
 import org.hibernate.CacheMode;
-import org.hibernate.FetchMode;
-import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
 import java.math.BigInteger;
 import java.util.*;
 
@@ -134,7 +129,7 @@ public class SchiffsTick extends TickController {
 		return crewToFeed;
 	}
 
-	private Map<Location,List<Ship>> getLocationVersorgerList(org.hibernate.Session db,List<Ship> ships, User user)
+	private Map<Location,List<Ship>> getLocationVersorgerList(EntityManager db,List<Ship> ships, User user)
 	{
 		Comparator<Ship> comparator = new ShipNahrungsCargoComparator();
 
@@ -172,15 +167,15 @@ public class SchiffsTick extends TickController {
 		if(user.getAlly() != null)
 		{
 			this.log("Berechne Allianzversorger");
-			List<Ship> allyShips = Common.cast(db.createQuery("select s from Ship as s left join s.modules m " +
+			List<Ship> allyShips = db.createQuery("select s from Ship as s left join s.modules m " +
 					" where s.id>0 and s.owner!=:owner and s.owner.ally=:ally and (s.owner.vaccount=0 or" +
 					" s.owner.wait4vac!=0) and s.system!=0 and" +
 					" (s.shiptype.versorger=true or m.versorger=true) and" +
 					" s.einstellungen.isfeeding=true and s.einstellungen.isallyfeeding=true and s.nahrungcargo>0" +
-					" order by s.nahrungcargo DESC")
-					.setEntity("owner", user)
-					.setEntity("ally", user.getAlly())
-					.list());
+					" order by s.nahrungcargo DESC", Ship.class)
+					.setParameter("owner", user)
+					.setParameter("ally", user.getAlly())
+					.getResultList();
 			this.log(allyShips.size()+" Schiffe gefunden");
 			for( Ship ship : allyShips)
 			{
@@ -230,7 +225,7 @@ public class SchiffsTick extends TickController {
 		return ship;
 	}
 
-	private void tickShip(org.hibernate.Session db, Ship shipd, Map<Location, List<Base>> feedingBases, SchiffsReKosten schiffsReKosten)
+	private void tickShip(EntityManager db, Ship shipd, Map<Location, List<Base>> feedingBases, SchiffsReKosten schiffsReKosten)
 	{
 		this.log(shipd.getName()+" ("+shipd.getId()+"):");
 
@@ -251,7 +246,7 @@ public class SchiffsTick extends TickController {
 		//poduziere Items
 		produziereItems(shipd, shiptd, shipc);
 
-		StarSystem system = (StarSystem)db.get(StarSystem.class, shipd.getSystem());
+		StarSystem system = db.find(StarSystem.class, shipd.getSystem());
 		//Verbrauch und Verfall im HOMESYSTEM abgeschaltet
 
 
@@ -286,7 +281,7 @@ public class SchiffsTick extends TickController {
 		// Schiff bei Bedarf und falls moeglich reparieren
 		repairShip(shipd, shiptd, sub);
 
-		db.evict(Offizier.class);
+		db.clear();
 
 		// Evt. Deuterium sammeln
 		e = sammelDeuterium(shipd, shiptd, shipc, e);
@@ -412,20 +407,20 @@ public class SchiffsTick extends TickController {
 		return e;
 	}
 
-	private int abbauenFelsbrocken(Ship shipd, ShipTypeData shiptd, Cargo shipc, int e, org.hibernate.Session db)
+	private int abbauenFelsbrocken(Ship shipd, ShipTypeData shiptd, Cargo shipc, int e, EntityManager db)
 	{
 		if(shipd.getBattle() == null && shipd.getEinstellungen().getAutoMine() && e > 0 && shipd.getTypeData().getShipClass() == ShipClasses.MINER)
 		{
 			this.slog("\tS. Mine\n");
 
-			List<Ship> felsbrockenlist =  Common.cast(db.createQuery("from Ship " +
+			List<Ship> felsbrockenlist =  db.createQuery("from Ship " +
 					"where owner=:owner and x=:x and y=:y and " +
-					"system=:system and battle is null)")
-					.setInteger("owner", -1)
-					.setInteger("x", shipd.getX())
-					.setInteger("y", shipd.getY())
-					.setInteger("system", shipd.getSystem())
-					.list());
+					"system=:system and battle is null", Ship.class)
+					.setParameter("owner", -1)
+					.setParameter("x", shipd.getX())
+					.setParameter("y", shipd.getY())
+					.setParameter("system", shipd.getSystem())
+					.getResultList();
 
 			int tmpe = e;
 			for (Ship aShip : felsbrockenlist) {
@@ -708,7 +703,7 @@ public class SchiffsTick extends TickController {
 		return true;
 	}
 
-	private void berechneSoldUndWartung(Session db, Ship shipd, ShipTypeData shiptd, SchiffsReKosten schiffsReKosten)
+	private void berechneSoldUndWartung(EntityManager db, Ship shipd, ShipTypeData shiptd, SchiffsReKosten schiffsReKosten)
 	{
 		if(!new ConfigService().getValue(WellKnownConfigValue.REQUIRE_SHIP_COSTS)) {
 			return;
@@ -736,7 +731,7 @@ public class SchiffsTick extends TickController {
 				this.log("\tKonto nicht gedeckt; Besatzung meutert.");
 
 				// Sammel alle Daten zusammmen
-				User pirate = (User)db.get(User.class, Faction.PIRATE);
+				User pirate = (User)db.find(User.class, Faction.PIRATE);
 				UnitCargo unitcargo = shipd.getUnits();
 				UnitCargo meuterer = unitcargo.getMeuterer(schiffsReKosten.berechneVerbleibendeReOhneSold(shipd, owner));
 				Crew dcrew = new UnitCargo.Crew(shipd.getCrew());
@@ -760,7 +755,7 @@ public class SchiffsTick extends TickController {
 			}
 			else
 			{
-				User pirate = (User)db.get(User.class, Faction.PIRATE);
+				User pirate = (User)db.find(User.class, Faction.PIRATE);
 				shipd.consign(pirate, false);
 
 				this.log("\tKonto nicht gedeckt; Schiff desertiert.");
@@ -830,7 +825,7 @@ public class SchiffsTick extends TickController {
 		}
 	}
 
-	protected void tickUser(org.hibernate.Session db, User auser)
+	protected void tickUser(EntityManager db, User auser)
 	{
 		Map<Location, List<Base>> feedingBases = new HashMap<>();
 
@@ -881,7 +876,7 @@ public class SchiffsTick extends TickController {
 			}
 		}
 
-		User nobody = (User)db.get(User.class, -1);
+		User nobody = (User)db.find(User.class, -1);
 		BigInteger gesamtkosten = schiffsReKosten.getGesamtkosten();
 		if(auser.getKonto().compareTo(gesamtkosten.multiply(BigInteger.valueOf(8))) < 0)
 		{
@@ -956,9 +951,9 @@ public class SchiffsTick extends TickController {
 		{
 			@Override
 			public void doWork(Integer shipId) {
-				org.hibernate.Session db = getDB();
+				var db = getEM();
 
-				Ship ship = (Ship)db.get(Ship.class, shipId);
+				Ship ship = db.find(Ship.class, shipId);
 
 				log("* "+ship.getId());
 				Nebel.Typ.DAMAGE.damageShip(ship, new ConfigService());
@@ -989,9 +984,9 @@ public class SchiffsTick extends TickController {
 		new EvictableUnitOfWork<Integer>("SchiffsTick - destroy-status") {
 			@Override
 			public void doWork(Integer shipId) {
-				org.hibernate.Session db = getDB();
+				var db = getContext().getEM();
 
-				Ship aship = (Ship)db.get(Ship.class, shipId);
+				Ship aship = db.find(Ship.class, shipId);
 				log("\tEntferne "+aship.getId());
 				aship.destroy();
 			}
@@ -1012,20 +1007,18 @@ public class SchiffsTick extends TickController {
 		{
 			@Override
 			public void doWork(Integer userId) {
-				org.hibernate.Session db = getDB();
+				var db = getEM();
 
 				log("###### User "+userId+" ######");
 
-				User auser = (User)db.createCriteria(User.class)
-					.add(Restrictions.idEq(userId))
-					.setFetchMode("researches", FetchMode.JOIN)
-					.setFetchMode("bases", FetchMode.JOIN)
-					.setFetchMode("bases.units", FetchMode.SELECT)
-					.setFetchMode("ships", FetchMode.SELECT)
-					.setFetchMode("ships.units", FetchMode.SELECT)
-					.setFetchMode("ships.modules", FetchMode.JOIN)
-					.setFetchMode("ships.einstellungen", FetchMode.JOIN)
-					.uniqueResult();
+				User auser = db.createQuery("SELECT DISTINCT u FROM User u " +
+								"LEFT JOIN FETCH u.bases b " +
+								"LEFT JOIN FETCH u.ships s " +
+								"LEFT JOIN FETCH s.modules " +
+								"LEFT JOIN FETCH s.einstellungen " +
+								"WHERE u.id = :userId", User.class)
+						.setParameter("userId", userId)
+						.getSingleResult();
 
 				tickUser(db, auser);
 			}
@@ -1052,12 +1045,12 @@ public class SchiffsTick extends TickController {
 		{
 			@Override
 			public void doWork(ShipFlag flag) {
-				org.hibernate.Session db = getDB();
+				var db = getEM();
 
 				flag.setRemaining(flag.getRemaining()-1);
 				if( flag.getRemaining() <= 0 )
 				{
-					db.delete(flag);
+					db.remove(flag);
 				}
 			}
 		}

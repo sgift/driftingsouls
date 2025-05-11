@@ -343,8 +343,8 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 		{
 			@Override
 			public void doWork(Integer baseId) {
-				Session db = getDB();
-				Base base = (Base) db.get(Base.class, baseId);
+				var db = getEM();
+				Base base = (Base) db.find(Base.class, baseId);
 				Integer[] bebauung = base.getBebauung();
 				for (int i = 0; i < bebauung.length; i++)
 				{
@@ -358,9 +358,9 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 					bebauung[i] = 0;
 				}
 
-				Offizier.getOffiziereByDest(base).forEach(db::delete);
+				Offizier.getOffiziereByDest(base).forEach(db::remove);
 
-				db.delete(base);
+				db.remove(base);
 			}
 		}.setFlushSize(1);
 

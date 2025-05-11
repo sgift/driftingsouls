@@ -69,8 +69,8 @@ public class BattleTick extends TickController {
 		{
 			@Override
 			public void doWork(Integer battleId) {
-				org.hibernate.Session db = getDB();
-				Battle battle = (Battle)db.get(Battle.class, battleId);
+				var db = getEM();
+				Battle battle = db.find(Battle.class, battleId);
 
 				if( battle.getBlockCount() > 0 && battle.getLetzteRunde() <= lastacttime )
 				{
