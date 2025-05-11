@@ -828,7 +828,11 @@ public class SchiffsTick extends TickController {
 	{
 		Map<Location, List<Base>> feedingBases = new HashMap<>();
 
-		for(Base base: auser.getBases())
+
+		List<Base> bases = db.createQuery("from Base b where b.owner = :owner", Base.class)
+				.setParameter("owner", auser)
+				.getResultList();
+		for(Base base: bases)
 		{
 			if(isCampaignTick() && !affectedSystems.contains(base.getSystem())){
 				continue;
@@ -844,7 +848,7 @@ public class SchiffsTick extends TickController {
 			feedingBases.get(location).add(base);
 		}
 
-		List<Ship> ships = buildSortedShipList(auser);
+		List<Ship> ships = buildSortedShipList(auser, db);
 
 		versorgerlist = getLocationVersorgerList(db, ships, auser);
 		SchiffsReKosten schiffsReKosten = new SchiffsReKosten();
@@ -875,7 +879,7 @@ public class SchiffsTick extends TickController {
 			}
 		}
 
-		User nobody = (User)db.find(User.class, -1);
+		User nobody = db.find(User.class, -1);
 		BigInteger gesamtkosten = schiffsReKosten.getGesamtkosten();
 		if(auser.getKonto().compareTo(gesamtkosten.multiply(BigInteger.valueOf(8))) < 0)
 		{
@@ -892,9 +896,11 @@ public class SchiffsTick extends TickController {
 		}
 	}
 
-	private List<Ship> buildSortedShipList(User auser)
+	private List<Ship> buildSortedShipList(User auser, EntityManager db)
 	{
-		List<Ship> ships = new ArrayList<>(auser.getShips());
+		List<Ship> ships = db.createQuery("from Ship s where s.owner = :owner", Ship.class)
+				.setParameter("owner", auser)
+				.getResultList();
 		ships.sort(new ShipComparator());
 		return ships;
 	}
