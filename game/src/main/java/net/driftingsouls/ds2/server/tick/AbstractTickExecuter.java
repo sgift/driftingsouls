@@ -91,12 +91,6 @@ public abstract class AbstractTickExecuter extends TickController
 	protected void execTick(Class<? extends TickController> tickname, boolean useSTDOUT)
 	{
 		long start = System.currentTimeMillis();
-		var transaction = getEM().getTransaction();
-		var wasOpen = transaction.isActive();
-		boolean error = false;
-		if(!wasOpen) {
-			transaction.begin();
-		}
 		try
 		{
 			TickController tick = this.getContext().getBean(tickname, null);
@@ -118,16 +112,6 @@ public abstract class AbstractTickExecuter extends TickController
 		{
 			// Alle Exceptions hier fangen und lediglich ausgeben
 			e.printStackTrace();
-			error = true;
-		}
-		finally {
-			if(!wasOpen && transaction.isActive()) {
-				if(!error) {
-					transaction.commit();
-				} else {
-					transaction.rollback();
-				}
-			}
 		}
 
 		this.tickTimes.put(tickname, System.currentTimeMillis()-start);
