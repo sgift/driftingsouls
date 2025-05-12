@@ -161,7 +161,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 	@OneToOne(
 			fetch=FetchType.LAZY,
-			cascade={CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.REMOVE, CascadeType.DETACH},
+			cascade={CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.REMOVE, CascadeType.DETACH, CascadeType.MERGE},
 			optional = false)
 	@PrimaryKeyJoinColumn(name="id", referencedColumnName="id")
 	private ShipHistory history;
