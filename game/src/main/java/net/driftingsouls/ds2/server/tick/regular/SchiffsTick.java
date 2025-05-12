@@ -251,7 +251,7 @@ public class SchiffsTick extends TickController {
 		//Verbrauch und Verfall im HOMESYSTEM abgeschaltet
 
 
-		if(system.getAccess() != Access.HOMESYSTEM)
+		if(system == null || system.getAccess() != Access.HOMESYSTEM)
 		{
 			if(new ConfigService().getValue(WellKnownConfigValue.REQUIRE_SHIP_FOOD)) {
 				berechneNahrungsverbrauch(shipd, shiptd, feedingBases);
@@ -414,10 +414,11 @@ public class SchiffsTick extends TickController {
 		{
 			this.slog("\tS. Mine\n");
 
+			var nobody = db.find(User.class, -1);
 			List<Ship> felsbrockenlist =  db.createQuery("from Ship " +
 					"where owner=:owner and x=:x and y=:y and " +
 					"system=:system and battle is null", Ship.class)
-					.setParameter("owner", -1)
+					.setParameter("owner", nobody)
 					.setParameter("x", shipd.getX())
 					.setParameter("y", shipd.getY())
 					.setParameter("system", shipd.getSystem())
@@ -900,7 +901,7 @@ public class SchiffsTick extends TickController {
 
 	private List<Ship> buildSortedShipList(User auser, EntityManager db)
 	{
-		List<Ship> ships = db.createQuery("from Ship s left join fetch s.offiziere left join fetch s.shiptype where s.owner = :owner", Ship.class)
+		List<Ship> ships = db.createQuery("from Ship s left join fetch s.units left join fetch s.offiziere left join fetch s.shiptype where s.owner = :owner", Ship.class)
 				.setParameter("owner", auser)
 				.getResultList();
 		ships.sort(new ShipComparator());

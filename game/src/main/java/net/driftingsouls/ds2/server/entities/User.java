@@ -1347,7 +1347,7 @@ public class User extends BasicUser {
 						"where s.owner=:user and s.docked not like 'l %' and s.system = sys.id and sys.starmap =:access", Long.class)
 				.setParameter("user", this)
 				.setParameter("access", Access.NORMAL)
-				.getResultList().stream().findFirst().orElse(0L);
+				.getResultList().stream().filter(Objects::nonNull).findFirst().orElse(0L);
 
 		// Kosten der auf den Schiffen stationierten Einheiten ermitteln
 		Long einheitenKosten = db
@@ -1356,7 +1356,7 @@ public class User extends BasicUser {
 						"where s.owner=:user and s.docked not like 'l %' and sys.id = s.system and sys.starmap =:access", Long.class)
 				.setParameter("user", this)
 				.setParameter("access", Access.NORMAL)
-				.getResultList().stream().findFirst().orElse(0L);
+				.getResultList().stream().filter(Objects::nonNull).findFirst().orElse(0L);
 
 		return baseRe - SchiffsReKosten.berecheKosten(schiffsKosten, einheitenKosten).longValue();
 	}
@@ -1473,7 +1473,7 @@ public class User extends BasicUser {
 		long baseunit = db.createQuery("select sum(e.amount) from BaseUnitCargoEntry e where e.unittype=:unittype and e.basis.owner=:user", Long.class)
 				.setParameter("unittype", unitType.getId())
 				.setParameter("user", this)
-				.getResultList().stream().findFirst().orElse(0L);
+				.getResultList().stream().filter(Objects::nonNull).findFirst().orElse(0L);
 		if( baseunit > 0 )
 		{
 			return true;
@@ -1484,7 +1484,7 @@ public class User extends BasicUser {
 						"where e.unittype=:unittype and e.schiff.owner=:user", Long.class)
 				.setParameter("unittype", unitType.getId())
 				.setParameter("user", this)
-				.getResultList().stream().findFirst().orElse(0L);
+				.getResultList().stream().filter(Objects::nonNull).findFirst().orElse(0L);
 
 		return shipunit > 0;
 	}
