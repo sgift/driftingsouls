@@ -19,7 +19,6 @@
 package net.driftingsouls.ds2.server.config;
 
 import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
 import org.apache.commons.lang3.StringUtils;
@@ -434,6 +433,10 @@ public class StarSystem {
 	 */
 	public boolean isVisibleFor(User user)
 	{
+		if(user == null) {
+			return false;
+		}
+
 		if( this.starmap == Access.NICHT_SICHTBAR )
 		{
 			return false;
