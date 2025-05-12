@@ -26,15 +26,7 @@ import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 
 import javax.annotation.Nonnull;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Version;
+import javax.persistence.*;
 import java.math.BigInteger;
 import java.util.Map;
 
@@ -97,6 +89,7 @@ public class ShipType implements ShipTypeData {
 	@Column(name="deutfactor", nullable = false)
 	private int deutFactor;
 	@Column(name="class", nullable = false)
+	@Basic(fetch = FetchType.EAGER)
 	private ShipClasses shipClass;
 	@Lob
 	@Column(nullable = false)
