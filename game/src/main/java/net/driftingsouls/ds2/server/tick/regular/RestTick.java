@@ -396,6 +396,7 @@ public class RestTick extends TickController {
 						brocken.setEnergy(shiptype.getEps());
 
 						// Schiffseintrag einfuegen
+						db.merge(brocken.getHistory());
 						db.merge(brocken);
 
 						this.log("");
