@@ -313,8 +313,6 @@ public class RestTick extends TickController {
 			this.log("");
 			this.log("Fuege Felsbrocken ein");
 
-			int shouldId = 9999;
-
 			List<ConfigFelsbrockenSystem> systemList;
 			if(isCampaignTick()) {
 				systemList = db
@@ -363,11 +361,7 @@ public class RestTick extends TickController {
 						int x = ThreadLocalRandom.current().nextInt(1, thissystem.getWidth()+1);
 						int y = ThreadLocalRandom.current().nextInt(1, thissystem.getHeight()+1);
 
-						shouldId = (Integer) db.createNativeQuery("select newIntelliShipId( ? )")
-								.setParameter(1, ++shouldId)
-								.getSingleResult();
-
-						this.log("\t*System "+cfs.getSystem().getID()+": Fuege "+cfs.getName()+" "+shouldId+" ein");
+						this.log("\t*System "+cfs.getSystem().getID()+": Fuege "+cfs.getName()+" ein");
 
 						// Ladung einfuegen
 						this.log("\t- Loadout: ");
@@ -383,7 +377,6 @@ public class RestTick extends TickController {
 						Ship brocken = new Ship(owner, shiptype, cfs.getSystem().getID(), x, y);
 						brocken.getHistory().addHistory("Indienststellung als "+cfs.getName()+" am "+currentTime+" durch den Tick");
 						brocken.setName(cfs.getName() == null ? "Felsbrocken" : cfs.getName());
-						brocken.setId(shouldId);
 						brocken.setHull(shiptype.getHull());
 						brocken.setCrew(shiptype.getCrew());
 						brocken.setCargo(cargo);

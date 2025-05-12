@@ -1,7 +1,6 @@
 package net.driftingsouls.ds2.server.notification;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.URL;
 
@@ -36,7 +35,7 @@ public class Notifier {
 
 	        return conn.getResponseCode();
 	    }
-		catch (final IOException anException){
+		catch (final Exception anException){
 			anException.printStackTrace();
 		}
 		return -1;
