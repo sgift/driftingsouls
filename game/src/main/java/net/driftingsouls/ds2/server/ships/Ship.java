@@ -1099,7 +1099,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 
 		EntityManager em = context.getEM();
 		StarSystem starsystem = em.find(StarSystem.class, this.getSystem());
-		if(this.getOwner().hasFlag(UserFlag.NO_FOOD_CONSUMPTION) || this.isLanded() || this.isDocked() || starsystem.getAccess() == StarSystem.Access.HOMESYSTEM)
+		if(this.getOwner().hasFlag(UserFlag.NO_FOOD_CONSUMPTION) || this.isLanded() || this.isDocked() || (starsystem != null && starsystem.getAccess() == StarSystem.Access.HOMESYSTEM))
 		{
 			return 0;
 		}

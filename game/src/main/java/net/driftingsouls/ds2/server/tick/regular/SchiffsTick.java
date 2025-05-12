@@ -901,7 +901,7 @@ public class SchiffsTick extends TickController {
 
 	private List<Ship> buildSortedShipList(User auser, EntityManager db)
 	{
-		List<Ship> ships = db.createQuery("from Ship s left join fetch s.units left join fetch s.offiziere left join fetch s.shiptype where s.owner = :owner", Ship.class)
+		List<Ship> ships = db.createQuery("from Ship s left join fetch s.units left join fetch s.offiziere left join fetch s.shiptype left join fetch s.owner where s.owner = :owner", Ship.class)
 				.setParameter("owner", auser)
 				.getResultList();
 		ships.sort(new ShipComparator());
