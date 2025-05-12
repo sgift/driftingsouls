@@ -575,14 +575,14 @@ public class User extends BasicUser {
 		if( relations == null ) {
 			UserRelation currelation = context.getEM()
 					.createQuery("from UserRelation WHERE user=:user AND target=:userid", UserRelation.class)
-					.setParameter("user", this.getId())
-					.setParameter("userid", user.getId())
+					.setParameter("user", this)
+					.setParameter("userid", user)
 					.getResultList().stream().findFirst().orElse(null);
 			
 			if( currelation == null ) {
 				currelation = context.getEM()
 						.createQuery("from UserRelation WHERE user=:user AND target.id=0", UserRelation.class)
-						.setParameter("user", this.getId())
+						.setParameter("user", this)
 						.getResultList().stream().findFirst().orElse(null);
 			}
 
