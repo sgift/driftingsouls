@@ -19,7 +19,7 @@ public class SchiffHinzufuegenService
 
 	public @Nonnull Ship erstelle(@Nonnull User auser, @Nonnull ShipType shiptype, @Nonnull Location loc, @Nonnull String historiendaten) {
 		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
+		var db = context.getEM();
 
 		String currentTime = Common.getIngameTime(context.get(ContextCommon.class).getTick());
 		String history = "Indienststellung am "+currentTime+" durch "+auser.getName()+" ("+auser.getId()+")"+(historiendaten.isEmpty() ? "" : "" + historiendaten);
@@ -37,7 +37,7 @@ public class SchiffHinzufuegenService
 		ship.setSensors(100);
 		ship.setAblativeArmor(shiptype.getAblativeArmor());
 
-		db.save(ship);
+		db.persist(ship);
 
 		if( shiptype.getWerft() != 0 ) {
 			ShipWerft awerft = new ShipWerft(ship);
