@@ -21,7 +21,6 @@ public class ThymeleafFilter implements Filter {
     @Override
     public void init(FilterConfig config) throws ServletException {
         this.servletContext = config.getServletContext();
-        this.application = new DSApplication(this.servletContext);
     }
 
     @Override
@@ -31,6 +30,11 @@ public class ThymeleafFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws ServletException, IOException {
+        // Lazy initialization of DSApplication
+        if (this.application == null) {
+            this.application = new DSApplication(this.servletContext);
+        }
+
         if (!process((HttpServletRequest)request, (HttpServletResponse)response)) {
             chain.doFilter(request, response);
         }
