@@ -270,7 +270,7 @@ public class CommController extends Controller
 			return "ERROR: Es duerfen keine Nachrichten/Ordner in den Papierkorb verschoben werden";
 		}
 
-		List<PM> pms = source.getPms();
+		List<PM> pms = source.getPms(getEM());
 		List<Ordner> ordners = source.getChildren(getEM());
 
 		int counter = 0;
@@ -337,7 +337,7 @@ public class CommController extends Controller
 			return new RedirectViewResult("showInbox").withMessage("<span style=\"color:red\">Es dürfen keine Nachrichten/Ordner in den Papierkorb verschoben werden.</span>");
 		}
 
-		List<PM> pms = source.getPms();
+		List<PM> pms = source.getPms(getEM());
 		List<Ordner> ordners = source.getChildren(getEM());
 
 		for (Ordner ordner : ordners)
@@ -393,7 +393,7 @@ public class CommController extends Controller
 	{
 		User user = (User) getUser();
 
-		List<PM> pms = ordner.getPms();
+		List<PM> pms = ordner.getPms(getEM());
 		List<Ordner> ordners = ordner.getChildren(getEM());
 
 		for (Ordner ordner1 : ordners)
@@ -718,7 +718,7 @@ public class CommController extends Controller
 			t.setVar("ordner.id", ordner.getParent(getEM()).getId(),
 					"ordner.name", "..",
 					"ordner.parent", ordner.getId(),
-					"ordner.pms", ordner.getParent(getEM()).getPmCount(),
+					"ordner.pms", ordner.getParent(getEM()).getPmCount(getEM()),
 					"ordner.flags.up", 1,
 					"ordner.flags.trash", (ordner.getFlags() & Ordner.FLAG_TRASH),
 					"ordner.name.real", ordner.getName());
@@ -745,7 +745,7 @@ public class CommController extends Controller
 		}
 
 		// PMs im aktuellen Ordner ausgeben
-		List<PM> pms = ordner.getPms();
+		List<PM> pms = ordner.getPms(getEM());
 		for (PM pm : pms)
 		{
 			String title = pm.getTitle();
