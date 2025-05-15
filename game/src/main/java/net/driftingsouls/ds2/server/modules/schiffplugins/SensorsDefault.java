@@ -379,7 +379,7 @@ public class SensorsDefault implements SchiffPlugin {
 				String groupidlist = "";
 				if (aShip.getOwner().getId() == user.getId())
 				{
-					groupidlist = (String) db.createQuery("SELECT CONCAT(id, '|') FROM Ship WHERE id>0 AND system=:system AND x=:x AND y=:y AND owner=:owner AND shiptype=:shiptype AND LOCATE('l ',docked) = 0 AND LOCATE('disable_iff',status) = 0")
+					groupidlist = (String) db.createQuery("SELECT GROUP_CONCAT(id SEPARATOR '|') FROM Ship WHERE id>0 AND system=:system AND x=:x AND y=:y AND owner=:owner AND shiptype=:shiptype AND LOCATE('l ',docked) = 0 AND LOCATE('disable_iff',status) = 0")
 							.setParameter("system", ship.getSystem())
 							.setParameter("x", ship.getX())
 							.setParameter("y", ship.getY())

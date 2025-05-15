@@ -18,9 +18,7 @@
  */
 package net.driftingsouls.ds2.server.tick;
 
-import net.driftingsouls.ds2.server.framework.BasicContext;
 import net.driftingsouls.ds2.server.framework.CmdLineRequest;
-import net.driftingsouls.ds2.server.framework.EmptyPermissionResolver;
 import net.driftingsouls.ds2.server.framework.SimpleResponse;
 import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import org.quartz.DisallowConcurrentExecution;
@@ -30,6 +28,7 @@ import org.quartz.SchedulerException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
+import javax.persistence.EntityManager;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
@@ -55,39 +54,42 @@ public class ScheduledTick extends QuartzJobBean
 	}
 
 	@Override
-	protected void executeInternal(JobExecutionContext context) throws JobExecutionException
-	{
+	protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
 		CmdLineRequest request = new CmdLineRequest(new String[0]);
 		SimpleResponse response = new SimpleResponse();
 		ApplicationContext applicationContext = getApplicationContext(context);
-		BasicContext basicContext = new BasicContext(request, response, new EmptyPermissionResolver(), applicationContext);
-		try
-		{
-			if( context.getMergedJobDataMap().containsKey("onlyTick") ) {
+
+		// Get EntityManager from HibernateUtil
+		EntityManager em = HibernateUtil.getCurrentEntityManager();
+
+		// Create TickContext instead of BasicContext
+		TickContext tickContext = new TickContext(em, request, response, applicationContext);
+
+		try {
+			// Rest of the method remains the same
+			if (context.getMergedJobDataMap().containsKey("onlyTick")) {
 				request.setParameter("only", ((Class<?>)context.getMergedJobDataMap().get("onlyTick")).getName());
 			}
 
-			if( context.getMergedJobDataMap().containsKey("affectedSystems") ) {
+			if (context.getMergedJobDataMap().containsKey("affectedSystems")) {
 				request.setParameter("affectedSystems", (String)context.getMergedJobDataMap().get("affectedSystems"));
 			}
 
 			Class<? extends AbstractTickExecuter> cls = Class
-				.forName(tick)
-				.asSubclass(AbstractTickExecuter.class);
+					.forName(tick)
+					.asSubclass(AbstractTickExecuter.class);
 
 			AbstractTickExecuter tick = cls.getDeclaredConstructor().newInstance();
-			basicContext.autowireBean(tick);
+			tickContext.autowireBean(tick);
 			tick.addLogTarget(TickController.STDOUT, false);
 			tick.execute();
 			tick.dispose();
 		}
-		catch( IOException | ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e )
-		{
+		catch (IOException | ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
 			throw new JobExecutionException(e);
 		}
-		finally
-		{
-			basicContext.free();
+		finally {
+			tickContext.free();
 			HibernateUtil.removeCurrentEntityManager();
 		}
 	}
