@@ -29,6 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.stream.Collectors.toList;
+
 /**
  * Repraesentiert einen Ordner im Postfach.
  * Hinweis: Die Ordner-ID 0 hat eine spezielle Bedeutung.
@@ -270,11 +272,9 @@ public class Ordner {
 		// Array mit den Ordner-IDs erstellen sowie vermerken, wieviele Kindordner
 		// ein Ordner besitzt
 		Map<Ordner,Integer> childCount = new HashMap<>();
-		Integer[] ordnerIDs = new Integer[ordners.size()];
-		for( int i=0; i < ordners.size(); i++ ) {
-			ordnerIDs[i] = ordners.get(i).getId();
-			Common.safeIntInc(childCount, ordners.get(i).getParent(db));
-		}
+        for (Ordner ordner : ordners) {
+            Common.safeIntInc(childCount, ordner.getParent(db));
+        }
 
 		// Map mit der Anzahl der PMs fuellen, die sich direkt im Ordner befinden
 		int trash = getTrash( this.owner ).getId();
@@ -284,7 +284,7 @@ public class Ordner {
 						"and gelesen < case when ordner=:trash then 10 else 2 end " +
 						"group by ordner", Object[].class)
 				.setParameter("owner", this.owner)
-				.setParameter("ordnerIds", ordnerIDs)
+				.setParameter("ordnerIds", ordners.stream().map(Ordner::getId).collect(toList()))
 				.setParameter("trash", trash)
 				.getResultList();
 		for (Object[] pmcount : pmcounts) {
