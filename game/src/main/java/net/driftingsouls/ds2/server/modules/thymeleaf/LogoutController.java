@@ -9,15 +9,19 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class LogoutController extends StaticController {
-    private final AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
 
     public LogoutController() {
         super("logout");
-        this.authenticationManager = SpringUtils.getBean(AuthenticationManager.class);
     }
 
     @Override
     public void process(HttpServletRequest request, HttpServletResponse response, ServletContext servletContext, ITemplateEngine templateEngine) throws Exception {
+        // Lazy initialization when needed
+        if (authenticationManager == null) {
+            authenticationManager = SpringUtils.getBean(AuthenticationManager.class);
+        }
+
         authenticationManager.logout();
         super.process(request, response, servletContext, templateEngine);
     }

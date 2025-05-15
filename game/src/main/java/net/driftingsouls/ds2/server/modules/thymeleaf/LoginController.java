@@ -16,17 +16,20 @@ import javax.servlet.http.HttpServletResponse;
 
 public class LoginController extends StaticController {
     private final DSController errorController;
-    private final AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
 
     public LoginController(DSController errorController) {
-        //TODO: This currently manages the switch from the new (thymeleaf-based) world to the old (ds templates)
         super("portal");
         this.errorController = errorController;
-        this.authenticationManager = SpringUtils.getBean(AuthenticationManager.class);
     }
 
     @Override
     public void process(HttpServletRequest request, HttpServletResponse response, ServletContext servletContext, ITemplateEngine templateEngine) throws Exception {
+        // Lazy initialization when needed
+        if (authenticationManager == null) {
+            authenticationManager = SpringUtils.getBean(AuthenticationManager.class);
+        }
+
         var username = request.getParameter("username");
         var password = request.getParameter("password");
 
