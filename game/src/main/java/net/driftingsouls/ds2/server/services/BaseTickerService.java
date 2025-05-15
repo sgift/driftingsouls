@@ -15,16 +15,22 @@ import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
 import java.math.BigInteger;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 public class BaseTickerService
 {
-	private void respawnRess(Base base, int itemid)
+	private final EntityManager db;
+
+    public BaseTickerService(EntityManager db) {
+        this.db = db;
+    }
+
+    private void respawnRess(Base base, int itemid)
 	{
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-		User sourceUser = (User)db.get(User.class, -1);
+		User sourceUser = db.find(User.class, -1);
 
 		base.setSpawnableRessAmount(itemid, 0);
 
@@ -39,13 +45,13 @@ public class BaseTickerService
 
 		base.setSpawnableRessAmount(item, maxvalue);
 
-		Item olditem = (Item)db.get(Item.class, itemid);
-		Item newitem = (Item)db.get(Item.class, item);
+		Item olditem = db.find(Item.class, itemid);
+		Item newitem = db.find(Item.class, item);
 		String message = "Kolonie: " + base.getName() + " (" + base.getId() + ")\n";
 		message = message + "Ihre Arbeiter melden: Die Ressource " + olditem.getName() + " wurde aufgebraucht!\n";
 		message = message + "Erfreulich ist: Ihre Geologen haben " + newitem.getName() + " gefunden!";
 
-		PM.send(sourceUser, base.getOwner().getId(), "Ressourcen aufgebraucht!", message);
+		PM.send(sourceUser, base.getOwner().getId(), "Ressourcen aufgebraucht!", message, db);
 	}
 
 	/**
@@ -218,7 +224,7 @@ public class BaseTickerService
 		boolean usefullMessage = false;
 
 		String proof = proofBuildings(base);
-		if(!proof.equals(""))
+		if(!proof.isEmpty())
 		{
 			message += proof;
 			usefullMessage = true;
@@ -226,7 +232,7 @@ public class BaseTickerService
 
 		BaseStatus state = Base.getStatus(base);
 
-		base.immigrate(state);
+		base.immigrate(state, db);
 
 		int newenergy = base.rebalanceEnergy(state);
 		if(newenergy < 0)
@@ -237,7 +243,7 @@ public class BaseTickerService
 		else
 		{
 			String prodmsg = produce(base, state, newenergy);
-			if(!prodmsg.equals(""))
+			if(!prodmsg.isEmpty())
 			{
 				message += prodmsg;
 				usefullMessage = true;

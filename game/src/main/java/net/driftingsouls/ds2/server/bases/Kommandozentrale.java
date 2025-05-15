@@ -157,10 +157,10 @@ public class Kommandozentrale extends DefaultBuilding {
 
 		if(!systems.contains(oldUser.getGtuDropZone()))
 		{
-			int defaultDropZone = new ConfigService().getValue(WellKnownConfigValue.GTU_DEFAULT_DROPZONE);
+			int defaultDropZone = new ConfigService(db).getValue(WellKnownConfigValue.GTU_DEFAULT_DROPZONE);
 			if(oldUser.getGtuDropZone() != defaultDropZone)
 			{
-				PM.send(nullUser, oldUser.getId(), "GTU Dropzone geändert.", "Sie haben Ihren letzten Asteroiden in System "+ oldUser.getGtuDropZone() +" aufgegeben. Ihre GTU-Dropzone wurde auf System "+ defaultDropZone +" gesetzt.");
+				PM.send(nullUser, oldUser.getId(), "GTU Dropzone geändert.", "Sie haben Ihren letzten Asteroiden in System "+ oldUser.getGtuDropZone() +" aufgegeben. Ihre GTU-Dropzone wurde auf System "+ defaultDropZone +" gesetzt.", db);
 				oldUser.setGtuDropZone(defaultDropZone);
 			}
 		}
@@ -183,7 +183,7 @@ public class Kommandozentrale extends DefaultBuilding {
 
 	@Override
 	public String output(Context context, Base base, int field, int building) {
-		org.hibernate.Session db = context.getDB();
+		var db = context.getEM();
 		User user = (User)context.getActiveUser();
 
 		String show = context.getRequest().getParameter("show");
@@ -210,7 +210,7 @@ public class Kommandozentrale extends DefaultBuilding {
 					"base.system",	base.getSystem(),
 					"base.size",	base.getSize());
 
-		GtuWarenKurse kurseRow = (GtuWarenKurse)db.get(GtuWarenKurse.class, "asti");
+		GtuWarenKurse kurseRow = db.find(GtuWarenKurse.class, "asti");
 		Cargo kurse = new Cargo(kurseRow.getKurse());
 		kurse.setOption( Cargo.Option.SHOWMASS, false );
 
@@ -228,11 +228,11 @@ public class Kommandozentrale extends DefaultBuilding {
 			int tick = context.get(ContextCommon.class).getTick();
 			int system = base.getSystem();
 
-			StatVerkaeufe statsRow = (StatVerkaeufe)db.createQuery("from StatVerkaeufe where tick=:tick and place=:place and system=:sys")
-				.setInteger("tick", tick)
-				.setString("place", "asti")
-				.setInteger("sys", system)
-				.uniqueResult();
+			StatVerkaeufe statsRow = db.createQuery("from StatVerkaeufe where tick=:tick and place=:place and system=:sys", StatVerkaeufe.class)
+				.setParameter("tick", tick)
+				.setParameter("place", "asti")
+				.setParameter("sys", system)
+				.getResultList().stream().findFirst().orElse(null);
 			Cargo stats = new Cargo();
 			if( statsRow != null ) {
 				stats = new Cargo(statsRow.getStats());
@@ -394,7 +394,7 @@ public class Kommandozentrale extends DefaultBuilding {
 				base.setCargo(cargo);
 
 				String msg = "Ich habe das Item \""+item.getName()+"\" der Allianz zur Verfügung gestellt.";
-				PM.sendToAlly(user, ally, "Item &uuml;berstellt", msg);
+				PM.sendToAlly(user, ally, "Item &uuml;berstellt", msg, db);
 
 				message.append("Das Item wurde an die Allianz übergeben<br /><br />\n");
 			}
@@ -430,7 +430,7 @@ public class Kommandozentrale extends DefaultBuilding {
 		if( baction.equals("gtudel") ) {
 			String gtuact = context.getRequest().getParameterString("gtuact");
 
-			if( gtuact.length() != 0 ) {
+			if(!gtuact.isEmpty()) {
 				List<AutoGTUAction> autoactlist = base.getAutoGTUActs();
 
 				for( AutoGTUAction autoact : autoactlist ) {
@@ -460,7 +460,7 @@ public class Kommandozentrale extends DefaultBuilding {
 						"res.platin.image",		Cargo.getResourceImage(Resources.PLATIN) );
 
 			List<ItemCargoEntry<Item>> itemlist = cargo.getItems();
-			if( itemlist.size() != 0 ) {
+			if(!itemlist.isEmpty()) {
 				Ally ally = user.getAlly();
 				if( ally != null ) {
 					for( ItemCargoEntry<Item> item : itemlist ) {
@@ -478,25 +478,23 @@ public class Kommandozentrale extends DefaultBuilding {
 				Waren zu Schiffen/Basen im Orbit transferieren
 			*/
 
-			List<?> ships = db.createQuery("from Ship " +
+			List<Ship> ships = db.createQuery("from Ship " +
 					"where id>:minid and (x between :minx and :maxx) and " +
 							"(y between :miny and :maxy) and " +
 							"system= :sys and locate('l ',docked)=0 and battle is null " +
-					"order by x,y,owner.id,id")
-				.setInteger("minid", 0)
-				.setInteger("minx", base.getX()-base.getSize())
-				.setInteger("maxx", base.getX()+base.getSize())
-				.setInteger("miny", base.getY()-base.getSize())
-				.setInteger("maxy", base.getY()+base.getSize())
-				.setInteger("sys", base.getSystem())
-				.list();
+					"order by x,y,owner.id,id", Ship.class)
+				.setParameter("minid", 0)
+				.setParameter("minx", base.getX()-base.getSize())
+				.setParameter("maxx", base.getX()+base.getSize())
+				.setParameter("miny", base.getY()-base.getSize())
+				.setParameter("maxy", base.getY()+base.getSize())
+				.setParameter("sys", base.getSystem())
+				.getResultList();
 			if( !ships.isEmpty() ) {
 				Location oldLoc = null;
 
-				for (Object ship1 : ships)
+				for (Ship ship: ships)
 				{
-					Ship ship = (Ship) ship1;
-
 					if (oldLoc == null)
 					{
 						oldLoc = ship.getLocation();
@@ -540,17 +538,15 @@ public class Kommandozentrale extends DefaultBuilding {
 				}
 			}
 
-			List<?> targetbases = db.createQuery("from Base where x= :x and y= :y and system= :sys and id!= :id and owner= :owner")
-				.setInteger("x", base.getX())
-				.setInteger("y", base.getY())
-				.setInteger("sys", base.getSystem())
-				.setInteger("id", base.getId())
-				.setEntity("owner", base.getOwner())
-				.list();
-			for (Object targetbase1 : targetbases)
+			List<Base> targetbases = db.createQuery("from Base where x= :x and y= :y and system= :sys and id!= :id and owner= :owner", Base.class)
+				.setParameter("x", base.getX())
+				.setParameter("y", base.getY())
+				.setParameter("sys", base.getSystem())
+				.setParameter("id", base.getId())
+				.setParameter("owner", base.getOwner())
+				.getResultList();
+			for (Base targetbase: targetbases)
 			{
-				Base targetbase = (Base) targetbase1;
-
 				t.setVar("targetbase.id", targetbase.getId(),
 						"targetbase.name", Common._plaintitle(targetbase.getName()));
 				t.parse("general.basetransfer.list", "general.basetransfer.listitem", true);

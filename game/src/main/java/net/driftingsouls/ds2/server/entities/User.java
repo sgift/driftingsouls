@@ -292,7 +292,7 @@ public class User extends BasicUser {
 		setSignup((int) Common.time());
 		setInactivity(0);
 		this.medals = "";
-		this.rang = (int) Byte.parseByte("0");
+		this.rang = 0;
 		this.konto = BigInteger.valueOf(0);
 		setLoginFailedCount(0);
 		setAccesslevel(0);
@@ -303,17 +303,16 @@ public class User extends BasicUser {
 		setDisabled(false);
 		this.vaccount = 0;
 		this.wait4vac = 0;
-		this.lostBattles = Short.parseShort("0");
+		this.lostBattles = 0;
 		this.lostShips = 0;
-		this.wonBattles = Short.parseShort("0");
+		this.wonBattles = 0;
 		this.destroyedShips = 0;
 		Integer newUserId = db.createQuery("SELECT max(id) from User", Integer.class).getSingleResult();
 		setId(newUserId != null ? ++newUserId : 1);
 		this.knownItems = "";
         bounty = BigInteger.ZERO;
 		db.persist(this);
-		@SuppressWarnings("ConstantConditions")
-		Ordner trash = Ordner.createNewOrdner("Papierkorb", Ordner.getOrdnerByID(0, this), this);
+		Ordner trash = Ordner.createNewOrdner("Papierkorb", Ordner.createMainFolder(this), this, db);
 		trash.setFlags(Ordner.FLAG_TRASH);
 		this.forschungen = new HashSet<>();
 		this.specializationPoints = 15;
@@ -328,7 +327,7 @@ public class User extends BasicUser {
 		UserRelation selfRelation = new UserRelation(this, this, Relation.FRIEND.ordinal());
 		db.persist(selfRelation);
 
-		int defaultDropZone = new ConfigService().getValue(WellKnownConfigValue.GTU_DEFAULT_DROPZONE);
+		int defaultDropZone = new ConfigService(db).getValue(WellKnownConfigValue.GTU_DEFAULT_DROPZONE);
 		setGtuDropZone(defaultDropZone);
 	}
 
@@ -919,7 +918,8 @@ public class User extends BasicUser {
 	 * @return <code>true</code>, falls der Spieler noch ein Noob ist
 	 */
 	public boolean isNoob() {
-		return new ConfigService().getValue(WellKnownConfigValue.NOOB_PROTECTION) && hasFlag(UserFlag.NOOB);
+		var db = context.getEM();
+		return new ConfigService(db).getValue(WellKnownConfigValue.NOOB_PROTECTION) && hasFlag(UserFlag.NOOB);
 	}
 
 	/**
@@ -1292,7 +1292,8 @@ public class User extends BasicUser {
 	 */
 	private int vacationCostsPerTick()
 	{
-		return new ConfigService().getValue(WellKnownConfigValue.VAC_POINTS_PER_VAC_TICK);
+		var db = context.getEM();
+		return new ConfigService(db).getValue(WellKnownConfigValue.VAC_POINTS_PER_VAC_TICK);
 	}
 
 	/**
@@ -1420,7 +1421,7 @@ public class User extends BasicUser {
 	 */
 	public long getFreeSpecializationPoints()
 	{
-		var db = ContextMap.getContext().getEM();
+		var db = context.getEM();
 		int usedSpecpoints =  this.forschungen.stream().mapToInt(Forschung::getSpecializationCosts).sum();
 
 		//Add researchs, which are currently developed in research centers
@@ -1499,7 +1500,7 @@ public class User extends BasicUser {
 	 */
 	public void setRank(User rankGiver, int rank)
 	{
-		var db = ContextMap.getContext().getEM();
+		var db = context.getEM();
 		for (UserRank rang : this.userRanks)
 		{
 			if (rang.getRankGiver().getId() == rankGiver.getId())

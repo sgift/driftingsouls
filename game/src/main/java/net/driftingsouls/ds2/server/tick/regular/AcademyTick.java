@@ -81,17 +81,17 @@ public class AcademyTick extends TickController {
 					.setParameter("systeme", affectedSystems)
 					.getResultList();
 		}
-		else{
+		else {
 			accList = db.createQuery("from Academy a left join fetch a.queue " +
 					"where a.train=true and (a.base.owner.vaccount=0 or a.base.owner.wait4vac!=0)", Academy.class)
 					.getResultList();
 		}
 		
-		new UnitOfWork<Academy>("Academy Tick")
+		new UnitOfWork<Academy>("Academy Tick", db)
 		{
 			@Override
 			public void doWork(Academy acc) {
-				getEM().merge(acc);
+				var db = getEM();
 				Base base = acc.getBase();
 
 				log("Akademie "+acc.getId()+":");
@@ -136,12 +136,12 @@ public class AcademyTick extends TickController {
 
 					if( build )
 					{
-						acc.rescheduleQueue();
+						acc.rescheduleQueue(db);
 						// Nachricht versenden
 						final User sourceUser = db.find(User.class, -1);
                         User accUser = base.getOwner();
                         if(accUser.getUserValue(WellKnownUserValue.GAMEPLAY_USER_OFFICER_BUILD_PM)) {
-                            PM.send(sourceUser, base.getOwner().getId(), "Ausbildung abgeschlossen", msg.toString());
+                            PM.send(sourceUser, base.getOwner().getId(), "Ausbildung abgeschlossen", msg.toString(), db);
                         }
 					}
 
@@ -162,7 +162,7 @@ public class AcademyTick extends TickController {
 		//
 		// Raenge der Offiziere neu berechnen
 		//
-		new SingleUnitOfWork("Academy Tick - Offiziere befoerdern") {
+		new SingleUnitOfWork("Academy Tick - Offiziere befoerdern", db) {
 			@Override
 			public void doWork() {
 				var db = getEM();
@@ -179,11 +179,15 @@ public class AcademyTick extends TickController {
 		}
 		.execute();
 
-		//da es immer mal wieder zu Problemem mit Offizieren kommt, die gefunden werden, setzen wir den Trainingsstatus des Offiziers zurueck, wenn wir ihn nicht mehr in einem Trainingseintrag finden
-		List<Offizier> offiziere = db.createQuery("from Offizier where id not in (select training from AcademyQueueEntry)", Offizier.class)
-				.getResultList();
-		for(Offizier offizier : offiziere){
-				offizier.setTraining(false);
-		}
+		// da es immer mal wieder zu Problemem mit Offizieren kommt, die gefunden werden,
+		// setzen wir den Trainingsstatus des Offiziers zurueck, wenn wir ihn nicht mehr in einem Trainingseintrag finden
+		new SingleUnitOfWork("Academy Tick - Offiziere trainingsstatus zurücksetzen", db) {
+			@Override
+			public void doWork() {
+				var db = getEM();
+				db.createQuery("update Offizier set training=false where id not in (select training from AcademyQueueEntry)")
+						.executeUpdate();
+			}
+		}.execute();
 	}
 }

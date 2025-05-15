@@ -57,20 +57,7 @@ import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.Type;
 import org.hibernate.classic.Lifecycle;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.Version;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -1657,7 +1644,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		return energy;
 	}
 
-	public void immigrate(BaseStatus state)
+	public void immigrate(BaseStatus state, EntityManager db)
 	{
 		int inhabitants = getBewohner();
 		int maxInhabitants = state.getLivingSpace();
@@ -1666,8 +1653,8 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		{
 			int immigrants = maxInhabitants - inhabitants;
 
-			double immigrationFactor = new ConfigService().getValue(WellKnownConfigValue.IMMIGRATION_FACTOR);
-			boolean randomizeImmigration = new ConfigService().getValue(WellKnownConfigValue.RANDOMIZE_IMMIGRATION);
+			double immigrationFactor = new ConfigService(db).getValue(WellKnownConfigValue.IMMIGRATION_FACTOR);
+			boolean randomizeImmigration = new ConfigService(db).getValue(WellKnownConfigValue.RANDOMIZE_IMMIGRATION);
 
 			immigrants *= immigrationFactor;
 			if(randomizeImmigration)

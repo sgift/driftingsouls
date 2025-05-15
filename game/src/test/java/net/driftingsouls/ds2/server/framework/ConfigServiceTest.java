@@ -14,7 +14,7 @@ public class ConfigServiceTest extends DBTest
 		mitTransaktion(() -> {
 			// setup
 			ConfigValueDescriptor<String> desc = new DummyConfigValueDescriptor<>(String.class, "dummy", "1234");
-			ConfigService configService = new ConfigService();
+			ConfigService configService = new ConfigService(getEM());
 
 			// run
 			ConfigValue value = configService.get(desc);
@@ -43,7 +43,7 @@ public class ConfigServiceTest extends DBTest
 		});
 
 		ConfigValueDescriptor<String> desc = new DummyConfigValueDescriptor<>(String.class, "dummy", "1234");
-		ConfigService configService = new ConfigService();
+		ConfigService configService = new ConfigService(getEM());
 
 		mitTransaktion(() -> {
 			// run
@@ -62,7 +62,7 @@ public class ConfigServiceTest extends DBTest
 		mitTransaktion(() -> {
 			// setup
 			ConfigValueDescriptor<String> desc = new DummyConfigValueDescriptor<>(String.class, "dummy", "1234");
-			ConfigService configService = new ConfigService();
+			ConfigService configService = new ConfigService(getEM());
 
 			// run
 			String value = configService.getValue(desc);
@@ -87,7 +87,7 @@ public class ConfigServiceTest extends DBTest
 		});
 
 		ConfigValueDescriptor<String> desc = new DummyConfigValueDescriptor<>(String.class, "dummy", "1234");
-		ConfigService configService = new ConfigService();
+		ConfigService configService = new ConfigService(getEM());
 
 		mitTransaktion(() -> {
 			// run

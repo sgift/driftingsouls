@@ -18,18 +18,18 @@
  */
 package net.driftingsouls.ds2.server;
 
+import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
+import net.driftingsouls.ds2.server.entities.GlobalSectorTemplate;
+import net.driftingsouls.ds2.server.entities.User;
+import net.driftingsouls.ds2.server.ships.SchiffEinstellungen;
+import net.driftingsouls.ds2.server.ships.Ship;
+import net.driftingsouls.ds2.server.ships.ShipFleet;
+
+import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
-import net.driftingsouls.ds2.server.entities.GlobalSectorTemplate;
-import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.ships.SchiffEinstellungen;
-import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipFleet;
 
 /**
  * <h1>Die Sektor-Template-Verwaltung.</h1>
@@ -90,14 +90,14 @@ public class SectorTemplateManager {
 	 * @param smartid Soll die erste freie ID verwendet werden (<code>true</code>)?
 	 * @return Die IDs der eingefuegten Schiffe
 	 */
-	public Integer[] useTemplate(org.hibernate.Session db, String name, Location location, int owner, boolean smartid ) {
+	public Integer[] useTemplate(EntityManager db, String name, Location location, int owner, boolean smartid ) {
 		if( smartid ) {
 			System.err.println("FIXME: SectorTemplateManager.useTemplate -> smartid not implemented");
 			new Throwable().printStackTrace();
 		}
-		User user = (User)db.get(User.class, owner);
+		User user = db.find(User.class, owner);
 
-		GlobalSectorTemplate res = (GlobalSectorTemplate)db.get(GlobalSectorTemplate.class, name);
+		GlobalSectorTemplate res = db.find(GlobalSectorTemplate.class, name);
 		if( res == null ) {
 			System.err.println("ERROR: SectorTemplateManager.useTemplate -> unknown resourceid '"+name+"' used");
 			new Throwable().printStackTrace();
@@ -126,7 +126,7 @@ public class SectorTemplateManager {
 		Map<Integer,Integer> idtable = new HashMap<>();
 		List<FleetEntry> fleet = new ArrayList<>();
 
-		List<Ship> ships = Common.cast(db.createQuery(query).list());
+		List<Ship> ships = db.createQuery(query, Ship.class).getResultList();
 		for(Ship ship : ships ) {
 			int newx = location.getX() + ship.getX() - res.getX();
 			int newy = location.getY() + ship.getY() - res.getY();
@@ -134,7 +134,7 @@ public class SectorTemplateManager {
 			Ship newship = new Ship(user, ship.getBaseType(), location.getSystem(), newx, newy);
 
 			db.persist(newship);
-			db.save(newship.getHistory());
+			db.persist(newship.getHistory());
 
 			ModuleEntry[] modules = ship.getModules();
 			for( ModuleEntry entry : modules)
@@ -176,7 +176,7 @@ public class SectorTemplateManager {
 
 			idtable.put(ship.getId(), shipid);
 
-			if( !ship.getDocked().equals("") ) {
+			if(!ship.getDocked().isEmpty()) {
 				docked.add( new DockEntry(shipid, ship.getDocked()) );
 			}
 
@@ -224,23 +224,25 @@ public class SectorTemplateManager {
 			}
 
 			db.createQuery("UPDATE Ship SET docked= :docked WHERE id= :id")
-				.setString("docked", newdock)
-				.setInteger("id", dock.shipid);
+				.setParameter("docked", newdock)
+				.setParameter("id", dock.shipid)
+				.executeUpdate();
 		}
 
 		Map<Integer,Integer> fleetlist = new HashMap<>();
 
 		for( FleetEntry flship : fleet ) {
 			if( !fleetlist.containsKey(flship.fleetid) ) {
-				ShipFleet flotte = (ShipFleet)db.get(ShipFleet.class, flship.fleetid);
+				ShipFleet flotte = db.find(ShipFleet.class, flship.fleetid);
 
 				ShipFleet newfleet = new ShipFleet(flotte.getName());
 				db.persist(newfleet);
 				fleetlist.put( flship.fleetid, newfleet.getId() );
 			}
 			db.createQuery("UPDATE Ship SET fleet= :fleet WHERE id=:id")
-				.setInteger("fleet", fleetlist.get(flship.fleetid))
-				.setInteger("id", flship.shipid);
+				.setParameter("fleet", fleetlist.get(flship.fleetid))
+				.setParameter("id", flship.shipid)
+				.executeUpdate();
 		}
 
 		return shipids.toArray(new Integer[0]);
@@ -255,7 +257,7 @@ public class SectorTemplateManager {
 	 * @param owner Der Besitzer der einzufuegenden Schiffe
 	 * @return Die IDs der eingefuegten Schiffe
 	 */
-	public Integer[] useTemplate(org.hibernate.Session db, String name, Location location, int owner) {
+	public Integer[] useTemplate(EntityManager db, String name, Location location, int owner) {
 		return useTemplate(db, name, location, owner, false);
 	}
 }

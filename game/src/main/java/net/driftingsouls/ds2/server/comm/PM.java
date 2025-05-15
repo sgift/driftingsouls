@@ -33,17 +33,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.Version;
+import javax.persistence.*;
 import java.util.List;
 
 /**
@@ -106,8 +96,8 @@ public class PM {
 	 * @param title Der Titel der PM
 	 * @param txt Der Text
 	 */
-	public static void send( User from, int to, String title, String txt ) {
-		send( from, to, title, txt, 0);
+	public static void send( User from, int to, String title, String txt, EntityManager db ) {
+		send( from, to, title, txt, 0, db);
 	}
 
 	/**
@@ -117,8 +107,8 @@ public class PM {
 	 * @param title Der Titel der PM
 	 * @param txt Der Text
 	 */
-	public static void sendToAlly( User from, Ally to, String title, String txt ) {
-		sendToAlly( from, to, title, txt, 0);
+	public static void sendToAlly( User from, Ally to, String title, String txt, EntityManager db ) {
+		sendToAlly( from, to, title, txt, 0, db);
 	}
 
 	/**
@@ -129,24 +119,19 @@ public class PM {
 	 * @param txt Der Text
 	 * @param flags Flags, welche die PM erhalten soll
 	 */
-	public static void sendToAlly( User from, Ally to, String title, String txt, int flags ) {
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-
+	public static void sendToAlly( User from, Ally to, String title, String txt, int flags, EntityManager db ) {
 		String msg = "an Allianz "+to.getName()+"\n"+txt;
 
 		if( title.length() > 100 ) {
 			title = title.substring(0,100);
 		}
 
-		List<?> members = db.createQuery("from User where ally=:ally")
-			.setEntity("ally", to)
-			.list();
-		for (Object member1 : members)
+		List<User> members = db.createQuery("from User where ally=:ally", User.class)
+			.setParameter("ally", to)
+			.getResultList();
+		for (User member : members)
 		{
-			User member = (User) member1;
-
-			PM pm = new PM(from, member, title, msg);
+            PM pm = new PM(from, member, title, msg);
 			pm.setFlags(flags);
 			db.persist(pm);
 		}
@@ -160,9 +145,8 @@ public class PM {
 	 * @param txt Der Text
 	 * @param flags Flags, welche die PM erhalten soll
 	 */
-	public static void send( User from, int to, String title, String txt, int flags ) {
+	public static void send(User from, int to, String title, String txt, int flags, EntityManager db) {
 		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
 
 		/*
 		 *  Normale PM
@@ -176,7 +160,7 @@ public class PM {
 				txt = txt.substring(0,5000);
 			}
 
-			User user = (User)db.get(User.class, to);
+			User user = db.find(User.class, to);
 			if( user != null ) {
 				PM pm = new PM(from, user, title, txt);
 				pm.setFlags(flags);
@@ -188,7 +172,7 @@ public class PM {
 						send(user, forward, "Fwd: "+title,
 								"[align=center][color=green]- Folgende Nachricht ist soeben eingegangen -[/color][/align]\n" +
 								"[b]Absender:[/b] [userprofile="+from.getId()+"]"+from.getName()+"[/userprofile] ("+from.getId()+")\n\n"+
-								txt, flags);
+								txt, flags, db);
 					}
 				}
 			}
@@ -219,10 +203,10 @@ public class PM {
 	 * @param txt Der Text
 	 * @param flags Flags, welche die PM erhalten soll
 	 */
-	public static void sendToAdmins(User from, String title, String txt, int flags  ) {
-		String[] adminlist = new ConfigService().getValue(WellKnownConfigValue.ADMIN_PMS_ACCOUNT).split(",");
+	public static void sendToAdmins(User from, String title, String txt, int flags, EntityManager db) {
+		String[] adminlist = new ConfigService(db).getValue(WellKnownConfigValue.ADMIN_PMS_ACCOUNT).split(",");
 		for( String admin : adminlist ) {
-			send(from, Integer.parseInt(admin), title, txt, flags);
+			send(from, Integer.parseInt(admin), title, txt, flags, db);
 		}
 	}
 
@@ -234,12 +218,9 @@ public class PM {
 	 * @param msg Der Text der PM
 	 * @param flags Flags der PM
 	 */
-	public static void sendToAll(User from, String title, String msg, int flags) {
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
+	public static void sendToAll(User from, String title, String msg, int flags, EntityManager db) {
 
-		@SuppressWarnings("unchecked")
-		List<User> players = db.createQuery("from User where id>0").list();
+		List<User> players = db.createQuery("from User where id>0", User.class).getResultList();
 		for(User player: players) {
 			PM pm = new PM(from, player, title, msg);
 			pm.setFlags(flags);
@@ -255,16 +236,12 @@ public class PM {
 	 * @param user Der Besitzer des Ordners
 	 * @return 0, falls der Vorgang erfolgreich war. 1, wenn ein Fehler aufgetreten ist und 2, falls nicht alle PMs gelesen wurden
 	 */
-	public static int deleteAllInOrdner( Ordner ordner, User user ) {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
-		List<?> pms = db.createQuery("from PM where ordner=:ordner")
-			.setInteger("ordner", ordner.getId())
-			.list();
-		for (Object pm1 : pms)
+	public static int deleteAllInOrdner( Ordner ordner, User user, EntityManager db) {
+		List<PM> pms = db.createQuery("from PM where ordner=:ordner", PM.class)
+			.setParameter("ordner", ordner.getId())
+			.getResultList();
+		for (var pm : pms)
 		{
-			PM pm = (PM) pm1;
-
 			if (pm.getEmpfaenger().getId() != user.getId())
 			{
 				return 2;

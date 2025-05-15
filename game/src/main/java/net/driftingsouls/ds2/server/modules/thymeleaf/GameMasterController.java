@@ -94,7 +94,7 @@ public class GameMasterController implements DSController {
      */
     private void tickAction(WebContext ctx, HttpServletRequest request, User user) throws ClassNotFoundException {
 
-      Integer tick = Integer.valueOf(new ConfigService().get(WellKnownConfigValue.TICK).getValue());
+      int tick = Integer.parseInt(new ConfigService(context.getEM()).get(WellKnownConfigValue.TICK).getValue());
       if(tick == 1){
         Error error = new Error("Es l&auml;uft bereits ein Tick.", "./gamemaster");
         ctx.setVariable("error",error);
@@ -122,7 +122,7 @@ public class GameMasterController implements DSController {
       org.hibernate.Session db = context.getDB();
       List<User> userlist = Common.cast(db.createQuery(query).list());
 
-      if(userlist.size() > 0){
+      if(!userlist.isEmpty()){
           Error error = new Error("Es wurde bereits eine Kampagne gestartet", "./gamemaster");
           ctx.setVariable("error",error);
           defaultAction(ctx, request, user, Show.START);
@@ -179,8 +179,9 @@ public class GameMasterController implements DSController {
      */
     private void defaultAction(WebContext ctx, HttpServletRequest request, User user, Show show){
 
-      org.hibernate.Session db = context.getDB();
-      String query = "";
+      var db = context.getEM();
+      String query;
+      List<User> userlist;
       switch(show){
         case START:
           if( (user == null) || !context.hasPermission(WellKnownPermission.STATISTIK_ERWEITERTE_SPIELERLISTE) ) {
@@ -190,21 +191,23 @@ public class GameMasterController implements DSController {
             query = "select u from User u where vaccount=0 order by u.id";
           }
           //Liste aller Spieler
-          List<User> userlist = Common.cast(db.createQuery(query).list());
+          userlist = db.createQuery(query, User.class).getResultList();
           ctx.setVariable("users", userlist);
           break;
         case TICK:
           //Liste aller Teilnehmer
-          query = "select u from User u where u.campaign_participant = 1 order by u.id";
-          userlist = Common.cast(db.createQuery(query).list());
+          query = "select u from User u where u.campaign_participant = true order by u.id";
+            userlist = db.createQuery(query, User.class).getResultList();
           ctx.setVariable("participants", userlist);
 
           List<StarsystemsList> systemsViewModel = new ArrayList<>();
           var starsystems = StarsystemRepository.getInstance().getStarsystemsData();
           //keine Teilnehmer = keine Kampagne, also lassen wir auch keine Systeme fuer den Tick auswaehlen
-          if(userlist.size() > 0){
+          if(!userlist.isEmpty()){
             for (var starsystem: starsystems) {
-                if(!starsystem.isVisibleFor(user)) continue;
+                if(!starsystem.isVisibleFor(user)) {
+                    continue;
+                }
                 systemsViewModel.add(new StarsystemsList(starsystem.id, starsystem.name + " ("+ starsystem.id +")"));
             }
           }
@@ -212,15 +215,15 @@ public class GameMasterController implements DSController {
           break;
         case END:
           //Liste aller Teilnehmer
-          query = "select u from User u where u.campaign_participant = 1 order by u.id";
-          userlist = Common.cast(db.createQuery(query).list());
+          query = "select u from User u where u.campaign_participant = true order by u.id";
+            userlist = db.createQuery(query, User.class).getResultList();
           ctx.setVariable("participants", userlist);
           break;
         default:
           break;
       }
-      query = "select count(*) from User u where u.campaign_participant = 1";
-      ctx.setVariable("campaign", ((Long) db.createQuery(query).uniqueResult()) > 0);
+      query = "select count(*) from User u where u.campaign_participant = true";
+      ctx.setVariable("campaign", ((Long) db.createQuery(query).getSingleResult()) > 0);
       ctx.setVariable("show", show.name());
     }
 

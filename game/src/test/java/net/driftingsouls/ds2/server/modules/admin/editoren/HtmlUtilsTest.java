@@ -1,10 +1,10 @@
 package net.driftingsouls.ds2.server.modules.admin.editoren;
 
+import org.junit.Test;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.junit.Test;
 
 import static org.junit.Assert.*;
 
@@ -191,7 +191,7 @@ public class HtmlUtilsTest
 	{
 		// setup
 		String name = "test";
-		Map<Serializable,Object> options = new HashMap<>();
+		Map<Object, Object> options = new HashMap<>();
 
 		// run
 		SelectViewModel model = HtmlUtils.jsSelect(name, false, options, null);
@@ -211,7 +211,7 @@ public class HtmlUtilsTest
 	{
 		// setup
 		String name = "test";
-		Map<Serializable,Object> options = new HashMap<>();
+		Map<Object, Object> options = new HashMap<>();
 		options.put(1, "Foo");
 
 		// run
@@ -232,7 +232,7 @@ public class HtmlUtilsTest
 	{
 		// setup
 		String name = "test";
-		Map<Serializable,Object> options = new HashMap<>();
+		Map<Object, Object> options = new HashMap<>();
 		options.put(1, "Foo");
 		options.put(2, "Bar");
 		options.put(3, "FooFoo");
@@ -257,7 +257,7 @@ public class HtmlUtilsTest
 	{
 		// setup
 		String name = "test";
-		Map<Serializable,Object> options = new HashMap<>();
+		Map<Object, Object> options = new HashMap<>();
 
 		// run
 		SelectViewModel model = HtmlUtils.jsSelect(name, true, options, null);
@@ -276,7 +276,7 @@ public class HtmlUtilsTest
 	{
 		// setup
 		String name = "test";
-		Map<Serializable,Object> options = new HashMap<>();
+		Map<Object, Object> options = new HashMap<>();
 		options.put(1, "Foo");
 		options.put(2, "Bar");
 		options.put(3, "FooFoo");
@@ -301,7 +301,7 @@ public class HtmlUtilsTest
 	{
 		// setup
 		String name = "test";
-		Map<Serializable,Object> options = new HashMap<>();
+		Map<Object, Object> options = new HashMap<>();
 		options.put(null, ":P");
 		options.put(2, "Bar");
 		options.put(3, "FooFoo");
@@ -325,7 +325,7 @@ public class HtmlUtilsTest
 	{
 		// setup
 		String name = "test";
-		Map<Serializable,Object> options = new HashMap<>();
+		Map<Object, Object> options = new HashMap<>();
 		options.put(TestEnum.TEST1, TestEnum.TEST1);
 		options.put(TestEnum.TEST2, TestEnum.TEST2);
 		options.put(TestEnum.TEST3, TestEnum.TEST3);

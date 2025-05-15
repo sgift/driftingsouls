@@ -552,7 +552,7 @@ public class AngriffController extends Controller
 			}
 		}
 
-		if( (battle == null) || !battle.load(user, (Ship)db.get(Ship.class, ownShipID), (Ship)db.get(Ship.class, enemyShipID), forcejoin) ) {
+		if( (battle == null) || !battle.load(user, (Ship)db.get(Ship.class, ownShipID), (Ship)db.get(Ship.class, enemyShipID), forcejoin, getEM()) ) {
 			return null;
 		}
 

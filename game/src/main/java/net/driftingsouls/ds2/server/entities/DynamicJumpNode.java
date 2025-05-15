@@ -21,13 +21,11 @@ package net.driftingsouls.ds2.server.entities;
 
 import net.driftingsouls.ds2.server.config.DynamicJumpNodeConfig;
 import net.driftingsouls.ds2.server.config.StarSystem;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.map.TileCache;
 import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.*;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
 /**
@@ -130,25 +128,24 @@ public class DynamicJumpNode {
     /**
      * Zerstört diesen dynamischen JumpNode.
      */
-    public void destroy() {
-        ContextMap.getContext().getDB().delete(this.jumpnode);
-        ContextMap.getContext().getDB().delete(this);
+    public void destroy(EntityManager db) {
+        db.remove(this.jumpnode);
+        db.remove(this);
     }
 
     /**
      * Bewegt diesen dynamischen JumpNode innerhalb seiner Möglichkeiten.
      */
-    public void move() {
-        org.hibernate.Session db = ContextMap.getContext().getDB();
+    public void move(EntityManager db) {
         // Bewege Eingang
         if (config.getMaxDistanceToInitialStart() > 0) {
-            StarSystem system = (StarSystem) db.get(StarSystem.class, jumpnode.getSystem());
+            var system = db.find(StarSystem.class, jumpnode.getSystem());
             movePosition(system, config.getInitialStart().getX(), config.getInitialStart().getY(), config.getMaxDistanceToInitialStart(), jumpnode::setX, jumpnode::setY, true);
         }
 
         // Bewege Ausgang
         if (config.getMaxDistanceToInitialTarget() > 0) {
-            StarSystem system = (StarSystem) db.get(StarSystem.class, jumpnode.getSystemOut());
+            var system = db.find(StarSystem.class, jumpnode.getSystemOut());
             movePosition(system, config.getInitialTarget().getX(), config.getInitialTarget().getY(), config.getMaxDistanceToInitialTarget(), jumpnode::setXOut, jumpnode::setYOut, false);
         }
 

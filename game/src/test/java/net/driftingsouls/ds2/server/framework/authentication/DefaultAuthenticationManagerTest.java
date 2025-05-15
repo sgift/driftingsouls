@@ -18,7 +18,7 @@ public class DefaultAuthenticationManagerTest extends DBSingleTransactionTest
 	public void gegebenEinNormalerAccountUndDiePassendenLogindaten_login_sollteDenLoginDurchfuehren() throws AuthenticationException
 	{
 		// setup
-		ConfigService configService = new ConfigService();
+		ConfigService configService = new ConfigService(getEM());
 		DefaultAuthenticationManager authenticationManager = new DefaultAuthenticationManager(configService);
 		User user = persist(new User("foo", Common.md5("bar"), 0, "", new Cargo(), "foo@localhost"));
 
@@ -34,7 +34,7 @@ public class DefaultAuthenticationManagerTest extends DBSingleTransactionTest
 	public void gegebenEinNormalerAccountAberDasFalschePasswort_login_sollteEineWrongPasswordExceptionWerfen() throws AuthenticationException
 	{
 		// setup
-		ConfigService configService = new ConfigService();
+		ConfigService configService = new ConfigService(getEM());
 		DefaultAuthenticationManager authenticationManager = new DefaultAuthenticationManager(configService);
 		persist(new User("foo", Common.md5("bar"), 0, "", new Cargo(), "foo@localhost"));
 
@@ -46,7 +46,7 @@ public class DefaultAuthenticationManagerTest extends DBSingleTransactionTest
 	public void gegebenEinAccountImVacationModus_login_sollteDieZugehoerigeExceptionWerfen()
 	{
 		// setup
-		ConfigService configService = new ConfigService();
+		ConfigService configService = new ConfigService(getEM());
 		DefaultAuthenticationManager authenticationManager = new DefaultAuthenticationManager(configService);
 		User user = persist(new User("foo", Common.md5("bar"), 0, "", new Cargo(), "foo@localhost"));
 		user.setVacationCount(10);

@@ -48,7 +48,7 @@ public class KSCheatRegenerateOwnAction extends BasicKSAction {
 
 		Context context = ContextMap.getContext();
 
-		if (!new ConfigService().getValue(WellKnownConfigValue.ENABLE_CHEATS))
+		if (!new ConfigService(getController().getEM()).getValue(WellKnownConfigValue.ENABLE_CHEATS))
 		{
 			context.addError("Cheats sind deaktiviert!");
 			return Result.HALT;

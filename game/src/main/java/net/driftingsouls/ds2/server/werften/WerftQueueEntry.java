@@ -18,11 +18,7 @@
  */
 package net.driftingsouls.ds2.server.werften;
 
-import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
-import net.driftingsouls.ds2.server.cargo.ItemID;
-import net.driftingsouls.ds2.server.cargo.ResourceEntry;
-import net.driftingsouls.ds2.server.cargo.ResourceList;
+import net.driftingsouls.ds2.server.cargo.*;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
@@ -34,16 +30,7 @@ import net.driftingsouls.ds2.server.ships.ShipType;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Type;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import java.util.Iterator;
+import javax.persistence.*;
 import java.util.List;
 
 /**
@@ -327,7 +314,7 @@ public class WerftQueueEntry {
 		MESSAGE.get().setLength(0);
 
 		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
+		var db = context.getEM();
 
 		if( !this.isScheduled() ) {
 			return 0;
@@ -338,7 +325,7 @@ public class WerftQueueEntry {
 		User auser = this.werft.getOwner();
 
 		SchiffHinzufuegenService schiffHinzufuegenService = new SchiffHinzufuegenService();
-		Ship ship = schiffHinzufuegenService.erstelle(auser, shipd, this.werft.getLocation());
+		Ship ship = schiffHinzufuegenService.erstelle(auser, shipd, this.werft.getLocation(), db);
 
 		// Item benutzen
 		if( this.getRequiredItem() > -1 ) {
@@ -399,15 +386,14 @@ public class WerftQueueEntry {
 			this.werft.setBuildFlagschiff(false);
 		}
 
-		db.delete(this);
+		db.remove(this);
 		this.werft.removeQueueEntry(this);
 
-		final Iterator<?> entryIter = db.createQuery("from WerftQueueEntry where werft=:werft and position>:pos order by position")
-			.setEntity("werft", this.werft)
-			.setInteger("pos", this.position)
-			.iterate();
-		while( entryIter.hasNext() ) {
-			WerftQueueEntry entry = (WerftQueueEntry)entryIter.next();
+		var entries = db.createQuery("from WerftQueueEntry where werft=:werft and position>:pos order by position", WerftQueueEntry.class)
+				.setParameter("werft", this.werft)
+				.setParameter("pos", this.position)
+				.getResultList();
+		for(var entry: entries) {
 			entry.setPosition(entry.getPosition()-1);
 		}
 

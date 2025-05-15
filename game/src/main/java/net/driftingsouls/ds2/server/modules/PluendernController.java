@@ -328,7 +328,7 @@ public class PluendernController extends Controller
 					shipFrom.getName() + " (" + shipFrom.getId() + ") bei " +
 					shipFrom.getLocation().displayCoordinates(false) + " gepl&uuml;ndert.\n");
 
-			PM.send(shipFrom.getOwner(), shipTo.getOwner().getId(), "Schiff gepl&uuml;ndert", msg.toString());
+			PM.send(shipFrom.getOwner(), shipTo.getOwner().getId(), "Schiff gepl&uuml;ndert", msg.toString(), getEM());
 		}
 	}
 
@@ -346,7 +346,7 @@ public class PluendernController extends Controller
 		{
 			String statust = status;
 
-			if (statust.length() > 0)
+			if (!statust.isEmpty())
 			{
 				statust += " destroy";
 			}

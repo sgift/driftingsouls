@@ -28,15 +28,14 @@ import net.driftingsouls.ds2.server.entities.ally.AllyPosten;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 /**
  * Testcase fuer HandleAllyLowMember
@@ -55,7 +54,7 @@ public class HandleAllyLowMemberTest extends DBSingleTransactionTest
 	@Before
 	public void setUp() {
 		this.sender = persist(new User("senderUser", "***", 0, "", new Cargo(), "testSender@localhost"));
-		ConfigValue configValue = new ConfigService().get(WellKnownConfigValue.ALLIANZAUFLOESUNG_PM_SENDER);
+		ConfigValue configValue = new ConfigService(getEM()).get(WellKnownConfigValue.ALLIANZAUFLOESUNG_PM_SENDER);
 		configValue.setValue(String.valueOf(sender.getId()));
 
 		this.user1 = persist(new User("testUser1", "***", 0, "", new Cargo(), "test1@localhost"));

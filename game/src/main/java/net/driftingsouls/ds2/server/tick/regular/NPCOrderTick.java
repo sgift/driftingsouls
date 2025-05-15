@@ -87,11 +87,12 @@ public class NPCOrderTick extends TickController {
 
 		List<Order> orders = db.createQuery("from Order order by user.id", Order.class)
 				.getResultList();
-		new UnitOfWork<Order>("NPCOrderTick")
+		new UnitOfWork<Order>("NPCOrderTick", db)
 		{
 			@Override
 			public void doWork(Order order)
 			{
+				var db = getEM();
 				if( order.getTick() != 1 )
 				{
 					order.setTick(order.getTick()-1);
@@ -108,7 +109,7 @@ public class NPCOrderTick extends TickController {
 
 				if( order instanceof OrderShip )
 				{
-					newShip = processOrderShip(order, user, loc);
+					newShip = processOrderShip(order, user, loc, db);
 				}
 				else if( order instanceof OrderOffizier )
 				{
@@ -127,7 +128,7 @@ public class NPCOrderTick extends TickController {
 		.executeFor(orders);
 
 		this.log("Versende PMs...");
-		new SingleUnitOfWork("NPCOrderTick - PMs")
+		new SingleUnitOfWork("NPCOrderTick - PMs", db)
 		{
 			@Override
 			public void doWork() {
@@ -135,7 +136,7 @@ public class NPCOrderTick extends TickController {
 				final User sourceUser = db.find(User.class, -1);
 				for( Map.Entry<Integer, StringBuilder> entry : pmcache.entrySet() )
 				{
-					PM.send(sourceUser, entry.getKey(), "NPC-Lieferservice", entry.getValue().toString());
+					PM.send(sourceUser, entry.getKey(), "NPC-Lieferservice", entry.getValue().toString(), db);
 				}
 			}
 		}
@@ -144,7 +145,7 @@ public class NPCOrderTick extends TickController {
 		this.log("Verteile NPC-Punkte...");
 		List<User> users = db.createQuery("from User where locate('ordermenu',flags)!=0", User.class)
 				.getResultList();
-		new UnitOfWork<User>("NPCOrderTick - NPC-Punkte")
+		new UnitOfWork<User>("NPCOrderTick - NPC-Punkte", db)
 		{
 			@Override
 			public void doWork(User user) {
@@ -154,7 +155,7 @@ public class NPCOrderTick extends TickController {
 		.executeFor(users);
 	}
 
-	private Ship processOrderShip(Order order, User user, Location loc)
+	private Ship processOrderShip(Order order, User user, Location loc, EntityManager db)
 	{
 		ShipType shipd = ((OrderShip)order).getShipType();
 
@@ -162,7 +163,7 @@ public class NPCOrderTick extends TickController {
 				order.getUser().getId()+" geliefert");
 
 		Ship newShip;
-		Ship ship = createShip(user, shipd, loc);
+		Ship ship = createShip(user, shipd, loc, db);
 
 		newShip = ship;
 
@@ -204,7 +205,7 @@ public class NPCOrderTick extends TickController {
 		Ship newShip = null;
 		if( bases.isEmpty() )
 		{
-			newShip = createShip(user, shipd, loc);
+			newShip = createShip(user, shipd, loc, db);
 
 			this.log("* Order "+order.getId()+" ready: Offizier wird mittels "+
 					shipd.getNickname()+" ("+shipd.getId()+") wird zu User "+order.getUser().getId()+" geliefert");
@@ -264,7 +265,7 @@ public class NPCOrderTick extends TickController {
 		return newShip;
 	}
 
-	private Ship createShip(User user, ShipType shipd, Location loc)
+	private Ship createShip(User user, ShipType shipd, Location loc, EntityManager db)
 	{
 		Cargo cargo = new Cargo();
 		cargo.addResource( Resources.DEUTERIUM, shipd.getRd()* 10L);
@@ -272,7 +273,7 @@ public class NPCOrderTick extends TickController {
 		cargo.addResource( Resources.ANTIMATERIE, shipd.getRa()* 10L);
 
 		SchiffHinzufuegenService schiffHinzufuegenService = new SchiffHinzufuegenService();
-		Ship ship = schiffHinzufuegenService.erstelle(user, shipd, loc, "[hide]NPC-Order[/hide]");
+		Ship ship = schiffHinzufuegenService.erstelle(user, shipd, loc, "[hide]NPC-Order[/hide]", db);
 		ship.setCargo(cargo);
 		ship.setNahrungCargo(shipd.getNahrungCargo());
 

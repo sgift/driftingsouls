@@ -4,8 +4,6 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
-
-import org.hibernate.Session;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -48,15 +46,6 @@ public class DBTest
 	public void mitTransaktion(Runnable handler)
 	{
 		DBTestUtils.mitTransaktion(handler);
-	}
-
-	/**
-	 * Gibt die aktuelle Hibernate-Session zurueck.
-	 * @return Die Session
-	 */
-	protected Session getDB()
-	{
-		return ContextMap.getContext().getDB();
 	}
 
 	/**

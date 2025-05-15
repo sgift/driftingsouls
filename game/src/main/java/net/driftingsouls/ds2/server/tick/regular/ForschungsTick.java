@@ -61,11 +61,12 @@ public class ForschungsTick extends TickController {
 							"where (base.owner.vaccount=0 or base.owner.wait4vac!=0) and forschung!=null", Forschungszentrum.class)
 					.getResultList();
 		}
-		new UnitOfWork<Forschungszentrum>("Forschungstick")
+		new UnitOfWork<Forschungszentrum>("Forschungstick", db)
 		{
 			@Override
 			public void doWork(Forschungszentrum fz)
 			{
+				var db = getEM();
 				if( fz.getDauer() > 1 )
 				{
 					fz.setDauer(fz.getDauer()-1);
@@ -93,9 +94,9 @@ public class ForschungsTick extends TickController {
 					log("\t"+user.getId()+" steht nicht laenger unter gcp-schutz");
 				}
 
-				final User sourceUser = (User)db.find(User.class, -1);
+				final User sourceUser = db.find(User.class, -1);
                 if(base.getOwner().getUserValue(WellKnownUserValue.GAMEPLAY_USER_RESEARCH_PM)) {
-                    PM.send(sourceUser, base.getOwner().getId(), "Forschung abgeschlossen", msg);
+                    PM.send(sourceUser, base.getOwner().getId(), "Forschung abgeschlossen", msg, db);
                 }
 
 				fz.setForschung(null);

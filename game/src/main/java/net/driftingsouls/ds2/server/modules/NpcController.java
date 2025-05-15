@@ -253,7 +253,7 @@ public class NpcController extends Controller
 			return ViewMessage.failure("Diesen Orden kännen sie nicht verleihen.");
 		}
 
-		if (reason.length() == 0)
+		if (reason.isEmpty())
 		{
 			return ViewMessage.failure("Sie müssen einen Grund angeben.");
 		}
@@ -270,7 +270,7 @@ public class NpcController extends Controller
 
 		PM.send(user, edituser.getId(), "Orden '" + medal.getName() + "' verliehen",
 			   "Ich habe Dir den Orden [medal]" + medal.getId() + "[/medal]" +
-			   " verliehen Aufgrund deiner " + reason);
+			   " verliehen Aufgrund deiner " + reason, getEM());
 
 		return ViewMessage.success("Dem Spieler wurde der Orden '" +
 								   medal.getName() +
@@ -377,7 +377,7 @@ public class NpcController extends Controller
 							"Du hast soeben " + punkte + " Loyalitätspunkte erhalten. " +
 							"Du verfügst nun insgesamt über " + edituser.getLoyalitaetspunkteTotalBeiNpc(user) + " Loyalitätspunkte bei mir.\n\n";
 			pmText += "Grund für die Vergabe: " + grund;
-			PM.send(user, edituser.getId(), "Loyalitätspunkte erhalten", pmText, PM.FLAGS_AUTOMATIC);
+			PM.send(user, edituser.getId(), "Loyalitätspunkte erhalten", pmText, PM.FLAGS_AUTOMATIC, getEM());
 		}
 
 		return ViewMessage.success(punkte + " LP vergeben");

@@ -921,7 +921,7 @@ public class UnitTauschController extends Controller
 					}
 
 					String tmpmsg = Common.implode(",", sourceshiplist) + " l&auml;dt Waren auf " + Common.implode(",", shiplist) + "\n" + msg.get(toTarget.getOwner());
-					PM.send((User) getUser(), toTarget.getOwner(), "Waren transferiert", tmpmsg);
+					PM.send((User) getUser(), toTarget.getOwner(), "Waren transferiert", tmpmsg, getEM());
 
 					ownerpmlist.put(toTarget.getOwner(), msg.get(toTarget.getOwner()).toString());
 				}

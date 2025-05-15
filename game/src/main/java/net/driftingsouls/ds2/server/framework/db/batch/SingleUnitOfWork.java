@@ -1,5 +1,8 @@
 package net.driftingsouls.ds2.server.framework.db.batch;
 
+import net.driftingsouls.ds2.server.framework.ContextMap;
+
+import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +18,11 @@ public abstract class SingleUnitOfWork extends UnitOfWork<Void>
 
 	public SingleUnitOfWork(String name)
 	{
-		super(name);
+		this(name, ContextMap.getContext().getEM());
+	}
+
+	public SingleUnitOfWork(String name, EntityManager entityManager) {
+		super(name, entityManager);
 	}
 
 	@Override

@@ -45,9 +45,9 @@ import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo.Crew;
 import net.driftingsouls.ds2.server.units.UnitType;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
-import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
@@ -184,7 +184,7 @@ public class KapernController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine erobernAction(@UrlParam(name = "ship") Ship eigenesSchiff, @UrlParam(name = "tar") Ship zielSchiff)
 	{
-		org.hibernate.Session db = ContextMap.getContext().getDB();
+		var db = getEM();
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) this.getUser();
 
@@ -224,7 +224,7 @@ public class KapernController extends Controller
 				user.addBounty(shipBounty);
 				//Make it public that there's a new bounty on a player, so others can go to hunt
 				int bountyChannel = configService.getValue(WellKnownConfigValue.BOUNTY_CHANNEL);
-				ComNetChannel channel = (ComNetChannel) db.get(ComNetChannel.class, bountyChannel);
+				ComNetChannel channel = (ComNetChannel) db.find(ComNetChannel.class, bountyChannel);
 				if( channel != null )
 				{
 					ComNetEntry entry = new ComNetEntry(user, channel);
@@ -247,7 +247,7 @@ public class KapernController extends Controller
 
 			if (zielSchiff.getTypeData().getShipClass() == ShipClasses.STATION)
 			{
-				if (!checkAlliedShipsReaction(db, t, targetUser, eigenesSchiff, zielSchiff))
+				if (!checkAlliedShipsReaction(t, targetUser, eigenesSchiff, zielSchiff))
 				{
 					return t;
 				}
@@ -274,7 +274,7 @@ public class KapernController extends Controller
 		}
 
 		// Transmisson
-		PM.send(user, targetUser.getId(), "Kaperversuch", msg.toString());
+		PM.send(user, targetUser.getId(), "Kaperversuch", msg.toString(), getEM());
 
 		// Wurde das Schiff gekapert?
 		if (ok)
@@ -291,7 +291,7 @@ public class KapernController extends Controller
 		return t;
 	}
 
-	private void transferShipToNewOwner(Session db, User user, Ship targetShip)
+	private void transferShipToNewOwner(EntityManager db, User user, Ship targetShip)
 	{
 		String currentTime = Common.getIngameTime(ContextMap.getContext().get(ContextCommon.class).getTick());
 
@@ -300,10 +300,10 @@ public class KapernController extends Controller
 		targetShip.removeFromFleet();
 		targetShip.setOwner(user);
 
-		List<Ship> docked = Common.cast(db.createQuery("from Ship where id>0 and docked in (:docked,:landed)")
-				.setString("docked", Integer.toString(targetShip.getId()))
-				.setString("landed", "l " + targetShip.getId())
-				.list());
+		List<Ship> docked = db.createQuery("from Ship where id>0 and docked in (:docked,:landed)", Ship.class)
+				.setParameter("docked", Integer.toString(targetShip.getId()))
+				.setParameter("landed", "l " + targetShip.getId())
+				.getResultList();
 		for (Ship dockShip : docked)
 		{
 			dockShip.removeFromFleet();
@@ -315,15 +315,16 @@ public class KapernController extends Controller
 			}
 			if (dockShip.getTypeData().getWerft() != 0)
 			{
-				ShipWerft werft = (ShipWerft) db.createQuery("from ShipWerft where ship=:ship")
-						.setEntity("ship", dockShip)
-						.uniqueResult();
+				ShipWerft werft = db.createQuery("from ShipWerft where ship=:ship", ShipWerft.class)
+						.setParameter("ship", dockShip)
+						.getResultList().stream().findFirst().orElse(null);
 
-				if (werft.getKomplex() != null)
-				{
-					werft.removeFromKomplex();
+				if(werft != null) {
+					if (werft.getKomplex() != null) {
+						werft.removeFromKomplex();
+					}
+					werft.setLink(null);
 				}
-				werft.setLink(null);
 			}
 
 		}
@@ -334,15 +335,16 @@ public class KapernController extends Controller
 		}
 		if (targetShip.getTypeData().getWerft() != 0)
 		{
-			ShipWerft werft = (ShipWerft) db.createQuery("from ShipWerft where ship=:ship")
-					.setEntity("ship", targetShip)
-					.uniqueResult();
+			ShipWerft werft = db.createQuery("from ShipWerft where ship=:ship", ShipWerft.class)
+					.setParameter("ship", targetShip)
+					.getResultList().stream().findFirst().orElse(null);
 
-			if (werft.getKomplex() != null)
-			{
-				werft.removeFromKomplex();
+			if(werft != null) {
+				if (werft.getKomplex() != null) {
+					werft.removeFromKomplex();
+				}
+				werft.setLink(null);
 			}
-			werft.setLink(null);
 		}
 	}
 
@@ -482,9 +484,10 @@ public class KapernController extends Controller
 		return ok;
 	}
 
-	private boolean checkAlliedShipsReaction(org.hibernate.Session db, TemplateEngine t,
+	private boolean checkAlliedShipsReaction(TemplateEngine t,
 											 User targetUser, Ship ownShip, Ship targetShip)
 	{
+		var db = getEM();
 		List<User> ownerlist = new ArrayList<>();
 		if (targetUser.getAlly() != null)
 		{
@@ -496,13 +499,13 @@ public class KapernController extends Controller
 		}
 
 		int shipcount = 0;
-		List<Ship> shiplist = Common.cast(
-				db.createQuery("from Ship where x=:x and y=:y and system=:system and owner in (:ownerlist) and id>0 and battle is null")
-						.setInteger("x", targetShip.getX())
-						.setInteger("y", targetShip.getY())
-						.setInteger("system", targetShip.getSystem())
-						.setParameterList("ownerlist", ownerlist)
-						.list());
+		List<Ship> shiplist =
+				db.createQuery("from Ship where x=:x and y=:y and system=:system and owner in (:ownerlist) and id>0 and battle is null", Ship.class)
+						.setParameter("x", targetShip.getX())
+						.setParameter("y", targetShip.getY())
+						.setParameter("system", targetShip.getSystem())
+						.setParameter("ownerlist", ownerlist)
+						.getResultList();
 		for (Ship ship : shiplist)
 		{
 			if (ship.getTypeData().isMilitary() && ship.getCrew() > 0)
@@ -529,7 +532,7 @@ public class KapernController extends Controller
 			if (found)
 			{
 				User source = (User) getDB().get(User.class, -1);
-				PM.send(source, targetShip.getOwner().getId(), "Kaperversuch entdeckt", "Ihre Schiffe haben einen Kaperversuch bei " + targetShip.getLocation().displayCoordinates(false) + " vereitelt und den Gegner angegriffen.");
+				PM.send(source, targetShip.getOwner().getId(), "Kaperversuch entdeckt", "Ihre Schiffe haben einen Kaperversuch bei " + targetShip.getLocation().displayCoordinates(false) + " vereitelt und den Gegner angegriffen.", db);
 
 				Battle battle = schlachtErstellenService.erstelle(targetShip.getOwner(), targetShip, ownShip, true);
 

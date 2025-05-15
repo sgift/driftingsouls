@@ -10,17 +10,16 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 
 import javax.annotation.Nonnull;
+import javax.persistence.EntityManager;
 
 public class SchiffHinzufuegenService
 {
-	public @Nonnull Ship erstelle(@Nonnull User auser, @Nonnull ShipType shiptype, @Nonnull Location loc) {
-		return erstelle(auser, shiptype, loc, "");
+	public @Nonnull Ship erstelle(@Nonnull User auser, @Nonnull ShipType shiptype, @Nonnull Location loc, @Nonnull EntityManager db) {
+		return erstelle(auser, shiptype, loc, "", db);
 	}
 
-	public @Nonnull Ship erstelle(@Nonnull User auser, @Nonnull ShipType shiptype, @Nonnull Location loc, @Nonnull String historiendaten) {
+	public @Nonnull Ship erstelle(@Nonnull User auser, @Nonnull ShipType shiptype, @Nonnull Location loc, @Nonnull String historiendaten, @Nonnull EntityManager db) {
 		Context context = ContextMap.getContext();
-		var db = context.getEM();
-
 		String currentTime = Common.getIngameTime(context.get(ContextCommon.class).getTick());
 		String history = "Indienststellung am "+currentTime+" durch "+auser.getName()+" ("+auser.getId()+")"+(historiendaten.isEmpty() ? "" : "" + historiendaten);
 

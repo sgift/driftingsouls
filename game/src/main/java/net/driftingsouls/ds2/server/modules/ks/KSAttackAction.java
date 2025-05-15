@@ -709,7 +709,7 @@ public class KSAttackAction extends BasicKSAction {
 			else {
 				battle.logme( "[color=red]+ Schiff zerstört[/color]\n" );
 				logMsg.append("[color=red]+ Schiff zerstört[/color]\n");
-				if( !new ConfigService().getValue(WellKnownConfigValue.DESTROYABLE_SHIPS) ) {
+				if( !new ConfigService(getController().getEM()).getValue(WellKnownConfigValue.DESTROYABLE_SHIPS) ) {
 					if( eShip.getHull() < 1 ) {
 						eShip.setHull(1);
 					}
@@ -1225,7 +1225,7 @@ public class KSAttackAction extends BasicKSAction {
 		}
 
 		boolean mydamage = this.calcDamage(logMsg, battle, aeShip, aeShipType, hit, (int)(shieldSchaden*damagemod), (int)(schaden*damagemod), tmpsubdmgs);
-		if( !mydamage && new ConfigService().getValue(WellKnownConfigValue.DESTROYABLE_SHIPS) ) {
+		if( !mydamage && new ConfigService(getController().getEM()).getValue(WellKnownConfigValue.DESTROYABLE_SHIPS) ) {
 			this.destroyShip(logMsg, this.ownShip.getOwner().getId(), battle, aeShip);
 		}
 	}
@@ -1631,7 +1631,7 @@ public class KSAttackAction extends BasicKSAction {
 				/*
 				 *	Schiff falls notwendig zerstoeren
 				 */
-				if (!savedamage && new ConfigService().getValue(WellKnownConfigValue.DESTROYABLE_SHIPS)) {
+				if (!savedamage && new ConfigService(getController().getEM()).getValue(WellKnownConfigValue.DESTROYABLE_SHIPS)) {
 					this.destroyShip(logMsg, this.ownShip.getOwner().getId(), battle, this.enemyShip);
 					int newindex = battle.getNewTargetIndex();
 					if (newindex != -1) {
@@ -1649,7 +1649,7 @@ public class KSAttackAction extends BasicKSAction {
 					battle.logme("[color=red]+ Angreifer zerst&ouml;rt[/color]\n");
 					logMsg.append("[color=red]+ Angreifer zerstört[/color]\n");
 
-					if (new ConfigService().getValue(WellKnownConfigValue.DESTROYABLE_SHIPS)) {
+					if (new ConfigService(getController().getEM()).getValue(WellKnownConfigValue.DESTROYABLE_SHIPS)) {
 						this.destroyShipOnly(this.ownShip.getOwner().getId(), battle, this.ownShip);
 
 						breakFlag = true;

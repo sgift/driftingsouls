@@ -26,21 +26,21 @@ public final class HtmlUtils
 	 * @param selected Der momentan ausgewaehlte Wert (interner Wert)
 	 * @return Das ViewModel
 	 */
-	public static SelectViewModel jsSelect(String name, boolean readOnly, Map<Serializable,Object> options, Serializable selected)
+	public static SelectViewModel jsSelect(String name, boolean readOnly, Map<Object, Object> options, Serializable selected)
 	{
 		SelectViewModel model = new SelectViewModel(name);
 		model.disabled = readOnly;
 		model.selected = selected != null ? identifierToString(selected) : null;
 
 		// TreeMap mag keine null-Keys
-		Map<Serializable,Object> optionsIntrl = new HashMap<>(options);
+		Map<Object, Object> optionsIntrl = new HashMap<>(options);
 		if( optionsIntrl.containsKey(null) )
 		{
 			Object label = optionsIntrl.remove(null);
 			model.nullOption = label instanceof String ? (String)label : new ObjectLabelGenerator().generateFor(null, label);
 		}
 
-		for (Map.Entry<Serializable, Object> entry : new TreeMap<>(optionsIntrl).entrySet())
+		for (var entry : new TreeMap<>(optionsIntrl).entrySet())
 		{
 			String label = objectLabelToString(entry.getKey(), entry.getValue());
 
@@ -90,7 +90,7 @@ public final class HtmlUtils
 		echo.append(">").append(label).append("</option>");
 	}
 
-	public static String objectLabelToString(Serializable identifier, Object value)
+	public static String objectLabelToString(Object identifier, Object value)
 	{
 		String label;
 		if (value instanceof String || identifier == value)
@@ -104,7 +104,7 @@ public final class HtmlUtils
 		return label;
 	}
 
-	public static String identifierToString(Serializable identifier)
+	public static String identifierToString(Object identifier)
 	{
 		if( identifier instanceof Enum )
 		{

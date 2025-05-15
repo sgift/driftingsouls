@@ -23,16 +23,15 @@ import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.services.AllianzService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+
 /**
  * TASK_ALLY_LOW_MEMBER
  * 		Eine Allianz hat weniger als 2 Mitglieder (Praesi eingerechnet) und ist daher von der Aufloesung bedroht.
- *
  * 	- data1 -> die ID der betroffenen Allianz
  *  - data2 -> unbenutzt
  *  - data3 -> unbenutzt
@@ -42,29 +41,31 @@ import org.springframework.stereotype.Service;
 @Service
 public class HandleAllyLowMember implements TaskHandler {
 	private final AllianzService allianzService;
+	private final EntityManager db;
+	private final ConfigService configService;
 
 	@Autowired
-	public HandleAllyLowMember(AllianzService allianzService)
+	public HandleAllyLowMember(AllianzService allianzService, EntityManager db, ConfigService configService)
 	{
 		this.allianzService = allianzService;
-	}
+        this.db = db;
+        this.configService = configService;
+    }
 
 	@Override
 	public void handleEvent(Task task, String event) {
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
 		if( event.equals("tick_timeout") ) {
 			int allyid = Integer.parseInt(task.getData1());
 
-			Ally ally = (Ally)db.get(Ally.class, allyid);
+			Ally ally = db.find(Ally.class, allyid);
 			if( ally == null ) {
 				Taskmanager.getInstance().removeTask( task.getTaskID() );
 				return;
 			}
 
-			User source = (User)db.get(User.class, new ConfigService().getValue(WellKnownConfigValue.ALLIANZAUFLOESUNG_PM_SENDER));
+			User source = db.find(User.class, configService.getValue(WellKnownConfigValue.ALLIANZAUFLOESUNG_PM_SENDER));
 
-			PM.sendToAlly(source, ally, "Allianzauflösung", "[Automatische Nachricht]\n\nDeine Allianz wurde mit sofortiger Wirkung aufgel&ouml;st. Der Grund ist Spielermangel. Grunds&auml;tzlich m&uuml;ssen Allianzen mindestens 2 Mitglieder haben um bestehen zu k&ouml;nnen. Da deine Allianz in der vorgegebenen Zeit dieses Ziel nicht erreichen konnte war die Aufl&ouml;sung unumg&auml;nglich.");
+			PM.sendToAlly(source, ally, "Allianzauflösung", "[Automatische Nachricht]\n\nDeine Allianz wurde mit sofortiger Wirkung aufgel&ouml;st. Der Grund ist Spielermangel. Grunds&auml;tzlich m&uuml;ssen Allianzen mindestens 2 Mitglieder haben um bestehen zu k&ouml;nnen. Da deine Allianz in der vorgegebenen Zeit dieses Ziel nicht erreichen konnte war die Aufl&ouml;sung unumg&auml;nglich.", db);
 
 			allianzService.loeschen(ally);
 

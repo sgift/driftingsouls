@@ -18,14 +18,14 @@
  */
 package net.driftingsouls.ds2.server.modules.ks;
 
-import java.io.IOException;
-
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
+
+import java.io.IOException;
 
 /**
  * Bricht die Uebernahme des Kommandos durch einen anderen Spieler ab.
@@ -58,7 +58,7 @@ public class KSStopTakeCommandAction extends BasicKSAction {
 			return Result.ERROR;
 		}
 		
-		PM.send( user, battle.getTakeCommand(battle.getOwnSide()), "Schlacht-&uuml;bergabe abgelehnt", "Die &Uuml;bergabe es Kommandos der Schlacht bei "+battle.getLocation().displayCoordinates(false)+" wurde abgelehnt");
+		PM.send(user, battle.getTakeCommand(battle.getOwnSide()), "Schlacht-&uuml;bergabe abgelehnt", "Die &Uuml;bergabe es Kommandos der Schlacht bei "+battle.getLocation().displayCoordinates(false)+" wurde abgelehnt", getController().getEM());
 
 		battle.setTakeCommand(battle.getOwnSide(), 0);
 

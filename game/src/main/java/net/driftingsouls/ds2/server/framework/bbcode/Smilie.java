@@ -19,16 +19,9 @@
 package net.driftingsouls.ds2.server.framework.bbcode;
 
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Version;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -93,17 +86,16 @@ public class Smilie {
 	 * @param text Der Text
 	 * @return der Text mit den Grafiken
 	 */
-	public static String parseSmilies( String text ) {
+	public static String parseSmilies(EntityManager db, String text) {
 		synchronized(LOCK) {
 			if( smiliesSearch == null ) {
 				smiliesSearch = new ArrayList<>();
 				smiliesReplace = new ArrayList<>();
-			
-				org.hibernate.Session db = ContextMap.getContext().getDB();
-				List<Smilie> smilies = Common.cast(db.createQuery("from Smilie").list());
+
+				List<Smilie> smilies = db.createQuery("from Smilie", Smilie.class).getResultList();
 				for( Smilie smilie : smilies ) {
 					smiliesSearch.add(Pattern.compile("(?<=.\\W|\\W.|^\\W)"+Pattern.quote(smilie.getTag())+"(?=.\\W|\\W.|\\W$)"));
-					smiliesReplace.add("<img style=\"border:0px\" src=\""+new ConfigService().getValue(WellKnownConfigValue.SMILIE_PATH)+"/"+smilie.getImage()+"\" alt=\""+smilie.getTag()+"\" title=\""+smilie.getTag()+"\" />");
+					smiliesReplace.add("<img style=\"border:0px\" src=\""+new ConfigService(db).getValue(WellKnownConfigValue.SMILIE_PATH)+"/"+smilie.getImage()+"\" alt=\""+smilie.getTag()+"\" title=\""+smilie.getTag()+"\" />");
 				}
 			}
 		}

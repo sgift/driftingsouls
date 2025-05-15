@@ -301,7 +301,7 @@
                                 import org.testcontainers.containers.MySQLContainer
 
                                 db = new MySQLContainer(
-                                        "mysql:latest")
+                                        "mysql:8")
                                         .withUsername("${db_username}")
                                         .withDatabaseName("ds")
                                         .withPassword("${db_password}")

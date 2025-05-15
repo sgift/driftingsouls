@@ -740,7 +740,7 @@ public class TransportController extends Controller
 		validiereWarenKoennenZwischenQuelleUndZielTransferiertWerden(from, to, way[0], way[1]);
 
 		StringBuilder message = new StringBuilder();
-		org.hibernate.Session db = getDB();
+		var db = getEM();
 
 		boolean transfer = false;
 
@@ -816,7 +816,7 @@ public class TransportController extends Controller
 							// Evt unbekannte Items bekannt machen
 							if (getUser().getId() != toTarget.getOwner())
 							{
-								Item item = (Item) db.get(Item.class, res.getId().getItemID());
+								Item item = db.find(Item.class, res.getId().getItemID());
 								if (item.isUnknownItem())
 								{
 									User auser = (User) getDB().get(User.class, toTarget.getOwner());
@@ -907,7 +907,7 @@ public class TransportController extends Controller
 					}
 
 					String tmpmsg = Common.implode(",", sourceshiplist) + " l&auml;dt Waren auf " + Common.implode(",", shiplist) + "\n" + msg.get(toTarget.getOwner());
-					PM.send((User) getUser(), toTarget.getOwner(), "Waren transferiert", tmpmsg);
+					PM.send((User) getUser(), toTarget.getOwner(), "Waren transferiert", tmpmsg, db);
 
 					ownerpmlist.put(toTarget.getOwner(), msg.get(toTarget.getOwner()).toString());
 				}

@@ -35,6 +35,7 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +44,6 @@ import java.util.Random;
 /**
  * TASK_AUSBAU_AUFTRAG
  * 		Ein Ausbau eines Asteroiden..
- *
  * 	- data1 -> die Auftrags-ID
  * 	- data2 -> Die Anzahl der bisherigen Versuche den Task durchzufuehren
  *  - data3 -> Die ID der ausfuehrenden Fraktion
@@ -60,7 +60,7 @@ public class HandleUpgradeJob implements TaskHandler
 	public void handleEvent(Task task, String event)
 	{
 		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
+		var db = context.getEM();
 		Taskmanager tm = Taskmanager.getInstance();
 
 		if( !event.equals("tick_timeout") )
@@ -72,24 +72,24 @@ public class HandleUpgradeJob implements TaskHandler
 
 		int orderid = Integer.parseInt(task.getData1());
 		int tick = context.get(ContextCommon.class).getTick();
-		UpgradeJob order = (UpgradeJob) db.get(UpgradeJob.class, orderid);
-		int preis = order.getPrice();
+		UpgradeJob order = db.find(UpgradeJob.class, orderid);
+		int preis = order.getPrice(db);
 		Base base = order.getBase();
 		User user = order.getUser();
 		Ship colonizer = order.getColonizer();
-		User nullUser = (User)db.get(User.class, 0);
+		User nullUser = db.find(User.class, 0);
 
 		// Try-Count ueberschritten?
 		if( Integer.parseInt(task.getData2()) > 35 && order.getEnd() == 0 )
 		{
 			// Es wurde nicht geschafft in 35 Versuchen die Ressourcen fuer den Ausbau bereit zu stellen
-			cancelJob(tm, task, order, faction);
+			cancelJob(db, tm, task, order, faction);
 			return;
 		}
 
 		if( (order.getEnd() == 0) && (colonizer == null) )
 		{
-			cancelJob(tm, task, order, faction);
+			cancelJob(db, tm, task, order, faction);
 			return;
 		}
 
@@ -132,7 +132,7 @@ public class HandleUpgradeJob implements TaskHandler
 					base.setOwner(user);
 				}
 				// Loesche den Auftrag und den Task
-				db.delete(order);
+				db.remove(order);
 				tm.removeTask( task.getTaskID() );
 
 				return;
@@ -176,8 +176,11 @@ public class HandleUpgradeJob implements TaskHandler
 				base.getCargo().substractResource( Resources.ERZ, erzRequired );
 
 				// Base "besetzen"
-				base.setOwner((User) db.get(User.class, -19));
-				List<ShipWerft> linkedShipyards = Common.cast(db.createQuery("from ShipWerft where linked=:linked").setParameter("linked", base).list());
+				base.setOwner(db.find(User.class, -19));
+				List<ShipWerft> linkedShipyards = db.createQuery("from ShipWerft where linked=:linked", ShipWerft.class)
+						.setParameter("linked", base)
+						.getResultList();
+
 				for(ShipWerft shipyard: linkedShipyards)
 				{
 					shipyard.resetLink();
@@ -188,7 +191,7 @@ public class HandleUpgradeJob implements TaskHandler
 				colonizer.destroy();
 
 				// Setzen wann wir fertig sind
-                int dauer = new Random().nextInt(order.getMaxTicks()-order.getMinTicks()+1)+order.getMinTicks();
+                int dauer = new Random().nextInt(order.getMaxTicks(db)-order.getMinTicks(db)+1)+order.getMinTicks(db);
 				order.setEnd( tick + dauer );
                 task.setTimeout(dauer);
 			}
@@ -207,36 +210,34 @@ public class HandleUpgradeJob implements TaskHandler
 		tm.incTimeout(task.getTaskID());
 	}
 
-	private void cancelJob(Taskmanager tm, Task task, UpgradeJob order, final int faction)
+	private void cancelJob(EntityManager db, Taskmanager tm, Task task, UpgradeJob order, final int faction)
 	{
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
 		if( order.getBar() && order.getPayed() )
 		{
-			order.getBase().getCargo().addResource(new ItemID(ITEM_RE), order.getPrice());
+			order.getBase().getCargo().addResource(new ItemID(ITEM_RE), order.getPrice(db));
 		}
 		else if( !order.getBar() )
 		{
-			order.getUser().transferMoneyFrom( faction, order.getPrice(), "Ausbau von " + order.getBase().getName() + " aufgrund von Ressourcenknappheit fehlgeschlagen.");
+			order.getUser().transferMoneyFrom( faction, order.getPrice(db), "Ausbau von " + order.getBase().getName() + " aufgrund von Ressourcenknappheit fehlgeschlagen.");
 		}
 
 		// Loesche den Auftrag und den Task
-		db.delete(order);
+		db.remove(order);
 		tm.removeTask( task.getTaskID() );
 	}
 
-	private void sendWarningMessage(org.hibernate.Session db, UpgradeJob order, final int factionId)
+	private void sendWarningMessage(EntityManager db, UpgradeJob order, final int factionId)
 	{
-		User faction = (User)db.get(User.class, factionId);
+		User faction = db.find(User.class, factionId);
 
 		String message = "Sehr geehrter/geehrte/geehrtes "+order.getUser().getName()+",\n\n"+
 			"gerne führen wir den von Ihnen beauftragten Ausbau des Asteroids '"+order.getBase().getName()+"' ("+order.getBase().getId()+") durch. Bitte stellen Sie die folgenden Dinge sicher: [list]\n";
 		if( !order.getPayed() ) {
 			if( order.getBar() ) {
-				message += "[*] Es müssen sich mindestens "+order.getPrice()+" RE auf dem angegebenen Bergbauschiff oder der Basis befinden.\n";
+				message += "[*] Es müssen sich mindestens "+order.getPrice(db)+" RE auf dem angegebenen Bergbauschiff oder der Basis befinden.\n";
 			}
 			else {
-				message += "[*] Sie müssen mindestens "+order.getPrice()+" RE auf Ihrem Konto haben.\n";
+				message += "[*] Sie müssen mindestens "+order.getPrice(db)+" RE auf Ihrem Konto haben.\n";
 			}
 		}
 		message += "[*] Es müssen [resource=i"+ITEM_BBS+"|0|0]"+order.getMiningExplosive()+"[/resource] "+
@@ -247,12 +248,12 @@ public class HandleUpgradeJob implements TaskHandler
 		message += "Mit freundlichen Grüßen\n";
 		message += faction.getPlainname();
 
-		PM.send(faction, order.getUser().getId(), "Ihr bestellter Asteroidenausbau", message);
+		PM.send(faction, order.getUser().getId(), "Ihr bestellter Asteroidenausbau", message, db);
 	}
 
-	private void sendFinishedMessage(org.hibernate.Session db, UpgradeJob order, final int factionId)
+	private void sendFinishedMessage(EntityManager db, UpgradeJob order, final int factionId)
 	{
-		User faction = (User)db.get(User.class, factionId);
+		User faction = db.find(User.class, factionId);
 
 		String message = "Sehr geehrter/geehrte/geehrtes "+order.getUser().getName()+",\n\n"+
 			"der von Ihnen bestellte Ausbau des Asteroids '"+order.getBase().getName()+"' ("+order.getBase().getId()+") ist nun abgeschlossen. " +
@@ -261,12 +262,12 @@ public class HandleUpgradeJob implements TaskHandler
 		message += "Mit freundlichen Grüßen\n";
 		message += faction.getPlainname();
 
-		PM.send(faction, order.getUser().getId(), "Asteroidenausbau abgeschlossen", message);
+		PM.send(faction, order.getUser().getId(), "Asteroidenausbau abgeschlossen", message, db);
 	}
 
-	private void sendFinishedWarningMessage(org.hibernate.Session db, UpgradeJob order, final int factionId)
+	private void sendFinishedWarningMessage(EntityManager db, UpgradeJob order, final int factionId)
 	{
-		User faction = (User)db.get(User.class, factionId);
+		User faction = db.find(User.class, factionId);
 
 		String message = "Sehr geehrter/geehrte/geehrtes "+order.getUser().getName()+",\n\n"+
 			"der von Ihnen bestellte Ausbau des Asteroids '"+order.getBase().getName()+"' ("+order.getBase().getId()+") ist nun abgeschlossen. " +
@@ -276,6 +277,6 @@ public class HandleUpgradeJob implements TaskHandler
 		message += "Mit freundlichen Grüßen\n";
 		message += faction.getPlainname();
 
-		PM.send(faction, order.getUser().getId(), "Asteroidenausbau abgeschlossen", message);
+		PM.send(faction, order.getUser().getId(), "Asteroidenausbau abgeschlossen", message, db);
 	}
 }

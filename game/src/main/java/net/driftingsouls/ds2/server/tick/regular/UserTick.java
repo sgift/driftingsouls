@@ -46,12 +46,11 @@ import java.util.List;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class UserTick extends TickController
 {
-	private EntityManager em;
+	private EntityManager db;
 
 	@Override
-	protected void prepare()
-	{
-		this.em = getEM();
+	protected void prepare() {
+		this.db = getEM();
 	}
 
 	@Override
@@ -60,15 +59,14 @@ public class UserTick extends TickController
 		final long deleteThreshould = Common.time() - 60*60*24*14;
 		log("DeleteThreshould is " + deleteThreshould);
 
-		List<Integer> users = em.createQuery("select id from User", Integer.class).getResultList();
-		new UnitOfWork<Integer>("User Tick")
-		{
-
+		List<Integer> users = db.createQuery("select id from User", Integer.class).getResultList();
+		new UnitOfWork<Integer>("User Tick", db) {
 			@Override
 			public void doWork(Integer userID) {
-				EntityManager em = getEM();
+				var db = getEM();
+				var configService = new ConfigService(db);
 
-				User user = em.find(User.class, userID);
+				User user = db.find(User.class, userID);
 				//Im Kampagnentick brauchen die Inserate etc nicht bearbeitet zu werden
 				//wir muesse nur den TickReady-Status zuruecksetzen
 				if(isCampaignTick()){
@@ -78,12 +76,12 @@ public class UserTick extends TickController
 				if(user.isInVacation())
 				{
 					//Set vacation points
-					int costsPerTick = new ConfigService().getValue(WellKnownConfigValue.VAC_POINTS_PER_VAC_TICK);
+					int costsPerTick = configService.getValue(WellKnownConfigValue.VAC_POINTS_PER_VAC_TICK);
 					user.setVacpoints(user.getVacpoints() - costsPerTick);
 				}
 				else
 				{
-					int pointsPerTick = new ConfigService().getValue(WellKnownConfigValue.VAC_POINTS_PER_PLAYED_TICK);
+					int pointsPerTick = configService.getValue(WellKnownConfigValue.VAC_POINTS_PER_PLAYED_TICK);
 					user.setVacpoints(user.getVacpoints() + pointsPerTick);
 
 					//Delete all pms older than 14 days from inbox
@@ -91,7 +89,7 @@ public class UserTick extends TickController
 					if(trashCan != null)
 					{
 						int trash = trashCan.getId();
-						em.createQuery("update PM set gelesen=2, ordner= :trash where empfaenger= :user and ordner= :ordner and time < :time")
+						db.createQuery("update PM set gelesen=2, ordner= :trash where empfaenger= :user and ordner= :ordner and time < :time")
 						  .setParameter("trash", trash)
 						  .setParameter("user", user)
 						  .setParameter("ordner", 0)
@@ -104,11 +102,11 @@ public class UserTick extends TickController
 					}
 
 					//Subtract costs for trade ads
-					TypedQuery<Long> query = em.createQuery("select count(*) from Handel where who=:who", Long.class);
+					TypedQuery<Long> query = db.createQuery("select count(*) from Handel where who=:who", Long.class);
 					query.setParameter("who", user);
 					long adCount = query.getSingleResult();
 
-					int adCost = new ConfigService().getValue(WellKnownConfigValue.AD_COST);
+					int adCost = configService.getValue(WellKnownConfigValue.AD_COST);
 
 					BigInteger account = user.getKonto();
 
@@ -126,25 +124,25 @@ public class UserTick extends TickController
 							BigInteger adCostBI = BigInteger.valueOf(adCost);
 							int wasteAdCount = adCountBI.subtract(account.divide(adCostBI)).intValue();
 
-							TypedQuery<Handel> wasteQuery = em.createQuery("from Handel where who=:who order by time asc", Handel.class);
+							TypedQuery<Handel> wasteQuery = db.createQuery("from Handel where who=:who order by time asc", Handel.class);
 							wasteQuery.setParameter("who", user);
 							wasteQuery.setMaxResults(wasteAdCount);
 							List<Handel> wasteAds = wasteQuery.getResultList();
 
 							log(wasteAdCount + " ads zu loeschen.");
 
-							costs = BigInteger.valueOf((adCount - wasteAdCount)*adCost);
+							costs = BigInteger.valueOf((adCount - wasteAdCount) * adCost);
 
 							for(Handel wasteAd: wasteAds)
 							{
-								em.remove(wasteAd);
+								db.remove(wasteAd);
 							}
 
-							PM.send(user, user.getId(), "Handelsinserate gel&ouml;scht", wasteAdCount + " Ihrer Handelsinserate wurden gel&ouml;scht, weil Sie die Kosten nicht aufbringen konnten.");
+							PM.send(user, user.getId(), "Handelsinserate gel&ouml;scht", wasteAdCount + " Ihrer Handelsinserate wurden gel&ouml;scht, weil Sie die Kosten nicht aufbringen konnten.", UserTick.this.db);
 						}
 
 						log("Geld f&uuml;r Handelsinserate " + costs);
-						User nobody = em.find(User.class, -1);
+						User nobody = db.find(User.class, -1);
 						nobody.transferMoneyFrom(user.getId(), costs,
 								"Kosten f&uuml;r Handelsinserate - User: " + user.getName() + " (" + user.getId() + ")",
 								false, UserMoneyTransfer.Transfer.AUTO);

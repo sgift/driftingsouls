@@ -111,7 +111,7 @@ public class TCController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine shipToShipAction(Ship ship, String conf, int off, @UrlParam(name = "target") Ship tarShip)
 	{
-		org.hibernate.Session db = getDB();
+		var db = getEM();
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
 
@@ -142,11 +142,10 @@ public class TCController extends Controller
 			throw new ValidierungException("Das Zielschiff befindet sich in einer Schlacht", Common.buildUrl("default", "module", "schiffe"));
 		}
 
-		long officount = ((Number) db.createQuery("select count(*) from Offizier where stationiertAufSchiff=:dest AND owner=:owner")
-				.setEntity("dest", ship)
-				.setEntity("owner", user)
-				.iterate().next()
-		).longValue();
+		long officount = db.createQuery("select count(*) from Offizier where stationiertAufSchiff=:dest AND owner=:owner", Long.class)
+                .setParameter("dest", ship)
+                .setParameter("owner", user)
+                .getSingleResult();
 
 		if (officount == 0)
 		{
@@ -175,11 +174,10 @@ public class TCController extends Controller
 			maxoffis = tarShipType.getCrew();
 		}
 
-		long tarOffiCount = ((Number) db.createQuery("select count(*) from Offizier where stationiertAufSchiff=:dest AND owner=:owner")
-				.setEntity("dest", tarShip)
-				.setEntity("owner", tarShip.getOwner())
-				.iterate().next()
-		).longValue();
+		long tarOffiCount = db.createQuery("select count(*) from Offizier where stationiertAufSchiff=:dest AND owner=:owner", Long.class)
+				.setParameter("dest", tarShip)
+				.setParameter("owner", tarShip.getOwner())
+				.getSingleResult();
 		if (tarOffiCount >= maxoffis)
 		{
 			throw new ValidierungException("Das Schiff hat bereits die maximale Anzahl Offiziere an Bord", errorurl);
@@ -234,7 +232,7 @@ public class TCController extends Controller
 		
 		if(tarUser != user){
 			String msg = "Die " + ship.getName() + " ("+ship.getId()+") hat den Offizier " + offizier.getName() + " (" + offizier.getID() + ") an die [ship="+tarShip.getId()+"]"+tarShip.getName() + " ("+tarShip.getId()+")[/ship] &uuml;bergeben.";
-			PM.send(user, tarUser.getId(), "Offizier &uuml;bergeben", msg);
+			PM.send(user, tarUser.getId(), "Offizier &uuml;bergeben", msg, db);
 		}
 
 		return t;

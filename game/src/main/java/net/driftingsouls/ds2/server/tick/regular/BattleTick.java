@@ -64,10 +64,11 @@ public class BattleTick extends TickController {
 		}
 
 
-		new UnitOfWork<Battle>("Battle Tick")
+		new UnitOfWork<Battle>("Battle Tick", db)
 		{
 			@Override
 			public void doWork(Battle battle) {
+				var db = getEM();
 				if( battle.getBlockCount() > 0 && battle.getLetzteRunde() <= lastacttime )
 				{
 					battle.decrementBlockCount();
@@ -79,7 +80,7 @@ public class BattleTick extends TickController {
 				}
 
 				log("+ Naechste Runde bei Schlacht "+battle.getId());
-                battle.load( battle.getCommander(0), null, null, 0 );
+                battle.load( battle.getCommander(0), null, null, 0, db);
 				if( battle.endTurn(false) )
 				{
 					// Daten nur aktualisieren, wenn die Schlacht auch weiterhin existiert

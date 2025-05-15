@@ -20,7 +20,6 @@ package net.driftingsouls.ds2.server.modules;
 
 import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.cargo.ItemCargoEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.cargo.modules.Module;
@@ -28,7 +27,6 @@ import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleItemModule;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Weapons;
-import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
@@ -36,33 +34,12 @@ import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.RedirectViewResult;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
-import net.driftingsouls.ds2.server.modules.schiffplugins.ADocksDefault;
-import net.driftingsouls.ds2.server.modules.schiffplugins.CargoDefault;
-import net.driftingsouls.ds2.server.modules.schiffplugins.Handelsposten;
-import net.driftingsouls.ds2.server.modules.schiffplugins.JDocksDefault;
-import net.driftingsouls.ds2.server.modules.schiffplugins.JumpdriveShivan;
-import net.driftingsouls.ds2.server.modules.schiffplugins.NavigationDefault;
-import net.driftingsouls.ds2.server.modules.schiffplugins.Parameters;
-import net.driftingsouls.ds2.server.modules.schiffplugins.SchiffPlugin;
-import net.driftingsouls.ds2.server.modules.schiffplugins.SensorsDefault;
-import net.driftingsouls.ds2.server.modules.schiffplugins.UnitsDefault;
-import net.driftingsouls.ds2.server.modules.schiffplugins.WerftDefault;
+import net.driftingsouls.ds2.server.modules.schiffplugins.*;
 import net.driftingsouls.ds2.server.services.HandelspostenService;
-import net.driftingsouls.ds2.server.ships.Alarmstufe;
-import net.driftingsouls.ds2.server.ships.SchiffSprungService;
-import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.ships.ShipClasses;
-import net.driftingsouls.ds2.server.ships.ShipFleet;
-import net.driftingsouls.ds2.server.ships.ShipTypeData;
-import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
+import net.driftingsouls.ds2.server.ships.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -70,13 +47,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -226,7 +197,7 @@ public class SchiffController extends Controller
 	{
 		validiereSchiff(ship);
 
-		org.hibernate.Session db = getDB();
+		var db = getEM();
 		User user = (User) getUser();
 
 		User newowner = User.lookupByIdentifier(newownerID);
@@ -257,24 +228,24 @@ public class SchiffController extends Controller
 
 			ShipTypeData shiptype = ship.getTypeData();
 			String msg = "Ich habe Dir die [ship="+ship.getId()+"]" + ship.getName() + "[/ship], ein Schiff der " + shiptype.getNickname() + "-Klasse, übergeben\nSie steht bei " + ship.getLocation().displayCoordinates(false);
-			PM.send(user, newowner.getId(), "Schiff übergeben", msg);
+			PM.send(user, newowner.getId(), "Schiff übergeben", msg, db);
 
 			String consMessage = Ship.MESSAGE.getMessage();
-			t.setVar("ship.message", (!consMessage.equals("") ? consMessage + "<br />" : "") + "<span style=\"color:green\">Das Schiff wurde erfolgreich an " + newowner.getProfileLink() + " übergeben</span><br />");
+			t.setVar("ship.message", (!consMessage.isEmpty() ? consMessage + "<br />" : "") + "<span style=\"color:green\">Das Schiff wurde erfolgreich an " + newowner.getProfileLink() + " übergeben</span><br />");
 
 			if (fleet != null)
 			{
-				long fleetcount = (Long) db.createQuery("select count(*) from Ship where id>0 and fleet=:fleet")
-						.setEntity("fleet", fleet)
-						.iterate().next();
+				long fleetcount = getEM().createQuery("select count(*) from Ship where id>0 and fleet=:fleet", Long.class)
+						.setParameter("fleet", fleet)
+						.getSingleResult();
 
 				if (fleetcount < 3)
 				{
 					db.createQuery("update Ship set fleet=null where id>0 and fleet=:fleet")
-							.setEntity("fleet", fleet)
+							.setParameter("fleet", fleet)
 							.executeUpdate();
 
-					db.delete(fleet);
+					db.remove(fleet);
 				}
 			}
 

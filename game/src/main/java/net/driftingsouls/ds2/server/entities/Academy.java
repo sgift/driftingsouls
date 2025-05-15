@@ -23,15 +23,7 @@ import net.driftingsouls.ds2.server.bases.AcademyQueueEntry;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import javax.persistence.Version;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -149,8 +141,8 @@ public class Academy {
 	 * Berechnet die aktuell laufenden Ausbildungen neu.
 	 * 
 	 */
-	public void rescheduleQueue() {
-		int maxoffstotrain = new ConfigService().getValue(WellKnownConfigValue.MAX_OFFS_TO_TRAIN);
+	public void rescheduleQueue(EntityManager db) {
+		int maxoffstotrain = new ConfigService(db).getValue(WellKnownConfigValue.MAX_OFFS_TO_TRAIN);
 		int trainingoffs = 0;
 		
 		List<AcademyQueueEntry> queue = this.queue;

@@ -25,10 +25,12 @@ public class TicksperreSetzenTick extends TickController
 	@Override
 	protected void tick()
 	{
-		new SingleUnitOfWork("Hebe Accountblock auf") {
+		var db = getEM();
+		new SingleUnitOfWork("Hebe Accountblock auf", db) {
 			@Override
 			public void doWork() {
-				ConfigValue value = new ConfigService().get(WellKnownConfigValue.TICK);
+				var db = getEM();
+				ConfigValue value = new ConfigService(db).get(WellKnownConfigValue.TICK);
 				value.setValue("1");
 			}
 		}

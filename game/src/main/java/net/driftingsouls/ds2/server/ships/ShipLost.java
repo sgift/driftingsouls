@@ -18,22 +18,13 @@
  */
 package net.driftingsouls.ds2.server.ships;
 
-import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.battles.SchlachtLog;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
-import net.driftingsouls.ds2.server.framework.ConfigService;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Version;
+import javax.persistence.*;
 
 /**
  * Ein in einer Schlacht zerstoertes Schiff.
@@ -87,10 +78,10 @@ public class ShipLost {
 	 * <code>battleLog</code>, <code>destOwner</code> und <code>destAlly</code> werden gesetzt
 	 * @param ship Das Schiff, fuer das der Eintrag angelegt werden soll
 	 */
-	public ShipLost(Ship ship) {
+	public ShipLost(Ship ship, int tick) {
 		this.type = ship.getType();
 		this.name = ship.getName();
-		this.tick = new ConfigService().getValue(WellKnownConfigValue.TICKS);
+		this.tick = tick;
 		this.owner = ship.getOwner().getId();
 		if( ship.getOwner().getAlly() != null ) {
 			this.ally = ship.getOwner().getAlly().getId();

@@ -38,7 +38,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,7 +76,7 @@ public class CommController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult readAllAction(Ordner ordner)
 	{
-		ordner.markAllAsRead();
+		ordner.markAllAsRead(getEM());
 
 		return new RedirectViewResult("showInbox").withMessage("<span style=\"color:red\">Alle Nachrichten als gelesen markiert</span>");
 	}
@@ -90,7 +89,7 @@ public class CommController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult deleteAllAction(Ordner ordner)
 	{
-		ordner.deleteAllPms();
+		ordner.deleteAllPms(getEM());
 
 		return new RedirectViewResult("showInbox").withMessage("<span style=\"color:red\">Alle Nachrichten gelöscht</span>");
 	}
@@ -103,18 +102,18 @@ public class CommController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult deleteAction(int delete, Ordner delord)
 	{
-		org.hibernate.Session db = getContext().getDB();
+		var db = getEM();
 		User user = (User) getUser();
 
 		int result = 0;
 		if ((delord != null) && (delete == 0))
 		{
-			result = delord.deleteOrdner();
+			result = delord.deleteOrdner(db);
 			db.flush();
 		}
 		else
 		{
-			PM pm = (PM) db.get(PM.class, delete);
+			PM pm = db.find(PM.class, delete);
 			if (pm == null)
 			{
 				return new RedirectViewResult("showInbox").withMessage("<span style=\"color:red\">Die angegebene Nachricht existiert nicht</span>");
@@ -122,7 +121,6 @@ public class CommController extends Controller
 			if (pm.getEmpfaenger() == user)
 			{
 				result = pm.delete();
-				db.flush();
 			}
 		}
 
@@ -159,7 +157,7 @@ public class CommController extends Controller
 			return new RedirectViewResult("showInbox");
 		}
 
-		Ordner.createNewOrdner(ordnername, ordner, user);
+		Ordner.createNewOrdner(ordnername, ordner, user, getEM());
 
 		return new RedirectViewResult("showInbox");
 	}
@@ -207,7 +205,7 @@ public class CommController extends Controller
 		String message;
 		if (player != null)
 		{
-			ordner.deletePmsByUser(player);
+			ordner.deletePmsByUser(player, getEM());
 
 			message = "<span style=\"color:red\">Alle Nachrichten von " + Common._title(player.getName()) + " gelöscht</span>";
 		}
@@ -273,7 +271,7 @@ public class CommController extends Controller
 		}
 
 		List<PM> pms = source.getPms();
-		List<Ordner> ordners = source.getChildren();
+		List<Ordner> ordners = source.getChildren(getEM());
 
 		int counter = 0;
 		for (Ordner ordner : ordners)
@@ -289,7 +287,7 @@ public class CommController extends Controller
 				continue;
 			}
 
-			if (tomove.getAllChildren().contains(moveto))
+			if (tomove.getAllChildren(getEM()).contains(moveto))
 			{
 				return "ERROR: Es duerfen keine Ordner in ihre eignen Unterordner verschoben werden";
 			}
@@ -340,7 +338,7 @@ public class CommController extends Controller
 		}
 
 		List<PM> pms = source.getPms();
-		List<Ordner> ordners = source.getChildren();
+		List<Ordner> ordners = source.getChildren(getEM());
 
 		for (Ordner ordner : ordners)
 		{
@@ -360,7 +358,7 @@ public class CommController extends Controller
 				continue;
 			}
 
-			if (tomove.getAllChildren().contains(moveto))
+			if (tomove.getAllChildren(getEM()).contains(moveto))
 			{
 				return new RedirectViewResult("showInbox").withMessage("<span style=\"color:red\">Es dürfen keine Ordner in ihre eignen Unterordner verschoben werden.</span>");
 			}
@@ -396,7 +394,7 @@ public class CommController extends Controller
 		User user = (User) getUser();
 
 		List<PM> pms = ordner.getPms();
-		List<Ordner> ordners = ordner.getChildren();
+		List<Ordner> ordners = ordner.getChildren(getEM());
 
 		for (Ordner ordner1 : ordners)
 		{
@@ -409,7 +407,7 @@ public class CommController extends Controller
 
 			if (delordner != null && delordner.getId() == ordner1.getId())
 			{
-				delordner.deleteOrdner();
+				delordner.deleteOrdner(getEM());
 			}
 		}
 
@@ -489,7 +487,7 @@ public class CommController extends Controller
 		{
 			t.setVar("show.message", "<span style=\"color:#00ff55\">Antwort verarbeitet</span>");
 
-			PM.send(user, PM.TASK, title, msg, flags);
+			PM.send(user, PM.TASK, title, msg, flags, getEM());
 		}
 		else if ("ally".equals(to) || "ally".equals(sendeziel))
 		{
@@ -503,7 +501,7 @@ public class CommController extends Controller
 			t.setVar("show.message",
 					"<span style=\"color:#00ff55\">Nachricht versendet an</span> " + Common._title(user.getAlly().getName()));
 
-			PM.sendToAlly(user, user.getAlly(), title, msg, flags);
+			PM.sendToAlly(user, user.getAlly(), title, msg, flags, getEM());
 		}
 		else if("all".equals(to))
 		{
@@ -512,7 +510,7 @@ public class CommController extends Controller
 				return t;
 			}
 
-			PM.sendToAll(user, title, msg, flags);
+			PM.sendToAll(user, title, msg, flags, getEM());
 		}
 		else
 		{
@@ -524,7 +522,7 @@ public class CommController extends Controller
 			}
 			t.setVar("show.message", "<span style=\"color:#00ff55\">Nachricht versendet an</span> " + Common._title(auser.getName()));
 
-			PM.send(user, auser.getId(), title, msg, flags);
+			PM.send(user, auser.getId(), title, msg, flags, getEM());
 		}
 
 		return t;
@@ -639,8 +637,8 @@ public class CommController extends Controller
 				"pm.highlight", pm.hasFlag(PM.FLAGS_ADMIN) || pm.hasFlag(PM.FLAGS_OFFICIAL),
 				"pm.bgimage", bgimg,
 				"pm.time", Common.date("j.n.Y G:i", pm.getTime()),
-				"pm.text", Smilie.parseSmilies(text),
-				"pm.kommentar", Smilie.parseSmilies(Common._text(pm.getKommentar())));
+				"pm.text", Smilie.parseSmilies(getEM(), text),
+				"pm.kommentar", Smilie.parseSmilies(getEM(), Common._text(pm.getKommentar())));
 
 		return t;
 	}
@@ -684,7 +682,6 @@ public class CommController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine showInboxAction(Ordner ordner, RedirectViewResult redirect)
 	{
-		org.hibernate.Session db = getDB();
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
 
@@ -704,15 +701,13 @@ public class CommController extends Controller
 
 		t.parse("availordner.list", "availordner.listitem", true);
 
-		List<?> ordnerList = db.createQuery("from Ordner where owner= :user order by name asc")
-				.setEntity("user", user)
-				.list();
-		for (Object anOrdnerList : ordnerList)
+		List<Ordner> folders = getEM().createQuery("from Ordner where owner= :user order by name asc", Ordner.class)
+				.setParameter("user", user)
+				.getResultList();
+		for (var folder: folders)
 		{
-			Ordner aOrdner = (Ordner) anOrdnerList;
-
-			t.setVar("availordner.id", aOrdner.getId(),
-					"availordner.name", aOrdner.getName());
+			t.setVar("availordner.id", folder.getId(),
+					"availordner.name", folder.getName());
 
 			t.parse("availordner.list", "availordner.listitem", true);
 		}
@@ -720,10 +715,10 @@ public class CommController extends Controller
 		// Link zum uebergeordneten Ordner erstellen
 		if (ordner.getId() != 0)
 		{
-			t.setVar("ordner.id", ordner.getParent().getId(),
+			t.setVar("ordner.id", ordner.getParent(getEM()).getId(),
 					"ordner.name", "..",
 					"ordner.parent", ordner.getId(),
-					"ordner.pms", ordner.getParent().getPmCount(),
+					"ordner.pms", ordner.getParent(getEM()).getPmCount(),
 					"ordner.flags.up", 1,
 					"ordner.flags.trash", (ordner.getFlags() & Ordner.FLAG_TRASH),
 					"ordner.name.real", ordner.getName());
@@ -731,20 +726,20 @@ public class CommController extends Controller
 			t.parse("ordner.list", "ordner.listitem", true);
 		}
 
-		Map<Ordner, Integer> ordners = ordner.getPmCountPerSubOrdner();
+		Map<Ordner, Integer> ordners = ordner.getPmCountPerSubOrdner(getEM());
 
 		// Ordnerliste im aktuellen Ordner ausgeben
-		List<Ordner> children = ordner.getChildren();
-		for (Ordner aOrdner : children)
+		List<Ordner> children = ordner.getChildren(getEM());
+		for (Ordner child : children)
 		{
-			Integer count = ordners.get(aOrdner);
+			Integer count = ordners.get(child);
 
-			t.setVar("ordner.id", aOrdner.getId(),
-					"ordner.name", aOrdner.getName(),
-					"ordner.parent", aOrdner.getParent().getId(),
+			t.setVar("ordner.id", child.getId(),
+					"ordner.name", child.getName(),
+					"ordner.parent", child.getParent(getEM()).getId(),
 					"ordner.pms", count != null ? count : 0,
 					"ordner.flags.up", 0,
-					"ordner.flags.trash", aOrdner.hasFlag(Ordner.FLAG_TRASH));
+					"ordner.flags.trash", child.hasFlag(Ordner.FLAG_TRASH));
 
 			t.parse("ordner.list", "ordner.listitem", true);
 		}
@@ -781,7 +776,7 @@ public class CommController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine showOutboxAction()
 	{
-		org.hibernate.Session db = getDB();
+		var db = getEM();
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 
 		User user = (User) getUser();
@@ -789,14 +784,11 @@ public class CommController extends Controller
 		t.setVar("show.outbox", 1);
 		t.setBlock("_COMM", "pms.out.listitem", "pms.out.list");
 
-		List<?> pms = db.createQuery("from PM as pm inner join fetch pm.empfaenger " +
-				"where pm.sender= :user order by pm.id desc")
-				.setEntity("user", user)
-				.list();
-		for (Object pm1 : pms)
-		{
-			PM pm = (PM) pm1;
-
+		List<PM> pms = db.createQuery("from PM as pm inner join fetch pm.empfaenger " +
+				"where pm.sender= :user order by pm.id desc", PM.class)
+				.setParameter("user", user)
+				.getResultList();
+		for (PM pm: pms) {
 			String title = pm.getTitle();
 			if (title == null || title.trim().isEmpty())
 			{
@@ -869,7 +861,7 @@ public class CommController extends Controller
 			bgimg = "pm_" + Rassen.get().rasse(user.getRace()).getName() + "bg.png";
 		}
 
-		t.setVar("pm.text", Smilie.parseSmilies(Common._text(msg)),
+		t.setVar("pm.text", Smilie.parseSmilies(getEM(), Common._text(msg)),
 				"pm.title", title,
 				"pm.sender", user.getId(),
 				"pm.sender.name", Common._title(user.getName()),
@@ -909,7 +901,7 @@ public class CommController extends Controller
 			t.setVar("pm.title", pm.getTitle());
 			t.setVar("pm.empfaenger.name", Common._title(pm.getEmpfaenger().getName()));
 			t.setVar("pm.sender.name", Common._title(pm.getSender().getName()));
-			t.setVar("pm.text", Smilie.parseSmilies(Common._text(pm.getInhalt())));
+			t.setVar("pm.text", Smilie.parseSmilies(getEM(), Common._text(pm.getInhalt())));
 			t.setVar("system.time", Common.getIngameTime(getContext().get(ContextCommon.class).getTick()));
 			t.setVar("user.signature", user.getUserValue(WellKnownUserValue.PMS_SIGNATURE));
 		}

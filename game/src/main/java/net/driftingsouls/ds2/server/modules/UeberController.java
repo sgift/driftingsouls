@@ -359,7 +359,7 @@ public class UeberController extends Controller
 			battlelist.append("<a class=\"error\" href=\"ds?module=angriff&amp;battle=").append(battle.getId()).append("\">Schlacht ").append(eparty).append(" vs ").append(eparty2).append(" bei ").append(battle.getLocation().displayCoordinates(false)).append("</a>&nbsp;");
 
 			// Nahrunganzeige der Schlacht
-			int nahrung = battle.getNahrungsBalance(user);
+			int nahrung = battle.getNahrungsBalance(user, getEM());
 
 			if (nahrung < 0)
 			{

@@ -51,24 +51,23 @@ public class BaseTick extends TickController
 	}
 
 	@Override
-	protected void prepare() 
-	{
-	}
+	protected void prepare() {}
 
 	private void tickBases() 
 	{
-		javax.persistence.EntityManager em = getEM();
+		var db = getEM();
 
-		List<User> users = em.createQuery("from User u where u.id != 0 and (u.vaccount=0 or u.wait4vac>0) order by u.id", User.class).getResultList();
+		List<User> users = db.createQuery("from User u where u.id != 0 and (u.vaccount=0 or u.wait4vac>0) order by u.id", User.class).getResultList();
 
-		new UnitOfWork<User>("Base Tick")
+		new UnitOfWork<User>("Base Tick", db)
 		{
 			@Override
 			public void doWork(User user) {
+				var db = getEM();
 				// Get all bases, take everything with them - we need it all.
 				List<Base> bases;
 				if(isCampaignTick()){
-					List<StarSystem> systems = getEM().createQuery("from StarSystem s where s.id in (:systems)", StarSystem.class).getResultList();
+					List<StarSystem> systems = db.createQuery("from StarSystem s where s.id in (:systems)", StarSystem.class).getResultList();
 					bases = getEM().createQuery("from Base b fetch all properties where b.owner=:owner and b.system in (:systems)", Base.class)
 							.setParameter("owner", user)
 							.setParameter("systems", systems)
@@ -76,7 +75,7 @@ public class BaseTick extends TickController
 				}
 				else
 				{
-					bases = getEM().createQuery("from Base b fetch all properties where b.owner=:owner", Base.class)
+					bases = db.createQuery("from Base b fetch all properties where b.owner=:owner", Base.class)
 							.setParameter("owner", user)
 							.getResultList();
 				}
@@ -91,9 +90,9 @@ public class BaseTick extends TickController
 
 				if(!messages.toString().isBlank())
 				{
-					User sourceUser = getEM().find(User.class, -1);
+					User sourceUser = db.find(User.class, -1);
 					if(user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_BASE_DOWN_PM)) {
-                        PM.send(sourceUser, user.getId(), "Basis-Tick", messages.toString());
+                        PM.send(sourceUser, user.getId(), "Basis-Tick", messages.toString(), db);
                     }
 				}
 			}
@@ -106,6 +105,5 @@ public class BaseTick extends TickController
 	protected void tick() 
 	{
 		tickBases();
-		getEM().clear();
 	}
 }

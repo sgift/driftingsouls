@@ -174,10 +174,10 @@ public class EditSystem implements EntityEditor<StarSystem>
 
 	private void schlachtBeenden(StarSystem oldsystem, StarSystem system, Serializable battleid)
 	{
-		Session db = ContextMap.getContext().getDB();
-		Battle battle = (Battle)db.get(Battle.class, battleid);
+		var db = ContextMap.getContext().getEM();
+		Battle battle = db.find(Battle.class, battleid);
 
-		battle.load(battle.getCommander(0), null, null, 0);
+		battle.load(battle.getCommander(0), null, null, 0, db);
 		battle.endBattle(0, 0);
 	}
 
