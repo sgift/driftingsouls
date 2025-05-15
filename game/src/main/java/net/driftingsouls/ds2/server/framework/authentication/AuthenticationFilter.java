@@ -10,14 +10,14 @@ import javax.servlet.ServletResponse;
 import java.io.IOException;
 
 public class AuthenticationFilter extends DSFilter {
-    private final AuthenticationManager authManager;
-
-    public AuthenticationFilter() {
-        authManager = SpringUtils.getBean(AuthenticationManager.class);
-    }
+    private AuthenticationManager authManager;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        // Lazy initialization when actually needed
+        if (authManager == null) {
+            authManager = SpringUtils.getBean(AuthenticationManager.class);
+        }
         authManager.authenticateCurrentSession();
         chain.doFilter(request, response);
     }
