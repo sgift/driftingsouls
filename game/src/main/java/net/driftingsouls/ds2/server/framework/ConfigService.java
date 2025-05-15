@@ -1,6 +1,7 @@
 package net.driftingsouls.ds2.server.framework;
 
 import net.driftingsouls.ds2.server.framework.utils.StringToTypeConverter;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
@@ -14,7 +15,7 @@ public class ConfigService
 {
 	private final EntityManager db;
 
-	public ConfigService(EntityManager db) {
+	public ConfigService(@Lazy EntityManager db) {
 		this.db = db;
 	}
 
