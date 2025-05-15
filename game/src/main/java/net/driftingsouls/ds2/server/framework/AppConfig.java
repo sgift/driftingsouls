@@ -1,5 +1,6 @@
 package net.driftingsouls.ds2.server.framework;
 
+import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import org.hibernate.Session;
 import org.springframework.context.annotation.*;
 
@@ -25,9 +26,9 @@ public class AppConfig
 	}
 
 	@Bean(destroyMethod = "")
-	@Scope(value = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
+	@Scope(value = "singleton", proxyMode = ScopedProxyMode.TARGET_CLASS)
 	EntityManager currentEntityManager()
 	{
-		return ContextMap.getContext().getEM();
+		return HibernateUtil.getCurrentEntityManager();
 	}
 }
