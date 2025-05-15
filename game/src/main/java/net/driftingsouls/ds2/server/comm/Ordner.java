@@ -245,11 +245,11 @@ public class Ordner {
 			gelesen = 10;
 		}
 
-		return db.createQuery("select count(*) from PM where empfaenger=:owner and ordner=:ordner and gelesen<:read", Integer.class)
+		return db.createQuery("select count(*) from PM where empfaenger=:owner and ordner=:ordner and gelesen<:read", Long.class)
                 .setParameter("owner", this.owner)
                 .setParameter("ordner", this.id)
                 .setParameter("read", gelesen)
-                .getSingleResult();
+                .getSingleResult().intValue();
 	}
 
 	/**
