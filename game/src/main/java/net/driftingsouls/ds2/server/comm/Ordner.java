@@ -25,17 +25,15 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Repraesentiert einen Ordner im Postfach.
- *
  * Hinweis: Die Ordner-ID 0 hat eine spezielle Bedeutung.
  * Sie kennzeichnet den Hauptordner, in dem sich alle Unterordner
- * befinden. Der Hauptordner existiert jedoch nicht als eigenstaendiger
+ * befinden. Der Hauptordner existiert jedoch nicht als eigenständiger
  * Ordner in der Datenbank.
  * @author Christoph Peltz
  * @author Christopher Jung
@@ -113,13 +111,7 @@ public class Ordner {
 			return ordner;
 		}
 
-		Ordner ordner = new Ordner();
-		ordner.id = 0;
-		ordner.name = "Hauptverzeichnis";
-		ordner.flags = 0;
-		ordner.owner = user;
-
-		return ordner;
+        return createMainFolder(user);
 	}
 
 	public static Ordner createMainFolder(User user) {
@@ -223,7 +215,7 @@ public class Ordner {
 	 */
 	public List<Ordner> getChildren(EntityManager db) {
 		return db.createQuery("from Ordner where parent=:parent and owner=:owner", Ordner.class)
-				.setParameter("parent", this)
+				.setParameter("parent", this.id)
 				.setParameter("owner", this.owner)
 				.getResultList();
 	}
@@ -232,23 +224,12 @@ public class Ordner {
 	 * Gibt alle PMs im Ordner selbst zurueck. PMs in unterordnern werden ignoriert.
 	 * @return Die Liste aller PMs im Ordner
 	 */
-	public List<PM> getPms() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
-		List<PM> pms = new ArrayList<>();
-
-		List<?> pmList = db.createQuery("from PM where empfaenger=:user and gelesen < :gelesen and ordner= :ordner order by time desc")
-			.setEntity("user", this.owner)
-			.setInteger("ordner", this.id)
-			.setInteger("gelesen", this.hasFlag(FLAG_TRASH) ? 10 : 2)
-			.list();
-
-		for (Object aPmList : pmList)
-		{
-			pms.add((PM) aPmList);
-		}
-
-		return pms;
+	public List<PM> getPms(EntityManager db) {
+		return db.createQuery("from PM where empfaenger=:user and gelesen < :gelesen and ordner= :ordner order by time desc", PM.class)
+			.setParameter("user", this.owner)
+			.setParameter("ordner", this.id)
+			.setParameter("gelesen", this.hasFlag(FLAG_TRASH) ? 10 : 2)
+			.getResultList();
 	}
 
 	/**
@@ -256,19 +237,17 @@ public class Ordner {
 	 * Unterordner werden nicht beruecksichtigt.
 	 * @return Die Anzahl der PMs
 	 */
-	public int getPmCount() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
+	public int getPmCount(EntityManager db) {
 		int gelesen = 2;
 		if( (this.flags & Ordner.FLAG_TRASH) != 0 ){
 			gelesen = 10;
 		}
 
-		return ((Number)db.createQuery("select count(*) from PM where empfaenger=:owner and ordner=:ordner and gelesen<:read")
-			.setEntity("owner", this.owner)
-			.setInteger("ordner", this.id)
-			.setInteger("read", gelesen)
-			.iterate().next()).intValue();
+		return db.createQuery("select count(*) from PM where empfaenger=:owner and ordner=:ordner and gelesen<:read", Integer.class)
+                .setParameter("owner", this.owner)
+                .setParameter("ordner", this.id)
+                .setParameter("read", gelesen)
+                .getSingleResult();
 	}
 
 	/**
