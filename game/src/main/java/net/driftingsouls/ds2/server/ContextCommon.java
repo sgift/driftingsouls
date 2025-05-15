@@ -23,10 +23,6 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextInstance;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 
-import javax.script.ScriptEngine;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Kontextlokale Operationen.
  * 
@@ -52,8 +48,6 @@ public final class ContextCommon
 	 */
 	public int getTick()
 	{
-		return new ConfigService().getValue(WellKnownConfigValue.TICKS);
+		return new ConfigService(context.getEM()).getValue(WellKnownConfigValue.TICKS);
 	}
-
-	private Map<String, ScriptEngine> scriptParsers = new HashMap<>();
 }

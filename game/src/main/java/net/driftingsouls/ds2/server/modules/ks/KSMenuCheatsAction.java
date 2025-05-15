@@ -43,7 +43,7 @@ public class KSMenuCheatsAction extends BasicKSMenuAction {
 		
 		Context context = ContextMap.getContext();
 		
-		if( !new ConfigService().getValue(WellKnownConfigValue.DESTROYABLE_SHIPS) ) {
+		if( !new ConfigService(getController().getEM()).getValue(WellKnownConfigValue.DESTROYABLE_SHIPS) ) {
 			context.addError("Cheats sind deaktiviert!");
 			return Result.HALT;
 		}

@@ -251,8 +251,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			if (entry.getRequiredItem() != -1)
 			{
 				List<ItemCargoEntry<Item>> itemlist = cargo.getItem(entry.getRequiredItem());
-				if (itemlist.size() == 0)
-				{
+				if (itemlist.isEmpty()) {
 					entry.setScheduled(false);
 					continue;
 				}
@@ -930,16 +929,16 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 */
 	public @Nonnull RepairCosts getRepairCosts( @Nonnull Ship ship )
 	{
-		org.hibernate.Session db = ContextMap.getContext().getDB();
+		var db = ContextMap.getContext().getEM();
 
 		ShipTypeData shiptype = ship.getTypeData();
 		RepairCosts repairCosts = new RepairCosts();
 
 		Cargo materialCosts = new Cargo();
-		ShipBaubar buildable = (ShipBaubar)db.createQuery("from ShipBaubar where type=:type")
-											 .setInteger("type", ship.getType())
-											 .setMaxResults(1)
-											 .uniqueResult();
+		ShipBaubar buildable = db.createQuery("from ShipBaubar where type=:type", ShipBaubar.class)
+								 .setParameter("type", ship.getType())
+								 .setMaxResults(1)
+								 .getResultList().stream().findFirst().orElse(null);
 
 		if(buildable != null)
 		{
@@ -957,7 +956,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 
 			double damageFactor = outerDamageFactor * 0.7 + innerDamageFactor * 0.3;
 
-			double dampeningFactor = new ConfigService().getValue(WellKnownConfigValue.REPAIR_COST_DAMPENING_FACTOR);
+			double dampeningFactor = new ConfigService(db).getValue(WellKnownConfigValue.REPAIR_COST_DAMPENING_FACTOR);
 
 			Cargo buildCosts = new Cargo(buildable.getCosts());
 			ResourceList buildCostList = buildCosts.getResourceList();
@@ -987,17 +986,17 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			materialCosts.addResource( Resources.ADAMATIUM, (long)(htr/40d) );
 			materialCosts.addResource( Resources.PLATIN,
 					(long)(htrsub/100d*(
-							Math.floor(100-ship.getEngine()) +
+							(double) (100 - ship.getEngine()) +
 							Math.floor((100-ship.getSensors())/4d) +
 							Math.floor((100-ship.getComm())/4d) +
-							Math.floor(100-ship.getWeapons())/2d
+							(double) (100 - ship.getWeapons()) /2d
 						)/106d) );
 			materialCosts.addResource( Resources.SILIZIUM,
 					(long)(htrsub/100d*(
-							(100-ship.getEngine())/3 +
-							(100-ship.getSensors())/2 +
-							(100-ship.getComm())/2 +
-							(100-ship.getWeapons())/5
+							(double) (100 - ship.getEngine()) /3 +
+							(double) (100 - ship.getSensors()) /2 +
+							(double) (100 - ship.getComm()) /2 +
+							(double) (100 - ship.getWeapons()) /5
 						)/72d) );
 			materialCosts.addResource( Resources.KUNSTSTOFFE,
 					(long)((

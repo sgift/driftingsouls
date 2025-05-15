@@ -27,6 +27,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
 import java.util.List;
 
 /**
@@ -41,8 +42,13 @@ import java.util.List;
  */
 @Service
 public class HandleAllyNewMember implements TaskHandler {
+	private final EntityManager db;
 
-	@Override
+    public HandleAllyNewMember(EntityManager db) {
+        this.db = db;
+    }
+
+    @Override
 	public void handleEvent(Task task, String event) {
 		Context context = ContextMap.getContext();
 		User user = (User)context.getActiveUser();
@@ -79,7 +85,7 @@ public class HandleAllyNewMember implements TaskHandler {
 					membercount++;
 				}
 
-				PM.send(user, player.getId(), "Aufnahmeantrag", "[Automatische Nachricht]\nDu wurdest in die Allianz >" + ally.getName() + "< aufgenommen\n\nHerzlichen Gr&uuml;ckwunsch!");
+				PM.send(user, player.getId(), "Aufnahmeantrag", "[Automatische Nachricht]\nDu wurdest in die Allianz >" + ally.getName() + "< aufgenommen\n\nHerzlichen Gr&uuml;ckwunsch!", db);
 
 				// Check, ob wir eine TM_TASK_LOW_MEMBER entfernen muessen
 				if (membercount == 2)
@@ -94,13 +100,13 @@ public class HandleAllyNewMember implements TaskHandler {
 			case "pm_no":
 			{
 				User source = (User) ContextMap.getContext().getDB().get(User.class, 0);
-				PM.send(source, playerID, "Aufnahmeantrag", "[Automatische Nachricht]\nDein Antrag wurde leider abgelehnt. Es steht dir nun frei ob du einen neuen Antrag nach absprache mit der Allianz stellen willst oder ob du dich an eine andere Allianz wendest.");
+				PM.send(source, playerID, "Aufnahmeantrag", "[Automatische Nachricht]\nDein Antrag wurde leider abgelehnt. Es steht dir nun frei ob du einen neuen Antrag nach absprache mit der Allianz stellen willst oder ob du dich an eine andere Allianz wendest.", db);
 				break;
 			}
 			case "tick_timeout":
 			{
 				User source = (User) ContextMap.getContext().getDB().get(User.class, 0);
-				PM.send(source, playerID, "Aufnahmeantrag", "[Automatische Nachricht]\nDein Antrag wurde leider nicht innerhalb der vorgegebenen Zeit bearbeitet und daher entfernt. Du hast jedoch jederzeit die M&ouml;glichkeit einen neuen Antrag zu stellen.");
+				PM.send(source, playerID, "Aufnahmeantrag", "[Automatische Nachricht]\nDein Antrag wurde leider nicht innerhalb der vorgegebenen Zeit bearbeitet und daher entfernt. Du hast jedoch jederzeit die M&ouml;glichkeit einen neuen Antrag zu stellen.", db);
 				break;
 			}
 		}

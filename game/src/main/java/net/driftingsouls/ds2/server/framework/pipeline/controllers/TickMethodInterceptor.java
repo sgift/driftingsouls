@@ -2,6 +2,7 @@ package net.driftingsouls.ds2.server.framework.pipeline.controllers;
 
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.framework.ConfigService;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.authentication.TickInProgressException;
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.stereotype.Component;
@@ -15,7 +16,8 @@ public class TickMethodInterceptor implements ActionMethodInterceptor
 	@Override
 	public Object invoke(MethodInvocation methodInvocation) throws Throwable
 	{
-		int tickState = new ConfigService().getValue(WellKnownConfigValue.TICK);
+		var db = ContextMap.getContext().getEM();
+		int tickState = new ConfigService(db).getValue(WellKnownConfigValue.TICK);
 		boolean isTick = tickState == 1;
 		if(isTick)
 		{

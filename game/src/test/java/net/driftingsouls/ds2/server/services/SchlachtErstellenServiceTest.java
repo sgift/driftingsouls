@@ -6,19 +6,19 @@ import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
-import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
+import net.driftingsouls.ds2.server.entities.ally.Ally;
+import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 
 public class SchlachtErstellenServiceTest extends DBSingleTransactionTest
@@ -62,7 +62,7 @@ public class SchlachtErstellenServiceTest extends DBSingleTransactionTest
 	@Test
 	public void gegebenZweiFlotten_erstelle_sollteEineSchlachtErstellen() {
 		// setup
-		SchlachtErstellenService schlachtErstellenService = new SchlachtErstellenService();
+		SchlachtErstellenService schlachtErstellenService = new SchlachtErstellenService(getEM(), new ConfigService(getEM()));
 
 		// run
 		Battle battle = schlachtErstellenService.erstelle(user1, ships1.get(0), ships2.get(0), true);
@@ -85,7 +85,7 @@ public class SchlachtErstellenServiceTest extends DBSingleTransactionTest
 	@Test
 	public void gegebenZweiSchiffe_erstelle_sollteEineSchlachtErstellen() {
 		// setup
-		SchlachtErstellenService schlachtErstellenService = new SchlachtErstellenService();
+		SchlachtErstellenService schlachtErstellenService = new SchlachtErstellenService(getEM(), new ConfigService(getEM()));
 		ships1.get(0).setLocation(new Location(2, 2, 2));
 		ships2.get(0).setLocation(new Location(2, 2, 2));
 
@@ -106,7 +106,7 @@ public class SchlachtErstellenServiceTest extends DBSingleTransactionTest
 	@Test(expected = IllegalArgumentException.class)
 	public void gegebenZweiSchiffeInUnterschiedlichenSektoren_erstelle_sollteEineExceptionWerfen() {
 		// setup
-		SchlachtErstellenService schlachtErstellenService = new SchlachtErstellenService();
+		SchlachtErstellenService schlachtErstellenService = new SchlachtErstellenService(getEM(), new ConfigService(getEM()));
 		ships1.get(0).setLocation(new Location(2, 2, 2));
 		ships2.get(0).setLocation(new Location(1, 2, 2));
 
@@ -117,7 +117,7 @@ public class SchlachtErstellenServiceTest extends DBSingleTransactionTest
 	@Test(expected = IllegalArgumentException.class)
 	public void gegebenZweiFlottenUndEinenAngegriffenenSpielerImNoobModus_erstelle_sollteEineExceptionWerfen() {
 		// setup
-		SchlachtErstellenService schlachtErstellenService = new SchlachtErstellenService();
+		SchlachtErstellenService schlachtErstellenService = new SchlachtErstellenService(getEM(), new ConfigService(getEM()));
 		user2.setFlag(UserFlag.NOOB, true);
 
 		// run
@@ -127,7 +127,7 @@ public class SchlachtErstellenServiceTest extends DBSingleTransactionTest
 	@Test(expected = IllegalArgumentException.class)
 	public void gegebenZweiFlottenUndEinenAngreifendenSpielerImNoobModus_erstelle_sollteEineExceptionWerfen() {
 		// setup
-		SchlachtErstellenService schlachtErstellenService = new SchlachtErstellenService();
+		SchlachtErstellenService schlachtErstellenService = new SchlachtErstellenService(getEM(), new ConfigService(getEM()));
 		user1.setFlag(UserFlag.NOOB, true);
 
 		// run
@@ -137,7 +137,7 @@ public class SchlachtErstellenServiceTest extends DBSingleTransactionTest
 	@Test
 	public void gegebenZweiFlottenUndEinUnbeteiligerSpieler_erstelle_sollteEineSchlachtNurAusDenZweiFlottenErstellen() {
 		// setup
-		SchlachtErstellenService schlachtErstellenService = new SchlachtErstellenService();
+		SchlachtErstellenService schlachtErstellenService = new SchlachtErstellenService(getEM(), new ConfigService(getEM()));
 		Location loc = ships3.get(0).getLocation();
 		ships1.forEach(s -> s.setLocation(loc));
 		ships2.forEach(s -> s.setLocation(loc));
@@ -159,7 +159,7 @@ public class SchlachtErstellenServiceTest extends DBSingleTransactionTest
 	@Test
 	public void gegebenZweiFlottenUndWeitereSchiffeAnAnderenPositionen_erstelle_sollteEineSchlachtNurAusDenSchiffenAnDerPositionErstellen() {
 		// setup
-		SchlachtErstellenService schlachtErstellenService = new SchlachtErstellenService();
+		SchlachtErstellenService schlachtErstellenService = new SchlachtErstellenService(getEM(), new ConfigService(getEM()));
 		persist(new Ship(user1, shipType, 1, 2, 2));
 		persist(new Ship(user2, shipType, 1, 2, 2));
 
@@ -180,7 +180,7 @@ public class SchlachtErstellenServiceTest extends DBSingleTransactionTest
 	@Test
 	public void gegebenDreiFlottenMitZweienInDerGleichenAllianz_erstelle_sollteEineSchlachtAusDenDreiFlottenErstellen() {
 		// setup
-		SchlachtErstellenService schlachtErstellenService = new SchlachtErstellenService();
+		SchlachtErstellenService schlachtErstellenService = new SchlachtErstellenService(getEM(), new ConfigService(getEM()));
 		Location loc = ships3.get(0).getLocation();
 		ships1.forEach(s -> s.setLocation(loc));
 		ships2.forEach(s -> s.setLocation(loc));
@@ -207,7 +207,7 @@ public class SchlachtErstellenServiceTest extends DBSingleTransactionTest
 	@Test
 	public void gegebenDreiFlottenMitZweienInDerGleichenAllianzAberEinemImNoobModus_erstelle_sollteEineSchlachtAusZweiFlottenErstellen() {
 		// setup
-		SchlachtErstellenService schlachtErstellenService = new SchlachtErstellenService();
+		SchlachtErstellenService schlachtErstellenService = new SchlachtErstellenService(getEM(), new ConfigService(getEM()));
 		Location loc = ships3.get(0).getLocation();
 		ships1.forEach(s -> s.setLocation(loc));
 		ships2.forEach(s -> s.setLocation(loc));

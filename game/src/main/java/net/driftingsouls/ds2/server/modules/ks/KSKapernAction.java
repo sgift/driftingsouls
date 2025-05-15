@@ -123,7 +123,7 @@ public class KSKapernAction extends BasicKSAction {
 		Context context = ContextMap.getContext();
 		User user = (User)context.getActiveUser();
 
-		org.hibernate.Session db = context.getDB();
+		var db = context.getEM();
 		BattleShip ownShip = battle.getOwnShip();
 		BattleShip enemyShip = battle.getEnemyShip();
 
@@ -310,17 +310,17 @@ public class KSKapernAction extends BasicKSAction {
 			List<Integer> kaperlist = new ArrayList<>();
 			kaperlist.add(enemyShip.getId());
 
-			List<Ship> docked = Common.cast(db.createQuery("from Ship where id>0 and docked in (:docked,:landed)")
-					.setString("docked", Integer.toString(enemyShip.getId()))
-					.setString("landed", "l "+enemyShip.getId())
-					.list());
+			List<Ship> docked = db.createQuery("from Ship where id>0 and docked in (:docked,:landed)", Ship.class)
+					.setParameter("docked", Integer.toString(enemyShip.getId()))
+					.setParameter("landed", "l "+enemyShip.getId())
+					.getResultList();
 			for( Ship dockShip : docked )
 			{
 				dockShip.removeFromFleet();
 				dockShip.setOwner(user);
 				dockShip.setBattleAction(true);
 
-				BattleShip bDockShip = (BattleShip)db.get(BattleShip.class, dockShip.getId());
+				BattleShip bDockShip = db.find(BattleShip.class, dockShip.getId());
 				bDockShip.setSide(battle.getOwnSide());
 
 				for( Offizier offi : dockShip.getOffiziere() )
@@ -328,14 +328,16 @@ public class KSKapernAction extends BasicKSAction {
 					offi.setOwner(user);
 				}
 				if( dockShip.getTypeData().getWerft() != 0 ) {
-					ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=:ship")
-					.setEntity("ship", dockShip)
-					.uniqueResult();
+					ShipWerft werft = db.createQuery("from ShipWerft where ship=:ship", ShipWerft.class)
+					.setParameter("ship", dockShip)
+					.getResultList().stream().findFirst().orElse(null);
 
-					if( werft.getKomplex() != null ) {
-						werft.removeFromKomplex();
+					if(werft != null) {
+						if (werft.getKomplex() != null) {
+							werft.removeFromKomplex();
+						}
+						werft.setLink(null);
 					}
-					werft.setLink(null);
 				}
 
 				kaperlist.add(bDockShip.getId());
@@ -346,14 +348,16 @@ public class KSKapernAction extends BasicKSAction {
 				offi.setOwner(user);
 			}
 			if( enemyShipType.getWerft() != 0 ) {
-				ShipWerft werft = (ShipWerft)db.createQuery("from ShipWerft where ship=:ship")
-				.setEntity("ship", enemyShip)
-				.uniqueResult();
+				ShipWerft werft = db.createQuery("from ShipWerft where ship=:ship", ShipWerft.class)
+					.setParameter("ship", enemyShip)
+					.getResultList().stream().findFirst().orElse(null);
 
-				if( werft.getKomplex() != null ) {
-					werft.removeFromKomplex();
+				if(werft != null) {
+					if (werft.getKomplex() != null) {
+						werft.removeFromKomplex();
+					}
+					werft.setLink(null);
 				}
-				werft.setLink(null);
 			}
 
 			// TODO: Das Entfernen eines Schiffes aus der Liste sollte in Battle
@@ -374,7 +378,7 @@ public class KSKapernAction extends BasicKSAction {
 				}
 			}
 
-			if( enemyShips.size() < 1 ) {
+			if(enemyShips.isEmpty()) {
 				battle.endBattle(1, 0);
 
 				User commander = battle.getCommander(battle.getOwnSide());
@@ -384,7 +388,7 @@ public class KSKapernAction extends BasicKSAction {
 						.append(battle.getLocation().urlFragment()).append("'>")
 						.append(battle.getLocation().displayCoordinates(false))
 						.append("</a> gewonnen!");
-				PM.send(commander, battle.getCommander(battle.getEnemySide()).getId(), "Schlacht verloren", "Du hast die Schlacht bei "+battle.getLocation().displayCoordinates(false)+" gegen "+user.getName()+" verloren, da dein letztes Schiff gekapert wurde!");
+				PM.send(commander, battle.getCommander(battle.getEnemySide()).getId(), "Schlacht verloren", "Du hast die Schlacht bei "+battle.getLocation().displayCoordinates(false)+" gegen "+user.getName()+" verloren, da dein letztes Schiff gekapert wurde!", db);
 
 				return Result.HALT;
 			}

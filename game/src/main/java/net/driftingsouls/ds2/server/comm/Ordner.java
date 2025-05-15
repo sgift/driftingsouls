@@ -24,15 +24,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.hibernate.annotations.ForeignKey;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Version;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -93,8 +85,8 @@ public class Ordner {
 	 * @param id Die ID des Ordners
 	 * @return Der Ordner
 	 */
-	public static Ordner getOrdnerByID( int id ) {
-		return getOrdnerByID(id, null);
+	public static Ordner getOrdnerByID( int id, EntityManager db ) {
+		return getOrdnerByID(id, null, db);
 	}
 
 	/**
@@ -105,11 +97,10 @@ public class Ordner {
 	 * @param user Der Benutzer
 	 * @return Der Ordner
 	 */
-	public static Ordner getOrdnerByID( int id, User user ) {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
+	public static Ordner getOrdnerByID(int id, User user, EntityManager db) {
 
 		if( id != 0 ) {
-			Ordner ordner = (Ordner)db.get(Ordner.class, id);
+			Ordner ordner = db.find(Ordner.class, id);
 
 			if( ordner == null ) {
 				return null;
@@ -122,6 +113,16 @@ public class Ordner {
 			return ordner;
 		}
 
+		Ordner ordner = new Ordner();
+		ordner.id = 0;
+		ordner.name = "Hauptverzeichnis";
+		ordner.flags = 0;
+		ordner.owner = user;
+
+		return ordner;
+	}
+
+	public static Ordner createMainFolder(User user) {
 		Ordner ordner = new Ordner();
 		ordner.id = 0;
 		ordner.name = "Hauptverzeichnis";
@@ -158,31 +159,28 @@ public class Ordner {
 	 * @return <code>0</code>, falls das Loeschen erfolgreich war, <code>1</code>, falls erst noch eine PM gelesen werden muss
 	 * und <code>2</code>, bei sonstigen Fehlern
 	 */
-	public int deleteOrdner() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
+	public int deleteOrdner(EntityManager db) {
 		int result;
 		if( (this.flags & Ordner.FLAG_TRASH) != 0 ) {
 			return 2;
 		}
-		if( (result = PM.deleteAllInOrdner( this, this.owner )) != 0 ){
+		if( (result = PM.deleteAllInOrdner(this, this.owner, db)) != 0 ){
 			return result;
 		}
-		List<?> ordnerlist = db.createQuery("from Ordner where parent=:parent and owner=:owner")
-			.setInteger("parent", this.id)
-			.setEntity("owner", this.owner)
-			.list();
+		List<Ordner> childFolders = db.createQuery("from Ordner where parent=:parent and owner=:owner", Ordner.class)
+			.setParameter("parent", this)
+			.setParameter("owner", this.owner)
+			.getResultList();
 
-		for (Object anOrdnerlist : ordnerlist)
+		for (var subordner: childFolders)
 		{
-			Ordner subordner = (Ordner) anOrdnerlist;
-
-			if ((result = subordner.deleteOrdner()) != 0)
+			if ((result = subordner.deleteOrdner(db)) != 0)
 			{
 				return result;
 			}
 		}
 
-		db.delete(this);
+		db.remove(this);
 
 		return 0;
 	}
@@ -195,14 +193,12 @@ public class Ordner {
 	 * @return Der neue Ordner
 	 * @throws IllegalArgumentException Falls der Elternordner der Papierkorb ist
 	 */
-	public static Ordner createNewOrdner( String name, Ordner parent, User user ) throws IllegalArgumentException {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
+	public static Ordner createNewOrdner( String name, Ordner parent, User user, EntityManager db ) throws IllegalArgumentException {
 		if( (parent.getFlags() & Ordner.FLAG_TRASH) != 0 ) {
 			throw new IllegalArgumentException("Ordnererstellung im Papierkorb nicht moeglich");
 		}
 		Ordner ordner = new Ordner(name, user, parent);
-		db.save(ordner);
+		db.persist(ordner);
 
 		return ordner;
 	}
@@ -211,11 +207,11 @@ public class Ordner {
 	 * Gibt alle Kindordner, ob direkt oder indirekt, des Ordners zurueck.
 	 * @return Liste mit Ordnern
 	 */
-	public List<Ordner> getAllChildren() {
-		List<Ordner> children = getChildren();
+	public List<Ordner> getAllChildren(EntityManager db) {
+		List<Ordner> children = getChildren(db);
 
 		for( int i=0; i < children.size(); i++ ){
-			children.addAll( children.get(i).getAllChildren() );
+			children.addAll( children.get(i).getAllChildren(db) );
 		}
 
 		return children;
@@ -225,21 +221,11 @@ public class Ordner {
 	 * Gibt alle direkten Kindordner des Ordners zurueck.
 	 * @return Liste mit Ordnern
 	 */
-	public List<Ordner> getChildren() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
-		List<Ordner> children = new ArrayList<>();
-
-		List<?> ordnerlist = db.createQuery("from Ordner where parent=:parent and owner=:owner")
-			.setInteger("parent", this.id)
-			.setEntity("owner", this.owner)
-			.list();
-		for (Object anOrdnerlist : ordnerlist)
-		{
-			children.add((Ordner) anOrdnerlist);
-		}
-
-		return children;
+	public List<Ordner> getChildren(EntityManager db) {
+		return db.createQuery("from Ordner where parent=:parent and owner=:owner", Ordner.class)
+				.setParameter("parent", this)
+				.setParameter("owner", this.owner)
+				.getResultList();
 	}
 
 	/**
@@ -292,14 +278,13 @@ public class Ordner {
 	 * ist die Anzahl der PMs.
 	 * @return Map mit der Anzahl der PMs in den jeweiligen Unterordnern
 	 */
-	public Map<Ordner,Integer> getPmCountPerSubOrdner() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
+	public Map<Ordner,Integer> getPmCountPerSubOrdner(EntityManager db) {
 		Map<Ordner,Integer> result = new HashMap<>();
 
-		List<Ordner> ordners = this.getAllChildren();
+		List<Ordner> ordners = this.getAllChildren(db);
 
 		// Wenn der Ordner keine Unterordner hat, dann eine leere Map zurueckgeben
-		if( ordners.size() == 0 ) {
+		if(ordners.isEmpty()) {
 			return result;
 		}
 
@@ -309,37 +294,35 @@ public class Ordner {
 		Integer[] ordnerIDs = new Integer[ordners.size()];
 		for( int i=0; i < ordners.size(); i++ ) {
 			ordnerIDs[i] = ordners.get(i).getId();
-			Common.safeIntInc(childCount, ordners.get(i).getParent());
+			Common.safeIntInc(childCount, ordners.get(i).getParent(db));
 		}
 
 		// Map mit der Anzahl der PMs fuellen, die sich direkt im Ordner befinden
 		int trash = getTrash( this.owner ).getId();
 
-		List<?> pmcounts = db.createQuery("select ordner, count(*) from PM " +
-				"where empfaenger=:owner and ordner in (:ordnerIds) " +
+		List<Object[]> pmcounts = db.createQuery("select ordner, count(*) from PM " +
+						"where empfaenger=:owner and ordner in (:ordnerIds) " +
 						"and gelesen < case when ordner=:trash then 10 else 2 end " +
-				"group by ordner")
-			.setEntity("owner", this.owner)
-			.setParameterList("ordnerIds", ordnerIDs)
-			.setInteger("trash", trash)
-			.list();
-		for (Object pmcount1 : pmcounts)
-		{
-			Object[] pmcount = (Object[]) pmcount1;
-			result.put(Ordner.getOrdnerByID(((Number) pmcount[0]).intValue()), ((Number) pmcount[1]).intValue());
+						"group by ordner", Object[].class)
+				.setParameter("owner", this.owner)
+				.setParameter("ordnerIds", ordnerIDs)
+				.setParameter("trash", trash)
+				.getResultList();
+		for (Object[] pmcount : pmcounts) {
+			result.put(Ordner.getOrdnerByID(((Number) pmcount[0]).intValue(), db), ((Number) pmcount[1]).intValue());
 		}
 
 		// PMs in den einzelnen Ordnern unter Beruecksichtigung der
 		// Unterordner berechnen - maximal 100 Zyklen lang
 		int maxloops = 100;
-		while( (childCount.size() > 0) && (maxloops-- > 0) ) {
+		while( (!childCount.isEmpty()) && (maxloops-- > 0) ) {
 			for( int i=0; i < ordners.size(); i++ ) {
 				Ordner aOrdner = ordners.get(i);
 				if( childCount.get(aOrdner) != null ) {
 					continue;
 				}
 
-				Ordner parent = aOrdner.getParent();
+				Ordner parent = aOrdner.getParent(db);
 				// Die Anzahl der PMs des Elternordners um die
 				// des aktuellen Ordners erhoehen. Anschliessend
 				// den aktuellen Ordner aus der Liste entfernen
@@ -364,14 +347,12 @@ public class Ordner {
 	 * Markiert alle Pms im Ordner als gelesen (ausser solche, welche als wichtig markiert sind).
 	 *
 	 */
-	public void markAllAsRead() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
+	public void markAllAsRead(EntityManager db) {
 		db.createQuery("update PM set gelesen=1 " +
 				"where empfaenger= :user and ordner= :ordner and (gelesen=0 and bit_and(flags,:important)=0)")
-			.setEntity("user", this.owner)
-			.setInteger("ordner", this.id)
-			.setInteger("important", PM.FLAGS_IMPORTANT)
+			.setParameter("user", this.owner)
+			.setParameter("ordner", this.id)
+			.setParameter("important", PM.FLAGS_IMPORTANT)
 			.executeUpdate();
 	}
 
@@ -380,17 +361,15 @@ public class Ordner {
 	 * nicht gelesen wurden).
 	 *
 	 */
-	public void deleteAllPms() {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
+	public void deleteAllPms(EntityManager db) {
 		int trash = Ordner.getTrash( this.owner ).getId();
 
 		db.createQuery("update PM set gelesen=2, ordner= :trash " +
 				"where empfaenger= :user and ordner= :ordner and (gelesen=1 or bit_and(flags,:important)=0)")
-			.setInteger("trash", trash)
-			.setEntity("user", this.owner)
-			.setInteger("ordner", this.id)
-			.setInteger("important", PM.FLAGS_IMPORTANT)
+			.setParameter("trash", trash)
+			.setParameter("user", this.owner)
+			.setParameter("ordner", this)
+			.setParameter("important", PM.FLAGS_IMPORTANT)
 			.executeUpdate();
 	}
 
@@ -400,18 +379,16 @@ public class Ordner {
 	 * nicht gelesen wurden).
 	 * @param user Der Benutzer
 	 */
-	public void deletePmsByUser(User user) {
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
+	public void deletePmsByUser(User user, EntityManager db) {
 		int trash = Ordner.getTrash( this.owner ).getId();
 
 		db.createQuery("update PM set gelesen=2, ordner= :trash " +
 				"where empfaenger= :user and sender=:sender and ordner= :ordner and (gelesen=1 or bit_and(flags,:important)=0)")
-			.setInteger("trash", trash)
-			.setEntity("user", this.owner)
-			.setEntity("sender", user)
-			.setInteger("ordner", this.id)
-			.setInteger("important", PM.FLAGS_IMPORTANT)
+			.setParameter("trash", trash)
+			.setParameter("user", this.owner)
+			.setParameter("sender", user)
+			.setParameter("ordner", this)
+			.setParameter("important", PM.FLAGS_IMPORTANT)
 			.executeUpdate();
 	}
 
@@ -444,8 +421,8 @@ public class Ordner {
 	 * Gibt den Eltern-Ordner zurueck.
 	 * @return Der Elternordner
 	 */
-	public Ordner getParent() {
-		return Ordner.getOrdnerByID(this.parent, this.owner);
+	public Ordner getParent(EntityManager db) {
+		return Ordner.getOrdnerByID(this.parent, this.owner, db);
 	}
 
 	/**

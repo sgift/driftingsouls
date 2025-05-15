@@ -64,10 +64,11 @@ public class KaserneTick extends TickController {
 			kasernen = db.createQuery("from Kaserne k where k.entries is not empty", Kaserne.class)
 					.getResultList();
 		}
-		new UnitOfWork<Kaserne>("Kasernen Tick")
+		new UnitOfWork<Kaserne>("Kasernen Tick", db)
 		{
 			@Override
 			public void doWork(Kaserne kaserne) {
+				var db = getEM();
 				Base base = kaserne.getBase();
 
 				log("Kaserne "+base.getId()+":");
@@ -89,7 +90,7 @@ public class KaserneTick extends TickController {
 						{
 							UnitType unittype = entry.getUnit();
 							msg.append(entry.getCount()).append(" ").append(unittype.getName()).append("\n");
-							entry.finishBuildProcess(base);
+							entry.finishBuildProcess(base, db);
 							build = true;
 						}
 					}
@@ -101,7 +102,7 @@ public class KaserneTick extends TickController {
 				{
 					// Nachricht versenden
                     if(base.getOwner().getUserValue(WellKnownUserValue.GAMEPLAY_USER_UNIT_BUILD_PM)) {
-                        PM.send(sourceUser, base.getOwner().getId(), "Ausbildung abgeschlossen", msg.toString());
+                        PM.send(sourceUser, base.getOwner().getId(), "Ausbildung abgeschlossen", msg.toString(), db);
                     }
 				}
 			}

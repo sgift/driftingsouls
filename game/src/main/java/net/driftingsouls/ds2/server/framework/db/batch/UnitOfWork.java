@@ -29,7 +29,6 @@ import org.hibernate.exception.GenericJDBCException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
-import javax.persistence.FlushModeType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -61,8 +60,13 @@ public abstract class UnitOfWork<T>
 	 */
 	public UnitOfWork(String name)
 	{
+		this(name, ContextMap.getContext().getEM());
+	}
+
+	public UnitOfWork(String name, EntityManager db)
+	{
 		this.name = name;
-		this.db = ContextMap.getContext().getEM();
+		this.db = db;
 		this.unsuccessfulWork = new ArrayList<>();
 		this.errorReporter = UnitOfWork::mailException;
 	}
@@ -115,47 +119,40 @@ public abstract class UnitOfWork<T>
 	 */
 	public void executeFor(Collection<T> work)
 	{
-		var oldMode = db.getFlushMode();
-		try {
-			db.setFlushMode(FlushModeType.COMMIT);
-			var transaction = db.getTransaction();
-			transaction.begin();
+        var transaction = db.getTransaction();
+        transaction.begin();
 
-			List<T> unflushedObjects = new ArrayList<>();
+        List<T> unflushedObjects = new ArrayList<>();
 
-			int count = 0;
-			for (final T workObject : work)
-			{
-				if (!tryWork(db, transaction, workObject))
-				{
-					transaction = db.getTransaction();
-					transaction.begin();
-				}
+        int count = 0;
+        for (final T workObject : work)
+        {
+            if (!tryWork(db, transaction, workObject))
+            {
+                transaction = db.getTransaction();
+                transaction.begin();
+            }
 
-				unflushedObjects.add(workObject);
+            unflushedObjects.add(workObject);
 
-				count++;
-				if (count % this.flushSize == 0)
-				{
-					flushAndCommit(transaction, unflushedObjects);
+            count++;
+            if (count % this.flushSize == 0)
+            {
+                flushAndCommit(transaction, unflushedObjects);
 
-					onFlushed();
+                onFlushed();
 
-					unflushedObjects.clear();
+                unflushedObjects.clear();
 
-					transaction = db.getTransaction();
-					transaction.begin();
-				}
-			}
+                transaction = db.getTransaction();
+                transaction.begin();
+            }
+        }
 
-			flushAndCommit(transaction, unflushedObjects);
+        flushAndCommit(transaction, unflushedObjects);
 
-			onFlushed();
-		}
-		finally {		
-			db.setFlushMode(oldMode);
-		}
-	}
+        onFlushed();
+    }
 
 	private void flushAndCommit(EntityTransaction transaction, List<T> unflushedObjects)
 	{

@@ -185,7 +185,7 @@ public class OptionsController extends Controller
 					"\n" +
 					"MY REASONS:\n" +
 					reason;
-			PM.sendToAdmins(user, "Account löschen", msg, 0);
+			PM.sendToAdmins(user, "Account löschen", msg, 0, getEM());
 
 			t.setVar("options.delaccountresp", 1,
 					"delaccountresp.admins", configService.getValue(WellKnownConfigValue.ADMIN_PMS_ACCOUNT));

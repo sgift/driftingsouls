@@ -141,7 +141,7 @@ public class EditPlugin8<T> implements AdminPlugin
 	private void executeAdd(final StringBuilder echo) throws IOException
 	{
 		Context context = ContextMap.getContext();
-		Session db = context.getDB();
+		var db = context.getEM();
 
 		Request request = context.getRequest();
 
@@ -164,7 +164,7 @@ public class EditPlugin8<T> implements AdminPlugin
 		final T entityToPersist = entity;
 		AtomicBoolean failed = new AtomicBoolean(false);
 
-		new SingleUnitOfWork("Hinzufuegen") {
+		new SingleUnitOfWork("Hinzufuegen", db) {
 			@Override
 			public void doWork()
 			{
@@ -181,33 +181,33 @@ public class EditPlugin8<T> implements AdminPlugin
 
 		if( !db.getTransaction().isActive() )
 		{
-			db.beginTransaction();
+			db.getTransaction().begin();
 		}
 	}
 
 	private void executeDelete(final StringBuilder echo, EditorForm8<T> form) throws IOException
 	{
 		Context context = ContextMap.getContext();
-		Session db = context.getDB();
+		var db = context.getEM();
 
 		Request request = context.getRequest();
 		String entityId = request.getParameter("entityId");
 
-		@SuppressWarnings("unchecked") T entity = (T) db.get(this.clazz, toEntityId(this.clazz, entityId));
+		T entity = db.find(this.clazz, toEntityId(this.clazz, entityId));
 		if( entity != null && form.isDeleteAllowed(entity) )
 		{
 			processJobs(echo, entity, entity, form.getDeleteTasks());
 
 			db.getTransaction().commit();
 
-			new SingleUnitOfWork("Hinzufuegen")
+			new SingleUnitOfWork("Hinzufuegen", db)
 			{
 				@Override
 				public void doWork()
 				{
-					//noinspection unchecked
-					T deletedEntity = (T) db.get(EditPlugin8.this.clazz, toEntityId(EditPlugin8.this.clazz, request.getParameter("entityId")));
-					db.delete(deletedEntity);
+					var db = getEM();
+					T deletedEntity = db.find(EditPlugin8.this.clazz, toEntityId(EditPlugin8.this.clazz, request.getParameter("entityId")));
+					db.remove(deletedEntity);
 					echo.append("<p>Löschen abgeschlossen.</p>");
 				}
 			}.setErrorReporter((uow,w,t) -> echo.append("<p>Fehler beim Loeschen: ").append(t.getMessage()).append("</p>"))
@@ -222,14 +222,14 @@ public class EditPlugin8<T> implements AdminPlugin
 		EditorForm8<T> form = new EditorForm8<>(EditorMode.UPDATE, getPluginClass());
 		this.entityEditor.configureFor(form);
 
-		Session db = ContextMap.getContext().getDB();
+		var db = ContextMap.getContext().getEM();
 
 		JqGridViewModel model = new JqGridViewModel();
 		model.url = "./ds?module=admin&namedplugin="+this.getPluginClass().getName()+"&action=tableData&FORMAT=JSON";
 		model.pager = "#pager";
 		model.colNames.add("Id");
 		model.colModel.add(new JqGridColumnViewModel("id", null));
-		Class<?> identifierClass = db.getSessionFactory().getClassMetadata(this.clazz).getIdentifierType().getReturnedClass();
+		Class<?> identifierClass = db.getMetamodel().entity(this.clazz).getIdType().getJavaType();
 		if( Number.class.isAssignableFrom(identifierClass) )
 		{
 			model.colModel.get(0).width = 50;
@@ -248,14 +248,14 @@ public class EditPlugin8<T> implements AdminPlugin
 
 	private void outputEntityTable(StringBuilder echo, EditorForm8<T> form)
 	{
-		Session db = ContextMap.getContext().getDB();
+		var db = ContextMap.getContext().getEM();
 
 		JqGridViewModel model = new JqGridViewModel();
 		model.url = "./ds?module=admin&namedplugin="+this.getPluginClass().getName()+"&action=tableData&FORMAT=JSON";
 		model.pager = "#pager";
 		model.colNames.add("Id");
 		model.colModel.add(new JqGridColumnViewModel("id", null));
-		Class<?> identifierClass = db.getSessionFactory().getClassMetadata(this.clazz).getIdentifierType().getReturnedClass();
+		Class<?> identifierClass = db.getMetamodel().entity(this.clazz).getIdType().getJavaType();
 		if( Number.class.isAssignableFrom(identifierClass) )
 		{
 			model.colModel.get(0).width = 50;
@@ -278,37 +278,32 @@ public class EditPlugin8<T> implements AdminPlugin
 
 	public EntitySelectionViewModel generateEntitySelectionViewModel()
 	{
-		Session db = ContextMap.getContext().getDB();
+		var db = ContextMap.getContext().getEM();
 
 		EditorForm8<T> form = new EditorForm8<>(EditorMode.UPDATE, getPluginClass());
 		this.entityEditor.configureFor(form);
 
 		EntitySelectionViewModel model = new EntitySelectionViewModel();
-		Long count = (Long)db.createCriteria(baseClass).setProjection(Projections.rowCount()).uniqueResult();
-		if( count != null )
-		{
+		Long count = db.createQuery("SELECT COUNT(e) FROM " + baseClass.getName() + " e", Long.class).getSingleResult();
+		if (count != null) {
 			model.allowSelection = true;
-			if (count < 500)
-			{
-				String currentIdStr = ContextMap.getContext().getRequest().getParameter("entityId");
+            String currentIdStr = ContextMap.getContext().getRequest().getParameter("entityId");
+            if (count < 500) {
 
-				Map<Serializable,Object> options = new HashMap<>();
+                Map<Object, Object> options = new HashMap<>();
 
-				List<T> entities = Common.cast(db.createCriteria(baseClass).list());
-				options.putAll(entities.stream().collect(Collectors.toMap(db::getIdentifier, (T v) -> new ObjectLabelGenerator().generateFor(null, v))));
-				if (isAddDisplayed())
-				{
+				List<T> entities = db.createQuery("FROM " + baseClass.getName(), baseClass).getResultList();
+				options.putAll(entities.stream().collect(Collectors.toMap(e -> db.getEntityManagerFactory().getPersistenceUnitUtil().getIdentifier(e),
+						(T v) -> new ObjectLabelGenerator().generateFor(null, v))));
+				if (isAddDisplayed()) {
 					options.put(null, "[Neu]");
 				}
 				model.input = HtmlUtils.jsSelect("entityId", false, options, toEntityId(baseClass, currentIdStr));
-			}
-			else {
-				String currentIdStr = ContextMap.getContext().getRequest().getParameter("entityId");
-				if( currentIdStr == null )
-				{
+			} else {
+                if (currentIdStr == null) {
 					currentIdStr = "";
 				}
-				model.input = HtmlUtils.jsTextInput("entityId", isAddDisplayed(), db.getSessionFactory().getClassMetadata(baseClass).getIdentifierType().getReturnedClass(), currentIdStr);
+				model.input = HtmlUtils.jsTextInput("entityId", isAddDisplayed(), db.getMetamodel().entity(this.clazz).getIdType().getJavaType(), currentIdStr);
 			}
 		}
 		model.allowAdd = form.isAddAllowed();

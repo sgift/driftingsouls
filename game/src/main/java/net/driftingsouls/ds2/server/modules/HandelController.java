@@ -75,7 +75,7 @@ public class HandelController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult enterAction(String comm, @UrlParam(name = "#need") Map<String, Long> needMap, @UrlParam(name = "#have") Map<String, Long> haveMap)
 	{
-		org.hibernate.Session db = getDB();
+		var db = getEM();
 
 		boolean needeverything = false;
 		boolean haveeverything = false;
@@ -106,7 +106,7 @@ public class HandelController extends Controller
 		{
 			String name;
 
-			Item item = (Item) db.get(Item.class, res.getId().getItemID());
+			Item item = db.find(Item.class, res.getId().getItemID());
 			if (!item.isHandel())
 			{
 				continue;
@@ -142,18 +142,15 @@ public class HandelController extends Controller
 			entry.setBietet(have.save());
 		}
 
-		User niemand = (User)db.get(User.class, -2);
-		List<Integer> userIDs = Common.cast(db.createQuery("select id from User").list());
+		User niemand = db.find(User.class, -2);
+		List<User> userIDs = db.createQuery("from User", User.class).getResultList();
 		
-		for(Integer userID : userIDs)
-		{
-			User user = (User)db.get(User.class, userID);
+		for(User user : userIDs) {
 			//Abfragen, ob er eine PM moechte
 			if(user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_HANDEL_PM)) 
 			{
-				PM.send(niemand, user.getId(), "Neues Handelsinserat eingestellt","Handelsinserat eingestellt von :" + entry.getWho().getPlainname()+"\n Inseratsbeschreibung: "+comm );
+				PM.send(niemand, user.getId(), "Neues Handelsinserat eingestellt","Handelsinserat eingestellt von :" + entry.getWho().getPlainname()+"\n Inseratsbeschreibung: "+comm, db);
 			}
-
 		}
 		
 		db.persist(entry);

@@ -19,17 +19,11 @@
 package net.driftingsouls.ds2.server.entities;
 
 import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitType;
 import org.hibernate.annotations.ForeignKey;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * Ein Eintrag der Kaserne.
@@ -139,16 +133,14 @@ public class KaserneEntry {
 	 * Beendet diesen Ausbildungsauftrag.
 	 * @param base Die Basis auf der die zugehoerige Kaserne steht
 	 */
-	public void finishBuildProcess(Base base)
+	public void finishBuildProcess(Base base, EntityManager db)
 	{
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
 		UnitCargo unitcargo = base.getUnits();
 
 		unitcargo.addUnit(getUnit(), getCount());
 
 		base.setUnits(unitcargo);
 
-		db.delete(this);
+		db.remove(this);
 	}
 }

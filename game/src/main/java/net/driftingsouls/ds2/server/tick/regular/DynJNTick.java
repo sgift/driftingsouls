@@ -53,11 +53,12 @@ public class DynJNTick extends TickController {
             dynamicJumpNodes = db.createQuery("from DynamicJumpNode", DynamicJumpNode.class).getResultList();
         }
 
-        new UnitOfWork<DynamicJumpNode>("DynJNTick - decreaseRemainingTime") {
+        new UnitOfWork<DynamicJumpNode>("DynJNTick - decreaseRemainingTime", db) {
             @Override
             public void doWork(DynamicJumpNode dynamicJumpNode) {
+                var db = getEM();
                 if (dynamicJumpNode.getRemainingLiveTime() == 0) {
-                    dynamicJumpNode.destroy();
+                    dynamicJumpNode.destroy(db);
                 } else {
                     dynamicJumpNode.setRemainingLiveTime(dynamicJumpNode.getRemainingLiveTime() - 1);
                 }
@@ -78,11 +79,12 @@ public class DynJNTick extends TickController {
             dynamicJumpNodes = db.createQuery("from DynamicJumpNode", DynamicJumpNode.class).getResultList();
         }
 
-        new UnitOfWork<DynamicJumpNode>("DynJNTick - moveDynJN") {
+        new UnitOfWork<DynamicJumpNode>("DynJNTick - moveDynJN", db) {
             @Override
             public void doWork(DynamicJumpNode dynjn) {
+                var db = getEM();
                 if (dynjn.getRemainingTicksUntilMove() <= 1) {
-                    dynjn.move();
+                    dynjn.move(db);
                 } else {
                     dynjn.setRemainingTicksUntilMove(dynjn.getRemainingTicksUntilMove() - 1);
                 }

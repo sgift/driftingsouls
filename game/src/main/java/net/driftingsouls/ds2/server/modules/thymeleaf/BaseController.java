@@ -134,7 +134,7 @@ public class BaseController implements DSController {
             return false;
 		}
 
-		if(ship.getEnergy() < new ConfigService().getValue(WellKnownConfigValue.ASTI_SCAN_COST) )
+		if(ship.getEnergy() < new ConfigService(context.getEM()).getValue(WellKnownConfigValue.ASTI_SCAN_COST) )
 		{
             Error error = new Error ("Nicht ausreichend Energie für den Asteroidenscan vorhanden");
             ctx.setVariable("error", error);
@@ -707,7 +707,7 @@ public class BaseController implements DSController {
             if(!validateScan(base,ship, ctx)){
                 return;
             }
-            int e = new ConfigService().getValue(WellKnownConfigValue.ASTI_SCAN_COST);
+            int e = new ConfigService(context.getEM()).getValue(WellKnownConfigValue.ASTI_SCAN_COST);
             ship.setEnergy(ship.getEnergy() - e);
         }
 		User user = (User)context.getActiveUser();

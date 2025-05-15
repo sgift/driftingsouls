@@ -44,7 +44,6 @@ import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import net.driftingsouls.ds2.server.tick.TickController;
-import org.hibernate.Transaction;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -64,7 +63,13 @@ import static net.driftingsouls.ds2.server.entities.jooq.tables.Users.USERS;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class RestTick extends TickController {
 
-	@Override
+	private final ConfigService configService;
+
+    public RestTick(ConfigService configService) {
+        this.configService = configService;
+    }
+
+    @Override
 	protected void prepare()
 	{
 		// EMPTY
@@ -189,13 +194,13 @@ public class RestTick extends TickController {
 					.getResultList();
 				for (var battle : battles)
 				{
-					battle.load(user, null, null, 0);
+					battle.load(user, null, null, 0, db);
 
 					if (newcommander != null)
 					{
 						this.log("\t\tUser" + user.getId() + ": Die Leitung der Schlacht " + battle.getId() + " wurde an " + newcommander.getName() + " (" + newcommander.getId() + ") uebergeben");
 
-						PM.send(user, newcommander.getId(), "Schlacht &uuml;bernommen", "Die Leitung der Schlacht bei " + battle.getLocation().displayCoordinates(false) + " wurde dir automatisch &uuml;bergeben, da der bisherige Kommandant in den Vacationmodus gewechselt ist");
+						PM.send(user, newcommander.getId(), "Schlacht &uuml;bernommen", "Die Leitung der Schlacht bei " + battle.getLocation().displayCoordinates(false) + " wurde dir automatisch &uuml;bergeben, da der bisherige Kommandant in den Vacationmodus gewechselt ist", db);
 
 						battle.log(new SchlachtLogAktion(battle.getOwnSide(), Common._titleNoFormat(newcommander.getName()) + " kommandiert nun die Truppen"));
 
@@ -210,7 +215,7 @@ public class RestTick extends TickController {
 						this.log("\t\tUser" + user.getId() + ": Die Schlacht " + battle.getId() + " wurde beendet");
 
 						battle.endBattle(0, 0);
-						PM.send(battle.getCommander(battle.getOwnSide()), battle.getCommander(battle.getEnemySide()).getId(), "Schlacht beendet", "Die Schlacht bei " + battle.getLocation().displayCoordinates(false) + " wurde automatisch beim wechseln in den Vacation-Modus beendet, da kein Ersatzkommandant ermittelt werden konnte!");
+						PM.send(battle.getCommander(battle.getOwnSide()), battle.getCommander(battle.getEnemySide()).getId(), "Schlacht beendet", "Die Schlacht bei " + battle.getLocation().displayCoordinates(false) + " wurde automatisch beim wechseln in den Vacation-Modus beendet, da kein Ersatzkommandant ermittelt werden konnte!", db);
 					}
 				}
 
@@ -280,7 +285,7 @@ public class RestTick extends TickController {
 							"Ihr GCP-Schutz wurde durch das System aufgehoben. " +
 									"Dies passiert automatisch " + noobDays + " Tage nach der Registrierung. " +
 									"Sie sind nun angreifbar, koennen aber auch selbst angreifen.",
-							PM.FLAGS_AUTOMATIC | PM.FLAGS_IMPORTANT
+							PM.FLAGS_AUTOMATIC | PM.FLAGS_IMPORTANT, db
 					);
 				}
 			}
@@ -462,10 +467,11 @@ public class RestTick extends TickController {
 	@Override
 	protected void tick()
 	{
-		org.hibernate.Session db = getDB();
+		var db = getEM();
 
-		if(! isCampaignTick()){
-			Transaction transaction = db.beginTransaction();
+		if(!isCampaignTick()) {
+			var transaction = db.getTransaction();
+			transaction.begin();
 			try
 			{
 				
@@ -480,7 +486,7 @@ public class RestTick extends TickController {
 					.executeUpdate();
 
 				this.log("Erhoehe Tickzahl");
-				ConfigValue value = new ConfigService().get(WellKnownConfigValue.TICKS);
+				ConfigValue value = configService.get(WellKnownConfigValue.TICKS);
 				int ticks = Integer.parseInt(value.getValue()) + 1;
 				value.setValue(Integer.toString(ticks));
 				transaction.commit();

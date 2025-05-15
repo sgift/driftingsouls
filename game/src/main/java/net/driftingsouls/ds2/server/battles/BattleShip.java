@@ -28,19 +28,10 @@ import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import net.driftingsouls.ds2.server.units.UnitCargo;
-import org.hibernate.Session;
 import org.hibernate.annotations.ForeignKey;
 
 import javax.annotation.Nonnull;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
-import javax.persistence.Table;
-import javax.persistence.Version;
+import javax.persistence.*;
 import java.util.List;
 import java.util.Map;
 
@@ -426,8 +417,8 @@ public class BattleShip {
 			return 0;
 		}
 
-		int sizeModifier = new ConfigService().getValue(WellKnownConfigValue.BATTLE_VALUE_SIZE_MODIFIER);
-		int dockModifier = new ConfigService().getValue(WellKnownConfigValue.BATTLE_VALUE_DOCK_MODIFIER);
+		int sizeModifier = new ConfigService(getDB()).getValue(WellKnownConfigValue.BATTLE_VALUE_SIZE_MODIFIER);
+		int dockModifier = new ConfigService(getDB()).getValue(WellKnownConfigValue.BATTLE_VALUE_DOCK_MODIFIER);
 
 		return getTypeData().getSize() * sizeModifier + getTypeData().getJDocks() * dockModifier;
 	}
@@ -594,8 +585,8 @@ public class BattleShip {
 		return null;
 	}
 
-	private Session getDB()
+	private EntityManager getDB()
 	{
-		return ContextMap.getContext().getDB();
+		return ContextMap.getContext().getEM();
 	}
 }

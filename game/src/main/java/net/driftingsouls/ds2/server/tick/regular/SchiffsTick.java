@@ -54,7 +54,13 @@ import java.util.*;
 @Service
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class SchiffsTick extends TickController {
-	protected static final class ShipNahrungsCargoComparator implements Comparator<Ship>
+	private final ConfigService configService;
+
+    public SchiffsTick(ConfigService configService) {
+        this.configService = configService;
+    }
+
+    protected static final class ShipNahrungsCargoComparator implements Comparator<Ship>
 	{
 		@Override
 		public int compare(Ship o1, Ship o2)
@@ -253,11 +259,11 @@ public class SchiffsTick extends TickController {
 
 		if(system == null || system.getAccess() != Access.HOMESYSTEM)
 		{
-			if(new ConfigService().getValue(WellKnownConfigValue.REQUIRE_SHIP_FOOD)) {
-				berechneNahrungsverbrauch(shipd, shiptd, feedingBases);
+			if(configService.getValue(WellKnownConfigValue.REQUIRE_SHIP_FOOD)) {
+				berechneNahrungsverbrauch(shipd, shiptd, feedingBases, db);
 			}
 			//Damage ships which don't have enough crew
-			if( !berechneVerfallWegenCrewmangel(shipd, shiptd) )
+			if( !berechneVerfallWegenCrewmangel(shipd, shiptd, db) )
 			{
 				return;
 			}
@@ -281,8 +287,6 @@ public class SchiffsTick extends TickController {
 
 		// Schiff bei Bedarf und falls moeglich reparieren
 		repairShip(shipd, shiptd, sub);
-
-		db.clear();
 
 		// Evt. Deuterium sammeln
 		e = sammelDeuterium(shipd, shiptd, shipc, e);
@@ -518,8 +522,9 @@ public class SchiffsTick extends TickController {
 	}
 
 	private void berechneNahrungsverbrauch(Ship shipd,
-										   ShipTypeData shiptd, Map<Location, List<Base>> feedingBases)
+										   ShipTypeData shiptd, Map<Location, List<Base>> feedingBases, EntityManager db)
 	{
+
 		//Eigene Basen im selben Sektor
 		List<Base> bases = feedingBases.get(shipd.getLocation());
 		if(bases == null)
@@ -584,7 +589,7 @@ public class SchiffsTick extends TickController {
 			{
 				crewToFeed = crewToFeed - (int) (double) shipd.getUnits().getNahrung();
 				shipd.setUnits(new TransientUnitCargo());
-				int maxverhungernfactor = new ConfigService().getValue(WellKnownConfigValue.MAX_VERHUNGERN);
+				int maxverhungernfactor = configService.getValue(WellKnownConfigValue.MAX_VERHUNGERN);
 				int maxverhungernvalue = (int)Math.ceil(shiptd.getCrew() * (maxverhungernfactor/100.0));
 				int crew = shipd.getCrew();
 				if( crewToFeed*10 > maxverhungernvalue)
@@ -650,8 +655,7 @@ public class SchiffsTick extends TickController {
 		}
 	}
 
-	private boolean berechneVerfallWegenCrewmangel(Ship shipd,
-												   ShipTypeData shiptd)
+	private boolean berechneVerfallWegenCrewmangel(Ship shipd, ShipTypeData shiptd, EntityManager db)
 	{
 		if( shipd.getBattle() != null )
 		{
@@ -664,7 +668,7 @@ public class SchiffsTick extends TickController {
 		if(crew < minCrew && !user.hasFlag(UserFlag.NO_HULL_DECAY))
 		{
 			this.log("\tSchiff hat nicht genug Crew; beschaedige Huelle.");
-			double scale = new ConfigService().getValue(WellKnownConfigValue.NO_CREW_HULL_DAMAGE_SCALE);
+			double scale = configService.getValue(WellKnownConfigValue.NO_CREW_HULL_DAMAGE_SCALE);
 			double damageFactor = (1.0 - (((double)crew) / ((double)minCrew))) / scale;
 			this.log("\tDamage factor is: " + damageFactor);
 
@@ -707,7 +711,7 @@ public class SchiffsTick extends TickController {
 
 	private void berechneSoldUndWartung(EntityManager db, Ship shipd, ShipTypeData shiptd, SchiffsReKosten schiffsReKosten)
 	{
-		if(!new ConfigService().getValue(WellKnownConfigValue.REQUIRE_SHIP_COSTS)) {
+		if(!configService.getValue(WellKnownConfigValue.REQUIRE_SHIP_COSTS)) {
 			return;
 		}
 
@@ -733,7 +737,7 @@ public class SchiffsTick extends TickController {
 				this.log("\tKonto nicht gedeckt; Besatzung meutert.");
 
 				// Sammel alle Daten zusammmen
-				User pirate = (User)db.find(User.class, Faction.PIRATE);
+				User pirate = db.find(User.class, Faction.PIRATE);
 				UnitCargo unitcargo = shipd.getUnits();
 				UnitCargo meuterer = unitcargo.getMeuterer(schiffsReKosten.berechneVerbleibendeReOhneSold(shipd, owner));
 				Crew dcrew = new UnitCargo.Crew(shipd.getCrew());
@@ -744,24 +748,24 @@ public class SchiffsTick extends TickController {
 					shipd.setUnits(meuterer);
 					shipd.consign(pirate, false);
 
-					PM.send(pirate, owner.getId(), "Besatzung meutert", "Die Besatzung der " + shipd.getName() + " meutert, nachdem Sie den Sold der Einheiten nicht aufbringen konnten. (" + shipd.getLocation().displayCoordinates(false) + ")");
+					PM.send(pirate, owner.getId(), "Besatzung meutert", "Die Besatzung der " + shipd.getName() + " meutert, nachdem Sie den Sold der Einheiten nicht aufbringen konnten. (" + shipd.getLocation().displayCoordinates(false) + ")", db);
 				}
 				else
 				{
 					shipd.setUnits(unitcargo);
 					shipd.setCrew(dcrew.getValue());
-					PM.send(pirate, owner.getId(), "Besatzung meutert", "Die Besatzung der " + shipd.getName() + " meutert, nachdem Sie den Sold der Einheiten nicht aufbringen konnten. Die Meuterer wurden vernichtet. (" + shipd.getLocation().displayCoordinates(false) + ")");
+					PM.send(pirate, owner.getId(), "Besatzung meutert", "Die Besatzung der " + shipd.getName() + " meutert, nachdem Sie den Sold der Einheiten nicht aufbringen konnten. Die Meuterer wurden vernichtet. (" + shipd.getLocation().displayCoordinates(false) + ")", db);
 
 					schiffsReKosten.verbucheSchiff(shipd);
 				}
 			}
 			else
 			{
-				User pirate = (User)db.find(User.class, Faction.PIRATE);
+				User pirate = db.find(User.class, Faction.PIRATE);
 				shipd.consign(pirate, false);
 
 				this.log("\tKonto nicht gedeckt; Schiff desertiert.");
-				PM.send(pirate, owner.getId(), "Schiff desertiert", "Die " + shipd.getName() + " ist desertiert, nachdem Sie den Sold der Crew nicht aufbringen konnten. (" + shipd.getLocation().displayCoordinates(false) + ")");
+				PM.send(pirate, owner.getId(), "Schiff desertiert", "Die " + shipd.getName() + " ist desertiert, nachdem Sie den Sold der Crew nicht aufbringen konnten. (" + shipd.getLocation().displayCoordinates(false) + ")", db);
 			}
 		}
 		else {
@@ -886,7 +890,7 @@ public class SchiffsTick extends TickController {
 		BigInteger gesamtkosten = schiffsReKosten.getGesamtkosten();
 		if(auser.getKonto().compareTo(gesamtkosten.multiply(BigInteger.valueOf(8))) < 0)
 		{
-			PM.send(auser, auser.getId(), "Kontostand kritisch", auser.getPlainname() + ", Dein Kontostand ist sehr niedrig. In weniger als einem Tag werden Deine RE-Reserven nicht mehr ausreichen, um die Besatzungsausgaben Deiner Raumschiffe und -stationen zu decken. Besatzungen, die keinen Sold erhalten, werden meutern und mit ihren Schiffen desertieren. Ein Besuch beim nächsten GTU-Handelsposten ist ratsam, dort kannst Du Rohstoffe verkaufen und erhältst neue Finanzmittel. Sollten deine Schiffe übergelaufen sein oder Du es nicht mehr zum Handelsposten schaffen, setze einen Hilferuf im Com-Net-Kanal 'Notfrequenz' ab. Vielleicht hilft Dir ein Spieler.");
+			PM.send(auser, auser.getId(), "Kontostand kritisch", auser.getPlainname() + ", Dein Kontostand ist sehr niedrig. In weniger als einem Tag werden Deine RE-Reserven nicht mehr ausreichen, um die Besatzungsausgaben Deiner Raumschiffe und -stationen zu decken. Besatzungen, die keinen Sold erhalten, werden meutern und mit ihren Schiffen desertieren. Ein Besuch beim nächsten GTU-Handelsposten ist ratsam, dort kannst Du Rohstoffe verkaufen und erhältst neue Finanzmittel. Sollten deine Schiffe übergelaufen sein oder Du es nicht mehr zum Handelsposten schaffen, setze einen Hilferuf im Com-Net-Kanal 'Notfrequenz' ab. Vielleicht hilft Dir ein Spieler.", db);
 		}
 		if(auser.getKonto().compareTo(gesamtkosten) >= 0)
 		{
@@ -953,8 +957,9 @@ public class SchiffsTick extends TickController {
 		{
 			@Override
 			public void doWork(Ship ship) {
+				var db = getEM();
 				log("* "+ship.getId());
-				Nebel.Typ.DAMAGE.damageShip(ship, new ConfigService());
+				Nebel.Typ.DAMAGE.damageShip(ship, configService);
 			}
 		}
 		.executeFor(ships);

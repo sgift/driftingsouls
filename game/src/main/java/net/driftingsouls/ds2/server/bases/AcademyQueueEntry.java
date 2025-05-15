@@ -25,7 +25,6 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import org.hibernate.Session;
 import org.hibernate.annotations.ForeignKey;
 
 import javax.persistence.*;
@@ -204,7 +203,7 @@ public class AcademyQueueEntry {
 		MESSAGE.get().setLength(0);
 
 		Context context = ContextMap.getContext();
-		Session db = context.getDB();
+		var db = context.getEM();
 
 		if( !this.isScheduled() ) {
 			return false;
@@ -217,7 +216,7 @@ public class AcademyQueueEntry {
 		int position = this.position;
 
 		// Loesche Eintrag und berechne Queue neu
-		db.delete(this);
+		db.remove(this);
 		this.academy.getQueueEntries().remove(this);
 
 		for(AcademyQueueEntry entry: this.academy.getQueueEntries())
@@ -228,7 +227,7 @@ public class AcademyQueueEntry {
 			}
 		}
 		db.flush();
-		academy.rescheduleQueue();
+		academy.rescheduleQueue(db);
 
 		if(training == 0)
 		{
@@ -257,7 +256,8 @@ public class AcademyQueueEntry {
 
 			offz.setTraining(false);
 			offz.stationierenAuf(academy.getBase());
-			id = (Integer)db.save(offz);
+			db.persist(offz);
+			id = offz.getID();
 		}
 		else
 		{
@@ -277,7 +277,8 @@ public class AcademyQueueEntry {
 			{
 				offz.setTraining(false);
 			}
-			id = (Integer)db.save(offz);
+			db.persist(offz);
+			id = offz.getID();
 		}
 
 		return true;

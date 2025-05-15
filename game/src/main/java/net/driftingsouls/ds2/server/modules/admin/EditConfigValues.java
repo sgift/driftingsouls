@@ -23,7 +23,7 @@ public class EditConfigValues implements AdminPlugin
 		Context context = ContextMap.getContext();
 
 		WellKnownConfigValue<?>[] configValues = WellKnownConfigValue.values();
-		ConfigService configService = new ConfigService();
+		ConfigService configService = new ConfigService(context.getEM());
 		
 		// Update values?
 		boolean update = context.getRequest().getParameterString("change").equals("Aktualisieren");

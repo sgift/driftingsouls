@@ -514,7 +514,7 @@ public class FleetMgntController extends Controller
 
 				if (coords != null)
 				{
-					PM.send(user, newowner.getId(), "Flotte übergeben", "Ich habe Dir die Flotte " + Common._plaintitle(fleet.getName()) + " übergeben. Sie steht bei " + coords.getLocation().displayCoordinates(false));
+					PM.send(user, newowner.getId(), "Flotte übergeben", "Ich habe Dir die Flotte " + Common._plaintitle(fleet.getName()) + " übergeben. Sie steht bei " + coords.getLocation().displayCoordinates(false), getEM());
 					t.setVar("fleetmgnt.message", ShipFleet.MESSAGE.getMessage() + "Die Flotte wurde übergeben.");
 				}
 				else

@@ -19,8 +19,8 @@ public class OrdnerUrlParamKonverter implements UrlParamKonverter<Ordner>
 		User user = (User) ContextMap.getContext().getActiveUser();
 		if (user != null)
 		{
-			return Ordner.getOrdnerByID(id, user);
+			return Ordner.getOrdnerByID(id, user, ContextMap.getContext().getEM());
 		}
-		return Ordner.getOrdnerByID(id);
+		return Ordner.getOrdnerByID(id, ContextMap.getContext().getEM());
 	}
 }

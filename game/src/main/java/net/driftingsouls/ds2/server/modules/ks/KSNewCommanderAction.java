@@ -87,7 +87,7 @@ public class KSNewCommanderAction extends BasicKSAction {
 			return Result.ERROR;
 		}
 
-		PM.send(user, com.getId(), "Schlacht übergeben", "Ich habe Dir die Leitung der Schlacht bei "+battle.getLocation().displayCoordinates(false)+" übergeben.");
+		PM.send(user, com.getId(), "Schlacht übergeben", "Ich habe Dir die Leitung der Schlacht bei "+battle.getLocation().displayCoordinates(false)+" übergeben.", getController().getEM());
 
 		battle.log(new SchlachtLogAktion(battle.getOwnSide(), "[userprofile="+com.getId()+",profile_alog]"+Common._titleNoFormat(com.getName())+"[/userprofile] kommandiert nun die Truppen."));
 

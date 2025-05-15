@@ -31,7 +31,6 @@ import org.springframework.stereotype.Service;
 /**
  * TASK_ALLY_FOUND
  * 		Einer Allianz gruenden.
- * 
  * 	- data1 -> der Name der Allianz
  *  - data2 -> die Anzahl der noch fehlenden Unterstuetzungen (vgl. TASK_ALLY_FOUND_CONFIRM)
  *  - data3 -> die Spieler, die in die neu gegruendete Allianz sollen, jeweils durch ein , getrennt (Pos: 0 -> Praesident/Gruender)  
@@ -43,7 +42,7 @@ public class HandleAllyFound implements TaskHandler {
 	@Override
 	public void handleEvent(Task task, String event) {	
 		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
+		var db = context.getEM();
 
 		switch (event)
 		{
@@ -57,21 +56,21 @@ public class HandleAllyFound implements TaskHandler {
 					User[] allymember = new User[allymemberIds.length];
 					for (int i = 0; i < allymemberIds.length; i++)
 					{
-						allymember[i] = (User) db.get(User.class, allymemberIds[i]);
+						allymember[i] = db.find(User.class, allymemberIds[i]);
 					}
 
 					int ticks = context.get(ContextCommon.class).getTick();
 
 					Ally ally = new Ally(allyname, allymember[0]);
-					int allyid = (Integer) db.save(ally);
+					db.persist(ally);
+					int allyid = ally.getId();
 
 					Common.copyFile(Configuration.getAbsolutePath() + "data/logos/ally/0.gif", Configuration.getAbsolutePath() + "data/logos/ally" + allyid + ".gif");
 
+					User source = db.find(User.class, 0);
 					for (User anAllymember : allymember)
 					{
-						User source = (User) ContextMap.getContext().getDB().get(User.class, 0);
-
-						PM.send(source, anAllymember.getId(), "Allianzgr&uuml;ndung", "Die Allianz " + allyname + " wurde erfolgreich gegr&uuml;ndet.\n\nHerzlichen Gl&uuml;ckwunsch!");
+						PM.send(source, anAllymember.getId(), "Allianzgr&uuml;ndung", "Die Allianz " + allyname + " wurde erfolgreich gegr&uuml;ndet.\n\nHerzlichen Gl&uuml;ckwunsch!", db);
 
 						ally.addUser(anAllymember);
 						anAllymember.setAllyPosten(null);
@@ -101,9 +100,9 @@ public class HandleAllyFound implements TaskHandler {
 			case "__conf_dism":
 			{
 				Integer[] allymember = Common.explodeToInteger(",", task.getData3());
-				User source = (User) ContextMap.getContext().getDB().get(User.class, 0);
+				User source = db.find(User.class, 0);
 
-				PM.send(source, allymember[0], "Allianzgr&uuml;ndung", "Die Allianzgr&uuml;ndung ist fehlgeschlagen, da ein Spieler seine Unterst&uuml;tzung verweigert hat.");
+				PM.send(source, allymember[0], "Allianzgr&uuml;ndung", "Die Allianzgr&uuml;ndung ist fehlgeschlagen, da ein Spieler seine Unterst&uuml;tzung verweigert hat.", db);
 				Taskmanager.getInstance().removeTask(task.getTaskID());
 
 				Task[] tasklist = Taskmanager.getInstance().getTasksByData(Taskmanager.Types.ALLY_FOUND_CONFIRM, task.getTaskID(), "*", "*");
@@ -119,11 +118,11 @@ public class HandleAllyFound implements TaskHandler {
 				Integer[] allymember = Common.explodeToInteger(",", task.getData3());
 
 				Taskmanager.getInstance().removeTask(task.getTaskID());
-				User source = (User) ContextMap.getContext().getDB().get(User.class, 0);
+				User source = db.find(User.class, 0);
 
 				for (Integer anAllymember : allymember)
 				{
-					PM.send(source, anAllymember, "Allianzgr&uuml;ndung", "Die Allianzgr&uuml;ndung ist fehlgeschlagen, da nicht alle angegebenen Spieler in der notwendigen Zeit ihre Unterst&uuml;tzung signalisiert haben.");
+					PM.send(source, anAllymember, "Allianzgr&uuml;ndung", "Die Allianzgr&uuml;ndung ist fehlgeschlagen, da nicht alle angegebenen Spieler in der notwendigen Zeit ihre Unterst&uuml;tzung signalisiert haben.", db);
 				}
 				break;
 			}

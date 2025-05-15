@@ -39,7 +39,13 @@ import java.util.List;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class AutofireTick extends TickController {
 
-	@Override
+    private final ConfigService configService;
+
+    public AutofireTick(ConfigService configService) {
+        this.configService = configService;
+    }
+
+    @Override
 	protected void prepare() {
 		// EMPTY
 	}
@@ -47,7 +53,7 @@ public class AutofireTick extends TickController {
 	@Override
 	protected void tick() {
 		var db = getEM();
-        boolean isAutoFire = new ConfigService().getValue(WellKnownConfigValue.AUTOFIRE);
+        boolean isAutoFire = configService.getValue(WellKnownConfigValue.AUTOFIRE);
 
         if(!isAutoFire)
         {
@@ -65,11 +71,12 @@ public class AutofireTick extends TickController {
                     .getResultList();
         }
 
-		new UnitOfWork<Battle>("Battle Tick")
+		new UnitOfWork<Battle>("Battle Tick", db)
 		{
 			@Override
 			public void doWork(Battle battle) {
-				battle.load( battle.getCommander(0), null, null, 0 );
+                var db = getEM();
+				battle.load(battle.getCommander(0), null, null, 0, db);
                 log("Automatisches Feuer aktiviert für Spieler: " + battle.getCommander(0).getId());
                 AutoFire autoFire = new AutoFire(db, battle);
                 autoFire.fireShips();
@@ -78,12 +85,12 @@ public class AutofireTick extends TickController {
 
         battles = db.createQuery("from Battle battle where battle.commander2.id < 0", Battle.class)
                 .getResultList();
-        new UnitOfWork<Battle>("Battle Tick")
+        new UnitOfWork<Battle>("Battle Tick", db)
         {
             @Override
             public void doWork(Battle battle) {
                 var db = getEM();
-                battle.load( battle.getCommander(1), null, null, 0 );
+                battle.load(battle.getCommander(1), null, null, 0, db);
                 log("Automatisches Feuer aktiviert für Spieler: " + battle.getCommander(1).getId());
                 AutoFire autoFire = new AutoFire(db, battle);
                 autoFire.fireShips();

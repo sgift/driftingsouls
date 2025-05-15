@@ -35,7 +35,6 @@ import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -56,7 +55,7 @@ public class PlayerDelete implements AdminPlugin
 	@Override
 	public void output(StringBuilder echo) {
 		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
+		var db = context.getEM();
 
 		int userid = context.getRequest().getParameterInt("userid");
 		String conf = context.getRequest().getParameterString("conf");
@@ -84,7 +83,7 @@ public class PlayerDelete implements AdminPlugin
 
 
 		echo.append("<div class='gfxbox' style='width:540px'>");
-		User user = (User)db.get(User.class, userid);
+		User user = db.find(User.class, userid);
 		if( user == null ) {
 			echo.append("Der Spieler existiert nicht.<br />\n");
 			echo.append("</div>");
@@ -127,17 +126,17 @@ public class PlayerDelete implements AdminPlugin
 			echo.append("<div class='gfxbox' style='width:440px;text-align:center'>");
 			echo.append("<form action=\"./ds\" method=\"post\">");
 			echo.append("<table class=\"noBorderX\">\n");
-			echo.append("<tr><td class=\"noBorderX\" width=\"60\">Spieler:</td><td class=\"noBorderX\">"+ user.getName() + "("+user.getId()+")"+"</td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\" width=\"60\">Allianz:</td><td class=\"noBorderX\">"+ (user.getAlly()!=null?user.getAlly().getName():"keine")+"</td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\" width=\"60\">Login:</td><td class=\"noBorderX\">"+ user.getUN()+"</td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\" width=\"60\">E-Mail:</td><td class=\"noBorderX\">"+ user.getEmail()+"</td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\" width=\"60\">Angemeldet seit:</td><td class=\"noBorderX\">"+  Common.date("d.m.Y H:i:s", user.getSignup()) +"</td></tr>\n");
-			echo.append("<tr><td class=\"noBorderX\" width=\"60\">Inaktiv seit:</td><td class=\"noBorderX\">"+ user.getInactivity() +" Ticks</td></tr>\n");
+			echo.append("<tr><td class=\"noBorderX\" width=\"60\">Spieler:</td><td class=\"noBorderX\">").append(user.getName()).append("(").append(user.getId()).append(")").append("</td></tr>\n");
+			echo.append("<tr><td class=\"noBorderX\" width=\"60\">Allianz:</td><td class=\"noBorderX\">").append(user.getAlly() != null ? user.getAlly().getName() : "keine").append("</td></tr>\n");
+			echo.append("<tr><td class=\"noBorderX\" width=\"60\">Login:</td><td class=\"noBorderX\">").append(user.getUN()).append("</td></tr>\n");
+			echo.append("<tr><td class=\"noBorderX\" width=\"60\">E-Mail:</td><td class=\"noBorderX\">").append(user.getEmail()).append("</td></tr>\n");
+			echo.append("<tr><td class=\"noBorderX\" width=\"60\">Angemeldet seit:</td><td class=\"noBorderX\">").append(Common.date("d.m.Y H:i:s", user.getSignup())).append("</td></tr>\n");
+			echo.append("<tr><td class=\"noBorderX\" width=\"60\">Inaktiv seit:</td><td class=\"noBorderX\">").append(user.getInactivity()).append(" Ticks</td></tr>\n");
 			echo.append("<tr><td class=\"noBorderX\" colspan=\"2\" align=\"center\">");
 			echo.append("<input type=\"hidden\" name=\"namedplugin\" value=\"").append(getClass().getName()).append("\" />");
 			echo.append("<input type=\"hidden\" name=\"module\" value=\"admin\" />\n");
 			echo.append("<input type=\"hidden\" name=\"conf\" value=\"ok\" />\n");
-			echo.append("<input type=\"hidden\" name=\"userid\" value=\""+userid+"\" />\n");
+			echo.append("<input type=\"hidden\" name=\"userid\" value=\"").append(userid).append("\" />\n");
 			echo.append("<input type=\"submit\" value=\"l&ouml;schen\" style=\"width:100px\"/></td></tr>");
 			echo.append("</table>\n");
 			echo.append("</form>");
@@ -191,7 +190,7 @@ public class PlayerDelete implements AdminPlugin
 									"[Automatische Nachricht]\nAchtung!\n"
 											+ "Durch das Löschen eines Allianzmitglieds hat Deine Allianz zu wenig Mitglieder, "
 											+ "um weiterhin zu bestehen. Du hast nun 21 Ticks Zeit, diesen Zustand zu ändern. "
-											+ "Anderenfalls wird die Allianz aufgelöst.");
+											+ "Anderenfalls wird die Allianz aufgelöst.", db);
 						}
 					}
 				}

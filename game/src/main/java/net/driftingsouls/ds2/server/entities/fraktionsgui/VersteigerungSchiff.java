@@ -18,17 +18,16 @@
  */
 package net.driftingsouls.ds2.server.entities.fraktionsgui;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-
+import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Context;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.ShipType;
-import net.driftingsouls.ds2.server.comm.PM;
 
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
 import java.util.List;
 
 /**
@@ -60,18 +59,15 @@ public class VersteigerungSchiff extends Versteigerung {
 		
 		this.type = Integer.toString(type.getTypeId());
 		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-		//das macht vermutlich probleme, weil keine richtigen user erzeugt werden
-		//List<User> users = Common.cast(db.createQuery("from User").list());
-		User niemand = (User)db.get(User.class, -2);
-		List<Integer> userIDs = Common.cast(db.createQuery("select id from User").list());
+		var db = context.getEM();
+		User niemand = db.find(User.class, -2);
+		List<User> users = db.createQuery("from User", User.class).getResultList();
 		
-		for(Integer userID : userIDs)
+		for(User user: users)
 		{
-			User user = (User)db.get(User.class, userID);
 			//Abfrage, ob der user eine PM moechte
 			if(user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_AUKTION_PM)) {
-				PM.send(niemand, user.getId(), "Neue Versteigerung eingestellt.", "Versteigert wird eine "+type.getNickname()+". Aktueller Preis: "+price+" RE");
+				PM.send(niemand, user.getId(), "Neue Versteigerung eingestellt.", "Versteigert wird eine "+type.getNickname()+". Aktueller Preis: "+price+" RE", db);
 			}
 		}
 	}

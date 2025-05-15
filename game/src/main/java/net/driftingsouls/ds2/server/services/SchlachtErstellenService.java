@@ -8,7 +8,6 @@ import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
@@ -19,11 +18,10 @@ import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.FlushMode;
-import org.hibernate.Query;
-import org.hibernate.Session;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nonnull;
+import javax.persistence.EntityManager;
 import java.util.*;
 
 @Service
@@ -31,7 +29,15 @@ public class SchlachtErstellenService
 {
 	private static final Logger LOG = LogManager.getLogger(SchlachtErstellenService.class);
 
-	/**
+	private final EntityManager db;
+	private final ConfigService configService;
+
+    public SchlachtErstellenService(EntityManager db, ConfigService configService) {
+        this.db = db;
+		this.configService = configService;
+    }
+
+    /**
 	 * Erstellt eine neue Schlacht.
 	 * @param user Der Spieler, der die Schlacht beginnt
 	 * @param ownShipID Die ID des Schiffes des Spielers, der angreift
@@ -39,10 +45,7 @@ public class SchlachtErstellenService
 	 * @return Die Schlacht, falls sie erfolgreich erstellt werden konnte. Andernfalls <code>null</code>
 	 */
 	public Battle erstelle( User user, int ownShipID, int enemyShipID ) {
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-
-		return erstelle(user, (Ship)db.get(Ship.class, ownShipID), (Ship)db.get(Ship.class,enemyShipID), false);
+		return erstelle(user, db.find(Ship.class, ownShipID), db.find(Ship.class,enemyShipID), false);
 	}
 
 	/**
@@ -55,9 +58,6 @@ public class SchlachtErstellenService
 	 * @throws java.lang.IllegalArgumentException Falls mit den uebergebenen Parametern keine Schlacht erstellt werden kann
 	 */
 	public Battle erstelle(@Nonnull User user, @Nonnull Ship ownShip, @Nonnull Ship enemyShip, final boolean startOwn ) throws IllegalArgumentException {
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-
 		LOG.info("battle: "+user+" :: "+ownShip.getId()+" :: "+enemyShip.getId());
 
 		Ship tmpEnemyShip = enemyShip;
@@ -77,16 +77,16 @@ public class SchlachtErstellenService
 		Ally ownAlly = ownShip.getOwner().getAlly();
 		Ally enemyAlly = tmpEnemyShip.getOwner().getAlly();
 
-		Query shipQuery = db.createQuery("from Ship as s inner join fetch s.owner as u " +
+		var shipQuery = db.createQuery("from Ship as s inner join fetch s.owner as u " +
 				"where s.id>:minid and s.x=:x and s.y=:y and " +
 				"s.system=:system and s.battle is null and (" +
 				(ownAlly == null ? "u.ally is null" : "u.ally=:ally1")+" or "+
 				(enemyAlly == null ? "u.ally is null" : "u.ally=:ally2")+
-				") and locate('disable_iff',s.status)=0 and (u.vaccount=0 or u.wait4vac > 0)")
-				.setInteger("minid", 0)
-				.setInteger("x", ownShip.getX())
-				.setInteger("y", ownShip.getY())
-				.setInteger("system", ownShip.getSystem());
+				") and locate('disable_iff',s.status)=0 and (u.vaccount=0 or u.wait4vac > 0)", Ship.class)
+				.setParameter("minid", 0)
+				.setParameter("x", ownShip.getX())
+				.setParameter("y", ownShip.getY())
+				.setParameter("system", ownShip.getSystem());
 		if( ownAlly != null )
 		{
 			shipQuery.setParameter("ally1", ownAlly);
@@ -96,7 +96,7 @@ public class SchlachtErstellenService
 			shipQuery.setParameter("ally2", enemyAlly);
 		}
 
-		List<Ship> shiplist = Common.cast(shipQuery.list());
+		List<Ship> shiplist = shipQuery.getResultList();
 
 		Set<BattleShip> ownShips = new HashSet<>();
 		Set<BattleShip> enemyShips = new HashSet<>();
@@ -106,7 +106,7 @@ public class SchlachtErstellenService
 
 		for (Ship aShip : shiplist) {
 			// Loot-Truemmer sollten in keine Schlacht wandern... (nicht schoen, gar nicht schoen geloest)
-			if ((aShip.getOwner().getId() == -1) && (aShip.getType() == new ConfigService().getValue(WellKnownConfigValue.TRUEMMER_SHIPTYPE))) {
+			if ((aShip.getOwner().getId() == -1) && (aShip.getType() == configService.getValue(WellKnownConfigValue.TRUEMMER_SHIPTYPE))) {
 				continue;
 			}
 			User tmpUser = aShip.getOwner();
@@ -210,7 +210,7 @@ public class SchlachtErstellenService
 
 		addToSecondRow(battle, secondRowShips, firstRowExists, firstRowEnemyExists);
 
-		if( enemyBattleShip == null && (battle.getEnemyShips().size() == 0) ) {
+		if( enemyBattleShip == null && battle.getEnemyShips().isEmpty() ) {
 			throw new IllegalArgumentException("Offenbar liegt ein Problem mit den feindlichen Schiffen vor. Es gibt nämlich keine die angegriffen werden könnten.");
 		}
 		else if( enemyBattleShip == null ) {
@@ -225,13 +225,13 @@ public class SchlachtErstellenService
 		battle.setCommander(0, ownBattleShip.getOwner());
 		battle.setCommander(1, enemyBattleShip.getOwner());
 		battle.setFlag(BattleFlag.FIRSTROUND);
-		db.save(battle);
+		db.persist(battle);
 
 		//
 		// Schiffe in die Schlacht einfuegen
 		//
 
-		int tick = context.get(ContextCommon.class).getTick();
+		int tick = ContextMap.getContext().get(ContextCommon.class).getTick();
 
 		// * Gegnerische Schiffe in die Schlacht einfuegen
 		List<Integer> idlist = new ArrayList<>();
@@ -250,7 +250,7 @@ public class SchlachtErstellenService
 		enemyShip.setBattle(battle);
 
 		insertShipsIntoDatabase(battle, battle.getEnemyShips(), startlist, idlist);
-		if( startlist.size() > 0 ) {
+		if(!startlist.isEmpty()) {
 			battle.logme(startlist.size() + " Jäger sind automatisch gestartet\n");
 			battle.log(new SchlachtLogAktion(1, startlist.size() + " Jäger sind automatisch gestartet"));
 
@@ -277,7 +277,7 @@ public class SchlachtErstellenService
 		ownShip.setDocked("");
 
 		insertShipsIntoDatabase(battle, battle.getOwnShips(), startlist, idlist);
-		if( startOwn && startlist.size() > 0 ) {
+		if( startOwn && !startlist.isEmpty()) {
 			battle.logme(startlist.size() + " Jäger sind automatisch gestartet\n");
 			battle.log(new SchlachtLogAktion(0, startlist.size() + " Jäger sind automatisch gestartet"));
 		}
@@ -287,7 +287,7 @@ public class SchlachtErstellenService
 		//
 		// Log erstellen
 		//
-		createBattleLog(db, battle, ownBattleShip, enemyBattleShip, tick);
+		createBattleLog(battle, ownBattleShip, enemyBattleShip, tick);
 
 		//
 		// Beziehungen aktualisieren
@@ -297,14 +297,12 @@ public class SchlachtErstellenService
 		// berechnen ggf die Userlisten neu
 		Set<Integer> calcedallys = new HashSet<>();
 
-		db.setFlushMode(FlushMode.COMMIT);
-
 		for( User auser : new ArrayList<>(ownUsers) ) {
 			if( (auser.getAlly() != null) && !calcedallys.contains(auser.getAlly().getId()) ) {
-				List<User> allyusers = Common.cast(db.createQuery("from User u where u.ally=:ally and (u not in (:ownUsers))")
-						.setEntity("ally", auser.getAlly())
-						.setParameterList("ownUsers", ownUsers)
-						.list());
+				List<User> allyusers = db.createQuery("from User u where u.ally=:ally and (u not in (:ownUsers))", User.class)
+						.setParameter("ally", auser.getAlly())
+						.setParameter("ownUsers", ownUsers)
+						.getResultList();
 
 				ownUsers.addAll(allyusers);
 				calcedallys.add(auser.getAlly().getId());
@@ -313,10 +311,10 @@ public class SchlachtErstellenService
 
 		for( User auser : new ArrayList<>(enemyUsers) ) {
 			if( (auser.getAlly() != null) && !calcedallys.contains(auser.getAlly().getId()) ) {
-				List<User> allyusers = Common.cast(db.createQuery("from User u where ally=:ally and (u not in (:enemyUsers))")
-						.setEntity("ally", auser.getAlly())
-						.setParameterList("enemyUsers", enemyUsers)
-						.list());
+				List<User> allyusers = db.createQuery("from User u where ally=:ally and (u not in (:enemyUsers))", User.class)
+						.setParameter("ally", auser.getAlly())
+						.setParameter("enemyUsers", enemyUsers)
+						.getResultList();
 				enemyUsers.addAll(allyusers);
 				calcedallys.add(auser.getAlly().getId());
 			}
@@ -339,7 +337,7 @@ public class SchlachtErstellenService
 		}
 		else
 		{
-			final Ally ally = (Ally) db.get(Ally.class, battle.getAlly(0));
+			final Ally ally = db.find(Ally.class, battle.getAlly(0));
 			eparty = ally.getName();
 		}
 
@@ -350,10 +348,10 @@ public class SchlachtErstellenService
 		}
 		else
 		{
-			final Ally ally = (Ally) db.get(Ally.class, battle.getAlly(1));
+			final Ally ally = db.find(Ally.class, battle.getAlly(1));
 			eparty2 = ally.getName();
 		}
-		User niemand = (User)db.get(User.class, -1);
+		User niemand = db.find(User.class, -1);
 		String msg = "Es wurde eine Schlacht bei "+ownShip.getLocation().displayCoordinates(false)+" eröffnet.\n" +
 				"Es kämpfen "+eparty+" ("+ battle.getOwnShips().size() +" Schiffe) und "+eparty2+" ("+ battle.getEnemyShips().size() +" Schiffe) gegeneinander. "+
 				"Deine 2. Reihe ist ";
@@ -379,7 +377,7 @@ public class SchlachtErstellenService
 		{
 			if(auser.getUserValue(WellKnownUserValue.GAMEPLAY_USER_BATTLE_PM))
 			{
-				PM.send(niemand, auser.getId(), "Schlacht eröffnet", msg+msg1);
+				PM.send(niemand, auser.getId(), "Schlacht eröffnet", msg+msg1, db);
 			/*	if(auser.getApiKey()!="")
 				{
 					new Notifier (auser.getApiKey()).sendMessage("Schlacht bei "+ownShip.getLocation().displayCoordinates(false)+" eröffnet", msg);
@@ -392,7 +390,7 @@ public class SchlachtErstellenService
 		{
 			if(auser.getUserValue(WellKnownUserValue.GAMEPLAY_USER_BATTLE_PM))
 			{
-				PM.send(niemand, auser.getId(), "Schlacht eröffnet", msg+msg2);
+				PM.send(niemand, auser.getId(), "Schlacht eröffnet", msg+msg2, db);
 			/*	if(auser.getApiKey()!="")
 				{
 					new Notifier (auser.getApiKey()).sendMessage("Schlacht bei "+ownShip.getLocation().displayCoordinates(false)+" eröffnet", msg);
@@ -401,12 +399,11 @@ public class SchlachtErstellenService
 			}
 
 		}
-		db.setFlushMode(FlushMode.AUTO);
 
 		return battle;
 	}
 
-	private void createBattleLog(Session db, Battle battle, BattleShip ownBattleShip, BattleShip enemyBattleShip, int tick)
+	private void createBattleLog(Battle battle, BattleShip ownBattleShip, BattleShip enemyBattleShip, int tick)
 	{
 		SchlachtLog log = new SchlachtLog(battle, tick);
 		db.persist(log);

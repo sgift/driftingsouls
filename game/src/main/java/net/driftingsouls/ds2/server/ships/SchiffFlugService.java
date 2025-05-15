@@ -825,6 +825,7 @@ public class SchiffFlugService
 
 	private void handleAlert(Ship schiff)
 	{
+		var db = ContextMap.getContext().getEM();
 		User owner = schiff.getOwner();
 		List<Ship> attackShips = Ship.alertCheck(owner, schiff.getLocation()).values().iterator().next();
 
@@ -837,11 +838,10 @@ public class SchiffFlugService
 		{
 			if(ship.getBattle() != null)
 			{
-				org.hibernate.Session db = ContextMap.getContext().getDB();
-				BattleShip bship = (BattleShip)db.get(BattleShip.class, ship.getId());
+				BattleShip bship = db.find(BattleShip.class, ship.getId());
 				int oside = (bship.getSide() + 1) % 2 + 1;
 				Battle battle = ship.getBattle();
-				battle.load(schiff.getOwner(), null, null, oside);
+				battle.load(schiff.getOwner(), null, null, oside, db);
 
 				for(Ship aship: schiff.getDockedShips())
 				{

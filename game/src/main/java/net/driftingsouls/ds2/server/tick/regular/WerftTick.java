@@ -43,32 +43,24 @@ import java.util.List;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class WerftTick extends TickController
 {
+	@Override
+	protected void prepare() {}
 
 	@Override
-	protected void prepare()
-	{
-		// EMPTY
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
 	protected void tick()
 	{
-		javax.persistence.EntityManager em = getEM();
+		var em = getEM();
 		em.setFlushMode(FlushModeType.COMMIT);
 		final User sourceUser = em.find(User.class, -1);
 
-		List<Integer> werften = em.createQuery("select w.id from WerftObject w where size(w.queue)>0")
+		List<WerftObject> werften = em.createQuery("from WerftObject w where size(w.queue)>0", WerftObject.class)
 								.getResultList();
-		new UnitOfWork<Integer>("Werft Tick")
+		new UnitOfWork<WerftObject>("Werft Tick", em)
 		{
 			@Override
-			public void doWork(Integer werftId) {
-				javax.persistence.EntityManager em = getEM();
-				WerftObject werft = em.find(WerftObject.class, werftId);
-
+			public void doWork(WerftObject werft) {
 				//Kampagnentick und die Werft steht nicht in einem der ausgewaehlten Systeme
-				if(isCampaignTick() && !affectedSystems.contains(werft.getSystem())){
+				if(isCampaignTick() && !affectedSystems.contains(werft.getSystem())) {
 					return;
 				}
 				processWerft(sourceUser, werft);
@@ -150,7 +142,7 @@ public class WerftTick extends TickController
 						String msg = "Auf " + bbcode(werft) + " wurde eine [ship=" + shipid + "]" + shipd.getNickname() + "[/ship] gebaut. Sie steht bei [map]" + werft.getLocation().displayCoordinates(false) + "[/map].";
 
                         if(werft.getOwner().getUserValue(WellKnownUserValue.GAMEPLAY_USER_SHIP_BUILD_PM)) {
-                            PM.send(sourceUser, werft.getOwner().getId(), "Schiff gebaut", msg);
+                            PM.send(sourceUser, werft.getOwner().getId(), "Schiff gebaut", msg, em);
                         }
 					}
 
@@ -160,7 +152,7 @@ public class WerftTick extends TickController
 						PM.send(sourceUser, werft.getOwner().getId(), "Geplante Auslieferungen",
 							   "Auf " + bbcode(werft) + " wurde die maximale Anzahl an gleichzeig zu produzierenden Schiffen erreicht. " +
 							   "Weitere Fertigstellungen wurden von der Raumsicherheit als auch vom Arbeitsschutzbeauftragten der auf den " +
-							   "Werften vertretenen Gewerkschaften abgeleht. Der Weiterbau wird beim nächsten Tick automatisch wieder aufgenommen.\n\ngez.\nKoordinationsbüro Werftkomplexe");
+							   "Werften vertretenen Gewerkschaften abgeleht. Der Weiterbau wird beim nächsten Tick automatisch wieder aufgenommen.\n\ngez.\nKoordinationsbüro Werftkomplexe", em);
 						break;
 					}
 				}

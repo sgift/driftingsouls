@@ -19,7 +19,6 @@ import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.persistence.Entity;
-import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -63,14 +62,14 @@ public class ObjectLabelGenerator
 	 * @param entity Die Objektinstanz
 	 * @return Das generierte Label
 	 */
-	public String generateFor(@Nullable Serializable identifier, @Nonnull Object entity)
+	public String generateFor(@Nullable Object identifier, @Nonnull Object entity)
 	{
 		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
+		var db = context.getEM();
 
 		if (identifier == null && entity.getClass().isAnnotationPresent(Entity.class))
 		{
-			identifier = db.getIdentifier(entity);
+			identifier = db.getEntityManagerFactory().getPersistenceUnitUtil().getIdentifier(entity);
 		}
 
 		String label;

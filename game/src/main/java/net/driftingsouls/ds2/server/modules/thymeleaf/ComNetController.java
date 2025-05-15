@@ -20,6 +20,7 @@ import net.driftingsouls.ds2.server.services.ComNetService;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.WebContext;
 
+import javax.persistence.EntityManager;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -154,7 +155,7 @@ public class ComNetController implements DSController, PermissionResolver {
 
       User user = (User) context.getActiveUser();
 
-      Post post = new Post(channel, text, head, user, null);
+      Post post = new Post(channel, text, head, user, null, context.getEM());
       Channel c = new Channel(channel);
       post.setIngametime(Common.getIngameTime(context.get(ContextCommon.class).getTick()));
       post.setTime(Common.date("d.m.Y H:i:s"));
@@ -196,7 +197,7 @@ public class ComNetController implements DSController, PermissionResolver {
       int back = 0;
       try{
         back = Integer.parseInt(request.getParameter("back"));
-      }catch(NumberFormatException e){}
+      } catch(NumberFormatException ignored){}
 
       
       if (!channel.isReadable(user, this))
@@ -246,7 +247,7 @@ public class ComNetController implements DSController, PermissionResolver {
           {
             head = "-";
           }
-          Post p = new Post(channel, entry.getText(), head, entry.getUser(), entry, entry.getAllyPic());
+          Post p = new Post(channel, entry.getText(), head, entry.getUser(), entry, entry.getAllyPic(), context.getEM());
           p.setTime(Common.date("d.m.Y H:i:s", entry.getTime()));
           p.setIngametime(Common.getIngameTime(entry.getTick()));
           posts.add(p);
@@ -327,11 +328,10 @@ public class ComNetController implements DSController, PermissionResolver {
         int postNumber = channelPostCount - back - i;
         String head = post.getHead();
 
-        if (head.length() == 0)
-        {
+        if (head.isEmpty()) {
           head = "-";
         }
-        Post p = new Post(channel,post.getText(), head, post.getUser(), post, post.getAllyPic());
+        Post p = new Post(channel,post.getText(), head, post.getUser(), post, post.getAllyPic(), context.getEM());
         p.setId(postNumber);
         p.setIngametime(Common.getIngameTime(post.getTick()));
         p.setTime(Common.date("d.m.Y H:i:s", post.getTime()));
@@ -392,7 +392,7 @@ public class ComNetController implements DSController, PermissionResolver {
       }
       Channel c = new Channel(channel);
       c.setShowinputform(true);
-      Post post = new Post(channel, "","", user, null);
+      Post post = new Post(channel, "","", user, null, context.getEM());
       ctx.setVariable("post",post);
       ctx.setVariable("channel", c);
     }
@@ -511,12 +511,12 @@ public class ComNetController implements DSController, PermissionResolver {
       public ComNetEntry post;
       public Integer allypic;
 
-      public Post(ComNetChannel channel, String rawtext, String rawtitle, User user, ComNetEntry post){
+      public Post(ComNetChannel channel, String rawtext, String rawtitle, User user, ComNetEntry post, EntityManager db){
         this.user = user;
         this.channel = channel;
         this.rawtext = rawtext;
         this.rawtitle = rawtitle;
-        this.text = Smilie.parseSmilies(Common._text(rawtext));
+        this.text = Smilie.parseSmilies(db, Common._text(rawtext));
         this.title = Common._title(rawtitle);
         this.userRank = user == null? null : Medals.get().rang(user.getRang());
         this.ally = user == null? null : user.getAlly();
@@ -524,12 +524,12 @@ public class ComNetController implements DSController, PermissionResolver {
         this.post = post;
         this.allypic = ally == null ? null : ally.getId();
       }
-      public Post(ComNetChannel channel, String rawtext, String rawtitle, User user, ComNetEntry post, int allypic){
+      public Post(ComNetChannel channel, String rawtext, String rawtitle, User user, ComNetEntry post, int allypic, EntityManager db) {
         this.user = user;
         this.channel = channel;
         this.rawtext = rawtext;
         this.rawtitle = rawtitle;
-        this.text = Smilie.parseSmilies(Common._text(rawtext));
+        this.text = Smilie.parseSmilies(db, Common._text(rawtext));
         this.title = Common._title(rawtitle);
         this.userRank = Medals.get().rang(user.getRang());
         this.ally = null;

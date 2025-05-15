@@ -1,8 +1,9 @@
 package net.driftingsouls.ds2.server.framework;
 
 import net.driftingsouls.ds2.server.framework.utils.StringToTypeConverter;
-import org.hibernate.Session;
 import org.springframework.stereotype.Service;
+
+import javax.persistence.EntityManager;
 
 /**
  * Service zum Zugriff auf Konfigurationswerte. Die Konfigurationswerte werden durch {@link net.driftingsouls.ds2.server.framework.ConfigValue}s
@@ -11,6 +12,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class ConfigService
 {
+	private final EntityManager db;
+
+	public ConfigService(EntityManager db) {
+		this.db = db;
+	}
+
 	/**
 	 * Gibt das Konfigurationsobjekt mit dem angegebenen Schluessel zurueck. Die Methode sollte
 	 * nur verwendet werden, wenn wirklich das gesamte Konfigurationsobjekt benoetigt wird.
@@ -21,8 +28,7 @@ public class ConfigService
 	 */
 	public ConfigValue get(ConfigValueDescriptor<?> descriptor)
 	{
-		Session db = ContextMap.getContext().getDB();
-		ConfigValue value = (ConfigValue)db.get(ConfigValue.class, descriptor.getName());
+		ConfigValue value = db.find(ConfigValue.class, descriptor.getName());
 		if( value == null )
 		{
 			value = new ConfigValue(descriptor.getName(), descriptor.getDefaultValue());
@@ -40,8 +46,7 @@ public class ConfigService
 	 */
 	public <T> T getValue(ConfigValueDescriptor<T> descriptor)
 	{
-		Session db = ContextMap.getContext().getDB();
-		ConfigValue configValue = (ConfigValue)db.get(ConfigValue.class, descriptor.getName());
+		ConfigValue configValue = db.find(ConfigValue.class, descriptor.getName());
 		return StringToTypeConverter.convert(descriptor.getType(), configValue != null ? configValue.getValue() : descriptor.getDefaultValue());
 	}
 }

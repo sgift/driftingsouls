@@ -186,7 +186,7 @@ public class AllyController extends Controller
 				Taskmanager.Types.ALLY_FOUND_CONFIRM, 21,
 				mastertaskid, Integer.toString(confuser1.getId()), "");
 
-		PM.send(user, confuser1.getId(), "Allianzgründung", "[automatische Nachricht]\nIch habe vor, die Allianz " + name + " zu gründen. Da mindestens ein Spieler dieses Vorhaben unterstützen muss, habe ich mich an Dich gewendet.\nAchtung: Durch die Unterstützung wirst Du automatisch Mitglied der neuen Allianz!\n\n[_intrnlConfTask=" + conf1taskid + "]Willst Du die Allianzgründung unterstützen?[/_intrnlConfTask]", PM.FLAGS_IMPORTANT);
+		PM.send(user, confuser1.getId(), "Allianzgründung", "[automatische Nachricht]\nIch habe vor, die Allianz " + name + " zu gründen. Da mindestens ein Spieler dieses Vorhaben unterstützen muss, habe ich mich an Dich gewendet.\nAchtung: Durch die Unterstützung wirst Du automatisch Mitglied der neuen Allianz!\n\n[_intrnlConfTask=" + conf1taskid + "]Willst Du die Allianzgründung unterstützen?[/_intrnlConfTask]", PM.FLAGS_IMPORTANT, getEM());
 
 		return new RedirectViewResult("defaultNoAlly").withMessage("Der angegebene Spieler wurden via PM benachrichtigt. Sollten er sich zur Unterstützung entschlossen haben, wird die Allianz augenblicklich gegründet. Du wirst dann außerdem via PM benachrichtigt.");
 	}
@@ -255,7 +255,7 @@ public class AllyController extends Controller
 		for (User supermember : supermembers)
 		{
 			PM.send(user, supermember.getId(),
-					"Aufnahmeantrag", "[Automatische Nachricht]\nHiermit beantrage ich die Aufnahme in die Allianz.\n\n[_intrnlConfTask=" + taskid + "]Wollen Sie dem Aufnahmeantrag zustimmen?[/_intrnlConfTask]", PM.FLAGS_IMPORTANT);
+					"Aufnahmeantrag", "[Automatische Nachricht]\nHiermit beantrage ich die Aufnahme in die Allianz.\n\n[_intrnlConfTask=" + taskid + "]Wollen Sie dem Aufnahmeantrag zustimmen?[/_intrnlConfTask]", PM.FLAGS_IMPORTANT, getEM());
 		}
 
 		return new RedirectViewResult("defaultNoAlly").withMessage("Der Aufnahmeantrag wurde weitergeleitet. Die Bearbeitung kann jedoch abhängig von der jeweiligen Allianzführung längere Zeit in Anspruch nehmen. Sollten Sie aufgenommen werden, wird automatisch eine PM an Sie gesendet.");
@@ -781,9 +781,9 @@ public class AllyController extends Controller
 		}
 
 		PM.send(user, this.ally.getPresident().getId(), "Allianzaustritt",
-				"Hiermit erklären wir den sofortigen Austritt aus der Allianz.");
+				"Hiermit erklären wir den sofortigen Austritt aus der Allianz.", getEM());
 
-		allianzService.entferneMitglied(ally, user);
+		allianzService.entferneMitglied(ally, user, getEM());
 		this.ally = null;
 
 		return new RedirectViewResult("defaultNoAlly").withMessage("Du hast die Allianz verlassen.");
@@ -817,7 +817,7 @@ public class AllyController extends Controller
 		}
 		else
 		{
-			PM.sendToAlly(user, this.ally, "Allianz aufgelöst", "Die Allianz wurde mit sofortiger Wirkung aufgelöst.");
+			PM.sendToAlly(user, this.ally, "Allianz aufgelöst", "Die Allianz wurde mit sofortiger Wirkung aufgelöst.", getEM());
 
 			allianzService.loeschen(this.ally);
 			this.ally = null;
@@ -848,7 +848,7 @@ public class AllyController extends Controller
 		}
 
 		this.ally.setPresident(presnuser);
-		PM.send(this.ally.getPresident(), presnuser.getId(), "Zum Anführer ernannt", "Ich habe dich zum Anführer der Allianz ernannt.");
+		PM.send(this.ally.getPresident(), presnuser.getId(), "Zum Anführer ernannt", "Ich habe dich zum Anführer der Allianz ernannt.", getEM());
 
 		return new RedirectViewResult("showMembers").withMessage(presnuser.getProfileLink() + " zum Anführer ernannt");
 	}
@@ -879,9 +879,9 @@ public class AllyController extends Controller
 			return new RedirectViewResult("showMembers").withMessage("Dieser Spieler ist nicht Mitglied Ihrer Allianz.");
 		}
 
-		this.allianzService.entferneMitglied(ally, kickuser);
+		this.allianzService.entferneMitglied(ally, kickuser, getEM());
 
-		PM.send(this.ally.getPresident(), kickuser.getId(), "Aus der Allianz geworfen", "Ich habe Dich aus der Allianz geworfen.");
+		PM.send(this.ally.getPresident(), kickuser.getId(), "Aus der Allianz geworfen", "Ich habe Dich aus der Allianz geworfen.", getEM());
 
 		return new RedirectViewResult("showMembers").withMessage(Common._title(kickuser.getName()) + " aus der Allianz geworfen.");
 	}

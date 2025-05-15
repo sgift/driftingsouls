@@ -26,15 +26,7 @@ import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.ships.Ship;
 import org.hibernate.annotations.ForeignKey;
 
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -282,14 +274,14 @@ public class UpgradeJob
      * Gibt die RE-Kosten dieses Auftrages zurueck.
      * @return die RE-Kosten
      */
-    public int getPrice()
+    public int getPrice(EntityManager db)
     {
         int price = 0;
         for(UpgradeInfo upgrade : upgradelist)
         {
             price += upgrade.getPrice();
         }
-        ConfigValue value = new ConfigService().get(WellKnownConfigValue.DI_FAKTOR_RABATT);
+        ConfigValue value = new ConfigService(db).get(WellKnownConfigValue.DI_FAKTOR_RABATT);
         double factor = Double.parseDouble(value.getValue());
         price = (int)(Math.pow(factor,upgradelist.size()-1) * price);
         return price;
@@ -327,14 +319,14 @@ public class UpgradeJob
      * Gibt die minimale Anzahl an Ticks zurueck, die dieser Ausbau benoetigt.
      * @return die minimale Anzahl an Ticks
      */
-    public int getMinTicks()
+    public int getMinTicks(EntityManager db)
     {
         int ticks = 0;
         for(UpgradeInfo upgrade : upgradelist)
         {
             ticks += upgrade.getMinTicks();
         }
-        ConfigValue value = new ConfigService().get(WellKnownConfigValue.DI_FAKTOR_ZEIT);
+        ConfigValue value = new ConfigService(db).get(WellKnownConfigValue.DI_FAKTOR_ZEIT);
         double factor = Double.parseDouble(value.getValue());
         ticks = (int)(Math.pow(factor,upgradelist.size()-1) * ticks);
         return ticks;
@@ -344,13 +336,13 @@ public class UpgradeJob
      * Gibt die maximale Anzahl an Ticks zuruekc, die dieser Ausbau benoetigt.
      * @return die maximale Anzahl an Ticks
      */
-    public int getMaxTicks()
+    public int getMaxTicks(EntityManager db)
     {
         int ticks = 0;
         for (UpgradeInfo upgrade : upgradelist) {
             ticks += upgrade.getMaxTicks();
         }
-        ConfigValue value = new ConfigService().get(WellKnownConfigValue.DI_FAKTOR_ZEIT);
+        ConfigValue value = new ConfigService(db).get(WellKnownConfigValue.DI_FAKTOR_ZEIT);
         double factor = Double.parseDouble(value.getValue());
         ticks = (int)(Math.pow(factor,upgradelist.size()-1) * ticks);
         return ticks;

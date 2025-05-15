@@ -24,20 +24,21 @@ import org.hibernate.Session;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.WebContext;
 
+import javax.persistence.EntityManager;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 //TODO: Whole class should be autowired, don't get your own config service
 public class RegisterController implements DSController {
-    private final ConfigService configService = new ConfigService();
+    private final EntityManager db = ContextMap.getContext().getEM();
+    private final ConfigService configService = new ConfigService(db);
 
     @Override
     public void process(HttpServletRequest request, HttpServletResponse response, ServletContext servletContext, ITemplateEngine templateEngine) throws Exception {
@@ -89,9 +90,7 @@ public class RegisterController implements DSController {
     }
 
     private void populateRaceOptions(WebContext ctx) {
-        var db = ContextMap.getContext().getDB();
-
-        List<Rasse> playableRaces = Common.cast(db.createQuery("from rasse where playable=true").list());
+        List<Rasse> playableRaces = db.createQuery("from rasse where playable=true", Rasse.class).getResultList();
         List<RegisterRace> registerRaces = playableRaces.stream()
             .map(race -> new RegisterRace(race.getId(), race.getName(), race.getDescription()))
             .collect(Collectors.toList());
@@ -100,10 +99,8 @@ public class RegisterController implements DSController {
     }
 
     private void populateSystemOptions(WebContext ctx) {
-        var db = ContextMap.getContext().getDB();
-
         var startLocation = getStartLocation();
-        List<StarSystem> systems = Common.cast(db.createQuery("from StarSystem").list());
+        List<StarSystem> systems = db.createQuery("from StarSystem", StarSystem.class).getResultList();
         List<RegisterSystem> registerSystems = systems.stream()
             .filter(sys -> sys.getOrderLocations().length > 0)
             .filter(sys -> startLocation.minSysDistance.containsKey(sys.getID()))
@@ -200,8 +197,8 @@ public class RegisterController implements DSController {
             .uniqueResult();
 
         createBase(db, newUser, base);
-        positionShips(db, newId, raceId, base, nebel);
-        sendWelcomePm(db, newId);
+        positionShips(newId, raceId, base, nebel);
+        sendWelcomePm(newId);
         sendWelcomeMail(loginName, email, password);
 
 
@@ -286,7 +283,7 @@ public class RegisterController implements DSController {
         }
     }
 
-    private void positionShips(Session db, int newId, int raceId, Base base, Nebel nebel) {
+    private void positionShips(int newId, int raceId, Base base, Nebel nebel) {
         if (raceId == 1) {
             SectorTemplateManager.getInstance().useTemplate(db, "ORDER_TERRANER", base.getLocation(), newId);
             SectorTemplateManager.getInstance().useTemplate(db, "ORDER_TERRANER_TANKER", nebel.getLocation(), newId);
@@ -296,8 +293,8 @@ public class RegisterController implements DSController {
         }
     }
 
-    private void sendWelcomePm(Session db, int newid) {
-        User source = (User) db.get(User.class, configService.getValue(WellKnownConfigValue.REGISTER_PM_SENDER));
+    private void sendWelcomePm(int newid) {
+        User source = db.find(User.class, configService.getValue(WellKnownConfigValue.REGISTER_PM_SENDER));
         PM.send(source, newid, "Willkommen bei Drifting Souls 2",
             "[font=arial]Herzlich willkommen bei Drifting Souls 2!\n" +
                 "Diese PM wird automatisch an alle neuen Spieler versandt, um\n" +
@@ -310,34 +307,31 @@ public class RegisterController implements DSController {
                 "- die Möglichkeit via Nachricht/PM an die ID -16 Fragen zu stellen.\n" +
                 "\n" +
                 "\n" +
-                "Viel Spaß bei DS2 wünschen Dir die Admins[/font]");
+                "Viel Spaß bei DS2 wünschen Dir die Admins[/font]", db);
     }
 
     private RegisterController.StartLocations getStartLocation() {
-        org.hibernate.Session db = ContextMap.getContext().getDB();
-
         int systemID = 0;
         int orderLocationID = 0;
         int mindistance = 99999;
         HashMap<Integer, RegisterController.StartLocation> minsysdistance = new HashMap<>();
 
-        List<?> systems = db.createQuery("from StarSystem order by id asc").list();
-        for (Object system1 : systems) {
-            StarSystem system = (StarSystem) system1;
+        List<StarSystem> systems = db.createQuery("from StarSystem order by id asc", StarSystem.class).getResultList();
+        for (StarSystem system: systems) {
             Location[] locations = system.getOrderLocations();
 
             for (int i = 0; i < locations.length; i++) {
                 int dist = 0;
                 int count = 0;
-                Iterator<?> distiter = db.createQuery("SELECT sqrt((:x-x)*(:x-x)+(:y-y)*(:y-y)) FROM Base WHERE owner.id = 0 AND system = :system AND klasse.id = 1 ORDER BY sqrt((:x-x)*(:x-x)+(:y-y)*(:y-y))")
-                    .setInteger("x", locations[i].getX())
-                    .setInteger("y", locations[i].getY())
-                    .setInteger("system", system.getID())
-                    .setMaxResults(15)
-                    .iterate();
+                var distiter = db.createQuery("SELECT sqrt((:x-x)*(:x-x)+(:y-y)*(:y-y)) FROM Base WHERE owner.id = 0 AND system = :system AND klasse.id = 1 ORDER BY sqrt((:x-x)*(:x-x)+(:y-y)*(:y-y))", Double.class)
+                        .setParameter("x", locations[i].getX())
+                        .setParameter("y", locations[i].getY())
+                        .setParameter("system", system.getID())
+                        .setMaxResults(15)
+                        .getResultList();
 
-                while (distiter.hasNext()) {
-                    dist += (Double) distiter.next();
+                for (Double distance : distiter) {
+                    dist += distance;
                     count++;
                 }
 
