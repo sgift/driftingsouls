@@ -1,10 +1,7 @@
 package net.driftingsouls.ds2.server.framework;
 
 import org.hibernate.Session;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.ImportResource;
-import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.*;
 
 import javax.persistence.EntityManager;
 
@@ -21,14 +18,14 @@ public class AppConfig
 	}
 
 	@Bean(destroyMethod = "")
-	@Scope("request")
+	@Scope(value = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
 	Session currentSession()
 	{
 		return ContextMap.getContext().getDB();
 	}
 
 	@Bean(destroyMethod = "")
-	@Scope("request")
+	@Scope(value = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
 	EntityManager currentEntityManager()
 	{
 		return ContextMap.getContext().getEM();
