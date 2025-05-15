@@ -26,8 +26,7 @@ public class AppConfig
 	}
 
 	@Bean(destroyMethod = "")
-	@Lazy
-	@Scope(value = "singleton", proxyMode = ScopedProxyMode.TARGET_CLASS)
+	@Scope(value = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
 	EntityManager currentEntityManager()
 	{
 		return HibernateUtil.getCurrentEntityManager();
