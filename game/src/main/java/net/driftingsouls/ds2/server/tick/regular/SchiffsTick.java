@@ -233,42 +233,70 @@ public class SchiffsTick extends TickController {
 	{
 		this.log(shipd.getName()+" ("+shipd.getId()+"):");
 
+		var start = System.nanoTime();
 		ShipTypeData shiptd = shipd.getTypeData();
+		var end = System.nanoTime();
+		this.log("Get type data: "+(end-start)+" ns");
 
+		start = System.nanoTime();
 		// Force initialization of the ship class
 		shiptd.getShipClass();
+		end = System.nanoTime();
+		this.log("Get ship class: "+(end-start)+" ns");
 
+		start = System.nanoTime();
 		Cargo shipc = shipd.getCargo();
+		end = System.nanoTime();
+		this.log("Get cargo: "+(end-start)+" ns");
 
 		this.log("\tAlt: crew "+shipd.getCrew()+" e "+shipd.getEnergy() +" nc "+shipd.getNahrungCargo());
 
+		start = System.nanoTime();
 		if( shipd.getHeat() > 0 && shipd.getBattle() == null )
 		{
 			shipd.setHeat(shipd.getHeat()-Math.min(shipd.getHeat(),70));
 		}
+		end = System.nanoTime();
+		this.log("Compute heat: "+(end-start)+" ns");
 
-		// produziere Nahrung
+		start = System.nanoTime();
 		produziereNahrung(shipd, shiptd, shipc);
+		end = System.nanoTime();
+		this.log("Produce food: "+(end-start)+" ns");
 
-		//poduziere Items
+		start = System.nanoTime();
 		produziereItems(shipd, shiptd, shipc);
+		end = System.nanoTime();
+		this.log("Produce items: "+(end-start)+" ns");
 
+		start = System.nanoTime();
 		StarSystem system = db.find(StarSystem.class, shipd.getSystem());
+		end = System.nanoTime();
+		this.log("Get system: "+(end-start)+" ns");
+
 		//Verbrauch und Verfall im HOMESYSTEM abgeschaltet
-
-
 		if(system == null || system.getAccess() != Access.HOMESYSTEM)
 		{
 			if(configService.getValue(WellKnownConfigValue.REQUIRE_SHIP_FOOD)) {
+				start = System.nanoTime();
 				berechneNahrungsverbrauch(shipd, shiptd, feedingBases, db);
+				end = System.nanoTime();
+				this.log("Compute food: "+(end-start)+" ns");
 			}
 			//Damage ships which don't have enough crew
-			if( !berechneVerfallWegenCrewmangel(shipd, shiptd, db) )
+			start = System.nanoTime();
+			var shipStillExists = berechneVerfallWegenCrewmangel(shipd, shiptd, db);
+			end = System.nanoTime();
+			this.log("Compute crew damage: "+(end-start)+" ns");
+			if(!shipStillExists)
 			{
 				return;
 			}
 			//Pay sold and maintenance
+			start = System.nanoTime();
 			berechneSoldUndWartung(db, shipd, shiptd, schiffsReKosten);
+			end = System.nanoTime();
+			this.log("Compute sold and maintenance: "+(end-start)+" ns");
 		}
 		//Berechnung der Energie
 		this.log("\tEnergie:");
@@ -276,7 +304,10 @@ public class SchiffsTick extends TickController {
 
 		if(shiptd.getShipClass() != ShipClasses.GESCHUETZ)
 		{
+			start = System.nanoTime();
 			e -= shipd.getAlertEnergyCost();
+			end = System.nanoTime();
+			this.log("Compute alert energy cost: "+(end-start)+" ns");
 			if( e < 0 ) {
 				e = 0;
 			}
@@ -286,12 +317,24 @@ public class SchiffsTick extends TickController {
 		int[] sub = new int[] {shipd.getEngine(),shipd.getWeapons(),shipd.getComm(),shipd.getSensors()};
 
 		// Schiff bei Bedarf und falls moeglich reparieren
+		start = System.nanoTime();
 		repairShip(shipd, shiptd, sub);
+		end = System.nanoTime();
+		this.log("Repair ship: "+(end-start)+" ns");
 
 		// Evt. Deuterium sammeln
+		start = System.nanoTime();
 		e = sammelDeuterium(shipd, shiptd, shipc, e);
+		end = System.nanoTime();
+		this.log("Collect deuterium: "+(end-start)+" ns");
+		start = System.nanoTime();
 		e = abbauenFelsbrocken(shipd, shiptd, shipc, e, db);
+		end = System.nanoTime();
+		this.log("Mine small asteroids: "+(end-start)+" ns");
+		start = System.nanoTime();
 		e = produziereEnergie(shipd, shiptd, shipc, e);
+		end = System.nanoTime();
+		this.log("Produce energy: "+(end-start)+" ns");
 
 
 		shipd.setEngine(sub[0]);
@@ -310,7 +353,10 @@ public class SchiffsTick extends TickController {
 			shipd.setCrew(0);
 		}
 
+		start = System.nanoTime();
 		shipd.recalculateShipStatus(true);
+		end = System.nanoTime();
+		this.log("Recalculate ship status: "+(end-start)+" ns");
 
 		this.slog("\tNeu: crew "+shipd.getCrew()+" e "+e+" nc "+shipd.getNahrungCargo()+" : <");
 		this.slog(shipd.getStatus());
