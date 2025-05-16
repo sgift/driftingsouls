@@ -862,15 +862,9 @@ public class Ship implements Locatable,Transfering,Feeding {
 	private void ensureWerftSanity()
 	{
 		EntityManager em = ContextMap.getContext().getEM();
-		ShipWerft werft = null;
-		try {
-			werft = em.createQuery("SELECT w FROM ShipWerft w WHERE w.ship = :ship", ShipWerft.class)
-					.setParameter("ship", this)
-					.getSingleResult();
-		}
-		catch (javax.persistence.NoResultException e) {
-			// No result found, werft remains null
-		}
+		ShipWerft werft = em.createQuery("SELECT w FROM ShipWerft w WHERE w.ship = :ship", ShipWerft.class)
+				.setParameter("ship", this)
+				.getResultList().stream().findFirst().orElse(null);
 
 		if(werft != null) {
 			if (werft.getKomplex() != null) {
