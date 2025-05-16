@@ -73,7 +73,6 @@ final class DBTestUtils
 			em.getTransaction().rollback();
 		}
 		HibernateUtil.removeCurrentEntityManager();
-		em.close();
 	}
 
 	public static void ladeHibernateKonfiguration() throws IOException {
@@ -147,7 +146,6 @@ final class DBTestUtils
 		finally
 		{
 			HibernateUtil.removeCurrentEntityManager();
-			em.close();
 		}
 	}
 }
