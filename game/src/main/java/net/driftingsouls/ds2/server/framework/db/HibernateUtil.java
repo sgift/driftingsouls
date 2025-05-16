@@ -48,19 +48,21 @@ public class HibernateUtil
 	private static ServiceRegistry serviceRegistry;
 
 	private static final ThreadLocal<EntityManager> CURRENT_ENTITY_MANAGER = new ThreadLocal<>() {
-        @Override
-        protected EntityManager initialValue() {
-            return entityManagerFactory.createEntityManager();
-        }
-    };
+		@Override
+		protected EntityManager initialValue() {
+			return entityManagerFactory.createEntityManager();
+		}
+	};
 
-	public static EntityManager getCurrentEntityManager()
-	{
+	public static EntityManager getCurrentEntityManager() {
 		return CURRENT_ENTITY_MANAGER.get();
 	}
 
-	public static void removeCurrentEntityManager()
-	{
+	public static void removeCurrentEntityManager() {
+		EntityManager em = CURRENT_ENTITY_MANAGER.get();
+		if (em.isOpen()) {
+			em.close();
+		}
 		CURRENT_ENTITY_MANAGER.remove();
 	}
 
