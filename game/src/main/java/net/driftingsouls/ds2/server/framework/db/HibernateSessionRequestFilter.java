@@ -79,7 +79,6 @@ public class HibernateSessionRequestFilter extends DSFilter
 			finally
 			{
 				HibernateUtil.removeCurrentEntityManager();
-				em.close();
 			}
 		}
         else
