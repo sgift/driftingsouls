@@ -35,7 +35,6 @@ public class AppConfig
 
 	@Bean(destroyMethod = "")
 	@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
-	@Primary
 	@Conditional(InvertedWebApplicationCondition.class)
 	public EntityManager threadScopedEntityManager() {
 		return HibernateUtil.getCurrentEntityManager();
