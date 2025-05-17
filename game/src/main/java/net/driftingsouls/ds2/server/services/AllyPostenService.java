@@ -4,6 +4,8 @@ import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.entities.ally.AllyPosten;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.hibernate.Session;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nonnull;
@@ -12,6 +14,7 @@ import javax.annotation.Nonnull;
  * Service fuer Allianzposten.
  */
 @Service
+@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class AllyPostenService
 {
 	private static final double MAX_POSTENCOUNT = 0.3;

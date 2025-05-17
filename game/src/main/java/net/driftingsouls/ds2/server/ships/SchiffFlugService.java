@@ -7,37 +7,37 @@ import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.services.SchlachtErstellenService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import javax.persistence.EntityManager;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Service zum Fliegen von Schiffen.
  */
 @Service
+@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class SchiffFlugService
 {
 	private final SchlachtErstellenService schlachtErstellenService;
 	private final ConfigService configService;
+	private final EntityManager db;
 
 	@Autowired
-	public SchiffFlugService(SchlachtErstellenService schlachtErstellenService, ConfigService configService)
+	public SchiffFlugService(SchlachtErstellenService schlachtErstellenService, ConfigService configService, EntityManager db)
 	{
 		this.schlachtErstellenService = schlachtErstellenService;
 		this.configService = configService;
+		this.db = db;
 	}
 
 	/**
@@ -86,7 +86,6 @@ public class SchiffFlugService
 	private MovementResult moveSingle(Ship ship, ShipTypeData shiptype, Offizier offizier, int direction, int distance, long adocked, boolean forceLowHeat, boolean verbose, StringBuilder out) {
 		boolean moved = false;
 		FlugStatus status = FlugStatus.SUCCESS;
-		org.hibernate.Session db = ContextMap.getContext().getDB();
 
 		if( ship.getEngine() <= 0 ) {
 			if(verbose) {
@@ -185,7 +184,7 @@ public class SchiffFlugService
 		else if( direction == 8 ) { y++; }
 		else if( direction == 9 ) { x++; y++; }
 
-		StarSystem sys = (StarSystem)db.get(StarSystem.class, ship.getSystem());
+		StarSystem sys = db.find(StarSystem.class, ship.getSystem());
 
 		if( x > sys.getWidth()) {
 			x = sys.getWidth();
@@ -525,8 +524,6 @@ public class SchiffFlugService
 	public FlugErgebnis fliege(Ship schiff, List<Waypoint> route, boolean forceLowHeat) {
 		StringBuilder out = new StringBuilder();
 
-		org.hibernate.Session db = ContextMap.getContext().getDB();
-
 		//We want to fly the slowest ship first, so the fleet cannot be seperated
 		if(schiff.getFleet() != null && route.size() > 1)
 		{
@@ -595,7 +592,7 @@ public class SchiffFlugService
 		boolean inAlarmRotEinfliegen = route.size() == 1 && route.get(0).distance == 1;
 		boolean moved = false;
 
-		while( (status == FlugStatus.SUCCESS) && route.size() > 0 ) {
+		while( (status == FlugStatus.SUCCESS) && !route.isEmpty()) {
 			Waypoint waypoint = route.remove(0);
 
 			if( waypoint.type != Waypoint.Type.MOVEMENT ) {
@@ -623,30 +620,30 @@ public class SchiffFlugService
 				xoffset++;
 			}
 
-			List<Ship> sectorList = Common.cast(db.createQuery("from Ship " +
-					"where owner!=:owner and system=:system and x between :lowerx and :upperx and y between :lowery and :uppery")
-					.setEntity("owner", schiff.getOwner())
-					.setInteger("system", schiff.getSystem())
-					.setInteger("lowerx", (waypoint.direction - 1) % 3 == 0 ? schiff.getX() - waypoint.distance : schiff.getX())
-					.setInteger("upperx", (waypoint.direction) % 3 == 0 ? schiff.getX() + waypoint.distance : schiff.getX())
-					.setInteger("lowery", waypoint.direction <= 3 ? schiff.getY() - waypoint.distance : schiff.getY())
-					.setInteger("uppery", waypoint.direction >= 7 ? schiff.getY() + waypoint.distance : schiff.getY())
-					.list());
+			List<Ship> sectorList = db.createQuery("from Ship " +
+					"where owner!=:owner and system=:system and x between :lowerx and :upperx and y between :lowery and :uppery", Ship.class)
+					.setParameter("owner", schiff.getOwner())
+					.setParameter("system", schiff.getSystem())
+					.setParameter("lowerx", (waypoint.direction - 1) % 3 == 0 ? schiff.getX() - waypoint.distance : schiff.getX())
+					.setParameter("upperx", (waypoint.direction) % 3 == 0 ? schiff.getX() + waypoint.distance : schiff.getX())
+					.setParameter("lowery", waypoint.direction <= 3 ? schiff.getY() - waypoint.distance : schiff.getY())
+					.setParameter("uppery", waypoint.direction >= 7 ? schiff.getY() + waypoint.distance : schiff.getY())
+					.getResultList();
 
 			Map<Location, List<Ship>> alertList = Ship.alertCheck(schiff.getOwner(), sectorList.stream().map(Ship::getLocation).toArray(Location[]::new));
 
 			// Alle potentiell relevanten Sektoren mit EMP- oder Schadensnebeln (ok..und ein wenig ueberfluessiges Zeug bei schraegen Bewegungen) auslesen
 			Set<Nebel.Typ> nebulaTypes = new HashSet<>(Nebel.Typ.getEmpNebula());
 			nebulaTypes.addAll(Nebel.Typ.getDamageNebula());
-			List<Nebel> sectorNebelList = Common.cast(db.createQuery("from Nebel " +
-					"where type in (:nebulaTypes) and loc.system=:system and loc.x between :lowerx and :upperx and loc.y between :lowery and :uppery")
-					.setInteger("system", schiff.getSystem())
-					.setInteger("lowerx", (waypoint.direction - 1) % 3 == 0 ? schiff.getX() - waypoint.distance : schiff.getX())
-					.setInteger("upperx", (waypoint.direction) % 3 == 0 ? schiff.getX() + waypoint.distance : schiff.getX())
-					.setInteger("lowery", waypoint.direction <= 3 ? schiff.getY() - waypoint.distance : schiff.getY())
-					.setInteger("uppery", waypoint.direction >= 7 ? schiff.getY() + waypoint.distance : schiff.getY())
-					.setParameterList("nebulaTypes", nebulaTypes)
-					.list());
+			List<Nebel> sectorNebelList = db.createQuery("from Nebel " +
+					"where type in (:nebulaTypes) and loc.system=:system and loc.x between :lowerx and :upperx and loc.y between :lowery and :uppery", Nebel.class)
+					.setParameter("system", schiff.getSystem())
+					.setParameter("lowerx", (waypoint.direction - 1) % 3 == 0 ? schiff.getX() - waypoint.distance : schiff.getX())
+					.setParameter("upperx", (waypoint.direction) % 3 == 0 ? schiff.getX() + waypoint.distance : schiff.getX())
+					.setParameter("lowery", waypoint.direction <= 3 ? schiff.getY() - waypoint.distance : schiff.getY())
+					.setParameter("uppery", waypoint.direction >= 7 ? schiff.getY() + waypoint.distance : schiff.getY())
+					.setParameter("nebulaTypes", nebulaTypes)
+					.getResultList();
 
 			Set<Location> empLocations = new HashSet<>();
 			Set<Location> damageLocations = new HashSet<>();
@@ -825,7 +822,6 @@ public class SchiffFlugService
 
 	private void handleAlert(Ship schiff)
 	{
-		var db = ContextMap.getContext().getEM();
 		User owner = schiff.getOwner();
 		List<Ship> attackShips = Ship.alertCheck(owner, schiff.getLocation()).values().iterator().next();
 

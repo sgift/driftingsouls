@@ -34,6 +34,8 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -47,6 +49,7 @@ import java.util.Set;
  */
 @Service
 @Lazy
+@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class DefaultAuthenticationManager implements AuthenticationManager {
 	private static final Log log = LogFactory.getLog(DefaultAuthenticationManager.class);
 	private static final ServiceLoader<LoginEventListener> loginListenerList = ServiceLoader.load(LoginEventListener.class);

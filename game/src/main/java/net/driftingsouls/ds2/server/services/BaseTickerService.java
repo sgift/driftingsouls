@@ -13,6 +13,8 @@ import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserMoneyTransfer;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
@@ -20,6 +22,7 @@ import java.math.BigInteger;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
+@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class BaseTickerService
 {
 	private final EntityManager db;

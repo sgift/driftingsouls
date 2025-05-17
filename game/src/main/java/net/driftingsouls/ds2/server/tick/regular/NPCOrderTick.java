@@ -38,8 +38,8 @@ import net.driftingsouls.ds2.server.ships.SchiffHinzufuegenService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.tick.TickController;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
@@ -55,7 +55,7 @@ import java.util.concurrent.ThreadLocalRandom;
  *
  */
 @Service
-@Scope(BeanDefinition.SCOPE_PROTOTYPE)
+@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class NPCOrderTick extends TickController {
 	private static final int OFFIZIERSSCHIFF = 71;
 	private static final Location DEFAULT_LOCATION = new Location(2,30,35);

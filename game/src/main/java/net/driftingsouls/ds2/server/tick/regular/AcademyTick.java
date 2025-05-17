@@ -29,8 +29,8 @@ import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.framework.db.batch.SingleUnitOfWork;
 import net.driftingsouls.ds2.server.framework.db.batch.UnitOfWork;
 import net.driftingsouls.ds2.server.tick.TickController;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -47,7 +47,7 @@ import java.util.Map;
  *
  */
 @Service
-@Scope(BeanDefinition.SCOPE_PROTOTYPE)
+@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class AcademyTick extends TickController {
 	private Map<Integer,Offizier.Ability> dTrain;
 	private static final Map<Integer,String> offis = new HashMap<>();

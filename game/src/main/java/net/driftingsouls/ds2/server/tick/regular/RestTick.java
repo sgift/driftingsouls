@@ -44,8 +44,8 @@ import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import net.driftingsouls.ds2.server.tick.TickController;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -60,7 +60,7 @@ import static net.driftingsouls.ds2.server.entities.jooq.tables.Users.USERS;
  *
  */
 @Service("regularRestTick")
-@Scope(BeanDefinition.SCOPE_PROTOTYPE)
+@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class RestTick extends TickController {
 
 	private final ConfigService configService;

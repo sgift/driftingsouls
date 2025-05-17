@@ -33,6 +33,8 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
@@ -51,16 +53,22 @@ import java.util.Random;
  *  @author Christoph Peltz
  */
 @Service
+@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class HandleUpgradeJob implements TaskHandler
 {
 	private static final int ITEM_BBS = 182;
 	private static final int ITEM_RE = 6;
 
-	@Override
+	private final EntityManager db;
+
+    public HandleUpgradeJob(EntityManager db) {
+        this.db = db;
+    }
+
+    @Override
 	public void handleEvent(Task task, String event)
 	{
 		Context context = ContextMap.getContext();
-		var db = context.getEM();
 		Taskmanager tm = Taskmanager.getInstance();
 
 		if( !event.equals("tick_timeout") )
@@ -83,13 +91,13 @@ public class HandleUpgradeJob implements TaskHandler
 		if( Integer.parseInt(task.getData2()) > 35 && order.getEnd() == 0 )
 		{
 			// Es wurde nicht geschafft in 35 Versuchen die Ressourcen fuer den Ausbau bereit zu stellen
-			cancelJob(db, tm, task, order, faction);
+			cancelJob(tm, task, order, faction);
 			return;
 		}
 
 		if( (order.getEnd() == 0) && (colonizer == null) )
 		{
-			cancelJob(db, tm, task, order, faction);
+			cancelJob(tm, task, order, faction);
 			return;
 		}
 
@@ -123,12 +131,12 @@ public class HandleUpgradeJob implements TaskHandler
 
 				if( basecount > user.getUserValue(WellKnownUserValue.GAMEPLAY_BASES_MAXTILES) ) {
 
-					sendFinishedWarningMessage(db, order, faction);
+					sendFinishedWarningMessage(order, faction);
 					base.setOwner(nullUser);
 				}
 				else
 				{
-					sendFinishedMessage(db, order, faction);
+					sendFinishedMessage(order, faction);
 					base.setOwner(user);
 				}
 				// Loesche den Auftrag und den Task
@@ -204,13 +212,13 @@ public class HandleUpgradeJob implements TaskHandler
 
 		if( Integer.parseInt(task.getData2()) == 6 && order.getEnd() == 0 )
 		{
-			sendWarningMessage(db, order, faction);
+			sendWarningMessage(order, faction);
 		}
 
 		tm.incTimeout(task.getTaskID());
 	}
 
-	private void cancelJob(EntityManager db, Taskmanager tm, Task task, UpgradeJob order, final int faction)
+	private void cancelJob(Taskmanager tm, Task task, UpgradeJob order, final int faction)
 	{
 		if( order.getBar() && order.getPayed() )
 		{
@@ -226,7 +234,7 @@ public class HandleUpgradeJob implements TaskHandler
 		tm.removeTask( task.getTaskID() );
 	}
 
-	private void sendWarningMessage(EntityManager db, UpgradeJob order, final int factionId)
+	private void sendWarningMessage(UpgradeJob order, final int factionId)
 	{
 		User faction = db.find(User.class, factionId);
 
@@ -251,7 +259,7 @@ public class HandleUpgradeJob implements TaskHandler
 		PM.send(faction, order.getUser().getId(), "Ihr bestellter Asteroidenausbau", message, db);
 	}
 
-	private void sendFinishedMessage(EntityManager db, UpgradeJob order, final int factionId)
+	private void sendFinishedMessage(UpgradeJob order, final int factionId)
 	{
 		User faction = db.find(User.class, factionId);
 
@@ -265,7 +273,7 @@ public class HandleUpgradeJob implements TaskHandler
 		PM.send(faction, order.getUser().getId(), "Asteroidenausbau abgeschlossen", message, db);
 	}
 
-	private void sendFinishedWarningMessage(EntityManager db, UpgradeJob order, final int factionId)
+	private void sendFinishedWarningMessage(UpgradeJob order, final int factionId)
 	{
 		User faction = db.find(User.class, factionId);
 

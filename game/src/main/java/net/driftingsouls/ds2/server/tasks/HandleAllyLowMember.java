@@ -25,6 +25,8 @@ import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.services.AllianzService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
@@ -39,6 +41,7 @@ import javax.persistence.EntityManager;
  *  @author Christopher Jung
  */
 @Service
+@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class HandleAllyLowMember implements TaskHandler {
 	private final AllianzService allianzService;
 	private final EntityManager db;

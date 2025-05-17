@@ -18,6 +18,8 @@
  */
 package net.driftingsouls.ds2.server.tasks;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 
 /**
@@ -31,6 +33,7 @@ import org.springframework.stereotype.Service;
  *  @author Christopher Jung
  */
 @Service
+@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class HandleGanyTransport implements TaskHandler
 {
 	@Override

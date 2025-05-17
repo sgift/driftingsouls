@@ -7,13 +7,13 @@ import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.Session;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nonnull;
+import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,9 +22,16 @@ import java.util.stream.Collectors;
  * Service zum Springen von Schiffen ueber verschiedene Arten von Sprungpunkten.
  */
 @Service
+@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class SchiffSprungService
 {
-	/**
+	private final EntityManager db;
+
+    public SchiffSprungService(EntityManager db) {
+        this.db = db;
+    }
+
+    /**
 	 * Das Ergebnis eines Sprungbefehls.
 	 */
 	public static class SprungErgebnis {
@@ -64,9 +71,6 @@ public class SchiffSprungService
 	 */
 	public SprungErgebnis sprungViaSprungpunkt(Ship schiff, JumpNode node)
 	{
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-
 		StringBuilder outputbuffer = new StringBuilder();
 
 		User user = schiff.getOwner();
@@ -115,7 +119,7 @@ public class SchiffSprungService
 		// Falls vorhanden die Schiffe der Flotte einfuegen
 		if (schiff.getFleet() != null)
 		{
-			shiplist.addAll(ermittleSprungfaehigeSchiffeDerFlotte(db, schiff));
+			shiplist.addAll(findJumpCapableShips(schiff));
 		}
 		// Keine Flotte -> nur das aktuelle Schiff einfuegen
 		else
@@ -169,14 +173,14 @@ public class SchiffSprungService
 		return new SprungErgebnis(outputbuffer.toString(), true);
 	}
 
-	private List<Ship> ermittleSprungfaehigeSchiffeDerFlotte(Session db, Ship schiff)
+	private List<Ship> findJumpCapableShips(Ship schiff)
 	{
-		return Common.cast(db.createQuery("from Ship where id>0 and fleet=:fleet AND x=:x AND y=:y AND system=:sys and docked='' AND battle is null")
-				.setEntity("fleet", schiff.getFleet())
-				.setInteger("x", schiff.getX())
-				.setInteger("y", schiff.getY())
-				.setInteger("sys", schiff.getSystem())
-				.list());
+		return db.createQuery("from Ship where id>0 and fleet=:fleet AND x=:x AND y=:y AND system=:sys and docked='' AND battle is null", Ship.class)
+				.setParameter("fleet", schiff.getFleet())
+				.setParameter("x", schiff.getX())
+				.setParameter("y", schiff.getY())
+				.setParameter("sys", schiff.getSystem())
+				.getResultList();
 	}
 
 	/**
@@ -191,9 +195,6 @@ public class SchiffSprungService
 	 */
 	public SprungErgebnis sprungViaSchiff(Ship schiff, Ship node)
 	{
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-
 		StringBuilder outputbuffer = new StringBuilder();
 
 		User user = schiff.getOwner();
@@ -246,7 +247,7 @@ public class SchiffSprungService
 			case "ship":
 			{
 				String[] shiptarget = StringUtils.split(target[1], ':');
-				Ship jmptarget = (Ship) db.get(Ship.class, Integer.valueOf(shiptarget[1]));
+				Ship jmptarget = db.find(Ship.class, Integer.valueOf(shiptarget[1]));
 				if (jmptarget == null)
 				{
 					outputbuffer.append("<span style=\"color:red\">Die Empfangsstation existiert nicht!</span><br />\n");
@@ -260,7 +261,7 @@ public class SchiffSprungService
 			case "base":
 			{
 				String[] shiptarget = StringUtils.split(target[1], ':');
-				Base jmptarget = (Base) db.get(Base.class, Integer.valueOf(shiptarget[1]));
+				Base jmptarget = db.find(Base.class, Integer.valueOf(shiptarget[1]));
 				if (jmptarget == null)
 				{
 					outputbuffer.append("<span style=\"color:red\">Die Empfangsbasis existiert nicht!</span><br />\n");
@@ -350,7 +351,7 @@ public class SchiffSprungService
 		// Falls vorhanden die Schiffe der Flotte einfuegen
 		if (schiff.getFleet() != null)
 		{
-			List<Ship> fleetships = ermittleSprungfaehigeSchiffeDerFlotte(db, schiff);
+			List<Ship> fleetships = findJumpCapableShips(schiff);
 
 			// Bei Knossossprungpunkten darauf achten, dass das Portal nicht selbst mitspringt
 			shiplist.addAll(fleetships.stream().filter(s -> s != node).collect(Collectors.toList()));

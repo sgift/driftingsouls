@@ -18,17 +18,16 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ViewMessage;
 import net.driftingsouls.ds2.server.services.FraktionsGuiEintragService;
 import net.driftingsouls.ds2.server.ships.ShipType;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
-
+import static net.driftingsouls.ds2.server.ViewMessageAssert.assertFailure;
+import static net.driftingsouls.ds2.server.ViewMessageAssert.assertSuccess;
 import static org.junit.Assert.*;
-
-import static net.driftingsouls.ds2.server.ViewMessageAssert.*;
 
 public class NpcControllerTest extends DBSingleTransactionTest
 {
@@ -42,7 +41,7 @@ public class NpcControllerTest extends DBSingleTransactionTest
 		rasse.setHead(user);
 
 		getContext().setActiveUser(user);
-		controller = new NpcController(new FraktionsGuiEintragService());
+		controller = new NpcController(new FraktionsGuiEintragService(getEM()));
 	}
 
 	@Test
