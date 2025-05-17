@@ -3,6 +3,7 @@ package net.driftingsouls.ds2.server.framework;
 import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import org.hibernate.Session;
 import org.springframework.context.annotation.*;
+import org.springframework.web.context.annotation.RequestScope;
 
 import javax.persistence.EntityManager;
 
@@ -12,21 +13,21 @@ import javax.persistence.EntityManager;
 public class AppConfig
 {
 	@Bean(destroyMethod = "")
-	@Scope("request")
+	@RequestScope
 	Context currentContext()
 	{
 		return ContextMap.getContext();
 	}
 
 	@Bean(destroyMethod = "")
-	@Scope(value = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
+	@RequestScope(proxyMode = ScopedProxyMode.TARGET_CLASS)
 	Session currentSession()
 	{
 		return ContextMap.getContext().getDB();
 	}
 
 	@Bean(destroyMethod = "")
-	@Scope(value = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
+	@RequestScope(proxyMode = ScopedProxyMode.TARGET_CLASS)
 	@Primary
 	@Conditional(WebApplicationCondition.class)
 	public EntityManager requestScopedEntityManager() {

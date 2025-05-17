@@ -20,13 +20,7 @@ package net.driftingsouls.ds2.server.framework.authentication;
 
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.framework.BasicUser;
-import net.driftingsouls.ds2.server.framework.Common;
-import net.driftingsouls.ds2.server.framework.ConfigService;
-import net.driftingsouls.ds2.server.framework.Configuration;
-import net.driftingsouls.ds2.server.framework.Context;
-import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.Permission;
+import net.driftingsouls.ds2.server.framework.*;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.user.authentication.AccountInVacationModeException;
 import org.apache.commons.logging.Log;
@@ -34,10 +28,10 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
+import javax.persistence.EntityManager;
 import java.util.HashSet;
 import java.util.ServiceLoader;
 import java.util.Set;
@@ -49,7 +43,7 @@ import java.util.Set;
  */
 @Service
 @Lazy
-@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
+@RequestScope
 public class DefaultAuthenticationManager implements AuthenticationManager {
 	private static final Log log = LogFactory.getLog(DefaultAuthenticationManager.class);
 	private static final ServiceLoader<LoginEventListener> loginListenerList = ServiceLoader.load(LoginEventListener.class);
@@ -57,12 +51,14 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	private static final boolean DEV_MODE = !Configuration.isProduction();
 
 	private final ConfigService configService;
+	private final EntityManager db;
 
 	@Autowired
-	public DefaultAuthenticationManager(ConfigService configService)
+	public DefaultAuthenticationManager(ConfigService configService, EntityManager db)
 	{
 		this.configService = configService;
-	}
+        this.db = db;
+    }
 
 	@Override
 	public BasicUser login(String username, String password) throws AuthenticationException {
@@ -72,7 +68,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 
 		log.info("Context loaded");
 
-		org.hibernate.Session db = context.getDB();
+		var db = context.getEM();
 
 		log.info("Session loaded");
 
@@ -88,9 +84,9 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 
 		log.info("Loading user from DB");
 
-		BasicUser user = (BasicUser)db.createQuery("from BasicUser where un=:username")
-			.setString("username", username)
-			.uniqueResult();
+		BasicUser user = (BasicUser)db.createQuery("from BasicUser where un=:username", BasicUser.class)
+			.setParameter("username", username)
+			.getResultList().stream().findFirst().orElse(null);
 
 		log.info("User loaded");
 
@@ -170,7 +166,6 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 	@Override
 	public void logout() {
 		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
 		JavaSession session = context.get(JavaSession.class);
 		if(session != null)
 		{

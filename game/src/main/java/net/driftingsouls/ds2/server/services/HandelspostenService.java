@@ -10,14 +10,13 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipType;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
 import javax.persistence.EntityManager;
 
 @Service
-@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
+@RequestScope
 public class HandelspostenService
 {
 	private final EntityManager db;
