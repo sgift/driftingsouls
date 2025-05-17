@@ -26,6 +26,7 @@ import net.driftingsouls.ds2.server.framework.PermissionResolver;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.pipeline.Response;
 import org.hibernate.Session;
+import org.springframework.web.context.annotation.RequestScope;
 
 import javax.persistence.EntityManager;
 import java.io.IOException;
@@ -38,6 +39,7 @@ import java.util.Map;
  *
  * @author Christopher Jung
  */
+@RequestScope
 public abstract class Controller implements PermissionResolver
 {
 	private String pageTitle;
