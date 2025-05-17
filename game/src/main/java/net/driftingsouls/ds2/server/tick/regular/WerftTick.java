@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.tick.TickController;
 import net.driftingsouls.ds2.server.werften.*;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.FlushModeType;
@@ -40,7 +41,7 @@ import java.util.List;
  * @author Christopher Jung
  */
 @Service
-@Scope(BeanDefinition.SCOPE_PROTOTYPE)
+@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class WerftTick extends TickController
 {
 	@Override

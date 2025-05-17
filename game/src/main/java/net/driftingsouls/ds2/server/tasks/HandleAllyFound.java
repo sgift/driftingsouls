@@ -26,7 +26,11 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+
+import javax.persistence.EntityManager;
 
 /**
  * TASK_ALLY_FOUND
@@ -37,13 +41,17 @@ import org.springframework.stereotype.Service;
  *  @author Christopher Jung
  */
 @Service
+@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class HandleAllyFound implements TaskHandler {
+	private final EntityManager db;
 
-	@Override
-	public void handleEvent(Task task, String event) {	
+    public HandleAllyFound(EntityManager db) {
+        this.db = db;
+    }
+
+    @Override
+	public void handleEvent(Task task, String event) {
 		Context context = ContextMap.getContext();
-		var db = context.getEM();
-
 		switch (event)
 		{
 			case "__conf_recv":

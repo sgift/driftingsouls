@@ -17,7 +17,8 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.hibernate.FlushMode;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nonnull;
@@ -25,6 +26,7 @@ import javax.persistence.EntityManager;
 import java.util.*;
 
 @Service
+@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class SchlachtErstellenService
 {
 	private static final Logger LOG = LogManager.getLogger(SchlachtErstellenService.class);
@@ -419,8 +421,6 @@ public class SchlachtErstellenService
 			return;
 		}
 
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
 		for (BattleShip ship : ships) {
 			Ship baseShip = ship.getShip().getBaseShip();
 			if (baseShip != null && ship.getShip().isLanded() && baseShip.getEinstellungen().startFighters() && ship.getShip().getTypeData().getShipClass() == ShipClasses.JAEGER ) {
@@ -502,10 +502,6 @@ public class SchlachtErstellenService
 	 */
 	private void addToSecondRow(Battle battle, Set<BattleShip> secondRowShips, boolean firstRowExists, boolean firstRowEnemyExists)
 	{
-		Context context = ContextMap.getContext();
-		org.hibernate.Session db = context.getDB();
-		db.setFlushMode(FlushMode.COMMIT);
-
 		Map<Ship,BattleShip> battleShipMap = new HashMap<>();
 		for( BattleShip ship : battle.getOwnShips() )
 		{
@@ -520,7 +516,6 @@ public class SchlachtErstellenService
 		{
 			if( (ship.getSide() == 0 && firstRowExists && ship.getShip().getEinstellungen().gotoSecondrow() ) || (ship.getSide() == 1 && firstRowEnemyExists && ship.getShip().getEinstellungen().gotoSecondrow() ))
 			{
-
 				ship.addFlag(BattleShipFlag.SECONDROW);
 				if(ship.getTypeData().getJDocks() > 0)
 				{
@@ -554,7 +549,6 @@ public class SchlachtErstellenService
 				}
 			}
 		}
-		db.setFlushMode(FlushMode.AUTO);
 	}
 
 }

@@ -10,15 +10,23 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipType;
-import org.hibernate.Session;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import javax.persistence.EntityManager;
 
 @Service
+@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class HandelspostenService
 {
-	/**
+	private final EntityManager db;
+
+    public HandelspostenService(EntityManager db) {
+        this.db = db;
+    }
+
+    /**
 	 * Gibt zurueck, ob ein bestimmtes Schiff mit dem angegebenen Handelsposten kommunizieren darf.
 	 * Die Faehigkeit zur Kommunikation ist dabei keine Voraussetzung zum Handeln mit Waren sondern
 	 * ist Voraussetzung fuer die Nutzung weitergehender Angebote.
@@ -59,13 +67,11 @@ public class HandelspostenService
 			int curtick = ContextMap.getContext().get(ContextCommon.class).getTick();
 			ticks += curtick;
 
-			Session db = ContextMap.getContext().getDB();
-
 			User user = zuVersteigerndesSchiff.getOwner();
 			ShipType st = zuVersteigerndesSchiff.getBaseType();
 
 			VersteigerungSchiff v = new VersteigerungSchiff(user, st, betrag);
-			v.setBieter((User) db.get(User.class, Faction.GTU));
+			v.setBieter(db.find(User.class, Faction.GTU));
 			v.setTick(ticks);
 			db.persist(v);
 
@@ -81,14 +87,11 @@ public class HandelspostenService
 	 */
 	public Ship findeHandelspostenInSektor(Locatable sektor) {
 		Location loc = sektor.getLocation();
-		Session db = ContextMap.getContext().getDB();
-		List<?> handel = db.createQuery("from Ship where id>0 and system=:sys and x=:x and y=:y and locate('tradepost',status)!=0")
-				.setInteger("sys", loc.getSystem())
-				.setInteger("x", loc.getX())
-				.setInteger("y", loc.getY())
+		return db.createQuery("from Ship where id>0 and system=:sys and x=:x and y=:y and locate('tradepost',status)!=0", Ship.class)
+				.setParameter("sys", loc.getSystem())
+				.setParameter("x", loc.getX())
+				.setParameter("y", loc.getY())
 				.setMaxResults(1)
-				.list();
-
-		return handel.isEmpty() ? null : (Ship)handel.iterator().next();
+				.getResultList().stream().findFirst().orElse(null);
 	}
 }

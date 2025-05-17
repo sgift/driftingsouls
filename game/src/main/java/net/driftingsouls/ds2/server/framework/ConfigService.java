@@ -2,6 +2,8 @@ package net.driftingsouls.ds2.server.framework;
 
 import net.driftingsouls.ds2.server.framework.utils.StringToTypeConverter;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
@@ -11,6 +13,7 @@ import javax.persistence.EntityManager;
  * repraesentiert und besitzen primaer einen Schluessel (key bzw name) und einen Wert in Form eines Strings.
  */
 @Service
+@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class ConfigService
 {
 	private final EntityManager db;
