@@ -72,12 +72,12 @@
 	</filter>
 
 	<filter-mapping>
-		<filter-name>ErrorHandler</filter-name>
+		<filter-name>OpenSessionInView</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
 
 	<filter-mapping>
-		<filter-name>OpenSessionInView</filter-name>
+		<filter-name>ErrorHandler</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
 
