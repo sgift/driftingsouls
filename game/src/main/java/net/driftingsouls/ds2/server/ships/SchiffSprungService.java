@@ -8,9 +8,8 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Common;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
 import javax.annotation.Nonnull;
 import javax.persistence.EntityManager;
@@ -22,7 +21,7 @@ import java.util.stream.Collectors;
  * Service zum Springen von Schiffen ueber verschiedene Arten von Sprungpunkten.
  */
 @Service
-@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
+@RequestScope
 public class SchiffSprungService
 {
 	private final EntityManager db;

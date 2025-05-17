@@ -19,7 +19,7 @@ public class DefaultAuthenticationManagerTest extends DBSingleTransactionTest
 	{
 		// setup
 		ConfigService configService = new ConfigService(getEM());
-		DefaultAuthenticationManager authenticationManager = new DefaultAuthenticationManager(configService);
+		DefaultAuthenticationManager authenticationManager = new DefaultAuthenticationManager(configService, getEM());
 		User user = persist(new User("foo", Common.md5("bar"), 0, "", new Cargo(), "foo@localhost"));
 
 		// run
@@ -35,7 +35,7 @@ public class DefaultAuthenticationManagerTest extends DBSingleTransactionTest
 	{
 		// setup
 		ConfigService configService = new ConfigService(getEM());
-		DefaultAuthenticationManager authenticationManager = new DefaultAuthenticationManager(configService);
+		DefaultAuthenticationManager authenticationManager = new DefaultAuthenticationManager(configService, getEM());
 		persist(new User("foo", Common.md5("bar"), 0, "", new Cargo(), "foo@localhost"));
 
 		// run
@@ -47,7 +47,7 @@ public class DefaultAuthenticationManagerTest extends DBSingleTransactionTest
 	{
 		// setup
 		ConfigService configService = new ConfigService(getEM());
-		DefaultAuthenticationManager authenticationManager = new DefaultAuthenticationManager(configService);
+		DefaultAuthenticationManager authenticationManager = new DefaultAuthenticationManager(configService, getEM());
 		User user = persist(new User("foo", Common.md5("bar"), 0, "", new Cargo(), "foo@localhost"));
 		user.setVacationCount(10);
 

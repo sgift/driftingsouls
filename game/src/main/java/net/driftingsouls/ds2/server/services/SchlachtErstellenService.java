@@ -17,16 +17,15 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
 import javax.annotation.Nonnull;
 import javax.persistence.EntityManager;
 import java.util.*;
 
 @Service
-@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
+@RequestScope
 public class SchlachtErstellenService
 {
 	private static final Logger LOG = LogManager.getLogger(SchlachtErstellenService.class);

@@ -12,9 +12,8 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.services.SchlachtErstellenService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
 import javax.annotation.Nonnull;
 import javax.persistence.EntityManager;
@@ -25,7 +24,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * Service zum Fliegen von Schiffen.
  */
 @Service
-@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
+@RequestScope
 public class SchiffFlugService
 {
 	private final SchlachtErstellenService schlachtErstellenService;

@@ -2,9 +2,8 @@ package net.driftingsouls.ds2.server.services;
 
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintrag;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -15,7 +14,7 @@ import java.util.List;
  * Serviceklasse fuer {@link net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintrag}.
  */
 @Service
-@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
+@RequestScope
 public class FraktionsGuiEintragService
 {
 	private final EntityManager db;

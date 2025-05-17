@@ -13,9 +13,8 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.tasks.Task;
 import net.driftingsouls.ds2.server.tasks.Taskmanager;
 import org.hibernate.Session;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
 import javax.annotation.Nonnull;
 import javax.persistence.EntityManager;
@@ -27,7 +26,7 @@ import java.util.Set;
  * Service fuer Allianzen.
  */
 @Service
-@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
+@RequestScope
 public class AllianzService
 {
 	public void loeschen(@Nonnull Ally allianz)
