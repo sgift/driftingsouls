@@ -11,7 +11,7 @@
     <properties>
         <hibernate.version>4.1.12.Final</hibernate.version>
         <imageio.version>1.4.0</imageio.version>
-        <spring.version>4.3.30.RELEASE</spring.version>
+        <spring.version>5.2.22.RELEASE</spring.version>
         <mysql.version>8.0.29</mysql.version>
         <jooq.version>3.16.8</jooq.version>
 
