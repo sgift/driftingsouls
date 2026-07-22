@@ -34,8 +34,16 @@ public class AppConfig
 		return HibernateUtil.getCurrentEntityManager();
 	}
 
+	/**
+	 * Liefert fuer Nicht-Web-Aufrufer (z.B. Ticks) bei jedem Zugriff ueber den Proxy einen frischen
+	 * EntityManager. Bewusst {@code prototype} statt eines eigenen "thread"-Scopes: Ticks laufen auf
+	 * von Quartz wiederverwendeten Worker-Threads, sodass ein pro-Thread gecachter EntityManager
+	 * ueber viele, voneinander unabhaengige Tick-Ausfuehrungen hinweg denselben (irgendwann
+	 * geschlossenen) EntityManager liefern wuerde. {@code prototype} + Scoped-Proxy sorgt dafuer,
+	 * dass jeder Methodenaufruf ueber den Proxy diese Fabrikmethode neu ausfuehrt.
+	 */
 	@Bean(destroyMethod = "")
-	@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
+	@Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
 	@Conditional(InvertedWebApplicationCondition.class)
 	public EntityManager threadScopedEntityManager() {
 		return HibernateUtil.getCurrentEntityManager();

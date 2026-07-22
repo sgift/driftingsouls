@@ -67,4 +67,14 @@ public class ItemRepository {
     public void clearItemCache() {
         itemsDisplayData.clear();
     }
+
+    /**
+     * Traegt einen einzelnen Eintrag direkt im Cache ein, ohne die Datenbank abzufragen. Fuer
+     * Tests gedacht, die (wie {@code DBSingleTransactionTest}) in einer nie committeten Transaktion
+     * laufen: der Datenbank-Reload in {@link #getItemsData()} nutzt eine eigene, gepoolte
+     * JDBC-Verbindung und sieht daher nie committete Aenderungen aus der Testtransaktion.
+     */
+    public void putItemData(ItemData itemData) {
+        itemsDisplayData.put(itemData.getId(), itemData);
+    }
 }

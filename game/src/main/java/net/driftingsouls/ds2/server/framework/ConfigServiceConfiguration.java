@@ -16,8 +16,13 @@ public class ConfigServiceConfiguration {
         return new ConfigService(em);
     }
 
+    /**
+     * Siehe {@link AppConfig#threadScopedEntityManager()}: bewusst {@code prototype} statt eines
+     * eigenen "thread"-Scopes, damit Ticks auf wiederverwendeten Worker-Threads nicht mit einem
+     * inzwischen geschlossenen EntityManager arbeiten.
+     */
     @Bean
-    @Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
+    @Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
     @Conditional(InvertedWebApplicationCondition.class)
     public ConfigService threadScopedConfigService(@Lazy EntityManager em) {
         return new ConfigService(em);

@@ -899,6 +899,19 @@ public boolean hasFrontRow( int side) {
 	}
 
 	/**
+	 * Setzt den EntityManager, den die Schlacht fuer Datenbankzugriffe (z.B. {@link #log}) verwendet.
+	 * Wird u.a. direkt nach dem Anlegen einer neuen Schlacht benoetigt, noch bevor ein Spieler sie
+	 * ueber {@link #load} "betritt" - {@code load} setzt den EntityManager ebenfalls, tut aber
+	 * darueber hinaus deutlich mehr (Sichtseite/Gaststatus/Schiffslisten neu ermitteln), was beim
+	 * frischen Anlegen einer Schlacht nicht gewuenscht ist.
+	 * @param db Der zu verwendende EntityManager
+	 */
+	public void setEntityManager(EntityManager db)
+	{
+		this.db = db;
+	}
+
+	/**
 	 * Laedt weitere Schlachtdaten aus der Datenbank.
 	 * @param user Der aktive Spieler
 	 * @param ownShip Das auszuwaehlende eigene Schiff (oder <code>null</code>)

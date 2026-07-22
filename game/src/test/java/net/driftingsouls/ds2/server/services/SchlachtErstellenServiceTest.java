@@ -4,6 +4,7 @@ import net.driftingsouls.ds2.server.DBSingleTransactionTest;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
@@ -30,6 +31,9 @@ public class SchlachtErstellenServiceTest extends DBSingleTransactionTest
 	private User user2;
 	private User user3;
 	private ShipType shipType;
+	private StarSystem system1;
+	private StarSystem system2;
+	private StarSystem system3;
 
 	/**
 	 * Laedt die Flotten fuer Tests
@@ -37,6 +41,12 @@ public class SchlachtErstellenServiceTest extends DBSingleTransactionTest
 	 */
 	@Before
 	public void loadFleets() {
+		// SchlachtErstellenService.checkBattleConditions() laedt das StarSystem des angreifenden
+		// Schiffes und prueft isBattleAllowed() - dafuer muessen die verwendeten Systeme existieren.
+		system1 = persist(new StarSystem());
+		system2 = persist(new StarSystem());
+		system3 = persist(new StarSystem());
+
 		user1 = persist(new User("user1", "***", 0, "", new Cargo(), "testUser1@localhost"));
 		user1.setFlag(UserFlag.NOOB, false);
 		user1.setUserValue(WellKnownUserValue.GAMEPLAY_USER_BATTLE_PM, false);
@@ -48,15 +58,15 @@ public class SchlachtErstellenServiceTest extends DBSingleTransactionTest
 		user3.setUserValue(WellKnownUserValue.GAMEPLAY_USER_BATTLE_PM, false);
 
 		shipType = persist(new ShipType());
-		ships1.add(persist(new Ship(user1, shipType, 1, 1, 1)));
-		ships1.add(persist(new Ship(user1, shipType, 1, 1, 1)));
-		ships1.add(persist(new Ship(user1, shipType, 1, 1, 1)));
+		ships1.add(persist(new Ship(user1, shipType, system1.getID(), 1, 1)));
+		ships1.add(persist(new Ship(user1, shipType, system1.getID(), 1, 1)));
+		ships1.add(persist(new Ship(user1, shipType, system1.getID(), 1, 1)));
 
-		ships2.add(persist(new Ship(user2, shipType, 1, 1, 1)));
-		ships2.add(persist(new Ship(user2, shipType, 1, 1, 1)));
+		ships2.add(persist(new Ship(user2, shipType, system1.getID(), 1, 1)));
+		ships2.add(persist(new Ship(user2, shipType, system1.getID(), 1, 1)));
 
-		ships3.add(persist(new Ship(user3, shipType, 3, 1, 1)));
-		ships3.add(persist(new Ship(user3, shipType, 3, 1, 1)));
+		ships3.add(persist(new Ship(user3, shipType, system3.getID(), 1, 1)));
+		ships3.add(persist(new Ship(user3, shipType, system3.getID(), 1, 1)));
 	}
 
 	@Test
@@ -75,7 +85,7 @@ public class SchlachtErstellenServiceTest extends DBSingleTransactionTest
 		assertThat(battle.getCommander(1), is(user2));
 		assertThat(battle.getOwnShips().size(), is(3));
 		assertThat(battle.getEnemyShips().size(), is(2));
-		assertThat(battle.getLocation(), is(new Location(1,1,1)));
+		assertThat(battle.getLocation(), is(new Location(system1.getID(),1,1)));
 		assertThat(battle.getOwnShip(), not(nullValue()));
 		assertThat(battle.getEnemyShip(), not(nullValue()));
 		assertThat(battle.getOwnShip().getShip(), is(ships1.get(0)));
@@ -86,8 +96,8 @@ public class SchlachtErstellenServiceTest extends DBSingleTransactionTest
 	public void gegebenZweiSchiffe_erstelle_sollteEineSchlachtErstellen() {
 		// setup
 		SchlachtErstellenService schlachtErstellenService = new SchlachtErstellenService(getEM(), new ConfigService(getEM()));
-		ships1.get(0).setLocation(new Location(2, 2, 2));
-		ships2.get(0).setLocation(new Location(2, 2, 2));
+		ships1.get(0).setLocation(new Location(system2.getID(), 2, 2));
+		ships2.get(0).setLocation(new Location(system2.getID(), 2, 2));
 
 		// run
 		Battle battle = schlachtErstellenService.erstelle(user1, ships1.get(0), ships2.get(0), true);
@@ -100,15 +110,15 @@ public class SchlachtErstellenServiceTest extends DBSingleTransactionTest
 		assertThat(battle.getCommander(1), is(user2));
 		assertThat(battle.getOwnShips().size(), is(1));
 		assertThat(battle.getEnemyShips().size(), is(1));
-		assertThat(battle.getLocation(), is(new Location(2,2,2)));
+		assertThat(battle.getLocation(), is(new Location(system2.getID(),2,2)));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void gegebenZweiSchiffeInUnterschiedlichenSektoren_erstelle_sollteEineExceptionWerfen() {
 		// setup
 		SchlachtErstellenService schlachtErstellenService = new SchlachtErstellenService(getEM(), new ConfigService(getEM()));
-		ships1.get(0).setLocation(new Location(2, 2, 2));
-		ships2.get(0).setLocation(new Location(1, 2, 2));
+		ships1.get(0).setLocation(new Location(system2.getID(), 2, 2));
+		ships2.get(0).setLocation(new Location(system1.getID(), 2, 2));
 
 		// run
 		schlachtErstellenService.erstelle(user1, ships1.get(0), ships2.get(0), true);
@@ -160,8 +170,8 @@ public class SchlachtErstellenServiceTest extends DBSingleTransactionTest
 	public void gegebenZweiFlottenUndWeitereSchiffeAnAnderenPositionen_erstelle_sollteEineSchlachtNurAusDenSchiffenAnDerPositionErstellen() {
 		// setup
 		SchlachtErstellenService schlachtErstellenService = new SchlachtErstellenService(getEM(), new ConfigService(getEM()));
-		persist(new Ship(user1, shipType, 1, 2, 2));
-		persist(new Ship(user2, shipType, 1, 2, 2));
+		persist(new Ship(user1, shipType, system1.getID(), 2, 2));
+		persist(new Ship(user2, shipType, system1.getID(), 2, 2));
 
 		// run
 		Battle battle = schlachtErstellenService.erstelle(user1, ships1.get(0), ships2.get(0), true);
@@ -174,7 +184,7 @@ public class SchlachtErstellenServiceTest extends DBSingleTransactionTest
 		assertThat(battle.getCommander(1), is(user2));
 		assertThat(battle.getOwnShips().size(), is(3));
 		assertThat(battle.getEnemyShips().size(), is(2));
-		assertThat(battle.getLocation(), is(new Location(1,1,1)));
+		assertThat(battle.getLocation(), is(new Location(system1.getID(),1,1)));
 	}
 
 	@Test

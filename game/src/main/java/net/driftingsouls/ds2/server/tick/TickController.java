@@ -21,7 +21,6 @@ package net.driftingsouls.ds2.server.tick;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.framework.db.HibernateUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
@@ -53,7 +52,6 @@ public abstract class TickController implements ApplicationContextAware
 	private final long exectime;
 
 	private final Map<String,Writer> logTargets;
-	private final EntityManager em;
 	private Context context;
 
 	protected Set<Integer> affectedSystems = new HashSet<>();
@@ -68,14 +66,13 @@ public abstract class TickController implements ApplicationContextAware
 	{
 		logTargets = new HashMap<>();
 		exectime = System.currentTimeMillis();
-		em = HibernateUtil.getCurrentEntityManager();
 	}
 
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException
 	{
 		Context context = ContextMap.getContext();
-		this.context = new TickContext(em, context.getRequest(), context.getResponse(), applicationContext);
+		this.context = new TickContext(context.getRequest(), context.getResponse(), applicationContext);
 	}
 
 	/**
@@ -227,16 +224,16 @@ public abstract class TickController implements ApplicationContextAware
 	 */
 	public Session getDB()
 	{
-		return (Session) em.getDelegate();
+		return (Session) getEM().getDelegate();
 	}
-	
+
 	/**
 	 * Gibt den EntityManager des Kontexts zurueck.
 	 * @return der EntityManager
 	 */
 	public EntityManager getEM()
 	{
-		return em;
+		return ContextMap.getContext().getEM();
 	}
 
 	/**

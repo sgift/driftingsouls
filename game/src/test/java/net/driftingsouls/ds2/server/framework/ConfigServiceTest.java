@@ -2,12 +2,30 @@ package net.driftingsouls.ds2.server.framework;
 
 import net.driftingsouls.ds2.server.DBTest;
 
+import org.junit.After;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 public class ConfigServiceTest extends DBTest
 {
+	/**
+	 * DBTest committet (im Gegensatz zu DBSingleTransactionTest kein automatisches Rollback), daher
+	 * teilen sich sonst alle Testmethoden dieser Klasse denselben "dummy"-ConfigValue-Eintrag ueber
+	 * die Methodenausfuehrungsreihenfolge hinweg.
+	 */
+	@After
+	public void cleanupDummyConfigValue()
+	{
+		mitTransaktion(() -> {
+			ConfigValue value = getEM().find(ConfigValue.class, "dummy");
+			if (value != null)
+			{
+				getEM().remove(value);
+			}
+		});
+	}
+
 	@Test
 	public void gegebenEineLeereDatenbank_get_sollteDenDefaultWertZurueckgebenUndEinenEintragInDerDBAnlegen()
 	{

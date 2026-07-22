@@ -26,8 +26,6 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
@@ -37,21 +35,15 @@ import javax.persistence.EntityManager;
  * 		Einer Allianz gruenden.
  * 	- data1 -> der Name der Allianz
  *  - data2 -> die Anzahl der noch fehlenden Unterstuetzungen (vgl. TASK_ALLY_FOUND_CONFIRM)
- *  - data3 -> die Spieler, die in die neu gegruendete Allianz sollen, jeweils durch ein , getrennt (Pos: 0 -> Praesident/Gruender)  
+ *  - data3 -> die Spieler, die in die neu gegruendete Allianz sollen, jeweils durch ein , getrennt (Pos: 0 -> Praesident/Gruender)
  *  @author Christopher Jung
  */
 @Service
-@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class HandleAllyFound implements TaskHandler {
-	private final EntityManager db;
-
-    public HandleAllyFound(EntityManager db) {
-        this.db = db;
-    }
-
-    @Override
+	@Override
 	public void handleEvent(Task task, String event) {
 		Context context = ContextMap.getContext();
+		EntityManager db = context.getEM();
 		switch (event)
 		{
 			case "__conf_recv":

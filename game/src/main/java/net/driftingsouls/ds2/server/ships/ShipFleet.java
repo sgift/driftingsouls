@@ -363,7 +363,7 @@ public class ShipFleet {
 		this.consignMode = true;
 		try {
 			List<Ship> shiplist = em.createQuery("from Ship where fleet=:fleet and battle is null", Ship.class)
-				.setParameter("fleet", this.id)
+				.setParameter("fleet", this)
 				.getResultList();
 			for (Ship aship : shiplist)
 			{
@@ -401,7 +401,7 @@ public class ShipFleet {
 		EntityManager em = ContextMap.getContext().getEM();
 
 		Long fleetcount = em.createQuery("select count(*) from Ship where fleet=:fleet and id>0", Long.class)
-				.setParameter("fleet", this.id)
+				.setParameter("fleet", this)
 				.getSingleResult();
 
 		if( fleetcount > 2 || this.consignMode ) {

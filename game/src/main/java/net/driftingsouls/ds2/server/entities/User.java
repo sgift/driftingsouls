@@ -611,7 +611,7 @@ public class User extends BasicUser {
 		}
 
 		UserRelation currelation = db
-			.createQuery("from UserRelation WHERE user=:user AND target=:targetid", UserRelation.class)
+			.createQuery("from UserRelation WHERE user.id=:user AND target.id=:targetid", UserRelation.class)
 			.setParameter("user", this.getId())
 			.setParameter("targetid", userid)
 			.getResultList().stream().findFirst().orElse(null);
@@ -624,7 +624,7 @@ public class User extends BasicUser {
 				}
 			}
 			UserRelation defrelation = db
-				.createQuery("from UserRelation WHERE user=:user AND target.id=0", UserRelation.class)
+				.createQuery("from UserRelation WHERE user.id=:user AND target.id=0", UserRelation.class)
 				.setParameter("user", this.getId())
 				.getResultList().stream().findFirst().orElse(null);
 
@@ -662,7 +662,7 @@ public class User extends BasicUser {
 				if( relations != null ) {
 					relations.toOther.put(0, Relation.NEUTRAL);
 				}
-				db.createQuery("delete from UserRelation where user=:user and target.id=0")
+				db.createQuery("delete from UserRelation where user.id=:user and target.id=0")
 					.setParameter("user", this.getId())
 					.executeUpdate();
 			}
@@ -680,7 +680,7 @@ public class User extends BasicUser {
 					db.persist(currelation);
 				}
 			}
-			db.createQuery("delete from UserRelation where user=:user and status=:status AND target.id!=0")
+			db.createQuery("delete from UserRelation where user.id=:user and status=:status AND target.id!=0")
 				.setParameter("user", this.getId())
 				.setParameter("status", relation.ordinal())
 				.executeUpdate();

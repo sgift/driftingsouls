@@ -25,8 +25,6 @@ import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
@@ -43,17 +41,11 @@ import java.util.List;
  *  @author Christopher Jung
  */
 @Service
-@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class HandleAllyNewMember implements TaskHandler {
-	private final EntityManager db;
-
-    public HandleAllyNewMember(EntityManager db) {
-        this.db = db;
-    }
-
-    @Override
+	@Override
 	public void handleEvent(Task task, String event) {
 		Context context = ContextMap.getContext();
+		EntityManager db = context.getEM();
 		User user = (User)context.getActiveUser();
 
 		int playerID = Integer.parseInt(task.getData2());
