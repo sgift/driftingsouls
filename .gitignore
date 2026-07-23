@@ -43,5 +43,7 @@
 /game/*.log*
 /game/src/main/ds.log
 /game/src/main/lox
+/docker/db-init/*
+!/docker/db-init/.gitkeep
 game/src/main/webapp/null
 

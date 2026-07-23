@@ -28,7 +28,6 @@ import org.quartz.SchedulerException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
-import javax.persistence.EntityManager;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
@@ -59,11 +58,8 @@ public class ScheduledTick extends QuartzJobBean
 		SimpleResponse response = new SimpleResponse();
 		ApplicationContext applicationContext = getApplicationContext(context);
 
-		// Get EntityManager from HibernateUtil
-		EntityManager em = HibernateUtil.getCurrentEntityManager();
-
 		// Create TickContext instead of BasicContext
-		TickContext tickContext = new TickContext(em, request, response, applicationContext);
+		TickContext tickContext = new TickContext(request, response, applicationContext);
 
 		try {
 			// Rest of the method remains the same

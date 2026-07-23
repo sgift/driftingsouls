@@ -23,10 +23,9 @@ import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.ConfigService;
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.services.AllianzService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
@@ -41,23 +40,21 @@ import javax.persistence.EntityManager;
  *  @author Christopher Jung
  */
 @Service
-@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class HandleAllyLowMember implements TaskHandler {
 	private final AllianzService allianzService;
-	private final EntityManager db;
 	private final ConfigService configService;
 
 	@Autowired
-	public HandleAllyLowMember(AllianzService allianzService, EntityManager db, ConfigService configService)
+	public HandleAllyLowMember(AllianzService allianzService, ConfigService configService)
 	{
 		this.allianzService = allianzService;
-        this.db = db;
         this.configService = configService;
     }
 
 	@Override
 	public void handleEvent(Task task, String event) {
 		if( event.equals("tick_timeout") ) {
+			EntityManager db = ContextMap.getContext().getEM();
 			int allyid = Integer.parseInt(task.getData1());
 
 			Ally ally = db.find(Ally.class, allyid);

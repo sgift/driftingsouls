@@ -2,11 +2,13 @@ package net.driftingsouls.ds2.server.ships;
 
 import net.driftingsouls.ds2.server.DBSingleTransactionTest;
 import net.driftingsouls.ds2.server.cargo.Cargo;
+import net.driftingsouls.ds2.server.cargo.ItemData;
 import net.driftingsouls.ds2.server.cargo.ItemID;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.Ware;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
+import net.driftingsouls.ds2.server.repositories.ItemRepository;
 
 import java.util.List;
 
@@ -33,7 +35,16 @@ public class ShipTest extends DBSingleTransactionTest
 	@Before
 	public void loadShips()
 	{
-		this.testWare = new ItemID((Item) getDB().merge(new Ware(1, "Deuteriumfass")));
+		Item wareItem = (Item) getDB().merge(new Ware(1, "Deuteriumfass"));
+		this.testWare = new ItemID(wareItem);
+		// ItemRepository ist ein JVM-weiter Singleton-Cache, der beim ersten Zugriff einmalig ueber
+		// eine EIGENE, gepoolte JDBC-Verbindung aus der DB befuellt und danach nie wieder aktualisiert
+		// wird. Diese Testklasse laeuft (DBSingleTransactionTest) in einer nie committeten
+		// Transaktion, daher wuerde ein DB-Reload testWare nie sehen - Cargo.getMass() wuerde es
+		// dauerhaft als "Unbekanntes Item" behandeln. Stattdessen wird der Cache direkt befuellt.
+		ItemRepository.getInstance().putItemData(new ItemData(
+				wareItem.getID(), "None", wareItem.getCargo(), wareItem.getDescription(),
+				"", wareItem.getName(), "", "COMMON", 0, (byte) 0, (byte) 0));
 		User user1 = persist(new User("testUser1", "***", 0, "", new Cargo(), "test@localhost"));
 		this.user2 = persist(new User("testUser2", "***", 0, "", new Cargo(), "test@localhost"));
 		this.user2.setFlag(UserFlag.SUPER_DOCK);

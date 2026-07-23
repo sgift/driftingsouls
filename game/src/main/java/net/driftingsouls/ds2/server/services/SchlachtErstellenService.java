@@ -221,6 +221,7 @@ public class SchlachtErstellenService
 		//
 		// Schlacht in die DB einfuegen
 		//
+		battle.setEntityManager(db);
 		battle.setAlly(0, ownBattleShip.getOwner().getAlly() != null ? ownBattleShip.getOwner().getAlly().getId() : 0);
 		battle.setAlly(1, enemyBattleShip.getOwner().getAlly() != null ? enemyBattleShip.getOwner().getAlly().getId() : 0);
 		battle.setCommander(0, ownBattleShip.getOwner());

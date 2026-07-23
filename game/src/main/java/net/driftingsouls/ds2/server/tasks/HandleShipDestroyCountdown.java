@@ -18,9 +18,8 @@
  */
 package net.driftingsouls.ds2.server.tasks;
 
+import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
@@ -28,29 +27,23 @@ import javax.persistence.EntityManager;
 /**
  * TASK_SHIP_DESTROY_COUNTDOWN
  * Ein Countdown bis zur Loeschung des Schiffes.
- * 
+ *
  * 	- data1 -> die ID des betroffenen Schiffes
  *  - data2 -> unbenutzt
  *  - data3 -> unbenutzt
- *  
+ *
  *  @author Christopher Jung
  */
 @Service
-@Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class HandleShipDestroyCountdown implements TaskHandler {
-	private final EntityManager db;
-
-    public HandleShipDestroyCountdown(EntityManager db) {
-        this.db = db;
-    }
-
-    @Override
-	public void handleEvent(Task task, String event) {	
+	@Override
+	public void handleEvent(Task task, String event) {
 		if( event.equals("tick_timeout") ) {
+			EntityManager db = ContextMap.getContext().getEM();
 			Ship ship = db.find(Ship.class, Integer.parseInt(task.getData1()));
-			
+
 			ship.destroy();
-			
+
 			Taskmanager.getInstance().removeTask( task.getTaskID() );
 		}
 	}
