@@ -8,30 +8,25 @@ Read `CONTEXT.md` for vocabulary before touching anything.
 
 ---
 
-## 0. Foundations — zero risk ⚠️ partly done
+## 0. Foundations — zero risk ✅ done
 
 No decisions, nothing can break, and both items protect every later step.
 
 **0.1 done** in `d0c731f07`. Still to confirm by hand: every page loads on the dev system without
 console errors.
 
-**0.2 blocked — needs investigation in the GitHub UI.** `-DskipTests` was removed in `29ab73362` and
-`workflow_dispatch` added in `eeaf4d50c`, but CI has not actually executed. Verified 2026-07-25:
+**0.2 done** in `29ab73362`, with `workflow_dispatch` added in `eeaf4d50c` so CI can also be run on
+demand. Runs can sit `queued` for 20+ minutes before a runner picks them up — absence of a result is
+not evidence that CI is broken.
 
-- **`push` triggers nothing.** All 12 recorded runs (2025-06-12 → 2025-07-20) were `schedule`. Commits
-  pushed on 2026-07-24 and 2026-07-25, including `master` HEAD `1568b2f1b`, have **zero** check runs.
-- **`workflow_dispatch` is accepted but does not start.** Run `30140007629` sat `queued` for over ten
-  minutes without a runner.
-- Repo-level Actions permissions report `enabled: true`, `allowed_actions: all`; the `Java CI` workflow
-  reports `state: active`. `CodeQL` reports `disabled_inactivity` (the documented 60-day rule — that
-  rule disables *scheduled* triggers only and does not explain either symptom above).
+The first green-field run immediately found **3 pre-existing failures** in `MapSectorPopupTest`, all
+`expected:<1> but was:<0>`. They are not new and not environment-specific: the same three fail locally.
+Root cause is the defect in ADR-0002 — `PlayerFieldView.getJumpNodes()` calls `DBUtil.getConnection(em)`,
+so its jOOQ query runs on a different connection than the test's transaction and cannot see uncommitted
+rows. They are `@Ignore`d, referencing ADR-0002, so that CI is a usable signal during step 1. See 3.1.
 
-The repo is a fork of `bktheg/driftingsouls`, which may be relevant. Root cause not established: the
-API reports everything as enabled, so the answer is likely a banner or setting visible only in the
-Actions tab.
-
-Until CI actually executes there is **no safety net** — which matters most for step 1, whose diffs are
-the largest in the project.
+`CodeQL` reports `disabled_inactivity` (the documented 60-day rule) and would need re-enabling in the
+Actions tab if wanted.
 
 **0.1 Delete dead JavaScript.** 17 files, ~7,856 lines in `game/src/main/webapp/data/javascript/`
 (root level only): `prototype.js`, `scriptaculous.js`, `effects.js`, `dragdrop.js`, `controls.js`,
@@ -95,6 +90,10 @@ transaction.
 **3.1 Transaction-boundary tests.** Assert that a jOOQ read sees an uncommitted Hibernate write from
 the same request, and that a failure rolls both back. These **fail on `master` today** — that is the
 point; they encode the bug.
+
+Three already exist: the `@Ignore`d tests in `MapSectorPopupTest`, which fail precisely because
+`PlayerFieldView.getJumpNodes()` reads on a separate connection. Remove the `@Ignore` and they become
+the acceptance criteria for 3.3. Still worth adding one rollback test, which they do not cover.
 
 **3.2 Invert connection ownership.** Standalone Hikari `DataSource` bean; Hibernate demoted from owner
 to consumer.

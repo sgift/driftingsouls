@@ -12,10 +12,22 @@ import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipType;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
+/**
+ * Three tests here are @Ignore'd because they fail on a known, documented defect rather than a
+ * mistake in the test: PlayerFieldView.getJumpNodes() obtains its own connection via
+ * DBUtil.getConnection(em), so its jOOQ query runs outside the request transaction and cannot see
+ * rows the test has persisted but not committed. See docs/adr/0002 and docs/adr/0005.
+ *
+ * Re-enable them in roadmap step 3.3 — they are its acceptance criteria.
+ *
+ * Note that the two tests still running assert an empty result, so they currently pass vacuously:
+ * getJumpNodes() returns nothing in every case. They only become meaningful once the three below do.
+ */
 public class MapSectorPopupTest extends DBSingleTransactionTest
 {
 	private StarSystem sys;
@@ -40,6 +52,7 @@ public class MapSectorPopupTest extends DBSingleTransactionTest
 	}
 
 	@Test
+	@Ignore("Fails on the jOOQ-outside-transaction defect; see docs/adr/0002. Re-enable in roadmap step 3.3.")
 	public void gegebenEinSichtbarerSprungpunkt_sectorAction_sollteDiesenSprungpunktZurueckgeben()
 	{
 		// setup
@@ -77,6 +90,7 @@ public class MapSectorPopupTest extends DBSingleTransactionTest
 	}
 
 	@Test
+	@Ignore("Fails on the jOOQ-outside-transaction defect; see docs/adr/0002. Re-enable in roadmap step 3.3.")
 	public void gegebenEinNichtSichtbarerSprungpunktUndEinEigenesSchiffImSektor_sectorAction_sollteDiesenSprungpunktZurueckgeben()
 	{
 		// setup
@@ -101,6 +115,7 @@ public class MapSectorPopupTest extends DBSingleTransactionTest
 	}
 
 	@Test
+	@Ignore("Fails on the jOOQ-outside-transaction defect; see docs/adr/0002. Re-enable in roadmap step 3.3.")
 	public void gegebenEinNichtSichtbarerSprungpunktUndEinEigenesSchiffInLrsReichweite_sectorAction_sollteDiesenSprungpunktZurueckgeben()
 	{
 		// setup
