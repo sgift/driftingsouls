@@ -10,7 +10,8 @@ Read `CONTEXT.md` for vocabulary before touching anything.
 
 ## 0. Foundations — low risk (0.1 and 0.2 ✅ done; **0.3 outstanding**)
 
-No decisions, nothing can break, and both items protect every later step.
+0.1 and 0.2 carry no risk and protect every later step. 0.3 is a small, self-contained security fix
+with no migration behind it — grouped here because it should not wait for steps 1 and 2.
 
 **0.1 done** in `d0c731f07`. Still to confirm by hand: every page loads on the dev system without
 console errors.
