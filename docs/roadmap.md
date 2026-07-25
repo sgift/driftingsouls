@@ -8,12 +8,22 @@ Read `CONTEXT.md` for vocabulary before touching anything.
 
 ---
 
-## 0. Foundations — zero risk ✅ done
+## 0. Foundations — zero risk ⚠️ partly done
 
 No decisions, nothing can break, and both items protect every later step.
 
-Done in `d0c731f07` (JS removal) and `29ab73362` (CI). Still to confirm by hand: every page loads on
-the dev system without console errors.
+**0.1 done** in `d0c731f07`. Still to confirm by hand: every page loads on the dev system without
+console errors.
+
+**0.2 blocked.** `-DskipTests` was removed in `29ab73362`, but **GitHub Actions does not currently run
+on push for this repository**. Every workflow run on record (12, from 2025-06-12 to 2025-07-20) was
+`schedule`-triggered; there is not one `push` run. Commits pushed on 2026-07-24 and 2026-07-25,
+including `master` HEAD `1568b2f1b`, have zero check runs. The repo is a fork of `bktheg/driftingsouls`
+and Actions on forks must be explicitly enabled by the owner in the Actions tab. `CodeQL` additionally
+shows `disabled_inactivity`.
+
+Until that is enabled in the GitHub UI, the workflow edit has no effect and there is **no CI safety
+net** — which matters most for step 1, whose diffs are the largest in the project.
 
 **0.1 Delete dead JavaScript.** 17 files, ~7,856 lines in `game/src/main/webapp/data/javascript/`
 (root level only): `prototype.js`, `scriptaculous.js`, `effects.js`, `dragdrop.js`, `controls.js`,
