@@ -8,7 +8,7 @@ Read `CONTEXT.md` for vocabulary before touching anything.
 
 ---
 
-## 0. Foundations — zero risk ✅ done
+## 0. Foundations — low risk (0.1 and 0.2 ✅ done; **0.3 outstanding**)
 
 No decisions, nothing can break, and both items protect every later step.
 
