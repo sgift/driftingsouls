@@ -8,9 +8,12 @@ Read `CONTEXT.md` for vocabulary before touching anything.
 
 ---
 
-## 0. Foundations — zero risk
+## 0. Foundations — zero risk ✅ done
 
 No decisions, nothing can break, and both items protect every later step.
+
+Done in `d0c731f07` (JS removal) and `29ab73362` (CI). Still to confirm by hand: every page loads on
+the dev system without console errors.
 
 **0.1 Delete dead JavaScript.** 17 files, ~7,856 lines in `game/src/main/webapp/data/javascript/`
 (root level only): `prototype.js`, `scriptaculous.js`, `effects.js`, `dragdrop.js`, `controls.js`,
