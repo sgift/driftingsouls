@@ -30,9 +30,14 @@ _Avoid_: Sprungpunkt
 ### Bases and buildings
 
 **Base**:
-A planetary settlement owned by a player. Has a grid of fields on which Buildings are placed, and
-holds Cargo and Units.
+An asteroid claimed and developed by a User. Has a grid of fields on which Buildings are placed, holds
+Cargo and Units, and may have a Core installed.
 _Avoid_: Basis, Basen, Kolonie
+
+**Core**:
+The core of the asteroid a Base sits on. The basic Core is inert and can be replaced by a series of
+upgraded Cores that produce goods.
+_Avoid_: Kern
 
 **Building**:
 A *kind* of structure that can be placed on a Base field — the type and its behaviour, shared by all
@@ -95,6 +100,16 @@ Crew or troops carried by a Ship or stationed on a Base, used for boarding and d
 synonym for Ship.
 _Avoid_: Einheit
 
+**Ship Settings**:
+Per-Ship automation options — for example whether it launches its fighters on entering a Battle, or
+gathers from a Nebula each Tick.
+_Avoid_: SchiffEinstellungen
+
+**Ship Build Restriction**:
+An Item that forbids building a given Ship Type. Fitted into a Shipyard so that it can build some Ship
+Types but not others.
+_Avoid_: Schiffsverbot
+
 ### Combat
 
 **Battle**:
@@ -138,9 +153,19 @@ _Avoid_: Handelsposten, Tradepost
 A timed sale in which players bid for a Ship or a quantity of a resource.
 _Avoid_: Versteigerung
 
+**Loyalty Points**:
+An alternative currency awarded by a Faction for services rendered to it, and spendable only with that
+Faction.
+_Avoid_: Loyalitaetspunkte
+
+**Depot**:
+A GTU facility at which Items can be stored temporarily.
+_Avoid_: Zwischenlager, GtuZwischenlager
+
 **GTU**:
-An in-game organisation that operates Trading Posts, Auctions and depots. A proper noun — never
-translated. Written `GTU` in prose; casing in identifiers is currently inconsistent.
+Galtracorp Unlimited — a trade consortium holding a monopoly on structured trade across the star
+systems. Operates Trading Posts, Auctions and Depots. A proper noun, never translated. Written `GTU`
+in prose; casing in identifiers is currently inconsistent.
 
 ### Players and organisations
 
@@ -159,7 +184,8 @@ A named office within an Alliance, held by a member.
 _Avoid_: AllyPosten, Posten
 
 **Faction**:
-A non-player organisation in the game world with which Users interact.
+A non-player organisation in the game world. Factions award Loyalty Points for services rendered and
+sell goods in return for them.
 _Avoid_: Fraktion
 
 **Race**:
@@ -186,6 +212,17 @@ _Avoid_: Nachricht
 **Tick**:
 The scheduled step that advances game state — production, movement, training and respawns. A
 *regular tick* runs several times daily; a *rare tick* runs once daily.
+
+### Tutorial and statistics
+
+**Tutorial Page**:
+A single page of the introductory tutorial shown to new Users.
+_Avoid_: IntTutorial — the `Int` prefix has no remembered meaning and should be dropped on rename.
+
+**Statistic**:
+A tracked aggregate of game activity presented to players — ships destroyed, largest fleet, most
+traded in the past week.
+_Avoid_: Statistik
 
 ## Naming
 
