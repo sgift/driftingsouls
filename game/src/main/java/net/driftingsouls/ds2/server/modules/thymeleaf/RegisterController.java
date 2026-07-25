@@ -37,14 +37,22 @@ import java.util.stream.Collectors;
 
 //TODO: Whole class should be autowired, don't get your own config service
 public class RegisterController implements DSController {
-    private final EntityManager db = ContextMap.getContext().getEM();
-    private final ConfigService configService = new ConfigService(db);
+    // DSApplication builds one instance of each controller and reuses it for every request, so the
+    // EntityManager must be fetched per call. Holding it in a field bound it to whichever request
+    // constructed the application and made every later request fail with "EntityManager is closed".
+    private EntityManager db() {
+        return ContextMap.getContext().getEM();
+    }
+
+    private ConfigService configService() {
+        return new ConfigService(db());
+    }
 
     @Override
     public void process(HttpServletRequest request, HttpServletResponse response, ServletContext servletContext, ITemplateEngine templateEngine) throws Exception {
         WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
 
-        var disableRegister = configService.getValue(WellKnownConfigValue.DISABLE_REGISTER);
+        var disableRegister = configService().getValue(WellKnownConfigValue.DISABLE_REGISTER);
         if (disableRegister != null && !disableRegister.isBlank()) {
             templateEngine.process("no_register", ctx, response.getWriter());
             return;
@@ -90,7 +98,7 @@ public class RegisterController implements DSController {
     }
 
     private void populateRaceOptions(WebContext ctx) {
-        List<Rasse> playableRaces = db.createQuery("from rasse where playable=true", Rasse.class).getResultList();
+        List<Rasse> playableRaces = db().createQuery("from rasse where playable=true", Rasse.class).getResultList();
         List<RegisterRace> registerRaces = playableRaces.stream()
             .map(race -> new RegisterRace(race.getId(), race.getName(), race.getDescription()))
             .collect(Collectors.toList());
@@ -100,7 +108,7 @@ public class RegisterController implements DSController {
 
     private void populateSystemOptions(WebContext ctx) {
         var startLocation = getStartLocation();
-        List<StarSystem> systems = db.createQuery("from StarSystem", StarSystem.class).getResultList();
+        List<StarSystem> systems = db().createQuery("from StarSystem", StarSystem.class).getResultList();
         List<RegisterSystem> registerSystems = systems.stream()
             .filter(sys -> sys.getOrderLocations().length > 0)
             .filter(sys -> startLocation.minSysDistance.containsKey(sys.getID()))
@@ -224,7 +232,7 @@ public class RegisterController implements DSController {
     }
 
     private void createBase(Session db, User newUser, Base base) {
-        String[] baselayoutStr = configService.getValue(WellKnownConfigValue.REGISTER_BASELAYOUT).split(",");
+        String[] baselayoutStr = configService().getValue(WellKnownConfigValue.REGISTER_BASELAYOUT).split(",");
         Integer[] activebuildings = new Integer[baselayoutStr.length];
         Integer[] baselayout = new Integer[baselayoutStr.length];
         int bewohner = 0;
@@ -265,7 +273,7 @@ public class RegisterController implements DSController {
         base.setWidth(basetype.getWidth());
         base.setHeight(basetype.getHeight());
         base.setMaxCargo(basetype.getCargo());
-        base.setCargo(new Cargo(Cargo.Type.AUTO, configService.getValue(WellKnownConfigValue.REGISTER_BASECARGO)));
+        base.setCargo(new Cargo(Cargo.Type.AUTO, configService().getValue(WellKnownConfigValue.REGISTER_BASECARGO)));
         base.setCore(null);
         base.setUnits(new TransientUnitCargo());
         base.setCoreActive(false);
@@ -285,16 +293,16 @@ public class RegisterController implements DSController {
 
     private void positionShips(int newId, int raceId, Base base, Nebel nebel) {
         if (raceId == 1) {
-            SectorTemplateManager.getInstance().useTemplate(db, "ORDER_TERRANER", base.getLocation(), newId);
-            SectorTemplateManager.getInstance().useTemplate(db, "ORDER_TERRANER_TANKER", nebel.getLocation(), newId);
+            SectorTemplateManager.getInstance().useTemplate(db(), "ORDER_TERRANER", base.getLocation(), newId);
+            SectorTemplateManager.getInstance().useTemplate(db(), "ORDER_TERRANER_TANKER", nebel.getLocation(), newId);
         } else {
-            SectorTemplateManager.getInstance().useTemplate(db, "ORDER_VASUDANER", base.getLocation(), newId);
-            SectorTemplateManager.getInstance().useTemplate(db, "ORDER_VASUDANER_TANKER", nebel.getLocation(), newId);
+            SectorTemplateManager.getInstance().useTemplate(db(), "ORDER_VASUDANER", base.getLocation(), newId);
+            SectorTemplateManager.getInstance().useTemplate(db(), "ORDER_VASUDANER_TANKER", nebel.getLocation(), newId);
         }
     }
 
     private void sendWelcomePm(int newid) {
-        User source = db.find(User.class, configService.getValue(WellKnownConfigValue.REGISTER_PM_SENDER));
+        User source = db().find(User.class, configService().getValue(WellKnownConfigValue.REGISTER_PM_SENDER));
         PM.send(source, newid, "Willkommen bei Drifting Souls 2",
             "[font=arial]Herzlich willkommen bei Drifting Souls 2!\n" +
                 "Diese PM wird automatisch an alle neuen Spieler versandt, um\n" +
@@ -307,7 +315,7 @@ public class RegisterController implements DSController {
                 "- die Möglichkeit via Nachricht/PM an die ID -16 Fragen zu stellen.\n" +
                 "\n" +
                 "\n" +
-                "Viel Spaß bei DS2 wünschen Dir die Admins[/font]", db);
+                "Viel Spaß bei DS2 wünschen Dir die Admins[/font]", db());
     }
 
     private RegisterController.StartLocations getStartLocation() {
@@ -316,14 +324,14 @@ public class RegisterController implements DSController {
         int mindistance = 99999;
         HashMap<Integer, RegisterController.StartLocation> minsysdistance = new HashMap<>();
 
-        List<StarSystem> systems = db.createQuery("from StarSystem order by id asc", StarSystem.class).getResultList();
+        List<StarSystem> systems = db().createQuery("from StarSystem order by id asc", StarSystem.class).getResultList();
         for (StarSystem system: systems) {
             Location[] locations = system.getOrderLocations();
 
             for (int i = 0; i < locations.length; i++) {
                 int dist = 0;
                 int count = 0;
-                var distiter = db.createQuery("SELECT sqrt((:x-x)*(:x-x)+(:y-y)*(:y-y)) FROM Base WHERE owner.id = 0 AND system = :system AND klasse.id = 1 ORDER BY sqrt((:x-x)*(:x-x)+(:y-y)*(:y-y))", Double.class)
+                var distiter = db().createQuery("SELECT sqrt((:x-x)*(:x-x)+(:y-y)*(:y-y)) FROM Base WHERE owner.id = 0 AND system = :system AND klasse.id = 1 ORDER BY sqrt((:x-x)*(:x-x)+(:y-y)*(:y-y))", Double.class)
                         .setParameter("x", locations[i].getX())
                         .setParameter("y", locations[i].getY())
                         .setParameter("system", system.getID())
