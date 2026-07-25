@@ -43,6 +43,16 @@ and let the 28 test files run. If they fail today, that is information worth hav
 churns the codebase.
 *Done when:* CI executes the suite and is green.
 
+**0.3 Fix the password generator.** **ADR-0007.** Registration and password reset both issue
+`Common.md5(Integer.toString(ThreadLocalRandom.current().nextInt(Integer.MAX_VALUE)))` — a password
+with the entropy of one `int`, from a non-cryptographic PRNG, stored as an unsalted hash. Replace with
+`SecureRandom` and a genuinely random password in `RegisterController` and `SendPasswordController`.
+
+Sequenced here because it is the urgent half of ADR-0007 and needs no migration, no new dependency and
+no schema change. The hashing migration itself is step 2.4.
+*Done when:* neither controller uses `ThreadLocalRandom`, and a newly registered account receives a
+high-entropy password.
+
 ---
 
 ## 1. Track Zero — rename to English
@@ -76,6 +86,16 @@ cleanly on 17, so it is not an obstacle.
 `commons-fileupload`, `mysql-connector-java` → `mysql-connector-j`, drop unused `spring-tx` and Derby.
 `feature/jakarta` researched many of these versions and is worth reading — not merging.
 *Done when:* build and tests green on JDK 17 with Spring 5.3.
+
+**2.4 bcrypt password hashing.** **ADR-0007.** Add `org.springframework.security:spring-security-crypto`,
+put password hashing behind its own abstraction (leaving `Common.md5` alone — `Task.java` mints task IDs
+with it), and verify-then-rehash on login. No schema change: `users.passwort` is `varchar(255)`, bcrypt
+output is 60 chars, and legacy values never contain `$` so the scheme is detectable from the value.
+
+Here rather than earlier because the new dependency belongs with 2.3, and because a mistake in the auth
+path locks out the playerbase — worth doing on a stack that is already upgraded and green.
+*Done when:* new and changed passwords are bcrypt; login transparently upgrades legacy hashes; a
+straggler force-reset is scheduled and the legacy path has a deletion date.
 
 ---
 
@@ -179,26 +199,7 @@ voronoi are client-side state that htmx is the wrong tool for.
 
 Not sequenced — each needs a decision before it becomes a step.
 
-**`Common.md5` does not produce standard MD5, and is lossy.**
-
-```java
-hexString.append(Integer.toHexString(0xFF & aMd5));   // Common.java:868 — no zero-padding
-```
-
-Bytes below `0x10` render as a single hex character instead of two, so the output is
-variable-length. `md5("test123")` is `cc03e747a6afbbcbf8be7668acfebee5` (32 chars); DS stores
-`cc3e747a6afbbcbf8be7668acfebee5` (31) — the `03` byte lost its zero.
-
-Two consequences. The output is not standard MD5, so no external tool can generate or verify a DS
-password hash. And the encoding is **ambiguous**: distinct digests can collapse to the same string,
-shrinking the effective hash space. That sits on top of MD5 being unsuitable for password storage in
-the first place.
-
-Used for stored passwords (`users.passwort`, checked in `DefaultAuthenticationManager:83`), so it
-cannot simply be corrected — every existing password would stop validating. A fix needs a migration:
-verify against the current scheme on login, then rehash into a modern algorithm (bcrypt/argon2) in a
-new column, and retire the old one once accounts have rotated through. Decide the scheme and the
-migration before opening this.
+*(Password hashing was here; it is now decided in ADR-0007 and sequenced as steps 0.3 and 2.4.)*
 
 ## Deferred
 
