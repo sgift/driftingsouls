@@ -175,6 +175,31 @@ voronoi are client-side state that htmx is the wrong tool for.
 
 ---
 
+## Known defects
+
+Not sequenced — each needs a decision before it becomes a step.
+
+**`Common.md5` does not produce standard MD5, and is lossy.**
+
+```java
+hexString.append(Integer.toHexString(0xFF & aMd5));   // Common.java:868 — no zero-padding
+```
+
+Bytes below `0x10` render as a single hex character instead of two, so the output is
+variable-length. `md5("test123")` is `cc03e747a6afbbcbf8be7668acfebee5` (32 chars); DS stores
+`cc3e747a6afbbcbf8be7668acfebee5` (31) — the `03` byte lost its zero.
+
+Two consequences. The output is not standard MD5, so no external tool can generate or verify a DS
+password hash. And the encoding is **ambiguous**: distinct digests can collapse to the same string,
+shrinking the effective hash space. That sits on top of MD5 being unsuitable for password storage in
+the first place.
+
+Used for stored passwords (`users.passwort`, checked in `DefaultAuthenticationManager:83`), so it
+cannot simply be corrected — every existing password would stop validating. A fix needs a migration:
+verify against the current scheme on login, then rehash into a modern algorithm (bcrypt/argon2) in a
+new column, and retire the old one once accounts have rotated through. Decide the scheme and the
+migration before opening this.
+
 ## Deferred
 
 The `javax` → `jakarta` flip and Spring 6. Deliberately last, once Hibernate is gone and most of the
