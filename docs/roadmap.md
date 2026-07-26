@@ -8,7 +8,7 @@ Read `CONTEXT.md` for vocabulary before touching anything.
 
 ---
 
-## 0. Foundations — low risk (0.1 and 0.2 ✅ done; **0.3 outstanding**)
+## 0. Foundations — low risk (✅ done)
 
 0.1 and 0.2 carry no risk and protect every later step. 0.3 is a small, self-contained security fix
 with no migration behind it — grouped here because it should not wait for steps 1 and 2.
@@ -53,6 +53,26 @@ Sequenced here because it is the urgent half of ADR-0007 and needs no migration,
 no schema change. The hashing migration itself is step 2.4.
 *Done when:* neither controller uses `ThreadLocalRandom`, and a newly registered account receives a
 high-entropy password.
+
+**0.3 done** in `521a2d51d`. `PasswordGenerator` (`framework/authentication/`) draws 16 characters from
+a 57-character alphabet via `SecureRandom` — ~93 bits. Verified end to end on the dev system against a
+MailHog container: registration and password reset both mail a 16-character password, and login with it
+succeeds. `Common.md5` is untouched, as ADR-0007 requires.
+
+Three things came out of it that were not in the plan:
+- The mail text was extracted to `PasswordMailer` so the issued password can be asserted automatically.
+  `PasswordMailerTest` starts MailHog via Testcontainers and reads the delivered mail back over its
+  HTTP API, so the mail path is covered by CI rather than only by hand.
+- `SendPasswordController` never substituted `{username}` — the `.replace(...)` bound to the last string
+  literal of a concatenation instead of the whole message. Users got mail addressed to `Hallo {username}`.
+  Fixed, and the test asserts no placeholder survives.
+- `Common.mail` sent subject and body in the host's default charset (Cp1252 on the dev machine, UTF-8 in
+  the container), and cached its `Session`, so the SMTP host could never change at runtime. Both fixed;
+  the port is now configurable via the optional `SMTP-PORT` setting, which is what makes the test possible.
+
+Note that the Spring-context tests (`DBTest` subclasses) cannot pass on this machine at all: the local
+JDK is 17 and Spring 4.3's repackaged cglib fails there, exactly as 2.2 predicts. CI runs JDK 11, so the
+suite is only a usable signal there until 2.1/2.2 land.
 
 ---
 
