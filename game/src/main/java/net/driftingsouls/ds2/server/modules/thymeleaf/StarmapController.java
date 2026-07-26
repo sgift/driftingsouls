@@ -77,6 +77,9 @@ public class StarmapController implements DSController, PermissionResolver {
     public void process(HttpServletRequest request, HttpServletResponse response, ServletContext servletContext, ITemplateEngine templateEngine) throws Exception {
         WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
         context = ContextMap.getContext();
+        // Every action below reads this, not just DEFAULT - assigning it there left the other
+        // actions working against whatever user happened to be set last.
+        user = (User) context.getActiveUser();
         Action action;
         try {
             action = Action.valueOf(request.getParameter("action").toUpperCase());
@@ -121,9 +124,6 @@ public class StarmapController implements DSController, PermissionResolver {
      * @param request der HttpServletRequest (enthaelt die uebergebenen Parameter)
      */
     private void defaultAction(int system, WebContext ctx, HttpServletRequest request){
-
-        user = (User) context.getActiveUser();
-
 
         int x = 1;
         int y = 1;
