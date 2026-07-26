@@ -347,7 +347,7 @@ public class Ordner {
 				"where empfaenger= :user and ordner= :ordner and (gelesen=1 or bit_and(flags,:important)=0)")
 			.setParameter("trash", trash)
 			.setParameter("user", this.owner)
-			.setParameter("ordner", this)
+			.setParameter("ordner", this.id)
 			.setParameter("important", PM.FLAGS_IMPORTANT)
 			.executeUpdate();
 	}
@@ -366,7 +366,7 @@ public class Ordner {
 			.setParameter("trash", trash)
 			.setParameter("user", this.owner)
 			.setParameter("sender", user)
-			.setParameter("ordner", this)
+			.setParameter("ordner", this.id)
 			.setParameter("important", PM.FLAGS_IMPORTANT)
 			.executeUpdate();
 	}
