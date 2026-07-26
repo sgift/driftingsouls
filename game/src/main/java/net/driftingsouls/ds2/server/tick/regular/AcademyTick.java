@@ -157,6 +157,7 @@ public class AcademyTick extends TickController {
 			}
 		}
 		.setFlushSize(10)
+		.setClearOnFlush(true)
 		.executeFor(accList);
 
 		//

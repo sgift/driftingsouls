@@ -1453,6 +1453,7 @@ public class AdminCommands {
 				}
 			}
 			.setFlushSize(20)
+			.setClearOnFlush(true)
 			.executeFor(ships);
 
 			db.getTransaction().begin();

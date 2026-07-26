@@ -1008,6 +1008,7 @@ public class SchiffsTick extends TickController {
 				Nebel.Typ.DAMAGE.damageShip(ship, configService);
 			}
 		}
+		.setClearOnFlush(true)
 		.executeFor(ships);
 	}
 
@@ -1037,6 +1038,7 @@ public class SchiffsTick extends TickController {
 			}
 		}
 		.setFlushSize(1)
+		.setClearOnFlush(true)
 		.executeFor(ships);
 	}
 
@@ -1054,6 +1056,7 @@ public class SchiffsTick extends TickController {
 			}
 		}
 		.setFlushSize(1)
+		.setClearOnFlush(true)
 		.executeFor(userIds);
 	}
 

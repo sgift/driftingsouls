@@ -378,7 +378,7 @@ public class EditPlugin8<T> implements AdminPlugin
                 public void doWork(Object object) {
                     updateTask1.job.accept(entity, updatedEntity, object);
                 }
-            }.setFlushSize(10).executeFor(jobData);
+            }.setFlushSize(10).setClearOnFlush(true).executeFor(jobData);
 
 			echo.append(updateTask.name);
 			if( jobData.size() > 1 )

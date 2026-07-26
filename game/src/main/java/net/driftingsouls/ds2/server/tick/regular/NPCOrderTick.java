@@ -125,6 +125,7 @@ public class NPCOrderTick extends TickController {
 			}
 		}
 		.setFlushSize(5)
+		.setClearOnFlush(true)
 		.executeFor(orders);
 
 		this.log("Versende PMs...");
@@ -152,6 +153,7 @@ public class NPCOrderTick extends TickController {
 				user.setNpcPunkte(user.getNpcPunkte()+1);
 			}
 		}
+		.setClearOnFlush(true)
 		.executeFor(users);
 	}
 

@@ -361,7 +361,7 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 
 				db.remove(base);
 			}
-		}.setFlushSize(1);
+		}.setFlushSize(1).setClearOnFlush(true);
 
 		euw.executeFor(baseList);
 		if (!euw.getUnsuccessfulWork().isEmpty())

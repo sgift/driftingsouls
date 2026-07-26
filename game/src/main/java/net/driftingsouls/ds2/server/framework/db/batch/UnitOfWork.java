@@ -53,6 +53,7 @@ public abstract class UnitOfWork<T>
 	private final EntityManager db;
 	private final List<T> unsuccessfulWork;
 	private UnitOfWorkErrorReporter<T> errorReporter;
+	private boolean clearOnFlush = false;
 
 	/**
 	 * Konstruktor.
@@ -104,6 +105,27 @@ public abstract class UnitOfWork<T>
 	}
 
 	/**
+	 * Legt fest, ob der Persistenzkontext nach jedem Flush geleert wird.
+	 *
+	 * <p>Ohne dies waechst der Persistenzkontext ueber die gesamte Arbeitsaufgabe hinweg an.
+	 * Da Hibernate vor jeder Query einen Auto-Flush ausfuehrt und dabei den kompletten
+	 * First-Level-Cache auf Aenderungen prueft, werden die Kosten pro Query linear zur Anzahl
+	 * der bereits geladenen Entities - ueber die gesamte Aufgabe also quadratisch. Bei Ticks
+	 * ueber alle Spieler ist das der Unterschied zwischen Minuten und Stunden.</p>
+	 *
+	 * <p>Der Preis: nach einem Flush sind alle bisher geladenen Entities detached. Arbeitsaufgaben,
+	 * die Entities zwischen den einzelnen Schritten weiterreichen, duerfen dies daher nicht setzen.</p>
+	 *
+	 * @param clearOnFlush true, wenn nach jedem Flush geleert werden soll
+	 * @return Die Instanz
+	 */
+	public UnitOfWork<T> setClearOnFlush(boolean clearOnFlush)
+	{
+		this.clearOnFlush = clearOnFlush;
+		return this;
+	}
+
+	/**
 	 * Gibt die aktuelle Instanz der Hibernate-Session zurueck.
 	 * @return Die Session;
 	 */
@@ -141,6 +163,7 @@ public abstract class UnitOfWork<T>
                 flushAndCommit(transaction, unflushedObjects);
 
                 onFlushed();
+                clearPersistenceContext();
 
                 unflushedObjects.clear();
 
@@ -152,7 +175,16 @@ public abstract class UnitOfWork<T>
         flushAndCommit(transaction, unflushedObjects);
 
         onFlushed();
+        clearPersistenceContext();
     }
+
+	private void clearPersistenceContext()
+	{
+		if( this.clearOnFlush )
+		{
+			db.clear();
+		}
+	}
 
 	private void flushAndCommit(EntityTransaction transaction, List<T> unflushedObjects)
 	{
