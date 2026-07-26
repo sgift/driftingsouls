@@ -45,5 +45,6 @@
 /game/src/main/lox
 /docker/db-init/*
 !/docker/db-init/.gitkeep
+/docker/.env
 game/src/main/webapp/null
 

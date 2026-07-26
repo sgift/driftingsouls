@@ -1,12 +1,14 @@
+# Container names and host ports are derived from the compose project name rather than
+# hardcoded, so a second checkout (e.g. a git worktree for a parallel hotfix) can run its
+# own stack alongside this one. See README.md in this directory.
 services:
   db:
     image: mysql:8
-    container_name: mysql
     environment:
       MYSQL_ROOT_PASSWORD: "ds"
       MYSQL_DATABASE: "ds"
     ports:
-      - "3306:3306"
+      - "${DS_DB_PORT:-3306}:3306"
     volumes:
       - db-data:/var/lib/mysql
       # Drop a .sql or .sql.gz dump in here before first `docker compose up` to
@@ -38,12 +40,11 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile
-    container_name: ds2-app
     depends_on:
       flyway:
         condition: service_completed_successfully
     ports:
-      - "8080:8080"
+      - "${DS_APP_PORT:-8080}:8080"
     environment:
       DB_URL: "jdbc:mysql://db:3306/ds?serverTimezone=UTC&allowPublicKeyRetrieval=true&useSSL=false"
       DB_USER: "root"
