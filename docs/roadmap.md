@@ -70,9 +70,12 @@ Three things came out of it that were not in the plan:
   the container), and cached its `Session`, so the SMTP host could never change at runtime. Both fixed;
   the port is now configurable via the optional `SMTP-PORT` setting, which is what makes the test possible.
 
-Note that the Spring-context tests (`DBTest` subclasses) cannot pass on this machine at all: the local
-JDK is 17 and Spring 4.3's repackaged cglib fails there, exactly as 2.2 predicts. CI runs JDK 11, so the
-suite is only a usable signal there until 2.1/2.2 land.
+Note that the Spring-context tests (`DBTest` subclasses) only pass on a JDK 11: Spring 4.3's repackaged
+cglib cannot initialise on 16+, exactly as 2.2 predicts, so running the suite on a newer JDK fails all 19
+of them with `Could not initialize class org.springframework.cglib.proxy.Enhancer` regardless of the
+change under test. Point Maven at a JDK 11 — `JAVA_HOME=C:/Users/sebas/.jdks/ms-11.0.32 ./mvnw -pl game
+-am verify`, green at 187 tests / 3 skipped on 2026-07-26 — and set the same SDK in the IntelliJ run
+configurations. That constraint disappears with 2.2.
 
 ---
 
