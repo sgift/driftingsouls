@@ -10,11 +10,19 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 //Adapted from Thymeleaf example
 public class DSApplication {
     private final TemplateEngine templateEngine;
-    private final Map<String, DSController> controllersByURL;
+
+    /**
+     * Factories rather than instances: several controllers keep per-request state (the current
+     * {@link net.driftingsouls.ds2.server.framework.Context}, the active user) in fields. A single
+     * shared instance means concurrent requests overwrite each other's state, so every request gets
+     * its own controller - the same request scoping the pipeline controllers already have.
+     */
+    private final Map<String, Supplier<DSController>> controllerFactoriesByURL;
 
     public DSApplication(final ServletContext servletContext) {
         ServletContextTemplateResolver templateResolver = new ServletContextTemplateResolver(servletContext);
@@ -34,26 +42,23 @@ public class DSApplication {
         this.templateEngine = new TemplateEngine();
         this.templateEngine.setTemplateResolver(templateResolver);
 
-        var portalController = new PortalController();
-        var passwordLostController = new StaticController("password_lost");
-
-        this.controllersByURL = new HashMap<>();
+        this.controllerFactoriesByURL = new HashMap<>();
 
 
-        this.controllersByURL.put("/", portalController);
-        this.controllersByURL.put("/portal", portalController);
-        this.controllersByURL.put("/agb", new StaticController("agb"));
-        this.controllersByURL.put("/impressum", new StaticController("impressum"));
-        this.controllersByURL.put("/password_lost", passwordLostController);
-        this.controllersByURL.put("/send_password", new SendPasswordController(passwordLostController));
-        this.controllersByURL.put("/register", new RegisterController());
-        this.controllersByURL.put("/login", new LoginController(portalController));
-        this.controllersByURL.put("/logout", new LogoutController());
-        this.controllersByURL.put("/choff", new ChoffController());
-        this.controllersByURL.put("/comnet", new ComNetController());
-        this.controllersByURL.put("/base", new BaseController());
-        this.controllersByURL.put("/starmap", new StarmapController());
-        this.controllersByURL.put("/gamemaster", new GameMasterController());
+        this.controllerFactoriesByURL.put("/", PortalController::new);
+        this.controllerFactoriesByURL.put("/portal", PortalController::new);
+        this.controllerFactoriesByURL.put("/agb", () -> new StaticController("agb"));
+        this.controllerFactoriesByURL.put("/impressum", () -> new StaticController("impressum"));
+        this.controllerFactoriesByURL.put("/password_lost", () -> new StaticController("password_lost"));
+        this.controllerFactoriesByURL.put("/send_password", () -> new SendPasswordController(new StaticController("password_lost")));
+        this.controllerFactoriesByURL.put("/register", RegisterController::new);
+        this.controllerFactoriesByURL.put("/login", () -> new LoginController(new PortalController()));
+        this.controllerFactoriesByURL.put("/logout", LogoutController::new);
+        this.controllerFactoriesByURL.put("/choff", ChoffController::new);
+        this.controllerFactoriesByURL.put("/comnet", ComNetController::new);
+        this.controllerFactoriesByURL.put("/base", BaseController::new);
+        this.controllerFactoriesByURL.put("/starmap", StarmapController::new);
+        this.controllerFactoriesByURL.put("/gamemaster", GameMasterController::new);
     }
 
     public TemplateEngine getTemplateEngine() {
@@ -62,7 +67,8 @@ public class DSApplication {
 
     public DSController resolveControllerForRequest(final HttpServletRequest request) {
         final String path = getRequestPath(request);
-        return this.controllersByURL.get(path);
+        Supplier<DSController> factory = this.controllerFactoriesByURL.get(path);
+        return factory != null ? factory.get() : null;
     }
 
     private static String getRequestPath(final HttpServletRequest request) {
