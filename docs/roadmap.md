@@ -222,6 +222,17 @@ Not sequenced — each needs a decision before it becomes a step.
 
 *(Password hashing was here; it is now decided in ADR-0007 and sequenced as steps 0.3 and 2.4.)*
 
+**Registration races on the new user id.** `RegisterController.register()` picks
+`SELECT max(id) FROM User` + 1, so two simultaneous registrations choose the same id and the second
+insert dies with `Duplicate entry '<id>' for key 'users.PRIMARY'`. Reproduced on the dev system
+2026-07-26 with three concurrent POSTs to `/register`: one account created, two failed with an admin
+exception mail. Predates the per-request controller change — a shared controller instance raced the
+same way.
+
+Two mitigating facts: the rollback is clean (no orphaned ships or bases were left behind, checked), and
+signups are rare enough that the window is small. Needs a decision on the fix — an auto-increment id
+would be the honest one, but `users.id` is referenced widely enough that it is not a drive-by change.
+
 ## Deferred
 
 The `javax` → `jakarta` flip and Spring 6. Deliberately last, once Hibernate is gone and most of the
