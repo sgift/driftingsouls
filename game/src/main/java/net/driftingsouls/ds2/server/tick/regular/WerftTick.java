@@ -68,6 +68,7 @@ public class WerftTick extends TickController
 			}
 
 		}.setFlushSize(10)
+		.setClearOnFlush(true)
 		.executeFor(werften);
 	}
 

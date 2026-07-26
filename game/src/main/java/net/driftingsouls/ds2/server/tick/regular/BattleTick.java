@@ -89,6 +89,7 @@ public class BattleTick extends TickController {
 			}
 		}
 		.setFlushSize(1)
+		.setClearOnFlush(true)
 		.executeFor(battles);
 	}
 }

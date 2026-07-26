@@ -153,6 +153,7 @@ public class UserTick extends TickController
 
 		}
 		.setFlushSize(10)
+		.setClearOnFlush(true)
 		.executeFor(users);
 	}
 }

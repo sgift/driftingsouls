@@ -98,6 +98,7 @@ public class BaseTick extends TickController
 			}
 		}
 		.setFlushSize(10)
+		.setClearOnFlush(true)
 		.executeFor(users);
 	}
 

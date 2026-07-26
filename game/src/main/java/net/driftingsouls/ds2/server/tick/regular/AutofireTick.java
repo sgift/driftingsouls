@@ -82,7 +82,7 @@ public class AutofireTick extends TickController {
                 AutoFire autoFire = new AutoFire(db, battle);
                 autoFire.fireShips();
 			}
-		}.setFlushSize(1).executeFor(battles);
+		}.setFlushSize(1).setClearOnFlush(true).executeFor(battles);
 
         battles = db.createQuery("from Battle battle where battle.commander2.id < 0", Battle.class)
                 .getResultList();
@@ -96,6 +96,6 @@ public class AutofireTick extends TickController {
                 AutoFire autoFire = new AutoFire(db, battle);
                 autoFire.fireShips();
             }
-        }.setFlushSize(1).executeFor(battles);
+        }.setFlushSize(1).setClearOnFlush(true).executeFor(battles);
 	}
 }

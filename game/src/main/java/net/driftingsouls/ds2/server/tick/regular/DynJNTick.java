@@ -63,7 +63,7 @@ public class DynJNTick extends TickController {
                     dynamicJumpNode.setRemainingLiveTime(dynamicJumpNode.getRemainingLiveTime() - 1);
                 }
             }
-        }.executeFor(dynamicJumpNodes);
+        }.setClearOnFlush(true).executeFor(dynamicJumpNodes);
     }
 
     private void moveDynJN() {
@@ -89,7 +89,7 @@ public class DynJNTick extends TickController {
                     dynjn.setRemainingTicksUntilMove(dynjn.getRemainingTicksUntilMove() - 1);
                 }
             }
-        }.executeFor(dynamicJumpNodes);
+        }.setClearOnFlush(true).executeFor(dynamicJumpNodes);
     }
 
     @Override

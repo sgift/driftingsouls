@@ -109,6 +109,7 @@ public class KaserneTick extends TickController {
 			}
 		}
 		.setFlushSize(10)
+		.setClearOnFlush(true)
 		.executeFor(kasernen);
 	}
 }
