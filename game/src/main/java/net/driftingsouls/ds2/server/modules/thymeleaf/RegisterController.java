@@ -19,6 +19,8 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.ContextMap;
+import net.driftingsouls.ds2.server.framework.authentication.PasswordGenerator;
+import net.driftingsouls.ds2.server.framework.authentication.PasswordMailer;
 import net.driftingsouls.ds2.server.units.TransientUnitCargo;
 import org.hibernate.Session;
 import org.thymeleaf.ITemplateEngine;
@@ -32,11 +34,13 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 //TODO: Whole class should be autowired, don't get your own config service
 public class RegisterController implements DSController {
+    private final PasswordGenerator passwordGenerator = new PasswordGenerator();
+    private final PasswordMailer passwordMailer = new PasswordMailer();
+
     // DSApplication builds one instance of each controller and reuses it for every request, so the
     // EntityManager must be fetched per call. Holding it in a field bound it to whichever request
     // constructed the application and made every later request fail with "EntityManager is closed".
@@ -170,7 +174,7 @@ public class RegisterController implements DSController {
         }
 
 
-        String password = Common.md5(Integer.toString(ThreadLocalRandom.current().nextInt(Integer.MAX_VALUE)));
+        String password = passwordGenerator.generate();
         String enc_pw = Common.md5(password);
 
         int maxid = (Integer) db.createQuery("SELECT max(id) FROM User").iterate().next();
@@ -207,28 +211,13 @@ public class RegisterController implements DSController {
         createBase(db, newUser, base);
         positionShips(newId, raceId, base, nebel);
         sendWelcomePm(newId);
-        sendWelcomeMail(loginName, email, password);
+        passwordMailer.sendRegistrationMail(loginName, email, password);
 
 
         Common.copyFile(Configuration.getAbsolutePath() + "data/logos/user/0.gif",
             Configuration.getAbsolutePath() + "data/logos/user/" + newId + ".gif");
 
         return errors;
-    }
-
-    private void sendWelcomeMail(String loginName, String email, String password) {
-        String message = "Hallo {loginName},\n" +
-            "Du hast Dich als \"{loginName}\" angemeldet. Dein Passwort lautet \"{password}\" (ohne \\\"\\\"). Im Spiel heißt Du noch Kolonist. Dies sowie das Passwort kannst Du aber unter \"Optionen\" ändern.\n" +
-            "\n" +
-            "Das Admin-Team wünscht einen angenehmen Aufenthalt in DS2!\n" +
-            "Gruß Guzman\n" +
-            "Admin\n" +
-            "{date} Serverzeit";
-        message = message.replace("{loginName}", loginName);
-        message = message.replace("{password}", password);
-        message = message.replace("{date}", Common.date("H:i j.m.Y"));
-
-        Common.mail(email, "Anmeldung bei Drifting Souls 2", message);
     }
 
     private void createBase(Session db, User newUser, Base base) {

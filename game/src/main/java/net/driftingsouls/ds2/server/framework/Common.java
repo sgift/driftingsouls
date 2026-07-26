@@ -983,7 +983,6 @@ public class Common {
 		return curtime+". "+months[curpos]+" "+(2372+years);
 	}
 	
-	private static Session mailSession = null;
 	private static final String MAIL_SEND_ADDRESS = "ds-admin@drifting-souls.net";
 	private static final String MAIL_GUZMAN = "rhajek@web.de";
 	
@@ -996,21 +995,26 @@ public class Common {
 	 * @param text Der Inhalt der Email
 	 */
 	public static synchronized void mail( String address, String subject, String text ) {
-		if( mailSession == null ) {
-			String mailServer = Configuration.getSmtpServer();
-			if(mailServer.isEmpty())
-			{
-				return;
-			}
-			Properties props = System.getProperties();
-			props.put("mail.smtp.host", mailServer);
-			mailSession = Session.getInstance(props, null);		
+		String mailServer = Configuration.getSmtpServer();
+		if(mailServer.isEmpty())
+		{
+			return;
 		}
-		Message message = new MimeMessage(mailSession);
+
+		// Die Session wird pro Mail neu gebaut: sie haelt keine Verbindung, und ein zwischengespeicherter
+		// Wert wuerde eine spaeter geaenderte Konfiguration (z.B. im Test) nie wieder sehen.
+		Properties props = new Properties();
+		props.put("mail.smtp.host", mailServer);
+		props.put("mail.smtp.port", Integer.toString(Configuration.getSmtpPort()));
+		Session mailSession = Session.getInstance(props, null);
+
+		MimeMessage message = new MimeMessage(mailSession);
 		try {
 			message.setRecipient(Message.RecipientType.TO, new InternetAddress(address));
-			message.setSubject(subject);
-			message.setContent(text, "text/plain");
+			// Der Zeichensatz muss explizit gesetzt werden, sonst haengt die Kodierung von Umlauten
+			// am Standardzeichensatz des Hosts (Cp1252 unter Windows, UTF-8 im Container).
+			message.setSubject(subject, "UTF-8");
+			message.setContent(text, "text/plain; charset=UTF-8");
 			message.setFrom(new InternetAddress(MAIL_SEND_ADDRESS));
 			message.setRecipient(Message.RecipientType.BCC, new InternetAddress(MAIL_GUZMAN));
 			message.setReplyTo(new InternetAddress[] {new InternetAddress(MAIL_SEND_ADDRESS)});

@@ -166,6 +166,21 @@ public class Configuration
 	}
 
 	/**
+	 * Gibt den Port des SMTP-Servers fuer den Mailversandt zurueck. Ist nichts konfiguriert, so
+	 * wird der Standard-SMTP-Port verwendet.
+	 * @return Der Port
+	 */
+	public static int getSmtpPort()
+	{
+		String port = config.get("SMTP-PORT");
+		if( port == null || port.trim().isEmpty() )
+		{
+			return 25;
+		}
+		return Integer.parseInt(port.trim());
+	}
+
+	/**
 	 * Gibt die Email-Adresse zurueck, an die Fehler- oder Statusmeldungen
 	 * gesendet werden sollen. Mehrere Adressen koennen ueber ein <code>;</code>
 	 * separiert werden.
