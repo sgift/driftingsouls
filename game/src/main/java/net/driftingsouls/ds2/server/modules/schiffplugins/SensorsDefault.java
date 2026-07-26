@@ -376,21 +376,8 @@ public class SensorsDefault implements SchiffPlugin {
 					(types.get(typeGroupID) >= (long) mastertype.getGroupwrap() * user_wrapfactor))
 			{
 
-				String groupidlist = "";
-				if (aShip.getOwner().getId() == user.getId())
-				{
-					groupidlist = (String) db.createQuery("SELECT GROUP_CONCAT(id SEPARATOR '|') FROM Ship WHERE id>0 AND system=:system AND x=:x AND y=:y AND owner=:owner AND shiptype=:shiptype AND LOCATE('l ',docked) = 0 AND LOCATE('disable_iff',status) = 0")
-							.setParameter("system", ship.getSystem())
-							.setParameter("x", ship.getX())
-							.setParameter("y", ship.getY())
-							.setParameter("owner", user)
-							.setParameter("shiptype", aShip.getBaseType())
-							.getSingleResult();
-				}
-
 				t.start_record();
 				t.setVar("sshipgroup.name", types.get(typeGroupID) + " x " + mastertype.getNickname(),
-						"sshipgroup.idlist", groupidlist,
 						"sshipgroup.type.id", aShip.getType(),
 						"sshipgroup.owner.id", aShip.getOwner().getId(),
 						"sshipgroup.owner.name", Common._title(aShip.getOwner().getName()),
