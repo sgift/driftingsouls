@@ -41,9 +41,9 @@ public class RegisterController implements DSController {
     private final PasswordGenerator passwordGenerator = new PasswordGenerator();
     private final PasswordMailer passwordMailer = new PasswordMailer();
 
-    // DSApplication builds one instance of each controller and reuses it for every request, so the
-    // EntityManager must be fetched per call. Holding it in a field bound it to whichever request
-    // constructed the application and made every later request fail with "EntityManager is closed".
+    // The EntityManager is fetched per call rather than held in a field. DSApplication now builds a
+    // controller per request, but the EntityManager still belongs to the request's context, and a
+    // field would go stale the moment that context is gone ("EntityManager is closed").
     private EntityManager db() {
         return ContextMap.getContext().getEM();
     }

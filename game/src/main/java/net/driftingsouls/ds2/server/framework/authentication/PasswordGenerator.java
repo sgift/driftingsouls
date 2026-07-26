@@ -18,7 +18,9 @@ public class PasswordGenerator {
      */
     private static final int LENGTH = 16;
 
-    private final SecureRandom random = new SecureRandom();
+    // Static because DSApplication builds a controller - and with it a generator - per request, and
+    // seeding a SecureRandom each time would be wasted work. SecureRandom is thread-safe.
+    private static final SecureRandom RANDOM = new SecureRandom();
 
     /**
      * Generates a new random password.
@@ -30,7 +32,7 @@ public class PasswordGenerator {
         for (int i = 0; i < LENGTH; i++) {
             // nextInt(bound) is rejection-sampled and therefore free of the modulo bias that
             // nextInt() % ALPHABET.length() would introduce.
-            password.append(ALPHABET.charAt(random.nextInt(ALPHABET.length())));
+            password.append(ALPHABET.charAt(RANDOM.nextInt(ALPHABET.length())));
         }
 
         return password.toString();
