@@ -21,13 +21,36 @@ public class TemplateViewResultFactory
 		this.templateLoader = templateLoader;
 	}
 
-	private void setzeTemplateViaControllerNamen(TemplateEngine engine, Object controller)
+	/**
+	 * Leitet den Namen der Templatedatei aus dem Namen einer Controllerklasse ab.
+	 * Diese Kopplung ist zur Uebersetzungszeit nicht pruefbar: Wird eine Controllerklasse
+	 * umbenannt, ohne die zugehoerige Templatedatei mit umzubenennen, faellt das erst zur
+	 * Laufzeit beim Laden der Seite auf. Sichtbar, damit ein Test die Kopplung pruefen kann.
+	 * @param controllerClass Die Controllerklasse
+	 * @return Der Name der Templatedatei
+	 */
+	public static String templateNameFor(Class<?> controllerClass)
 	{
-		String clsName = controller.getClass().getSimpleName();
+		return templateNameFor(controllerClass.getSimpleName());
+	}
+
+	/**
+	 * Leitet den Namen der Templatedatei aus dem einfachen Namen einer Controllerklasse ab.
+	 * @param simpleClassName Der einfache Name der Controllerklasse
+	 * @return Der Name der Templatedatei
+	 */
+	public static String templateNameFor(String simpleClassName)
+	{
+		String clsName = simpleClassName;
 		if( clsName.endsWith("Controller") ) {
 			clsName = clsName.substring(0, clsName.length()-"Controller".length());
 		}
-		setTemplate(engine, clsName.toLowerCase() + ".html");
+		return clsName.toLowerCase() + ".html";
+	}
+
+	private void setzeTemplateViaControllerNamen(TemplateEngine engine, Object controller)
+	{
+		setTemplate(engine, templateNameFor(controller.getClass()));
 	}
 
 	private TemplateEngine createTemplateEngine(String masterTemplateId)
