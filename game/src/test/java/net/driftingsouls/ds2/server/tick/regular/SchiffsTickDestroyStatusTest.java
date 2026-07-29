@@ -41,10 +41,14 @@ public class SchiffsTickDestroyStatusTest extends DBTest
 
 		mitTransaktion(() -> {
 			User owner = persist(new User("owner", "***", 0, "", new Cargo(), "owner@localhost"));
-			ShipType shipType = persist(new ShipType(ShipClasses.TRANSPORTER));
 
 			for (int i = 0; i < SHIP_COUNT; i++)
 			{
+				// A type per ship, deliberately. Sharing one type hides the defect: destroying the
+				// first ship initialises that single shared proxy, and every later ship then finds
+				// it already initialised and survives the cleared context. Real fleets are mixed.
+				ShipType shipType = persist(new ShipType(ShipClasses.TRANSPORTER));
+
 				Ship ship = persist(new Ship(owner, shipType, 0, 0, 0));
 				ship.setStatus("destroy");
 				shipIds.add(ship.getId());
@@ -52,6 +56,12 @@ public class SchiffsTickDestroyStatusTest extends DBTest
 		});
 
 		assertEquals(SHIP_COUNT, shipIds.size());
+
+		// Also essential: without this the tick's query returns the very Ship instances built
+		// above, straight out of the first-level cache, with the real ShipType in the field.
+		// Production loads them cold, so Ship.shiptype - a LAZY ManyToOne - is an uninitialized
+		// proxy, and that is what stops working once the context is cleared mid-run.
+		getEM().clear();
 
 		SchiffsTick schiffsTick = (SchiffsTick) getContext().getBean(SchiffsTick.class, null);
 		// prepare()/tick() instead of execute(): execute() swallows every exception into

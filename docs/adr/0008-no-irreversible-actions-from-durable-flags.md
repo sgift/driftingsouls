@@ -44,11 +44,17 @@ the point of decision — not merely remove it from the durable set.
 independently; that fix removes the backlog mechanism but not the design flaw described here. Clearing
 the accumulated flags is an operational step, not a design change.
 
+**Deploying the `doDestroyStatus` fix drains the accumulated backlog in a single tick.** Because the
+flag is durable and the destruction pass was only removing one ship per run, ships marked over a long
+period are still in service carrying it. Clear the flags before deploying, or the first tick after
+deployment destroys all of them at once. See `docs/backlog.md`.
+
 **The rule generalises past this column.** It applies wherever intent is parked in shared, long-lived
 state and acted on later: space-separated token columns, free-text status fields, and any flag whose
 producer and consumer are separated by a tick boundary. Prefer re-deriving the condition; where the
 intent genuinely must persist, give it a type and a lifetime.
 
-Identified 2026-07-29 from a player report of ships disappearing after ticks. The mechanism is
-established from the code; the size of the accumulated backlog on production is to be measured before
-the `doDestroyStatus` fix is deployed, since that fix drains the whole backlog in a single tick.
+Identified 2026-07-29 from a player report of ships disappearing after ticks, and confirmed against a
+production stack trace plus `SchiffsTickDestroyStatusTest`, which reproduces the one-per-tick drain:
+every ship after the first fails on `ShipType.getADocks` with a `LazyInitializationException` and
+survives with its flag intact.

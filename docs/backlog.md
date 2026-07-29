@@ -54,16 +54,34 @@ problem the ticks had (see `UnitOfWorkClearOnFlushTest`). The other two non-tick
 `AdminCommands` (RecalculateShipModules) and `CreateObjectsFromImage` (delete bases), were checked
 and already drive the unit of work by id. **Unverified** — needs the suppliers enumerated.
 
-## Ships reported missing after ticks — unexplained
+## Clear stale `destroy` flags before deploying the doDestroyStatus fix — OPERATIONAL, BLOCKING
 
-A player report of normal, undocked ships disappearing after ticks. Two candidate explanations were
-investigated and neither holds up: the carrier-orphan path above (the reported ships were not docked
-or landed) and a supposed one-ship-per-tick drain in `doDestroyStatus` (disproven by
-`SchiffsTickDestroyStatusTest` — all flagged ships were already destroyed in a single tick, because
-`Ship.shiptype` is eagerly fetched and Hibernate 4.1 tolerates removing a detached entity).
+`doDestroyStatus` destroyed exactly one ship per tick before the fix: it runs with
+`setFlushSize(1).setClearOnFlush(true)`, so every ship after the first was detached and
+`Ship.destroy()` failed on `getTypeData().getADocks()` — `Ship.shiptype` is a LAZY `ManyToOne`.
+`UnitOfWork` caught each failure per object, so the tick reported success while leaving the ship
+alive with its flag intact. Confirmed by a production stack trace and reproduced by
+`SchiffsTickDestroyStatusTest`.
 
-Still open. Candidates not yet examined: crew starvation driving crew to zero and hull decay
-destroying the ship a tick or two later, which looks unprovoked from the player's side; and
-`berechneSoldUndWartung` consigning ships to the pirate when the account cannot cover maintenance,
-which removes them from the owner's list without deleting anything. Both send or should send a PM —
-worth confirming against what the reporting players actually received.
+This explains the missing-ships reports: because the flag is durable (ADR-0008), ships marked ticks
+or weeks ago are still flying and were being picked off one per tick, with no visible connection to
+whatever marked them.
+
+The fix removes the drip — which means the first tick after deployment destroys the entire
+accumulated backlog at once. **Clear the flags first.** Size it with
+
+```sql
+SELECT COUNT(*) FROM ships WHERE id > 0 AND LOCATE('destroy', status) != 0;
+```
+
+then clear the token while preserving other status flags:
+
+```sql
+UPDATE ships
+SET status = TRIM(BOTH ' ' FROM REPLACE(CONCAT(' ', status, ' '), ' destroy ', ' '))
+WHERE id > 0 AND LOCATE('destroy', status) != 0;
+```
+
+Re-run until it reports 0 rows affected (MySQL's `REPLACE` will not match overlapping delimiters if
+a row somehow carries the token twice), and keep a copy of the affected rows for answering player
+tickets.
