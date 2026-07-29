@@ -260,6 +260,13 @@ public abstract class UnitOfWork<T>
 		// EMPTY
 	}
 
+	private boolean isEntity(T workObject)
+	{
+		return workObject != null &&
+				db.getEntityManagerFactory().getMetamodel().getEntities().stream()
+						.anyMatch(type -> type.getJavaType().isInstance(workObject));
+	}
+
 	private boolean tryWork(EntityManager db, EntityTransaction transaction, T workObject)
 	{
 		try
@@ -281,7 +288,11 @@ public abstract class UnitOfWork<T>
                 }
 			}
 
-			if( db.contains(workObject) )
+			// Work objects are not necessarily entities: a unit of work that clears the persistence
+			// context has to be driven by ids rather than by pre-loaded entities. EntityManager
+			// .contains throws IllegalArgumentException for anything that is not an entity, and
+			// throwing here would replace a single failed work object with an aborted run.
+			if( isEntity(workObject) && db.contains(workObject) )
 			{
 				db.detach(workObject);
 			}
