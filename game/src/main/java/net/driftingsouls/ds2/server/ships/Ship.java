@@ -2175,6 +2175,25 @@ public class Ship implements Locatable,Transfering,Feeding {
 				start();
 			}
 
+			// Safety net: undock()/start() are driven by the carrier's *current* type data, and
+			// getDockedShips() bails out early when it reports no docks. A carrier whose module
+			// configuration no longer advertises the docks its ships are actually sitting in
+			// therefore releases nobody, and those ships keep pointing at a row that is about to be
+			// deleted. They still exist, but since the client only ever shows docked and landed
+			// ships underneath their carrier, the owner sees them as gone. Release whatever is left.
+			int strandedShips = db.createQuery(
+					"UPDATE Ship s SET s.docked='', s.system=:system, s.x=:x, s.y=:y WHERE s.docked IN (:dockedEntries)")
+					.setParameter("system", this.system)
+					.setParameter("x", this.x)
+					.setParameter("y", this.y)
+					.setParameter("dockedEntries", Arrays.asList(Integer.toString(this.id), "l " + this.id))
+					.executeUpdate();
+			if (strandedShips > 0) {
+				log.warn("Ship " + this.id + ": " + strandedShips + " docked/landed ships were not released by the " +
+						"regular undock path on destruction (docks per type data: " + type.getADocks() + "/" +
+						type.getJDocks() + ")");
+			}
+
 			// Gibts bereits einen Loesch-Task? Wenn ja, dann diesen entfernen
 			Taskmanager taskmanager = Taskmanager.getInstance();
 			Task[] tasks = taskmanager.getTasksByData(Taskmanager.Types.SHIP_DESTROY_COUNTDOWN, Integer.toString(this.id), "*", "*");
