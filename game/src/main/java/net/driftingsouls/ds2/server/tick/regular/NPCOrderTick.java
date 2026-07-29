@@ -85,14 +85,22 @@ public class NPCOrderTick extends TickController {
 		}
 		var db = getEM();
 
-		List<Order> orders = db.createQuery("from Order order by user.id", Order.class)
+		// Only the ids are collected up front: the unit of work below clears the persistence context
+		// on every flush, which would detach anything loaded here. The order is re-loaded inside
+		// doWork, where it is guaranteed to be attached to the current context.
+		List<Integer> orderIds = db.createQuery("select o.id from Order o order by o.user.id", Integer.class)
 				.getResultList();
-		new UnitOfWork<Order>("NPCOrderTick", db)
+		new UnitOfWork<Integer>("NPCOrderTick", db)
 		{
 			@Override
-			public void doWork(Order order)
+			public void doWork(Integer orderId)
 			{
 				var db = getEM();
+				Order order = db.find(Order.class, orderId);
+				if( order == null )
+				{
+					return;
+				}
 				if( order.getTick() != 1 )
 				{
 					order.setTick(order.getTick()-1);
@@ -126,7 +134,7 @@ public class NPCOrderTick extends TickController {
 		}
 		.setFlushSize(5)
 		.setClearOnFlush(true)
-		.executeFor(orders);
+		.executeFor(orderIds);
 
 		this.log("Versende PMs...");
 		new SingleUnitOfWork("NPCOrderTick - PMs", db)
@@ -144,17 +152,22 @@ public class NPCOrderTick extends TickController {
 		.execute();
 
 		this.log("Verteile NPC-Punkte...");
-		List<User> users = db.createQuery("from User where locate('ordermenu',flags)!=0", User.class)
+		List<Integer> userIds = db.createQuery("select u.id from User u where locate('ordermenu',u.flags)!=0", Integer.class)
 				.getResultList();
-		new UnitOfWork<User>("NPCOrderTick - NPC-Punkte", db)
+		new UnitOfWork<Integer>("NPCOrderTick - NPC-Punkte", db)
 		{
 			@Override
-			public void doWork(User user) {
+			public void doWork(Integer userId) {
+				User user = getEM().find(User.class, userId);
+				if( user == null )
+				{
+					return;
+				}
 				user.setNpcPunkte(user.getNpcPunkte()+1);
 			}
 		}
 		.setClearOnFlush(true)
-		.executeFor(users);
+		.executeFor(userIds);
 	}
 
 	private Ship processOrderShip(Order order, User user, Location loc, EntityManager db)

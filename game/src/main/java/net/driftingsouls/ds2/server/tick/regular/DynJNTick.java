@@ -25,6 +25,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
 import java.util.List;
 
 /**
@@ -43,53 +44,56 @@ public class DynJNTick extends TickController {
     private void decreaseRemainingTime() {
         var db = getEM();
 
-        List<DynamicJumpNode> dynamicJumpNodes;
-        if(isCampaignTick()) {
-            dynamicJumpNodes = db.createQuery("from DynamicJumpNode jn where jn.jumpnode.system in (:systeme)", DynamicJumpNode.class)
-                    .setParameter("systeme", affectedSystems)
-                    .getResultList();
-        }
-        else{
-            dynamicJumpNodes = db.createQuery("from DynamicJumpNode", DynamicJumpNode.class).getResultList();
-        }
+        // Only the ids are collected up front: the unit of work below clears the persistence context
+        // on every flush, which would detach anything loaded here.
+        List<Integer> dynamicJumpNodeIds = loadDynamicJumpNodeIds(db);
 
-        new UnitOfWork<DynamicJumpNode>("DynJNTick - decreaseRemainingTime", db) {
+        new UnitOfWork<Integer>("DynJNTick - decreaseRemainingTime", db) {
             @Override
-            public void doWork(DynamicJumpNode dynamicJumpNode) {
+            public void doWork(Integer dynamicJumpNodeId) {
                 var db = getEM();
+                DynamicJumpNode dynamicJumpNode = db.find(DynamicJumpNode.class, dynamicJumpNodeId);
+                if (dynamicJumpNode == null) {
+                    return;
+                }
                 if (dynamicJumpNode.getRemainingLiveTime() == 0) {
                     dynamicJumpNode.destroy(db);
                 } else {
                     dynamicJumpNode.setRemainingLiveTime(dynamicJumpNode.getRemainingLiveTime() - 1);
                 }
             }
-        }.setClearOnFlush(true).executeFor(dynamicJumpNodes);
+        }.setClearOnFlush(true).executeFor(dynamicJumpNodeIds);
     }
 
     private void moveDynJN() {
         var db = getEM();
 
-        List<DynamicJumpNode> dynamicJumpNodes;
-        if(isCampaignTick()) {
-            dynamicJumpNodes = db.createQuery("from DynamicJumpNode jn where jn.jumpnode.system in (:systeme)", DynamicJumpNode.class)
-                    .setParameter("systeme", affectedSystems)
-                    .getResultList();
-        }
-        else{
-            dynamicJumpNodes = db.createQuery("from DynamicJumpNode", DynamicJumpNode.class).getResultList();
-        }
+        List<Integer> dynamicJumpNodeIds = loadDynamicJumpNodeIds(db);
 
-        new UnitOfWork<DynamicJumpNode>("DynJNTick - moveDynJN", db) {
+        new UnitOfWork<Integer>("DynJNTick - moveDynJN", db) {
             @Override
-            public void doWork(DynamicJumpNode dynjn) {
+            public void doWork(Integer dynjnId) {
                 var db = getEM();
+                DynamicJumpNode dynjn = db.find(DynamicJumpNode.class, dynjnId);
+                if (dynjn == null) {
+                    return;
+                }
                 if (dynjn.getRemainingTicksUntilMove() <= 1) {
                     dynjn.move(db);
                 } else {
                     dynjn.setRemainingTicksUntilMove(dynjn.getRemainingTicksUntilMove() - 1);
                 }
             }
-        }.setClearOnFlush(true).executeFor(dynamicJumpNodes);
+        }.setClearOnFlush(true).executeFor(dynamicJumpNodeIds);
+    }
+
+    private List<Integer> loadDynamicJumpNodeIds(EntityManager db) {
+        if(isCampaignTick()) {
+            return db.createQuery("select jn.id from DynamicJumpNode jn where jn.jumpnode.system in (:systeme)", Integer.class)
+                    .setParameter("systeme", affectedSystems)
+                    .getResultList();
+        }
+        return db.createQuery("select jn.id from DynamicJumpNode jn", Integer.class).getResultList();
     }
 
     @Override

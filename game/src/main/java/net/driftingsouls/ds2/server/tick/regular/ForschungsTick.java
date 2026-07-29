@@ -49,24 +49,32 @@ public class ForschungsTick extends TickController {
 	{
 		var db = getEM();
 
-		List<Forschungszentrum> fzList;
+		// Only the ids are collected up front: the unit of work below clears the persistence context
+		// on every flush, which would detach anything loaded here. The research centre is re-loaded
+		// inside doWork, where it is guaranteed to be attached to the current context.
+		List<Integer> fzIds;
 		if(isCampaignTick()) {
-			fzList = db.createQuery("from Forschungszentrum " +
-							"where (base.owner.vaccount=0 or base.owner.wait4vac!=0) and forschung!=null and base.system in (:systeme)", Forschungszentrum.class)
+			fzIds = db.createQuery("select id from Forschungszentrum " +
+							"where (base.owner.vaccount=0 or base.owner.wait4vac!=0) and forschung!=null and base.system in (:systeme)", Integer.class)
 					.setParameter("systeme", affectedSystems)
 					.getResultList();
 		}
 		else{
-			fzList = db.createQuery("from Forschungszentrum " +
-							"where (base.owner.vaccount=0 or base.owner.wait4vac!=0) and forschung!=null", Forschungszentrum.class)
+			fzIds = db.createQuery("select id from Forschungszentrum " +
+							"where (base.owner.vaccount=0 or base.owner.wait4vac!=0) and forschung!=null", Integer.class)
 					.getResultList();
 		}
-		new UnitOfWork<Forschungszentrum>("Forschungstick", db)
+		new UnitOfWork<Integer>("Forschungstick", db)
 		{
 			@Override
-			public void doWork(Forschungszentrum fz)
+			public void doWork(Integer fzId)
 			{
 				var db = getEM();
+				Forschungszentrum fz = db.find(Forschungszentrum.class, fzId);
+				if( fz == null )
+				{
+					return;
+				}
 				if( fz.getDauer() > 1 )
 				{
 					fz.setDauer(fz.getDauer()-1);
@@ -105,6 +113,6 @@ public class ForschungsTick extends TickController {
 		}
 		.setFlushSize(10)
 		.setClearOnFlush(true)
-		.executeFor(fzList);
+		.executeFor(fzIds);
 	}
 }

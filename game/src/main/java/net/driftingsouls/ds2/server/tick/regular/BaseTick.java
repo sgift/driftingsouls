@@ -57,13 +57,21 @@ public class BaseTick extends TickController
 	{
 		var db = getEM();
 
-		List<User> users = db.createQuery("from User u where u.id != 0 and (u.vaccount=0 or u.wait4vac>0) order by u.id", User.class).getResultList();
+		// Only the ids are collected up front: the unit of work below clears the persistence context
+		// on every flush, which would detach anything loaded here. The user is re-loaded inside
+		// doWork, where it is guaranteed to be attached to the current context.
+		List<Integer> userIds = db.createQuery("select u.id from User u where u.id != 0 and (u.vaccount=0 or u.wait4vac>0) order by u.id", Integer.class).getResultList();
 
-		new UnitOfWork<User>("Base Tick", db)
+		new UnitOfWork<Integer>("Base Tick", db)
 		{
 			@Override
-			public void doWork(User user) {
+			public void doWork(Integer userId) {
 				var db = getEM();
+				User user = db.find(User.class, userId);
+				if( user == null )
+				{
+					return;
+				}
 				// Get all bases, take everything with them - we need it all.
 				List<Base> bases;
 				if(isCampaignTick()){
@@ -99,7 +107,7 @@ public class BaseTick extends TickController
 		}
 		.setFlushSize(10)
 		.setClearOnFlush(true)
-		.executeFor(users);
+		.executeFor(userIds);
 	}
 
 	@Override
