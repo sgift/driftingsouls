@@ -175,7 +175,7 @@ public class ActionMethodInvoker
 		return actionTypeHandler;
 	}
 
-	private Method getMethodForAction(Object objekt, String action) throws NoSuchMethodException
+	Method getMethodForAction(Object objekt, String action) throws NoSuchMethodException
 	{
 		Method[] methods = objekt.getClass().getMethods();
 		for (Method method : methods)
@@ -202,7 +202,33 @@ public class ActionMethodInvoker
 			}
 		}
 
+		// PipelineConfig routes every unknown module name to the default module, passing the
+		// request's original action along. That action belongs to whatever the caller thought it
+		// was addressing, so it cannot be expected to exist here - a stale bookmark or an old link
+		// should end up wherever the default module sends people, not on an error page. Ordinary
+		// controllers keep throwing: there, an unknown action is a broken link worth seeing.
+		if (!"default".equals(action) && isDefaultModule(objekt))
+		{
+			return getMethodForAction(objekt, "default");
+		}
+
 		throw new NoSuchMethodException("Keine Methode fuer Action '"+action+"' in Klasse '"+objekt.getClass().getName()+"' gefunden");
+	}
+
+	private boolean isDefaultModule(Object objekt)
+	{
+		Class<?> cls = objekt.getClass();
+		do
+		{
+			Module module = cls.getAnnotation(Module.class);
+			if (module != null)
+			{
+				return module.defaultModule();
+			}
+		}
+		while ((cls = cls.getSuperclass()) != null);
+
+		return false;
 	}
 
 	private void printHeader(ParameterReader parameterReader, OutputHandler handler) throws IOException
