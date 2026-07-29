@@ -936,7 +936,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 
 		Cargo materialCosts = new Cargo();
 		ShipBaubar buildable = db.createQuery("from ShipBaubar where type=:type", ShipBaubar.class)
-								 .setParameter("type", ship.getType())
+								 .setParameter("type", ship.getBaseType())
 								 .setMaxResults(1)
 								 .getResultList().stream().findFirst().orElse(null);
 

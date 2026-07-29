@@ -1025,7 +1025,7 @@ public class SensorsDefault implements SchiffPlugin {
             boolean joinable = shiptype.getShipClass() != ShipClasses.GESCHUETZ;
 
 			long shipcount = db.createQuery("select count(*) from Ship where id>0 and battle= :battle", Long.class)
-					.setParameter("battle", battle.getId())
+					.setParameter("battle", battle)
 					.getSingleResult();
 
 			t.setVar("battle.id", battle.getId(),

@@ -486,7 +486,7 @@ public class AdminCommands {
 						if (shiptype.getWerft() != 0)
 						{
 							ShipWerft werft = em.createQuery("from ShipWerft where ship=:ship", ShipWerft.class)
-									.setParameter("ship", ship.getId())
+									.setParameter("ship", ship)
 									.getSingleResult();
 
 							if (werft == null)
