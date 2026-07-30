@@ -61,41 +61,54 @@ public class AutofireTick extends TickController {
             return;
         }
 
-        List<Battle> battles;
+        // Only the ids are collected up front: the units of work below clear the persistence context
+        // on every flush, which would detach anything loaded here. The battle is re-loaded inside
+        // doWork, where it is guaranteed to be attached to the current context.
+        List<Integer> battleIds;
         if(isCampaignTick()) {
-            battles = db.createQuery("from Battle battle where battle.commander1.id < 0 and battle.system in (:systeme)", Battle.class)
+            battleIds = db.createQuery("select battle.id from Battle battle where battle.commander1.id < 0 and battle.system in (:systeme)", Integer.class)
                     .setParameter("systeme", affectedSystems)
                     .getResultList();
         }
         else {
-            battles = db.createQuery("from Battle battle where battle.commander1.id < 0", Battle.class)
+            battleIds = db.createQuery("select battle.id from Battle battle where battle.commander1.id < 0", Integer.class)
                     .getResultList();
         }
 
-		new UnitOfWork<Battle>("Battle Tick", db)
+		new UnitOfWork<Integer>("Battle Tick", db)
 		{
 			@Override
-			public void doWork(Battle battle) {
+			public void doWork(Integer battleId) {
                 var db = getEM();
+                Battle battle = db.find(Battle.class, battleId);
+                if( battle == null )
+                {
+                    return;
+                }
 				battle.load(battle.getCommander(0), null, null, 0, db);
                 log("Automatisches Feuer aktiviert für Spieler: " + battle.getCommander(0).getId());
                 AutoFire autoFire = new AutoFire(db, battle);
                 autoFire.fireShips();
 			}
-		}.setFlushSize(1).setClearOnFlush(true).executeFor(battles);
+		}.setFlushSize(1).setClearOnFlush(true).executeFor(battleIds);
 
-        battles = db.createQuery("from Battle battle where battle.commander2.id < 0", Battle.class)
+        battleIds = db.createQuery("select battle.id from Battle battle where battle.commander2.id < 0", Integer.class)
                 .getResultList();
-        new UnitOfWork<Battle>("Battle Tick", db)
+        new UnitOfWork<Integer>("Battle Tick", db)
         {
             @Override
-            public void doWork(Battle battle) {
+            public void doWork(Integer battleId) {
                 var db = getEM();
+                Battle battle = db.find(Battle.class, battleId);
+                if( battle == null )
+                {
+                    return;
+                }
                 battle.load(battle.getCommander(1), null, null, 0, db);
                 log("Automatisches Feuer aktiviert für Spieler: " + battle.getCommander(1).getId());
                 AutoFire autoFire = new AutoFire(db, battle);
                 autoFire.fireShips();
             }
-        }.setFlushSize(1).setClearOnFlush(true).executeFor(battles);
+        }.setFlushSize(1).setClearOnFlush(true).executeFor(battleIds);
 	}
 }

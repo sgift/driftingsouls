@@ -982,34 +982,43 @@ public class SchiffsTick extends TickController {
 		this.log("");
 		this.log("Behandle Schadensnebel");
 
-		List<Ship> ships;
+		// Only the ids are collected up front: the unit of work below clears the persistence context
+		// on every flush, which would detach anything loaded here. A detached ship can neither be
+		// read (LazyInitializationException on the ship type) nor destroyed.
+		List<Integer> shipIds;
 		if(isCampaignTick()) {
-			ships = db.createQuery("select s from Ship as s, Nebel as n " +
+			shipIds = db.createQuery("select s.id from Ship as s, Nebel as n " +
 							"where s.system=n.loc.system and s.x=n.loc.x and s.y=n.loc.y and " +
 							"n.type=6 and (s.owner.vaccount=0 or s.owner.wait4vac>0) and " +
-							"s.docked not like 'l %' and s.system in (:system)", Ship.class)
+							"s.docked not like 'l %' and s.system in (:system)", Integer.class)
 					.setParameter("system", affectedSystems)
 					.getResultList();
 		}
 		else{
-			ships = db
-					.createQuery("select s from Ship as s, Nebel as n " +
+			shipIds = db
+					.createQuery("select s.id from Ship as s, Nebel as n " +
 							"where s.system=n.loc.system and s.x=n.loc.x and s.y=n.loc.y and " +
 							"n.type=6 and (s.owner.vaccount=0 or s.owner.wait4vac>0) and " +
-							"s.docked not like 'l %'", Ship.class)
+							"s.docked not like 'l %'", Integer.class)
 					.getResultList();
 		}
-		new UnitOfWork<Ship>("SchiffsTick - Schadensnebel")
+		new UnitOfWork<Integer>("SchiffsTick - Schadensnebel")
 		{
 			@Override
-			public void doWork(Ship ship) {
+			public void doWork(Integer shipId) {
 				var db = getEM();
+				// The ship may already have been destroyed in this pass as another ship's docked craft.
+				Ship ship = db.find(Ship.class, shipId);
+				if( ship == null )
+				{
+					return;
+				}
 				log("* "+ship.getId());
 				Nebel.Typ.DAMAGE.damageShip(ship, configService);
 			}
 		}
 		.setClearOnFlush(true)
-		.executeFor(ships);
+		.executeFor(shipIds);
 	}
 
 	private void doDestroyStatus(EntityManager db)
@@ -1020,37 +1029,54 @@ public class SchiffsTick extends TickController {
 		this.log("");
 		this.log("Zerstoere Schiffe mit 'destroy'-status");
 
-		List<Ship> ships;
+		// Only the ids are collected up front: the unit of work below clears the persistence context
+		// after every single ship. destroy() fails on a detached ship, so before this fix only the
+		// first ship of the list was actually removed per tick.
+		List<Integer> shipIds;
 		if(isCampaignTick()) {
-			ships = db.createQuery("from Ship where id>0 and locate('destroy',status)!=0 and system in (:system)", Ship.class)
+			shipIds = db.createQuery("select s.id from Ship s where s.id>0 and locate('destroy',s.status)!=0 and s.system in (:system)", Integer.class)
 					.setParameter("system", affectedSystems)
 					.getResultList();
 		}
 		else{
-			ships = db.createQuery("from Ship where id>0 and locate('destroy',status)!=0", Ship.class)
+			shipIds = db.createQuery("select s.id from Ship s where s.id>0 and locate('destroy',s.status)!=0", Integer.class)
 					.getResultList();
 		}
-		new UnitOfWork<Ship>("SchiffsTick - destroy-status") {
+		new UnitOfWork<Integer>("SchiffsTick - destroy-status") {
 			@Override
-			public void doWork(Ship ship) {
+			public void doWork(Integer shipId) {
+				// The ship may already have been destroyed together with its carrier.
+				Ship ship = getEM().find(Ship.class, shipId);
+				if( ship == null )
+				{
+					return;
+				}
 				log("\tEntferne "+ship.getId());
 				ship.destroy();
 			}
 		}
 		.setFlushSize(1)
 		.setClearOnFlush(true)
-		.executeFor(ships);
+		.executeFor(shipIds);
 	}
 
 	private void doUsers(EntityManager db)
 	{
-		List<User> userIds = db.createQuery("from User u where u.id!=0 and (u.vaccount=0 or u.wait4vac>0) order by u.id asc", User.class)
+		// Only the ids are collected up front: the unit of work below clears the persistence context
+		// after every single user, which would detach anything loaded here.
+		List<Integer> userIds = db.createQuery("select u.id from User u where u.id!=0 and (u.vaccount=0 or u.wait4vac>0) order by u.id asc", Integer.class)
 				.getResultList();
 
-		new UnitOfWork<User>("SchiffsTick - user")
+		new UnitOfWork<Integer>("SchiffsTick - user")
 		{
 			@Override
-			public void doWork(User user) {
+			public void doWork(Integer userId) {
+				var db = getEM();
+				User user = db.find(User.class, userId);
+				if( user == null )
+				{
+					return;
+				}
 				log("###### User "+user+" ######");
 				tickUser(db, user);
 			}

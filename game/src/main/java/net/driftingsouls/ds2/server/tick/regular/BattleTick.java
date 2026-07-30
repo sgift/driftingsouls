@@ -53,22 +53,30 @@ public class BattleTick extends TickController {
 
 		final long lastacttime = Common.time()-1800;
 
-		List<Battle> battles;
+		// Only the ids are collected up front: the unit of work below clears the persistence context
+		// on every flush, which would detach anything loaded here. The battle is re-loaded inside
+		// doWork, where it is guaranteed to be attached to the current context.
+		List<Integer> battleIds;
 		if(isCampaignTick()) {
-			battles = db.createQuery("from Battle battle where battle.system in (:systeme)", Battle.class)
+			battleIds = db.createQuery("select battle.id from Battle battle where battle.system in (:systeme)", Integer.class)
 					.setParameter("systeme", affectedSystems)
 					.getResultList();
 		} else {
-			battles = db.createQuery("from Battle", Battle.class)
+			battleIds = db.createQuery("select battle.id from Battle battle", Integer.class)
 					.getResultList();
 		}
 
 
-		new UnitOfWork<Battle>("Battle Tick", db)
+		new UnitOfWork<Integer>("Battle Tick", db)
 		{
 			@Override
-			public void doWork(Battle battle) {
+			public void doWork(Integer battleId) {
 				var db = getEM();
+				Battle battle = db.find(Battle.class, battleId);
+				if( battle == null )
+				{
+					return;
+				}
 				if( battle.getBlockCount() > 0 && battle.getLetzteRunde() <= lastacttime )
 				{
 					battle.decrementBlockCount();
@@ -90,6 +98,6 @@ public class BattleTick extends TickController {
 		}
 		.setFlushSize(1)
 		.setClearOnFlush(true)
-		.executeFor(battles);
+		.executeFor(battleIds);
 	}
 }

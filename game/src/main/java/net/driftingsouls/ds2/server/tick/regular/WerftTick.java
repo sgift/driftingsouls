@@ -52,24 +52,32 @@ public class WerftTick extends TickController
 	{
 		var em = getEM();
 		em.setFlushMode(FlushModeType.COMMIT);
-		final User sourceUser = em.find(User.class, -1);
 
-		List<WerftObject> werften = em.createQuery("from WerftObject w where size(w.queue)>0", WerftObject.class)
+		// Only the ids are collected up front: the unit of work below clears the persistence context
+		// on every flush, which would detach anything loaded here. Shipyard and PM sender are
+		// re-loaded inside doWork, where they are guaranteed to be attached to the current context.
+		List<Integer> werftIds = em.createQuery("select w.id from WerftObject w where size(w.queue)>0", Integer.class)
 								.getResultList();
-		new UnitOfWork<WerftObject>("Werft Tick", em)
+		new UnitOfWork<Integer>("Werft Tick", em)
 		{
 			@Override
-			public void doWork(WerftObject werft) {
+			public void doWork(Integer werftId) {
+				var em = getEM();
+				WerftObject werft = em.find(WerftObject.class, werftId);
+				if( werft == null )
+				{
+					return;
+				}
 				//Kampagnentick und die Werft steht nicht in einem der ausgewaehlten Systeme
 				if(isCampaignTick() && !affectedSystems.contains(werft.getSystem())) {
 					return;
 				}
-				processWerft(sourceUser, werft);
+				processWerft(em.find(User.class, -1), werft);
 			}
 
 		}.setFlushSize(10)
 		.setClearOnFlush(true)
-		.executeFor(werften);
+		.executeFor(werftIds);
 	}
 
 	private void processWerft(final User sourceUser, WerftObject werft)

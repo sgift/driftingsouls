@@ -1452,7 +1452,7 @@ public class User extends BasicUser {
 		//Drop dependent researchs
 		var db = ContextMap.getContext().getEM();
 		List<Forschung> dependentResearchs = db.createQuery("from Forschung where req1= :fid or req2= :fid or req3= :fid", Forschung.class)
-				.setParameter("fid", research.getID())
+				.setParameter("fid", research)
 				.getResultList();
 
 		dependentResearchs.forEach(this::dropResearch);
@@ -1472,7 +1472,7 @@ public class User extends BasicUser {
 		var db = ContextMap.getContext().getEM();
 
 		long baseunit = db.createQuery("select sum(e.amount) from BaseUnitCargoEntry e where e.unittype=:unittype and e.basis.owner=:user", Long.class)
-				.setParameter("unittype", unitType.getId())
+				.setParameter("unittype", unitType)
 				.setParameter("user", this)
 				.getResultList().stream().filter(Objects::nonNull).findFirst().orElse(0L);
 		if( baseunit > 0 )
@@ -1483,7 +1483,7 @@ public class User extends BasicUser {
 		long shipunit = db.createQuery("select sum(e.amount) " +
 						"from ShipUnitCargoEntry e " +
 						"where e.unittype=:unittype and e.schiff.owner=:user", Long.class)
-				.setParameter("unittype", unitType.getId())
+				.setParameter("unittype", unitType)
 				.setParameter("user", this)
 				.getResultList().stream().filter(Objects::nonNull).findFirst().orElse(0L);
 
