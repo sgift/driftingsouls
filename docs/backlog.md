@@ -54,7 +54,16 @@ problem the ticks had (see `UnitOfWorkClearOnFlushTest`). The other two non-tick
 `AdminCommands` (RecalculateShipModules) and `CreateObjectsFromImage` (delete bases), were checked
 and already drive the unit of work by id. **Unverified** — needs the suppliers enumerated.
 
-## Clear stale `destroy` flags before deploying the doDestroyStatus fix — OPERATIONAL, BLOCKING
+## Destruction for crew shortage notifies nobody
+
+`SchiffsTick` sends a `PM` for mutiny, desertion and a low account balance, but
+`berechneVerfallWegenCrewmangel` sets `destroy` without any message. The owner sees the ship simply
+gone, one or more ticks later (see ADR-0008 for why the delay). Since the destroy backlog turned out
+to be three ships owned by user -1, this is now the leading candidate for the player reports of
+missing ships. A PM at the point the flag is set would make the loss explicable — and would be worth
+having even after the flag itself is redesigned.
+
+## Clear stale `destroy` flags before deploying the doDestroyStatus fix — OPERATIONAL
 
 `doDestroyStatus` destroyed exactly one ship per tick before the fix: it runs with
 `setFlushSize(1).setClearOnFlush(true)`, so every ship after the first was detached and
@@ -68,7 +77,10 @@ or weeks ago are still flying and were being picked off one per tick, with no vi
 whatever marked them.
 
 The fix removes the drip — which means the first tick after deployment destroys the entire
-accumulated backlog at once. **Clear the flags first.** Size it with
+accumulated backlog at once. Production was measured on 2026-07-30: **three ships, all owned by user
+-1**, so the drain is harmless and this no longer blocks the deployment. It also means the backlog
+does not explain the player reports — see the crew-shortage entry above. Re-measure before deploying
+anyway, since the tick keeps adding to it:
 
 ```sql
 SELECT COUNT(*) FROM ships WHERE id > 0 AND LOCATE('destroy', status) != 0;

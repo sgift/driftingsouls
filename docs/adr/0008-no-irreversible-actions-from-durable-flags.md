@@ -46,8 +46,9 @@ the accumulated flags is an operational step, not a design change.
 
 **Deploying the `doDestroyStatus` fix drains the accumulated backlog in a single tick.** Because the
 flag is durable and the destruction pass was only removing one ship per run, ships marked over a long
-period are still in service carrying it. Clear the flags before deploying, or the first tick after
-deployment destroys all of them at once. See `docs/backlog.md`.
+period are still in service carrying it. Production was measured on 2026-07-30 and holds three such
+ships, all owned by user -1, so the drain is harmless there — but the shape of the hazard is a
+property of the design, not of that measurement. See `docs/backlog.md`.
 
 **The rule generalises past this column.** It applies wherever intent is parked in shared, long-lived
 state and acted on later: space-separated token columns, free-text status fields, and any flag whose
