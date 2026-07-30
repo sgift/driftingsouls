@@ -37,14 +37,20 @@ public class UnitOfWorkClearOnFlushTest extends DBTest
 	@Test
 	public void executeFor_withClearOnFlush_detachesPreloadedWorkObjectsAfterTheFirstFlush()
 	{
+		List<Integer> userIds = new ArrayList<>();
+
 		mitTransaktion(() -> {
 			for (int i = 0; i < 3; i++)
 			{
-				persist(new User("user" + i, "***", 0, "", new Cargo(), "user" + i + "@localhost"));
+				userIds.add(persist(new User("user" + i, "***", 0, "", new Cargo(), "user" + i + "@localhost")).getId());
 			}
 		});
 
-		List<User> users = getEM().createQuery("from User u where u.id > 0 order by u.id", User.class).getResultList();
+		// Scoped to the ids created here: the suite shares one database and never cleans it, so any
+		// test class running earlier leaves its own users behind.
+		List<User> users = getEM().createQuery("from User u where u.id in (:ids) order by u.id", User.class)
+				.setParameter("ids", userIds)
+				.getResultList();
 		assertEquals(3, users.size());
 
 		List<Boolean> attachedDuringWork = new ArrayList<>();
@@ -69,16 +75,18 @@ public class UnitOfWorkClearOnFlushTest extends DBTest
 	@Test
 	public void executeFor_withClearOnFlush_silentlyDropsWritesToDetachedWorkObjects()
 	{
+		List<Integer> userIds = new ArrayList<>();
+
 		mitTransaktion(() -> {
 			for (int i = 0; i < 3; i++)
 			{
-				persist(new User("user" + i, "***", 0, "", new Cargo(), "user" + i + "@localhost"));
+				userIds.add(persist(new User("user" + i, "***", 0, "", new Cargo(), "user" + i + "@localhost")).getId());
 			}
 		});
 
-		List<User> users = getEM().createQuery("from User u where u.id > 0 order by u.id", User.class).getResultList();
-		List<Integer> userIds = new ArrayList<>();
-		users.forEach(user -> userIds.add(user.getId()));
+		List<User> users = getEM().createQuery("from User u where u.id in (:ids) order by u.id", User.class)
+				.setParameter("ids", userIds)
+				.getResultList();
 
 		new UnitOfWork<User>("write probe", getEM())
 		{
@@ -137,16 +145,20 @@ public class UnitOfWorkClearOnFlushTest extends DBTest
 	@Test
 	public void executeFor_withClearOnFlush_throwsOnLazyAssociationOfDetachedWorkObject()
 	{
+		List<Integer> baseIds = new ArrayList<>();
+
 		mitTransaktion(() -> {
 			BaseType baseType = persist(new BaseType("TestKlasse"));
 			for (int i = 0; i < 3; i++)
 			{
 				User owner = persist(new User("owner" + i, "***", 0, "", new Cargo(), "owner" + i + "@localhost"));
-				persist(new Base(new Location(1, 1, i + 1), owner, baseType));
+				baseIds.add(persist(new Base(new Location(1, 1, i + 1), owner, baseType)).getId());
 			}
 		});
 
-		List<Base> bases = getEM().createQuery("from Base b order by b.id", Base.class).getResultList();
+		List<Base> bases = getEM().createQuery("from Base b where b.id in (:ids) order by b.id", Base.class)
+				.setParameter("ids", baseIds)
+				.getResultList();
 		assertEquals(3, bases.size());
 
 		List<String> outcomes = new ArrayList<>();
