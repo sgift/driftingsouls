@@ -250,7 +250,7 @@ public class SensorsDefault implements SchiffPlugin {
 			ships = db.createQuery("from Ship s inner join fetch s.owner " +
 					"where s.id!= :id and s.id>0 and s.x= :x and s.y= :y and s.system= :sys and " +
 						"s.battle is null and " +
-						"locate('l ',s.docked)=0 and s.shiptype= :showonly and s.owner= :showid and " +
+						"locate('l ',s.docked)=0 and s.shiptype.id= :showonly and s.owner.id= :showid and " +
 						"locate('disable_iff',s.status)=0 "+
 					"order by "+thisorder+",case when s.docked!='' then s.docked else s.id end,s.fleet.id", Ship.class)
 				.setParameter("id", ship.getId())
