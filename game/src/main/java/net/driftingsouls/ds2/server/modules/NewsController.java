@@ -21,7 +21,7 @@ import java.util.List;
  * 
  * @author Sebastian Gift
  */
-@KeinLoginNotwendig
+@LoginNotRequired
 @Module(name="news")
 public class NewsController extends Controller
 {

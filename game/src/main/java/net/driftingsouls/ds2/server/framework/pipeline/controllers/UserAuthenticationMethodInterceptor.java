@@ -18,8 +18,8 @@ public class UserAuthenticationMethodInterceptor implements ActionMethodIntercep
 		{
 			return methodInvocation.proceed();
 		}
-		if(!methodInvocation.getThis().getClass().isAnnotationPresent(KeinLoginNotwendig.class) &&
-				!methodInvocation.getMethod().isAnnotationPresent(KeinLoginNotwendig.class))
+		if(!methodInvocation.getThis().getClass().isAnnotationPresent(LoginNotRequired.class) &&
+				!methodInvocation.getMethod().isAnnotationPresent(LoginNotRequired.class))
 		{
 			throw new NotLoggedInException();
 		}

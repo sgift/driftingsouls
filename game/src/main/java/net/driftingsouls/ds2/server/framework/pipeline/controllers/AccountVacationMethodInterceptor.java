@@ -15,8 +15,8 @@ public class AccountVacationMethodInterceptor implements ActionMethodInterceptor
 	@Override
 	public Object invoke(MethodInvocation methodInvocation) throws Throwable
 	{
-		if(!methodInvocation.getThis().getClass().isAnnotationPresent(KeinLoginNotwendig.class) &&
-				!methodInvocation.getMethod().isAnnotationPresent(KeinLoginNotwendig.class))
+		if(!methodInvocation.getThis().getClass().isAnnotationPresent(LoginNotRequired.class) &&
+				!methodInvocation.getMethod().isAnnotationPresent(LoginNotRequired.class))
 		{
 			User user = (User) ContextMap.getContext().getActiveUser();
 			if (user != null && !user.isAdmin() && user.isInVacation())

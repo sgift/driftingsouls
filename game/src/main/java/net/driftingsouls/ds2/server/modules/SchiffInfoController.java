@@ -49,7 +49,7 @@ import java.util.TreeSet;
  *
  * @author Christopher Jung
  */
-@KeinLoginNotwendig
+@LoginNotRequired
 @Module(name = "schiffinfo")
 public class SchiffInfoController extends Controller
 {
