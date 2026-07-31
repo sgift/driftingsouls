@@ -95,7 +95,7 @@ public class ErsteigernController extends Controller
 			}
 			else
 			{
-				throw new ValidierungException("Keine Fraktion will mit Ihnen handeln, solange die Beziehungen feindlich sind.");
+				throw new ValidationException("Keine Fraktion will mit Ihnen handeln, solange die Beziehungen feindlich sind.");
 			}
 		}
 
@@ -145,7 +145,7 @@ public class ErsteigernController extends Controller
 	{
 		if (faction == null)
 		{
-			throw new ValidierungException("Die angegebene Fraktion verfügt über keine eigene Seite.");
+			throw new ValidationException("Die angegebene Fraktion verfügt über keine eigene Seite.");
 		}
 	}
 

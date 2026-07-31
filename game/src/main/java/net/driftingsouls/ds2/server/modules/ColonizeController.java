@@ -33,7 +33,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidationException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.repositories.BasesRepository;
@@ -70,23 +70,23 @@ public class ColonizeController extends Controller
 		User user = (User) getUser();
 		if ((ship == null) || (ship.getOwner() != user))
 		{
-			throw new ValidierungException("Fehler: Das angegebene Schiff existiert nicht oder geh&ouml;rt ihnen nicht", Common.buildUrl("default", "module", "schiffe"));
+			throw new ValidationException("Fehler: Das angegebene Schiff existiert nicht oder geh&ouml;rt ihnen nicht", Common.buildUrl("default", "module", "schiffe"));
 		}
 
 		ShipTypeData shiptype = ship.getTypeData();
 		if (!shiptype.hasFlag(ShipTypeFlag.COLONIZER))
 		{
-			throw new ValidierungException("Fehler: Das angegebene Schiff kann keine Planeten kolonisieren", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
+			throw new ValidationException("Fehler: Das angegebene Schiff kann keine Planeten kolonisieren", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
 		}
 
 		if ((base == null) || (base.getOwner().getId() != 0))
 		{
-			throw new ValidierungException("Fehler: Der angegebene Asteroid existiert nicht oder geh&ouml;rt bereits einem anderen Spieler", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
+			throw new ValidationException("Fehler: Der angegebene Asteroid existiert nicht oder geh&ouml;rt bereits einem anderen Spieler", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
 		}
 
 		if (!ship.getLocation().sameSector(0, base.getLocation(), base.getSize()))
 		{
-			throw new ValidierungException("Fehler: Der Asteroid befindet sich nicht im selben Sektor wie das Schiff", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
+			throw new ValidationException("Fehler: Der Asteroid befindet sich nicht im selben Sektor wie das Schiff", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
 		}
 	}
 

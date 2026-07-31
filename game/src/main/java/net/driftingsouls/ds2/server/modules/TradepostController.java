@@ -16,7 +16,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidationException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.SchiffEinstellungen;
@@ -50,13 +50,13 @@ public class TradepostController extends Controller
 		// get variables
 		if (ship == null)
 		{
-			throw new ValidierungException("Das angegebene Schiff existiert nicht");
+			throw new ValidationException("Das angegebene Schiff existiert nicht");
 		}
 
 		// security check
 		if (!getUser().equals(ship.getOwner()))
 		{
-			throw new ValidierungException("Allgemeine Richtlinienverletzung.");
+			throw new ValidationException("Allgemeine Richtlinienverletzung.");
 		}
 	}
 

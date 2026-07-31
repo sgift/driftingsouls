@@ -147,12 +147,12 @@ public class UnitTauschController extends Controller
 				{
 					if (list.size() == 0)
 					{
-						throw new ValidierungException("Es wurde kein Schiff angegeben, zu dem die Flotte ausgewählt werden soll.");
+						throw new ValidationException("Es wurde kein Schiff angegeben, zu dem die Flotte ausgewählt werden soll.");
 					}
 					ShipTransportTarget handler = (ShipTransportTarget) list.remove(list.size() - 1);
 					if (handler.getFleet() == null)
 					{
-						throw new ValidierungException("Das angegebene Schiff befindet sich in keiner Flotte.");
+						throw new ValidationException("Das angegebene Schiff befindet sich in keiner Flotte.");
 					}
 
 					Session db = ContextMap.getContext().getDB();
@@ -375,14 +375,14 @@ public class UnitTauschController extends Controller
 		{
 			if ((ship == null) || (ship.getId() < 0))
 			{
-				throw new ValidierungException("Eines der angegebenen Schiffe existiert nicht.");
+				throw new ValidationException("Eines der angegebenen Schiffe existiert nicht.");
 			}
 
 			super.create(role, ship.getId());
 
 			if (ship.getBattle() != null)
 			{
-				throw new ValidierungException("Das Schiff (ID:" + ship.getId() + ") ist in einen Kampf verwickelt.");
+				throw new ValidationException("Das Schiff (ID:" + ship.getId() + ") ist in einen Kampf verwickelt.");
 			}
 
 			if (role == ROLE_TARGET)
@@ -390,7 +390,7 @@ public class UnitTauschController extends Controller
 				User user = (User) ContextMap.getContext().getActiveUser();
 				if ((ship.getStatus().contains("disable_iff")) && (ship.getOwner() != user))
 				{
-					throw new ValidierungException("Zu dem angegebenen Schiff (ID:" + ship.getId() + ") können Sie keine Waren transportieren.");
+					throw new ValidationException("Zu dem angegebenen Schiff (ID:" + ship.getId() + ") können Sie keine Waren transportieren.");
 				}
 			}
 
@@ -398,7 +398,7 @@ public class UnitTauschController extends Controller
 
 			if (tmptype.hasFlag(ShipTypeFlag.KEIN_TRANSFER))
 			{
-				throw new ValidierungException("Sie können keine Einheiten zu oder von diesem Schiff (ID:" + ship.getId() + ") transferieren.");
+				throw new ValidationException("Sie können keine Einheiten zu oder von diesem Schiff (ID:" + ship.getId() + ") transferieren.");
 			}
 
 			setOwner(ship.getOwner().getId());
@@ -494,7 +494,7 @@ public class UnitTauschController extends Controller
 
 			if (base == null)
 			{
-				throw new ValidierungException("Die angegebene Basis (ID:" + baseid + ") existiert nicht.");
+				throw new ValidationException("Die angegebene Basis (ID:" + baseid + ") existiert nicht.");
 			}
 
 			setOwner(base.getOwner().getId());
@@ -561,7 +561,7 @@ public class UnitTauschController extends Controller
 	{
 		if ((from.size() == 0) || (to.size() == 0))
 		{
-			throw new ValidierungException("Sie müssen mindestens ein Quell- und ein Zielobjekt angeben.");
+			throw new ValidationException("Sie müssen mindestens ein Quell- und ein Zielobjekt angeben.");
 		}
 
 		/*
@@ -575,7 +575,7 @@ public class UnitTauschController extends Controller
 				{
 					if (aTo.getId() == afrom.getId())
 					{
-						throw new ValidierungException("Sie können keine Einheiten zu sich selbst transportieren.");
+						throw new ValidationException("Sie können keine Einheiten zu sich selbst transportieren.");
 					}
 				}
 			}
@@ -589,7 +589,7 @@ public class UnitTauschController extends Controller
 		Location toLoc = to.get(0).getLocation();
 		if (!fromLoc.sameSector(from.get(0).getSize(), toLoc, to.get(0).getSize()))
 		{
-			throw new ValidierungException("Die angegebenen Objekte befinden sich nicht im selben Sektor.");
+			throw new ValidationException("Die angegebenen Objekte befinden sich nicht im selben Sektor.");
 		}
 	}
 
@@ -602,7 +602,7 @@ public class UnitTauschController extends Controller
 		}
 		else
 		{
-			throw new ValidierungException("Ungültiges Transportziel.", "./ds?module=ueber");
+			throw new ValidationException("Ungültiges Transportziel.", "./ds?module=ueber");
 		}
 
 		validiereAlleTransportZieleImSelbenSektor(to);
@@ -617,7 +617,7 @@ public class UnitTauschController extends Controller
 		{
 			if (afrom.getOwner() != getUser().getId())
 			{
-				throw new ValidierungException("Das Schiff gehört Ihnen nicht.", Common.buildUrl("default", "module", "ueber"));
+				throw new ValidationException("Das Schiff gehört Ihnen nicht.", Common.buildUrl("default", "module", "ueber"));
 			}
 		}
 	}
@@ -631,7 +631,7 @@ public class UnitTauschController extends Controller
 		}
 		else
 		{
-			throw new ValidierungException("Ungültige Transportquelle.", "./ds?module=ueber");
+			throw new ValidationException("Ungültige Transportquelle.", "./ds?module=ueber");
 		}
 
 		validiereAlleTransportZieleGehoerenDenSpieler(from);
@@ -647,7 +647,7 @@ public class UnitTauschController extends Controller
 		{
 			if (!toLoc.sameSector(to.get(0).getSize(), to.get(i).getLocation(), to.get(i).getSize()))
 			{
-				throw new ValidierungException("Die angegebenen Objekte befinden sich nicht im selben Sektor.");
+				throw new ValidationException("Die angegebenen Objekte befinden sich nicht im selben Sektor.");
 			}
 		}
 	}

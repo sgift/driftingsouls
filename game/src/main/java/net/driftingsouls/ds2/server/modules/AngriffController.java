@@ -537,7 +537,7 @@ public class AngriffController extends Controller
 				battle = schlachtErstellenService.erstelle(user, ownShipID, enemyShipID);
 			}
 			catch( IllegalArgumentException e ) {
-				throw new ValidierungException(e.getMessage());
+				throw new ValidationException(e.getMessage());
 			}
 			battleCreated = true;
 		}

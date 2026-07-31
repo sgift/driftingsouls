@@ -85,93 +85,93 @@ public class KapernController extends Controller
 
 		if (eigenesSchiff == null || eigenesSchiff.getOwner().getId() != user.getId())
 		{
-			throw new ValidierungException("Das angegebene Schiff existiert nicht oder geh&ouml;rt nicht Ihnen.", Common.buildUrl("default", "module", "schiffe"));
+			throw new ValidationException("Das angegebene Schiff existiert nicht oder geh&ouml;rt nicht Ihnen.", Common.buildUrl("default", "module", "schiffe"));
 		}
 
 		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", eigenesSchiff.getId());
 
 		if (user.isNoob())
 		{
-			throw new ValidierungException("Sie k&ouml;nnen weder kapern noch pl&uuml;ndern, solange Sie unter Neuspieler-Schutz stehen.<br />Hinweis: Der Neuspieler-Schutz kann unter den Account-Optionen vorzeitig beendet werden.", errorurl);
+			throw new ValidationException("Sie k&ouml;nnen weder kapern noch pl&uuml;ndern, solange Sie unter Neuspieler-Schutz stehen.<br />Hinweis: Der Neuspieler-Schutz kann unter den Account-Optionen vorzeitig beendet werden.", errorurl);
 		}
 
 		if ((eigenesSchiff.getEngine() == 0) || (eigenesSchiff.getWeapons() == 0))
 		{
-			throw new ValidierungException("Diese Schrottm&uuml;hle wird nichts kapern k&ouml;nnen.", errorurl);
+			throw new ValidationException("Diese Schrottm&uuml;hle wird nichts kapern k&ouml;nnen.", errorurl);
 		}
 
 		if (eigenesSchiff.getUnits().isEmpty())
 		{
-			throw new ValidierungException("Sie ben&ouml;tigen Einheiten, um zu kapern", errorurl);
+			throw new ValidationException("Sie ben&ouml;tigen Einheiten, um zu kapern", errorurl);
 		}
 
 		if (zielSchiff == null)
 		{
-			throw new ValidierungException("Das angegebene Zielschiff existiert nicht", errorurl);
+			throw new ValidationException("Das angegebene Zielschiff existiert nicht", errorurl);
 		}
 
 		User taruser = zielSchiff.getOwner();
 		if (taruser.isNoob())
 		{
-			throw new ValidierungException("Der Kolonist steht unter Neuspieler-Schutz", errorurl);
+			throw new ValidationException("Der Kolonist steht unter Neuspieler-Schutz", errorurl);
 		}
 
 		if ((taruser.getVacationCount() != 0) && (taruser.getWait4VacationCount() == 0))
 		{
-			throw new ValidierungException("Sie k&ouml;nnen Schiffe dieses Spielers nicht kapern oder pl&uuml;ndern, solange er sich im Urlaubs-Modus befindet.", errorurl);
+			throw new ValidationException("Sie k&ouml;nnen Schiffe dieses Spielers nicht kapern oder pl&uuml;ndern, solange er sich im Urlaubs-Modus befindet.", errorurl);
 		}
 
 		if (zielSchiff.getOwner().getId() == eigenesSchiff.getOwner().getId())
 		{
-			throw new ValidierungException("Sie k&ouml;nnen Ihre eigenen Schiffe nicht kapern.", errorurl);
+			throw new ValidationException("Sie k&ouml;nnen Ihre eigenen Schiffe nicht kapern.", errorurl);
 		}
 
 		if (!eigenesSchiff.getLocation().sameSector(0, zielSchiff.getLocation(), 0))
 		{
-			throw new ValidierungException("Das Zielschiff befindet sich nicht im selben Sektor.", errorurl);
+			throw new ValidationException("Das Zielschiff befindet sich nicht im selben Sektor.", errorurl);
 		}
 
 		ShipTypeData dshipTypeData = zielSchiff.getTypeData();
 		if ((dshipTypeData.getCost() != 0) && (zielSchiff.getEngine() != 0) && (zielSchiff.getCrew() != 0 || !zielSchiff.getUnits().isEmpty()))
 		{
-			throw new ValidierungException("Das feindliche Schiff ist noch bewegungsf&auml;hig.", errorurl);
+			throw new ValidationException("Das feindliche Schiff ist noch bewegungsf&auml;hig.", errorurl);
 		}
 
 		// Wenn das Ziel ein Geschtz (10) ist....
 		if (!dshipTypeData.getShipClass().isKaperbar())
 		{
-			throw new ValidierungException("Sie k&ouml;nnen " + dshipTypeData.getShipClass().getPlural() + " weder kapern noch pl&uuml;ndern.", errorurl);
+			throw new ValidationException("Sie k&ouml;nnen " + dshipTypeData.getShipClass().getPlural() + " weder kapern noch pl&uuml;ndern.", errorurl);
 		}
 
 		if (zielSchiff.isDocked() || zielSchiff.isLanded())
 		{
 			if (zielSchiff.isLanded())
 			{
-				throw new ValidierungException("Sie k&ouml;nnen gelandete Schiffe weder kapern noch pl&uuml;ndern.", errorurl);
+				throw new ValidationException("Sie k&ouml;nnen gelandete Schiffe weder kapern noch pl&uuml;ndern.", errorurl);
 			}
 
 			Ship mship = zielSchiff.getBaseShip();
 			if ((mship.getEngine() != 0) && (mship.getCrew() != 0 || !mship.getUnits().isEmpty()))
 			{
-				throw new ValidierungException("Das Schiff, an das das feindliche Schiff angedockt hat, ist noch bewegungsf&auml;hig.", errorurl);
+				throw new ValidationException("Das Schiff, an das das feindliche Schiff angedockt hat, ist noch bewegungsf&auml;hig.", errorurl);
 			}
 		}
 
 		//In einem Kampf?
 		if ((eigenesSchiff.getBattle() != null) || (zielSchiff.getBattle() != null))
 		{
-			throw new ValidierungException("Eines der Schiffe ist zurzeit in einen Kampf verwickelt.", errorurl);
+			throw new ValidationException("Eines der Schiffe ist zurzeit in einen Kampf verwickelt.", errorurl);
 		}
 
 		if (zielSchiff.getStatus().contains("disable_iff"))
 		{
-			throw new ValidierungException("Das Schiff besitzt keine IFF-Kennung und kann daher nicht gekapert/gepl&uuml;ndert werden.", errorurl);
+			throw new ValidationException("Das Schiff besitzt keine IFF-Kennung und kann daher nicht gekapert/gepl&uuml;ndert werden.", errorurl);
 		}
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		StarSystem system = (StarSystem) db.get(StarSystem.class, eigenesSchiff.getSystem());
 		if(!system.isBattleAllowed() || system.getAccess() == Access.HOMESYSTEM)
 		{
-			throw new ValidierungException("In diesem System sind Kaperungen und Pl&uuml;nderungen nicht erlaubt.", errorurl);
+			throw new ValidationException("In diesem System sind Kaperungen und Pl&uuml;nderungen nicht erlaubt.", errorurl);
 		}
 	}
 
@@ -202,7 +202,7 @@ public class KapernController extends Controller
 
 		if (zielSchiff.getTypeData().hasFlag(ShipTypeFlag.NICHT_KAPERBAR))
 		{
-			throw new ValidierungException("Sie k&ouml;nnen dieses Schiff nicht kapern.", errorurl);
+			throw new ValidationException("Sie k&ouml;nnen dieses Schiff nicht kapern.", errorurl);
 		}
 
 		User targetUser = (User) getDB().get(User.class, zielSchiff.getOwner().getId());
@@ -242,7 +242,7 @@ public class KapernController extends Controller
 		{
 			if (zielSchiff.getTypeData().getCrew() == 0)
 			{
-				throw new ValidierungException("Dieses Schiff ist nicht kaperbar.", errorurl);
+				throw new ValidationException("Dieses Schiff ist nicht kaperbar.", errorurl);
 			}
 
 			if (zielSchiff.getTypeData().getShipClass() == ShipClasses.STATION)

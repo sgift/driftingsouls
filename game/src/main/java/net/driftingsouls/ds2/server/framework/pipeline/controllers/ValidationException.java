@@ -1,18 +1,18 @@
 package net.driftingsouls.ds2.server.framework.pipeline.controllers;
 
 /**
- * Spezieller Fehler zum Anzeigen von Validierungsfehlern.
+ * Special error for displaying validation failures.
  */
-public class ValidierungException extends RuntimeException
+public class ValidationException extends RuntimeException
 {
 	private final String url;
 
-	public ValidierungException(String message)
+	public ValidationException(String message)
 	{
 		this(message,null);
 	}
 
-	public ValidierungException(String message, String url)
+	public ValidationException(String message, String url)
 	{
 		super(message);
 		this.url = url;

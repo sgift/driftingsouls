@@ -71,7 +71,7 @@ public class SchiffInfoController extends Controller
 				(ship.isHide() && ((user == null) || !hasPermission(WellKnownPermission.SCHIFFSTYP_VERSTECKTE_SICHTBAR))))
 		{
 
-			throw new ValidierungException("Über diesen Schiffstyp liegen leider keine Daten vor");
+			throw new ValidationException("Über diesen Schiffstyp liegen leider keine Daten vor");
 		}
 	}
 

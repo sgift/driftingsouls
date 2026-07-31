@@ -28,7 +28,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidationException;
 import net.driftingsouls.ds2.server.modules.viewmodels.FraktionAktionsMeldungViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.LoyalitaetspunkteViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.MedalViewModel;
@@ -80,7 +80,7 @@ public class NpcController extends Controller
 
 		if (!user.hasFlag(UserFlag.ORDER_MENU))
 		{
-			throw new ValidierungException("Nur NPCs können dieses Script nutzen.", Common.buildUrl("default", "module", "ueber"));
+			throw new ValidationException("Nur NPCs können dieses Script nutzen.", Common.buildUrl("default", "module", "ueber"));
 		}
 
 		if (Rassen.get().rasse(user.getRace()).isHead(user))
@@ -146,7 +146,7 @@ public class NpcController extends Controller
 
 		if (!this.shop)
 		{
-			throw new ValidierungException("Sie verfügen über keinen Shop und können daher diese Seite nicht aufrufen.");
+			throw new ValidationException("Sie verfügen über keinen Shop und können daher diese Seite nicht aufrufen.");
 		}
 
 		ShopMenuViewModel result = new ShopMenuViewModel();

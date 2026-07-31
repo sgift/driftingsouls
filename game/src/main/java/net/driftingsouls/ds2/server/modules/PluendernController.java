@@ -60,106 +60,106 @@ public class PluendernController extends Controller
 
 		if ((eigenesSchiff == null) || (eigenesSchiff.getId() < 0) || (eigenesSchiff.getOwner() != user))
 		{
-			throw new ValidierungException("Sie brauchen ein Schiff um zu pl&uuml;ndern", Common.buildUrl("default", "module", "ships"));
+			throw new ValidationException("Sie brauchen ein Schiff um zu pl&uuml;ndern", Common.buildUrl("default", "module", "ships"));
 		}
 
 		final String errorurl = Common.buildUrl("default", "module", "schiff", "ship", eigenesSchiff.getId());
 
 		if ((zielSchiff == null) || (zielSchiff.getId() < 0))
 		{
-			throw new ValidierungException("Das angegebene Zielschiff existiert nicht", errorurl);
+			throw new ValidationException("Das angegebene Zielschiff existiert nicht", errorurl);
 		}
 		ShipTypeData shipTypeTo = zielSchiff.getTypeData();
 
 		//Felsbrocken duerfen auch als NOOB gepluendert werden
 		if (user.isNoob() && zielSchiff.getTypeData().getShipClass() != ShipClasses.FELSBROCKEN)
 		{
-			throw new ValidierungException("Sie stehen unter GCP-Schutz und k&ouml;nnen daher nicht pl&uuml;nndern<br />Hinweis: der GCP-Schutz kann unter Optionen vorzeitig beendet werden", errorurl);
+			throw new ValidationException("Sie stehen unter GCP-Schutz und k&ouml;nnen daher nicht pl&uuml;nndern<br />Hinweis: der GCP-Schutz kann unter Optionen vorzeitig beendet werden", errorurl);
 		}
 
 		if (eigenesSchiff == zielSchiff)
 		{
-			throw new ValidierungException("Sie k&ouml;nnen nicht sich selbst pl&uuml;ndern", errorurl);
+			throw new ValidationException("Sie k&ouml;nnen nicht sich selbst pl&uuml;ndern", errorurl);
 		}
 
 		User taruser = zielSchiff.getOwner();
 
 		if (taruser.isNoob())
 		{
-			throw new ValidierungException("Dieser Kolonist steht unter GCP-Schutz", errorurl);
+			throw new ValidationException("Dieser Kolonist steht unter GCP-Schutz", errorurl);
 		}
 
 		if ((taruser.getVacationCount() != 0) && (taruser.getWait4VacationCount() == 0))
 		{
-			throw new ValidierungException("Sie k&ouml;nnen Schiffe dieses Spielers nicht kapern oder pl&uuml;ndern solange er sich im Vacation-Modus befindet", errorurl);
+			throw new ValidationException("Sie k&ouml;nnen Schiffe dieses Spielers nicht kapern oder pl&uuml;ndern solange er sich im Vacation-Modus befindet", errorurl);
 		}
 
 		if (!eigenesSchiff.getLocation().sameSector(0, zielSchiff.getLocation(), 0))
 		{
-			throw new ValidierungException("Das zu pl&uuml;ndernde Schiff befindet sich nicht im selben Sektor", errorurl);
+			throw new ValidationException("Das zu pl&uuml;ndernde Schiff befindet sich nicht im selben Sektor", errorurl);
 		}
 
 		if ((eigenesSchiff.getBattle() != null) || (zielSchiff.getBattle() != null))
 		{
-			throw new ValidierungException("Eines der Schiffe ist in einen Kampf verwickelt", errorurl);
+			throw new ValidationException("Eines der Schiffe ist in einen Kampf verwickelt", errorurl);
 		}
 
 		if (!shipTypeTo.getShipClass().isKaperbar())
 		{
-			throw new ValidierungException("Sie k&ouml;nnen " + shipTypeTo.getShipClass().getPlural() + " weder kapern noch pl&uuml;ndern", errorurl);
+			throw new ValidationException("Sie k&ouml;nnen " + shipTypeTo.getShipClass().getPlural() + " weder kapern noch pl&uuml;ndern", errorurl);
 		}
 
 		if (!zielSchiff.getStatus().contains("pluenderbar") && shipTypeTo.getShipClass() == ShipClasses.FELSBROCKEN)
 		{
-			throw new ValidierungException("Sie k&ouml;nnen " + shipTypeTo.getShipClass().getPlural() + " nicht pl&uuml;ndern, solange der H&uuml;llenwert nicht weit genug gesenkt wurde", errorurl);
+			throw new ValidationException("Sie k&ouml;nnen " + shipTypeTo.getShipClass().getPlural() + " nicht pl&uuml;ndern, solange der H&uuml;llenwert nicht weit genug gesenkt wurde", errorurl);
 		}
 
 		// IFF-Check
 		boolean disableIFF = zielSchiff.getStatus().contains("disable_iff");
 		if (disableIFF)
 		{
-			throw new ValidierungException("Das Schiff kann nicht gepl&uuml;ndert werden", errorurl);
+			throw new ValidationException("Das Schiff kann nicht gepl&uuml;ndert werden", errorurl);
 		}
 
 		if (zielSchiff.isDocked() || zielSchiff.isLanded())
 		{
 			if (zielSchiff.isLanded())
 			{
-				throw new ValidierungException("Sie k&ouml;nnen gelandete Schiffe weder kapern noch pl&uuml;ndern", errorurl);
+				throw new ValidationException("Sie k&ouml;nnen gelandete Schiffe weder kapern noch pl&uuml;ndern", errorurl);
 			}
 
 			Ship mastership = zielSchiff.getBaseShip();
 			if (((mastership.getCrew() != 0)) && (mastership.getEngine() != 0) &&
 					(mastership.getWeapons() != 0))
 			{
-				throw new ValidierungException("Das Schiff, an das das feindliche Schiff angedockt hat, ist noch bewegungsf&auml;hig", errorurl);
+				throw new ValidationException("Das Schiff, an das das feindliche Schiff angedockt hat, ist noch bewegungsf&auml;hig", errorurl);
 			}
 		}
 
 		if ((zielSchiff.getCrew() != 0) && (shipTypeTo.getCost() != 0) && (zielSchiff.getEngine() != 0))
 		{
-			throw new ValidierungException("Feindliches Schiff nicht bewegungsunf&auml;hig", errorurl);
+			throw new ValidationException("Feindliches Schiff nicht bewegungsunf&auml;hig", errorurl);
 		}
 
 		if (shipTypeTo.hasFlag(ShipTypeFlag.KEIN_TRANSFER))
 		{
-			throw new ValidierungException("Sie k&ouml;nnen keine Waren zu oder von diesem Schiff transferieren", errorurl);
+			throw new ValidationException("Sie k&ouml;nnen keine Waren zu oder von diesem Schiff transferieren", errorurl);
 		}
 
 		if (shipTypeTo.hasFlag(ShipTypeFlag.NICHT_PLUENDERBAR))
 		{
-			throw new ValidierungException("Sie k&ouml;nnen keine Waren von diesem Schiff pl&uuml;ndern", errorurl);
+			throw new ValidationException("Sie k&ouml;nnen keine Waren von diesem Schiff pl&uuml;ndern", errorurl);
 		}
 
 		if ((shipTypeTo.getShipClass() == ShipClasses.STATION) && (zielSchiff.getCrew() != 0))
 		{
-			throw new ValidierungException("Solange die Crew &uuml;ber die Waren wacht werden sie hier nichts klauen k&ouml;nnen", errorurl);
+			throw new ValidationException("Solange die Crew &uuml;ber die Waren wacht werden sie hier nichts klauen k&ouml;nnen", errorurl);
 		}
 
 		ShipTypeData shipTypeFrom = eigenesSchiff.getTypeData();
 		if (shipTypeFrom.hasFlag(ShipTypeFlag.KEIN_TRANSFER))
 		{
-			throw new ValidierungException("Sie k&ouml;nnen keine Waren zu oder von ihrem Schiff transferieren", errorurl);
+			throw new ValidationException("Sie k&ouml;nnen keine Waren zu oder von ihrem Schiff transferieren", errorurl);
 		}
 	}
 

@@ -26,7 +26,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.RedirectViewResult;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidationException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -219,12 +219,12 @@ public class CrewtauschController extends Controller
 
 		if ((schiff == null) || (schiff.getOwner() != user) || (schiff.getId() < 0))
 		{
-			throw new ValidierungException("Das angegebene Schiff existiert nicht oder gehört dir nicht", Common.buildUrl("default", "module", "schiffe"));
+			throw new ValidationException("Das angegebene Schiff existiert nicht oder gehört dir nicht", Common.buildUrl("default", "module", "schiffe"));
 		}
 
 		if (schiff.getBattle() != null)
 		{
-			throw new ValidierungException("Dein Schiff befindet sich in einer Schlacht. Diese verlangt die volle Aufmerksamkeit der Crew weshalb ein Crewaustausch " +
+			throw new ValidationException("Dein Schiff befindet sich in einer Schlacht. Diese verlangt die volle Aufmerksamkeit der Crew weshalb ein Crewaustausch " +
 					"momentan nicht durchgeführt werden kann.",
 					Common.buildUrl("default", "module", "schiff", "ship", schiff.getId()));
 		}
@@ -242,12 +242,12 @@ public class CrewtauschController extends Controller
 
 				if ((aship == null) || (aship.getId() < 0) || !ship.getLocation().sameSector(0, aship, 0))
 				{
-					throw new ValidierungException("Die beiden Schiffe befinden sich nicht im selben Sektor", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
+					throw new ValidationException("Die beiden Schiffe befinden sich nicht im selben Sektor", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
 				}
 
 				if (aship.getBattle() != null)
 				{
-					throw new ValidierungException("Das Ziel befindet sich in einer Schlacht. Ihre Crew weigert sich " +
+					throw new ValidationException("Das Ziel befindet sich in einer Schlacht. Ihre Crew weigert sich " +
 							"deshalb in die Shuttles einzusteigen und einen Crewaustausch durchzuführen.",
 							Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
 				}
@@ -260,18 +260,18 @@ public class CrewtauschController extends Controller
 
 				if ((abase == null) || !ship.getLocation().sameSector(0, abase, abase.getSize()))
 				{
-					throw new ValidierungException("Schiff und Basis befinden sich nicht im selben Sektor", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
+					throw new ValidationException("Schiff und Basis befinden sich nicht im selben Sektor", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
 				}
 
 				datat = new BaseTarget(abase);
 				break;
 			default:
-				throw new ValidierungException("Dieser Transportweg ist unbekannt (hoer mit dem scheiss URL-Hacking auf) - Versuch geloggt", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
+				throw new ValidationException("Dieser Transportweg ist unbekannt (hoer mit dem scheiss URL-Hacking auf) - Versuch geloggt", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
 		}
 
 		if (ship.getOwner() != datat.getOwner())
 		{
-			throw new ValidierungException("Das gehört dir nicht!", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
+			throw new ValidationException("Das gehört dir nicht!", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
 		}
 
 		return datat;

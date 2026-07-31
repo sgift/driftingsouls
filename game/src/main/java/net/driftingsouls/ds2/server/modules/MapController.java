@@ -15,7 +15,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidationException;
 import net.driftingsouls.ds2.server.map.AdminStarmap;
 import net.driftingsouls.ds2.server.map.MapArea;
 import net.driftingsouls.ds2.server.map.PlayerStarmap;
@@ -57,7 +57,7 @@ public class MapController extends Controller
 
 		if (system == null || !system.isVisibleFor(user))
 		{
-			throw new ValidierungException("Sie haben keine entsprechenden Karten");
+			throw new ValidationException("Sie haben keine entsprechenden Karten");
 		}
 	}
 

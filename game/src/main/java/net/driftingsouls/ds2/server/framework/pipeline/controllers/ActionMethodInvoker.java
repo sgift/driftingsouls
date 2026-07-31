@@ -305,7 +305,7 @@ public class ActionMethodInvoker
 					throw ex;
 				}
 			}
-			catch (ValidierungException e)
+			catch (ValidationException e)
 			{
 				context.addError(e.getMessage(), e.getUrl());
 				printErrorListOnly(actionTypeHandler);

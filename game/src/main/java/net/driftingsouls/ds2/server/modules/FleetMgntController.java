@@ -75,7 +75,7 @@ public class FleetMgntController extends Controller
 			}
 			else
 			{
-				throw new ValidierungException("Die angegebene Flotte ist ungültig.");
+				throw new ValidationException("Die angegebene Flotte ist ungültig.");
 			}
 		}
 
@@ -86,7 +86,7 @@ public class FleetMgntController extends Controller
 	{
 		if (fleet == null)
 		{
-			throw new ValidierungException("Die angegebene Flotte existiert nicht.");
+			throw new ValidationException("Die angegebene Flotte existiert nicht.");
 		}
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
@@ -97,7 +97,7 @@ public class FleetMgntController extends Controller
 
 		if (user.getId() != owner.getId())
 		{
-			throw new ValidierungException("Diese Flotte gehört einem anderen Spieler.");
+			throw new ValidationException("Diese Flotte gehört einem anderen Spieler.");
 		}
 
 		// Falls sich doch ein Schiff eines anderen Spielers eingeschlichen hat
@@ -199,7 +199,7 @@ public class FleetMgntController extends Controller
 
 		if (shiplist.length() == 0)
 		{
-			throw new ValidierungException("Sie haben keine Schiffe angegeben.");
+			throw new ValidationException("Sie haben keine Schiffe angegeben.");
 		}
 
 		if (shiplist.charAt(0) != 'g')
@@ -207,7 +207,7 @@ public class FleetMgntController extends Controller
 			shiplistInt = Common.explodeToInteger("|", shiplist);
 			if (shiplistInt.length == 0)
 			{
-				throw new ValidierungException("Sie haben keine Schiffe angegeben.");
+				throw new ValidationException("Sie haben keine Schiffe angegeben.");
 			}
 
 			boolean nonEmpty = db.createQuery("from Ship where id in (:shipIds) and (owner!=:user or id < 0)")
@@ -216,7 +216,7 @@ public class FleetMgntController extends Controller
 					.iterate().hasNext();
 			if (nonEmpty)
 			{
-				throw new ValidierungException("Alle Schiffe müssen Ihrem Kommando unterstehen.");
+				throw new ValidationException("Alle Schiffe müssen Ihrem Kommando unterstehen.");
 			}
 		}
 		else
@@ -228,7 +228,7 @@ public class FleetMgntController extends Controller
 			Ship sectorShip = (Ship) db.get(Ship.class, sector);
 			if ((sectorShip == null) || (sectorShip.getOwner() != user) || (sectorShip.getId() < 0))
 			{
-				throw new ValidierungException("Das Schiff untersteht nicht Ihrem Kommando.");
+				throw new ValidationException("Das Schiff untersteht nicht Ihrem Kommando.");
 			}
 
 			List<Ship> ships = Common.cast(db.createQuery("from Ship where id>0 and owner=:owner and system=:sys and x=:x and y=:y and shiptype=:type and docked='' order by fleet.id,id asc")

@@ -32,7 +32,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidationException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.services.HandelspostenService;
@@ -80,7 +80,7 @@ public class GtuZwischenLagerController extends Controller
 		User user = (User) this.getUser();
 		if ((ship == null) || (ship.getId() < 0) || (ship.getOwner() != user))
 		{
-			throw new ValidierungException("Das angegebene Schiff existiert nicht oder geh&ouml;rt nicht ihnen", Common.buildUrl("default", "module", "schiffe"));
+			throw new ValidationException("Das angegebene Schiff existiert nicht oder geh&ouml;rt nicht ihnen", Common.buildUrl("default", "module", "schiffe"));
 		}
 	}
 
@@ -121,7 +121,7 @@ public class GtuZwischenLagerController extends Controller
 		tmpowncargoneed.substractCargo(owncargo);
 		if (!tmpowncargoneed.isEmpty())
 		{
-			throw new ValidierungException("Sie müssen die Waren erst komplett bezahlen", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
+			throw new ValidationException("Sie müssen die Waren erst komplett bezahlen", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
 		}
 
 		ShipTypeData shiptype = ship.getTypeData();
@@ -187,7 +187,7 @@ public class GtuZwischenLagerController extends Controller
 
 		if ((tradeentry == null) || (tradeentry.getPosten() != handelsposten) || ((tradeentry.getUser1() != user) && (tradeentry.getUser2() != user)))
 		{
-			throw new ValidierungException("Es wurde kein passender Handelseintrag gefunden", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
+			throw new ValidationException("Es wurde kein passender Handelseintrag gefunden", Common.buildUrl("default", "module", "schiff", "ship", ship.getId()));
 		}
 	}
 
@@ -345,7 +345,7 @@ public class GtuZwischenLagerController extends Controller
 	{
 		if( !handelspostenService.isKommunikationMoeglich(handel, ship) )
 		{
-			throw new ValidierungException("Das Schiff kann keinen Kontakt zum Handelsposten aufnehmen");
+			throw new ValidationException("Das Schiff kann keinen Kontakt zum Handelsposten aufnehmen");
 		}
 	}
 }

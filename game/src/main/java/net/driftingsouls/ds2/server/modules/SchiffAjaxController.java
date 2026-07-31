@@ -27,7 +27,7 @@ import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidationException;
 import net.driftingsouls.ds2.server.ships.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -63,12 +63,12 @@ public class SchiffAjaxController extends Controller
 
 		if ((ship == null) || (ship.getId() < 0) || (ship.getOwner() != user))
 		{
-			throw new ValidierungException("Das angegebene Schiff existiert nicht.");
+			throw new ValidationException("Das angegebene Schiff existiert nicht.");
 		}
 
 		if (ship.getBattle() != null)
 		{
-			throw new ValidierungException("Das Schiff ist in einen Kampf verwickelt!");
+			throw new ValidationException("Das Schiff ist in einen Kampf verwickelt!");
 		}
 	}
 

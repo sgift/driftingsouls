@@ -59,7 +59,7 @@ public class UserProfileController extends Controller
 	{
 		if ((benutzer == null) || (benutzer.hasFlag(UserFlag.HIDE) && !hasPermission(WellKnownPermission.USER_VERSTECKTE_SICHTBAR)))
 		{
-			throw new ValidierungException("Ihnen ist kein Benutzer unter der angegebenen ID bekannt.", Common.buildUrl("default", "module", "ueber"));
+			throw new ValidationException("Ihnen ist kein Benutzer unter der angegebenen ID bekannt.", Common.buildUrl("default", "module", "ueber"));
 		}
 	}
 

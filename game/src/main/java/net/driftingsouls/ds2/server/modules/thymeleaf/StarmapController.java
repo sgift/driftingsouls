@@ -14,7 +14,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.PermissionDescriptor;
 import net.driftingsouls.ds2.server.framework.PermissionResolver;
 import net.driftingsouls.ds2.server.framework.db.DBUtil;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidationException;
 import net.driftingsouls.ds2.server.map.*;
 import net.driftingsouls.ds2.server.modules.MapController;
 import net.driftingsouls.ds2.server.modules.viewmodels.AllyViewModel;
@@ -416,7 +416,7 @@ public class StarmapController implements DSController, PermissionResolver {
 
         if (system == null || !system.isVisibleFor(user))
         {
-            throw new ValidierungException("Sie haben keine entsprechenden Karten");
+            throw new ValidationException("Sie haben keine entsprechenden Karten");
         }
     }
 

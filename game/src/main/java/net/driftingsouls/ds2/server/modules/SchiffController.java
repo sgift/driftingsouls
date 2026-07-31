@@ -101,12 +101,12 @@ public class SchiffController extends Controller
 		User user = (User) getUser();
 		if ((ship == null) || (ship.getId() < 0) || (ship.getOwner() != user))
 		{
-			throw new ValidierungException("Das angegebene Schiff existiert nicht", Common.buildUrl("default", "module", "schiffe"));
+			throw new ValidationException("Das angegebene Schiff existiert nicht", Common.buildUrl("default", "module", "schiffe"));
 		}
 
 		if (ship.getBattle() != null)
 		{
-			throw new ValidierungException("Das Schiff ist in einen Kampf verwickelt (hier klicken, um zu diesem zu gelangen)!", Common.buildUrl("default", "module", "angriff", "battle", ship.getBattle().getId(), "ship", ship.getId()));
+			throw new ValidationException("Das Schiff ist in einen Kampf verwickelt (hier klicken, um zu diesem zu gelangen)!", Common.buildUrl("default", "module", "angriff", "battle", ship.getBattle().getId(), "ship", ship.getId()));
 		}
 	}
 
@@ -719,7 +719,7 @@ public class SchiffController extends Controller
 
 		if (ship.getBattle() != null)
 		{
-			throw new ValidierungException("Das Schiff ist in einen Kampf verwickelt (hier klicken, um zu diesem zu gelangen)!", Common.buildUrl("default", "module", "angriff", "battle", ship.getBattle().getId(), "ship", ship.getId()));
+			throw new ValidationException("Das Schiff ist in einen Kampf verwickelt (hier klicken, um zu diesem zu gelangen)!", Common.buildUrl("default", "module", "angriff", "battle", ship.getBattle().getId(), "ship", ship.getId()));
 		}
 
 		ship.recalculateShipStatus();

@@ -32,7 +32,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidationException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import org.hibernate.Session;
@@ -65,7 +65,7 @@ public class BuildController extends Controller
 		User user = (User) getUser();
 		if ((basis == null) || (basis.getOwner() != user))
 		{
-			throw new ValidierungException("Die angegebene Kolonie existiert nicht", Common.buildUrl("default", "module", "basen"));
+			throw new ValidationException("Die angegebene Kolonie existiert nicht", Common.buildUrl("default", "module", "basen"));
 		}
 	}
 
@@ -73,7 +73,7 @@ public class BuildController extends Controller
 	{
 		if (building == null)
 		{
-			throw new ValidierungException("Das angegebene Gebäude existiert nicht");
+			throw new ValidationException("Das angegebene Gebäude existiert nicht");
 		}
 	}
 
@@ -100,7 +100,7 @@ public class BuildController extends Controller
 
 		if (field >= base.getWidth() * base.getHeight())
 		{
-			throw new ValidierungException("Und das elfte Gebot lautet: Du sollst nicht exploiten deines Spieles URL's");
+			throw new ValidationException("Und das elfte Gebot lautet: Du sollst nicht exploiten deines Spieles URL's");
 		}
 
 		//Anzahl der Gebaeude berechnen

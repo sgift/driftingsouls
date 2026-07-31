@@ -36,7 +36,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidationException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.ShipBaubar;
@@ -71,12 +71,12 @@ public class ForschinfoController extends Controller
 
 		if (forschung == null)
 		{
-			throw new ValidierungException("&Uuml;ber diese Forschung liegen aktuell keine Informationen vor");
+			throw new ValidationException("&Uuml;ber diese Forschung liegen aktuell keine Informationen vor");
 		}
 
 		if (!forschung.isVisibile(user) && !hasPermission(WellKnownPermission.FORSCHUNG_ALLES_SICHTBAR))
 		{
-			throw new ValidierungException("&Uuml;ber diese Forschung liegen aktuell keine Informationen vor");
+			throw new ValidationException("&Uuml;ber diese Forschung liegen aktuell keine Informationen vor");
 		}
 	}
 

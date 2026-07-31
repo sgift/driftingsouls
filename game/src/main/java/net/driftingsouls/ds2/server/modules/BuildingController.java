@@ -32,7 +32,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidationException;
 import net.driftingsouls.ds2.server.modules.viewmodels.GebaeudeAufBasisViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.ResourceEntryViewModel;
 
@@ -72,12 +72,12 @@ public class BuildingController extends Controller
 		User user = (User) getUser();
 		if ((basis == null) || (basis.getOwner() != user))
 		{
-			throw new ValidierungException("Die angegebene Kolonie existiert nicht", Common.buildUrl("default", "module", "basen"));
+			throw new ValidationException("Die angegebene Kolonie existiert nicht", Common.buildUrl("default", "module", "basen"));
 		}
 
 		if ((feld >= basis.getBebauung().length) || (basis.getBebauung()[feld] == 0))
 		{
-			throw new ValidierungException("Es existiert kein Gebäude an dieser Stelle");
+			throw new ValidationException("Es existiert kein Gebäude an dieser Stelle");
 		}
 	}
 

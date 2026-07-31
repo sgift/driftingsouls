@@ -25,7 +25,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidationException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
@@ -60,7 +60,7 @@ public class WerftController extends Controller
 
 		if ((ship == null) || (ship.getId() < 0) || (ship.getOwner() != user))
 		{
-			throw new ValidierungException("Das angegebene Schiff existiert nicht oder gehört nicht Ihnen.");
+			throw new ValidationException("Das angegebene Schiff existiert nicht oder gehört nicht Ihnen.");
 		}
 	}
 
@@ -70,7 +70,7 @@ public class WerftController extends Controller
 
 		if (werft == null)
 		{
-			throw new ValidierungException("Dieses Schiff besitzt keinen Eintrag als Werft!", errorurl);
+			throw new ValidationException("Dieses Schiff besitzt keinen Eintrag als Werft!", errorurl);
 		}
 	}
 

@@ -29,7 +29,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.RedirectViewResult;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidationException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -68,7 +68,7 @@ public class DeutSammelnController extends Controller
 		{
 			if ((ship == null) || (ship.getOwner() != user))
 			{
-				throw new ValidierungException("Das angegebene Schiff existiert nicht", Common.buildUrl("default", "module", "schiffe"));
+				throw new ValidationException("Das angegebene Schiff existiert nicht", Common.buildUrl("default", "module", "schiffe"));
 			}
 
 			ships.add(ship);
@@ -77,7 +77,7 @@ public class DeutSammelnController extends Controller
 		{
 			if (fleet.getOwner() != user)
 			{
-				throw new ValidierungException("Die angegebene Flotte existiert nicht", Common.buildUrl("default", "module", "schiffe"));
+				throw new ValidationException("Die angegebene Flotte existiert nicht", Common.buildUrl("default", "module", "schiffe"));
 			}
 			ships.addAll(fleet.getShips());
 		}
@@ -93,11 +93,11 @@ public class DeutSammelnController extends Controller
 		Nebel nebel = (Nebel) db.get(Nebel.class, new MutableLocation(schiffe.get(0)));
 		if (nebel == null)
 		{
-			throw new ValidierungException("Der Nebel befindet sich nicht im selben Sektor wie das Schiff", errorurl);
+			throw new ValidationException("Der Nebel befindet sich nicht im selben Sektor wie das Schiff", errorurl);
 		}
 		if (!nebel.getType().isDeuteriumNebel())
 		{
-			throw new ValidierungException("In diesem Nebel k&ouml;nnen sie kein Deuterium sammeln", errorurl);
+			throw new ValidationException("In diesem Nebel k&ouml;nnen sie kein Deuterium sammeln", errorurl);
 		}
 
 		return nebel;
@@ -135,7 +135,7 @@ public class DeutSammelnController extends Controller
 
 		if (schiffe.isEmpty())
 		{
-			throw new ValidierungException(lastError, errorurl);
+			throw new ValidationException(lastError, errorurl);
 		}
 	}
 

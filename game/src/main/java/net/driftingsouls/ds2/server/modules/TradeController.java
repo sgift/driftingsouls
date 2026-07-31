@@ -38,7 +38,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidierungException;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidationException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.Ship;
@@ -76,7 +76,7 @@ public class TradeController extends Controller
 	{
 		if ((ship == null) || (ship.getId() < 0) || (ship.getOwner() != getUser()))
 		{
-			throw new ValidierungException("Fehler: Das angegebene Schiff existiert nicht oder gehört nicht Ihnen", Common.buildUrl("default", "module", "schiffe"));
+			throw new ValidationException("Fehler: Das angegebene Schiff existiert nicht oder gehört nicht Ihnen", Common.buildUrl("default", "module", "schiffe"));
 		}
 	}
 
@@ -84,13 +84,13 @@ public class TradeController extends Controller
 	{
 		if (handelsposten == null || !handelsposten.isTradepost() || !handelsposten.getLocation().equals(handelndesSchiff.getLocation()))
 		{
-			throw new ValidierungException("Fehler: Der angegebene Handelsposten konnte nicht im Sektor lokalisiert werden", Common.buildUrl("default", "module", "schiff", "ship", handelndesSchiff.getId()));
+			throw new ValidationException("Fehler: Der angegebene Handelsposten konnte nicht im Sektor lokalisiert werden", Common.buildUrl("default", "module", "schiff", "ship", handelndesSchiff.getId()));
 		}
 
 		User user = (User) getUser();
 		if (!handelsposten.isTradepostVisible(user, user.getRelations()))
 		{
-			throw new ValidierungException("Fehler: Dieser Handelsposten handelt nicht mit Ihnen. Für die Aufnahme von Handelsbeziehungen setzen Sie sich mit dem Eigner in Verbindung.", Common.buildUrl("default", "module", "schiff", "ship", handelndesSchiff.getId()));
+			throw new ValidationException("Fehler: Dieser Handelsposten handelt nicht mit Ihnen. Für die Aufnahme von Handelsbeziehungen setzen Sie sich mit dem Eigner in Verbindung.", Common.buildUrl("default", "module", "schiff", "ship", handelndesSchiff.getId()));
 		}
 	}
 
@@ -104,7 +104,7 @@ public class TradeController extends Controller
 		}
 		if (kurse == null)
 		{
-			throw new ValidierungException("Fehler: Der An- und Verkauf auf dem Handelsposten wurde nicht freigegeben", Common.buildUrl("default", "module", "schiff", "ship", handelndesSchiff.getId()));
+			throw new ValidationException("Fehler: Der An- und Verkauf auf dem Handelsposten wurde nicht freigegeben", Common.buildUrl("default", "module", "schiff", "ship", handelndesSchiff.getId()));
 		}
 		return kurse;
 	}
