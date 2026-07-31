@@ -7,6 +7,22 @@ An entry graduates by becoming a commit, or by growing enough context to become 
 Each entry says what, why, and how confident we are that it is actually a problem. Items marked
 **unverified** are reasoned from reading the code and have no test behind them yet.
 
+## `TemplateCompiler` never cleans its output directory
+
+It writes generated `.java` files into the output folder and deletes nothing, so a renamed or deleted
+template leaves its old generated source and compiled class behind indefinitely. On an incremental
+build `TemplateLoader` keeps resolving the stale class and the page keeps rendering from a template
+that no longer exists in `src/main/templates`.
+
+Found while writing `ControllerTemplateResolutionTest`: the first version resolved through
+`TemplateLoader`, and stayed green after `basen.html` was deliberately renamed away, because both
+`basen.class` and `basenbroken.class` were sitting in `target`. The test now asserts against the
+template source file instead, which sidesteps the problem but does not fix it.
+
+Harmless day to day — `mvn clean` clears it — but it makes any incremental build an unreliable
+witness to template existence. Worth fixing before the jte migration (ADR-0003) starts deleting all
+52 templates, where a stale artifact would mask a missed migration.
+
 ## Pending destruction lives in `ships.status`
 
 See ADR-0008. `destroy` is a durable token in a column whose other durable tokens (`tradepost`,
