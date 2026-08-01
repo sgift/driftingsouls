@@ -7,11 +7,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Deaktiviert die Ticksperre fuer Aufrufe auf einen hiermit annotierten Controller oder eine hiermit annotierte Action.
+ * Disables the tick lock for calls to the annotated controller or action.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Documented
-public @interface KeineTicksperre
+public @interface TickLockNotRequired
 {
 }

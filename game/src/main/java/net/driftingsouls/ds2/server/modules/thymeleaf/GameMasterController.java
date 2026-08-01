@@ -8,7 +8,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.repositories.StarsystemRepository;
-import net.driftingsouls.ds2.server.framework.pipeline.controllers.KeineTicksperre;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.TickLockNotRequired;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.WellKnownPermission;
 
@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-@KeineTicksperre
+@TickLockNotRequired
 public class GameMasterController implements DSController {
     private Context context;
 

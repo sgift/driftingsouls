@@ -22,8 +22,8 @@ public class TickMethodInterceptor implements ActionMethodInterceptor
 		if(isTick)
 		{
 
-			if(!methodInvocation.getThis().getClass().isAnnotationPresent(KeineTicksperre.class) &&
-					!methodInvocation.getMethod().isAnnotationPresent(KeineTicksperre.class))
+			if(!methodInvocation.getThis().getClass().isAnnotationPresent(TickLockNotRequired.class) &&
+					!methodInvocation.getMethod().isAnnotationPresent(TickLockNotRequired.class))
 			{
 				throw new TickInProgressException();
 			}
