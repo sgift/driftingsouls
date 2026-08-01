@@ -27,22 +27,22 @@ public class ParameterReader
 {
 	private static final Logger LOG = LogManager.getLogger(ParameterReader.class);
 
-	private static final Map<Class<?>, UrlParamKonverter> konverter = new HashMap<>();
+	private static final Map<Class<?>, UrlParamConverter> converters = new HashMap<>();
 
 	static
 	{
-		SortedSet<Class<?>> klassenNamen = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(UrlParamKonverterFuer.class);
-		for (Class<?> cls : klassenNamen)
+		SortedSet<Class<?>> converterClasses = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(UrlParamConverterFor.class);
+		for (Class<?> cls : converterClasses)
 		{
 			try
 			{
-				if (!UrlParamKonverter.class.isAssignableFrom(cls))
+				if (!UrlParamConverter.class.isAssignableFrom(cls))
 				{
 					LOG.warn("Konverterklasse " + cls.getName() + " implementiert nicht das korrekte Interface");
 					continue;
 				}
-				UrlParamKonverterFuer annotation = cls.getAnnotation(UrlParamKonverterFuer.class);
-				konverter.put(annotation.value(), cls.asSubclass(UrlParamKonverter.class).getDeclaredConstructor().newInstance());
+				UrlParamConverterFor annotation = cls.getAnnotation(UrlParamConverterFor.class);
+				converters.put(annotation.value(), cls.asSubclass(UrlParamConverter.class).getDeclaredConstructor().newInstance());
 			}
 			catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e)
 			{
@@ -167,9 +167,9 @@ public class ParameterReader
 	{
 		Class<?> type = extractClass(typeDescription);
 
-		if (konverter.containsKey(type))
+		if (converters.containsKey(type))
 		{
-			return konverter.get(type).konvertiere(this, paramName);
+			return converters.get(type).convert(this, paramName);
 		}
 		else if (type == Boolean.TYPE)
 		{
