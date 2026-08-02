@@ -35,7 +35,7 @@ public class AnnotationUtils
 	 * @param annotationCls Die Annotation
 	 * @return Das Set der Klassennamen
 	 */
-	public SortedSet<Class<?>> findeKlassenMitAnnotation(Class<? extends Annotation> annotationCls)
+	public SortedSet<Class<?>> findClassesWithAnnotation(Class<? extends Annotation> annotationCls)
 	{
 		Set<Class<?>> typesAnnotatedWith = reflections.getTypesAnnotatedWith(annotationCls);
 		SortedSet<Class<?>> result = new TreeSet<>(Comparator.comparing(Class::getName));

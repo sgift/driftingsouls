@@ -31,7 +31,7 @@ public class ParameterReader
 
 	static
 	{
-		SortedSet<Class<?>> converterClasses = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(UrlParamConverterFor.class);
+		SortedSet<Class<?>> converterClasses = AnnotationUtils.INSTANCE.findClassesWithAnnotation(UrlParamConverterFor.class);
 		for (Class<?> cls : converterClasses)
 		{
 			try

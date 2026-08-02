@@ -12,12 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.Assert.*;
 
-public class ControllerKonformitaetTest
+public class ControllerConformityTest
 {
 	@Test
-	public void alleAnnotiertenControllerBesitzenEinenSichtbarenParameterlosenOderSindMitAutowiredAnnotiertKonstruktor()
+	public void everyAnnotatedControllerHasAVisibleNoArgConstructorOrAnAutowiredOne()
 	{
-		SortedSet<Class<?>> classes = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(Module.class);
+		SortedSet<Class<?>> classes = AnnotationUtils.INSTANCE.findClassesWithAnnotation(Module.class);
 		for (Class<?> aClass : classes)
 		{
 			assertEquals(1, aClass.getConstructors().length);
@@ -47,9 +47,9 @@ public class ControllerKonformitaetTest
 	}
 
 	@Test
-	public void alleMitModuleAnnotiertenKlassenSindVonControllerAbgeleitet()
+	public void everyClassAnnotatedWithModuleExtendsController()
 	{
-		SortedSet<Class<?>> classes = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(Module.class);
+		SortedSet<Class<?>> classes = AnnotationUtils.INSTANCE.findClassesWithAnnotation(Module.class);
 		for (Class<?> aClass : classes)
 		{
 			if( !Controller.class.isAssignableFrom(aClass) )

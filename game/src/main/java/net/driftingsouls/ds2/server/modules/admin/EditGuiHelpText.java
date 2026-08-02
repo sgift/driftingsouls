@@ -39,7 +39,7 @@ public class EditGuiHelpText implements EntityEditor<GuiHelpText>
 	{
 		List<GuiHelpText> list = Common.cast(ContextMap.getContext().getDB().createCriteria(GuiHelpText.class).list());
 		Set<String> modulesWithHelp = list.stream().map(GuiHelpText::getPage).collect(Collectors.toSet());
-		return AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(Module.class).stream()
+		return AnnotationUtils.INSTANCE.findClassesWithAnnotation(Module.class).stream()
 				.map((cls) -> cls.getAnnotation(Module.class).name())
 				.filter((s) -> !modulesWithHelp.contains(s))
 				.collect(Collectors.toMap((s) -> s, (s) -> s));

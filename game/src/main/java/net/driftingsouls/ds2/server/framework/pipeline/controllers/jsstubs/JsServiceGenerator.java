@@ -42,7 +42,7 @@ public class JsServiceGenerator
 			writer.writeLine("(function() {").indent(1);
 			writer.writeLine("var angularModule = angular.module('ds.service.ajax', ['ds.service.ds']);");
 
-			SortedSet<Class<?>> ctrlClasses = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(Module.class);
+			SortedSet<Class<?>> ctrlClasses = AnnotationUtils.INSTANCE.findClassesWithAnnotation(Module.class);
 			for (Class<?> ctrlClass : ctrlClasses)
 			{
 				writeJsForController(writer, new ControllerAnalyser(ctrlClass));

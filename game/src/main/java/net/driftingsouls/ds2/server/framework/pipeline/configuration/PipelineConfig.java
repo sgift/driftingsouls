@@ -65,7 +65,7 @@ public class PipelineConfig {
 	}
 
 	private void scanForModules() {
-		SortedSet<Class<?>> entityClasses = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(Module.class);
+		SortedSet<Class<?>> entityClasses = AnnotationUtils.INSTANCE.findClassesWithAnnotation(Module.class);
 		for( Class<?> cls : entityClasses )
 		{
 			Module modConfig = cls.getAnnotation(Module.class);

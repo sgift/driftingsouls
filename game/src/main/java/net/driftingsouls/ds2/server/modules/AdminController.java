@@ -65,7 +65,7 @@ public class AdminController extends Controller
 
 	static
 	{
-		SortedSet<Class<?>> entityClasses = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(AdminMenuEntry.class);
+		SortedSet<Class<?>> entityClasses = AnnotationUtils.INSTANCE.findClassesWithAnnotation(AdminMenuEntry.class);
 		plugins.addAll(entityClasses.stream().filter(cls -> AdminPlugin.class.isAssignableFrom(cls) || EntityEditor.class.isAssignableFrom(cls)).collect(Collectors.toList()));
 	}
 

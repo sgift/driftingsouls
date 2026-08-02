@@ -107,7 +107,7 @@ public class HibernateUtil
 		configuration.addSqlFunction("bit_or", new SQLFunctionTemplate(IntegerType.INSTANCE, "?1 | ?2"));
 
 		//Find all annotated classes and add to configuration
-		SortedSet<Class<?>> entityClasses = AnnotationUtils.INSTANCE.findeKlassenMitAnnotation(javax.persistence.Entity.class);
+		SortedSet<Class<?>> entityClasses = AnnotationUtils.INSTANCE.findClassesWithAnnotation(javax.persistence.Entity.class);
 		entityClasses.forEach(configuration::addAnnotatedClass);
 
 		// Create the SessionFactory from hibernate.xml

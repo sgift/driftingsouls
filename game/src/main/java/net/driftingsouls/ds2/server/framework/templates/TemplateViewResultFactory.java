@@ -48,7 +48,7 @@ public class TemplateViewResultFactory
 		return clsName.toLowerCase() + ".html";
 	}
 
-	private void setzeTemplateViaControllerNamen(TemplateEngine engine, Object controller)
+	private void setTemplateFromControllerName(TemplateEngine engine, Object controller)
 	{
 		setTemplate(engine, templateNameFor(controller.getClass()));
 	}
@@ -94,7 +94,7 @@ public class TemplateViewResultFactory
 	public TemplateEngine createFor(@Nonnull Object controller)
 	{
 		TemplateEngine engine = createTemplateEngine(MASTERTEMPLATE);
-		setzeTemplateViaControllerNamen(engine, controller);
+		setTemplateFromControllerName(engine, controller);
 
 		return engine;
 	}
