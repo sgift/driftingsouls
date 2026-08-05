@@ -188,6 +188,11 @@ A non-player organisation in the game world. Factions award Loyalty Points for s
 sell goods in return for them.
 _Avoid_: Fraktion
 
+**Faction Gui Entry**:
+An entry on the page where Factions advertise themselves to players. "Gui" here carries its ordinary
+meaning of graphical user interface, and is kept.
+_Avoid_: FraktionsGuiEintrag
+
 **Race**:
 The species a User belongs to, affecting available Ship Types and Research.
 _Avoid_: Rasse

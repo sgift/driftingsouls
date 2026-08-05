@@ -22,7 +22,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 
-public class SchlachtErstellenServiceTest extends DBSingleTransactionTest
+public class BattleCreationServiceTest extends DBSingleTransactionTest
 {
 	private final List<Ship> ships1 = new ArrayList<>();
 	private final List<Ship> ships2 = new ArrayList<>();
@@ -41,7 +41,7 @@ public class SchlachtErstellenServiceTest extends DBSingleTransactionTest
 	 */
 	@Before
 	public void loadFleets() {
-		// SchlachtErstellenService.checkBattleConditions() laedt das StarSystem des angreifenden
+		// BattleCreationService.checkBattleConditions() laedt das StarSystem des angreifenden
 		// Schiffes und prueft isBattleAllowed() - dafuer muessen die verwendeten Systeme existieren.
 		system1 = persist(new StarSystem());
 		system2 = persist(new StarSystem());
@@ -70,12 +70,12 @@ public class SchlachtErstellenServiceTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenZweiFlotten_erstelle_sollteEineSchlachtErstellen() {
+	public void givenTwoFleets_create_shouldCreateABattle() {
 		// setup
-		SchlachtErstellenService schlachtErstellenService = new SchlachtErstellenService(getEM(), new ConfigService(getEM()));
+		BattleCreationService battleCreationService = new BattleCreationService(getEM(), new ConfigService(getEM()));
 
 		// run
-		Battle battle = schlachtErstellenService.erstelle(user1, ships1.get(0), ships2.get(0), true);
+		Battle battle = battleCreationService.create(user1, ships1.get(0), ships2.get(0), true);
 
 		// assert
 		assertThat(battle, not(nullValue()));
@@ -93,14 +93,14 @@ public class SchlachtErstellenServiceTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenZweiSchiffe_erstelle_sollteEineSchlachtErstellen() {
+	public void givenTwoShips_create_shouldCreateABattle() {
 		// setup
-		SchlachtErstellenService schlachtErstellenService = new SchlachtErstellenService(getEM(), new ConfigService(getEM()));
+		BattleCreationService battleCreationService = new BattleCreationService(getEM(), new ConfigService(getEM()));
 		ships1.get(0).setLocation(new Location(system2.getID(), 2, 2));
 		ships2.get(0).setLocation(new Location(system2.getID(), 2, 2));
 
 		// run
-		Battle battle = schlachtErstellenService.erstelle(user1, ships1.get(0), ships2.get(0), true);
+		Battle battle = battleCreationService.create(user1, ships1.get(0), ships2.get(0), true);
 
 		// assert
 		assertThat(battle, not(nullValue()));
@@ -114,46 +114,46 @@ public class SchlachtErstellenServiceTest extends DBSingleTransactionTest
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void gegebenZweiSchiffeInUnterschiedlichenSektoren_erstelle_sollteEineExceptionWerfen() {
+	public void givenTwoShipsInDifferentSectors_create_shouldThrowAnException() {
 		// setup
-		SchlachtErstellenService schlachtErstellenService = new SchlachtErstellenService(getEM(), new ConfigService(getEM()));
+		BattleCreationService battleCreationService = new BattleCreationService(getEM(), new ConfigService(getEM()));
 		ships1.get(0).setLocation(new Location(system2.getID(), 2, 2));
 		ships2.get(0).setLocation(new Location(system1.getID(), 2, 2));
 
 		// run
-		schlachtErstellenService.erstelle(user1, ships1.get(0), ships2.get(0), true);
+		battleCreationService.create(user1, ships1.get(0), ships2.get(0), true);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void gegebenZweiFlottenUndEinenAngegriffenenSpielerImNoobModus_erstelle_sollteEineExceptionWerfen() {
+	public void givenTwoFleetsAndAnAttackedPlayerInNoobMode_create_shouldThrowAnException() {
 		// setup
-		SchlachtErstellenService schlachtErstellenService = new SchlachtErstellenService(getEM(), new ConfigService(getEM()));
+		BattleCreationService battleCreationService = new BattleCreationService(getEM(), new ConfigService(getEM()));
 		user2.setFlag(UserFlag.NOOB, true);
 
 		// run
-		schlachtErstellenService.erstelle(user1, ships1.get(0), ships2.get(0), true);
+		battleCreationService.create(user1, ships1.get(0), ships2.get(0), true);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void gegebenZweiFlottenUndEinenAngreifendenSpielerImNoobModus_erstelle_sollteEineExceptionWerfen() {
+	public void givenTwoFleetsAndAnAttackingPlayerInNoobMode_create_shouldThrowAnException() {
 		// setup
-		SchlachtErstellenService schlachtErstellenService = new SchlachtErstellenService(getEM(), new ConfigService(getEM()));
+		BattleCreationService battleCreationService = new BattleCreationService(getEM(), new ConfigService(getEM()));
 		user1.setFlag(UserFlag.NOOB, true);
 
 		// run
-		schlachtErstellenService.erstelle(user1, ships1.get(0), ships2.get(0), true);
+		battleCreationService.create(user1, ships1.get(0), ships2.get(0), true);
 	}
 
 	@Test
-	public void gegebenZweiFlottenUndEinUnbeteiligerSpieler_erstelle_sollteEineSchlachtNurAusDenZweiFlottenErstellen() {
+	public void givenTwoFleetsAndAnUninvolvedPlayer_create_shouldCreateABattleFromTheTwoFleetsOnly() {
 		// setup
-		SchlachtErstellenService schlachtErstellenService = new SchlachtErstellenService(getEM(), new ConfigService(getEM()));
+		BattleCreationService battleCreationService = new BattleCreationService(getEM(), new ConfigService(getEM()));
 		Location loc = ships3.get(0).getLocation();
 		ships1.forEach(s -> s.setLocation(loc));
 		ships2.forEach(s -> s.setLocation(loc));
 
 		// run
-		Battle battle = schlachtErstellenService.erstelle(user1, ships1.get(0), ships2.get(0), true);
+		Battle battle = battleCreationService.create(user1, ships1.get(0), ships2.get(0), true);
 
 		// assert
 		assertThat(battle, not(nullValue()));
@@ -167,14 +167,14 @@ public class SchlachtErstellenServiceTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenZweiFlottenUndWeitereSchiffeAnAnderenPositionen_erstelle_sollteEineSchlachtNurAusDenSchiffenAnDerPositionErstellen() {
+	public void givenTwoFleetsAndFurtherShipsAtOtherPositions_create_shouldCreateABattleFromTheShipsAtThePositionOnly() {
 		// setup
-		SchlachtErstellenService schlachtErstellenService = new SchlachtErstellenService(getEM(), new ConfigService(getEM()));
+		BattleCreationService battleCreationService = new BattleCreationService(getEM(), new ConfigService(getEM()));
 		persist(new Ship(user1, shipType, system1.getID(), 2, 2));
 		persist(new Ship(user2, shipType, system1.getID(), 2, 2));
 
 		// run
-		Battle battle = schlachtErstellenService.erstelle(user1, ships1.get(0), ships2.get(0), true);
+		Battle battle = battleCreationService.create(user1, ships1.get(0), ships2.get(0), true);
 
 		// assert
 		assertThat(battle, not(nullValue()));
@@ -188,9 +188,9 @@ public class SchlachtErstellenServiceTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenDreiFlottenMitZweienInDerGleichenAllianz_erstelle_sollteEineSchlachtAusDenDreiFlottenErstellen() {
+	public void givenThreeFleetsWithTwoInTheSameAlliance_create_shouldCreateABattleFromTheThreeFleets() {
 		// setup
-		SchlachtErstellenService schlachtErstellenService = new SchlachtErstellenService(getEM(), new ConfigService(getEM()));
+		BattleCreationService battleCreationService = new BattleCreationService(getEM(), new ConfigService(getEM()));
 		Location loc = ships3.get(0).getLocation();
 		ships1.forEach(s -> s.setLocation(loc));
 		ships2.forEach(s -> s.setLocation(loc));
@@ -201,7 +201,7 @@ public class SchlachtErstellenServiceTest extends DBSingleTransactionTest
 		user3.setAlly(ally);
 
 		// run
-		Battle battle = schlachtErstellenService.erstelle(user1, ships1.get(0), ships2.get(0), true);
+		Battle battle = battleCreationService.create(user1, ships1.get(0), ships2.get(0), true);
 
 		// assert
 		assertThat(battle, not(nullValue()));
@@ -215,9 +215,9 @@ public class SchlachtErstellenServiceTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenDreiFlottenMitZweienInDerGleichenAllianzAberEinemImNoobModus_erstelle_sollteEineSchlachtAusZweiFlottenErstellen() {
+	public void givenThreeFleetsWithTwoInTheSameAllianceButOneInNoobMode_create_shouldCreateABattleFromTwoFleets() {
 		// setup
-		SchlachtErstellenService schlachtErstellenService = new SchlachtErstellenService(getEM(), new ConfigService(getEM()));
+		BattleCreationService battleCreationService = new BattleCreationService(getEM(), new ConfigService(getEM()));
 		Location loc = ships3.get(0).getLocation();
 		ships1.forEach(s -> s.setLocation(loc));
 		ships2.forEach(s -> s.setLocation(loc));
@@ -230,7 +230,7 @@ public class SchlachtErstellenServiceTest extends DBSingleTransactionTest
 		user3.setFlag(UserFlag.NOOB);
 
 		// run
-		Battle battle = schlachtErstellenService.erstelle(user1, ships1.get(0), ships2.get(0), true);
+		Battle battle = battleCreationService.create(user1, ships1.get(0), ships2.get(0), true);
 
 		// assert
 		assertThat(battle, not(nullValue()));

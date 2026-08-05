@@ -10,7 +10,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.services.SchlachtErstellenService;
+import net.driftingsouls.ds2.server.services.BattleCreationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
@@ -27,14 +27,14 @@ import java.util.concurrent.ThreadLocalRandom;
 @RequestScope
 public class SchiffFlugService
 {
-	private final SchlachtErstellenService schlachtErstellenService;
+	private final BattleCreationService battleCreationService;
 	private final ConfigService configService;
 	private final EntityManager db;
 
 	@Autowired
-	public SchiffFlugService(SchlachtErstellenService schlachtErstellenService, ConfigService configService, EntityManager db)
+	public SchiffFlugService(BattleCreationService battleCreationService, ConfigService configService, EntityManager db)
 	{
-		this.schlachtErstellenService = schlachtErstellenService;
+		this.battleCreationService = battleCreationService;
 		this.configService = configService;
 		this.db = db;
 	}
@@ -849,7 +849,7 @@ public class SchiffFlugService
 		}
 
 		Ship ship = attackShips.get(0); //Take some ship .. no special mechanism here.
-		schlachtErstellenService.erstelle(ship.getOwner(), ship, schiff, true);
+		battleCreationService.create(ship.getOwner(), ship, schiff, true);
 	}
 
 	/**

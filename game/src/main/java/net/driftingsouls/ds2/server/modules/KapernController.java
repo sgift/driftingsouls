@@ -35,7 +35,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
-import net.driftingsouls.ds2.server.services.SchlachtErstellenService;
+import net.driftingsouls.ds2.server.services.BattleCreationService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -66,16 +66,16 @@ import java.util.concurrent.ThreadLocalRandom;
 public class KapernController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
-	private final SchlachtErstellenService schlachtErstellenService;
+	private final BattleCreationService battleCreationService;
 	private final ConfigService configService;
 
 	@Autowired
 	public KapernController(TemplateViewResultFactory templateViewResultFactory,
-			SchlachtErstellenService schlachtErstellenService,
+			BattleCreationService battleCreationService,
 			ConfigService configService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
-		this.schlachtErstellenService = schlachtErstellenService;
+		this.battleCreationService = battleCreationService;
 		this.configService = configService;
 	}
 
@@ -534,7 +534,7 @@ public class KapernController extends Controller
 				User source = (User) getDB().get(User.class, -1);
 				PM.send(source, targetShip.getOwner().getId(), "Kaperversuch entdeckt", "Ihre Schiffe haben einen Kaperversuch bei " + targetShip.getLocation().displayCoordinates(false) + " vereitelt und den Gegner angegriffen.", db);
 
-				Battle battle = schlachtErstellenService.erstelle(targetShip.getOwner(), targetShip, ownShip, true);
+				Battle battle = battleCreationService.create(targetShip.getOwner(), targetShip, ownShip, true);
 
 				t.setVar(
 						"kapern.message", "Ihr Kaperversuch wurde entdeckt und die gegnerischen Schiffe haben das Feuer er&ouml;ffnet.",

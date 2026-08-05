@@ -26,14 +26,14 @@ import java.util.*;
 
 @Service
 @RequestScope
-public class SchlachtErstellenService
+public class BattleCreationService
 {
-	private static final Logger LOG = LogManager.getLogger(SchlachtErstellenService.class);
+	private static final Logger LOG = LogManager.getLogger(BattleCreationService.class);
 
 	private final EntityManager db;
 	private final ConfigService configService;
 
-    public SchlachtErstellenService(EntityManager db, ConfigService configService) {
+    public BattleCreationService(EntityManager db, ConfigService configService) {
         this.db = db;
 		this.configService = configService;
     }
@@ -45,8 +45,8 @@ public class SchlachtErstellenService
 	 * @param enemyShipID Die ID des angegriffenen Schiffes
 	 * @return Die Schlacht, falls sie erfolgreich erstellt werden konnte. Andernfalls <code>null</code>
 	 */
-	public Battle erstelle( User user, int ownShipID, int enemyShipID ) {
-		return erstelle(user, db.find(Ship.class, ownShipID), db.find(Ship.class,enemyShipID), false);
+	public Battle create( User user, int ownShipID, int enemyShipID ) {
+		return create(user, db.find(Ship.class, ownShipID), db.find(Ship.class,enemyShipID), false);
 	}
 
 	/**
@@ -58,7 +58,7 @@ public class SchlachtErstellenService
 	 * @return Die Schlacht, falls sie erfolgreich erstellt werden konnte
 	 * @throws java.lang.IllegalArgumentException Falls mit den uebergebenen Parametern keine Schlacht erstellt werden kann
 	 */
-	public Battle erstelle(@Nonnull User user, @Nonnull Ship ownShip, @Nonnull Ship enemyShip, final boolean startOwn ) throws IllegalArgumentException {
+	public Battle create(@Nonnull User user, @Nonnull Ship ownShip, @Nonnull Ship enemyShip, final boolean startOwn ) throws IllegalArgumentException {
 		LOG.info("battle: "+user+" :: "+ownShip.getId()+" :: "+enemyShip.getId());
 
 		Ship tmpEnemyShip = enemyShip;

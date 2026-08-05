@@ -40,7 +40,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.modules.ks.*;
-import net.driftingsouls.ds2.server.services.SchlachtErstellenService;
+import net.driftingsouls.ds2.server.services.BattleCreationService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.units.UnitCargo;
@@ -70,14 +70,14 @@ public class AngriffController extends Controller
 	private final Map<String,Class<? extends BasicKSMenuAction>> menuActions = new HashMap<>();
 
 	private final TemplateViewResultFactory templateViewResultFactory;
-	private final SchlachtErstellenService schlachtErstellenService;
+	private final BattleCreationService battleCreationService;
 
 	@Autowired
 	public AngriffController(ConfigService configService,
 			TemplateViewResultFactory templateViewResultFactory,
-			SchlachtErstellenService schlachtErstellenService) {
+			BattleCreationService battleCreationService) {
 		this.templateViewResultFactory = templateViewResultFactory;
-		this.schlachtErstellenService = schlachtErstellenService;
+		this.battleCreationService = battleCreationService;
 
 		setPageTitle("Schlacht");
 
@@ -534,7 +534,7 @@ public class AngriffController extends Controller
 		Battle battle;
 		if( battleID == 0 ) {
 			try {
-				battle = schlachtErstellenService.erstelle(user, ownShipID, enemyShipID);
+				battle = battleCreationService.create(user, ownShipID, enemyShipID);
 			}
 			catch( IllegalArgumentException e ) {
 				throw new ValidationException(e.getMessage());
