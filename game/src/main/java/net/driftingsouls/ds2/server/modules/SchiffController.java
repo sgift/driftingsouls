@@ -38,7 +38,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.modules.schiffplugins.*;
-import net.driftingsouls.ds2.server.services.HandelspostenService;
+import net.driftingsouls.ds2.server.services.TradingPostService;
 import net.driftingsouls.ds2.server.ships.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -61,16 +61,16 @@ public class SchiffController extends Controller
 	private final Log log = LogFactory.getLog(SchiffController.class);
 	private final TemplateViewResultFactory templateViewResultFactory;
 	private final SchiffSprungService schiffSprungService;
-	private final HandelspostenService handelspostenService;
+	private final TradingPostService tradingPostService;
 
 	@Autowired
 	public SchiffController(TemplateViewResultFactory templateViewResultFactory,
 							SchiffSprungService schiffSprungService,
-							HandelspostenService handelspostenService)
+							TradingPostService tradingPostService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
 		this.schiffSprungService = schiffSprungService;
-		this.handelspostenService = handelspostenService;
+		this.tradingPostService = tradingPostService;
 
 		setPageTitle("Schiff");
 	}
@@ -804,7 +804,7 @@ public class SchiffController extends Controller
 		}
 
 		// Aktion: Schnelllink GTU-Handelsdepot
-		Ship handelShip = handelspostenService.findeHandelspostenInSektor(ship);
+		Ship handelShip = tradingPostService.findTradingPostInSector(ship);
 		if ( handelShip != null )
 		{
 			t.setVar("sector.handel", handelShip.getId(),

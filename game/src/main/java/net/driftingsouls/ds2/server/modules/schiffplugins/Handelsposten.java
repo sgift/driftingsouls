@@ -4,7 +4,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.services.HandelspostenService;
+import net.driftingsouls.ds2.server.services.TradingPostService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,12 +15,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class Handelsposten implements SchiffPlugin
 {
-	private final HandelspostenService handelspostenService;
+	private final TradingPostService tradingPostService;
 
 	@Autowired
-	public Handelsposten(HandelspostenService handelspostenService)
+	public Handelsposten(TradingPostService tradingPostService)
 	{
-		this.handelspostenService = handelspostenService;
+		this.tradingPostService = tradingPostService;
 	}
 
 	@Action(ActionType.DEFAULT)
@@ -47,7 +47,7 @@ public class Handelsposten implements SchiffPlugin
 		}
 		if( versteigerungsbetrag != null )
 		{
-			handelspostenService.versteigereSchiff(caller.ship, versteigerungsbetrag);
+			tradingPostService.auctionShip(caller.ship, versteigerungsbetrag);
 
 			return "Ihr Schiff wurde nun in die Liste der aktuell laufenden Versteigerungen eingetragen. Wir benachichtigen Sie sobald die Versteigerung abgelaufen ist.";
 		}
@@ -58,7 +58,7 @@ public class Handelsposten implements SchiffPlugin
 	public void output(Parameters caller, Ship communicate, String option) {
 		if( "quit".equals(option) ||
 				communicate == null ||
-				!handelspostenService.isKommunikationMoeglich(communicate, caller.ship) )
+				!tradingPostService.isCommunicationPossible(communicate, caller.ship) )
 		{
 			return;
 		}

@@ -35,7 +35,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidationException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
-import net.driftingsouls.ds2.server.services.HandelspostenService;
+import net.driftingsouls.ds2.server.services.TradingPostService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,14 +63,14 @@ import java.util.List;
 public class GtuZwischenLagerController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
-	private final HandelspostenService handelspostenService;
+	private final TradingPostService tradingPostService;
 
 	@Autowired
 	public GtuZwischenLagerController(TemplateViewResultFactory templateViewResultFactory,
-									  HandelspostenService handelspostenService)
+									  TradingPostService tradingPostService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
-		this.handelspostenService = handelspostenService;
+		this.tradingPostService = tradingPostService;
 
 		setPageTitle("GTU-Lager");
 	}
@@ -343,7 +343,7 @@ public class GtuZwischenLagerController extends Controller
 
 	private void validiereHandelspostenKontaktierbar(Ship handel, Ship ship)
 	{
-		if( !handelspostenService.isKommunikationMoeglich(handel, ship) )
+		if( !tradingPostService.isCommunicationPossible(handel, ship) )
 		{
 			throw new ValidationException("Das Schiff kann keinen Kontakt zum Handelsposten aufnehmen");
 		}

@@ -36,7 +36,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.SchiffController;
-import net.driftingsouls.ds2.server.services.HandelspostenService;
+import net.driftingsouls.ds2.server.services.TradingPostService;
 import net.driftingsouls.ds2.server.ships.*;
 import net.driftingsouls.ds2.server.werften.BaseWerft;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
@@ -64,14 +64,14 @@ import java.util.Map;
 public class SensorsDefault implements SchiffPlugin {
 	private static final Log log = LogFactory.getLog(SensorsDefault.class);
 
-	private final HandelspostenService handelspostenService;
+	private final TradingPostService tradingPostService;
 	private final EntityManager db;
 	private final ConfigService configService;
 
 	@Autowired
-	public SensorsDefault(HandelspostenService handelspostenService, EntityManager db, ConfigService configService)
+	public SensorsDefault(TradingPostService tradingPostService, EntityManager db, ConfigService configService)
 	{
-		this.handelspostenService = handelspostenService;
+		this.tradingPostService = tradingPostService;
 		this.db = db;
         this.configService = configService;
     }
@@ -552,7 +552,7 @@ public class SensorsDefault implements SchiffPlugin {
 				}
 
 				// Anfunken
-				if (handelspostenService.isKommunikationMoeglich(aShip, ship))
+				if (tradingPostService.isCommunicationPossible(aShip, ship))
 				{
 					t.setVar("sships.action.communicate", aShip.getId());
 				}
