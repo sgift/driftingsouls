@@ -35,7 +35,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.services.AllianceService;
-import net.driftingsouls.ds2.server.services.AllyPostenService;
+import net.driftingsouls.ds2.server.services.AlliancePostService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.tasks.Task;
@@ -63,17 +63,17 @@ public class AllyController extends Controller
 
 	private final AllianceService allianceService;
 	private final TemplateViewResultFactory templateViewResultFactory;
-	private final AllyPostenService allyPostenService;
+	private final AlliancePostService alliancePostService;
 	private Ally ally = null;
 
 	@Autowired
 	public AllyController(AllianceService allianceService,
 			TemplateViewResultFactory templateViewResultFactory,
-			AllyPostenService allyPostenService)
+			AlliancePostService alliancePostService)
 	{
 		this.allianceService = allianceService;
 		this.templateViewResultFactory = templateViewResultFactory;
-		this.allyPostenService = allyPostenService;
+		this.alliancePostService = alliancePostService;
 
 		setPageTitle("Allianz");
 	}
@@ -385,7 +385,7 @@ public class AllyController extends Controller
 			return new RedirectViewResult("showPosten").withMessage("Fehler: Der angegebene Posten ist ungültig.");
 		}
 
-		allyPostenService.loesche(posten);
+		alliancePostService.delete(posten);
 
 		return new RedirectViewResult("showPosten").withMessage("Posten gelöscht.");
 	}
@@ -456,15 +456,15 @@ public class AllyController extends Controller
 			return new RedirectViewResult("showPosten").withMessage("Fehler: Jedem Mitglied darf maximal ein Posten zugewiesen werden.");
 		}
 
-		int postencount = allyPostenService.getAnzahlPostenDerAllianz(ally);
-		int maxposten = allyPostenService.getMaxPostenDerAllianz(ally);
+		int postencount = alliancePostService.getPostCountOfAlliance(ally);
+		int maxposten = alliancePostService.getMaxPostCountOfAlliance(ally);
 
 		if (maxposten <= postencount)
 		{
 			return new RedirectViewResult("showPosten").withMessage("Fehler: Sie haben bereits die maximale Anzahl an Posten erreicht.");
 		}
 
-		AllyPosten posten = allyPostenService.erstelle(this.ally, name);
+		AllyPosten posten = alliancePostService.create(this.ally, name);
 		formuser.setAllyPosten(posten);
 
 		return new RedirectViewResult("showPosten").withMessage("Der Posten " + Common._plaintitle(name) + " wurde erstellt und zugewiesen.");
@@ -1002,8 +1002,8 @@ public class AllyController extends Controller
 
 		List<User> allymember = this.ally.getMembers();
 
-		int postencount = allyPostenService.getAnzahlPostenDerAllianz(ally);
-		int maxposten = allyPostenService.getMaxPostenDerAllianz(ally);
+		int postencount = alliancePostService.getPostCountOfAlliance(ally);
+		int maxposten = alliancePostService.getMaxPostCountOfAlliance(ally);
 
 		t.setVar("show.posten", 1,
 				"show.posten.count", postencount,
