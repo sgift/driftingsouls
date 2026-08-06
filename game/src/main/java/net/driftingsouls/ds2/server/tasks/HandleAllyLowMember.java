@@ -24,7 +24,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.services.AllianzService;
+import net.driftingsouls.ds2.server.services.AllianceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,13 +41,13 @@ import javax.persistence.EntityManager;
  */
 @Service
 public class HandleAllyLowMember implements TaskHandler {
-	private final AllianzService allianzService;
+	private final AllianceService allianceService;
 	private final ConfigService configService;
 
 	@Autowired
-	public HandleAllyLowMember(AllianzService allianzService, ConfigService configService)
+	public HandleAllyLowMember(AllianceService allianceService, ConfigService configService)
 	{
-		this.allianzService = allianzService;
+		this.allianceService = allianceService;
         this.configService = configService;
     }
 
@@ -67,7 +67,7 @@ public class HandleAllyLowMember implements TaskHandler {
 
 			PM.sendToAlly(source, ally, "Allianzauflösung", "[Automatische Nachricht]\n\nDeine Allianz wurde mit sofortiger Wirkung aufgel&ouml;st. Der Grund ist Spielermangel. Grunds&auml;tzlich m&uuml;ssen Allianzen mindestens 2 Mitglieder haben um bestehen zu k&ouml;nnen. Da deine Allianz in der vorgegebenen Zeit dieses Ziel nicht erreichen konnte war die Aufl&ouml;sung unumg&auml;nglich.", db);
 
-			allianzService.loeschen(ally);
+			allianceService.delete(ally);
 
 			Taskmanager.getInstance().removeTask( task.getTaskID() );
 		}

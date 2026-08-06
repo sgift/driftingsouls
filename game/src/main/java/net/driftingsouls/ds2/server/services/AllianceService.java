@@ -27,14 +27,14 @@ import java.util.Set;
  */
 @Service
 @RequestScope
-public class AllianzService
+public class AllianceService
 {
-	public void loeschen(@Nonnull Ally allianz)
+	public void delete(@Nonnull Ally alliance)
 	{
 		var db = ContextMap.getContext().getEM();
 
 		List<ComNetChannel> chnList = db.createQuery("from ComNetChannel where allyOwner=:owner", ComNetChannel.class)
-				.setParameter("owner", allianz)
+				.setParameter("owner", alliance)
 				.getResultList();
 		for (ComNetChannel channel: chnList)
 		{
@@ -52,11 +52,11 @@ public class AllianzService
 		int tick = ContextMap.getContext().get(ContextCommon.class).getTick();
 
 		List<User> uids = db.createQuery("from User where ally=:ally", User.class)
-				.setParameter("ally", allianz)
+				.setParameter("ally", alliance)
 				.getResultList();
 		for (User auser: uids)
 		{
-			auser.addHistory(Common.getIngameTime(tick) + ": Verlassen der Allianz " + allianz.getName() + " im Zuge der Aufl&ouml;sung dieser Allianz");
+			auser.addHistory(Common.getIngameTime(tick) + ": Verlassen der Allianz " + alliance.getName() + " im Zuge der Aufl&ouml;sung dieser Allianz");
 			auser.setAlly(null);
 			if (auser.getAllyPosten() != null)
 			{
@@ -68,61 +68,61 @@ public class AllianzService
 		}
 
 		db.createQuery("delete from AllyPosten where ally=:ally")
-				.setParameter("ally", allianz)
+				.setParameter("ally", alliance)
 				.executeUpdate();
 
 		// Delete Ally from running Battles
 
 		var battleQuery = db.createQuery("from Battle " +
 				"where ally1 = :ally or ally2 = :ally", Battle.class)
-				.setParameter("ally", allianz.getId());
+				.setParameter("ally", alliance.getId());
 
 		Set<Battle> battles = new LinkedHashSet<>(battleQuery.getResultList());
 		for (Battle battle : battles)
 		{
-			if (battle.getAlly(0) == allianz.getId())
+			if (battle.getAlly(0) == alliance.getId())
 			{
 				battle.setAlly(0, 0);
 			}
-			if (battle.getAlly(1) == allianz.getId())
+			if (battle.getAlly(1) == alliance.getId())
 			{
 				battle.setAlly(1, 0);
 			}
 		}
 
-		allianz.removeAllMembers();
-		db.remove(allianz);
+		alliance.removeAllMembers();
+		db.remove(alliance);
 	}
 
 	/**
 	 * Entfernt einen Spieler aus der Allianz.
 	 *
-	 * @param allianz Die Allianz
-	 * @param mitglied Der Spieler
+	 * @param alliance Die Allianz
+	 * @param member Der Spieler
 	 */
-	public void entferneMitglied(@Nonnull Ally allianz, User mitglied, EntityManager db)
+	public void removeMember(@Nonnull Ally alliance, User member, EntityManager db)
 	{
 		final Context context = ContextMap.getContext();
 
-		allianz.removeMember(mitglied);
-		mitglied.setAlly(null);
-		mitglied.setAllyPosten(null);
-		mitglied.setName(mitglied.getNickname());
+		alliance.removeMember(member);
+		member.setAlly(null);
+		member.setAllyPosten(null);
+		member.setName(member.getNickname());
 
 		db.createQuery("update Battle set ally1=0 where commander1= :user and ally1= :ally")
-				.setParameter("user", mitglied)
-				.setParameter("ally", allianz)
+				.setParameter("user", member)
+				.setParameter("ally", alliance)
 				.executeUpdate();
 
 		db.createQuery("update Battle set ally2=0 where commander2= :user and ally2= :ally")
-				.setParameter("user", mitglied)
-				.setParameter("ally", allianz)
+				.setParameter("user", member)
+				.setParameter("ally", alliance)
 				.executeUpdate();
 
 		int tick = context.get(ContextCommon.class).getTick();
-		mitglied.addHistory(Common.getIngameTime(tick) + ": Verlassen der Allianz " + allianz.getName());
+		member.addHistory(Common.getIngameTime(tick) + ": Verlassen der Allianz " + alliance.getName());
 
-		pruefeAufZuWenigMitglieder(allianz, db);
+		checkForTooFewMembers(alliance, db);
 	}
 
 	/**
@@ -131,21 +131,21 @@ public class AllianzService
 	 * wird eine entsprechende Task gesetzt und die Mitglieder davon
 	 * in kenntnis gesetzt.
 	 *
-	 * @param allianz Die Allianz
+	 * @param alliance Die Allianz
 	 */
-	public void pruefeAufZuWenigMitglieder(@Nonnull Ally allianz, EntityManager db)
+	public void checkForTooFewMembers(@Nonnull Ally alliance, EntityManager db)
 	{
 		// Ist der Praesident kein NPC (negative ID) ?
-		if (allianz.getPresident().getId() > 0)
+		if (alliance.getPresident().getId() > 0)
 		{
-			long count = allianz.getMemberCount();
+			long count = alliance.getMemberCount();
 			if (count < 3)
 			{
-				Taskmanager.getInstance().addTask(Taskmanager.Types.ALLY_LOW_MEMBER, 21, Integer.toString(allianz.getId()), "", "");
+				Taskmanager.getInstance().addTask(Taskmanager.Types.ALLY_LOW_MEMBER, 21, Integer.toString(alliance.getId()), "", "");
 
 				final User nullUser = db.find(User.class, 0);
 
-				List<User> supermembers = getAllianzfuehrung(allianz);
+				List<User> supermembers = getAllianceLeadership(alliance);
 				for (User supermember : supermembers)
 				{
 					PM.send(nullUser, supermember.getId(), "Drohende Allianzauflösung",
@@ -163,7 +163,7 @@ public class AllianzService
 	 * @param user Der User
 	 * @return <code>true</code> falls dem so ist
 	 */
-	public boolean isUserAnAllianzgruendungBeteiligt(@Nonnull User user)
+	public boolean isUserInvolvedInAllianceFounding(@Nonnull User user)
 	{
 		Taskmanager taskmanager = Taskmanager.getInstance();
 
@@ -183,16 +183,16 @@ public class AllianzService
 	/**
 	 * Gibt alle Mitglieder der Allianzfuehrung zurueck, d.h. User mit Posten in der Allianz und der
 	 * Allianzpraesident.
-	 * @param allianz Die Allianz
+	 * @param alliance Die Allianz
 	 * @return Die Liste der User
 	 */
-	public List<User> getAllianzfuehrung(@Nonnull Ally allianz)
+	public List<User> getAllianceLeadership(@Nonnull Ally alliance)
 	{
 		Session db = ContextMap.getContext().getDB();
 		List<?> userList = db
 				.createQuery("select distinct u from User u join u.ally a " +
 						"where a.id= :allyId and (u.allyposten is not null or a.president.id=u.id)")
-				.setInteger("allyId", allianz.getId())
+				.setInteger("allyId", alliance.getId())
 				.list();
 		return Common.cast(userList);
 	}

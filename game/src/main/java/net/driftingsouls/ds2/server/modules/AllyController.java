@@ -34,7 +34,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
-import net.driftingsouls.ds2.server.services.AllianzService;
+import net.driftingsouls.ds2.server.services.AllianceService;
 import net.driftingsouls.ds2.server.services.AllyPostenService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -61,17 +61,17 @@ public class AllyController extends Controller
 {
 	private static final Log log = LogFactory.getLog(AllyController.class);
 
-	private final AllianzService allianzService;
+	private final AllianceService allianceService;
 	private final TemplateViewResultFactory templateViewResultFactory;
 	private final AllyPostenService allyPostenService;
 	private Ally ally = null;
 
 	@Autowired
-	public AllyController(AllianzService allianzService,
+	public AllyController(AllianceService allianceService,
 			TemplateViewResultFactory templateViewResultFactory,
 			AllyPostenService allyPostenService)
 	{
-		this.allianzService = allianzService;
+		this.allianceService = allianceService;
 		this.templateViewResultFactory = templateViewResultFactory;
 		this.allyPostenService = allyPostenService;
 
@@ -160,7 +160,7 @@ public class AllyController extends Controller
 			return new RedirectViewResult("showCreateAlly").withMessage("<span style=\"color:red\">Der angegebene Unterstützer ist ungültig.</span>\n");
 		}
 
-		if (allianzService.isUserAnAllianzgruendungBeteiligt(confuser1))
+		if (allianceService.isUserInvolvedInAllianceFounding(confuser1))
 		{
 			confuser1 = null;
 		}
@@ -214,7 +214,7 @@ public class AllyController extends Controller
 			return new RedirectViewResult("defaultNoAlly").withMessage("Die angegebene Allianz existiert nicht.");
 		}
 
-		if (allianzService.isUserAnAllianzgruendungBeteiligt(user))
+		if (allianceService.isUserInvolvedInAllianceFounding(user))
 		{
 			return new RedirectViewResult("defaultNoAlly").withMessage("Es gibt eine oder mehrere Anfragen an Sie zwecks Unterstützung einer Allianzgründung. Sie müssen diese Anfragen erst bearbeiten, bevor Sie einer Allianz beitreten können.");
 		}
@@ -251,7 +251,7 @@ public class AllyController extends Controller
 
 		String taskid = taskmanager.addTask(Taskmanager.Types.ALLY_NEW_MEMBER, 35, Integer.toString(zielAllianz.getId()), Integer.toString(user.getId()), "");
 
-		List<User> supermembers = allianzService.getAllianzfuehrung(zielAllianz);
+		List<User> supermembers = allianceService.getAllianceLeadership(zielAllianz);
 		for (User supermember : supermembers)
 		{
 			PM.send(user, supermember.getId(),
@@ -783,7 +783,7 @@ public class AllyController extends Controller
 		PM.send(user, this.ally.getPresident().getId(), "Allianzaustritt",
 				"Hiermit erklären wir den sofortigen Austritt aus der Allianz.", getEM());
 
-		allianzService.entferneMitglied(ally, user, getEM());
+		allianceService.removeMember(ally, user, getEM());
 		this.ally = null;
 
 		return new RedirectViewResult("defaultNoAlly").withMessage("Du hast die Allianz verlassen.");
@@ -819,7 +819,7 @@ public class AllyController extends Controller
 		{
 			PM.sendToAlly(user, this.ally, "Allianz aufgelöst", "Die Allianz wurde mit sofortiger Wirkung aufgelöst.", getEM());
 
-			allianzService.loeschen(this.ally);
+			allianceService.delete(this.ally);
 			this.ally = null;
 
 			return new RedirectViewResult("defaultNoAlly").withMessage("Die Allianz wurde aufgelöst.");
@@ -879,7 +879,7 @@ public class AllyController extends Controller
 			return new RedirectViewResult("showMembers").withMessage("Dieser Spieler ist nicht Mitglied Ihrer Allianz.");
 		}
 
-		this.allianzService.entferneMitglied(ally, kickuser, getEM());
+		this.allianceService.removeMember(ally, kickuser, getEM());
 
 		PM.send(this.ally.getPresident(), kickuser.getId(), "Aus der Allianz geworfen", "Ich habe Dich aus der Allianz geworfen.", getEM());
 

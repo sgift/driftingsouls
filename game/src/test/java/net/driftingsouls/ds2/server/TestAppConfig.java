@@ -37,7 +37,7 @@ public class TestAppConfig
 	/**
 	 * In Produktion registriert der Servlet-Container (via {@code RequestContextListener}/
 	 * {@code DispatcherServlet}) den "request"-Scope automatisch. Tests laufen ausserhalb eines
-	 * echten Web-Requests, sodass Beans mit {@code @RequestScope} (z.B. {@code AllianzService})
+	 * echten Web-Requests, sodass Beans mit {@code @RequestScope} (z.B. {@code AllianceService})
 	 * sonst mit "No Scope registered for scope name 'request'" fehlschlagen. {@link SimpleThreadScope}
 	 * ist Springs eigene, fuer genau diesen Testfall gedachte Ersatzimplementierung.
 	 */
