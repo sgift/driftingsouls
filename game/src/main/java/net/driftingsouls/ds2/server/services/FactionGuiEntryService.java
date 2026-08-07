@@ -15,11 +15,11 @@ import java.util.List;
  */
 @Service
 @RequestScope
-public class FraktionsGuiEintragService
+public class FactionGuiEntryService
 {
 	private final EntityManager db;
 
-    public FraktionsGuiEintragService(EntityManager db) {
+    public FactionGuiEntryService(EntityManager db) {
         this.db = db;
     }
 
@@ -27,7 +27,7 @@ public class FraktionsGuiEintragService
 	 * Findet alle GUI-Daten fuer die Fraktionsmaske.
 	 * @return Die Liste der GUI-Daten
 	 */
-	public List<FraktionsGuiEintrag> findeAlle()
+	public List<FraktionsGuiEintrag> findAll()
 	{
 		return db.createQuery("from FraktionsGuiEintrag", FraktionsGuiEintrag.class).getResultList();
 	}
@@ -37,7 +37,7 @@ public class FraktionsGuiEintragService
 	 * @param user Der Benutzer
 	 * @return Die GUI-Daten oder <code>null</code>
 	 */
-	public @Nullable FraktionsGuiEintrag findeNachUser(@Nonnull User user)
+	public @Nullable FraktionsGuiEintrag findByUser(@Nonnull User user)
 	{
 		return db.createQuery("from FraktionsGuiEintrag where user=:user", FraktionsGuiEintrag.class)
 				.setParameter("user", user)

@@ -14,7 +14,7 @@ import net.driftingsouls.ds2.server.entities.UserRank;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.FactionShopOrder;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionAktionsMeldung;
 import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintrag;
-import net.driftingsouls.ds2.server.services.FraktionsGuiEintragService;
+import net.driftingsouls.ds2.server.services.FactionGuiEntryService;
 import net.driftingsouls.ds2.server.entities.npcorders.Order;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderOffizier;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderShip;
@@ -60,7 +60,7 @@ import java.util.stream.Collectors;
 @Module(name = "npc")
 public class NpcController extends Controller
 {
-	private final FraktionsGuiEintragService fraktionsGuiEintragService;
+	private final FactionGuiEntryService factionGuiEntryService;
 	private boolean isHead = false;
 	private boolean shop = false;
 
@@ -68,9 +68,9 @@ public class NpcController extends Controller
 	 * Konstruktor.
 	 */
 	@Autowired
-	public NpcController(FraktionsGuiEintragService fraktionsGuiEintragService)
+	public NpcController(FactionGuiEntryService factionGuiEntryService)
 	{
-		this.fraktionsGuiEintragService = fraktionsGuiEintragService;
+		this.factionGuiEntryService = factionGuiEntryService;
 	}
 
 	@Override
@@ -88,7 +88,7 @@ public class NpcController extends Controller
 			this.isHead = true;
 		}
 
-		FraktionsGuiEintrag fraktionsGuiEintrag = fraktionsGuiEintragService.findeNachUser(user);
+		FraktionsGuiEintrag fraktionsGuiEintrag = factionGuiEntryService.findByUser(user);
 		if (fraktionsGuiEintrag != null && fraktionsGuiEintrag.getSeiten().contains(FraktionsGuiEintrag.Seite.SHOP))
 		{
 			this.shop = true;

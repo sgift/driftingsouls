@@ -37,7 +37,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
-import net.driftingsouls.ds2.server.services.FraktionsGuiEintragService;
+import net.driftingsouls.ds2.server.services.FactionGuiEntryService;
 import net.driftingsouls.ds2.server.ships.JumpNodeRouter;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
@@ -68,16 +68,16 @@ public class ErsteigernController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
 	private final ConfigService configService;
-	private final FraktionsGuiEintragService fraktionsGuiEintragService;
+	private final FactionGuiEntryService factionGuiEntryService;
 
 	@Autowired
 	public ErsteigernController(TemplateViewResultFactory templateViewResultFactory,
 			ConfigService configService,
-			FraktionsGuiEintragService fraktionsGuiEintragService)
+			FactionGuiEntryService factionGuiEntryService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
 		this.configService = configService;
-		this.fraktionsGuiEintragService = fraktionsGuiEintragService;
+		this.factionGuiEntryService = factionGuiEntryService;
 
 		setPageTitle("Fraktionen");
 	}
@@ -99,7 +99,7 @@ public class ErsteigernController extends Controller
 			}
 		}
 
-		FraktionsGuiEintrag faction = fraktionsGuiEintragService.findeNachUser(factionUser);
+		FraktionsGuiEintrag faction = factionGuiEntryService.findByUser(factionUser);
 
 		validiereFraktion(faction);
 
@@ -121,7 +121,7 @@ public class ErsteigernController extends Controller
 
 			t.setBlock("_ERSTEIGERN", "global.factionmenu.listitem", "global.factionmenu.list");
 
-			List<FraktionsGuiEintrag> fraktionen = fraktionsGuiEintragService.findeAlle();
+			List<FraktionsGuiEintrag> fraktionen = factionGuiEntryService.findAll();
 			for (FraktionsGuiEintrag eintrag : fraktionen)
 			{
 				t.setVar(
@@ -158,7 +158,7 @@ public class ErsteigernController extends Controller
 
 	private FraktionsGuiEintrag ermittleStandardFraktionFuerSpieler(User user)
 	{
-		List<FraktionsGuiEintrag> fraktionen = fraktionsGuiEintragService.findeAlle();
+		List<FraktionsGuiEintrag> fraktionen = factionGuiEntryService.findAll();
 		for (FraktionsGuiEintrag eintrag : fraktionen)
 		{
 			if (eintrag.getUser() == user)
