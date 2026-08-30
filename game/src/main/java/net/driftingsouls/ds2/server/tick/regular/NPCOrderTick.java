@@ -34,7 +34,7 @@ import net.driftingsouls.ds2.server.entities.npcorders.OrderableOffizier;
 import net.driftingsouls.ds2.server.framework.db.batch.SingleUnitOfWork;
 import net.driftingsouls.ds2.server.framework.db.batch.UnitOfWork;
 import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
-import net.driftingsouls.ds2.server.ships.SchiffHinzufuegenService;
+import net.driftingsouls.ds2.server.ships.ShipCreationService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import net.driftingsouls.ds2.server.tick.TickController;
@@ -287,8 +287,8 @@ public class NPCOrderTick extends TickController {
 		cargo.addResource( Resources.URAN, shipd.getRu()* 10L);
 		cargo.addResource( Resources.ANTIMATERIE, shipd.getRa()* 10L);
 
-		SchiffHinzufuegenService schiffHinzufuegenService = new SchiffHinzufuegenService();
-		Ship ship = schiffHinzufuegenService.erstelle(user, shipd, loc, "[hide]NPC-Order[/hide]", db);
+		ShipCreationService shipCreationService = new ShipCreationService();
+		Ship ship = shipCreationService.create(user, shipd, loc, "[hide]NPC-Order[/hide]", db);
 		ship.setCargo(cargo);
 		ship.setNahrungCargo(shipd.getNahrungCargo());
 

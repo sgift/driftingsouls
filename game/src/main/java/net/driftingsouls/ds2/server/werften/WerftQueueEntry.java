@@ -24,7 +24,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.ships.SchiffHinzufuegenService;
+import net.driftingsouls.ds2.server.ships.ShipCreationService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import org.hibernate.annotations.ForeignKey;
@@ -324,8 +324,8 @@ public class WerftQueueEntry {
 
 		User auser = this.werft.getOwner();
 
-		SchiffHinzufuegenService schiffHinzufuegenService = new SchiffHinzufuegenService();
-		Ship ship = schiffHinzufuegenService.erstelle(auser, shipd, this.werft.getLocation(), db);
+		ShipCreationService shipCreationService = new ShipCreationService();
+		Ship ship = shipCreationService.create(auser, shipd, this.werft.getLocation(), db);
 
 		// Item benutzen
 		if( this.getRequiredItem() > -1 ) {
