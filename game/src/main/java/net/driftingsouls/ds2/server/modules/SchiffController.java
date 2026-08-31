@@ -60,16 +60,16 @@ public class SchiffController extends Controller
 {
 	private final Log log = LogFactory.getLog(SchiffController.class);
 	private final TemplateViewResultFactory templateViewResultFactory;
-	private final SchiffSprungService schiffSprungService;
+	private final ShipJumpService shipJumpService;
 	private final TradingPostService tradingPostService;
 
 	@Autowired
 	public SchiffController(TemplateViewResultFactory templateViewResultFactory,
-							SchiffSprungService schiffSprungService,
+							ShipJumpService shipJumpService,
 							TradingPostService tradingPostService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
-		this.schiffSprungService = schiffSprungService;
+		this.shipJumpService = shipJumpService;
 		this.tradingPostService = tradingPostService;
 
 		setPageTitle("Schiff");
@@ -301,8 +301,8 @@ public class SchiffController extends Controller
 		String message = null;
 		if (node != null)
 		{
-			SchiffSprungService.SprungErgebnis ergebnis = schiffSprungService.sprungViaSprungpunkt(ship, node);
-			message = ergebnis.getMeldungen();
+			ShipJumpService.JumpResult jumpResult = shipJumpService.jumpViaJumpNode(ship, node);
+			message = jumpResult.getMessages();
 		}
 
 		return new RedirectViewResult("default").withMessage(message);
@@ -327,8 +327,8 @@ public class SchiffController extends Controller
 		String message = null;
 		if (knode != null)
 		{
-			SchiffSprungService.SprungErgebnis ergebnis = schiffSprungService.sprungViaSchiff(ship, knode);
-			message = ergebnis.getMeldungen();
+			ShipJumpService.JumpResult jumpResult = shipJumpService.jumpViaShip(ship, knode);
+			message = jumpResult.getMessages();
 		}
 
 		return new RedirectViewResult("default").withMessage(message);

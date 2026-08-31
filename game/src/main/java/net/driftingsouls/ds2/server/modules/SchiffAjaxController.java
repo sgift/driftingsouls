@@ -48,13 +48,13 @@ public class SchiffAjaxController extends Controller
 	}
 
 	private final SchiffFlugService schiffFlugService;
-	private final SchiffSprungService schiffSprungService;
+	private final ShipJumpService shipJumpService;
 
 	@Autowired
-	public SchiffAjaxController(SchiffFlugService schiffFlugService, SchiffSprungService schiffSprungService)
+	public SchiffAjaxController(SchiffFlugService schiffFlugService, ShipJumpService shipJumpService)
 	{
 		this.schiffFlugService = schiffFlugService;
-		this.schiffSprungService = schiffSprungService;
+		this.shipJumpService = shipJumpService;
 	}
 
 	private void validiereSchiff(Ship ship)
@@ -126,9 +126,9 @@ public class SchiffAjaxController extends Controller
 			return ViewMessage.error("Es wurde kein Sprungpunkt angegeben.");
 		}
 
-		SchiffSprungService.SprungErgebnis sprungErgebnis = schiffSprungService.sprungViaSprungpunkt(schiff, sprungpunkt);
+		ShipJumpService.JumpResult jumpResult = shipJumpService.jumpViaJumpNode(schiff, sprungpunkt);
 		SchiffsLogViewModel result = new SchiffsLogViewModel();
-		result.log = sprungErgebnis.getMeldungen().trim();
+		result.log = jumpResult.getMessages().trim();
 		return result;
 	}
 
@@ -154,7 +154,7 @@ public class SchiffAjaxController extends Controller
 			return ViewMessage.error("Es wurde kein Sprungpunkt angegeben.");
 		}
 
-		schiffSprungService.sprungViaSchiff(schiff, sprungpunktSchiff);
+		shipJumpService.jumpViaShip(schiff, sprungpunktSchiff);
 		SchiffsLogViewModel result = new SchiffsLogViewModel();
 		result.log = Ship.MESSAGE.getMessage().trim();
 		return result;
