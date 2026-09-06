@@ -47,13 +47,13 @@ public class SchiffAjaxController extends Controller
 		public String log;
 	}
 
-	private final SchiffFlugService schiffFlugService;
+	private final ShipMovementService shipMovementService;
 	private final ShipJumpService shipJumpService;
 
 	@Autowired
-	public SchiffAjaxController(SchiffFlugService schiffFlugService, ShipJumpService shipJumpService)
+	public SchiffAjaxController(ShipMovementService shipMovementService, ShipJumpService shipJumpService)
 	{
-		this.schiffFlugService = schiffFlugService;
+		this.shipMovementService = shipMovementService;
 		this.shipJumpService = shipJumpService;
 	}
 
@@ -199,10 +199,10 @@ public class SchiffAjaxController extends Controller
 			forceLowHeat = true;
 		}
 
-		SchiffFlugService.FlugErgebnis ergebnis = schiffFlugService.fliege(schiff, route, forceLowHeat);
+		ShipMovementService.MovementResult movementResult = shipMovementService.move(schiff, route, forceLowHeat);
 
 		SchiffsLogViewModel result = new SchiffsLogViewModel();
-		result.log = ergebnis.getMeldungen().trim();*/
+		result.log = movementResult.getMessages().trim();*/
 	}
 
 }

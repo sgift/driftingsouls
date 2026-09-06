@@ -25,14 +25,14 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 @Service
 @RequestScope
-public class SchiffFlugService
+public class ShipMovementService
 {
 	private final BattleCreationService battleCreationService;
 	private final ConfigService configService;
 	private final EntityManager db;
 
 	@Autowired
-	public SchiffFlugService(BattleCreationService battleCreationService, ConfigService configService, EntityManager db)
+	public ShipMovementService(BattleCreationService battleCreationService, ConfigService configService, EntityManager db)
 	{
 		this.battleCreationService = battleCreationService;
 		this.configService = configService;
@@ -42,7 +42,7 @@ public class SchiffFlugService
 	/**
 	 * Die verschiedenen Zustaende, die zum Ende eines Fluges gefuehrt haben koennen.
 	 */
-	public enum FlugStatus
+	public enum MovementStatus
 	{
 		/**
 		 * Der Flug war Erfolgreich.
@@ -66,13 +66,13 @@ public class SchiffFlugService
 		BLOCKED_BY_DAMAGE_NEBULA,
 	}
 
-	private static class MovementResult
+	private static class SingleMoveResult
 	{
 		final int distance;
 		final boolean moved;
-		final FlugStatus status;
+		final MovementStatus status;
 
-		MovementResult(int distance, boolean moved, FlugStatus status)
+		SingleMoveResult(int distance, boolean moved, MovementStatus status)
 		{
 			this.distance = distance;
 			this.moved = moved;
@@ -82,9 +82,9 @@ public class SchiffFlugService
 
 
 
-	private MovementResult moveSingle(Ship ship, ShipTypeData shiptype, Offizier offizier, int direction, int distance, long adocked, boolean forceLowHeat, boolean verbose, StringBuilder out) {
+	private SingleMoveResult moveSingle(Ship ship, ShipTypeData shiptype, Offizier offizier, int direction, int distance, long adocked, boolean forceLowHeat, boolean verbose, StringBuilder out) {
 		boolean moved = false;
-		FlugStatus status = FlugStatus.SUCCESS;
+		MovementStatus status = MovementStatus.SUCCESS;
 
 		if( ship.getEngine() <= 0 ) {
 			if(verbose) {
@@ -92,7 +92,7 @@ public class SchiffFlugService
 			}
 			distance = 0;
 
-			return new MovementResult(distance, false, FlugStatus.SHIP_FAILURE);
+			return new SingleMoveResult(distance, false, MovementStatus.SHIP_FAILURE);
 		}
 
 		int newe = ship.getEnergy() - shiptype.getCost();
@@ -125,7 +125,7 @@ public class SchiffFlugService
 			out.append("<span style=\"color:#ff0000\">Keine Energie. Stoppe bei ").append(ship.getLocation().displayCoordinates(true)).append("</span><br />\n");
 			distance = 0;
 
-			return new MovementResult(distance, false, FlugStatus.SHIP_FAILURE);
+			return new SingleMoveResult(distance, false, MovementStatus.SHIP_FAILURE);
 		}
 
 		if( offizier != null ) {
@@ -167,7 +167,7 @@ public class SchiffFlugService
 				out.append("<span style=\"color:#ff0000\">Autopilot bricht ab bei ").append(ship.getLocation().displayCoordinates(true)).append("</span><br />\n");
 				out.append("</span></td></tr>\n");
 				distance = 0;
-				return new MovementResult(distance, false, FlugStatus.SHIP_FAILURE);
+				return new SingleMoveResult(distance, false, MovementStatus.SHIP_FAILURE);
 			}
 		}
 
@@ -220,7 +220,7 @@ public class SchiffFlugService
 					}
 					if( distance > 0 ) {
 						out.append("<span style=\"color:#ff0000\">Autopilot bricht ab bei ").append(ship.getLocation().displayCoordinates(true)).append("</span><br />\n");
-						status = FlugStatus.SHIP_FAILURE;
+						status = MovementStatus.SHIP_FAILURE;
 						distance = 0;
 					}
 				}
@@ -241,17 +241,17 @@ public class SchiffFlugService
 
 			if(ship.isDestroyed()) {
 				out.append("<span style=\"color:#ff0000\">Das Schiff wurde beim Einflug in den Sektor ").append(ship.getLocation().displayCoordinates(true)).append(" durch ein Raumphänomen zerstört</span><br />\n");
-				status = FlugStatus.SHIP_FAILURE;
+				status = MovementStatus.SHIP_FAILURE;
 				distance = 0;
 			} else if(ship.getEngine() == 0) {
 				out.append("<span style=\"color:#ff0000\">Die Triebwerke sind zerstört</span><br />\n");
 				out.append("<span style=\"color:#ff0000\">Autopilot bricht ab bei ").append(ship.getLocation().displayCoordinates(true)).append("</span><br />\n");
-				status = FlugStatus.SHIP_FAILURE;
+				status = MovementStatus.SHIP_FAILURE;
 				distance = 0;
 			}
 		}
 
-		return new MovementResult(distance, moved, status);
+		return new SingleMoveResult(distance, moved, status);
 	}
 
 	/**
@@ -369,8 +369,8 @@ public class SchiffFlugService
 		return error;
 	}
 
-	private FlugStatus moveFleet(int direction, boolean forceLowHeat, boolean verbose, StringBuilder out)  {
-		FlugStatus status = FlugStatus.SUCCESS;
+	private MovementStatus moveFleet(int direction, boolean forceLowHeat, boolean verbose, StringBuilder out)  {
+		MovementStatus status = MovementStatus.SUCCESS;
 
 		boolean firstEntry = true;
 		Context context = ContextMap.getContext();
@@ -390,10 +390,10 @@ public class SchiffFlugService
 
 			ShipTypeData shiptype = fleetship.getTypeData();
 
-			MovementResult result = moveSingle(fleetship, shiptype, offizierf, direction, 1, fleetdata.aDockedCount.get(fleetship.getId()), forceLowHeat, verbose, out);
+			SingleMoveResult result = moveSingle(fleetship, shiptype, offizierf, direction, 1, fleetdata.aDockedCount.get(fleetship.getId()), forceLowHeat, verbose, out);
 
 			//Einen einmal gesetzten Fehlerstatus nicht wieder aufheben
-			if( status == FlugStatus.SUCCESS ) {
+			if( status == MovementStatus.SUCCESS ) {
 				status = result.status;
 			}
 
@@ -446,20 +446,20 @@ public class SchiffFlugService
 	/**
 	 * Das Ergebnis einer Flugbewegung eines oder mehrerer Schiffe.
 	 */
-	public static class FlugErgebnis {
-		private final FlugStatus status;
+	public static class MovementResult {
+		private final MovementStatus status;
 		private final String messages;
 		private final Location location;
 
 
-		public FlugErgebnis(FlugStatus status, @Nonnull String messages, Location location)
+		public MovementResult(MovementStatus status, @Nonnull String messages, Location location)
 		{
 			this.status = status;
 			this.messages = messages;
 			this.location = location;
 		}
 
-		public FlugErgebnis(FlugStatus status, @Nonnull String messages)
+		public MovementResult(MovementStatus status, @Nonnull String messages)
 		{
 			this.status = status;
 			this.messages = messages;
@@ -470,7 +470,7 @@ public class SchiffFlugService
 		 * Das Ergebnis der Flugbewegung.
 		 * @return Das Ergebnis
 		 */
-		public FlugStatus getStatus()
+		public MovementStatus getStatus()
 		{
 			return status;
 		}
@@ -504,7 +504,7 @@ public class SchiffFlugService
 		 * Die Statusmeldungen der Flugbewegung.
 		 * @return Die Statusmeldungen
 		 */
-		public @Nonnull String getMeldungen()
+		public @Nonnull String getMessages()
 		{
 			return messages;
 		}
@@ -520,7 +520,7 @@ public class SchiffFlugService
 	 * @param forceLowHeat Soll bei Ueberhitzung sofort abgebrochen werden?
 	 * @return Der Status, der zum Ende des Fluges gefuehrt hat
 	 */
-	public FlugErgebnis fliege(Ship schiff, List<Waypoint> route, boolean forceLowHeat) {
+	public MovementResult move(Ship schiff, List<Waypoint> route, boolean forceLowHeat) {
 		StringBuilder out = new StringBuilder();
 
 		//We want to fly the slowest ship first, so the fleet cannot be seperated
@@ -546,7 +546,7 @@ public class SchiffFlugService
 					route = route.subList(0, getSafeTravelDistance(moving));
 				}
 
-				return fliege(moving, route, forceLowHeat);
+				return move(moving, route, forceLowHeat);
 			}
 		}
 
@@ -558,27 +558,27 @@ public class SchiffFlugService
 		//Das Schiff soll sich offenbar bewegen
 		if( schiff.isDocked() ) {
 			out.append("Fehler: Sie k&ouml;nnen nicht mit dem Schiff fliegen, da es geladet/angedockt ist\n");
-			return new FlugErgebnis(FlugStatus.SHIP_FAILURE, out.toString());
+			return new MovementResult(MovementStatus.SHIP_FAILURE, out.toString());
 		}
 
 		if( shiptype.getCost() == 0 ) {
 			out.append("Fehler: Das Objekt kann nicht fliegen, da es keinen Antrieb hat\n");
-			return new FlugErgebnis(FlugStatus.SHIP_FAILURE, out.toString());
+			return new MovementResult(MovementStatus.SHIP_FAILURE, out.toString());
 		}
 
 		if( schiff.getBattle() != null ) {
 			out.append("Fehler: Das Schiff ist in einen Kampf verwickelt\n");
-			return new FlugErgebnis(FlugStatus.SHIP_FAILURE, out.toString());
+			return new MovementResult(MovementStatus.SHIP_FAILURE, out.toString());
 		}
 
 		if( (schiff.getCrew() <= 0) && (shiptype.getCrew() > 0) ) {
 			out.append("<span style=\"color:#ff0000\">Das Schiff verf&uuml;gt &uuml;ber keine Crew</span><br />\n");
-			return new FlugErgebnis(FlugStatus.SHIP_FAILURE, out.toString());
+			return new MovementResult(MovementStatus.SHIP_FAILURE, out.toString());
 		}
 
 		long docked = 0;
 		long adocked = 0;
-		FlugStatus status = FlugStatus.SUCCESS;
+		MovementStatus status = MovementStatus.SUCCESS;
 
 		if( (shiptype.getJDocks() > 0) || (shiptype.getADocks() > 0) ) {
 			docked = schiff.getAnzahlGedockterUndGelandeterSchiffe();
@@ -591,7 +591,7 @@ public class SchiffFlugService
 		boolean inAlarmRotEinfliegen = route.size() == 1 && route.get(0).distance == 1;
 		boolean moved = false;
 
-		while( (status == FlugStatus.SUCCESS) && !route.isEmpty()) {
+		while( (status == MovementStatus.SUCCESS) && !route.isEmpty()) {
 			Waypoint waypoint = route.remove(0);
 
 			if( waypoint.type != Waypoint.Type.MOVEMENT ) {
@@ -657,7 +657,7 @@ public class SchiffFlugService
 
 			if( (waypoint.distance > 1) && empLocations.contains(schiff.getLocation()) ) {
 				out.append("<span style=\"color:#ff0000\">Der Autopilot funktioniert in EMP-Nebeln nicht</span><br />\n");
-				return new FlugErgebnis(FlugStatus.BLOCKED_BY_EMP, out.toString());
+				return new MovementResult(MovementStatus.BLOCKED_BY_EMP, out.toString());
 			}
 
 			if( schiff.getFleet() != null ) {
@@ -677,7 +677,7 @@ public class SchiffFlugService
 							.values().iterator().next();
 					if( !attackers.isEmpty() ) {
 						out.append("<span style=\"color:#ff0000\">Sie stehen unter dem Schutz des Commonwealth.</span><br />Ihnen ist der Einflug in gesicherte Gebiete untersagt<br />\n");
-						status = FlugStatus.BLOCKED_BY_ALERT;
+						status = MovementStatus.BLOCKED_BY_ALERT;
 						waypoint.distance = 0;
 						break;
 					}
@@ -690,7 +690,7 @@ public class SchiffFlugService
 					if( !attackers.isEmpty() ) {
 						out.append("<span style=\"color:#ff0000\">Feindliche Schiffe in Alarmbereitschaft im n&auml;chsten Sektor geortet</span><br />\n");
 						out.append("<span style=\"color:#ff0000\">Autopilot bricht ab</span><br />\n");
-						status = FlugStatus.BLOCKED_BY_ALERT;
+						status = MovementStatus.BLOCKED_BY_ALERT;
 						waypoint.distance = 0;
 						break;
 					}
@@ -699,7 +699,7 @@ public class SchiffFlugService
 				if( (startdistance > 1) && empLocations.contains(nextLocation) ) {
 					out.append("<span style=\"color:#ff0000\">EMP-Nebel im n&auml;chsten Sektor geortet</span><br />\n");
 					out.append("<span style=\"color:#ff0000\">Autopilot bricht ab</span><br />\n");
-					status = FlugStatus.BLOCKED_BY_EMP;
+					status = MovementStatus.BLOCKED_BY_EMP;
 					waypoint.distance = 0;
 					break;
 				}
@@ -707,7 +707,7 @@ public class SchiffFlugService
 				if( (startdistance > 1) && damageLocations.contains(nextLocation) ) {
 					out.append("<span style=\"color:#ff0000\">Schadensnebel im n&auml;chsten Sektor geortet</span><br />\n");
 					out.append("<span style=\"color:#ff0000\">Autopilot bricht ab</span><br />\n");
-					status = FlugStatus.BLOCKED_BY_DAMAGE_NEBULA;
+					status = MovementStatus.BLOCKED_BY_DAMAGE_NEBULA;
 					waypoint.distance = 0;
 					break;
 				}
@@ -746,15 +746,15 @@ public class SchiffFlugService
 				}
 
 				waypoint.distance--;
-				MovementResult result = moveSingle(schiff, shiptype, offizier, waypoint.direction, waypoint.distance, adocked, forceLowHeat, false, out);
+				SingleMoveResult result = moveSingle(schiff, shiptype, offizier, waypoint.direction, waypoint.distance, adocked, forceLowHeat, false, out);
 				status = result.status;
 				waypoint.distance = result.distance;
 
 				if( result.moved ) {
 					// Jetzt, da sich unser Schiff korrekt bewegt hat, fliegen wir auch die Flotte ein stueck weiter
 					if( schiff.getFleet() != null ) {
-						FlugStatus fleetResult = moveFleet(waypoint.direction, forceLowHeat, false, out);
-						if( fleetResult != FlugStatus.SUCCESS  ) {
+						MovementStatus fleetResult = moveFleet(waypoint.direction, forceLowHeat, false, out);
+						if( fleetResult != MovementStatus.SUCCESS  ) {
 							status = fleetResult;
 							waypoint.distance = 0;
 						}
@@ -786,7 +786,7 @@ public class SchiffFlugService
 					out.append("<span style=\"color:#ff0000\">Flug dauert zu lange</span><br />\n");
 					out.append("<span style=\"color:#ff0000\">Autopilot bricht ab</span><br />\n");
 					waypoint.distance = 0;
-					status = FlugStatus.SHIP_FAILURE;
+					status = MovementStatus.SHIP_FAILURE;
 				}
 			}  // while distance > 0
 
@@ -816,7 +816,7 @@ public class SchiffFlugService
 		}
 		saveFleetShips();
 
-		return new FlugErgebnis(status, out.toString());
+		return new MovementResult(status, out.toString());
 	}
 
 	private void handleAlert(Ship schiff)

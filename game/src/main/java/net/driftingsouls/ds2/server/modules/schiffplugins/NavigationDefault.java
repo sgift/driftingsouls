@@ -32,7 +32,7 @@ import net.driftingsouls.ds2.server.map.SectorImage;
 import net.driftingsouls.ds2.server.modules.SchiffController;
 import net.driftingsouls.ds2.server.ships.RouteFactory;
 import net.driftingsouls.ds2.server.ships.SchiffEinstellungen;
-import net.driftingsouls.ds2.server.ships.SchiffFlugService;
+import net.driftingsouls.ds2.server.ships.ShipMovementService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.Waypoint;
@@ -53,12 +53,12 @@ import java.util.Set;
 public class NavigationDefault implements SchiffPlugin {
 	private static final Log log = LogFactory.getLog(NavigationDefault.class);
 
-	private final SchiffFlugService schiffFlugService;
+	private final ShipMovementService shipMovementService;
 
 	@Autowired
-	public NavigationDefault(SchiffFlugService schiffFlugService)
+	public NavigationDefault(ShipMovementService shipMovementService)
 	{
-		this.schiffFlugService = schiffFlugService;
+		this.shipMovementService = shipMovementService;
 	}
 
 	@Action(ActionType.DEFAULT)
@@ -102,8 +102,8 @@ public class NavigationDefault implements SchiffPlugin {
 		}
 
 		//Das Schiff soll sich offenbar bewegen
-		SchiffFlugService.FlugErgebnis ergebnis = schiffFlugService.fliege(ship, route, forceLowHeat);
-		output += ergebnis.getMeldungen();
+		ShipMovementService.MovementResult movementResult = shipMovementService.move(ship, route, forceLowHeat);
+		output += movementResult.getMessages();
 
 		return output;
 	}

@@ -19,12 +19,12 @@ public class ShipsMovement {
         this.userid = userid;
     }
 
-    SchiffFlugService.FlugStatus flugStatus = SchiffFlugService.FlugStatus.SUCCESS;
-    public SchiffFlugService.FlugErgebnis MoveShips(Location destination)
+    ShipMovementService.MovementStatus movementStatus = ShipMovementService.MovementStatus.SUCCESS;
+    public ShipMovementService.MovementResult MoveShips(Location destination)
     {
         // Don't need to move if we are already at the destination
         var start = ships.get(0).getLocation();
-        if(start.getXYDistance(destination) == 0) return new SchiffFlugService.FlugErgebnis(flugStatus, "Schiffe bereits am Zielort!", start);
+        if(start.getXYDistance(destination) == 0) return new ShipMovementService.MovementResult(movementStatus, "Schiffe bereits am Zielort!", start);
 
         var starsystem =StarsystemRepository.getInstance().getStarsystemData(destination.getSystem());
 
@@ -43,7 +43,7 @@ public class ShipsMovement {
         // reduce maxDistance if we face an emp nebula, damage nebula or an alarm red
         maxDistance = Math.min(maxDistance, checkPath(destination));
 
-        if(maxDistance == 0) return new SchiffFlugService.FlugErgebnis(flugStatus, "", start);
+        if(maxDistance == 0) return new ShipMovementService.MovementResult(movementStatus, "", start);
 
         // set the new values for the ships that have flown
         for (var ship:ships) {
@@ -54,7 +54,7 @@ public class ShipsMovement {
         ShipsRepository.updateMovedShips(ships);
 
         var newLocation = ships.get(0).getLocation();
-        return new SchiffFlugService.FlugErgebnis(flugStatus, "", newLocation);
+        return new ShipMovementService.MovementResult(movementStatus, "", newLocation);
     }
 
     private int checkPath(Location destination)
@@ -66,15 +66,15 @@ public class ShipsMovement {
 
         for (int i=0;i<locations.size();i++) {
             var location = locations.get(i);
-            if(attackingSectors.contains(location)) { flugStatus = SchiffFlugService.FlugStatus.BLOCKED_BY_ALERT; break; }
+            if(attackingSectors.contains(location)) { movementStatus = ShipMovementService.MovementStatus.BLOCKED_BY_ALERT; break; }
 
             if(Nebel.getNebula(location) != null) {
                 if (Nebel.getNebula(location).isEmp()) {
-                    flugStatus = SchiffFlugService.FlugStatus.BLOCKED_BY_EMP;
+                    movementStatus = ShipMovementService.MovementStatus.BLOCKED_BY_EMP;
                     break;
                 }
                 if (Nebel.getNebula(location).isDamage()) {
-                    flugStatus = SchiffFlugService.FlugStatus.BLOCKED_BY_DAMAGE_NEBULA;
+                    movementStatus = ShipMovementService.MovementStatus.BLOCKED_BY_DAMAGE_NEBULA;
                     break;
                 }
             }
