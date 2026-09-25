@@ -37,12 +37,14 @@ import java.util.List;
  *
  */
 @Entity(name="WerftBuilding")
+// Stored in buildings.module for every existing row and predates the rename to ShipyardBuilding.
+// Must not be changed to match the class name.
 @DiscriminatorValue("net.driftingsouls.ds2.server.bases.Werft")
-public class Werft extends DefaultBuilding {
+public class ShipyardBuilding extends DefaultBuilding {
 	/**
 	 * Erstellt eine neue Instanz der Werft.
 	 */
-	public Werft() {
+	public ShipyardBuilding() {
 		// EMPTY
 	}
 

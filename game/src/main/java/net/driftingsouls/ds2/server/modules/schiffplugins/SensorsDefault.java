@@ -22,7 +22,7 @@ import net.driftingsouls.ds2.server.MutableLocation;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
-import net.driftingsouls.ds2.server.bases.Werft;
+import net.driftingsouls.ds2.server.bases.ShipyardBuilding;
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.config.Rassen;
 import net.driftingsouls.ds2.server.config.StarSystem;
@@ -919,7 +919,7 @@ public class SensorsDefault implements SchiffPlugin {
 						int i;
 						for (i = 0; i < base.getBebauung().length; i++)
 						{
-							if ((base.getBebauung()[i] != 0) && (Building.getBuilding(base.getBebauung()[i]) instanceof Werft))
+							if ((base.getBebauung()[i] != 0) && (Building.getBuilding(base.getBebauung()[i]) instanceof ShipyardBuilding))
 							{
 								break;
 							}

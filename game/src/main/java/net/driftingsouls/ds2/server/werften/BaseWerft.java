@@ -27,7 +27,7 @@ import javax.persistence.Transient;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
-import net.driftingsouls.ds2.server.bases.Werft;
+import net.driftingsouls.ds2.server.bases.ShipyardBuilding;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.entities.User;
@@ -220,7 +220,7 @@ public class BaseWerft extends WerftObject {
 		}
 
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		Werft building = (Werft)db.createQuery("from WerftBuilding")
+		ShipyardBuilding building = (ShipyardBuilding)db.createQuery("from WerftBuilding")
 			.setMaxResults(1)
 			.uniqueResult();
 
