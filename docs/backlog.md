@@ -113,3 +113,30 @@ WHERE id > 0 AND LOCATE('destroy', status) != 0;
 Re-run until it reports 0 rows affected (MySQL's `REPLACE` will not match overlapping delimiters if
 a row somehow carries the token twice), and keep a copy of the affected rows for answering player
 tickets.
+
+## 12 `System.out.println` debug statements in production code
+
+`grep -rn "System\.out\.print" game/src/main --include=*.java` finds 12 live calls (a 13th, in
+`thymeleaf/StarmapController`, is already commented out and is a deliberate timing probe worth
+keeping as a comment). They are not logging — none goes through `Log`/`LogFactory` like the rest of
+the codebase — they are leftover debugging that ships to stdout in production:
+
+- `werften/WerftGUI.java` — **10 of the 12**, lines 823-843. A trace inside the module-slot loop of
+  the shipyard fitting UI: `"else in usedSlots.containsKey()"`, `"continue caused by"`, plus raw
+  slot names, item ids and access levels. It sits in a nested loop, so it prints once per item per
+  slot on every render of that page. This is the noisy one.
+- `modules/SchiffAjaxController.java:180` — `System.out.println("test1")`, in
+  `fliegeSchiffAction`, between the destination calculation and the `ShipsMovement` call. Left over
+  from the in-progress `SchiffFlugService` → `ShipsMovement` rewrite.
+- `repositories/StarsystemRepository.java:152` — `System.out.println(select.getSQL())`, dumping
+  generated jOOQ SQL.
+
+Distinct from the 7 `System.err.println` calls (`AbstractTickExecuter`, `TickController`,
+`SectorTemplateManager`, `jsstubs/JsServiceGenerator`), which are deliberate error/diagnostic
+reporting on paths that may have no logger available. Those are a separate question and are not
+included here.
+
+Not urgent — stdout noise and a small amount of wasted work per render, no behavioural effect. Worth
+clearing as its own commit rather than as a drive-by, since `WerftGUI`'s block is dense enough that
+deleting it should be looked at rather than sed'd. **Verified** by grep; the per-render claim for
+`WerftGUI` is read from the loop structure and has not been observed at runtime.
