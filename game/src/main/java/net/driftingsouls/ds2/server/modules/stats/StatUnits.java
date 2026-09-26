@@ -34,7 +34,7 @@ import java.util.List;
  * Zeigt die insgesamt vorkommenden sowie die eigenen Einheiten an.
  *
  */
-public class StatEinheiten implements Statistic {
+public class StatUnits implements Statistic {
     @Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();

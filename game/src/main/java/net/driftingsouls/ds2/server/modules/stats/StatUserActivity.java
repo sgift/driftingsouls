@@ -36,7 +36,7 @@ import java.util.List;
  * @author Christopher Jung
  *
  */
-public class StatSpieleraktivitaet implements Statistic {
+public class StatUserActivity implements Statistic {
 	// ca 2 Monate anzeigen
 	private static final int ANZAHL_TICKS = 7*7*8;
 	// 2 Tage Abstand zum aktuellen Tick um keine direkten Rueckschluesse auf laufende "Aktionen" zu erlauben

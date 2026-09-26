@@ -37,8 +37,8 @@ import java.util.List;
  * @author Christopher Jung
  *
  */
-public class StatOwnOffiziere implements Statistic {
-	private static final Log log = LogFactory.getLog(StatOwnOffiziere.class);
+public class StatOwnOfficers implements Statistic {
+	private static final Log log = LogFactory.getLog(StatOwnOfficers.class);
 
 	@Override
 	public void show(StatsController contr, int size) throws IOException {

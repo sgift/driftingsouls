@@ -45,7 +45,7 @@ import java.util.TreeMap;
  *
  * @author Christopher Jung
  */
-public class StatWarenentwicklung implements Statistic, AjaxStatistic
+public class StatItemHistory implements Statistic, AjaxStatistic
 {
 	public static class WareViewModel
 	{

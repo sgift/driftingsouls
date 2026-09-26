@@ -46,7 +46,7 @@ import java.util.Map;
  * @author Christopher Jung
  *
  */
-public class StatWaren implements Statistic {
+public class StatItems implements Statistic {
 
     @Override
 	public void show(StatsController contr, int size) throws IOException {

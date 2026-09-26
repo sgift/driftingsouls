@@ -35,7 +35,7 @@ import java.util.List;
  * @author Christopher Jung
  *
  */
-public class StatOwnKampf implements Statistic {
+public class StatOwnBattles implements Statistic {
 	@Override
 	public void show(StatsController contr, int size) throws IOException {
 		Context context = ContextMap.getContext();
