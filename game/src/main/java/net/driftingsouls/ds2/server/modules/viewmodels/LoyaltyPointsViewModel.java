@@ -7,7 +7,7 @@ import net.driftingsouls.ds2.server.framework.ViewModel;
  * Standard-ViewModel von Loyalitaetspunkten ({@link net.driftingsouls.ds2.server.entities.Loyalitaetspunkte}).
  */
 @ViewModel
-public class LoyalitaetspunkteViewModel
+public class LoyaltyPointsViewModel
 {
 	public int id;
 	public String grund;
@@ -20,9 +20,9 @@ public class LoyalitaetspunkteViewModel
 	 * @param model Die zu mappende Entity
 	 * @return Das ViewModel
 	 */
-	public static LoyalitaetspunkteViewModel map(Loyalitaetspunkte model)
+	public static LoyaltyPointsViewModel map(Loyalitaetspunkte model)
 	{
-		LoyalitaetspunkteViewModel viewModel = new LoyalitaetspunkteViewModel();
+		LoyaltyPointsViewModel viewModel = new LoyaltyPointsViewModel();
 		map(model, viewModel);
 		return viewModel;
 	}
@@ -32,7 +32,7 @@ public class LoyalitaetspunkteViewModel
 	 * @param model Die zu mappende Entity
 	 * @param viewModel Die Zielinstanz des ViewModels
 	 */
-	public static void map(Loyalitaetspunkte model, LoyalitaetspunkteViewModel viewModel)
+	public static void map(Loyalitaetspunkte model, LoyaltyPointsViewModel viewModel)
 	{
 		viewModel.id = model.getId();
 		viewModel.grund = model.getGrund();

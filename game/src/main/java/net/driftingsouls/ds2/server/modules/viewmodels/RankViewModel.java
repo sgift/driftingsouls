@@ -7,7 +7,7 @@ import net.driftingsouls.ds2.server.framework.ViewModel;
  * Standard-ViewModel einer Rangs ({@link net.driftingsouls.ds2.server.config.Rang}).
  */
 @ViewModel
-public class RangViewModel
+public class RankViewModel
 {
 	public int id;
 	public String name;
@@ -17,9 +17,9 @@ public class RangViewModel
 	 * @param model Die zu mappende Entity
 	 * @return Das ViewModel
 	 */
-	public static RangViewModel map(Rang model)
+	public static RankViewModel map(Rang model)
 	{
-		RangViewModel viewModel = new RangViewModel();
+		RankViewModel viewModel = new RankViewModel();
 		viewModel.name = model.getName();
 		viewModel.id = model.getId();
 

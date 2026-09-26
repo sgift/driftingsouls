@@ -7,7 +7,7 @@ import net.driftingsouls.ds2.server.framework.ViewModel;
  * Standard-ViewModel fuer Fraktionsaktionsmeldungen ({@link net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionAktionsMeldung}).
  */
 @ViewModel
-public class FraktionAktionsMeldungViewModel
+public class FactionActionReportViewModel
 {
 	public Long id;
 	public UserViewModel von;
@@ -21,9 +21,9 @@ public class FraktionAktionsMeldungViewModel
 	 * @param model Die zu mappende Entity
 	 * @return Das ViewModel
 	 */
-	public static FraktionAktionsMeldungViewModel map(FraktionAktionsMeldung model)
+	public static FactionActionReportViewModel map(FraktionAktionsMeldung model)
 	{
-		FraktionAktionsMeldungViewModel viewModel = new FraktionAktionsMeldungViewModel();
+		FactionActionReportViewModel viewModel = new FactionActionReportViewModel();
 		viewModel.id = model.getId();
 		viewModel.von = UserViewModel.map(model.getGemeldetVon());
 		viewModel.am = model.getGemeldetAm().getTime();

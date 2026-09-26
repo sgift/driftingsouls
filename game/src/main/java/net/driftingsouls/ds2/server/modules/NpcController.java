@@ -29,10 +29,10 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidationException;
-import net.driftingsouls.ds2.server.modules.viewmodels.FraktionAktionsMeldungViewModel;
-import net.driftingsouls.ds2.server.modules.viewmodels.LoyalitaetspunkteViewModel;
+import net.driftingsouls.ds2.server.modules.viewmodels.FactionActionReportViewModel;
+import net.driftingsouls.ds2.server.modules.viewmodels.LoyaltyPointsViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.MedalViewModel;
-import net.driftingsouls.ds2.server.modules.viewmodels.RangViewModel;
+import net.driftingsouls.ds2.server.modules.viewmodels.RankViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.UserViewModel;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
@@ -403,13 +403,13 @@ public class NpcController extends Controller
 	@ViewModel
 	public static class LpMenuViewModel extends NpcViewModel
 	{
-		public static class LpMenuLoyalitaetspunkteViewModel extends LoyalitaetspunkteViewModel
+		public static class LpMenuLoyalitaetspunkteViewModel extends LoyaltyPointsViewModel
 		{
 			public UserViewModel verliehenDurch;
 		}
 
 		public boolean alleMeldungen;
-		public final List<FraktionAktionsMeldungViewModel> meldungen = new ArrayList<>();
+		public final List<FactionActionReportViewModel> meldungen = new ArrayList<>();
 		public UserViewModel user;
 		public final List<LpMenuLoyalitaetspunkteViewModel> lpListe = new ArrayList<>();
 		public String rang;
@@ -451,7 +451,7 @@ public class NpcController extends Controller
 									.list());
 		}
 
-		result.meldungen.addAll(meldungen.stream().map(FraktionAktionsMeldungViewModel::map).collect(Collectors.toList()));
+		result.meldungen.addAll(meldungen.stream().map(FactionActionReportViewModel::map).collect(Collectors.toList()));
 
 		User edituser = User.lookupByIdentifier(edituserID);
 
@@ -469,7 +469,7 @@ public class NpcController extends Controller
 		for (Loyalitaetspunkte lp : new TreeSet<>(edituser.getLoyalitaetspunkte()))
 		{
 			LpMenuViewModel.LpMenuLoyalitaetspunkteViewModel lpObj = new LpMenuViewModel.LpMenuLoyalitaetspunkteViewModel();
-			LoyalitaetspunkteViewModel.map(lp, lpObj);
+			LoyaltyPointsViewModel.map(lp, lpObj);
 			lpObj.verliehenDurch = UserViewModel.map(lp.getVerliehenDurch());
 
 			result.lpListe.add(lpObj);
@@ -485,7 +485,7 @@ public class NpcController extends Controller
 	{
 		public UserViewModel user;
 		public int aktiverRang;
-		public final List<RangViewModel> raenge = new ArrayList<>();
+		public final List<RankViewModel> raenge = new ArrayList<>();
 		public final List<MedalViewModel> medals = new ArrayList<>();
 	}
 
@@ -512,7 +512,7 @@ public class NpcController extends Controller
 		UserRank rank = edituser.getRank(user);
 		result.aktiverRang = rank.getRank();
 
-		result.raenge.addAll(user.getOwnGrantableRanks().stream().map(RangViewModel::map).collect(Collectors.toList()));
+		result.raenge.addAll(user.getOwnGrantableRanks().stream().map(RankViewModel::map).collect(Collectors.toList()));
 
 		for (Medal medal : Medals.get().medals())
 		{
