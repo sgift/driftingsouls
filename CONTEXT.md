@@ -27,6 +27,15 @@ _Avoid_: Nebel
 A fixed link between two sectors, usually in different star systems, that ships can traverse.
 _Avoid_: Sprungpunkt
 
+**Asteroid**:
+A large rocky body occupying a Sector, on which a Base can be established. Not to be confused with a
+Boulder.
+
+**Boulder**:
+A small rocky body, far smaller than an Asteroid. Modelled as a Ship of its own ship class, spawned per
+star system with configured cargo, and plundered for that cargo. No Base can be built on it.
+_Avoid_: Felsbrocken
+
 ### Bases and buildings
 
 **Base**:
