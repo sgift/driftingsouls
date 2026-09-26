@@ -10,7 +10,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParamConve
  * Konvertiert einen URL-Parameter in einen Ordner mittels der Ordner-ID.
  */
 @UrlParamConverterFor(Ordner.class)
-public class OrdnerUrlParamConverter implements UrlParamConverter<Ordner>
+public class FolderUrlParamConverter implements UrlParamConverter<Ordner>
 {
 	@Override
 	public Ordner convert(ParameterReader parameterReader, String parameterName)
