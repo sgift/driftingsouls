@@ -51,7 +51,7 @@ import java.util.Map;
  *
  */
 @Module(name="techliste")
-public class TechListeController extends Controller
+public class TechListController extends Controller
 {
 	@ViewModel
 	public static class RasseViewModel

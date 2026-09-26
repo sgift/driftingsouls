@@ -1,9 +1,9 @@
 (function() {
 	'use strict';
 
-	function TechListeController($scope, TechListeControllerStub) {
+	function TechListeController($scope, TechListControllerStub) {
 		function refresh(rasseId) {
-			TechListeControllerStub
+			TechListControllerStub
 				.defaultAction(rasseId)
 				.success(function(data) {
 					$scope.viewModel = {
@@ -25,5 +25,5 @@
 	}
 
 	angular.module('ds.module.techliste', ['ds.service.ajax'])
-		.controller('TechListeController', ['$scope', 'TechListeControllerStub', TechListeController]);
+		.controller('TechListeController', ['$scope', 'TechListControllerStub', TechListeController]);
 }());

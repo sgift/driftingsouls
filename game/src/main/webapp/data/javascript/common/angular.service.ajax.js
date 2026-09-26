@@ -1220,28 +1220,28 @@
 		}
 	}
 	angularModule = angularModule.factory('StatsControllerStub', ['ds', StatsControllerStub]);
-	// net.driftingsouls.ds2.server.modules.TechListeController
+	// net.driftingsouls.ds2.server.modules.TechListController
 	/**
 	 * @class
 	 **/
-	var DsAjaxPromise_TechListeControllerStub_defaultAction = {
+	var DsAjaxPromise_TechListControllerStub_defaultAction = {
 		/**
 		 * @name success
 		 * @function
-		 * @param {function(data:ds.viewmodel.modules.TechListeController.TechListeViewModel)} callback
-		 * @memberof DsAjaxPromise_TechListeControllerStub_defaultAction
+		 * @param {function(data:ds.viewmodel.modules.TechListController.TechListeViewModel)} callback
+		 * @memberof DsAjaxPromise_TechListControllerStub_defaultAction
 		 **/
 		success : function(callback) {}
 	};
 	/**
-	 * @class {object} TechListeControllerStub
+	 * @class {object} TechListControllerStub
 	 **/
-	function TechListeControllerStub(ds) {
+	function TechListControllerStub(ds) {
 		return {
 			/**
-			 * @memberof TechListeControllerStub
+			 * @memberof TechListControllerStub
 			 * @param {number} rasse 
-			 * @returns {DsAjaxPromise_TechListeControllerStub_defaultAction}
+			 * @returns {DsAjaxPromise_TechListControllerStub_defaultAction}
 			 **/
 			defaultAction : function(rasse) {
 				var options={};
@@ -1252,7 +1252,7 @@
 			}		
 		}
 	}
-	angularModule = angularModule.factory('TechListeControllerStub', ['ds', TechListeControllerStub]);
+	angularModule = angularModule.factory('TechListControllerStub', ['ds', TechListControllerStub]);
 	/**
 	 * @namespace ds
 	 **/
@@ -1442,10 +1442,10 @@
 	 * @property {object} rows
 	 **/
 	/**
-	 * @namespace ds.viewmodel.modules.TechListeController
+	 * @namespace ds.viewmodel.modules.TechListController
 	 **/
 	/**
-	 * @typedef {object} ds.viewmodel.modules.TechListeController.TechListeViewModel
+	 * @typedef {object} ds.viewmodel.modules.TechListController.TechListeViewModel
 	 * @property {object} auswaehlbareRassen
 	 * @property {string} rassenName
 	 * @property {object} erforscht
