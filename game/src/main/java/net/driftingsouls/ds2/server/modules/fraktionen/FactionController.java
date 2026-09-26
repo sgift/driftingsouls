@@ -64,14 +64,14 @@ import java.util.stream.Collectors;
  * @author Christopher Jung
  */
 @Module(name = "ersteigern")
-public class ErsteigernController extends Controller
+public class FactionController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
 	private final ConfigService configService;
 	private final FactionGuiEntryService factionGuiEntryService;
 
 	@Autowired
-	public ErsteigernController(TemplateViewResultFactory templateViewResultFactory,
+	public FactionController(TemplateViewResultFactory templateViewResultFactory,
 			ConfigService configService,
 			FactionGuiEntryService factionGuiEntryService)
 	{
