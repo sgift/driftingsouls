@@ -33,7 +33,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.UrlParam;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidationException;
-import net.driftingsouls.ds2.server.modules.viewmodels.GebaeudeAufBasisViewModel;
+import net.driftingsouls.ds2.server.modules.viewmodels.BuildingOnBaseViewModel;
 import net.driftingsouls.ds2.server.modules.viewmodels.ResourceEntryViewModel;
 
 import java.io.IOException;
@@ -53,7 +53,7 @@ public class BuildingController extends Controller
 	{
 		public int col;
 		public int field;
-		public GebaeudeAufBasisViewModel building;
+		public BuildingOnBaseViewModel building;
 		public boolean success;
 		public String message;
 	}
@@ -96,7 +96,7 @@ public class BuildingController extends Controller
 		BuildingActionViewModel response = new BuildingActionViewModel();
 		response.col = base.getId();
 		response.field = field;
-		response.building = GebaeudeAufBasisViewModel.map(building, base, field);
+		response.building = BuildingOnBaseViewModel.map(building, base, field);
 
 		if ((building.getArbeiter() > 0) && (building.getArbeiter() + base.getArbeiter() > base.getBewohner()))
 		{
@@ -178,7 +178,7 @@ public class BuildingController extends Controller
 		BuildingActionViewModel response = new BuildingActionViewModel();
 		response.col = base.getId();
 		response.field = field;
-		response.building = GebaeudeAufBasisViewModel.map(building, base, field);
+		response.building = BuildingOnBaseViewModel.map(building, base, field);
 
 		if (!building.isDeakAble())
 		{
@@ -378,7 +378,7 @@ public class BuildingController extends Controller
 		public int field;
 		public boolean noJsonSupport;
 		public Building.BuildingUiViewModel buildingUI;
-		public GebaeudeAufBasisViewModel building;
+		public BuildingOnBaseViewModel building;
 	}
 
 	/**
@@ -397,7 +397,7 @@ public class BuildingController extends Controller
 
 		json.col = base.getId();
 		json.field = field;
-		json.building = GebaeudeAufBasisViewModel.map(building, base, field);
+		json.building = BuildingOnBaseViewModel.map(building, base, field);
 
 		if( !building.isSupportsJson() )
 		{

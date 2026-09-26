@@ -1323,7 +1323,7 @@
 	 * @typedef {object} ds.viewmodel.modules.BuildingController.BuildingActionViewModel
 	 * @property {number} col
 	 * @property {number} field
-	 * @property {ds.viewmodel.modules.viewmodels.GebaeudeAufBasisViewModel} building
+	 * @property {ds.viewmodel.modules.viewmodels.BuildingOnBaseViewModel} building
 	 * @property {boolean} success
 	 * @property {string} message
 	 **/
@@ -1385,7 +1385,7 @@
 	 * @property {number} field
 	 * @property {boolean} noJsonSupport
 	 * @property {ds.viewmodel.bases.Building.BuildingUiViewModel} buildingUI
-	 * @property {ds.viewmodel.modules.viewmodels.GebaeudeAufBasisViewModel} building
+	 * @property {ds.viewmodel.modules.viewmodels.BuildingOnBaseViewModel} building
 	 **/
 	/**
 	 * @typedef {object} ds.viewmodel.modules.BuildingController.DemoViewModel
@@ -1573,7 +1573,7 @@
 	 * @property {number} height
 	 **/
 	/**
-	 * @typedef {object} ds.viewmodel.modules.viewmodels.GebaeudeAufBasisViewModel
+	 * @typedef {object} ds.viewmodel.modules.viewmodels.BuildingOnBaseViewModel
 	 * @property {number} id
 	 * @property {string} name
 	 * @property {string} picture

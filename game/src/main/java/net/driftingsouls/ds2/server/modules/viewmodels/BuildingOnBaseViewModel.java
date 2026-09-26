@@ -9,7 +9,7 @@ import net.driftingsouls.ds2.server.framework.ViewModel;
  * Standard-ViewModel von Gebaeuden ({@link net.driftingsouls.ds2.server.bases.Building}).
  */
 @ViewModel
-public class GebaeudeAufBasisViewModel
+public class BuildingOnBaseViewModel
 {
 	public int id;
 	public String name;
@@ -27,9 +27,9 @@ public class GebaeudeAufBasisViewModel
 	 * @param field Das Feld auf der Basis auf der das Gebaeude steht
 	 * @return Das ViewModel
 	 */
-	public static GebaeudeAufBasisViewModel map(Building model, Base base, int field)
+	public static BuildingOnBaseViewModel map(Building model, Base base, int field)
 	{
-		GebaeudeAufBasisViewModel viewModel = new GebaeudeAufBasisViewModel();
+		BuildingOnBaseViewModel viewModel = new BuildingOnBaseViewModel();
 		map(model, viewModel, base, field);
 		return viewModel;
 	}
@@ -41,7 +41,7 @@ public class GebaeudeAufBasisViewModel
 	 * @param field Das Feld auf der Basis auf der das Gebaeude steht
 	 * @param viewModel Die Zielinstanz des ViewModels
 	 */
-	public static void map(Building model, GebaeudeAufBasisViewModel viewModel, Base base, int field)
+	public static void map(Building model, BuildingOnBaseViewModel viewModel, Base base, int field)
 	{
 		viewModel.id = model.getId();
 		viewModel.name = Common._plaintitle(model.getName());
