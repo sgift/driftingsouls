@@ -6,12 +6,12 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 
-public final class SchiffsReKosten
+public final class ShipUpkeepCosts
 {
 	private long summeSchiffskosten;
 	private long summeEinheitenkosten;
 
-	public SchiffsReKosten()
+	public ShipUpkeepCosts()
 	{
 		summeSchiffskosten = 0;
 		summeEinheitenkosten = 0;

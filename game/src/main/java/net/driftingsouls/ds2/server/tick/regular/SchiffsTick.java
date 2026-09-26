@@ -229,7 +229,7 @@ public class SchiffsTick extends TickController {
 		return ship;
 	}
 
-	private void tickShip(EntityManager db, Ship shipd, Map<Location, List<Base>> feedingBases, SchiffsReKosten schiffsReKosten)
+	private void tickShip(EntityManager db, Ship shipd, Map<Location, List<Base>> feedingBases, ShipUpkeepCosts shipUpkeepCosts)
 	{
 		this.log(shipd.getName()+" ("+shipd.getId()+"):");
 
@@ -294,7 +294,7 @@ public class SchiffsTick extends TickController {
 			}
 			//Pay sold and maintenance
 			start = System.nanoTime();
-			berechneSoldUndWartung(db, shipd, shiptd, schiffsReKosten);
+			berechneSoldUndWartung(db, shipd, shiptd, shipUpkeepCosts);
 			end = System.nanoTime();
 			this.log("Compute sold and maintenance: "+(end-start)+" ns");
 		}
@@ -755,7 +755,7 @@ public class SchiffsTick extends TickController {
 		return true;
 	}
 
-	private void berechneSoldUndWartung(EntityManager db, Ship shipd, ShipTypeData shiptd, SchiffsReKosten schiffsReKosten)
+	private void berechneSoldUndWartung(EntityManager db, Ship shipd, ShipTypeData shiptd, ShipUpkeepCosts shipUpkeepCosts)
 	{
 		if(!configService.getValue(WellKnownConfigValue.REQUIRE_SHIP_COSTS)) {
 			return;
@@ -775,17 +775,17 @@ public class SchiffsTick extends TickController {
 		}
 
 		//Account is balanced
-		if(schiffsReKosten.isKostenZuHoch(shipd, owner))
+		if(shipUpkeepCosts.isKostenZuHoch(shipd, owner))
 		{
 			// Wartungskosten koennen aufgebracht werden.
-			if(!schiffsReKosten.isWartungsKostenZuHoch(shipd, owner))
+			if(!shipUpkeepCosts.isWartungsKostenZuHoch(shipd, owner))
 			{
 				this.log("\tKonto nicht gedeckt; Besatzung meutert.");
 
 				// Sammel alle Daten zusammmen
 				User pirate = db.find(User.class, Faction.PIRATE);
 				UnitCargo unitcargo = shipd.getUnits();
-				UnitCargo meuterer = unitcargo.getMeuterer(schiffsReKosten.berechneVerbleibendeReOhneSold(shipd, owner));
+				UnitCargo meuterer = unitcargo.getMeuterer(shipUpkeepCosts.berechneVerbleibendeReOhneSold(shipd, owner));
 				Crew dcrew = new UnitCargo.Crew(shipd.getCrew());
 
 				if(meuterer.kapern(unitcargo, new TransientUnitCargo(), new TransientUnitCargo(), dcrew, 1, 1))
@@ -802,7 +802,7 @@ public class SchiffsTick extends TickController {
 					shipd.setCrew(dcrew.getValue());
 					PM.send(pirate, owner.getId(), "Besatzung meutert", "Die Besatzung der " + shipd.getName() + " meutert, nachdem Sie den Sold der Einheiten nicht aufbringen konnten. Die Meuterer wurden vernichtet. (" + shipd.getLocation().displayCoordinates(false) + ")", db);
 
-					schiffsReKosten.verbucheSchiff(shipd);
+					shipUpkeepCosts.verbucheSchiff(shipd);
 				}
 			}
 			else
@@ -815,7 +815,7 @@ public class SchiffsTick extends TickController {
 			}
 		}
 		else {
-			schiffsReKosten.verbucheSchiff(shipd);
+			shipUpkeepCosts.verbucheSchiff(shipd);
 		}
 	}
 
@@ -904,7 +904,7 @@ public class SchiffsTick extends TickController {
 		List<Ship> ships = buildSortedShipList(auser, db);
 
 		versorgerlist = getLocationVersorgerList(db, ships, auser);
-		SchiffsReKosten schiffsReKosten = new SchiffsReKosten();
+		ShipUpkeepCosts shipUpkeepCosts = new ShipUpkeepCosts();
 
 		// Schiffe berechnen
 		for( Ship ship : ships )
@@ -922,7 +922,7 @@ public class SchiffsTick extends TickController {
 			}
 			try
 			{
-				this.tickShip(db, ship, feedingBases, schiffsReKosten);
+				this.tickShip(db, ship, feedingBases, shipUpkeepCosts);
 			}
 			catch( RuntimeException e )
 			{
@@ -933,7 +933,7 @@ public class SchiffsTick extends TickController {
 		}
 
 		User nobody = db.find(User.class, -1);
-		BigInteger gesamtkosten = schiffsReKosten.getGesamtkosten();
+		BigInteger gesamtkosten = shipUpkeepCosts.getGesamtkosten();
 		if(auser.getKonto().compareTo(gesamtkosten.multiply(BigInteger.valueOf(8))) < 0)
 		{
 			PM.send(auser, auser.getId(), "Kontostand kritisch", auser.getPlainname() + ", Dein Kontostand ist sehr niedrig. In weniger als einem Tag werden Deine RE-Reserven nicht mehr ausreichen, um die Besatzungsausgaben Deiner Raumschiffe und -stationen zu decken. Besatzungen, die keinen Sold erhalten, werden meutern und mit ihren Schiffen desertieren. Ein Besuch beim nächsten GTU-Handelsposten ist ratsam, dort kannst Du Rohstoffe verkaufen und erhältst neue Finanzmittel. Sollten deine Schiffe übergelaufen sein oder Du es nicht mehr zum Handelsposten schaffen, setze einen Hilferuf im Com-Net-Kanal 'Notfrequenz' ab. Vielleicht hilft Dir ein Spieler.", db);

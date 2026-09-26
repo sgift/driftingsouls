@@ -38,7 +38,7 @@ import net.driftingsouls.ds2.server.framework.utils.StringToTypeConverter;
 import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
 import net.driftingsouls.ds2.server.namegenerator.SchiffsKlassenNamenGenerator;
 import net.driftingsouls.ds2.server.namegenerator.SchiffsNamenGenerator;
-import net.driftingsouls.ds2.server.ships.SchiffsReKosten;
+import net.driftingsouls.ds2.server.ships.ShipUpkeepCosts;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.units.UnitType;
 import org.apache.commons.lang3.StringUtils;
@@ -1359,7 +1359,7 @@ public class User extends BasicUser {
 				.setParameter("access", Access.NORMAL)
 				.getResultList().stream().filter(Objects::nonNull).findFirst().orElse(0L);
 
-		return baseRe - SchiffsReKosten.berecheKosten(schiffsKosten, einheitenKosten).longValue();
+		return baseRe - ShipUpkeepCosts.berecheKosten(schiffsKosten, einheitenKosten).longValue();
 	}
 
 	private long getNahrungBalance()
