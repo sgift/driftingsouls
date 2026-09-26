@@ -44,12 +44,12 @@ import java.util.List;
  *
  */
 @Module(name="deutall")
-public class DeutAllController extends Controller
+public class CollectAllDeuteriumController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
-	public DeutAllController(TemplateViewResultFactory templateViewResultFactory) {
+	public CollectAllDeuteriumController(TemplateViewResultFactory templateViewResultFactory) {
 		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("Deut. sammeln");
