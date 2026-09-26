@@ -24,7 +24,7 @@ import net.driftingsouls.ds2.server.battles.BattleShipFlag;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.modules.AngriffController;
+import net.driftingsouls.ds2.server.modules.BattleController;
 
 import java.io.IOException;
 
@@ -58,7 +58,7 @@ public abstract class BasicKSAction {
 	private boolean requireCommander;
 	private boolean requireActive;
 	private boolean requireOwnShipReady;
-	private AngriffController controller;
+	private BattleController controller;
     private final User commander;
 	
 	/**
@@ -84,7 +84,7 @@ public abstract class BasicKSAction {
 	 * Setzt den KS-Controller.
 	 * @param controller Der KS-Controller
 	 */
-	public void setController(AngriffController controller)
+	public void setController(BattleController controller)
 	{
 		this.controller = controller;	
 	}
@@ -93,7 +93,7 @@ public abstract class BasicKSAction {
 	 * Gibt den assoziierten KS-Controller zurueck.
 	 * @return Der KS-Controller
 	 */
-	public AngriffController getController()
+	public BattleController getController()
 	{
 		return this.controller;	
 	}

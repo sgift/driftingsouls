@@ -60,9 +60,9 @@ import java.util.Map;
  *
  */
 @Module(name="angriff")
-public class AngriffController extends Controller
+public class BattleController extends Controller
 {
-	private static final Log log = LogFactory.getLog(AngriffController.class);
+	private static final Log log = LogFactory.getLog(BattleController.class);
 
 	private static final int SHIPGROUPSIZE = 10000;
 
@@ -73,7 +73,7 @@ public class AngriffController extends Controller
 	private final BattleCreationService battleCreationService;
 
 	@Autowired
-	public AngriffController(ConfigService configService,
+	public BattleController(ConfigService configService,
 			TemplateViewResultFactory templateViewResultFactory,
 			BattleCreationService battleCreationService) {
 		this.templateViewResultFactory = templateViewResultFactory;
