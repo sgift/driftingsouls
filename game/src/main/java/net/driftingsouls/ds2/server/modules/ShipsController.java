@@ -60,14 +60,14 @@ import java.util.Map.Entry;
  * @author Christopher Jung
  */
 @Module(name = "schiffe")
-public class SchiffeController extends Controller
+public class ShipsController extends Controller
 {
-	private static final Log log = LogFactory.getLog(SchiffeController.class);
+	private static final Log log = LogFactory.getLog(ShipsController.class);
 
 	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
-	public SchiffeController(TemplateViewResultFactory templateViewResultFactory)
+	public ShipsController(TemplateViewResultFactory templateViewResultFactory)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
 	}
