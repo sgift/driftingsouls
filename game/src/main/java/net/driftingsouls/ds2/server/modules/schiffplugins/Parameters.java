@@ -20,7 +20,7 @@ package net.driftingsouls.ds2.server.modules.schiffplugins;
 
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.modules.SchiffController;
+import net.driftingsouls.ds2.server.modules.ShipController;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
@@ -33,7 +33,7 @@ public class Parameters {
 	/**
 	 * Der Schiffscontroller.
 	 */
-	public SchiffController controller;
+	public ShipController controller;
 	/**
 	 * Die ID des Plugins.
 	 */

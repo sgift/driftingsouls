@@ -56,15 +56,15 @@ import java.util.stream.Collectors;
  * @author Christopher Jung
  */
 @net.driftingsouls.ds2.server.framework.pipeline.Module(name = "schiff")
-public class SchiffController extends Controller
+public class ShipController extends Controller
 {
-	private final Log log = LogFactory.getLog(SchiffController.class);
+	private final Log log = LogFactory.getLog(ShipController.class);
 	private final TemplateViewResultFactory templateViewResultFactory;
 	private final ShipJumpService shipJumpService;
 	private final TradingPostService tradingPostService;
 
 	@Autowired
-	public SchiffController(TemplateViewResultFactory templateViewResultFactory,
+	public ShipController(TemplateViewResultFactory templateViewResultFactory,
 							ShipJumpService shipJumpService,
 							TradingPostService tradingPostService)
 	{

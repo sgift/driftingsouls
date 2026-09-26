@@ -25,7 +25,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.modules.SchiffController;
+import net.driftingsouls.ds2.server.modules.ShipController;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 import net.driftingsouls.ds2.server.ships.ShipTypeFlag;
@@ -45,7 +45,7 @@ public class JumpdriveShivan implements ShipPlugin
 	@Action(ActionType.DEFAULT)
 	public String action(Parameters caller, StarSystem system, int x, int y, String subaction, boolean instant)
 	{
-		SchiffController controller = caller.controller;
+		ShipController controller = caller.controller;
 		User user = (User)controller.getUser();
 		Ship ship = caller.ship;
 
@@ -218,7 +218,7 @@ public class JumpdriveShivan implements ShipPlugin
 	@Action(ActionType.DEFAULT)
 	public void output(Parameters caller)
 	{
-		SchiffController controller = caller.controller;
+		ShipController controller = caller.controller;
 		String pluginid = caller.pluginId;
 		User user = (User)controller.getUser();
 		Ship ship = caller.ship;

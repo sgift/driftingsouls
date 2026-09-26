@@ -29,7 +29,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.map.MapArea;
 import net.driftingsouls.ds2.server.map.PlayerStarmap;
 import net.driftingsouls.ds2.server.map.SectorImage;
-import net.driftingsouls.ds2.server.modules.SchiffController;
+import net.driftingsouls.ds2.server.modules.ShipController;
 import net.driftingsouls.ds2.server.ships.RouteFactory;
 import net.driftingsouls.ds2.server.ships.SchiffEinstellungen;
 import net.driftingsouls.ds2.server.ships.ShipMovementService;
@@ -114,7 +114,7 @@ public class NavigationDefault implements ShipPlugin {
 		String pluginid = caller.pluginId;
 		Ship data = caller.ship;
 		ShipTypeData datatype = caller.shiptype;
-		SchiffController controller = caller.controller;
+		ShipController controller = caller.controller;
 		User user = (User)controller.getUser();
 		org.hibernate.Session db = controller.getDB();
 

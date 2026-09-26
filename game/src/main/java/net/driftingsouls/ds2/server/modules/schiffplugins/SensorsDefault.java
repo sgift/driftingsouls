@@ -35,7 +35,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.modules.SchiffController;
+import net.driftingsouls.ds2.server.modules.ShipController;
 import net.driftingsouls.ds2.server.services.TradingPostService;
 import net.driftingsouls.ds2.server.ships.*;
 import net.driftingsouls.ds2.server.werften.BaseWerft;
@@ -78,7 +78,7 @@ public class SensorsDefault implements ShipPlugin {
 
 	@Action(ActionType.DEFAULT)
 	public String action(Parameters caller, String order, int showonly, int showid) {
-		SchiffController controller = caller.controller;
+		ShipController controller = caller.controller;
 
 		if(!order.isEmpty()) {
 			if( !order.equals("id") && !order.equals("name") && !order.equals("owner") && !order.equals("shiptype") ) {
