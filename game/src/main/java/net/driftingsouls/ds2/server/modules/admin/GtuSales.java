@@ -39,7 +39,7 @@ import java.util.List;
  *
  */
 @AdminMenuEntry(category="GTU", name="Verkaufsdaten", permission = WellKnownAdminPermission.GTU_VERKAEUFE)
-public class GtuVerkaeufe implements AdminPlugin
+public class GtuSales implements AdminPlugin
 {
 	@Override
 	public void output(StringBuilder echo) {
