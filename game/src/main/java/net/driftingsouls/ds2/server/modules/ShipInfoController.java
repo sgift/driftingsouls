@@ -51,12 +51,12 @@ import java.util.TreeSet;
  */
 @LoginNotRequired
 @Module(name = "schiffinfo")
-public class SchiffInfoController extends Controller
+public class ShipInfoController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
-	public SchiffInfoController(TemplateViewResultFactory templateViewResultFactory)
+	public ShipInfoController(TemplateViewResultFactory templateViewResultFactory)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
 
