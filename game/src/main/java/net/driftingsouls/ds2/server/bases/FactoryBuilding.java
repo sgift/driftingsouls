@@ -45,10 +45,12 @@ import java.util.*;
  * Die Fabrik.
  */
 @Entity(name = "FabrikBuilding")
+// Stored in buildings.module for every existing row and predates the rename to FactoryBuilding.
+// Must not be changed to match the class name.
 @DiscriminatorValue("net.driftingsouls.ds2.server.bases.Fabrik")
-public class Fabrik extends DefaultBuilding
+public class FactoryBuilding extends DefaultBuilding
 {
-	private static final Log log = LogFactory.getLog(Fabrik.class);
+	private static final Log log = LogFactory.getLog(FactoryBuilding.class);
 
 	/**
 	 * Daten von einer oder mehreren Fabriken.
@@ -93,7 +95,7 @@ public class Fabrik extends DefaultBuilding
 	/**
 	 * Erstellt eine neue Instanz der Fabriken.
 	 */
-	public Fabrik()
+	public FactoryBuilding()
 	{
 		// EMPTY
 	}

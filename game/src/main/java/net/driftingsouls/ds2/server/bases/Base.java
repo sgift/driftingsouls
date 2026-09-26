@@ -1001,7 +1001,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	 */
 	public static BaseStatus getStatus( Base base )
 	{
-        Fabrik.ContextVars vars = ContextMap.getContext().get(Fabrik.ContextVars.class);
+        FactoryBuilding.ContextVars vars = ContextMap.getContext().get(FactoryBuilding.ContextVars.class);
         vars.clear();
 
 		Cargo stat = new Cargo();

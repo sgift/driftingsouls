@@ -427,7 +427,7 @@ public abstract class Building
 	 */
 	public boolean isFabrik()
 	{
-		return (this instanceof Fabrik);
+		return (this instanceof FactoryBuilding);
 	}
 
 	/**
