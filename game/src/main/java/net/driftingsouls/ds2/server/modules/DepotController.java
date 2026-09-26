@@ -60,13 +60,13 @@ import java.util.List;
  */
 // TODO: Die ID des Handelspostens sollte per URL spezifiziert werden
 @Module(name = "gtuzwischenlager")
-public class GtuZwischenLagerController extends Controller
+public class DepotController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
 	private final TradingPostService tradingPostService;
 
 	@Autowired
-	public GtuZwischenLagerController(TemplateViewResultFactory templateViewResultFactory,
+	public DepotController(TemplateViewResultFactory templateViewResultFactory,
 									  TradingPostService tradingPostService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
