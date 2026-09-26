@@ -16,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 /**
- * Regression test for {@code SchiffsTick.doDestroyStatus}: every ship carrying the {@code destroy}
+ * Regression test for {@code ShipTick.doDestroyStatus}: every ship carrying the {@code destroy}
  * status token must be gone by the end of the tick, not just the first one in the list.
  *
  * <p>The pass runs with {@code setFlushSize(1).setClearOnFlush(true)}, so the persistence context is
@@ -30,7 +30,7 @@ import static org.junit.Assert.assertNull;
  * <p>The ships are placed in system 0, which {@code tickUser} skips, so this exercises the
  * destruction pass without dragging the whole per-ship tick into the fixture.
  */
-public class SchiffsTickDestroyStatusTest extends DBTest
+public class ShipTickDestroyStatusTest extends DBTest
 {
 	private static final int SHIP_COUNT = 5;
 
@@ -63,11 +63,11 @@ public class SchiffsTickDestroyStatusTest extends DBTest
 		// proxy, and that is what stops working once the context is cleared mid-run.
 		getEM().clear();
 
-		SchiffsTick schiffsTick = (SchiffsTick) getContext().getBean(SchiffsTick.class, null);
+		ShipTick shipTick = (ShipTick) getContext().getBean(ShipTick.class, null);
 		// prepare()/tick() instead of execute(): execute() swallows every exception into
 		// Common.mailThrowable, which would let an aborted tick pass as a silent no-op.
-		schiffsTick.prepare();
-		schiffsTick.tick();
+		shipTick.prepare();
+		shipTick.tick();
 
 		getEM().clear();
 

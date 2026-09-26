@@ -55,7 +55,7 @@ distinguish from the error itself.
 
 ## `setStatus("destroy")` discards the rest of the status field
 
-`SchiffsTick.berechneVerfallWegenCrewmangel` assigns the whole field rather than appending, so a
+`ShipTick.berechneVerfallWegenCrewmangel` assigns the whole field rather than appending, so a
 tradepost destroyed for crew shortage loses its `tradepost` token on the way out.
 `PluendernController` appends correctly. Harmless today because the ship is deleted moments later,
 but it is the same field-used-as-two-things confusion that ADR-0008 is about, and it would bite if
@@ -72,7 +72,7 @@ and already drive the unit of work by id. **Unverified** — needs the suppliers
 
 ## Destruction for crew shortage notifies nobody
 
-`SchiffsTick` sends a `PM` for mutiny, desertion and a low account balance, but
+`ShipTick` sends a `PM` for mutiny, desertion and a low account balance, but
 `berechneVerfallWegenCrewmangel` sets `destroy` without any message. The owner sees the ship simply
 gone, one or more ticks later (see ADR-0008 for why the delay). Since the destroy backlog turned out
 to be three ships owned by user -1, this is now the leading candidate for the player reports of
@@ -86,7 +86,7 @@ having even after the flag itself is redesigned.
 `Ship.destroy()` failed on `getTypeData().getADocks()` — `Ship.shiptype` is a LAZY `ManyToOne`.
 `UnitOfWork` caught each failure per object, so the tick reported success while leaving the ship
 alive with its flag intact. Confirmed by a production stack trace and reproduced by
-`SchiffsTickDestroyStatusTest`.
+`ShipTickDestroyStatusTest`.
 
 This explains the missing-ships reports: because the flag is durable (ADR-0008), ships marked ticks
 or weeks ago are still flying and were being picked off one per tick, with no visible connection to

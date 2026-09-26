@@ -53,10 +53,10 @@ import java.util.*;
  */
 @Service
 @Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
-public class SchiffsTick extends TickController {
+public class ShipTick extends TickController {
 	private final ConfigService configService;
 
-    public SchiffsTick(ConfigService configService) {
+    public ShipTick(ConfigService configService) {
         this.configService = configService;
     }
 

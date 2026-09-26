@@ -42,7 +42,7 @@ import java.util.List;
  */
 @Service
 @Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
-public class WerftTick extends TickController
+public class ShipyardTick extends TickController
 {
 	@Override
 	protected void prepare() {}

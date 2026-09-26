@@ -10,11 +10,11 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 
 /**
- * Setzt die allgemeine Ticksperre.
+ * Hebt die allgemeine Ticksperre auf.
  */
 @Service
 @Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
-public class TicksperreSetzenTick extends TickController
+public class ReleaseTickLockTick extends TickController
 {
 	@Override
 	protected void prepare()
@@ -31,7 +31,7 @@ public class TicksperreSetzenTick extends TickController
 			public void doWork() {
 				var db = getEM();
 				ConfigValue value = new ConfigService(db).get(WellKnownConfigValue.TICK);
-				value.setValue("1");
+				value.setValue("0");
 			}
 		}
 		.execute();

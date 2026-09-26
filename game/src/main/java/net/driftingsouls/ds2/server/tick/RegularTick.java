@@ -47,7 +47,7 @@ public class RegularTick extends AbstractTickExecuter
 
 			try
 			{
-				execTick(TicksperreSetzenTick.class, false);
+				execTick(SetTickLockTick.class, false);
 
 				log("Accounts blockiert");
 
@@ -58,13 +58,13 @@ public class RegularTick extends AbstractTickExecuter
 				execTick(BaseTick.class,false);
 		
 				publishStatus("berechne Schiffe");
-				execTick(SchiffsTick.class,false);
+				execTick(ShipTick.class,false);
 		
 				publishStatus("berechne Werften");
-				execTick(WerftTick.class, false);
+				execTick(ShipyardTick.class, false);
 		
 				publishStatus("berechne Forschungen");
-				execTick(ForschungsTick.class, false);
+				execTick(ResearchTick.class, false);
 		
 				publishStatus("fuehre NPC-Aktionen aus");
 				execTick(NPCOrderTick.class, false);
@@ -73,7 +73,7 @@ public class RegularTick extends AbstractTickExecuter
 				execTick(AcademyTick.class, false);
 				
 				publishStatus("berechne Kasernen");
-				execTick(KaserneTick.class, false);
+				execTick(BarracksTick.class, false);
 		
 				publishStatus("berechne GTU");
 				execTick(RTCTick.class, false);
@@ -92,7 +92,7 @@ public class RegularTick extends AbstractTickExecuter
 			}
 			finally
 			{
-				execTick(TicksperreAufhebenTick.class, false);
+				execTick(ReleaseTickLockTick.class, false);
 				log("Accounts frei");
 
 				if( !lockFile.delete() )

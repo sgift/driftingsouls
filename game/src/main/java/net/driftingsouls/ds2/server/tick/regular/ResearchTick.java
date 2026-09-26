@@ -38,7 +38,7 @@ import java.util.List;
  */
 @Service
 @Scope(value = "thread", proxyMode = ScopedProxyMode.TARGET_CLASS)
-public class ForschungsTick extends TickController {
+public class ResearchTick extends TickController {
 	@Override
 	protected void prepare() {
 		// EMPTY
