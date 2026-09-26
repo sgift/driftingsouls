@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
  * Transfer von Einheiten zwischen Basen und Schiffen.
  */
 @Module(name = "unittausch")
-public class UnitTauschController extends Controller
+public class UnitTransferController extends Controller
 {
 	private static class MultiTarget
 	{
@@ -546,7 +546,7 @@ public class UnitTauschController extends Controller
 	private final Map<String, TransportFactory> wayhandler;
 
 	@Autowired
-	public UnitTauschController(TemplateViewResultFactory templateViewResultFactory)
+	public UnitTransferController(TemplateViewResultFactory templateViewResultFactory)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
 
