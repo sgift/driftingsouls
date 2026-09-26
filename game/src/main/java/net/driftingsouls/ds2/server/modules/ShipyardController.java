@@ -42,12 +42,12 @@ import java.io.Writer;
  * @author Christopher Jung
  */
 @Module(name = "werft")
-public class WerftController extends Controller
+public class ShipyardController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
-	public WerftController(TemplateViewResultFactory templateViewResultFactory)
+	public ShipyardController(TemplateViewResultFactory templateViewResultFactory)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
 
