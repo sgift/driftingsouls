@@ -54,7 +54,7 @@ public class DSApplication {
         this.controllerFactoriesByURL.put("/register", RegisterController::new);
         this.controllerFactoriesByURL.put("/login", () -> new LoginController(new PortalController()));
         this.controllerFactoriesByURL.put("/logout", LogoutController::new);
-        this.controllerFactoriesByURL.put("/choff", ChoffController::new);
+        this.controllerFactoriesByURL.put("/choff", OfficerController::new);
         this.controllerFactoriesByURL.put("/comnet", ComNetController::new);
         this.controllerFactoriesByURL.put("/base", BaseController::new);
         this.controllerFactoriesByURL.put("/starmap", StarmapController::new);

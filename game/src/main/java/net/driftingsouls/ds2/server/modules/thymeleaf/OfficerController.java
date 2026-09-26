@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ChoffController implements DSController {
+public class OfficerController implements DSController {
     
     private enum Action{
       RENAME,
