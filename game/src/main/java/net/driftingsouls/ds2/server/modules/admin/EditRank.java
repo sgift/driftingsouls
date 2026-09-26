@@ -8,7 +8,7 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import javax.annotation.Nonnull;
 
 @AdminMenuEntry(category = "Spieler", name = "Rang", permission = WellKnownAdminPermission.EDIT_RANG)
-public class EditRang implements EntityEditor<Rang>
+public class EditRank implements EntityEditor<Rang>
 {
 	@Override
 	public Class<Rang> getEntityType()

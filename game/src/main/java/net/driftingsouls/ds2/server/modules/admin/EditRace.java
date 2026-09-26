@@ -12,7 +12,7 @@ import net.driftingsouls.ds2.server.namegenerator.ShipNameGenerator;
 import javax.annotation.Nonnull;
 
 @AdminMenuEntry(category = "Spieler", name = "Rasse", permission = WellKnownAdminPermission.EDIT_RASSE)
-public class EditRasse implements EntityEditor<Rasse>
+public class EditRace implements EntityEditor<Rasse>
 {
 	@Override
 	public Class<Rasse> getEntityType()

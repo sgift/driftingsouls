@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @AdminMenuEntry(category = "Spieler", name = "Fraktionsangebot", permission = WellKnownAdminPermission.EDIT_FRAKTIONS_ANGEBOT)
-public class EditFraktionsAngebot implements EntityEditor<FraktionsAngebot>
+public class EditFactionOffer implements EntityEditor<FraktionsAngebot>
 {
 
 	@Override

@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @AdminMenuEntry(category = "Items", name = "Schiffstypmodifikation", permission = WellKnownAdminPermission.EDIT_ITEM)
-public class EditSchiffstypModifikation implements EntityEditor<SchiffstypModifikation>
+public class EditShipTypeModification implements EntityEditor<SchiffstypModifikation>
 {
 	@Override
 	public Class<SchiffstypModifikation> getEntityType()

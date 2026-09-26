@@ -15,7 +15,7 @@ import javax.annotation.Nonnull;
 import java.util.List;
 
 @AdminMenuEntry(category = "Spieler", name = "Fraktions-GUI", permission = WellKnownAdminPermission.EDIT_FRAKTIONS_GUI_EINTRAG)
-public class EditFraktionsGuiEintrag implements EntityEditor<FraktionsGuiEintrag>
+public class EditFactionGuiEntry implements EntityEditor<FraktionsGuiEintrag>
 {
 	@Override
 	public Class<FraktionsGuiEintrag> getEntityType()
