@@ -39,7 +39,7 @@ import java.util.List;
  * @author Christopher Jung
  */
 @net.driftingsouls.ds2.server.framework.pipeline.Module(name = "schiffAjax")
-public class SchiffAjaxController extends Controller
+public class ShipAjaxController extends Controller
 {
 	@ViewModel
 	public static class SchiffsLogViewModel
@@ -51,7 +51,7 @@ public class SchiffAjaxController extends Controller
 	private final ShipJumpService shipJumpService;
 
 	@Autowired
-	public SchiffAjaxController(ShipMovementService shipMovementService, ShipJumpService shipJumpService)
+	public ShipAjaxController(ShipMovementService shipMovementService, ShipJumpService shipJumpService)
 	{
 		this.shipMovementService = shipMovementService;
 		this.shipJumpService = shipJumpService;

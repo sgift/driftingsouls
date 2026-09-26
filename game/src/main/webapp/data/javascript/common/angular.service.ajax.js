@@ -1005,65 +1005,65 @@
 		}
 	}
 	angularModule = angularModule.factory('OptionsControllerStub', ['ds', OptionsControllerStub]);
-	// net.driftingsouls.ds2.server.modules.SchiffAjaxController
+	// net.driftingsouls.ds2.server.modules.ShipAjaxController
 	/**
 	 * @class
 	 **/
-	var DsAjaxPromise_SchiffAjaxControllerStub_alarmAction = {
+	var DsAjaxPromise_ShipAjaxControllerStub_alarmAction = {
 		/**
 		 * @name success
 		 * @function
 		 * @param {function(data:ds.viewmodel.framework.ViewMessage)} callback
-		 * @memberof DsAjaxPromise_SchiffAjaxControllerStub_alarmAction
+		 * @memberof DsAjaxPromise_ShipAjaxControllerStub_alarmAction
 		 **/
 		success : function(callback) {}
 	};
 	/**
 	 * @class
 	 **/
-	var DsAjaxPromise_SchiffAjaxControllerStub_springenAction = {
+	var DsAjaxPromise_ShipAjaxControllerStub_springenAction = {
 		/**
 		 * @name success
 		 * @function
 		 * @param {function(data:object)} callback
-		 * @memberof DsAjaxPromise_SchiffAjaxControllerStub_springenAction
+		 * @memberof DsAjaxPromise_ShipAjaxControllerStub_springenAction
 		 **/
 		success : function(callback) {}
 	};
 	/**
 	 * @class
 	 **/
-	var DsAjaxPromise_SchiffAjaxControllerStub_springenViaSchiffAction = {
+	var DsAjaxPromise_ShipAjaxControllerStub_springenViaSchiffAction = {
 		/**
 		 * @name success
 		 * @function
 		 * @param {function(data:object)} callback
-		 * @memberof DsAjaxPromise_SchiffAjaxControllerStub_springenViaSchiffAction
+		 * @memberof DsAjaxPromise_ShipAjaxControllerStub_springenViaSchiffAction
 		 **/
 		success : function(callback) {}
 	};
 	/**
 	 * @class
 	 **/
-	var DsAjaxPromise_SchiffAjaxControllerStub_fliegeSchiffAction = {
+	var DsAjaxPromise_ShipAjaxControllerStub_fliegeSchiffAction = {
 		/**
 		 * @name success
 		 * @function
 		 * @param {function(data:object)} callback
-		 * @memberof DsAjaxPromise_SchiffAjaxControllerStub_fliegeSchiffAction
+		 * @memberof DsAjaxPromise_ShipAjaxControllerStub_fliegeSchiffAction
 		 **/
 		success : function(callback) {}
 	};
 	/**
-	 * @class {object} SchiffAjaxControllerStub
+	 * @class {object} ShipAjaxControllerStub
 	 **/
-	function SchiffAjaxControllerStub(ds) {
+	function ShipAjaxControllerStub(ds) {
 		return {
 			/**
-			 * @memberof SchiffAjaxControllerStub
+			 * @memberof ShipAjaxControllerStub
 			 * @param {object} schiff 
 			 * @param {object} alarm 
-			 * @returns {DsAjaxPromise_SchiffAjaxControllerStub_alarmAction}
+			 * @returns {DsAjaxPromise_ShipAjaxControllerStub_alarmAction}
 			 **/
 			alarm : function(schiff,alarm) {
 				var options={};
@@ -1074,10 +1074,10 @@
 				return ds(options);
 			},
 			/**
-			 * @memberof SchiffAjaxControllerStub
+			 * @memberof ShipAjaxControllerStub
 			 * @param {object} schiff 
 			 * @param {object} sprungpunkt 
-			 * @returns {DsAjaxPromise_SchiffAjaxControllerStub_springenAction}
+			 * @returns {DsAjaxPromise_ShipAjaxControllerStub_springenAction}
 			 **/
 			springen : function(schiff,sprungpunkt) {
 				var options={};
@@ -1088,10 +1088,10 @@
 				return ds(options);
 			},
 			/**
-			 * @memberof SchiffAjaxControllerStub
+			 * @memberof ShipAjaxControllerStub
 			 * @param {object} schiff 
 			 * @param {object} sprungpunktSchiff 
-			 * @returns {DsAjaxPromise_SchiffAjaxControllerStub_springenViaSchiffAction}
+			 * @returns {DsAjaxPromise_ShipAjaxControllerStub_springenViaSchiffAction}
 			 **/
 			springenViaSchiff : function(schiff,sprungpunktSchiff) {
 				var options={};
@@ -1102,11 +1102,11 @@
 				return ds(options);
 			},
 			/**
-			 * @memberof SchiffAjaxControllerStub
+			 * @memberof ShipAjaxControllerStub
 			 * @param {object} schiff 
 			 * @param {number} x 
 			 * @param {number} y 
-			 * @returns {DsAjaxPromise_SchiffAjaxControllerStub_fliegeSchiffAction}
+			 * @returns {DsAjaxPromise_ShipAjaxControllerStub_fliegeSchiffAction}
 			 **/
 			fliegeSchiff : function(schiff,x,y) {
 				var options={};
@@ -1119,7 +1119,7 @@
 			}		
 		}
 	}
-	angularModule = angularModule.factory('SchiffAjaxControllerStub', ['ds', SchiffAjaxControllerStub]);
+	angularModule = angularModule.factory('ShipAjaxControllerStub', ['ds', ShipAjaxControllerStub]);
 	// net.driftingsouls.ds2.server.modules.SearchController
 	/**
 	 * @class

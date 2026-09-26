@@ -338,10 +338,10 @@
 	 * @param StarmapService
 	 * @param $routeParams
 	 * @param $location
-	 * @param {SchiffAjaxControllerStub} SchiffAjaxControllerStub
+	 * @param {ShipAjaxControllerStub} ShipAjaxControllerStub
 	 * @constructor
 	 */
-	function MapController($scope, PopupService, StarmapService, $routeParams, $location, SchiffAjaxControllerStub) {
+	function MapController($scope, PopupService, StarmapService, $routeParams, $location, ShipAjaxControllerStub) {
 		function init() {
 			$(document).ready(function () {
 				StarmapService.create('#mapcontent');
@@ -377,7 +377,7 @@
 					var logentry = new Date().toLocaleTimeString() + ": " + this.schiff.name + " fliegt nach " + this.ziel.x + "/" + this.ziel.y + "<br />";
 					$scope.log.push({message: logentry});
 					var idx = $scope.log.length - 1;
-					SchiffAjaxControllerStub
+					ShipAjaxControllerStub
 						.fliegeSchiff(this.schiff.id, this.ziel.x, this.ziel.y)
 						.success(function (result) {
 							$scope.log[idx].message += result.log;
@@ -450,5 +450,5 @@
 		.controller('MapGeheZuPositionController', ['$scope', 'ImpObjectsControllerStub', 'PopupService', 'StarmapService', MapGeheZuPositionController])
 		.controller('MapSystemuebersichtController', ['$scope', 'MapControllerStub', 'PopupService', '$location', MapSystemuebersichtController])
 		.controller('MapSystemauswahlController', ['$scope', 'MapControllerStub', 'PopupService', '$location', MapSystemauswahlController])
-		.controller('MapController', ['$scope', 'PopupService', 'StarmapService', '$routeParams', '$location', 'SchiffAjaxControllerStub', MapController]);
+		.controller('MapController', ['$scope', 'PopupService', 'StarmapService', '$routeParams', '$location', 'ShipAjaxControllerStub', MapController]);
 })();
