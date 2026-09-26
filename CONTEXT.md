@@ -56,11 +56,11 @@ _Avoid_: Kaserne
 The Building that trains Officers on a Base.
 _Avoid_: Akademie
 
-**Research Centre**:
+**Research Center**:
 The Building on a Base at which Research is carried out.
 _Avoid_: Forschungszentrum
 
-**Command Centre**:
+**Command Center**:
 The Building that establishes a Base as owned and provides its core administrative functions.
 _Avoid_: Kommandozentrale
 
@@ -202,7 +202,7 @@ A User's standing, either within the game generally or within an Alliance.
 _Avoid_: Rang
 
 **Research**:
-A technology a User unlocks at a Research Centre, gating Ship Types, Buildings and Items.
+A technology a User unlocks at a Research Center, gating Ship Types, Buildings and Items.
 _Avoid_: Forschung
 
 ### Communication and time
