@@ -71,14 +71,14 @@ import static net.driftingsouls.ds2.server.repositories.ShipsRepository.getShipB
  * @author Christopher Jung
  */
 @Module(name = "ueber")
-public class UeberController extends Controller
+public class OverviewController extends Controller
 {
-	private static final Logger log = LoggerFactory.getLogger(UeberController.class);
+	private static final Logger log = LoggerFactory.getLogger(OverviewController.class);
 
 	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
-	public UeberController(TemplateViewResultFactory templateViewResultFactory)
+	public OverviewController(TemplateViewResultFactory templateViewResultFactory)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
 	}
