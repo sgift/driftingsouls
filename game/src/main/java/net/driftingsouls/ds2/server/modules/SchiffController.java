@@ -157,7 +157,7 @@ public class SchiffController extends Controller
 	 * @param alarm Die neue Alarmstufe
 	 */
 	@Action(ActionType.DEFAULT)
-	public RedirectViewResult alarmAction(Ship ship, Alarmstufe alarm)
+	public RedirectViewResult alarmAction(Ship ship, AlertLevel alarm)
 	{
 		validiereSchiff(ship);
 
@@ -1055,7 +1055,7 @@ public class SchiffController extends Controller
 
 		// Alarmstufe aendern
 		t.setBlock("_SCHIFF", "ship.alarms.listitem", "ship.alarms.list");
-		for( Alarmstufe a : Alarmstufe.values())
+		for( AlertLevel a : AlertLevel.values())
 		{
 			t.setVar("alarm.id", a,
 					"alarm.name", a.getName(),

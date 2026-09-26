@@ -181,7 +181,7 @@ public class ShipFleet {
 	 * Setzt die Alarmstufe der Schiffe in der Flotte.
 	 * @param alarm Die Alarmstufe
 	 */
-	public void setAlarm(Alarmstufe alarm) {
+	public void setAlarm(AlertLevel alarm) {
 		EntityManager em = ContextMap.getContext().getEM();
 
 		List<Ship> ships = em.createQuery("from Ship where id>0 and fleet=:fleet and battle is null", Ship.class)

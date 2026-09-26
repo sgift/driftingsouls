@@ -33,7 +33,7 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.pipeline.Request;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.ships.Alarmstufe;
+import net.driftingsouls.ds2.server.ships.AlertLevel;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipBaubar;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
@@ -783,7 +783,7 @@ public class WerftGUI {
 			{
 				werft.removeModule( aship, slot );
 				if (!aship.getTypeData().isMilitary()){
-					aship.setAlarm(Alarmstufe.GREEN);
+					aship.setAlarm(AlertLevel.GREEN);
 				}
 			}
 			t.setVar("ws.modules.msg", Common._plaintext(werft.getMessage()));

@@ -79,7 +79,7 @@ public class SchiffAjaxController extends Controller
 	 * @param alarm Die neue Alarmstufe
 	 */
 	@Action(ActionType.AJAX)
-	public ViewMessage alarmAction(Ship schiff, Alarmstufe alarm)
+	public ViewMessage alarmAction(Ship schiff, AlertLevel alarm)
 	{
 		validiereSchiff(schiff);
 

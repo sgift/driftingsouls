@@ -20,7 +20,7 @@ package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.ships.Alarmstufe;
+import net.driftingsouls.ds2.server.ships.AlertLevel;
 
 import java.io.IOException;
 
@@ -32,7 +32,7 @@ public class KSDeactivateAR extends BasicKSMenuAction
 {
     @Override
     public Result validate(Battle battle) {
-        if(battle.getOwnShip().getShip().getAlarm() == Alarmstufe.RED)
+        if(battle.getOwnShip().getShip().getAlarm() == AlertLevel.RED)
         {
             return Result.OK;
         }
@@ -47,7 +47,7 @@ public class KSDeactivateAR extends BasicKSMenuAction
             return result;
         }
 
-        battle.getOwnShip().getShip().setAlarm(Alarmstufe.GREEN);
+        battle.getOwnShip().getShip().setAlarm(AlertLevel.GREEN);
 
         return Result.OK;
     }

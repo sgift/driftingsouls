@@ -20,7 +20,7 @@ package net.driftingsouls.ds2.server.modules.ks;
 
 import net.driftingsouls.ds2.server.battles.Battle;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
-import net.driftingsouls.ds2.server.ships.Alarmstufe;
+import net.driftingsouls.ds2.server.ships.AlertLevel;
 import net.driftingsouls.ds2.server.ships.ShipClasses;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
 
@@ -37,7 +37,7 @@ public class KSActivateAR extends BasicKSMenuAction
 
         ShipTypeData shiptype = battle.getOwnShip().getShip().getTypeData();
 
-        if(battle.getOwnShip().getShip().getAlarm() != Alarmstufe.RED && (shiptype.getShipClass() != ShipClasses.GESCHUETZ) && shiptype.isMilitary())
+        if(battle.getOwnShip().getShip().getAlarm() != AlertLevel.RED && (shiptype.getShipClass() != ShipClasses.GESCHUETZ) && shiptype.isMilitary())
         {
             return Result.OK;
         }
@@ -52,7 +52,7 @@ public class KSActivateAR extends BasicKSMenuAction
             return result;
         }
 
-        battle.getOwnShip().getShip().setAlarm(Alarmstufe.RED);
+        battle.getOwnShip().getShip().setAlarm(AlertLevel.RED);
 
         return Result.OK;
     }

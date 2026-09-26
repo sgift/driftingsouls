@@ -25,7 +25,7 @@ import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.ships.Alarmstufe;
+import net.driftingsouls.ds2.server.ships.AlertLevel;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import org.hibernate.Query;
@@ -118,7 +118,7 @@ public class EditGroup implements AdminPlugin
 				ship.setComm(context.getRequest().getParameterInt("comm"));
 				ship.setWeapons(context.getRequest().getParameterInt("weapons"));
 				ship.setHeat(context.getRequest().getParameterInt("heat"));
-				ship.setAlarm(Alarmstufe.values()[context.getRequest().getParameterInt("alarm")]);
+				ship.setAlarm(AlertLevel.values()[context.getRequest().getParameterInt("alarm")]);
 				
 				Cargo cargo = new Cargo();
 				

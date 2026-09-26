@@ -5,7 +5,7 @@ package net.driftingsouls.ds2.server.ships;
  *
  * @author Sebastian Gift
  */
-public enum Alarmstufe
+public enum AlertLevel
 {
 	/**
 	 * Keine Reaktion.
@@ -25,7 +25,7 @@ public enum Alarmstufe
 	private final double energyCostFactor;
 	private final int code;
 
-	Alarmstufe(String name, int code, double scaleFactor, double energyCostFactor)
+	AlertLevel(String name, int code, double scaleFactor, double energyCostFactor)
 	{
 		this.name = name;
 		this.code = code;
