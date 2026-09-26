@@ -53,12 +53,12 @@ import java.util.List;
  * @author Christopher Jung
  */
 @Module(name = "forschinfo")
-public class ForschinfoController extends Controller
+public class ResearchInfoController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
-	public ForschinfoController(TemplateViewResultFactory templateViewResultFactory)
+	public ResearchInfoController(TemplateViewResultFactory templateViewResultFactory)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
 
