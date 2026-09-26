@@ -63,14 +63,14 @@ import java.util.concurrent.ThreadLocalRandom;
  * @author Christopher Jung
  */
 @Module(name = "kapern")
-public class KapernController extends Controller
+public class BoardController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
 	private final BattleCreationService battleCreationService;
 	private final ConfigService configService;
 
 	@Autowired
-	public KapernController(TemplateViewResultFactory templateViewResultFactory,
+	public BoardController(TemplateViewResultFactory templateViewResultFactory,
 			BattleCreationService battleCreationService,
 			ConfigService configService)
 	{
