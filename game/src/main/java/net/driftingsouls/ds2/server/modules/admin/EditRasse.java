@@ -5,9 +5,9 @@ import net.driftingsouls.ds2.server.entities.Rasse;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
-import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
-import net.driftingsouls.ds2.server.namegenerator.SchiffsKlassenNamenGenerator;
-import net.driftingsouls.ds2.server.namegenerator.SchiffsNamenGenerator;
+import net.driftingsouls.ds2.server.namegenerator.PersonNameGenerator;
+import net.driftingsouls.ds2.server.namegenerator.ShipClassNameGenerator;
+import net.driftingsouls.ds2.server.namegenerator.ShipNameGenerator;
 
 import javax.annotation.Nonnull;
 
@@ -28,9 +28,9 @@ public class EditRasse implements EntityEditor<Rasse>
 		form.field("Spielbar", Boolean.class, Rasse::isPlayable, Rasse::setPlayable);
 		form.field("\"Erweitert\" Spielbar", Boolean.class, Rasse::isExtPlayable, Rasse::setExtPlayable);
 		form.field("Oberhaupt", User.class, Rasse::getHead, Rasse::setHead).withNullOption("[Keiner]");
-		form.field("Personennamengenerator", PersonenNamenGenerator.class, Rasse::getPersonenNamenGenerator, Rasse::setPersonenNamenGenerator);
-		form.field("Schiffsklassengenerator", SchiffsKlassenNamenGenerator.class, Rasse::getSchiffsKlassenNamenGenerator, Rasse::setSchiffsKlassenNamenGenerator);
-		form.field("Schiffsnamengenerator", SchiffsNamenGenerator.class, Rasse::getSchiffsNamenGenerator, Rasse::setSchiffsNamenGenerator);
+		form.field("Personennamengenerator", PersonNameGenerator.class, Rasse::getPersonenNamenGenerator, Rasse::setPersonenNamenGenerator);
+		form.field("Schiffsklassengenerator", ShipClassNameGenerator.class, Rasse::getSchiffsKlassenNamenGenerator, Rasse::setSchiffsKlassenNamenGenerator);
+		form.field("Schiffsnamengenerator", ShipNameGenerator.class, Rasse::getSchiffsNamenGenerator, Rasse::setSchiffsNamenGenerator);
 		form.textArea("Beschreibung", Rasse::getDescription, Rasse::setDescription);
 	}
 }

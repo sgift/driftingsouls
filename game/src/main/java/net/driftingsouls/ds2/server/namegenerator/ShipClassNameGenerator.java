@@ -5,7 +5,7 @@ import net.driftingsouls.ds2.server.ships.ShipClasses;
 /**
  * Generatoren fuer das Kuerzel fuer die Schiffsklasse am Anfang des Schiffsnamens.
  */
-public enum SchiffsKlassenNamenGenerator
+public enum ShipClassNameGenerator
 {
 	KEIN_KUERZEL("Nichts") {
 		@Override
@@ -91,7 +91,7 @@ public enum SchiffsKlassenNamenGenerator
 
 	private final String label;
 
-	SchiffsKlassenNamenGenerator(final String label)
+	ShipClassNameGenerator(final String label)
 	{
 		this.label = label;
 	}

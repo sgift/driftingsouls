@@ -1,8 +1,8 @@
 package net.driftingsouls.ds2.server.entities;
 
-import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
-import net.driftingsouls.ds2.server.namegenerator.SchiffsKlassenNamenGenerator;
-import net.driftingsouls.ds2.server.namegenerator.SchiffsNamenGenerator;
+import net.driftingsouls.ds2.server.namegenerator.PersonNameGenerator;
+import net.driftingsouls.ds2.server.namegenerator.ShipClassNameGenerator;
+import net.driftingsouls.ds2.server.namegenerator.ShipNameGenerator;
 import org.hibernate.annotations.ForeignKey;
 
 import javax.annotation.Nonnull;
@@ -40,13 +40,13 @@ public class Rasse
 	private User head;
 	@SuppressWarnings("UnusedDeclaration")
 	@Enumerated(EnumType.STRING)
-	private PersonenNamenGenerator personenNamenGenerator;
+	private PersonNameGenerator personenNamenGenerator;
 	@SuppressWarnings("UnusedDeclaration")
 	@Enumerated(EnumType.STRING)
-	private SchiffsKlassenNamenGenerator schiffsKlassenNamenGenerator;
+	private ShipClassNameGenerator schiffsKlassenNamenGenerator;
 	@SuppressWarnings("UnusedDeclaration")
 	@Enumerated(EnumType.STRING)
-	private SchiffsNamenGenerator schiffsNamenGenerator;
+	private ShipNameGenerator schiffsNamenGenerator;
 	@Lob
 	private String description;
 
@@ -220,14 +220,14 @@ public class Rasse
 	 *
 	 * @return Der Namensgenerator
 	 */
-	public @Nonnull PersonenNamenGenerator getPersonenNamenGenerator()
+	public @Nonnull PersonNameGenerator getPersonenNamenGenerator()
 	{
 		if (personenNamenGenerator == null && (memberIn != null))
 		{
 			return memberIn.getPersonenNamenGenerator();
 		}
 		else if( personenNamenGenerator == null ) {
-			return PersonenNamenGenerator.ENGLISCH;
+			return PersonNameGenerator.ENGLISCH;
 		}
 		return personenNamenGenerator;
 	}
@@ -237,7 +237,7 @@ public class Rasse
 	 *
 	 * @param personenNamenGenerator Der Namensgenerator oder <code>null</code>
 	 */
-	public void setPersonenNamenGenerator(@Nonnull PersonenNamenGenerator personenNamenGenerator)
+	public void setPersonenNamenGenerator(@Nonnull PersonNameGenerator personenNamenGenerator)
 	{
 		this.personenNamenGenerator = personenNamenGenerator;
 	}
@@ -247,14 +247,14 @@ public class Rasse
 	 *
 	 * @return Der Namensgenerator
 	 */
-	public @Nonnull SchiffsKlassenNamenGenerator getSchiffsKlassenNamenGenerator()
+	public @Nonnull ShipClassNameGenerator getSchiffsKlassenNamenGenerator()
 	{
 		if (schiffsKlassenNamenGenerator == null && (memberIn != null))
 		{
 			return memberIn.getSchiffsKlassenNamenGenerator();
 		}
 		else if( schiffsKlassenNamenGenerator == null ) {
-			return SchiffsKlassenNamenGenerator.KEIN_KUERZEL;
+			return ShipClassNameGenerator.KEIN_KUERZEL;
 		}
 		return schiffsKlassenNamenGenerator;
 	}
@@ -264,7 +264,7 @@ public class Rasse
 	 *
 	 * @param schiffsKlassenNamenGenerator Der Namensgenerator
 	 */
-	public void setSchiffsKlassenNamenGenerator(@Nonnull SchiffsKlassenNamenGenerator schiffsKlassenNamenGenerator)
+	public void setSchiffsKlassenNamenGenerator(@Nonnull ShipClassNameGenerator schiffsKlassenNamenGenerator)
 	{
 		this.schiffsKlassenNamenGenerator = schiffsKlassenNamenGenerator;
 	}
@@ -274,14 +274,14 @@ public class Rasse
 	 *
 	 * @return Der Namensgenerator
 	 */
-	public @Nonnull SchiffsNamenGenerator getSchiffsNamenGenerator()
+	public @Nonnull ShipNameGenerator getSchiffsNamenGenerator()
 	{
 		if (schiffsNamenGenerator == null && (memberIn != null))
 		{
 			return memberIn.getSchiffsNamenGenerator();
 		}
 		else if( schiffsNamenGenerator == null ) {
-			return SchiffsNamenGenerator.SCHIFFSTYP;
+			return ShipNameGenerator.SCHIFFSTYP;
 		}
 		return schiffsNamenGenerator;
 	}
@@ -291,7 +291,7 @@ public class Rasse
 	 *
 	 * @param schiffsNamenGenerator Der Namensgenerator
 	 */
-	public void setSchiffsNamenGenerator(@Nonnull SchiffsNamenGenerator schiffsNamenGenerator)
+	public void setSchiffsNamenGenerator(@Nonnull ShipNameGenerator schiffsNamenGenerator)
 	{
 		this.schiffsNamenGenerator = schiffsNamenGenerator;
 	}

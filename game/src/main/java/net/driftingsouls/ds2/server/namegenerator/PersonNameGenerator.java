@@ -28,14 +28,14 @@ import static net.driftingsouls.ds2.server.namegenerator.NameGeneratorUtils.uppe
  *
  * @author Christopher Jung
  */
-public enum PersonenNamenGenerator
+public enum PersonNameGenerator
 {
 	/**
 	 * (Alt)Aegyptische Namen.
 	 */
 	AEGYPTISCH("Ägyptisch")
 	{
-		private final NameProducer markov = NameProducerManager.INSTANCE.getMarkovNameProducer(PersonenNamenGenerator.class.getResource("aegyptische_nachnamen.txt"));
+		private final NameProducer markov = NameProducerManager.INSTANCE.getMarkovNameProducer(PersonNameGenerator.class.getResource("aegyptische_nachnamen.txt"));
 
 		@Override
 		public String generiere()
@@ -54,7 +54,7 @@ public enum PersonenNamenGenerator
 	 */
 	VASU("Vasudanisch")
 	{
-		private final NameProducer markov = NameProducerManager.INSTANCE.getMarkovNameProducer(PersonenNamenGenerator.class.getResource("altvasudanische_namen.txt"));
+		private final NameProducer markov = NameProducerManager.INSTANCE.getMarkovNameProducer(PersonNameGenerator.class.getResource("altvasudanische_namen.txt"));
 
 		@Override
 		public String generiere()
@@ -73,7 +73,7 @@ public enum PersonenNamenGenerator
 	 */
 	ENGLISCH("Englisch")
 	{
-		private final VorNachnamePersonenNamenGenerator generator = new VorNachnamePersonenNamenGenerator("englisch_vornamen.txt", "englisch_nachnamen.txt", new String[]{"Mc", "-", "'", " "});
+		private final FirstLastNameGenerator generator = new FirstLastNameGenerator("englisch_vornamen.txt", "englisch_nachnamen.txt", new String[]{"Mc", "-", "'", " "});
 
 		@Override
 		public String generiere()
@@ -86,7 +86,7 @@ public enum PersonenNamenGenerator
 	 */
 	FRANZOESISCH("Französisch")
 	{
-		private final VorNachnamePersonenNamenGenerator generator = new VorNachnamePersonenNamenGenerator("franzoesische_vornamen.txt", "franzoesische_nachnamen.txt", new String[]{"-", "'", " "});
+		private final FirstLastNameGenerator generator = new FirstLastNameGenerator("franzoesische_vornamen.txt", "franzoesische_nachnamen.txt", new String[]{"-", "'", " "});
 
 		@Override
 		public String generiere()
@@ -99,7 +99,7 @@ public enum PersonenNamenGenerator
 	 */
 	SPANISCH("Spanisch")
 	{
-		private final SpanischeNamenGenerator generator = new SpanischeNamenGenerator("spanische_vornamen.txt", "spanische_nachnamen.txt", new String[]{"-", "'", " "});
+		private final SpanishNameGenerator generator = new SpanishNameGenerator("spanische_vornamen.txt", "spanische_nachnamen.txt", new String[]{"-", "'", " "});
 
 		@Override
 		public String generiere()
@@ -110,7 +110,7 @@ public enum PersonenNamenGenerator
 
 	private final String label;
 
-	PersonenNamenGenerator(final String label)
+	PersonNameGenerator(final String label)
 	{
 		this.label = label;
 	}

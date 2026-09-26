@@ -33,7 +33,7 @@ import net.driftingsouls.ds2.server.entities.npcorders.OrderShip;
 import net.driftingsouls.ds2.server.entities.npcorders.OrderableOffizier;
 import net.driftingsouls.ds2.server.framework.db.batch.SingleUnitOfWork;
 import net.driftingsouls.ds2.server.framework.db.batch.UnitOfWork;
-import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
+import net.driftingsouls.ds2.server.namegenerator.PersonNameGenerator;
 import net.driftingsouls.ds2.server.ships.ShipCreationService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
@@ -68,7 +68,7 @@ public class NPCOrderTick extends TickController {
 	}
 
 	private String getOffiName(User user) {
-		PersonenNamenGenerator generator = user.getPersonenNamenGenerator();
+		PersonNameGenerator generator = user.getPersonenNamenGenerator();
 		if( generator != null ) {
 			return generator.generiere();
 		}

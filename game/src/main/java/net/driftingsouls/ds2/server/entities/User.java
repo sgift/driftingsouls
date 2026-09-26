@@ -35,9 +35,9 @@ import net.driftingsouls.ds2.server.entities.ally.AllyPosten;
 import net.driftingsouls.ds2.server.framework.*;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.utils.StringToTypeConverter;
-import net.driftingsouls.ds2.server.namegenerator.PersonenNamenGenerator;
-import net.driftingsouls.ds2.server.namegenerator.SchiffsKlassenNamenGenerator;
-import net.driftingsouls.ds2.server.namegenerator.SchiffsNamenGenerator;
+import net.driftingsouls.ds2.server.namegenerator.PersonNameGenerator;
+import net.driftingsouls.ds2.server.namegenerator.ShipClassNameGenerator;
+import net.driftingsouls.ds2.server.namegenerator.ShipNameGenerator;
 import net.driftingsouls.ds2.server.ships.ShipUpkeepCosts;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.units.UnitType;
@@ -218,11 +218,11 @@ public class User extends BasicUser {
 	@Column(nullable = false)
     private BigInteger bounty;
 	@Enumerated(EnumType.STRING)
-	private PersonenNamenGenerator personenNamenGenerator;
+	private PersonNameGenerator personenNamenGenerator;
 	@Enumerated(EnumType.STRING)
-	private SchiffsKlassenNamenGenerator schiffsKlassenNamenGenerator;
+	private ShipClassNameGenerator schiffsKlassenNamenGenerator;
 	@Enumerated(EnumType.STRING)
-	private SchiffsNamenGenerator schiffsNamenGenerator;
+	private ShipNameGenerator schiffsNamenGenerator;
 
 	@OneToMany(mappedBy="userRankKey.owner")
     private Set<UserRank> userRanks;
@@ -371,7 +371,7 @@ public class User extends BasicUser {
 	 * Gibt den vom Spieler verwendeten Generator fuer Personenanmen zurueck.
 	 * @return Der Generator
 	 */
-	public PersonenNamenGenerator getPersonenNamenGenerator()
+	public PersonNameGenerator getPersonenNamenGenerator()
 	{
 		return this.personenNamenGenerator == null ? Races.get().rasse(this.race).getPersonenNamenGenerator() : this.personenNamenGenerator;
 	}
@@ -380,7 +380,7 @@ public class User extends BasicUser {
 	 * Setzt den vom Spieler verwendeten Generator fuer Personenanmen.
 	 * @param personenNamenGenerator Der Generator
 	 */
-	public void setPersonenNamenGenerator(PersonenNamenGenerator personenNamenGenerator)
+	public void setPersonenNamenGenerator(PersonNameGenerator personenNamenGenerator)
 	{
 		this.personenNamenGenerator = Races.get().rasse(this.race).getPersonenNamenGenerator() == personenNamenGenerator ? null : personenNamenGenerator;
 	}
@@ -389,7 +389,7 @@ public class User extends BasicUser {
 	 * Gibt den vom Spieler verwendeten Generator fuer Schiffsklassen-Prefixe zurueck.
 	 * @return Der Generator
 	 */
-	public SchiffsKlassenNamenGenerator getSchiffsKlassenNamenGenerator()
+	public ShipClassNameGenerator getSchiffsKlassenNamenGenerator()
 	{
 		return this.schiffsKlassenNamenGenerator == null ? Races.get().rasse(this.race).getSchiffsKlassenNamenGenerator() : this.schiffsKlassenNamenGenerator;
 	}
@@ -398,7 +398,7 @@ public class User extends BasicUser {
 	 * Setzt den vom Spieler verwendeten Generator fuer Schiffsklassen-Prefixe.
 	 * @param schiffsKlassenNamenGenerator Der Generator
 	 */
-	public void setSchiffsKlassenNamenGenerator(SchiffsKlassenNamenGenerator schiffsKlassenNamenGenerator)
+	public void setSchiffsKlassenNamenGenerator(ShipClassNameGenerator schiffsKlassenNamenGenerator)
 	{
 		this.schiffsKlassenNamenGenerator = Races.get().rasse(this.race).getSchiffsKlassenNamenGenerator() == schiffsKlassenNamenGenerator ? null : schiffsKlassenNamenGenerator;
 	}
@@ -407,7 +407,7 @@ public class User extends BasicUser {
 	 * Gibt den vom Spieler verwendeten Generator fuer Schiffsnamen zurueck.
 	 * @return Der Generator
 	 */
-	public SchiffsNamenGenerator getSchiffsNamenGenerator()
+	public ShipNameGenerator getSchiffsNamenGenerator()
 	{
 		return this.schiffsNamenGenerator == null ? Races.get().rasse(this.race).getSchiffsNamenGenerator() : this.schiffsNamenGenerator;
 	}
@@ -416,7 +416,7 @@ public class User extends BasicUser {
 	 * Setzt den vom Spieler verwendeten Generator fuer Schiffsnamen.
 	 * @param schiffsNamenGenerator Der Generator
 	 */
-	public void setSchiffsNamenGenerator(SchiffsNamenGenerator schiffsNamenGenerator)
+	public void setSchiffsNamenGenerator(ShipNameGenerator schiffsNamenGenerator)
 	{
 		this.schiffsNamenGenerator = Races.get().rasse(this.race).getSchiffsNamenGenerator() == schiffsNamenGenerator ? null : schiffsNamenGenerator;
 	}
