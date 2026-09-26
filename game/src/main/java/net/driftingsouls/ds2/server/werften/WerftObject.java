@@ -27,7 +27,7 @@ import net.driftingsouls.ds2.server.cargo.modules.ModuleEntry;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleItemModule;
 import net.driftingsouls.ds2.server.cargo.modules.ModuleType;
 import net.driftingsouls.ds2.server.config.ModuleSlots;
-import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.config.Races;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.Schiffsbauplan;
 import net.driftingsouls.ds2.server.config.items.Schiffsmodul;
@@ -1274,7 +1274,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			if( disableShips.containsKey(sb.getType()) ) {
 				continue;
 			}
-			if( !Rassen.get().rasse(user.getRace()).isMemberIn(sb.getRace()) ) {
+			if( !Races.get().rasse(user.getRace()).isMemberIn(sb.getRace()) ) {
 				continue;
 			}
 

@@ -21,7 +21,7 @@ package net.driftingsouls.ds2.server.bases;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
-import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.config.Races;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.Forschungszentrum;
 import net.driftingsouls.ds2.server.entities.User;
@@ -178,7 +178,7 @@ public class ResearchCenterBuilding extends DefaultBuilding {
 		{
 			Forschung tech = (Forschung) aForschungen;
 
-			if (!Rassen.get().rasse(user.getRace()).isMemberIn(tech.getRace()))
+			if (!Races.get().rasse(user.getRace()).isMemberIn(tech.getRace()))
 			{
 				continue;
 			}
@@ -314,7 +314,7 @@ public class ResearchCenterBuilding extends DefaultBuilding {
 		Forschung tech = Forschung.getInstance(researchid);
 		boolean ok = true;
 
-		if( !Rassen.get().rasse(user.getRace()).isMemberIn(tech.getRace()) ) {
+		if( !Races.get().rasse(user.getRace()).isMemberIn(tech.getRace()) ) {
 			echo.append("<a class=\"error\" href=\"./base?col=").append(base.getId()).append("\">Fehler: Diese Forschung kann von ihrer Rasse nicht erforscht werden</a>\n");
 			return;
 		}

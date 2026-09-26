@@ -19,7 +19,7 @@
 package net.driftingsouls.ds2.server.uilibs;
 
 import net.driftingsouls.ds2.server.WellKnownPermission;
-import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.config.Races;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -147,8 +147,8 @@ public class PlayerList {
 		List<User> userlist = Common.cast(db.createQuery(query).list());
 		for( User aUser : userlist ) {
 			String race = "???";
-			if( Rassen.get().rasse(aUser.getRace()) != null ) {
-				race = Rassen.get().rasse(aUser.getRace()).getName();
+			if( Races.get().rasse(aUser.getRace()) != null ) {
+				race = Races.get().rasse(aUser.getRace()).getName();
 			}
 
 			String ally = "&nbsp;";

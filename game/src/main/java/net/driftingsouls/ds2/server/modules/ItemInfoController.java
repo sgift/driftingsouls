@@ -23,7 +23,7 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.cargo.*;
 import net.driftingsouls.ds2.server.config.ModuleSlots;
 import net.driftingsouls.ds2.server.config.NoSuchSlotException;
-import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.config.Races;
 import net.driftingsouls.ds2.server.config.Weapons;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.Schiffsmodul;
@@ -411,7 +411,7 @@ public class ItemInfoController extends Controller
 				t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 
 				t.setVar("entry.name", "Rasse",
-						"entry.data", Rassen.get().rasse(effect.getRace()).getName());
+						"entry.data", Races.get().rasse(effect.getRace()).getName());
 
 				t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 

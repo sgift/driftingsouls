@@ -2,7 +2,7 @@ package net.driftingsouls.ds2.server.modules.thymeleaf;
 
 import net.driftingsouls.ds2.server.bases.*;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
-import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.config.Races;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 import net.driftingsouls.ds2.server.entities.User;
@@ -340,7 +340,7 @@ public class BaseController implements DSController {
                 return ;
             }
         }
-        if (!Rassen.get().rasse(user.getRace()).isMemberIn(building.getRace()))
+        if (!Races.get().rasse(user.getRace()).isMemberIn(building.getRace()))
         {
             JSONPostERROR("Sie geh&ouml;ren der falschen Spezies an und k&ouml;nnen dieses Geb&auml;ude nicht selbst errichten.",json,response);
             return ;
@@ -996,7 +996,7 @@ public class BaseController implements DSController {
             {
                 continue;
             }
-            if (!Rassen.get().rasse(user.getRace()).isMemberIn(building.getRace()))
+            if (!Races.get().rasse(user.getRace()).isMemberIn(building.getRace()))
             {
                 continue;
             }

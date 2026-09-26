@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.WellKnownPermission;
-import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.config.Races;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.User;
@@ -325,7 +325,7 @@ public class StarmapController implements DSController, PermissionResolver {
 			MapController.SectorViewModel.JumpNodeViewModel jnObj = new MapController.SectorViewModel.JumpNodeViewModel();
 			jnObj.id = jumpNode.id;
 			jnObj.name = jumpNode.name;
-			jnObj.blocked = jumpNode.blocked && Rassen.get().rasse(user.getRace()).isMemberIn(0);
+			jnObj.blocked = jumpNode.blocked && Races.get().rasse(user.getRace()).isMemberIn(0);
 			jsonData.jumpnodes.add(jnObj);
 		}
 

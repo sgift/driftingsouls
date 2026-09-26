@@ -27,7 +27,7 @@ import net.driftingsouls.ds2.server.comm.Ordner;
 import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.config.Medals;
 import net.driftingsouls.ds2.server.config.Rang;
-import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.config.Races;
 import net.driftingsouls.ds2.server.config.StarSystem.Access;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.ally.Ally;
@@ -373,7 +373,7 @@ public class User extends BasicUser {
 	 */
 	public PersonenNamenGenerator getPersonenNamenGenerator()
 	{
-		return this.personenNamenGenerator == null ? Rassen.get().rasse(this.race).getPersonenNamenGenerator() : this.personenNamenGenerator;
+		return this.personenNamenGenerator == null ? Races.get().rasse(this.race).getPersonenNamenGenerator() : this.personenNamenGenerator;
 	}
 
 	/**
@@ -382,7 +382,7 @@ public class User extends BasicUser {
 	 */
 	public void setPersonenNamenGenerator(PersonenNamenGenerator personenNamenGenerator)
 	{
-		this.personenNamenGenerator = Rassen.get().rasse(this.race).getPersonenNamenGenerator() == personenNamenGenerator ? null : personenNamenGenerator;
+		this.personenNamenGenerator = Races.get().rasse(this.race).getPersonenNamenGenerator() == personenNamenGenerator ? null : personenNamenGenerator;
 	}
 
 	/**
@@ -391,7 +391,7 @@ public class User extends BasicUser {
 	 */
 	public SchiffsKlassenNamenGenerator getSchiffsKlassenNamenGenerator()
 	{
-		return this.schiffsKlassenNamenGenerator == null ? Rassen.get().rasse(this.race).getSchiffsKlassenNamenGenerator() : this.schiffsKlassenNamenGenerator;
+		return this.schiffsKlassenNamenGenerator == null ? Races.get().rasse(this.race).getSchiffsKlassenNamenGenerator() : this.schiffsKlassenNamenGenerator;
 	}
 
 	/**
@@ -400,7 +400,7 @@ public class User extends BasicUser {
 	 */
 	public void setSchiffsKlassenNamenGenerator(SchiffsKlassenNamenGenerator schiffsKlassenNamenGenerator)
 	{
-		this.schiffsKlassenNamenGenerator = Rassen.get().rasse(this.race).getSchiffsKlassenNamenGenerator() == schiffsKlassenNamenGenerator ? null : schiffsKlassenNamenGenerator;
+		this.schiffsKlassenNamenGenerator = Races.get().rasse(this.race).getSchiffsKlassenNamenGenerator() == schiffsKlassenNamenGenerator ? null : schiffsKlassenNamenGenerator;
 	}
 
 	/**
@@ -409,7 +409,7 @@ public class User extends BasicUser {
 	 */
 	public SchiffsNamenGenerator getSchiffsNamenGenerator()
 	{
-		return this.schiffsNamenGenerator == null ? Rassen.get().rasse(this.race).getSchiffsNamenGenerator() : this.schiffsNamenGenerator;
+		return this.schiffsNamenGenerator == null ? Races.get().rasse(this.race).getSchiffsNamenGenerator() : this.schiffsNamenGenerator;
 	}
 
 	/**
@@ -418,7 +418,7 @@ public class User extends BasicUser {
 	 */
 	public void setSchiffsNamenGenerator(SchiffsNamenGenerator schiffsNamenGenerator)
 	{
-		this.schiffsNamenGenerator = Rassen.get().rasse(this.race).getSchiffsNamenGenerator() == schiffsNamenGenerator ? null : schiffsNamenGenerator;
+		this.schiffsNamenGenerator = Races.get().rasse(this.race).getSchiffsNamenGenerator() == schiffsNamenGenerator ? null : schiffsNamenGenerator;
 	}
 
 	/**

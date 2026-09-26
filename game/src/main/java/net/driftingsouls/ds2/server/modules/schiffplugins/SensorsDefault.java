@@ -24,7 +24,7 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.bases.ShipyardBuilding;
 import net.driftingsouls.ds2.server.battles.Battle;
-import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.config.Races;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.config.StarSystem.Access;
 import net.driftingsouls.ds2.server.entities.*;
@@ -970,7 +970,7 @@ public class SensorsDefault implements SchiffPlugin {
 		for( JumpNode node : nodes )
 		{
 			int blocked = 0;
-			if( node.isGcpColonistBlock() && Rassen.get().rasse(user.getRace()).isMemberIn( 0 ) )
+			if( node.isGcpColonistBlock() && Races.get().rasse(user.getRace()).isMemberIn( 0 ) )
 			{
 				blocked = 1;
 			}

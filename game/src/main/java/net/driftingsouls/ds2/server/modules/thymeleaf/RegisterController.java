@@ -9,7 +9,7 @@ import net.driftingsouls.ds2.server.bases.BaseType;
 import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.comm.PM;
-import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.config.Races;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.Nebel;
 import net.driftingsouls.ds2.server.entities.Offizier;
@@ -160,7 +160,7 @@ public class RegisterController implements DSController {
             errors.add("Diese E-Mail Adresse wird bereits genutzt.");
         }
 
-        if (!Rassen.get().rasse(raceId).isPlayable()) {
+        if (!Races.get().rasse(raceId).isPlayable()) {
             errors.add("Die Rasse existiert nicht.");
         }
 

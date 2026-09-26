@@ -23,7 +23,7 @@ import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.bbcodes.TagIntrnlConfTask;
 import net.driftingsouls.ds2.server.comm.Ordner;
 import net.driftingsouls.ds2.server.comm.PM;
-import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.config.Races;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -621,7 +621,7 @@ public class CommController extends Controller
 		}
 		else if (sender != null && pm.hasFlag(PM.FLAGS_OFFICIAL))
 		{
-			bgimg = "pm_" + Rassen.get().rasse(sender.getRace()).getName() + "bg.png";
+			bgimg = "pm_" + Races.get().rasse(sender.getRace()).getName() + "bg.png";
 		}
 
 		String text = pm.getInhalt();
@@ -858,7 +858,7 @@ public class CommController extends Controller
 		}
 		else if ("official".equals(special))
 		{
-			bgimg = "pm_" + Rassen.get().rasse(user.getRace()).getName() + "bg.png";
+			bgimg = "pm_" + Races.get().rasse(user.getRace()).getName() + "bg.png";
 		}
 
 		t.setVar("pm.text", Smilie.parseSmilies(getEM(), Common._text(msg)),

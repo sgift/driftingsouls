@@ -21,7 +21,7 @@ package net.driftingsouls.ds2.server.modules;
 import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.config.Medals;
-import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.config.Races;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.entities.UserRank;
@@ -196,7 +196,7 @@ public class UserProfileController extends Controller
 		}
 
 		t.setVar("user.name", Common._title(ausgewaehlterBenutzer.getName()),
-				"user.rasse.name", Rassen.get().rasse(ausgewaehlterBenutzer.getRace()).getName(),
+				"user.rasse.name", Races.get().rasse(ausgewaehlterBenutzer.getRace()).getName(),
 				"user.rang", Medals.get().rang(ausgewaehlterBenutzer.getRang()),
 				"user.signupdate", (ausgewaehlterBenutzer.getSignup() > 0 ? Common.date("d.m.Y H:i:s", ausgewaehlterBenutzer.getSignup()) : "schon immer"));
 

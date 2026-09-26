@@ -2,7 +2,7 @@ package net.driftingsouls.ds2.server.ships;
 
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.bases.Base;
-import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.config.Races;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
@@ -93,7 +93,7 @@ public class ShipJumpService
 
 		String nodetarget = node.getName() + " (" + node.getSystemOut() + ")";
 
-		if ((user.getId() > 0) && node.isGcpColonistBlock() && Rassen.get().rasse(user.getRace()).isMemberIn(0) && !user.hasFlag(UserFlag.NO_JUMPNODE_BLOCK))
+		if ((user.getId() > 0) && node.isGcpColonistBlock() && Races.get().rasse(user.getRace()).isMemberIn(0) && !user.hasFlag(UserFlag.NO_JUMPNODE_BLOCK))
 		{
 			outputbuffer.append("<span style=\"color:red\">Die Administration hat diesen Sprungpunkt für Kolonisten gesperrt.</span><br />\n");
 			return new JumpResult(outputbuffer.toString(), false);

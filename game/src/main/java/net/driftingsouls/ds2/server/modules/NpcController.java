@@ -6,7 +6,7 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.comm.PM;
 import net.driftingsouls.ds2.server.config.Medal;
 import net.driftingsouls.ds2.server.config.Medals;
-import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.config.Races;
 import net.driftingsouls.ds2.server.entities.Loyalitaetspunkte;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
@@ -83,7 +83,7 @@ public class NpcController extends Controller
 			throw new ValidationException("Nur NPCs können dieses Script nutzen.", Common.buildUrl("default", "module", "ueber"));
 		}
 
-		if (Rassen.get().rasse(user.getRace()).isHead(user))
+		if (Races.get().rasse(user.getRace()).isHead(user))
 		{
 			this.isHead = true;
 		}
@@ -744,7 +744,7 @@ public class NpcController extends Controller
 		{
 			OrderableShip ship = (OrderableShip) shipOrder;
 
-			if (!Rassen.get().rasse(user.getRace()).isMemberIn(ship.getRasse()))
+			if (!Races.get().rasse(user.getRace()).isMemberIn(ship.getRasse()))
 			{
 				continue;
 			}

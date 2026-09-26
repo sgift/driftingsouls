@@ -22,7 +22,7 @@ import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
-import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.config.Races;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.Forschungszentrum;
 import net.driftingsouls.ds2.server.entities.Rasse;
@@ -101,17 +101,17 @@ public class TechListeController extends Controller
 		{
 			rasse = user.getRace();
 		}
-		else if( Rassen.get().rasse(rasse) == null )
+		else if( Races.get().rasse(rasse) == null )
 		{
 			rasse = user.getRace();
 		}
-		else if( !Rassen.get().rasse(rasse).isExtPlayable() && !Rassen.get().rasse(rasse).isPlayable() )
+		else if( !Races.get().rasse(rasse).isExtPlayable() && !Races.get().rasse(rasse).isPlayable() )
 		{
 			rasse = user.getRace();
 		}
 
 		TechListeViewModel viewModel = new TechListeViewModel();
-		for( Rasse aRasse : Rassen.get() ) {
+		for( Rasse aRasse : Races.get() ) {
 			if( aRasse.isExtPlayable() || aRasse.isPlayable() )
 			{
 				RasseViewModel rasseViewModel = new RasseViewModel();
@@ -121,7 +121,7 @@ public class TechListeController extends Controller
 			}
 		}
 
-		viewModel.rassenName = Rassen.get().rasse(rasse).getName();
+		viewModel.rassenName = Races.get().rasse(rasse).getName();
 
 		Map<Integer,Forschung> researched = new LinkedHashMap<>();
 		Map<Integer,Forschung> researchable = new LinkedHashMap<>();
@@ -209,7 +209,7 @@ public class TechListeController extends Controller
 		while( forschungIter.hasNext() ) {
 			Forschung f = (Forschung)forschungIter.next();
 
-			if( !Rassen.get().rasse(rasse).isMemberIn(f.getRace()) ) {
+			if( !Races.get().rasse(rasse).isMemberIn(f.getRace()) ) {
 				continue;
 			}
 

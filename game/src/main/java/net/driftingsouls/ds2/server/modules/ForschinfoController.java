@@ -25,7 +25,7 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
-import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.config.Races;
 import net.driftingsouls.ds2.server.entities.FactoryEntry;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.User;
@@ -119,12 +119,12 @@ public class ForschinfoController extends Controller
 		if (research.getRace() != -1)
 		{
 			String rasse = "???";
-			if (Rassen.get().rasse(research.getRace()) != null)
+			if (Races.get().rasse(research.getRace()) != null)
 			{
-				rasse = Rassen.get().rasse(research.getRace()).getName();
+				rasse = Races.get().rasse(research.getRace()).getName();
 			}
 
-			if (!Rassen.get().rasse(user.getRace()).isMemberIn(research.getRace()))
+			if (!Races.get().rasse(user.getRace()).isMemberIn(research.getRace()))
 			{
 				rasse = "<span style=\"color:red\">" + rasse + "</span>";
 			}

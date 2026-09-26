@@ -27,7 +27,7 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
-import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.config.Races;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.IntTutorial;
 import net.driftingsouls.ds2.server.entities.User;
@@ -164,7 +164,7 @@ public class UeberController extends Controller
 		String ticktime = getTickTime();
 
 		String race = "???";
-		var spezies = Rassen.get().rasse(user.getRace());
+		var spezies = Races.get().rasse(user.getRace());
 		if (spezies != null)
 		{
 			race = spezies.getName();

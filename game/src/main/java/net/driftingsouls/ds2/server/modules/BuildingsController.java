@@ -23,7 +23,7 @@ import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.bases.Core;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
 import net.driftingsouls.ds2.server.cargo.Resources;
-import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.config.Races;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
@@ -140,15 +140,15 @@ public class BuildingsController extends Controller
 
 			if (buildingrasse == 0)
 			{
-				addinfo.append("<span style=\"color:#FFFFFF; font-weight:normal\">").append(Rassen.get().rasse(buildingrasse).getName()).append(" <br /></span>");
+				addinfo.append("<span style=\"color:#FFFFFF; font-weight:normal\">").append(Races.get().rasse(buildingrasse).getName()).append(" <br /></span>");
 			}
 			else if (userrasse == buildingrasse)
 			{
-				addinfo.append("<span style=\"color:#00FF00; font-weight:normal\">").append(Rassen.get().rasse(buildingrasse).getName()).append(" <br /></span>");
+				addinfo.append("<span style=\"color:#00FF00; font-weight:normal\">").append(Races.get().rasse(buildingrasse).getName()).append(" <br /></span>");
 			}
 			else
 			{
-				addinfo.append("<span style=\"color:#FF0000; font-weight:normal\">").append(Rassen.get().rasse(buildingrasse).getName()).append(" <br /></span>");
+				addinfo.append("<span style=\"color:#FF0000; font-weight:normal\">").append(Races.get().rasse(buildingrasse).getName()).append(" <br /></span>");
 			}
 
 

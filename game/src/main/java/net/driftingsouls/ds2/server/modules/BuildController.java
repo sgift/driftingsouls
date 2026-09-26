@@ -23,7 +23,7 @@ import net.driftingsouls.ds2.server.bases.Building;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.ResourceList;
-import net.driftingsouls.ds2.server.config.Rassen;
+import net.driftingsouls.ds2.server.config.Races;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
@@ -158,7 +158,7 @@ public class BuildController extends Controller
 				return new RedirectViewResult("default");
 			}
 		}
-		if (!Rassen.get().rasse(user.getRace()).isMemberIn(build.getRace()))
+		if (!Races.get().rasse(user.getRace()).isMemberIn(build.getRace()))
 		{
 			addError("Sie gehören der falschen Spezies an und können dieses Gebäude nicht selbst errichten.");
 			return new RedirectViewResult("default");
@@ -306,7 +306,7 @@ public class BuildController extends Controller
 			{
 				continue;
 			}
-			if (!Rassen.get().rasse(user.getRace()).isMemberIn(building.getRace()))
+			if (!Races.get().rasse(user.getRace()).isMemberIn(building.getRace()))
 			{
 				continue;
 			}

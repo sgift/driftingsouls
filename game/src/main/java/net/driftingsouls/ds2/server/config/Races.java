@@ -29,11 +29,11 @@ import java.util.Iterator;
  *
  * @author Christopher Jung
  */
-public class Rassen implements Iterable<Rasse>
+public class Races implements Iterable<Rasse>
 {
-	private static final Rassen rassenList = new Rassen();
+	private static final Races races = new Races();
 
-	private Rassen()
+	private Races()
 	{
 		// EMPTY
 	}
@@ -43,9 +43,9 @@ public class Rassen implements Iterable<Rasse>
 	 *
 	 * @return Eine Instanz der Rassenliste
 	 */
-	public static Rassen get()
+	public static Races get()
 	{
-		return rassenList;
+		return races;
 	}
 
 	@NotNull
