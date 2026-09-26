@@ -66,12 +66,14 @@ import java.util.Set;
  *
  */
 @Entity(name="KommandozentraleBuilding")
+// Stored in buildings.module for every existing row and predates the rename to CommandCenterBuilding.
+// Must not be changed to match the class name.
 @DiscriminatorValue("net.driftingsouls.ds2.server.bases.Kommandozentrale")
-public class Kommandozentrale extends DefaultBuilding {
+public class CommandCenterBuilding extends DefaultBuilding {
 	/**
 	 * Erstellt eine neue Instanz der Kommandozentrale.
 	 */
-	public Kommandozentrale() {
+	public CommandCenterBuilding() {
 		// EMPTY
 	}
 
