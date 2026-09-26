@@ -9,7 +9,7 @@ import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
 import javax.annotation.Nonnull;
 
 @AdminMenuEntry(category = "Systeme", name="Felsbrocken-System", permission = WellKnownAdminPermission.EDIT_CONFIG_FELSBROCKEN_SYSTEM)
-public class EditConfigFelsbrockenSystem implements EntityEditor<ConfigFelsbrockenSystem>
+public class EditConfigBoulderSystem implements EntityEditor<ConfigFelsbrockenSystem>
 {
 	@Override
 	public Class<ConfigFelsbrockenSystem> getEntityType()

@@ -11,7 +11,7 @@ import net.driftingsouls.ds2.server.ships.ShipType;
 import javax.annotation.Nonnull;
 
 @AdminMenuEntry(category = "Systeme", name="Felsbrocken-Layout", permission = WellKnownAdminPermission.EDIT_CONFIG_FELSBROCKEN)
-public class EditConfigFelsbrocken implements EntityEditor<ConfigFelsbrocken>
+public class EditConfigBoulder implements EntityEditor<ConfigFelsbrocken>
 {
 	@Override
 	public Class<ConfigFelsbrocken> getEntityType()
