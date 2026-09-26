@@ -50,13 +50,13 @@ import java.util.Map;
  * @author Christopher Jung
  */
 @Module(name = "handel")
-public class HandelController extends Controller
+public class TradeOfferController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
 	private final ConfigService configService;
 
 	@Autowired
-	public HandelController(TemplateViewResultFactory templateViewResultFactory, ConfigService configService)
+	public TradeOfferController(TemplateViewResultFactory templateViewResultFactory, ConfigService configService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
 		this.configService = configService;
