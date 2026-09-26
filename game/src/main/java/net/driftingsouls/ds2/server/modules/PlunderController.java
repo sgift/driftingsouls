@@ -43,12 +43,12 @@ import java.util.Map;
  * @author Christopher Jung
  */
 @Module(name = "pluendern")
-public class PluendernController extends Controller
+public class PlunderController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
-	public PluendernController(TemplateViewResultFactory templateViewResultFactory)
+	public PlunderController(TemplateViewResultFactory templateViewResultFactory)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
 
