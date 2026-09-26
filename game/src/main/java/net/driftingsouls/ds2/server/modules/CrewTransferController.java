@@ -38,7 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author Christopher Jung
  */
 @Module(name = "crewtausch")
-public class CrewtauschController extends Controller
+public class CrewTransferController extends Controller
 {
 	/**
 	 * Das Ziel fuer einen Crewtransfer.
@@ -206,7 +206,7 @@ public class CrewtauschController extends Controller
 	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
-	public CrewtauschController(TemplateViewResultFactory templateViewResultFactory)
+	public CrewTransferController(TemplateViewResultFactory templateViewResultFactory)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
 
