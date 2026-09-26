@@ -46,7 +46,7 @@ import java.util.*;
  * @author Christopher Jung
  */
 @Module(name="basen")
-public class BasenController extends Controller
+public class BasesController extends Controller
 {
 	private static final Map<String,List<String>> ordmapper = new HashMap<>();
 	static {
@@ -61,7 +61,7 @@ public class BasenController extends Controller
 	private TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
-	public BasenController(TemplateViewResultFactory templateViewResultFactory) {
+	public BasesController(TemplateViewResultFactory templateViewResultFactory) {
 		this.templateViewResultFactory = templateViewResultFactory;
 
 		setPageTitle("Basen");
