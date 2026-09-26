@@ -28,7 +28,7 @@ import org.apache.commons.lang3.math.NumberUtils;
  *
  * @author Christopher Jung
  */
-public class TagRang implements BBCodeFunction
+public class TagRank implements BBCodeFunction
 {
 	@Override
 	public String handleMatch(String content, String... values)
