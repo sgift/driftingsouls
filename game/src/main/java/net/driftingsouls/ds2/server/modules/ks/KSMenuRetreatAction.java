@@ -39,7 +39,7 @@ import java.util.Map;
  * @author Christopher Jung
  *
  */
-public class KSMenuFluchtAction extends BasicKSMenuAction {
+public class KSMenuRetreatAction extends BasicKSMenuAction {
 	@Override
 	public Result execute(TemplateEngine t, Battle battle) throws IOException {
 		Result result = super.execute(t, battle);

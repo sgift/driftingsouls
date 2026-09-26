@@ -87,7 +87,7 @@ public class AngriffController extends Controller
         menuActions.put("groupattack_select", KSMenuGroupAttackMuniSelectAction.class);
 		//menuActions.put("batterien", KSMenuBatteriesAction.class);
 		menuActions.put("default", KSMenuDefaultAction.class);
-		menuActions.put("flucht", KSMenuFluchtAction.class);
+		menuActions.put("flucht", KSMenuRetreatAction.class);
 		menuActions.put("history", KSMenuHistoryAction.class);
 		menuActions.put("new_commander", KSMenuBattleConsignAction.class);
 		menuActions.put("other", KSMenuOtherAction.class);
@@ -97,15 +97,15 @@ public class AngriffController extends Controller
 			menuActions.put("cheats", KSMenuCheatsAction.class);
 		}
 
-		actions.put("flucht_single", KSFluchtSingleAction.class);
-		actions.put("flucht_all", KSFluchtAllAction.class);
-		actions.put("flucht_class", KSFluchtClassAction.class);
+		actions.put("flucht_single", KSRetreatSingleAction.class);
+		actions.put("flucht_all", KSRetreatAllAction.class);
+		actions.put("flucht_class", KSRetreatClassAction.class);
         actions.put("undock_single", KSUndockAction.class);
         actions.put("undock_class", KSUndockClassAction.class);
         actions.put("undock_all", KSUndockAllAction.class);
         actions.put("groupattack2", KSGroupAttackAction.class);
 		actions.put("attack2", KSAttackAction.class);
-		actions.put("kapern", KSKapernAction.class);
+		actions.put("kapern", KSBoardAction.class);
 		actions.put("secondrow", KSSecondRowAction.class);
 		actions.put("leavesecondrow", KSLeaveSecondRowAction.class);
 		actions.put("secondrowengage", KSSecondRowEngageAction.class);

@@ -33,12 +33,12 @@ import java.util.List;
  * @author Christopher Jung
  *
  */
-public class KSFluchtSingleAction extends BasicKSAction {
+public class KSRetreatSingleAction extends BasicKSAction {
 	/**
 	 * Konstruktor.
 	 *
 	 */
-	public KSFluchtSingleAction() {
+	public KSRetreatSingleAction() {
 		this.requireOwnShipReady(true);
 	}
 	

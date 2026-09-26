@@ -28,14 +28,14 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
  * @author Christopher Jung
  *
  */
-public class KSFluchtClassAction extends KSFluchtAllAction {
+public class KSRetreatClassAction extends KSRetreatAllAction {
 	private final ShipClasses fluchtclass;
 
 	/**
 	 * Konstruktor.
 	 *
 	 */
-	public KSFluchtClassAction() 
+	public KSRetreatClassAction() 
 	{
 		this.fluchtclass  = ShipClasses.values()[ContextMap.getContext().getRequest().getParameterInt("fluchtclass")];
 	}

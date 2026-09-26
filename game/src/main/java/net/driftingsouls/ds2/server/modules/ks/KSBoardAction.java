@@ -53,12 +53,12 @@ import java.util.Map.Entry;
  * @author Christopher Jung
  *
  */
-public class KSKapernAction extends BasicKSAction {
+public class KSBoardAction extends BasicKSAction {
 	/**
 	 * Konstruktor.
 	 *
 	 */
-	public KSKapernAction() {
+	public KSBoardAction() {
 		this.requireOwnShipReady(true);
 	}
 

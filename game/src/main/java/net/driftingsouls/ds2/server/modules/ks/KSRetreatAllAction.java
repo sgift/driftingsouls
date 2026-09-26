@@ -33,7 +33,7 @@ import java.util.List;
  * @author Christopher Jung
  *
  */
-public class KSFluchtAllAction extends BasicKSAction {
+public class KSRetreatAllAction extends BasicKSAction {
 	
 	/**
 	 * Prueft, ob das Schiff fliehen kann oder nicht.

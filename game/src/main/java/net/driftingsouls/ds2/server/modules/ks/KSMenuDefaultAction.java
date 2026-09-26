@@ -75,7 +75,7 @@ public class KSMenuDefaultAction extends BasicKSMenuAction {
 
 
 		// Kapern?
-		if( this.isPossible(battle, new KSKapernAction()) == Result.OK ) {
+		if( this.isPossible(battle, new KSBoardAction()) == Result.OK ) {
 			this.menuEntry(t, "Kapern",
 									"ship",			ownShip.getId(),
 									"attack",		enemyShip.getId(),
