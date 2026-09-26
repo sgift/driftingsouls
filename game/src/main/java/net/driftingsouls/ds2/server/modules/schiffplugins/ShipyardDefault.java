@@ -35,7 +35,7 @@ import java.util.List;
  *
  */
 @Component
-public class WerftDefault implements SchiffPlugin {
+public class ShipyardDefault implements ShipPlugin {
 	@Action(ActionType.DEFAULT)
 	public String action(Parameters parameters) {
 		return "";

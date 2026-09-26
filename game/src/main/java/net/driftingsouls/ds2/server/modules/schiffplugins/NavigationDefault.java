@@ -50,7 +50,7 @@ import java.util.Set;
  *
  */
 @Component
-public class NavigationDefault implements SchiffPlugin {
+public class NavigationDefault implements ShipPlugin {
 	private static final Log log = LogFactory.getLog(NavigationDefault.class);
 
 	private final ShipMovementService shipMovementService;

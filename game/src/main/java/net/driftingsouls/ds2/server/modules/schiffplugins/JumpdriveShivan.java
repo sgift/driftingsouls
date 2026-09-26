@@ -40,7 +40,7 @@ import java.util.List;
  *
  */
 @Component
-public class JumpdriveShivan implements SchiffPlugin
+public class JumpdriveShivan implements ShipPlugin
 {
 	@Action(ActionType.DEFAULT)
 	public String action(Parameters caller, StarSystem system, int x, int y, String subaction, boolean instant)

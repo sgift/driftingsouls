@@ -32,7 +32,7 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
-public class UnitsDefault implements SchiffPlugin {
+public class UnitsDefault implements ShipPlugin {
 	@Action(ActionType.DEFAULT)
 	public String action(Parameters caller) {
 		return "";

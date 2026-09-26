@@ -38,7 +38,7 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
-public class CargoDefault implements SchiffPlugin {
+public class CargoDefault implements ShipPlugin {
 	@Action(ActionType.DEFAULT)
 	public String action(Parameters caller,
 			String max,

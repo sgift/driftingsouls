@@ -13,12 +13,12 @@ import org.springframework.stereotype.Component;
  * Das Handelsposteninterface in der Schiffsansicht.
  */
 @Component
-public class Handelsposten implements SchiffPlugin
+public class TradingPostDefault implements ShipPlugin
 {
 	private final TradingPostService tradingPostService;
 
 	@Autowired
-	public Handelsposten(TradingPostService tradingPostService)
+	public TradingPostDefault(TradingPostService tradingPostService)
 	{
 		this.tradingPostService = tradingPostService;
 	}

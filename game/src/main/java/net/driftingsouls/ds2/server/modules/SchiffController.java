@@ -110,21 +110,21 @@ public class SchiffController extends Controller
 		}
 	}
 
-	private Map<String, SchiffPlugin> ermittlePluginsFuer(ShipTypeData shiptype, Ship communicate)
+	private Map<String, ShipPlugin> ermittlePluginsFuer(ShipTypeData shiptype, Ship communicate)
 	{
 		Context context = ContextMap.getContext();
-		Map<String, SchiffPlugin> pluginMapper = new LinkedHashMap<>();
+		Map<String, ShipPlugin> pluginMapper = new LinkedHashMap<>();
 		pluginMapper.put("navigation", context.getBean(NavigationDefault.class, null));
 		pluginMapper.put("cargo", context.getBean(CargoDefault.class, null));
 
 		if( communicate != null )
 		{
-			pluginMapper.put("handelsposten", context.getBean(Handelsposten.class, null));
+			pluginMapper.put("handelsposten", context.getBean(TradingPostDefault.class, null));
 		}
 
 		if (shiptype.getWerft() != 0)
 		{
-			pluginMapper.put("werft", context.getBean(WerftDefault.class, null));
+			pluginMapper.put("werft", context.getBean(ShipyardDefault.class, null));
 		}
 
 		if (shiptype.hasFlag(ShipTypeFlag.JUMPDRIVE_SHIVAN))
@@ -372,7 +372,7 @@ public class SchiffController extends Controller
 		parameters.put("caller", caller);
 		parameters.put("communicate", communicate);
 
-		Map<String, SchiffPlugin> pluginMapper = ermittlePluginsFuer(shiptype, communicate);
+		Map<String, ShipPlugin> pluginMapper = ermittlePluginsFuer(shiptype, communicate);
 		if (!pluginMapper.containsKey(plugin))
 		{
 			return new RedirectViewResult("default");
@@ -1085,10 +1085,10 @@ public class SchiffController extends Controller
 		parameters.put("caller", caller);
 		parameters.put("communicate", communicate);
 
-		Map<String, SchiffPlugin> pluginMapper = ermittlePluginsFuer(shiptype, communicate);
+		Map<String, ShipPlugin> pluginMapper = ermittlePluginsFuer(shiptype, communicate);
 		if (pluginMapper.containsKey("navigation"))
 		{
-			SchiffPlugin plugin = pluginMapper.get("navigation");
+			ShipPlugin plugin = pluginMapper.get("navigation");
 			caller.pluginId = "navigation";
 			caller.target = "plugin.navigation";
 			rufeAlsSubActionAuf(caller.pluginId+"_ops", plugin, "output", parameters);
@@ -1098,7 +1098,7 @@ public class SchiffController extends Controller
 
 		if (pluginMapper.containsKey("cargo"))
 		{
-			SchiffPlugin plugin = pluginMapper.get("cargo");
+			ShipPlugin plugin = pluginMapper.get("cargo");
 			caller.pluginId = "cargo";
 			caller.target = "plugin.cargo";
 			rufeAlsSubActionAuf(caller.pluginId+"_ops", plugin, "output", parameters);
@@ -1108,7 +1108,7 @@ public class SchiffController extends Controller
 
 		if (pluginMapper.containsKey("units"))
 		{
-			SchiffPlugin plugin = pluginMapper.get("units");
+			ShipPlugin plugin = pluginMapper.get("units");
 			caller.pluginId = "units";
 			caller.target = "plugin.units";
 			rufeAlsSubActionAuf(caller.pluginId+"_ops", plugin, "output", parameters);
@@ -1122,7 +1122,7 @@ public class SchiffController extends Controller
 		// Und nun weiter mit den Plugins
 		for (String pluginName : pluginMapper.keySet())
 		{
-			SchiffPlugin plugin = pluginMapper.get(pluginName);
+			ShipPlugin plugin = pluginMapper.get(pluginName);
 
 			//Plugin-ID
 			caller.pluginId = pluginName;

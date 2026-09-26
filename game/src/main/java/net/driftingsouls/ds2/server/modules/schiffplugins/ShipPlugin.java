@@ -27,5 +27,5 @@ package net.driftingsouls.ds2.server.modules.schiffplugins;
  * @author Christopher Jung
  *
  */
-public interface SchiffPlugin {
+public interface ShipPlugin {
 }

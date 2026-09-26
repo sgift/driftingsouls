@@ -61,7 +61,7 @@ import java.util.Map;
  */
 @Controller
 @Scope("request")
-public class SensorsDefault implements SchiffPlugin {
+public class SensorsDefault implements ShipPlugin {
 	private static final Log log = LogFactory.getLog(SensorsDefault.class);
 
 	private final TradingPostService tradingPostService;

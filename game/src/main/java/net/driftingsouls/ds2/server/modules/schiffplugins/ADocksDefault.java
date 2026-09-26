@@ -36,7 +36,7 @@ import java.util.List;
  *
  */
 @Component
-public class ADocksDefault implements SchiffPlugin {
+public class ADocksDefault implements ShipPlugin {
 	@Action(ActionType.DEFAULT)
 	public String action(Parameters caller, String act) {
 		Ship ship = caller.ship;
