@@ -7,7 +7,7 @@ import net.driftingsouls.ds2.server.bases.DefaultBuilding;
 import net.driftingsouls.ds2.server.bases.DigBuilding;
 import net.driftingsouls.ds2.server.bases.FactoryBuilding;
 import net.driftingsouls.ds2.server.bases.ForschungszentrumBuilding;
-import net.driftingsouls.ds2.server.bases.KasernenBuilding;
+import net.driftingsouls.ds2.server.bases.BarracksBuilding;
 import net.driftingsouls.ds2.server.bases.ShipyardBuilding;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.Forschung;
@@ -54,7 +54,7 @@ public class EditBuilding implements EntityEditor<Building>
 	{
 		form.allowAdd();
 
-		form.entityClass("Implementierung", DefaultBuilding.class, AcademyBuilding.class, DigBuilding.class, FactoryBuilding.class, ForschungszentrumBuilding.class, KasernenBuilding.class, ShipyardBuilding.class);
+		form.entityClass("Implementierung", DefaultBuilding.class, AcademyBuilding.class, DigBuilding.class, FactoryBuilding.class, ForschungszentrumBuilding.class, BarracksBuilding.class, ShipyardBuilding.class);
 
 		form.field("Name", String.class, Building::getName, Building::setName);
 		form.picture("Bild", Building::getDefaultPicture);

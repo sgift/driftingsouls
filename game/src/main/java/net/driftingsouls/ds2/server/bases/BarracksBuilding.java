@@ -41,12 +41,14 @@ import java.util.List;
  *
  */
 @Entity(name="KaserneBuilding")
+// Stored in buildings.module for every existing row and predates the rename to BarracksBuilding.
+// Must not be changed to match the class name.
 @DiscriminatorValue("net.driftingsouls.ds2.server.bases.Kaserne")
-public class KasernenBuilding extends DefaultBuilding {
+public class BarracksBuilding extends DefaultBuilding {
 	/**
 	 * Erstellt eine neue Instanz der Kaserne.
 	 */
-	public KasernenBuilding() {
+	public BarracksBuilding() {
 		// EMPTY
 	}
 
