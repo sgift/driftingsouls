@@ -47,12 +47,12 @@ import java.util.List;
  * @author Christopher Jung
  */
 @Module(name = "deutsammeln")
-public class DeutSammelnController extends Controller
+public class CollectDeuteriumController extends Controller
 {
 	private final TemplateViewResultFactory templateViewResultFactory;
 
 	@Autowired
-	public DeutSammelnController(TemplateViewResultFactory templateViewResultFactory)
+	public CollectDeuteriumController(TemplateViewResultFactory templateViewResultFactory)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
 
