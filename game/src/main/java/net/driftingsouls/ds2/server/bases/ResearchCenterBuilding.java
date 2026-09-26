@@ -41,13 +41,15 @@ import java.util.List;
  *
  */
 @Entity(name="ForschungszentrumBuilding")
+// Stored in buildings.module for every existing row and predates the rename to ResearchCenterBuilding.
+// Must not be changed to match the class name.
 @DiscriminatorValue("net.driftingsouls.ds2.server.bases.ForschungszentrumBuilding")
-public class ForschungszentrumBuilding extends DefaultBuilding {
+public class ResearchCenterBuilding extends DefaultBuilding {
 
 	/**
 	 * Erstellt eine neue Forschungszentrum-Instanz.
 	 */
-	public ForschungszentrumBuilding() {
+	public ResearchCenterBuilding() {
 		// EMPTY
 	}
 
