@@ -18,7 +18,7 @@
  */
 package net.driftingsouls.ds2.server.bases;
 
-import net.driftingsouls.ds2.server.config.Offiziere;
+import net.driftingsouls.ds2.server.config.Officers;
 import net.driftingsouls.ds2.server.entities.Academy;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
@@ -238,11 +238,11 @@ public class AcademyQueueEntry {
 
 			Offizier offz = new Offizier(owner, offiname);
 
-			if( !Offiziere.LIST.containsKey(-offizier) ) {
-				offizier = -Offiziere.LIST.keySet().iterator().next();
+			if( !Officers.LIST.containsKey(-offizier) ) {
+				offizier = -Officers.LIST.keySet().iterator().next();
 			}
 
-			Offiziere.Offiziersausbildung offi = Offiziere.LIST.get(-offizier);
+			Officers.Offiziersausbildung offi = Officers.LIST.get(-offizier);
 
 			for (Offizier.Ability ability : Offizier.Ability.values())
 			{

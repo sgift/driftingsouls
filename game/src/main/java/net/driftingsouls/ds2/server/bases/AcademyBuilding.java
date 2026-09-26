@@ -21,7 +21,7 @@ package net.driftingsouls.ds2.server.bases;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.Resources;
-import net.driftingsouls.ds2.server.config.Offiziere;
+import net.driftingsouls.ds2.server.config.Officers;
 import net.driftingsouls.ds2.server.entities.Academy;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.Offizier.Ability;
@@ -626,7 +626,7 @@ public class AcademyBuilding extends DefaultBuilding {
 
 		t.setBlock("_BUILDING", "academy.trainnew.listitem", "academy.trainnew.list");
 
-		for( Offiziere.Offiziersausbildung offi : Offiziere.LIST.values() ) {
+		for( Officers.Offiziersausbildung offi : Officers.LIST.values() ) {
 			t.setVar(
 					"offizier.id",		offi.getId(),
 					"offizier.name",	Common._title(offi.getName()),

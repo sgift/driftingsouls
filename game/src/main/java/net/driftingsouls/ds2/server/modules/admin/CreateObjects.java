@@ -25,7 +25,7 @@ import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.BaseType;
 import net.driftingsouls.ds2.server.cargo.Cargo;
-import net.driftingsouls.ds2.server.config.Offiziere;
+import net.driftingsouls.ds2.server.config.Officers;
 import net.driftingsouls.ds2.server.config.StarSystem;
 import net.driftingsouls.ds2.server.entities.JumpNode;
 import net.driftingsouls.ds2.server.entities.Nebel;
@@ -488,8 +488,8 @@ public class CreateObjects implements AdminPlugin {
 					
 					int rangf = rangcount/5;
 					int rang = rangf/125;
-					if( rang > Offiziere.MAX_RANG ) {
-						rang = Offiziere.MAX_RANG;
+					if( rang > Officers.MAX_RANG ) {
+						rang = Officers.MAX_RANG;
 					}
 					offizier.setRang(rang);
 					offizier.stationierenAuf(shipObj);

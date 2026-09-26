@@ -21,7 +21,7 @@ package net.driftingsouls.ds2.server.tick.regular;
 import net.driftingsouls.ds2.server.bases.AcademyQueueEntry;
 import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.comm.PM;
-import net.driftingsouls.ds2.server.config.Offiziere;
+import net.driftingsouls.ds2.server.config.Officers;
 import net.driftingsouls.ds2.server.entities.Academy;
 import net.driftingsouls.ds2.server.entities.Offizier;
 import net.driftingsouls.ds2.server.entities.User;
@@ -176,7 +176,7 @@ public class AcademyTick extends TickController {
 			public void doWork() {
 				var db = getEM();
 				int count = 0;
-				for( int i = Offiziere.MAX_RANG; i > 0; i-- ) {
+				for( int i = Officers.MAX_RANG; i > 0; i-- ) {
 					count += db.createQuery("update Offizier " +
 							"set rang= :rang " +
 					"where rang < :rang and (ing+waf+nav+sec+com)/125 >= :rang")

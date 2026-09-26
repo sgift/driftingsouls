@@ -30,7 +30,7 @@ import java.util.Map;
  * @author Christopher Jung
  *
  */
-public class Offiziere {
+public class Officers {
 	/**
 	 * Beschreibt eine konkrete (initiale) Ausbildung eines Offiziers bzw
 	 * den aus der Ausbildung resultierenden Offizier.

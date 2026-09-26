@@ -1,7 +1,7 @@
 package net.driftingsouls.ds2.server.repositories;
 
 import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.config.Offiziere;
+import net.driftingsouls.ds2.server.config.Officers;
 import net.driftingsouls.ds2.server.entities.jooq.routines.GetSectorsWithAttackingShips;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
