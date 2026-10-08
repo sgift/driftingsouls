@@ -18,25 +18,25 @@ import java.util.Map;
  */
 public class ComNetService
 {
-	public enum Suchmodus
+	public enum SearchMode
 	{
-		Titel,
-		Inhalt,
+		Title,
+		Content,
 		UserId
 	}
 
 	/**
 	 * Markiert den angegebenen ComNet-Kanal fuer den angegebenen Benutzer als (in diesem Moment) gelesen.
-	 * @param kanal Der Kanal
+	 * @param channel Der Kanal
 	 * @param user Der Benutzer
 	 */
-	public void markiereKanalAlsGelesen(ComNetChannel kanal, User user)
+	public void markChannelAsRead(ComNetChannel channel, User user)
 	{
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
 		ComNetVisit visit = (ComNetVisit) db.createQuery("from ComNetVisit where user=:user and channel=:channel")
 										  .setParameter("user", user)
-										  .setParameter("channel", kanal)
+										  .setParameter("channel", channel)
 										  .uniqueResult();
 		if (visit != null)
 		{
@@ -44,7 +44,7 @@ public class ComNetService
 		}
 		else
 		{
-			visit = new ComNetVisit(user, kanal);
+			visit = new ComNetVisit(user, channel);
 			visit.setTime(0);
 			db.persist(visit);
 		}
@@ -55,35 +55,35 @@ public class ComNetService
 	 * an gefundenen Eintraegen zurueckgegeben, spezifiziert durch eine Startnummer und der Anzahl der Eintraege.
 	 * Die Eintraege werden in Reihenfolge ihres Datums zurueckgegeben, beginnend mit dem Neusten.
 	 *
-	 * @param kanal Der zu durchsuchende Kanal
-	 * @param suchtext_inhalt Der Inhalt, nach dem gesucht werden soll
- 	 * @param suchtext_titel Der Titel, nach dem gesucht werden soll
-	 * @param suchid_sender Die SenderID, nach dem gesucht werden soll
+	 * @param channel Der zu durchsuchende Kanal
+	 * @param contentSearchText Der Inhalt, nach dem gesucht werden soll
+ 	 * @param titleSearchText Der Titel, nach dem gesucht werden soll
+	 * @param senderSearchId Die SenderID, nach dem gesucht werden soll
 	 * @param offset Die Startnummer des ersten zu findenden Eintrags (relativ zum ersten insgesamt gefundenen Eintrag)
 	 * @param limit Die maximale Anzahl an zu findenden Eintraegen
 	 * @return Die Liste der gefundenen Eintraege
 	 * @throws java.lang.IllegalArgumentException Falls die Argumente ungueltig sind
 	 */
-	public List<ComNetEntry> durchsucheKanal(ComNetChannel kanal, String suchtext_inhalt, String suchtext_titel, Integer suchid_sender, int offset, int limit) throws IllegalArgumentException
+	public List<ComNetEntry> searchChannel(ComNetChannel channel, String contentSearchText, String titleSearchText, Integer senderSearchId, int offset, int limit) throws IllegalArgumentException
 	{
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
 		Query query;
-		query = db.createQuery("from ComNetEntry entry where entry.head like :searchtitel and entry.text like :searchinhalt "+(suchid_sender != null? " and entry.pic=:suchid_sender":"")+ " and channel=:channel order by entry.post desc");
-		if(suchid_sender != null)
+		query = db.createQuery("from ComNetEntry entry where entry.head like :searchtitel and entry.text like :searchinhalt "+(senderSearchId != null? " and entry.pic=:suchid_sender":"")+ " and channel=:channel order by entry.post desc");
+		if(senderSearchId != null)
 		{
-			return Common.cast(query.setParameter("searchtitel", "%" + suchtext_titel + "%")
-					.setParameter("searchinhalt", "%" + suchtext_inhalt + "%")
-					.setParameter("channel", kanal)
-					.setParameter("suchid_sender",suchid_sender)
+			return Common.cast(query.setParameter("searchtitel", "%" + titleSearchText + "%")
+					.setParameter("searchinhalt", "%" + contentSearchText + "%")
+					.setParameter("channel", channel)
+					.setParameter("suchid_sender",senderSearchId)
 					.setFirstResult(offset)
 					.setMaxResults(limit)
 					.list());
 		}
 		else {
-			return Common.cast(query.setParameter("searchtitel", "%" + suchtext_titel + "%")
-					.setParameter("searchinhalt", "%" + suchtext_inhalt + "%")
-					.setParameter("channel", kanal)
+			return Common.cast(query.setParameter("searchtitel", "%" + titleSearchText + "%")
+					.setParameter("searchinhalt", "%" + contentSearchText + "%")
+					.setParameter("channel", channel)
 					.setFirstResult(offset)
 					.setMaxResults(limit)
 					.list());
@@ -95,7 +95,7 @@ public class ComNetService
 	 *
 	 * @return <code>true</code>, falls dem so ist
 	 */
-	public boolean hatAktiverUserUngeleseneComNetNachrichten()
+	public boolean hasActiveUserUnreadComNetMessages()
 	{
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		User user = (User) ContextMap.getContext().getActiveUser();

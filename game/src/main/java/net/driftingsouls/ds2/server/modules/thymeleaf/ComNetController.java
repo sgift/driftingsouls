@@ -207,7 +207,7 @@ public class ComNetController implements DSController, PermissionResolver {
         return;
       }
       ComNetService service = new ComNetService();
-      service.markiereKanalAlsGelesen(channel, user);
+      service.markChannelAsRead(channel, user);
       Search s = new Search(searchinhalt, searchsender, searchtitel);
       ctx.setVariable("search", s);
 
@@ -217,7 +217,7 @@ public class ComNetController implements DSController, PermissionResolver {
       }
       List<Post> posts = new ArrayList<>();
       try{
-        List<ComNetEntry> entries = service.durchsucheKanal(channel, searchinhalt, searchtitel, searchsender, back, 10);
+        List<ComNetEntry> entries = service.searchChannel(channel, searchinhalt, searchtitel, searchsender, back, 10);
 
         if (entries.isEmpty())
         {
@@ -287,7 +287,7 @@ public class ComNetController implements DSController, PermissionResolver {
         c.setIswriteable(true);
       }
       ComNetService service = new ComNetService();
-      service.markiereKanalAlsGelesen(channel, user);
+      service.markChannelAsRead(channel, user);
       int back = 0;
       try{
         back = Integer.parseInt(request.getParameter("back"));
