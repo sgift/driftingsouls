@@ -305,7 +305,7 @@ public class RestTick extends TickController {
 		Neue Felsbrocken spawnen lassen
 
 	*/
-	private void doFelsbrocken()
+	private void doBoulders()
 	{
 		var db = getEM();
 		var transaction = db.getTransaction();
@@ -379,22 +379,22 @@ public class RestTick extends TickController {
 
 						ShipType shiptype = aloadout.getShiptype();
 
-						Ship brocken = new Ship(owner, shiptype, cfs.getSystem().getID(), x, y);
-						brocken.getHistory().addHistory("Indienststellung als "+cfs.getName()+" am "+currentTime+" durch den Tick");
-						brocken.setName(cfs.getName() == null ? "Felsbrocken" : cfs.getName());
-						brocken.setHull(shiptype.getHull());
-						brocken.setCrew(shiptype.getCrew());
-						brocken.setCargo(cargo);
-						brocken.setHeat(0);
-						brocken.setEngine(100);
-						brocken.setWeapons(100);
-						brocken.setComm(100);
-						brocken.setSensors(100);
-						brocken.setAblativeArmor(shiptype.getAblativeArmor());
-						brocken.setEnergy(shiptype.getEps());
+						Ship boulder = new Ship(owner, shiptype, cfs.getSystem().getID(), x, y);
+						boulder.getHistory().addHistory("Indienststellung als "+cfs.getName()+" am "+currentTime+" durch den Tick");
+						boulder.setName(cfs.getName() == null ? "Felsbrocken" : cfs.getName());
+						boulder.setHull(shiptype.getHull());
+						boulder.setCrew(shiptype.getCrew());
+						boulder.setCargo(cargo);
+						boulder.setHeat(0);
+						boulder.setEngine(100);
+						boulder.setWeapons(100);
+						boulder.setComm(100);
+						boulder.setSensors(100);
+						boulder.setAblativeArmor(shiptype.getAblativeArmor());
+						boulder.setEnergy(shiptype.getEps());
 
 						// Schiffseintrag einfuegen
-						db.persist(brocken);
+						db.persist(boulder);
 
 						this.log("");
 
@@ -504,7 +504,7 @@ public class RestTick extends TickController {
 			this.doVacation();
 			this.doNoobProtection();
 		}
-		this.doFelsbrocken();
+		this.doBoulders();
 		this.doTasks();
 		this.cleanupUninterested();
 	}
