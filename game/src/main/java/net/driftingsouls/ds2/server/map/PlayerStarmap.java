@@ -201,8 +201,8 @@ public class PlayerStarmap extends PublicStarmap
 			for (BaseData base : positionBases)
 			{
 				boolean areMutualFriends = this.userRelationsService.isMutualFriendTo(base.getOwnerId());
-				boolean isBaseOwnerEnemy = this.userRelationsService.beziehungVon(base.getOwnerId()) == User.Relation.ENEMY ||
-					this.userRelationsService.beziehungZu(base.getOwnerId()) == User.Relation.ENEMY;
+				boolean isBaseOwnerEnemy = this.userRelationsService.relationFrom(base.getOwnerId()) == User.Relation.ENEMY ||
+					this.userRelationsService.relationTo(base.getOwnerId()) == User.Relation.ENEMY;
 
 				if( scanned || base.getOwnerId() == this.user.getId() ||
 						(user.getAlly() != null && user.getAlly().getShowAstis() && user.getAlly().getId() == base.getOwnerAllyId()) ||

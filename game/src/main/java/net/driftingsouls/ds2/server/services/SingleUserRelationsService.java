@@ -62,15 +62,15 @@ public class SingleUserRelationsService {
 
     public boolean isMutualFriendTo(int targetId) {
 
-        if(beziehungVon(targetId) == User.Relation.FRIEND && beziehungZu(targetId) == User.Relation.FRIEND )
+        if(relationFrom(targetId) == User.Relation.FRIEND && relationTo(targetId) == User.Relation.FRIEND )
         {
             return true;
         }
         else return false;
     }
 
-    public User.Relation beziehungZu(User otherUser){return beziehungZu(otherUser.getId());}
-    public User.Relation beziehungZu(int otherUserId)
+    public User.Relation relationTo(User otherUser){return relationTo(otherUser.getId());}
+    public User.Relation relationTo(int otherUserId)
     {
         var userRelations = getUserRelationData();
         var relation = userRelations.get(otherUserId);
@@ -78,13 +78,13 @@ public class SingleUserRelationsService {
         return User.getRelation(relation.getRelationTo());
     }
 
-    public User.Relation beziehungVon(User otherUser){return beziehungVon(otherUser.getId());}
+    public User.Relation relationFrom(User otherUser){return relationFrom(otherUser.getId());}
     /**
      * Gibt die Beziehung eines anderen Spielers zu diesem Spieler zurueck.
      * @param otherUserId Der andere Spieler
      * @return Der Beziehungstyp
      */
-    public User.Relation beziehungVon(int otherUserId)
+    public User.Relation relationFrom(int otherUserId)
     {
         var userRelations = getUserRelationData();
 

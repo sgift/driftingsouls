@@ -47,8 +47,8 @@ public class AdminStarmap extends PlayerStarmap
 		if(positionBases != null && !positionBases.isEmpty())
 		{
 			BaseData base = positionBases.get(0);
-			boolean isBaseOwnerEnemy = this.userRelationsService.beziehungVon(base.getOwnerId()) == User.Relation.ENEMY ||
-				this.userRelationsService.beziehungZu(base.getOwnerId()) == User.Relation.ENEMY;
+			boolean isBaseOwnerEnemy = this.userRelationsService.relationFrom(base.getOwnerId()) == User.Relation.ENEMY ||
+				this.userRelationsService.relationTo(base.getOwnerId()) == User.Relation.ENEMY;
 			String img = base.getOverlayImage(location, adminUser, true, this.userRelationsService.isMutualFriendTo(base.getOwnerId()), isBaseOwnerEnemy);
 			if( img != null ) {
 				return new SectorImage(img, 0, 0);
