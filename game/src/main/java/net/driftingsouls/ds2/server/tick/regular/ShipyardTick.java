@@ -56,14 +56,14 @@ public class ShipyardTick extends TickController
 		// Only the ids are collected up front: the unit of work below clears the persistence context
 		// on every flush, which would detach anything loaded here. Shipyard and PM sender are
 		// re-loaded inside doWork, where they are guaranteed to be attached to the current context.
-		List<Integer> werftIds = em.createQuery("select w.id from WerftObject w where size(w.queue)>0", Integer.class)
+		List<Integer> shipyardIds = em.createQuery("select w.id from WerftObject w where size(w.queue)>0", Integer.class)
 								.getResultList();
 		new UnitOfWork<Integer>("Werft Tick", em)
 		{
 			@Override
-			public void doWork(Integer werftId) {
+			public void doWork(Integer shipyardId) {
 				var em = getEM();
-				WerftObject werft = em.find(WerftObject.class, werftId);
+				WerftObject werft = em.find(WerftObject.class, shipyardId);
 				if( werft == null )
 				{
 					return;
@@ -72,15 +72,15 @@ public class ShipyardTick extends TickController
 				if(isCampaignTick() && !affectedSystems.contains(werft.getSystem())) {
 					return;
 				}
-				processWerft(em.find(User.class, -1), werft);
+				processShipyard(em.find(User.class, -1), werft);
 			}
 
 		}.setFlushSize(10)
 		.setClearOnFlush(true)
-		.executeFor(werftIds);
+		.executeFor(shipyardIds);
 	}
 
-	private void processWerft(final User sourceUser, WerftObject werft)
+	private void processShipyard(final User sourceUser, WerftObject werft)
 	{
 		try
 		{
