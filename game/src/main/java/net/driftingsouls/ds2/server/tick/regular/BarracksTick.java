@@ -56,22 +56,22 @@ public class BarracksTick extends TickController {
 		// Only the ids are collected up front: the unit of work below clears the persistence context
 		// on every flush, which would detach anything loaded here. Barracks and PM sender are
 		// re-loaded inside doWork, where they are guaranteed to be attached to the current context.
-		List<Integer> kasernenIds;
+		List<Integer> barracksIds;
 		if(isCampaignTick()) {
-			kasernenIds = db.createQuery("select k.id from Kaserne k where k.entries is not empty and k.base.system in (:systeme)", Integer.class)
+			barracksIds = db.createQuery("select k.id from Kaserne k where k.entries is not empty and k.base.system in (:systeme)", Integer.class)
 							.setParameter("systeme", affectedSystems)
 							.getResultList();
 		}
 		else{
-			kasernenIds = db.createQuery("select k.id from Kaserne k where k.entries is not empty", Integer.class)
+			barracksIds = db.createQuery("select k.id from Kaserne k where k.entries is not empty", Integer.class)
 					.getResultList();
 		}
 		new UnitOfWork<Integer>("Kasernen Tick", db)
 		{
 			@Override
-			public void doWork(Integer kaserneId) {
+			public void doWork(Integer barracksId) {
 				var db = getEM();
-				Kaserne kaserne = db.find(Kaserne.class, kaserneId);
+				Kaserne kaserne = db.find(Kaserne.class, barracksId);
 				if( kaserne == null )
 				{
 					return;
@@ -117,6 +117,6 @@ public class BarracksTick extends TickController {
 		}
 		.setFlushSize(10)
 		.setClearOnFlush(true)
-		.executeFor(kasernenIds);
+		.executeFor(barracksIds);
 	}
 }
