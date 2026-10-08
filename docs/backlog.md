@@ -55,7 +55,7 @@ distinguish from the error itself.
 
 ## `setStatus("destroy")` discards the rest of the status field
 
-`ShipTick.berechneVerfallWegenCrewmangel` assigns the whole field rather than appending, so a
+`ShipTick.calculateDecayFromCrewShortage` assigns the whole field rather than appending, so a
 tradepost destroyed for crew shortage loses its `tradepost` token on the way out.
 `PluendernController` appends correctly. Harmless today because the ship is deleted moments later,
 but it is the same field-used-as-two-things confusion that ADR-0008 is about, and it would bite if
@@ -73,7 +73,7 @@ and already drive the unit of work by id. **Unverified** — needs the suppliers
 ## Destruction for crew shortage notifies nobody
 
 `ShipTick` sends a `PM` for mutiny, desertion and a low account balance, but
-`berechneVerfallWegenCrewmangel` sets `destroy` without any message. The owner sees the ship simply
+`calculateDecayFromCrewShortage` sets `destroy` without any message. The owner sees the ship simply
 gone, one or more ticks later (see ADR-0008 for why the delay). Since the destroy backlog turned out
 to be three ships owned by user -1, this is now the leading candidate for the player reports of
 missing ships. A PM at the point the flag is set would make the loss explicable — and would be worth

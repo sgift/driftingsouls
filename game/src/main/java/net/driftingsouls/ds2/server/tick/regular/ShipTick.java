@@ -60,7 +60,7 @@ public class ShipTick extends TickController {
         this.configService = configService;
     }
 
-    protected static final class ShipNahrungsCargoComparator implements Comparator<Ship>
+    protected static final class ShipFoodCargoComparator implements Comparator<Ship>
 	{
 		@Override
 		public int compare(Ship o1, Ship o2)
@@ -93,7 +93,7 @@ public class ShipTick extends TickController {
 	}
 
 	private Map<String,ResourceID> esources;
-	private Map<Location,List<Ship>> versorgerlist;
+	private Map<Location,List<Ship>> suppliersByLocation;
 
 	@Override
 	protected void prepare()
@@ -114,10 +114,10 @@ public class ShipTick extends TickController {
 	private int consumeFood(Feeding feeder, int crewToFeed, double scaleFactor)
 	{
 		int crewThatCouldBeFeed;
-		final long nahrung = feeder.getNahrungCargo();
-		if( crewToFeed*scaleFactor > nahrung )
+		final long food = feeder.getNahrungCargo();
+		if( crewToFeed*scaleFactor > food )
 		{
-			crewThatCouldBeFeed = (int)(nahrung/scaleFactor);
+			crewThatCouldBeFeed = (int)(food/scaleFactor);
 			crewToFeed -= crewThatCouldBeFeed;
 		}
 		else
@@ -127,20 +127,20 @@ public class ShipTick extends TickController {
 		}
 
 		int tmp = (int)Math.ceil(crewThatCouldBeFeed*scaleFactor);
-		feeder.setNahrungCargo(nahrung - tmp);
+		feeder.setNahrungCargo(food - tmp);
 		this.slog(tmp+"@"+feeder.getId()+",");
 
 		return crewToFeed;
 	}
 
-	private Map<Location,List<Ship>> getLocationVersorgerList(EntityManager db,List<Ship> ships, User user)
+	private Map<Location,List<Ship>> getLocationSupplierList(EntityManager db,List<Ship> ships, User user)
 	{
-		Comparator<Ship> comparator = new ShipNahrungsCargoComparator();
+		Comparator<Ship> comparator = new ShipFoodCargoComparator();
 
-		Map<Location,SortedSet<Ship>> versorgerMap = new HashMap<>();
+		Map<Location,SortedSet<Ship>> supplierMap = new HashMap<>();
 		this.log("Berechne Versorger");
 
-		int versorgerCount = 0;
+		int supplierCount = 0;
 
 		for( Ship ship : ships)
 		{
@@ -152,21 +152,21 @@ public class ShipTick extends TickController {
 				continue;
 			}
 
-			versorgerCount++;
+			supplierCount++;
 			Location loc = ship.getLocation();
-			if(versorgerMap.containsKey(loc))
+			if(supplierMap.containsKey(loc))
 			{
-				versorgerMap.get(loc).add(ship);
+				supplierMap.get(loc).add(ship);
 			}
 			else
 			{
 				SortedSet<Ship> shiplist = new TreeSet<>(comparator);
 				shiplist.add(ship);
-				versorgerMap.put(loc, shiplist);
+				supplierMap.put(loc, shiplist);
 			}
 		}
 
-		this.log(versorgerCount+" Versorger gefunden");
+		this.log(supplierCount+" Versorger gefunden");
 
 		if(user.getAlly() != null)
 		{
@@ -184,44 +184,44 @@ public class ShipTick extends TickController {
 			for( Ship ship : allyShips)
 			{
 				Location loc = ship.getLocation();
-				if(versorgerMap.containsKey(loc))
+				if(supplierMap.containsKey(loc))
 				{
-					versorgerMap.get(loc).add(ship);
+					supplierMap.get(loc).add(ship);
 				}
 				else
 				{
 					SortedSet<Ship> shiplist = new TreeSet<>(comparator);
 					shiplist.add(ship);
-					versorgerMap.put(loc, shiplist);
+					supplierMap.put(loc, shiplist);
 				}
 			}
 		}
 
-		Map<Location,List<Ship>> versorgerList = new HashMap<>();
-		for( Map.Entry<Location,SortedSet<Ship>> entry : versorgerMap.entrySet() ) {
-			versorgerList.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+		Map<Location,List<Ship>> supplierList = new HashMap<>();
+		for( Map.Entry<Location,SortedSet<Ship>> entry : supplierMap.entrySet() ) {
+			supplierList.put(entry.getKey(), new ArrayList<>(entry.getValue()));
 		}
 
-		return versorgerList;
+		return supplierList;
 	}
 
-	private Ship getVersorger(Location loc)
+	private Ship getSupplier(Location loc)
 	{
 		Ship ship = null;
-		if(versorgerlist.containsKey(loc))
+		if(suppliersByLocation.containsKey(loc))
 		{
-			ship = versorgerlist.get(loc).get(0);
+			ship = suppliersByLocation.get(loc).get(0);
 			while(ship != null && ship.getNahrungCargo() == 0)
 			{
-				versorgerlist.get(loc).remove(0);
-				if(versorgerlist.get(loc).isEmpty())
+				suppliersByLocation.get(loc).remove(0);
+				if(suppliersByLocation.get(loc).isEmpty())
 				{
-					versorgerlist.remove(loc);
+					suppliersByLocation.remove(loc);
 					ship = null;
 				}
 				else
 				{
-					ship = versorgerlist.get(loc).get(0);
+					ship = suppliersByLocation.get(loc).get(0);
 				}
 			}
 		}
@@ -260,12 +260,12 @@ public class ShipTick extends TickController {
 		this.log("Compute heat: "+(end-start)+" ns");
 
 		start = System.nanoTime();
-		produziereNahrung(shipd, shiptd, shipc);
+		produceFood(shipd, shiptd, shipc);
 		end = System.nanoTime();
 		this.log("Produce food: "+(end-start)+" ns");
 
 		start = System.nanoTime();
-		produziereItems(shipd, shiptd, shipc);
+		produceItems(shipd, shiptd, shipc);
 		end = System.nanoTime();
 		this.log("Produce items: "+(end-start)+" ns");
 
@@ -279,13 +279,13 @@ public class ShipTick extends TickController {
 		{
 			if(configService.getValue(WellKnownConfigValue.REQUIRE_SHIP_FOOD)) {
 				start = System.nanoTime();
-				berechneNahrungsverbrauch(shipd, shiptd, feedingBases, db);
+				calculateFoodConsumption(shipd, shiptd, feedingBases, db);
 				end = System.nanoTime();
 				this.log("Compute food: "+(end-start)+" ns");
 			}
 			//Damage ships which don't have enough crew
 			start = System.nanoTime();
-			var shipStillExists = berechneVerfallWegenCrewmangel(shipd, shiptd, db);
+			var shipStillExists = calculateDecayFromCrewShortage(shipd, shiptd, db);
 			end = System.nanoTime();
 			this.log("Compute crew damage: "+(end-start)+" ns");
 			if(!shipStillExists)
@@ -294,7 +294,7 @@ public class ShipTick extends TickController {
 			}
 			//Pay sold and maintenance
 			start = System.nanoTime();
-			berechneSoldUndWartung(db, shipd, shiptd, shipUpkeepCosts);
+			calculatePayAndUpkeep(db, shipd, shiptd, shipUpkeepCosts);
 			end = System.nanoTime();
 			this.log("Compute sold and maintenance: "+(end-start)+" ns");
 		}
@@ -324,15 +324,15 @@ public class ShipTick extends TickController {
 
 		// Evt. Deuterium sammeln
 		start = System.nanoTime();
-		e = sammelDeuterium(shipd, shiptd, shipc, e);
+		e = collectDeuterium(shipd, shiptd, shipc, e);
 		end = System.nanoTime();
 		this.log("Collect deuterium: "+(end-start)+" ns");
 		start = System.nanoTime();
-		e = abbauenFelsbrocken(shipd, shiptd, shipc, e, db);
+		e = mineBoulders(shipd, shiptd, shipc, e, db);
 		end = System.nanoTime();
 		this.log("Mine small asteroids: "+(end-start)+" ns");
 		start = System.nanoTime();
-		e = produziereEnergie(shipd, shiptd, shipc, e);
+		e = produceEnergy(shipd, shiptd, shipc, e);
 		end = System.nanoTime();
 		this.log("Produce energy: "+(end-start)+" ns");
 
@@ -363,16 +363,16 @@ public class ShipTick extends TickController {
 		this.log(">");
 	}
 
-	private void produziereNahrung(Ship shipd, ShipTypeData shiptd, Cargo shipc)
+	private void produceFood(Ship shipd, ShipTypeData shiptd, Cargo shipc)
 	{
 		int hydro = shiptd.getHydro();
-		long nahrung = shipd.getNahrungCargo();
-		long speicher = shiptd.getNahrungCargo();
-		long rest = nahrung + hydro - speicher;
+		long food = shipd.getNahrungCargo();
+		long foodCapacity = shiptd.getNahrungCargo();
+		long rest = food + hydro - foodCapacity;
 
 		if ( rest>0){
 			//Nahrungsspeicher voll machen
-			shipd.setNahrungCargo(speicher);
+			shipd.setNahrungCargo(foodCapacity);
 			if( Cargo.getResourceMass( Resources.NAHRUNG, rest ) > (shiptd.getCargo() - shipc.getMass()) )
 				{
 					long mass = Cargo.getResourceMass( Resources.NAHRUNG, 1 );
@@ -384,11 +384,11 @@ public class ShipTick extends TickController {
 		}
 		else
 		{
-			shipd.setNahrungCargo(nahrung + hydro);
+			shipd.setNahrungCargo(food + hydro);
 		}
 	}
 
-	private void produziereItems(Ship shipd, ShipTypeData shiptd, Cargo shipc)
+	private void produceItems(Ship shipd, ShipTypeData shiptd, Cargo shipc)
 	{
 		Cargo shipproduction = shiptd.getProduces();
 		long maxCargo = shipd.getMaxCargo();
@@ -421,7 +421,7 @@ public class ShipTick extends TickController {
 
 	}
 
-	private int sammelDeuterium(Ship shipd, ShipTypeData shiptd, Cargo shipc, int e)
+	private int collectDeuterium(Ship shipd, ShipTypeData shiptd, Cargo shipc, int e)
 	{
 		if(shipd.getBattle() == null && shipd.getEinstellungen().getAutoDeut() && (shiptd.getDeutFactor() != 0) &&
 				(shipd.getCrew() >= shiptd.getCrew()/2) && (e > 0) &&
@@ -444,9 +444,9 @@ public class ShipTick extends TickController {
 					tmpe = (int)( (shiptd.getCargo()-shipc.getMass())/(deutfactor*mass) );
 					this.slog("[maxcargo]");
 				}
-				long saugdeut = tmpe * deutfactor;
+				long collectedDeuterium = tmpe * deutfactor;
 
-				shipc.addResource( Resources.DEUTERIUM, saugdeut );
+				shipc.addResource( Resources.DEUTERIUM, collectedDeuterium );
 				e -= tmpe;
 				this.slog(tmpe+" Deuterium\n");
 			}
@@ -458,14 +458,14 @@ public class ShipTick extends TickController {
 		return e;
 	}
 
-	private int abbauenFelsbrocken(Ship shipd, ShipTypeData shiptd, Cargo shipc, int e, EntityManager db)
+	private int mineBoulders(Ship shipd, ShipTypeData shiptd, Cargo shipc, int e, EntityManager db)
 	{
 		if(shipd.getBattle() == null && shipd.getEinstellungen().getAutoMine() && e > 0 && shipd.getTypeData().getShipClass() == ShipClasses.MINER)
 		{
 			this.slog("\tS. Mine\n");
 
 			var nobody = db.find(User.class, -1);
-			List<Ship> felsbrockenlist =  db.createQuery("from Ship " +
+			List<Ship> boulderList =  db.createQuery("from Ship " +
 					"where owner=:owner and x=:x and y=:y and " +
 					"system=:system and battle is null", Ship.class)
 					.setParameter("owner", nobody)
@@ -475,7 +475,7 @@ public class ShipTick extends TickController {
 					.getResultList();
 
 			int tmpe = e;
-			for (Ship aShip : felsbrockenlist) {
+			for (Ship aShip : boulderList) {
 				if(!aShip.hasFlag(Ship.FLAG_RECENTLY_MINED) && aShip.getTypeData().getShipClass() == ShipClasses.FELSBROCKEN && e > 0)
         {
             aShip.addFlag(Ship.FLAG_RECENTLY_MINED, 1);
@@ -505,7 +505,7 @@ public class ShipTick extends TickController {
 		return e;
 	}
 
-	private int produziereEnergie(Ship shipd, ShipTypeData shiptd, Cargo shipc, int e)
+	private int produceEnergy(Ship shipd, ShipTypeData shiptd, Cargo shipc, int e)
 	{
 		if( e < shiptd.getEps() )
 		{
@@ -513,7 +513,7 @@ public class ShipTick extends TickController {
 			if( shiptd.getMinCrew() > 0 && shipd.getCrew() < shiptd.getMinCrew() ) {
 				rm = (int)(rm * shipd.getCrew() / (double)shiptd.getMinCrew());
 			}
-			int maxenergie = rm;
+			int maxEnergy = rm;
 
 			// Reihenfolge muss identisch zu this.esources sein!
 			int[] reactres = new int[] {shiptd.getRd(), shiptd.getRu(),shiptd.getRa()};
@@ -528,8 +528,8 @@ public class ShipTick extends TickController {
 						this.log(shipc.getResourceCount( resid )+" vorhanden");
 
 						int max = (int)Math.round(rm / (double)reactres[index]);
-						if( max > Math.round(maxenergie/(double)reactres[index]) ) {
-							max = (int)Math.round(maxenergie/(double)reactres[index]);
+						if( max > Math.round(maxEnergy/(double)reactres[index]) ) {
+							max = (int)Math.round(maxEnergy/(double)reactres[index]);
 						}
 
 						int need = shiptd.getEps() - e;
@@ -539,13 +539,13 @@ public class ShipTick extends TickController {
 						for( int k=0; k < max; k++ ) {
 							if( (need > 0) && (shipc.getResourceCount( resid ) > 0) ) {
 								counter++;
-								if( maxenergie < reactres[index] ) {
-									e += maxenergie;
-									maxenergie = 0;
+								if( maxEnergy < reactres[index] ) {
+									e += maxEnergy;
+									maxEnergy = 0;
 								}
 								else {
 									e += reactres[index];
-									maxenergie -= reactres[index];
+									maxEnergy -= reactres[index];
 								}
 								shipc.substractResource( resid, 1 );
 								need -= reactres[index];
@@ -567,7 +567,7 @@ public class ShipTick extends TickController {
 		return e;
 	}
 
-	private void berechneNahrungsverbrauch(Ship shipd,
+	private void calculateFoodConsumption(Ship shipd,
 										   ShipTypeData shiptd, Map<Location, List<Base>> feedingBases, EntityManager db)
 	{
 
@@ -604,11 +604,11 @@ public class ShipTick extends TickController {
 			// Unter bestimmten (unklaren) umstaenden kann es zu einer Endlossschleife
 			// kommen. Daher vorerst auf 1000 Iterationen beschraenken.
 			int maxsteps = 1000;
-			Ship versorger = getVersorger(shipd.getLocation());
-			while(versorger != null && crewToFeed > 0 && --maxsteps >= 0)
+			Ship supplier = getSupplier(shipd.getLocation());
+			while(supplier != null && crewToFeed > 0 && --maxsteps >= 0)
 			{
-				crewToFeed = consumeFood(versorger ,crewToFeed, scaleFactor);
-				versorger = getVersorger(shipd.getLocation());
+				crewToFeed = consumeFood(supplier ,crewToFeed, scaleFactor);
+				supplier = getSupplier(shipd.getLocation());
 			}
 		}
 
@@ -635,12 +635,12 @@ public class ShipTick extends TickController {
 			{
 				crewToFeed = crewToFeed - (int) (double) shipd.getUnits().getNahrung();
 				shipd.setUnits(new TransientUnitCargo());
-				int maxverhungernfactor = configService.getValue(WellKnownConfigValue.MAX_VERHUNGERN);
-				int maxverhungernvalue = (int)Math.ceil(shiptd.getCrew() * (maxverhungernfactor/100.0));
+				int maxStarvationFactor = configService.getValue(WellKnownConfigValue.MAX_VERHUNGERN);
+				int maxStarvationValue = (int)Math.ceil(shiptd.getCrew() * (maxStarvationFactor/100.0));
 				int crew = shipd.getCrew();
-				if( crewToFeed*10 > maxverhungernvalue)
+				if( crewToFeed*10 > maxStarvationValue)
 				{
-					crew = crew - maxverhungernvalue;
+					crew = crew - maxStarvationValue;
 				}
 				else
 				{
@@ -701,7 +701,7 @@ public class ShipTick extends TickController {
 		}
 	}
 
-	private boolean berechneVerfallWegenCrewmangel(Ship shipd, ShipTypeData shiptd, EntityManager db)
+	private boolean calculateDecayFromCrewShortage(Ship shipd, ShipTypeData shiptd, EntityManager db)
 	{
 		if( shipd.getBattle() != null )
 		{
@@ -755,7 +755,7 @@ public class ShipTick extends TickController {
 		return true;
 	}
 
-	private void berechneSoldUndWartung(EntityManager db, Ship shipd, ShipTypeData shiptd, ShipUpkeepCosts shipUpkeepCosts)
+	private void calculatePayAndUpkeep(EntityManager db, Ship shipd, ShipTypeData shiptd, ShipUpkeepCosts shipUpkeepCosts)
 	{
 		if(!configService.getValue(WellKnownConfigValue.REQUIRE_SHIP_COSTS)) {
 			return;
@@ -785,13 +785,13 @@ public class ShipTick extends TickController {
 				// Sammel alle Daten zusammmen
 				User pirate = db.find(User.class, Faction.PIRATE);
 				UnitCargo unitcargo = shipd.getUnits();
-				UnitCargo meuterer = unitcargo.getMeuterer(shipUpkeepCosts.berechneVerbleibendeReOhneSold(shipd, owner));
+				UnitCargo mutineers = unitcargo.getMeuterer(shipUpkeepCosts.berechneVerbleibendeReOhneSold(shipd, owner));
 				Crew dcrew = new UnitCargo.Crew(shipd.getCrew());
 
-				if(meuterer.kapern(unitcargo, new TransientUnitCargo(), new TransientUnitCargo(), dcrew, 1, 1))
+				if(mutineers.kapern(unitcargo, new TransientUnitCargo(), new TransientUnitCargo(), dcrew, 1, 1))
 				{
 					shipd.setCrew(dcrew.getValue());
-					shipd.setUnits(meuterer);
+					shipd.setUnits(mutineers);
 					shipd.consign(pirate, false);
 
 					PM.send(pirate, owner.getId(), "Besatzung meutert", "Die Besatzung der " + shipd.getName() + " meutert, nachdem Sie den Sold der Einheiten nicht aufbringen konnten. (" + shipd.getLocation().displayCoordinates(false) + ")", db);
@@ -903,7 +903,7 @@ public class ShipTick extends TickController {
 
 		List<Ship> ships = buildSortedShipList(auser, db);
 
-		versorgerlist = getLocationVersorgerList(db, ships, auser);
+		suppliersByLocation = getLocationSupplierList(db, ships, auser);
 		ShipUpkeepCosts shipUpkeepCosts = new ShipUpkeepCosts();
 
 		// Schiffe berechnen
@@ -933,15 +933,15 @@ public class ShipTick extends TickController {
 		}
 
 		User nobody = db.find(User.class, -1);
-		BigInteger gesamtkosten = shipUpkeepCosts.getGesamtkosten();
-		if(auser.getKonto().compareTo(gesamtkosten.multiply(BigInteger.valueOf(8))) < 0)
+		BigInteger totalCosts = shipUpkeepCosts.getGesamtkosten();
+		if(auser.getKonto().compareTo(totalCosts.multiply(BigInteger.valueOf(8))) < 0)
 		{
 			PM.send(auser, auser.getId(), "Kontostand kritisch", auser.getPlainname() + ", Dein Kontostand ist sehr niedrig. In weniger als einem Tag werden Deine RE-Reserven nicht mehr ausreichen, um die Besatzungsausgaben Deiner Raumschiffe und -stationen zu decken. Besatzungen, die keinen Sold erhalten, werden meutern und mit ihren Schiffen desertieren. Ein Besuch beim nächsten GTU-Handelsposten ist ratsam, dort kannst Du Rohstoffe verkaufen und erhältst neue Finanzmittel. Sollten deine Schiffe übergelaufen sein oder Du es nicht mehr zum Handelsposten schaffen, setze einen Hilferuf im Com-Net-Kanal 'Notfrequenz' ab. Vielleicht hilft Dir ein Spieler.", db);
 		}
-		if(auser.getKonto().compareTo(gesamtkosten) >= 0)
+		if(auser.getKonto().compareTo(totalCosts) >= 0)
 		{
-			this.log("Kosten: " + gesamtkosten);
-			nobody.transferMoneyFrom(auser.getId(), gesamtkosten.longValue());
+			this.log("Kosten: " + totalCosts);
+			nobody.transferMoneyFrom(auser.getId(), totalCosts.longValue());
 		}
 		else {
 			this.log("Kosten uebersteigen Konto ("+auser.getKonto()+")");
@@ -967,14 +967,14 @@ public class ShipTick extends TickController {
 		//Schadensnebel muessen vor den Usern berechnet werden:
 		//Schiffe sollen erst im Nebel kaputt gemacht werden und dann, falls sie noch Schilde uebrig haben, duerfen sie sich reparieren.
 		//fuehrt umgekehrt leider auch dazu, dass Schiffe erst kaputt gehen und dann zur Ratte ueberlaufen, aber das sehe ich nicht als bedenklich
-		doSchadensnebel(db);
+		doDamageNebulas(db);
 
 		doUsers(db);
 
 		doDestroyStatus(db);
 	}
 
-	private void doSchadensnebel(EntityManager db)
+	private void doDamageNebulas(EntityManager db)
 	{
 		/*
 		 * Schadensnebel
