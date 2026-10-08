@@ -67,7 +67,7 @@ public class NPCOrderTick extends TickController {
 		this.pmcache = new HashMap<>();
 	}
 
-	private String getOffiName(User user) {
+	private String getOfficerName(User user) {
 		PersonNameGenerator generator = user.getPersonenNamenGenerator();
 		if( generator != null ) {
 			return generator.generiere();
@@ -109,7 +109,7 @@ public class NPCOrderTick extends TickController {
 
 				User user = order.getUser();
 
-				Location loc = ermittleLieferposition(user);
+				Location loc = determineDeliveryLocation(user);
 
 				log("  Lieferung erfolgt bei "+loc.getSystem()+":"+loc.getX()+"/"+loc.getY());
 
@@ -121,7 +121,7 @@ public class NPCOrderTick extends TickController {
 				}
 				else if( order instanceof OrderOffizier )
 				{
-					newShip = processOrderOffizier(db, order, user, loc);
+					newShip = processOfficerOrder(db, order, user, loc);
 				}
 
 				if( newShip != null )
@@ -211,7 +211,7 @@ public class NPCOrderTick extends TickController {
 		return newShip;
 	}
 
-	private Ship processOrderOffizier(EntityManager db, Order order, User user, Location loc)
+	private Ship processOfficerOrder(EntityManager db, Order order, User user, Location loc)
 	{
 		List<Base> bases = Base.byLocationAndBesitzer(loc, user);
 
@@ -233,7 +233,7 @@ public class NPCOrderTick extends TickController {
 		OrderableOffizier offizier = db.find(OrderableOffizier.class, ((OrderOffizier)order).getType());
 		int special = ThreadLocalRandom.current().nextInt(1, 7);
 
-		Offizier offi = new Offizier(user, this.getOffiName(user));
+		Offizier offi = new Offizier(user, this.getOfficerName(user));
 		offi.setRang(offizier.getRang());
 		offi.setAbility(Offizier.Ability.ING, offizier.getIng());
 		offi.setAbility(Offizier.Ability.WAF, offizier.getWaf());
@@ -296,7 +296,7 @@ public class NPCOrderTick extends TickController {
 		return ship;
 	}
 
-	private Location ermittleLieferposition(User user)
+	private Location determineDeliveryLocation(User user)
 	{
 		if( user.getNpcOrderLocation() != null )
 		{
@@ -312,8 +312,8 @@ public class NPCOrderTick extends TickController {
 		{
 			return DEFAULT_LOCATION;
 		}
-		Base ersteBasis = user.getBases().iterator().next();
-		return ersteBasis.getLocation();
+		Base firstBase = user.getBases().iterator().next();
+		return firstBase.getLocation();
 	}
 
 }
