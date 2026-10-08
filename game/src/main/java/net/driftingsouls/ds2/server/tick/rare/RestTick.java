@@ -74,7 +74,7 @@ public class RestTick extends TickController {
 			Map<User,Cargo> usercargos = new HashMap<>();
 			Map<User,Map<Integer,Set<String>>> useritemlocations = new HashMap<>();
 
-			ermittleCargoStatistiken(db, cargo, usercargos, useritemlocations);
+			collectCargoStatistics(db, cargo, usercargos, useritemlocations);
 
 			StatCargo stat = new StatCargo(this.tick, cargo);
 			db.persist(stat);
@@ -83,19 +83,19 @@ public class RestTick extends TickController {
 
 			this.log("\t"+cargo.save());
 			this.log("Speichere User-Cargo-Stats");
-			speicherUserCargoStatistik(db, usercargos);
+			saveUserCargoStatistics(db, usercargos);
 
 			transaction.commit();
 			transaction = db.beginTransaction();
 
 			this.log("Speichere Module-Location-Stats");
-			speicherItemLocations(db, useritemlocations);
+			saveItemLocations(db, useritemlocations);
 
 			transaction.commit();
 			transaction = db.beginTransaction();
 
 			this.log("Erfasse Spieleraktivitaet");
-			erstelleSpielerStatistik(db);
+			createUserStatistics(db);
 
 			transaction.commit();
 		}
@@ -105,7 +105,7 @@ public class RestTick extends TickController {
 		}
 	}
 
-	private void erstelleSpielerStatistik(Session db)
+	private void createUserStatistics(Session db)
 	{
 		StatAktiveSpieler lastStatSpieler = (StatAktiveSpieler)db
 				.createQuery("from StatAktiveSpieler order by tick DESC")
@@ -114,8 +114,8 @@ public class RestTick extends TickController {
 		StatAktiveSpieler statSpieler = new StatAktiveSpieler();
 		statSpieler.setTick(this.tick);
 
-		List<User> spielerList = Common.cast(db.createQuery("from User u").list());
-		for( User user : spielerList )
+		List<User> userList = Common.cast(db.createQuery("from User u").list());
+		for( User user : userList )
 		{
 			statSpieler.erfasseSpieler(user);
 			if( lastStatSpieler != null )
@@ -129,7 +129,7 @@ public class RestTick extends TickController {
 		db.persist(statSpieler);
 	}
 
-	private void ermittleCargoStatistiken(Session db, Cargo cargo, Map<User, Cargo> usercargos, Map<User, Map<Integer, Set<String>>> useritemlocations)
+	private void collectCargoStatistics(Session db, Cargo cargo, Map<User, Cargo> usercargos, Map<User, Map<Integer, Set<String>>> useritemlocations)
 	{
 		int counter = 0;
 		long baseCount = (Long) db.createQuery("select count(*) from Base where owner!=0").iterate().next();
@@ -354,7 +354,7 @@ public class RestTick extends TickController {
 		}
 	}
 
-	private void speicherUserCargoStatistik(Session db, Map<User, Cargo> usercargos)
+	private void saveUserCargoStatistics(Session db, Map<User, Cargo> usercargos)
 	{
 		db.createQuery("delete from StatUserCargo").executeUpdate();
 
@@ -367,7 +367,7 @@ public class RestTick extends TickController {
 		}
 	}
 
-	private void speicherItemLocations(Session db, Map<User, Map<Integer, Set<String>>> useritemlocations)
+	private void saveItemLocations(Session db, Map<User, Map<Integer, Set<String>>> useritemlocations)
 	{
 		db.createQuery("delete from StatItemLocations").executeUpdate();
 
