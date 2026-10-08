@@ -50,8 +50,8 @@ public class TradingPostService
 			return false;
 		}
 
-		User aktiverUser = tradingShip.getOwner();
-		return tradingPost.isTradepostVisible(aktiverUser, aktiverUser.getRelations());
+		User activeUser = tradingShip.getOwner();
+		return tradingPost.isTradepostVisible(activeUser, activeUser.getRelations());
 	}
 
 	/**

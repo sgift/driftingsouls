@@ -39,12 +39,12 @@ public class AlliancePostService
 	{
 		long membercount = alliance.getMemberCount();
 
-		int maxposten = (int) Math.round(membercount * MAX_POST_COUNT);
-		if (maxposten < 2)
+		int maxPosts = (int) Math.round(membercount * MAX_POST_COUNT);
+		if (maxPosts < 2)
 		{
-			maxposten = 2;
+			maxPosts = 2;
 		}
-		return maxposten;
+		return maxPosts;
 	}
 
 	/**

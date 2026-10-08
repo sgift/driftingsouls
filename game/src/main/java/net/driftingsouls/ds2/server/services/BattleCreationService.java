@@ -353,7 +353,7 @@ public class BattleCreationService
 			final Ally ally = db.find(Ally.class, battle.getAlly(1));
 			eparty2 = ally.getName();
 		}
-		User niemand = db.find(User.class, -1);
+		User nobody = db.find(User.class, -1);
 		String msg = "Es wurde eine Schlacht bei "+ownShip.getLocation().displayCoordinates(false)+" eröffnet.\n" +
 				"Es kämpfen "+eparty+" ("+ battle.getOwnShips().size() +" Schiffe) und "+eparty2+" ("+ battle.getEnemyShips().size() +" Schiffe) gegeneinander. "+
 				"Deine 2. Reihe ist ";
@@ -379,7 +379,7 @@ public class BattleCreationService
 		{
 			if(auser.getUserValue(WellKnownUserValue.GAMEPLAY_USER_BATTLE_PM))
 			{
-				PM.send(niemand, auser.getId(), "Schlacht eröffnet", msg+msg1, db);
+				PM.send(nobody, auser.getId(), "Schlacht eröffnet", msg+msg1, db);
 			/*	if(auser.getApiKey()!="")
 				{
 					new Notifier (auser.getApiKey()).sendMessage("Schlacht bei "+ownShip.getLocation().displayCoordinates(false)+" eröffnet", msg);
@@ -392,7 +392,7 @@ public class BattleCreationService
 		{
 			if(auser.getUserValue(WellKnownUserValue.GAMEPLAY_USER_BATTLE_PM))
 			{
-				PM.send(niemand, auser.getId(), "Schlacht eröffnet", msg+msg2, db);
+				PM.send(nobody, auser.getId(), "Schlacht eröffnet", msg+msg2, db);
 			/*	if(auser.getApiKey()!="")
 				{
 					new Notifier (auser.getApiKey()).sendMessage("Schlacht bei "+ownShip.getLocation().displayCoordinates(false)+" eröffnet", msg);

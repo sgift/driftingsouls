@@ -31,7 +31,7 @@ public class BaseTickerService
         this.db = db;
     }
 
-    private void respawnRess(Base base, int itemid)
+    private void respawnResource(Base base, int itemid)
 	{
 		User sourceUser = db.find(User.class, -1);
 
@@ -74,19 +74,19 @@ public class BaseTickerService
 			}
 		}
 
-		Integer[] bebauung = base.getBebauung();
-		Integer[] bebon = base.getActive();
+		Integer[] buildingIds = base.getBebauung();
+		Integer[] active = base.getActive();
 
 		for( int o=0; o < base.getWidth() * base.getHeight(); o++ )
 		{
-			if( bebauung[o] == 0 )
+			if( buildingIds[o] == 0 )
 			{
 				continue;
 			}
 
-			Building building = Building.getBuilding(bebauung[o]);
+			Building building = Building.getBuilding(buildingIds[o]);
 
-			if( bebon[o] == 0 )
+			if( active[o] == 0 )
 			{
 				continue;
 			}
@@ -95,12 +95,12 @@ public class BaseTickerService
 					(!owner.hasResearched(building.getTechRequired())
 							|| (owner.getRace() != building.getRace() && building.getRace() != 0)))
 			{
-				bebon[o] = 0;
+				active[o] = 0;
 				msg.append("Das Gebäude ").append(building.getName()).append(" wurde wegen unzureichenden Voraussetzungen abgeschaltet.\n");
 			}
 		}
 
-		base.setActive(bebon);
+		base.setActive(active);
 
 		return msg.toString();
 	}
@@ -143,7 +143,7 @@ public class BaseTickerService
 				else {
 					// Produktion drosseln und neue Ressource spawnen
 					nettoproduction.setResource(entry.getId(), base.getSpawnableRessAmount(item.getID()));
-					respawnRess(base, item.getID());
+					respawnResource(base, item.getID());
 				}
 			}
 		}
