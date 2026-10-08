@@ -775,17 +775,17 @@ public class ShipTick extends TickController {
 		}
 
 		//Account is balanced
-		if(shipUpkeepCosts.isKostenZuHoch(shipd, owner))
+		if(shipUpkeepCosts.isTooExpensive(shipd, owner))
 		{
 			// Wartungskosten koennen aufgebracht werden.
-			if(!shipUpkeepCosts.isWartungsKostenZuHoch(shipd, owner))
+			if(!shipUpkeepCosts.isUpkeepTooExpensive(shipd, owner))
 			{
 				this.log("\tKonto nicht gedeckt; Besatzung meutert.");
 
 				// Sammel alle Daten zusammmen
 				User pirate = db.find(User.class, Faction.PIRATE);
 				UnitCargo unitcargo = shipd.getUnits();
-				UnitCargo mutineers = unitcargo.getMeuterer(shipUpkeepCosts.berechneVerbleibendeReOhneSold(shipd, owner));
+				UnitCargo mutineers = unitcargo.getMeuterer(shipUpkeepCosts.calculateRemainingReWithoutPay(shipd, owner));
 				Crew dcrew = new UnitCargo.Crew(shipd.getCrew());
 
 				if(mutineers.kapern(unitcargo, new TransientUnitCargo(), new TransientUnitCargo(), dcrew, 1, 1))
@@ -802,7 +802,7 @@ public class ShipTick extends TickController {
 					shipd.setCrew(dcrew.getValue());
 					PM.send(pirate, owner.getId(), "Besatzung meutert", "Die Besatzung der " + shipd.getName() + " meutert, nachdem Sie den Sold der Einheiten nicht aufbringen konnten. Die Meuterer wurden vernichtet. (" + shipd.getLocation().displayCoordinates(false) + ")", db);
 
-					shipUpkeepCosts.verbucheSchiff(shipd);
+					shipUpkeepCosts.addShip(shipd);
 				}
 			}
 			else
@@ -815,7 +815,7 @@ public class ShipTick extends TickController {
 			}
 		}
 		else {
-			shipUpkeepCosts.verbucheSchiff(shipd);
+			shipUpkeepCosts.addShip(shipd);
 		}
 	}
 
@@ -933,7 +933,7 @@ public class ShipTick extends TickController {
 		}
 
 		User nobody = db.find(User.class, -1);
-		BigInteger totalCosts = shipUpkeepCosts.getGesamtkosten();
+		BigInteger totalCosts = shipUpkeepCosts.getTotalCosts();
 		if(auser.getKonto().compareTo(totalCosts.multiply(BigInteger.valueOf(8))) < 0)
 		{
 			PM.send(auser, auser.getId(), "Kontostand kritisch", auser.getPlainname() + ", Dein Kontostand ist sehr niedrig. In weniger als einem Tag werden Deine RE-Reserven nicht mehr ausreichen, um die Besatzungsausgaben Deiner Raumschiffe und -stationen zu decken. Besatzungen, die keinen Sold erhalten, werden meutern und mit ihren Schiffen desertieren. Ein Besuch beim nächsten GTU-Handelsposten ist ratsam, dort kannst Du Rohstoffe verkaufen und erhältst neue Finanzmittel. Sollten deine Schiffe übergelaufen sein oder Du es nicht mehr zum Handelsposten schaffen, setze einen Hilferuf im Com-Net-Kanal 'Notfrequenz' ab. Vielleicht hilft Dir ein Spieler.", db);

@@ -8,53 +8,53 @@ import java.math.RoundingMode;
 
 public final class ShipUpkeepCosts
 {
-	private long summeSchiffskosten;
-	private long summeEinheitenkosten;
+	private long totalShipCosts;
+	private long totalUnitCosts;
 
 	public ShipUpkeepCosts()
 	{
-		summeSchiffskosten = 0;
-		summeEinheitenkosten = 0;
+		totalShipCosts = 0;
+		totalUnitCosts = 0;
 	}
 
-	public void verbucheSchiff(Ship ship) {
-		summeEinheitenkosten += ship.getUnitBalance();
-		summeSchiffskosten += ship.getBalance();
+	public void addShip(Ship ship) {
+		totalUnitCosts += ship.getUnitBalance();
+		totalShipCosts += ship.getBalance();
 	}
 
-	public boolean isKostenZuHoch(Ship ship, User user) {
-		long tmpSummeEinheitenkosten = summeEinheitenkosten + ship.getUnitBalance();
-		long tmpSummeSchiffskosten = summeSchiffskosten + ship.getBalance();
+	public boolean isTooExpensive(Ship ship, User user) {
+		long tmpTotalUnitCosts = totalUnitCosts + ship.getUnitBalance();
+		long tmpTotalShipCosts = totalShipCosts + ship.getBalance();
 
-		BigInteger kosten = berecheKosten(tmpSummeSchiffskosten, tmpSummeEinheitenkosten);
+		BigInteger costs = calculateCosts(tmpTotalShipCosts, tmpTotalUnitCosts);
 
-		return user.getKonto().compareTo(kosten) < 0;
+		return user.getKonto().compareTo(costs) < 0;
 	}
 
-	public boolean isWartungsKostenZuHoch(Ship ship, User user) {
-		BigInteger kosten = berecheKosten(summeSchiffskosten + ship.getBalance(), summeEinheitenkosten);
+	public boolean isUpkeepTooExpensive(Ship ship, User user) {
+		BigInteger costs = calculateCosts(totalShipCosts + ship.getBalance(), totalUnitCosts);
 
-		return user.getKonto().compareTo(kosten) < 0;
+		return user.getKonto().compareTo(costs) < 0;
 	}
 
-	public long berechneVerbleibendeReOhneSold(Ship ship, User user) {
-		BigInteger kosten = berecheKosten(summeSchiffskosten + ship.getBalance(), summeEinheitenkosten);
+	public long calculateRemainingReWithoutPay(Ship ship, User user) {
+		BigInteger costs = calculateCosts(totalShipCosts + ship.getBalance(), totalUnitCosts);
 
-		if( user.getKonto().compareTo(kosten) < 0 ) {
+		if( user.getKonto().compareTo(costs) < 0 ) {
 			return 1;
 		}
-		return user.getKonto().subtract(kosten).longValue();
+		return user.getKonto().subtract(costs).longValue();
 	}
 
-	public BigInteger getGesamtkosten() {
-		return berecheKosten(summeSchiffskosten, summeEinheitenkosten);
+	public BigInteger getTotalCosts() {
+		return calculateCosts(totalShipCosts, totalUnitCosts);
 	}
 
 	// Schiffskosten = x/3 + x^3 / (73*10^7) + x^11 / (5*10^45)
-	public static BigInteger berecheKosten(long summeSchiffskosten, long summeEinheitenkosten) {
-		BigDecimal Schiffskosten = BigDecimal.valueOf(summeSchiffskosten).divide(BigDecimal.valueOf(3), 0, RoundingMode.HALF_UP)
-														 .add(BigDecimal.valueOf(summeSchiffskosten).pow(3).divide(BigDecimal.valueOf(73).movePointRight(7), 0, RoundingMode.HALF_UP))
-														 .add(BigDecimal.valueOf(summeSchiffskosten).pow(11).divide(BigDecimal.valueOf(5).movePointRight(45), 0, RoundingMode.HALF_UP));
-		return Schiffskosten.add(BigDecimal.valueOf(summeEinheitenkosten)).toBigInteger();
+	public static BigInteger calculateCosts(long totalShipCosts, long totalUnitCosts) {
+		BigDecimal shipCosts = BigDecimal.valueOf(totalShipCosts).divide(BigDecimal.valueOf(3), 0, RoundingMode.HALF_UP)
+														 .add(BigDecimal.valueOf(totalShipCosts).pow(3).divide(BigDecimal.valueOf(73).movePointRight(7), 0, RoundingMode.HALF_UP))
+														 .add(BigDecimal.valueOf(totalShipCosts).pow(11).divide(BigDecimal.valueOf(5).movePointRight(45), 0, RoundingMode.HALF_UP));
+		return shipCosts.add(BigDecimal.valueOf(totalUnitCosts)).toBigInteger();
 	}
 }

@@ -1359,7 +1359,7 @@ public class User extends BasicUser {
 				.setParameter("access", Access.NORMAL)
 				.getResultList().stream().filter(Objects::nonNull).findFirst().orElse(0L);
 
-		return baseRe - ShipUpkeepCosts.berecheKosten(schiffsKosten, einheitenKosten).longValue();
+		return baseRe - ShipUpkeepCosts.calculateCosts(schiffsKosten, einheitenKosten).longValue();
 	}
 
 	private long getNahrungBalance()
