@@ -68,13 +68,13 @@ public class ShipJumpService
 	 * @param node Der Sprungpunkt
 	 * @return <code>true</code>, falls ein Fehler aufgetreten ist
 	 */
-	public JumpResult jumpViaJumpNode(Ship schiff, JumpNode node)
+	public JumpResult jumpViaJumpNode(Ship selectedShip, JumpNode node)
 	{
 		StringBuilder outputbuffer = new StringBuilder();
 
-		User user = schiff.getOwner();
+		User user = selectedShip.getOwner();
 
-		if (schiff.getBattle() != null)
+		if (selectedShip.getBattle() != null)
 		{
 			outputbuffer.append("Fehler: Sie k&ouml;nnen nicht mit einem Schiff springen, das in einem Kampf ist.<br />\n");
 			return new JumpResult(outputbuffer.toString(), false);
@@ -102,7 +102,7 @@ public class ShipJumpService
 		Location nodeLoc = node.getLocation();
 		Location outLoc = new Location(node.getSystemOut(), node.getXOut(), node.getYOut());
 
-		Location shipLoc = new Location(schiff.getSystem(), schiff.getX(), schiff.getY());
+		Location shipLoc = new Location(selectedShip.getSystem(), selectedShip.getX(), selectedShip.getY());
 
 		if (!shipLoc.sameSector(0, nodeLoc, 0))
 		{
@@ -116,14 +116,14 @@ public class ShipJumpService
 
 		List<Ship> shiplist = new ArrayList<>();
 		// Falls vorhanden die Schiffe der Flotte einfuegen
-		if (schiff.getFleet() != null)
+		if (selectedShip.getFleet() != null)
 		{
-			shiplist.addAll(findJumpCapableShips(schiff));
+			shiplist.addAll(findJumpCapableShips(selectedShip));
 		}
 		// Keine Flotte -> nur das aktuelle Schiff einfuegen
 		else
 		{
-			shiplist.add(schiff);
+			shiplist.add(selectedShip);
 		}
 
 		//
@@ -172,13 +172,13 @@ public class ShipJumpService
 		return new JumpResult(outputbuffer.toString(), true);
 	}
 
-	private List<Ship> findJumpCapableShips(Ship schiff)
+	private List<Ship> findJumpCapableShips(Ship selectedShip)
 	{
 		return db.createQuery("from Ship where id>0 and fleet=:fleet AND x=:x AND y=:y AND system=:sys and docked='' AND battle is null", Ship.class)
-				.setParameter("fleet", schiff.getFleet())
-				.setParameter("x", schiff.getX())
-				.setParameter("y", schiff.getY())
-				.setParameter("sys", schiff.getSystem())
+				.setParameter("fleet", selectedShip.getFleet())
+				.setParameter("x", selectedShip.getX())
+				.setParameter("y", selectedShip.getY())
+				.setParameter("sys", selectedShip.getSystem())
 				.getResultList();
 	}
 
@@ -188,17 +188,17 @@ public class ShipJumpService
 	 * Sprungpunkt) sein. Der Sprung kann dabei scheitern, wenn keine Sprungberechtigung
 	 * vorliegt.</p>
 	 *
-	 * @param schiff Das Schiff, welches springen soll
+	 * @param selectedShip Das Schiff, welches springen soll
 	 * @param node Das Schiff mit dem Sprungpunkt
 	 * @return <code>true</code>, falls ein Fehler aufgetreten ist
 	 */
-	public JumpResult jumpViaShip(Ship schiff, Ship node)
+	public JumpResult jumpViaShip(Ship selectedShip, Ship node)
 	{
 		StringBuilder outputbuffer = new StringBuilder();
 
-		User user = schiff.getOwner();
+		User user = selectedShip.getOwner();
 
-		if (schiff.getBattle() != null)
+		if (selectedShip.getBattle() != null)
 		{
 			outputbuffer.append("Fehler: Sie können nicht mit einem Schiff springen, das in einem Kampf ist.<br />\n");
 			return new JumpResult(outputbuffer.toString(), false);
@@ -277,7 +277,7 @@ public class ShipJumpService
 
 		// Einmalig das aktuelle Schiff ueberpruefen.
 		// Evt vorhandene Schiffe in einer Flotte werden spaeter separat gecheckt
-		if (node.getId() == schiff.getId())
+		if (node.getId() == selectedShip.getId())
 		{
 			outputbuffer.append("<span style=\"color:red\">Sie können nicht mit dem ").append(nodetypename).append(" durch sich selbst springen.</span><br />\n");
 			return new JumpResult(outputbuffer.toString(), false);
@@ -334,7 +334,7 @@ public class ShipJumpService
 
 		Location nodeLoc = new Location(node.getSystem(), node.getX(), node.getY());
 
-		Location shipLoc = new Location(schiff.getSystem(), schiff.getX(), schiff.getY());
+		Location shipLoc = new Location(selectedShip.getSystem(), selectedShip.getX(), selectedShip.getY());
 
 		if (!shipLoc.sameSector(0, nodeLoc, 0))
 		{
@@ -348,9 +348,9 @@ public class ShipJumpService
 
 		List<Ship> shiplist = new ArrayList<>();
 		// Falls vorhanden die Schiffe der Flotte einfuegen
-		if (schiff.getFleet() != null)
+		if (selectedShip.getFleet() != null)
 		{
-			List<Ship> fleetships = findJumpCapableShips(schiff);
+			List<Ship> fleetships = findJumpCapableShips(selectedShip);
 
 			// Bei Knossossprungpunkten darauf achten, dass das Portal nicht selbst mitspringt
 			shiplist.addAll(fleetships.stream().filter(s -> s != node).collect(Collectors.toList()));
@@ -358,7 +358,7 @@ public class ShipJumpService
 		// Keine Flotte -> nur das aktuelle Schiff einfuegen
 		else
 		{
-			shiplist.add(schiff);
+			shiplist.add(selectedShip);
 		}
 
 		//
