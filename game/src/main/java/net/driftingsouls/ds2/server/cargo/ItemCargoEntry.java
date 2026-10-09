@@ -121,8 +121,8 @@ public class ItemCargoEntry<T extends Item> {
 
 	public FactoryEntry getFactoryEntry()
 	{
-		var itemTyp = getItem().getType();
-		if(itemTyp != ItemEffect.Type.DRAFT_AMMO) {
+		var itemType = getItem().getType();
+		if(itemType != ItemEffect.Type.DRAFT_AMMO) {
 			return null;
 		}
 
@@ -139,16 +139,16 @@ public class ItemCargoEntry<T extends Item> {
 	}
 	public boolean isAmmo()
 	{
-		var itemTyp = getItem().getType();
-		if(itemTyp != ItemEffect.Type.AMMO) return false;
+		var itemType = getItem().getType();
+		if(itemType != ItemEffect.Type.AMMO) return false;
 
 		return true;
 	}
 
 	public Schiffsmodul getShipModule()
 	{
-		var itemTyp = getItem().getType();
-		if(itemTyp != ItemEffect.Type.MODULE) {
+		var itemType = getItem().getType();
+		if(itemType != ItemEffect.Type.MODULE) {
 			return null;
 		}
 
@@ -158,8 +158,8 @@ public class ItemCargoEntry<T extends Item> {
 
 	public Schiffsverbot getDisableShip()
 	{
-		var itemTyp = getItem().getType();
-		if(itemTyp != ItemEffect.Type.DISABLE_SHIP) {
+		var itemType = getItem().getType();
+		if(itemType != ItemEffect.Type.DISABLE_SHIP) {
 			return null;
 		}
 
@@ -169,8 +169,8 @@ public class ItemCargoEntry<T extends Item> {
 
 	public Schiffsbauplan getShipDraft()
 	{
-		var itemTyp = getItem().getType();
-		if(itemTyp != ItemEffect.Type.DRAFT_SHIP) {
+		var itemType = getItem().getType();
+		if(itemType != ItemEffect.Type.DRAFT_SHIP) {
 			return null;
 		}
 
