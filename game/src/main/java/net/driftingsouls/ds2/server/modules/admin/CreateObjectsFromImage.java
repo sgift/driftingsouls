@@ -344,17 +344,17 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 			public void doWork(Integer baseId) {
 				var db = getEM();
 				Base base = db.find(Base.class, baseId);
-				Integer[] bebauung = base.getBebauung();
-				for (int i = 0; i < bebauung.length; i++)
+				Integer[] buildingIds = base.getBebauung();
+				for (int i = 0; i < buildingIds.length; i++)
 				{
-					if (bebauung[i] == 0)
+					if (buildingIds[i] == 0)
 					{
 						continue;
 					}
 
-					Building building = Building.getBuilding(bebauung[i]);
-					building.cleanup(ContextMap.getContext(), base, bebauung[i]);
-					bebauung[i] = 0;
+					Building building = Building.getBuilding(buildingIds[i]);
+					building.cleanup(ContextMap.getContext(), base, buildingIds[i]);
+					buildingIds[i] = 0;
 				}
 
 				Offizier.getOffiziereByDest(base).forEach(db::remove);
@@ -388,8 +388,8 @@ public class CreateObjectsFromImage extends AbstractEditPlugin<StarSystem> imple
 		}
 		else if (objectType.startsWith("nebel_"))
 		{
-			String nebel = objectType.substring(objectType.indexOf('_') + 1);
-			createNebula(context.getDB(), loc, Nebel.Typ.valueOf(nebel));
+			String nebulaType = objectType.substring(objectType.indexOf('_') + 1);
+			createNebula(context.getDB(), loc, Nebel.Typ.valueOf(nebulaType));
 		}
 	}
 
