@@ -80,31 +80,31 @@ public class TradeController extends Controller
 		}
 	}
 
-	private void validateTradingPost(Ship handelndesSchiff, Ship handelsposten)
+	private void validateTradingPost(Ship tradingShip, Ship tradingPost)
 	{
-		if (handelsposten == null || !handelsposten.isTradepost() || !handelsposten.getLocation().equals(handelndesSchiff.getLocation()))
+		if (tradingPost == null || !tradingPost.isTradepost() || !tradingPost.getLocation().equals(tradingShip.getLocation()))
 		{
-			throw new ValidationException("Fehler: Der angegebene Handelsposten konnte nicht im Sektor lokalisiert werden", Common.buildUrl("default", "module", "schiff", "ship", handelndesSchiff.getId()));
+			throw new ValidationException("Fehler: Der angegebene Handelsposten konnte nicht im Sektor lokalisiert werden", Common.buildUrl("default", "module", "schiff", "ship", tradingShip.getId()));
 		}
 
 		User user = (User) getUser();
-		if (!handelsposten.isTradepostVisible(user, user.getRelations()))
+		if (!tradingPost.isTradepostVisible(user, user.getRelations()))
 		{
-			throw new ValidationException("Fehler: Dieser Handelsposten handelt nicht mit Ihnen. Für die Aufnahme von Handelsbeziehungen setzen Sie sich mit dem Eigner in Verbindung.", Common.buildUrl("default", "module", "schiff", "ship", handelndesSchiff.getId()));
+			throw new ValidationException("Fehler: Dieser Handelsposten handelt nicht mit Ihnen. Für die Aufnahme von Handelsbeziehungen setzen Sie sich mit dem Eigner in Verbindung.", Common.buildUrl("default", "module", "schiff", "ship", tradingShip.getId()));
 		}
 	}
 
-	private GtuWarenKurse ermittleWarenKurseFuerHandelsposten(Session db, Ship handelndesSchiff, Ship handelsposten)
+	private GtuWarenKurse determineRatesForTradingPost(Session db, Ship tradingShip, Ship tradingPost)
 	{
-		GtuWarenKurse kurse = (GtuWarenKurse) db.get(GtuWarenKurse.class, "p" + handelsposten.getId());
+		GtuWarenKurse kurse = (GtuWarenKurse) db.get(GtuWarenKurse.class, "p" + tradingPost.getId());
 
-		if (kurse == null && handelsposten.getOwner().getRace() == Faction.GTU_RACE)
+		if (kurse == null && tradingPost.getOwner().getRace() == Faction.GTU_RACE)
 		{
 			kurse = (GtuWarenKurse) db.get(GtuWarenKurse.class, "tradepost");
 		}
 		if (kurse == null)
 		{
-			throw new ValidationException("Fehler: Der An- und Verkauf auf dem Handelsposten wurde nicht freigegeben", Common.buildUrl("default", "module", "schiff", "ship", handelndesSchiff.getId()));
+			throw new ValidationException("Fehler: Der An- und Verkauf auf dem Handelsposten wurde nicht freigegeben", Common.buildUrl("default", "module", "schiff", "ship", tradingShip.getId()));
 		}
 		return kurse;
 	}
@@ -231,7 +231,7 @@ public class TradeController extends Controller
 		validateShip(ship);
 		validateTradingPost(ship, tradepost);
 
-		GtuWarenKurse kurse = ermittleWarenKurseFuerHandelsposten(db, ship, tradepost);
+		GtuWarenKurse kurse = determineRatesForTradingPost(db, ship, tradepost);
 
 		int MIN_TICKS_TO_SURVIVE = 7;
 		Cargo shipCargo = ship.getCargo();
@@ -260,16 +260,16 @@ public class TradeController extends Controller
 
 		StringBuilder message = new StringBuilder();
 
-		Cargo kurseCargo = new Cargo(kurse.getKurse());
-		kurseCargo.setOption(Cargo.Option.SHOWMASS, false);
+		Cargo ratesCargo = new Cargo(kurse.getKurse());
+		ratesCargo.setOption(Cargo.Option.SHOWMASS, false);
 
-		ResourceList reslist = kurseCargo.getResourceList();
+		ResourceList reslist = ratesCargo.getResourceList();
 		long freeSpace = tradepost.getTypeData().getCargo() - tradepost.getCargo().getMass();
 		long reconsumption = -1 * tradepost.getOwner().getReBalance();
 		if(tradepost.getOwner().hasFlag(UserFlag.NO_DESERTEUR)) {
 			reconsumption = 0;
 		}
-		BigInteger konto = tradepost.getOwner().getKonto();
+		BigInteger balance = tradepost.getOwner().getKonto();
 		for (ResourceEntry res : reslist)
 		{
 			Long tmp = toMap.get(res.getId().toString());
@@ -298,21 +298,21 @@ public class TradeController extends Controller
 
 				if (tmp > limit)
 				{
-					long nichtVerkauft = tmp - limit;
+					long notSold = tmp - limit;
 					tmp = limit;
 
-					message.append("[resource=").append(res.getId()).append("]").append(nichtVerkauft).append("[/resource] nicht verkauft - Es besteht kein Interesse mehr an dieser Ware\n");
-					pmText.append("[resource=").append(res.getId()).append("]").append(nichtVerkauft).append("[/resource] konnten nicht gekauft werden, da die Ankaufgrenze überschritten werden würde\n");
+					message.append("[resource=").append(res.getId()).append("]").append(notSold).append("[/resource] nicht verkauft - Es besteht kein Interesse mehr an dieser Ware\n");
+					pmText.append("[resource=").append(res.getId()).append("]").append(notSold).append("[/resource] konnten nicht gekauft werden, da die Ankaufgrenze überschritten werden würde\n");
 				}
 
 				//Nicht mehr ankaufen als Platz da ist
 				if (tmp * resourceMass > freeSpace)
 				{
-					long nichtVerkauft = tmp - freeSpace / resourceMass;
+					long notSold = tmp - freeSpace / resourceMass;
 					tmp = freeSpace / resourceMass;
 
-					message.append("[resource=").append(res.getId()).append("]").append(nichtVerkauft).append("[/resource] nicht verkauft - alle Lager sind voll\n");
-					pmText.append("[resource=").append(res.getId()).append("]").append(nichtVerkauft).append("[/resource] konnten nicht gekauft werden, da das Lager voll war\n");
+					message.append("[resource=").append(res.getId()).append("]").append(notSold).append("[/resource] nicht verkauft - alle Lager sind voll\n");
+					pmText.append("[resource=").append(res.getId()).append("]").append(notSold).append("[/resource] konnten nicht gekauft werden, da das Lager voll war\n");
 				}
 
 				BigDecimal get = BigDecimal.valueOf(tmp).multiply(BigDecimal.valueOf(res.getCount1() / 1000d));
@@ -321,12 +321,12 @@ public class TradeController extends Controller
 				//Aufpassen das ich nicht das Konto leere
 				if (reconsumption > 0)
 				{
-					BigInteger ticks = konto.subtract(get.toBigInteger()).divide(BigInteger.valueOf(reconsumption));
+					BigInteger ticks = balance.subtract(get.toBigInteger()).divide(BigInteger.valueOf(reconsumption));
 					log.info("Ticks until no money left: " + ticks);
 					if (ticks.compareTo(BigInteger.valueOf(MIN_TICKS_TO_SURVIVE)) <= 0)
 					{
 						//Konto reicht mit Verkauf nur noch fuer weniger als 7 Ticks => begrenzen.
-						BigInteger maximum = konto
+						BigInteger maximum = balance
 								.subtract(BigInteger.valueOf(MIN_TICKS_TO_SURVIVE * reconsumption))
 								.multiply(BigInteger.valueOf(1000))
 								.divide(BigInteger.valueOf(res.getCount1()));
@@ -362,7 +362,7 @@ public class TradeController extends Controller
 				tpcargo.addResource(res.getId(), tmp);
 				//Freien Platz korrigieren
 				freeSpace -= tmp * resourceMass;
-				konto = konto.subtract(get.toBigInteger());
+				balance = balance.subtract(get.toBigInteger());
 			}
 		}
 
@@ -389,9 +389,9 @@ public class TradeController extends Controller
 		return new RedirectViewResult("default").withMessage(message.toString());
 	}
 
-	private boolean isFull(Ship handelsposten)
+	private boolean isFull(Ship tradingPost)
 	{
-		return handelsposten.getTypeData().getCargo() <= handelsposten.getCargo().getMass();
+		return tradingPost.getTypeData().getCargo() <= tradingPost.getCargo().getMass();
 	}
 
 	/**
@@ -409,7 +409,7 @@ public class TradeController extends Controller
 		validateShip(ship);
 		validateTradingPost(ship, tradepost);
 
-		GtuWarenKurse kurse = ermittleWarenKurseFuerHandelsposten(db, ship, tradepost);
+		GtuWarenKurse kurse = determineRatesForTradingPost(db, ship, tradepost);
 
 		if( redirect != null )
 		{
@@ -422,9 +422,9 @@ public class TradeController extends Controller
 		t.setVar("error.none", 1);
 		t.setBlock("_TRADE", "res.listitem", "res.list");
 
-		Cargo kurseCargo = new Cargo(kurse.getKurse());
-		kurseCargo.setOption(Cargo.Option.SHOWMASS, false);
-		ResourceList reslist = kurseCargo.getResourceList();
+		Cargo ratesCargo = new Cargo(kurse.getKurse());
+		ratesCargo.setOption(Cargo.Option.SHOWMASS, false);
+		ResourceList reslist = ratesCargo.getResourceList();
 
 		// Block to check if user is an enemy
 		User user = (User) getUser();
@@ -447,21 +447,21 @@ public class TradeController extends Controller
 					continue;
 				}
 
-				String preis;
+				String priceText;
 				if (res.getCount1() < 50)
 				{
-					preis = "Kein Bedarf";
+					priceText = "Kein Bedarf";
 				}
 				else
 				{
-					preis = Common.ln(res.getCount1() / 1000d) + " RE";
+					priceText = Common.ln(res.getCount1() / 1000d) + " RE";
 				}
 
 				t.setVar("res.img", res.getImage(),
 						"res.id", res.getId(),
 						"res.name", res.getName(),
 						"res.cargo", ship.getCargo().getResourceCount(res.getId()),
-						"res.re", preis);
+						"res.re", priceText);
 
 				t.parse("res.list", "res.listitem", true);
 			}
