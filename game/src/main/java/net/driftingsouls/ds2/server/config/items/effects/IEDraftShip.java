@@ -122,29 +122,29 @@ public class IEDraftShip extends ItemEffect {
 	{
 		ShipType type = schiffsbauplan.getSchiffstyp();
 
-		ShipBaubar baudaten = new ShipBaubar(type);
-		baudaten.setCosts(this.schiffsbauplan.getBaukosten());
-		baudaten.setCrew(this.schiffsbauplan.getCrew());
-		baudaten.setDauer(this.schiffsbauplan.getDauer());
-		baudaten.setEKosten(this.schiffsbauplan.getEnergiekosten());
-		baudaten.setRace(this.schiffsbauplan.getRasse().getId());
+		ShipBaubar buildData = new ShipBaubar(type);
+		buildData.setCosts(this.schiffsbauplan.getBaukosten());
+		buildData.setCrew(this.schiffsbauplan.getCrew());
+		buildData.setDauer(this.schiffsbauplan.getDauer());
+		buildData.setEKosten(this.schiffsbauplan.getEnergiekosten());
+		buildData.setRace(this.schiffsbauplan.getRasse().getId());
 		Iterator<Forschung> iter = this.schiffsbauplan.getBenoetigteForschungen().iterator();
 		if( iter.hasNext() )
 		{
-			baudaten.setRes1(iter.next());
+			buildData.setRes1(iter.next());
 		}
 		if( iter.hasNext() )
 		{
-			baudaten.setRes2(iter.next());
+			buildData.setRes2(iter.next());
 		}
 		if( iter.hasNext() )
 		{
-			baudaten.setRes3(iter.next());
+			buildData.setRes3(iter.next());
 		}
-		baudaten.setWerftSlots(this.schiffsbauplan.getWerftSlots());
-		baudaten.setFlagschiff(this.schiffsbauplan.isFlagschiff());
+		buildData.setWerftSlots(this.schiffsbauplan.getWerftSlots());
+		buildData.setFlagschiff(this.schiffsbauplan.isFlagschiff());
 
-		return baudaten;
+		return buildData;
 	}
 	
 	/**
