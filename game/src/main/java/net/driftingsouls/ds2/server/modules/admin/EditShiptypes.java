@@ -115,7 +115,7 @@ public class EditShiptypes implements EntityEditor<ShipType>
 						.createQuery("select s.id from Ship s where s.shiptype= :type")
 						.setEntity("type", shiptype)
 						.list()),
-				(ShipType oldShiptype, ShipType shipType, Integer shipId) -> aktualisiereSchiff(oldShiptype, shipId)
+				(ShipType oldShiptype, ShipType shipType, Integer shipId) -> updateShip(oldShiptype, shipId)
 		);
 	}
 
@@ -203,7 +203,7 @@ public class EditShiptypes implements EntityEditor<ShipType>
 		return type == null;
 	}
 
-	private void aktualisiereSchiff(ShipType oldShiptype, Integer shipId)
+	private void updateShip(ShipType oldShiptype, Integer shipId)
 	{
 		Ship ship = (Ship) ContextMap.getContext().getDB().get(Ship.class, shipId);
 		boolean modules = ship.getModules().length > 0;

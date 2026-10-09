@@ -84,11 +84,11 @@ public class EditShipTypeModification implements EntityEditor<SchiffstypModifika
 				(SchiffstypModifikation mod) -> Common.cast(ContextMap.getContext().getDB()
 						.createQuery("select s.id from Ship s where s.modules is not null")
 						.list()),
-				(SchiffstypModifikation oldMod, SchiffstypModifikation mod, Integer shipId) -> aktualisiereSchiff(shipId)
+				(SchiffstypModifikation oldMod, SchiffstypModifikation mod, Integer shipId) -> updateShip(shipId)
 		);
 	}
 
-	private void aktualisiereSchiff(Integer shipId)
+	private void updateShip(Integer shipId)
 	{
 		Ship ship = (Ship) ContextMap.getContext().getDB().get(Ship.class, shipId);
         boolean modules = ship.getModules().length > 0;

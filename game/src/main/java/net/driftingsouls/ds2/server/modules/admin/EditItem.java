@@ -126,13 +126,13 @@ public class EditItem implements EntityEditor<Item>
 				(Item item) -> item instanceof Schiffsmodul ? Common.cast(ContextMap.getContext().getDB()
 						.createQuery("select s.id from Ship s where s.modules is not null")
 						.list()) : new ArrayList<>(),
-				(Item oldItem, Item item, Integer shipId) -> aktualisiereSchiff(shipId, oldItem, item)
+				(Item oldItem, Item item, Integer shipId) -> updateShip(shipId, oldItem, item)
 		);
 
 		ItemRepository.getInstance().clearItemCache();
 	}
 
-	private void aktualisiereSchiff(Integer shipId, Item oldItem, Item item)
+	private void updateShip(Integer shipId, Item oldItem, Item item)
 	{
 		if( ((Schiffsmodul)oldItem).getMods() == ((Schiffsmodul)item).getMods() )
 		{
