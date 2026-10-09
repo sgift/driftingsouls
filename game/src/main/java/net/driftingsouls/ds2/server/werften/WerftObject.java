@@ -1440,7 +1440,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			output.append("Diese Werft dieses Bauprojekt nicht durchführen");
 			return false;
 		}
-		if(build.getBaudaten().getType().getShipClass() == ShipClasses.SCHUTZSCHILD){
+		if(build.getBuildData().getType().getShipClass() == ShipClasses.SCHUTZSCHILD){
 			for( Ship ship : this.getOwner().getShips() ){
 				if( ship.getTypeData().getShipClass() == ShipClasses.SCHUTZSCHILD){
 					output.append("Diese Station kann nur einmal existieren");
@@ -1461,7 +1461,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 
 		Cargo cargo = new Cargo(this.getCargo(false));
 
-		ShipBaubar shipdata = build.getBaudaten();
+		ShipBaubar shipdata = build.getBuildData();
 		if( (shipdata == null) ) {
 			return false;
 		}

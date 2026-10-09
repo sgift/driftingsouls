@@ -159,7 +159,7 @@ public class ShipyardGui {
 			Cargo costs = new Cargo();
 			for (ShipBuildInformation aShipdata : shipdata)
 			{
-				costs.addCargo(aShipdata.getBaudaten().getCosts());
+				costs.addCargo(aShipdata.getBuildData().getCosts());
 			}
 
 			this.out_ResourceList( werft, costs );
@@ -488,7 +488,7 @@ public class ShipyardGui {
 			t.start_record();
 
 			Cargo costs = new Cargo();
-			costs.addCargo(ashipdata.getBaudaten().getCosts());
+			costs.addCargo(ashipdata.getBuildData().getCosts());
 			costs.setOption(Cargo.Option.SHOWMASS, false);
 
 			if ( ashipdata.getItem() != null )
@@ -496,12 +496,12 @@ public class ShipyardGui {
 				ResourceID itemdata = ashipdata.getItem();
 
 				t.setVar("buildship.item.id", itemdata.getItemID(),
-						"buildship.item.color", ashipdata.getQuelle() == BuildInformationSource.LOKALES_ITEM ? "#EECC44" : "#44EE44",
+						"buildship.item.color", ashipdata.getSource() == BuildInformationSource.LOKALES_ITEM ? "#EECC44" : "#44EE44",
 						"buildship.item.uses", itemdata.getUses());
 			}
 
 			t.setVar("res.image", "./data/interface/time.gif",
-					"res.count", ashipdata.getBaudaten().getDauer(),
+					"res.count", ashipdata.getBuildData().getDauer(),
 					"res.plainname", "Dauer",
 					"res.mangel", 0);
 			t.parse("buildship.res.list", "buildship.res.listitem", false);
@@ -525,23 +525,23 @@ public class ShipyardGui {
 			}
 
 			t.setVar("res.image", "./data/interface/energie.gif",
-					"res.count", ashipdata.getBaudaten().getEKosten(),
+					"res.count", ashipdata.getBuildData().getEKosten(),
 					"res.plainname", "Energie",
-					"res.mangel", energy < ashipdata.getBaudaten().getEKosten());
+					"res.mangel", energy < ashipdata.getBuildData().getEKosten());
 			t.parse("buildship.res.list", "buildship.res.listitem", true);
 
 			t.setVar("res.image", "./data/interface/besatzung.gif",
-					"res.count", ashipdata.getBaudaten().getCrew(),
+					"res.count", ashipdata.getBuildData().getCrew(),
 					"res.plainname", "Besatzung",
-					"res.mangel", crew < ashipdata.getBaudaten().getCrew());
+					"res.mangel", crew < ashipdata.getBuildData().getCrew());
 			t.parse("buildship.res.list", "buildship.res.listitem", true);
 
-			ShipTypeData shiptype = ashipdata.getBaudaten().getType();
+			ShipTypeData shiptype = ashipdata.getBuildData().getType();
 
-			t.setVar("buildship.id", ashipdata.getQuelle() == BuildInformationSource.FORSCHUNG ? ashipdata.getBaudaten().getId() : -1,
+			t.setVar("buildship.id", ashipdata.getSource() == BuildInformationSource.FORSCHUNG ? ashipdata.getBuildData().getId() : -1,
 					"buildship.type.id", shiptype.getTypeId(),
 					"buildship.type.image", shiptype.getPicture(),
-					"buildship.flagschiff", ashipdata.getBaudaten().isFlagschiff(),
+					"buildship.flagschiff", ashipdata.getBuildData().isFlagschiff(),
 					"buildship.type.name", shiptype.getNickname());
 			t.parse("buildshiplist.list", "buildshiplist.listitem", true);
 
@@ -1012,7 +1012,7 @@ public class ShipyardGui {
 			t.setVar("werftgui.msg", "<span style=\"color:red\">"+werft.getMessage()+"</span>");
 			return;
 		}
-		ShipBaubar shipdata = shipBuildData.getBaudaten();
+		ShipBaubar shipdata = shipBuildData.getBuildData();
 
 		ShipTypeData shiptype = shipdata.getType();
 

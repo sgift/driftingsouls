@@ -16,14 +16,14 @@ import java.util.Objects;
  */
 public class ShipBuildInformation implements Comparable<ShipBuildInformation>
 {
-	private final ShipBaubar baudaten;
-	private final BuildInformationSource quelle;
+	private final ShipBaubar buildData;
+	private final BuildInformationSource source;
 	private final ResourceID item;
 
-	ShipBuildInformation(ShipBaubar baudaten, BuildInformationSource quelle, ResourceID item)
+	ShipBuildInformation(ShipBaubar buildData, BuildInformationSource source, ResourceID item)
 	{
-		this.baudaten = baudaten;
-		this.quelle = quelle;
+		this.buildData = buildData;
+		this.source = source;
 		this.item = item;
 	}
 
@@ -31,18 +31,18 @@ public class ShipBuildInformation implements Comparable<ShipBuildInformation>
 	 * Gibt die konkreten Daten zum Bau des Schiffes zurueck.
 	 * @return Die Baudaten
 	 */
-	public ShipBaubar getBaudaten()
+	public ShipBaubar getBuildData()
 	{
-		return baudaten;
+		return buildData;
 	}
 
 	/**
 	 * Gibt die Quelle zurueck, aus der die Bauinformationen stammen.
 	 * @return Die Quelle
 	 */
-	public BuildInformationSource getQuelle()
+	public BuildInformationSource getSource()
 	{
-		return quelle;
+		return source;
 	}
 
 	/**
@@ -60,10 +60,10 @@ public class ShipBuildInformation implements Comparable<ShipBuildInformation>
 	 */
 	public String getId()
 	{
-		String id = quelle.name()+"#";
-		if( quelle == BuildInformationSource.FORSCHUNG )
+		String id = source.name()+"#";
+		if( source == BuildInformationSource.FORSCHUNG )
 		{
-			id += baudaten.getId();
+			id += buildData.getId();
 		}
 		else
 		{
@@ -73,24 +73,24 @@ public class ShipBuildInformation implements Comparable<ShipBuildInformation>
 	}
 
 	@Override
-	public int compareTo(@NotNull ShipBuildInformation schiffBauinformationen)
+	public int compareTo(@NotNull ShipBuildInformation buildInformation)
 	{
-		int diff = this.quelle.compareTo(schiffBauinformationen.quelle);
+		int diff = this.source.compareTo(buildInformation.source);
 		if( diff != 0 )
 		{
 			return diff;
 		}
-		if( this.quelle == BuildInformationSource.FORSCHUNG )
+		if( this.source == BuildInformationSource.FORSCHUNG )
 		{
-			diff = this.baudaten.getType().getNickname().compareTo(schiffBauinformationen.baudaten.getType().getNickname());
+			diff = this.buildData.getType().getNickname().compareTo(buildInformation.buildData.getType().getNickname());
 			if( diff != 0 )
 			{
 				return diff;
 			}
-			return this.baudaten.getId()-schiffBauinformationen.baudaten.getId();
+			return this.buildData.getId()-buildInformation.buildData.getId();
 		}
 
-		return this.item.getItemID()-schiffBauinformationen.item.getItemID();
+		return this.item.getItemID()-buildInformation.item.getItemID();
 	}
 
 	@Override
@@ -107,7 +107,7 @@ public class ShipBuildInformation implements Comparable<ShipBuildInformation>
 
 		ShipBuildInformation that = (ShipBuildInformation) o;
 
-		if (quelle != that.quelle)
+		if (source != that.source)
 		{
 			return false;
 		}
@@ -115,9 +115,9 @@ public class ShipBuildInformation implements Comparable<ShipBuildInformation>
 		{
 			return false;
 		}
-		if( quelle == BuildInformationSource.FORSCHUNG )
+		if( source == BuildInformationSource.FORSCHUNG )
 		{
-			return Objects.equals(baudaten, that.baudaten);
+			return Objects.equals(buildData, that.buildData);
 		}
 
 
@@ -127,8 +127,8 @@ public class ShipBuildInformation implements Comparable<ShipBuildInformation>
 	@Override
 	public int hashCode()
 	{
-		int result = baudaten != null ? baudaten.hashCode() : 0;
-		result = 31 * result + quelle.hashCode();
+		int result = buildData != null ? buildData.hashCode() : 0;
+		result = 31 * result + source.hashCode();
 		result = 31 * result + (item != null ? item.hashCode() : 0);
 		return result;
 	}
@@ -145,17 +145,17 @@ public class ShipBuildInformation implements Comparable<ShipBuildInformation>
 		{
 			throw new IllegalArgumentException("Keine gueltige ID: "+id);
 		}
-		String quelleStr = id.substring(0, id.indexOf('#')).trim();
+		String sourceStr = id.substring(0, id.indexOf('#')).trim();
 		String idStr = id.substring(id.indexOf('#')+1);
 
-		ShipBaubar baudaten;
+		ShipBaubar buildData;
 		ResourceID item = null;
-		BuildInformationSource quelle = BuildInformationSource.valueOf(quelleStr);
+		BuildInformationSource source = BuildInformationSource.valueOf(sourceStr);
 
 		Session db = ContextMap.getContext().getDB();
-		if( quelle == BuildInformationSource.FORSCHUNG )
+		if( source == BuildInformationSource.FORSCHUNG )
 		{
-			baudaten = (ShipBaubar) db.get(ShipBaubar.class, Integer.parseInt(idStr));
+			buildData = (ShipBaubar) db.get(ShipBaubar.class, Integer.parseInt(idStr));
 		}
 		else
 		{
@@ -164,9 +164,9 @@ public class ShipBuildInformation implements Comparable<ShipBuildInformation>
 				throw new IllegalArgumentException("Keine gueltige ID: "+id);
 			}
 			Item itemData = (Item) db.get(Item.class, item.getItemID());
-			baudaten = ((IEDraftShip)itemData.getEffect()).toShipBaubar();
+			buildData = ((IEDraftShip)itemData.getEffect()).toShipBaubar();
 		}
 
-		return new ShipBuildInformation(baudaten, quelle, item);
+		return new ShipBuildInformation(buildData, source, item);
 	}
 }

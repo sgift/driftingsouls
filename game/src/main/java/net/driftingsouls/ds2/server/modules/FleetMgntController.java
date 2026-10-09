@@ -1522,7 +1522,7 @@ public class FleetMgntController extends Controller
 			for (ShipBuildInformation ship : buildableShips)
 			{
 				t.setVar("buildableships.id", ship.getId(),
-						"buildableships.name", ship.getBaudaten().getType().getNickname());
+						"buildableships.name", ship.getBuildData().getType().getNickname());
 
 				t.parse("buildableships.list", "buildableships.listitem", true);
 			}
