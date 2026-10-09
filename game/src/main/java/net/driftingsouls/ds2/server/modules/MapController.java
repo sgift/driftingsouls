@@ -650,77 +650,7 @@ public class MapController extends Controller
 	{
 		validiereSystem(sys);
 
-		User user = (User) getUser();
-		org.hibernate.Session db = getDB();
-
 		SectorViewModel json = new SectorViewModel();
-
-		/*
-		final Location loc = new Location(sys.getID(), x, y);
-
-		FieldView field;
-		if (admin && hasPermission(WellKnownAdminPermission.STARMAP_VIEW))
-		{
-			field = new AdminFieldView(db, loc);
-		}
-		else
-		{
-			field = new PlayerFieldView(db, user, loc, scanship);
-		}
-
-		json.users.addAll(exportSectorShips(field));
-
-		for (Base base : field.getBases())
-		{
-			SectorViewModel.BaseViewModel baseObj = new SectorViewModel.BaseViewModel();
-			baseObj.id = base.getId();
-			baseObj.name = base.getName();
-			baseObj.username = Common._title(base.getOwner().getName());
-			baseObj.image = base.getKlasse().getLargeImage();
-			baseObj.klasse = base.getKlasse().getId();
-			baseObj.typ = base.getKlasse().getName();
-			baseObj.eigene = base.getOwner().getId() == user.getId();
-
-			json.bases.add(baseObj);
-		}
-		for (Ship brocken : field.getBrocken())
-		{
-			SectorViewModel.BaseViewModel brockenObj = new SectorViewModel.BaseViewModel();
-			brockenObj.id = brocken.getId();
-			brockenObj.name = brocken.getName();
-			brockenObj.username = Common._title(brocken.getOwner().getName());
-			brockenObj.image = brocken.getTypeData().getPicture(); //getKlasse().getLargeImage();
-			brockenObj.klasse = brocken.getTypeData().getTypeId();	//getKlasse().getId();
-			brockenObj.typ = brocken.getTypeData().getNickname();  //getKlasse().getName();
-			brockenObj.eigene = brocken.getOwner().getId() == user.getId();
-
-			json.bases.add(brockenObj);
-		}
-
-		for (JumpNode jumpNode : field.getJumpNodes())
-		{
-			SectorViewModel.JumpNodeViewModel jnObj = new SectorViewModel.JumpNodeViewModel();
-			jnObj.id = jumpNode.getId();
-			jnObj.name = jumpNode.getName();
-			jnObj.blocked = jumpNode.isGcpColonistBlock() && Rassen.get().rasse(user.getRace()).isMemberIn(0);
-			json.jumpnodes.add(jnObj);
-		}
-
-		Nebel nebel = field.getNebel();
-		if (nebel != null)
-		{
-			json.nebel = new SectorViewModel.NebelViewModel();
-			json.nebel.type = nebel.getType().getCode();
-			json.nebel.image = nebel.getImage();
-		}
-
-		json.battles.addAll(exportSectorBattles(db, field));
-
-		json.subraumspaltenCount = field.getSubraumspalten().size();
-		json.roterAlarm = field.isRoterAlarm();
-
-		 */
-
 
 		return json;
 	}
