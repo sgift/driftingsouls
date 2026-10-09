@@ -120,7 +120,7 @@ public class EditSystem implements EntityEditor<StarSystem>
 				(s) -> Common.cast(ContextMap.getContext().getDB().createQuery("select id from Battle where system = :system")
 						.setInteger("system", s.getID())
 						.list()),
-				this::schlachtBeenden
+				this::terminateBattle
 		);
 
 		form.preDeleteTask("Schiffe entfernen",
@@ -172,7 +172,7 @@ public class EditSystem implements EntityEditor<StarSystem>
 		db.delete(base);
 	}
 
-	private void schlachtBeenden(StarSystem oldsystem, StarSystem system, Serializable battleid)
+	private void terminateBattle(StarSystem oldsystem, StarSystem system, Serializable battleid)
 	{
 		var db = ContextMap.getContext().getEM();
 		Battle battle = db.find(Battle.class, battleid);
