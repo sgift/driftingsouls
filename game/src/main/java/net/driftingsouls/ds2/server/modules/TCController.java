@@ -70,16 +70,16 @@ public class TCController extends Controller
 	 * Offiziersliste eines Objekts ausgeben.
 	 *
 	 * @param mode Transfermodus (shipToShip, baseToShip usw)
-	 * @param ziel Der Aufenthaltsort der Offiziere
+	 * @param destination Der Aufenthaltsort der Offiziere
 	 */
-	private void echoOfficerList(TemplateEngine t, String mode, Object ziel)
+	private void echoOfficerList(TemplateEngine t, String mode, Object destination)
 	{
 		t.setVar("tc.selectoffizier", 1,
 				"tc.mode", mode);
 
 		t.setBlock("_TC", "tc.offiziere.listitem", "tc.offiziere.list");
 
-		List<Offizier> offiList = Offizier.getOffiziereByDest(ziel);
+		List<Offizier> offiList = Offizier.getOffiziereByDest(destination);
 		for (Offizier offi : offiList)
 		{
 			if (offi.isTraining())
