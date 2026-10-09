@@ -276,7 +276,7 @@ public class AllyController extends Controller
 			return new RedirectViewResult("showPosten").withMessage("Fehler: Nur der Anführer einer NPC-Allianz kann diese Aktion durchführen.");
 		}
 
-		AllyRangDescriptor rang = findeAllianzRangMitNummer(rangnr);
+		AllyRangDescriptor rang = findAllianceRankByNumber(rangnr);
 
 		String message = null;
 		if (rang != null)
@@ -294,7 +294,7 @@ public class AllyController extends Controller
 		return new RedirectViewResult("showRaenge").withMessage(message);
 	}
 
-	private AllyRangDescriptor findeAllianzRangMitNummer(int rangnr)
+	private AllyRangDescriptor findAllianceRankByNumber(int rangnr)
 	{
 		AllyRangDescriptor rang = null;
 		for (AllyRangDescriptor desc : this.ally.getRangDescriptors())
@@ -329,7 +329,7 @@ public class AllyController extends Controller
 			return new RedirectViewResult("showPosten").withMessage("Fehler: Sie müssen gültige Angaben machen.");
 		}
 
-		AllyRangDescriptor rang = findeAllianzRangMitNummer(rangnr);
+		AllyRangDescriptor rang = findAllianceRankByNumber(rangnr);
 
 		if (rang == null)
 		{
@@ -456,10 +456,10 @@ public class AllyController extends Controller
 			return new RedirectViewResult("showPosten").withMessage("Fehler: Jedem Mitglied darf maximal ein Posten zugewiesen werden.");
 		}
 
-		int postencount = alliancePostService.getPostCountOfAlliance(ally);
-		int maxposten = alliancePostService.getMaxPostCountOfAlliance(ally);
+		int postCount = alliancePostService.getPostCountOfAlliance(ally);
+		int maxPosts = alliancePostService.getMaxPostCountOfAlliance(ally);
 
-		if (maxposten <= postencount)
+		if (maxPosts <= postCount)
 		{
 			return new RedirectViewResult("showPosten").withMessage("Fehler: Sie haben bereits die maximale Anzahl an Posten erreicht.");
 		}
@@ -1002,13 +1002,13 @@ public class AllyController extends Controller
 
 		List<User> allymember = this.ally.getMembers();
 
-		int postencount = alliancePostService.getPostCountOfAlliance(ally);
-		int maxposten = alliancePostService.getMaxPostCountOfAlliance(ally);
+		int postCount = alliancePostService.getPostCountOfAlliance(ally);
+		int maxPosts = alliancePostService.getMaxPostCountOfAlliance(ally);
 
 		t.setVar("show.posten", 1,
-				"show.posten.count", postencount,
-				"show.posten.maxcount", maxposten,
-				"show.posten.addposten", (maxposten > postencount),
+				"show.posten.count", postCount,
+				"show.posten.maxcount", maxPosts,
+				"show.posten.addposten", (maxPosts > postCount),
 				"show.posten.modify.list", "");
 
 		t.setBlock("_ALLY", "show.posten.modify.listitem", "show.posten.modify.list");
@@ -1041,7 +1041,7 @@ public class AllyController extends Controller
 			t.parse("show.posten.modify.list", "show.posten.modify.listitem", true);
 		}
 
-		if (maxposten > postencount)
+		if (maxPosts > postCount)
 		{
 			t.setBlock("_ALLY", "show.posten.addposten.userlist.listitem", "show.posten.addposten.userlist.list");
 
@@ -1386,34 +1386,34 @@ public class AllyController extends Controller
 
 			if (user.getId() == this.ally.getPresident().getId())
 			{
-				String inakt_status;
+				String inactivityStatus;
 				int inakt = member.getInactivity();
 				if (inakt <= 14)
 				{
-					inakt_status = "<span style=\\'color:#00FF00\\'>sehr aktiv</span>";
+					inactivityStatus = "<span style=\\'color:#00FF00\\'>sehr aktiv</span>";
 				}
 				else if (inakt <= 49)
 				{
-					inakt_status = "<span style=\\'color:#22AA22\\'>aktiv</span>";
+					inactivityStatus = "<span style=\\'color:#22AA22\\'>aktiv</span>";
 				}
 				else if (inakt <= 98)
 				{
-					inakt_status = "<span style=\\'color:#668822\\'>weniger aktiv</span>";
+					inactivityStatus = "<span style=\\'color:#668822\\'>weniger aktiv</span>";
 				}
 				else if (inakt <= 196)
 				{
-					inakt_status = "<span style=\\'color:#884422\\'>nahezu inaktiv</span>";
+					inactivityStatus = "<span style=\\'color:#884422\\'>nahezu inaktiv</span>";
 				}
 				else if (inakt <= 300)
 				{
-					inakt_status = "<span style=\\'color:#AA4422\\'>inaktiv</span>";
+					inactivityStatus = "<span style=\\'color:#AA4422\\'>inaktiv</span>";
 				}
 				else
 				{
-					inakt_status = "<span style=\\'color:#FF2222\\'>scheintot</span>";
+					inactivityStatus = "<span style=\\'color:#FF2222\\'>scheintot</span>";
 				}
 
-				t.setVar("show.members.inaktstatus", inakt_status);
+				t.setVar("show.members.inaktstatus", inactivityStatus);
 			}
 
 			t.parse("show.members.list", "show.members.listitem", true);
