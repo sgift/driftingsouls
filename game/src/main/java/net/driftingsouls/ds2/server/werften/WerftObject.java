@@ -70,7 +70,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	@Column(name="flagschiff", nullable = false)
 	private boolean buildFlagschiff = false;
 	@Column(nullable = false)
-	private WerftTyp type = WerftTyp.SCHIFF;
+	private ShipyardType type = ShipyardType.SHIP;
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="linkedWerft")
 	@ForeignKey(name="werften_fk_werften")
@@ -99,7 +99,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * Erstellt eine neue Werft.
 	 * @param type Der Typ der Werft
 	 */
-	public WerftObject(WerftTyp type) {
+	public WerftObject(ShipyardType type) {
 		this.type = type;
 		this.queue = new HashSet<>();
 	}
@@ -208,7 +208,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * Gibt den Typ der Werft zurueck.
 	 * @return Typ der Werft
 	 */
-	public @NotNull WerftTyp getType() {
+	public @NotNull ShipyardType getType() {
 		return type;
 	}
 
@@ -216,7 +216,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
      * Setzt den Typ der Werft.
      * @param type Der neue Typ der Werft
      */
-    public void setType(@NotNull WerftTyp type) {
+    public void setType(@NotNull ShipyardType type) {
         this.type = type;
     }
 
@@ -454,7 +454,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 *
 	 */
 	public void removeModule( @Nonnull Ship ship, int slot ) {
-		if(this.type == WerftTyp.EINWEG)
+		if(this.type == ShipyardType.ONE_WAY)
 		{
 			MESSAGE.get().append("Diese Werft ist vollständig auf ihr einziges Bauprojekt konzentriert.");
 			return;
@@ -1278,7 +1278,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 				continue;
 			}
 
-			if( sb.getType().getShipClass() == ShipClasses.SCHUTZSCHILD && !(this.getType() == WerftTyp.BASIS)) {
+			if( sb.getType().getShipClass() == ShipClasses.SCHUTZSCHILD && !(this.getType() == ShipyardType.BASE)) {
 				continue;
 			}
 
@@ -1429,7 +1429,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	public boolean buildShip( @Nonnull SchiffBauinformationen build, boolean costsPerTick, boolean testonly ) {
 		StringBuilder output = MESSAGE.get();
 
-		if( this.type == WerftTyp.EINWEG )
+		if( this.type == ShipyardType.ONE_WAY )
 		{
 			output.append("Diese Werft kann nur ein einziges Bauprojekt durchführen");
 			return false;
@@ -1556,7 +1556,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * @param entry Das Bauvorhaben
 	 */
 	public void cancelBuild(@Nonnull WerftQueueEntry entry) {
-		if(this.type == WerftTyp.EINWEG)
+		if(this.type == ShipyardType.ONE_WAY)
 		{
 			MESSAGE.get().append("Diese Werft ist vollständig auf ihr einziges Bauprojekt konzentriert. Es kann nicht abgebrochen werden.");
 			return;

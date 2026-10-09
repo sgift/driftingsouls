@@ -136,7 +136,7 @@ public class WerftGUI {
 		else {
 			String show = context.getRequest().getParameterString("show");
 			if( show.length() == 0 ) {
-				show = werft.getType() != WerftTyp.EINWEG ? "build" : "queue";
+				show = werft.getType() != ShipyardType.ONE_WAY ? "build" : "queue";
 			}
 
 			t.setVar("werftgui.main", 1);
@@ -431,7 +431,7 @@ public class WerftGUI {
 					"queueship.building",	entry.isScheduled(),
 					"queueship.uppossible", i > 0,
 					"queueship.downpossible",	i < queue.size()-1,
-					"queueship.cancelpossible", werft.getType() != WerftTyp.EINWEG);
+					"queueship.cancelpossible", werft.getType() != ShipyardType.ONE_WAY);
 
 			if( entry.getRequiredItem() != -1 ) {
 				Item item = (Item)db.get(Item.class, entry.getRequiredItem());

@@ -419,7 +419,7 @@ public class ShipWerft extends WerftObject {
 		super.onFinishedBuildProcess(shipid);
 
 		// Falls es sich um eine Einwegwerft handelt, dann diese zerstoeren
-		if( getType() == WerftTyp.EINWEG ) {
+		if( getType() == ShipyardType.ONE_WAY ) {
 			getShip().destroy();
 		}
 	}
@@ -465,7 +465,7 @@ public class ShipWerft extends WerftObject {
     @Override
     public boolean isEinwegWerft()
     {
-        return this.getType() == WerftTyp.EINWEG || this.getOneWayFlag() != null;
+        return this.getType() == ShipyardType.ONE_WAY || this.getOneWayFlag() != null;
     }
 
 	@Override
@@ -497,7 +497,7 @@ public class ShipWerft extends WerftObject {
                 ship.setOwner(user);
                 ship.recalculateModules();
 
-                this.setType(WerftTyp.EINWEG);
+                this.setType(ShipyardType.ONE_WAY);
             }
         }
 		this.ship.recalculateShipStatus();

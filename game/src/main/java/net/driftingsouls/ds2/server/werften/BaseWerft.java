@@ -61,7 +61,7 @@ public class BaseWerft extends WerftObject {
 	 * @param base Die Basis auf der die Werft stehen soll
 	 */
 	public BaseWerft(Base base) {
-		super(WerftTyp.BASIS);
+		super(ShipyardType.BASE);
 		this.base = base;
 	}
 

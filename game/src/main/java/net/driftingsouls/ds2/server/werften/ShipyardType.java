@@ -4,20 +4,20 @@ package net.driftingsouls.ds2.server.werften;
  * Der Typ einer Werft. Der Typ steuert verschiedene Verhaltensweisen
  * bzw die Verfuegbarkeit von Aktionen.
  */
-public enum WerftTyp
+public enum ShipyardType
 {
 	/**
 	 * Eine Werft auf einem Schiff.
 	 */
-	SCHIFF,
+	SHIP,
 	/**
 	 * Eine auf einer Basis beheimatete Werft.
 	 */
-	BASIS,
+	BASE,
 	/**
 	 * Eine Einwegwerft. Einwegwerften werden
 	 * bei der Fertigstellung des ersten Jobs
 	 * in ihrer Warteschlange zerstoert.
 	 */
-	EINWEG
+	ONE_WAY
 }
