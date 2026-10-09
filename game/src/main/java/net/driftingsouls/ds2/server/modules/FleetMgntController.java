@@ -55,7 +55,7 @@ public class FleetMgntController extends Controller
 		this.templateViewResultFactory = templateViewResultFactory;
 	}
 
-	private int ermittleIdEinesGeeignetenSchiffsDerFlotte(ShipFleet fleet)
+	private int determineSuitableShipIdOfFleet(ShipFleet fleet)
 	{
 		User user = (User)getUser();
 		org.hibernate.Session db = getDB();
@@ -342,7 +342,7 @@ public class FleetMgntController extends Controller
 			s.setFleet(fleet);
 		}
 
-		int shipid = ermittleIdEinesGeeignetenSchiffsDerFlotte(fleet);
+		int shipid = determineSuitableShipIdOfFleet(fleet);
 
 		t.setVar("jscript.reloadmain.ship", shipid);
 		t.setVar("fleetmgnt.message", count + " Schiffe der Flotte hinzugefügt.",
@@ -422,7 +422,7 @@ public class FleetMgntController extends Controller
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		org.hibernate.Session db = getDB();
 
-		int shipid = ermittleIdEinesGeeignetenSchiffsDerFlotte(fleet);
+		int shipid = determineSuitableShipIdOfFleet(fleet);
 
 		db.createQuery("update Ship set fleet=null where fleet=:fleet")
 				.setEntity("fleet", fleet)
@@ -942,18 +942,18 @@ public class FleetMgntController extends Controller
 			Ship s = (Ship) ship;
 			Cargo cargo = new Cargo(s.getCargo());
 
-			long usenahrung = s.getTypeData().getNahrungCargo() - s.getNahrungCargo();
-			if(usenahrung > cargo.getResourceCount(Resources.NAHRUNG)) {
-				usenahrung = cargo.getResourceCount(Resources.NAHRUNG);
+			long foodToUse = s.getTypeData().getNahrungCargo() - s.getNahrungCargo();
+			if(foodToUse > cargo.getResourceCount(Resources.NAHRUNG)) {
+				foodToUse = cargo.getResourceCount(Resources.NAHRUNG);
 			}
 
-			s.setNahrungCargo(s.getNahrungCargo()+usenahrung);
-			cargo.substractResource(Resources.NAHRUNG, usenahrung);
+			s.setNahrungCargo(s.getNahrungCargo()+foodToUse);
+			cargo.substractResource(Resources.NAHRUNG, foodToUse);
 			s.setCargo(cargo);
 
-			if(usenahrung > 0) {
+			if(foodToUse > 0) {
 				message.append(s.getName()).append(" (").append(s.getId()).append(") - <span style=\"color:orange\">")
-					.append(usenahrung).append(" Nahrung transferiert</span><br />");
+					.append(foodToUse).append(" Nahrung transferiert</span><br />");
 			}
 		}
 		return new RedirectViewResult("default").withMessage(message.append("Nahrung erfolgreich in den Nahrungsspeicher transferiert.").toString());
@@ -979,8 +979,8 @@ public class FleetMgntController extends Controller
 			{
 					Ship s = (Ship) ship;
 
-					long usenahrung = s.getTypeData().getNahrungCargo() - s.getNahrungCargo();
-					if (usenahrung <= 0)
+					long foodToUse = s.getTypeData().getNahrungCargo() - s.getNahrungCargo();
+					if (foodToUse <= 0)
 					{
 						//Scheinbar braucht das Schiff keine Nahrung mehr, also weiter
 						continue;
@@ -989,27 +989,27 @@ public class FleetMgntController extends Controller
 					for(Base base : bases)
 					{
 						Cargo cargo = base.getCargo();
-						long nahrungsvorrat = cargo.getResourceCount(Resources.NAHRUNG);
-						if (nahrungsvorrat <= 0)
+						long foodSupply = cargo.getResourceCount(Resources.NAHRUNG);
+						if (foodSupply <= 0)
 						{
 							//Keine Nahrung mehr da, weiter
 							continue;
 						}
 
-						if(usenahrung > nahrungsvorrat) {
-							usenahrung = nahrungsvorrat;
+						if(foodToUse > foodSupply) {
+							foodToUse = foodSupply;
 						}
 
-						s.setNahrungCargo(s.getNahrungCargo()+usenahrung);
-						cargo.substractResource(Resources.NAHRUNG, usenahrung);
+						s.setNahrungCargo(s.getNahrungCargo()+foodToUse);
+						cargo.substractResource(Resources.NAHRUNG, foodToUse);
 						base.setCargo(cargo);
-						if(usenahrung > 0) {
+						if(foodToUse > 0) {
 							message.append(s.getName()).append(" (").append(s.getId()).append(") - <span style=\"color:orange\">")
-								.append(usenahrung).append(" Nahrung transferiert</span><br />");
+								.append(foodToUse).append(" Nahrung transferiert</span><br />");
 						}
 						//Noch die benoetigte Nahrungsmenge updaten
-						usenahrung = s.getTypeData().getNahrungCargo() - s.getNahrungCargo();
-						if (usenahrung <= 0 )
+						foodToUse = s.getTypeData().getNahrungCargo() - s.getNahrungCargo();
+						if (foodToUse <= 0 )
 						{
 							//wir sind fuer das Schiff fertig, also raus hier
 							break;
@@ -1307,7 +1307,7 @@ public class FleetMgntController extends Controller
 				if (fleet.dismantleFleet(shipyard))
 				{
 					TemplateEngine t = templateViewResultFactory.createFor(this);
-					int shipid = ermittleIdEinesGeeignetenSchiffsDerFlotte(fleet);
+					int shipid = determineSuitableShipIdOfFleet(fleet);
 
 					t.setVar("jscript.reloadmain.ship", shipid);
 					t.setVar("fleetmgnt.message", "Die Flotte '" + fleet.getName() + "' wurde demontiert.",
@@ -1410,7 +1410,7 @@ public class FleetMgntController extends Controller
                 }
             }
 
-            int shipid = ermittleIdEinesGeeignetenSchiffsDerFlotte(fleet);
+            int shipid = determineSuitableShipIdOfFleet(fleet);
 
             t.setVar("jscript.reloadmain.ship", shipid);
             t.setVar("fleetmgnt.message", "Es wurden " + repaired + " Schiffe repariert.");
@@ -1500,7 +1500,7 @@ public class FleetMgntController extends Controller
 
 		if( redirect != null )
 		{
-			int shipid = ermittleIdEinesGeeignetenSchiffsDerFlotte(fleet);
+			int shipid = determineSuitableShipIdOfFleet(fleet);
 			t.setVar("fleetmgnt.message", redirect.getMessage(),
 					"jscript.reloadmain.ship", shipid,
 					"jscript.reloadmain", 1);
@@ -1524,12 +1524,12 @@ public class FleetMgntController extends Controller
 		Set<WerftObject> werften = new HashSet<>();
         boolean hasTanker = false;
 		boolean schnelleKampfbereitschaft = true;
-		boolean schnelleKampfbereitschaft_or = false;
+		boolean anyInstantBattleEnter = false;
 		for (Object ship1 : ships)
 		{
 			Ship ship = (Ship) ship1;
 			schnelleKampfbereitschaft &= ship.getEinstellungen().useInstantBattleEnter();
-			schnelleKampfbereitschaft_or |= ship.getEinstellungen().useInstantBattleEnter();
+			anyInstantBattleEnter |= ship.getEinstellungen().useInstantBattleEnter();
 
 			ShipTypeData shiptype = ship.getTypeData();
 			Location loc = ship.getLocation();
@@ -1556,7 +1556,7 @@ public class FleetMgntController extends Controller
                 hasTanker = true;
 						}
 
-			String offi = null;
+			String officerLink = null;
 
 			if (ship.getStatus().contains("offizier"))
 			{
@@ -1564,7 +1564,7 @@ public class FleetMgntController extends Controller
 				if (offizier != null)
 				{
 					//offi = " <a class=\"forschinfo\" href=\"" + Common.buildUrl("default", "module", "choff", "off", offizier.getID()) + "\"><img style=\"vertical-align:middle\" src=\"" + offizier.getPicture() + "\" alt=\"Rang " + offizier.getRang() + "\" /></a>";
-					offi = " <a class=\"forschinfo\" href=\"choff?off="+offizier.getID()  + "\"><img style=\"vertical-align:middle\" src=\"" + offizier.getPicture() + "\" alt=\"Rang " + offizier.getRang() + "\" /></a>";
+					officerLink = " <a class=\"forschinfo\" href=\"choff?off="+offizier.getID()  + "\"><img style=\"vertical-align:middle\" src=\"" + offizier.getPicture() + "\" alt=\"Rang " + offizier.getRang() + "\" /></a>";
 				}
 			}
 
@@ -1583,7 +1583,7 @@ public class FleetMgntController extends Controller
 					"ship.type.name", shiptype.getNickname(),
 					"ship.heat.color", color,
 					"ship.heat", ship.getHeat(),
-					"ship.offi", offi,
+					"ship.offi", officerLink,
 					"ship.showbattle", ship.getBattle() != null ? ship.getBattle() : 0,
 					"ship.showwarning", !aloc.sameSector(0, loc, 0));
 
@@ -1636,7 +1636,7 @@ public class FleetMgntController extends Controller
 		{
 			t.setVar("schnelleKampfbereitschaft", 1);
 		}
-		if(schnelleKampfbereitschaft != schnelleKampfbereitschaft_or)
+		if(schnelleKampfbereitschaft != anyInstantBattleEnter)
 		{
 			t.setVar("schnelleKampfbereitschaft_intermediate",1);
 		}
