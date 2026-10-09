@@ -115,7 +115,7 @@ public class StatsController extends Controller
 		registerStat( "Spielerliste", new StatPlayerList(), "Spielerliste", 0 );
 	}
 
-	protected int ermittleAnzuzeigendeStatistikkategorie(int show) {
+	protected int determineCategoryToShow(int show) {
 		if( (show == 0) || !this.statslist.containsKey(show) ) {
 			show = 1;
 		}
@@ -190,7 +190,7 @@ public class StatsController extends Controller
 	 */
 	@Action(ActionType.AJAX)
 	public AjaxStatistic.DataViewModel ajaxAction(int stat, int show) {
-		show = ermittleAnzuzeigendeStatistikkategorie(show);
+		show = determineCategoryToShow(show);
 		if( this.statslist.get(show).size() <= stat ) {
 			stat = 1;
 		}
@@ -212,7 +212,7 @@ public class StatsController extends Controller
 	 */
 	@Action(ActionType.DEFAULT)
 	public void defaultAction(int stat, int show) throws IOException {
-		show = ermittleAnzuzeigendeStatistikkategorie(show);
+		show = determineCategoryToShow(show);
 		if( this.statslist.get(show).size() <= stat ) {
 			stat = 1;
 		}
