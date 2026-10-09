@@ -1228,7 +1228,7 @@
 		/**
 		 * @name success
 		 * @function
-		 * @param {function(data:ds.viewmodel.modules.TechListController.TechListeViewModel)} callback
+		 * @param {function(data:ds.viewmodel.modules.TechListController.TechListViewModel)} callback
 		 * @memberof DsAjaxPromise_TechListControllerStub_defaultAction
 		 **/
 		success : function(callback) {}
@@ -1445,7 +1445,7 @@
 	 * @namespace ds.viewmodel.modules.TechListController
 	 **/
 	/**
-	 * @typedef {object} ds.viewmodel.modules.TechListController.TechListeViewModel
+	 * @typedef {object} ds.viewmodel.modules.TechListController.TechListViewModel
 	 * @property {object} auswaehlbareRassen
 	 * @property {string} rassenName
 	 * @property {object} erforscht

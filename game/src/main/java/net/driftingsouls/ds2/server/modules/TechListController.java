@@ -54,32 +54,32 @@ import java.util.Map;
 public class TechListController extends Controller
 {
 	@ViewModel
-	public static class RasseViewModel
+	public static class RaceViewModel
 	{
 		public int id;
 		public String picture;
 	}
 
 	@ViewModel
-	public static class TechListeViewModel
+	public static class TechListViewModel
 	{
-		public final List<RasseViewModel> auswaehlbareRassen = new ArrayList<>();
+		public final List<RaceViewModel> auswaehlbareRassen = new ArrayList<>();
 		public String rassenName;
-		public List<ForschungViewModel> erforscht = new ArrayList<>();
-		public List<ForschungViewModel> erforschbar = new ArrayList<>();
-		public List<ForschungViewModel> nichtErforscht = new ArrayList<>();
-		public List<ForschungViewModel> unsichtbar = new ArrayList<>();
+		public List<ResearchViewModel> erforscht = new ArrayList<>();
+		public List<ResearchViewModel> erforschbar = new ArrayList<>();
+		public List<ResearchViewModel> nichtErforscht = new ArrayList<>();
+		public List<ResearchViewModel> unsichtbar = new ArrayList<>();
 	}
 
 	@ViewModel
-	public static class BenoetigteForschungViewModel
+	public static class RequiredResearchViewModel
 	{
 		public int id;
 		public String name;
 	}
 
 	@ViewModel
-	public static class ForschungViewModel
+	public static class ResearchViewModel
 	{
 		public int id;
 		public String image;
@@ -88,11 +88,11 @@ public class TechListController extends Controller
 		public Integer verbleibendeDauer;
 		public int spezialisierungspunkte;
 		public final List<ResourceEntryViewModel> kosten = new ArrayList<>();
-		public final List<BenoetigteForschungViewModel> benoetigteForschungen = new ArrayList<>();
+		public final List<RequiredResearchViewModel> benoetigteForschungen = new ArrayList<>();
 	}
 
 	@Action(ActionType.AJAX)
-	public TechListeViewModel defaultAction(int rasse)
+	public TechListViewModel defaultAction(int rasse)
 	{
 		org.hibernate.Session db = getDB();
 		User user = (User)getUser();
@@ -110,14 +110,14 @@ public class TechListController extends Controller
 			rasse = user.getRace();
 		}
 
-		TechListeViewModel viewModel = new TechListeViewModel();
+		TechListViewModel viewModel = new TechListViewModel();
 		for( Rasse aRasse : Races.get() ) {
 			if( aRasse.isExtPlayable() || aRasse.isPlayable() )
 			{
-				RasseViewModel rasseViewModel = new RasseViewModel();
-				rasseViewModel.id = aRasse.getId();
-				rasseViewModel.picture = "./data/interface/rassen/" + aRasse.getId() + ".png";
-				viewModel.auswaehlbareRassen.add(rasseViewModel);
+				RaceViewModel raceViewModel = new RaceViewModel();
+				raceViewModel.id = aRasse.getId();
+				raceViewModel.picture = "./data/interface/rassen/" + aRasse.getId() + ".png";
+				viewModel.auswaehlbareRassen.add(raceViewModel);
 			}
 		}
 
@@ -129,27 +129,27 @@ public class TechListController extends Controller
 		Map<Integer,Forschung> invisible = new LinkedHashMap<>();
 
 		//Alle Forschungen durchgehen
-		gruppiereForschungenNachStatus(rasse, db, user, researched, researchable, notResearchable, invisible);
+		groupResearchesByStatus(rasse, db, user, researched, researchable, notResearchable, invisible);
 
-		Map<Integer, Integer> currentResearches = ermittleLaufendeForschungen(db, user);
+		Map<Integer, Integer> currentResearches = determineCurrentResearches(db, user);
 
-		viewModel.erforscht = gruppeVonForschungenAnzeigen(currentResearches, "researched", researched.values());
-		viewModel.erforschbar = gruppeVonForschungenAnzeigen(currentResearches, "researchable", researchable.values());
-		viewModel.nichtErforscht = gruppeVonForschungenAnzeigen(currentResearches, "notResearchable", notResearchable.values());
-		viewModel.unsichtbar = gruppeVonForschungenAnzeigen(currentResearches, "invisible", invisible.values());
+		viewModel.erforscht = showResearchGroup(currentResearches, "researched", researched.values());
+		viewModel.erforschbar = showResearchGroup(currentResearches, "researchable", researchable.values());
+		viewModel.nichtErforscht = showResearchGroup(currentResearches, "notResearchable", notResearchable.values());
+		viewModel.unsichtbar = showResearchGroup(currentResearches, "invisible", invisible.values());
 
 		return viewModel;
 	}
 
-	private List<ForschungViewModel> gruppeVonForschungenAnzeigen(Map<Integer, Integer> currentResearches, String gruppenname, Collection<Forschung> forschungsliste)
+	private List<ResearchViewModel> showResearchGroup(Map<Integer, Integer> currentResearches, String groupName, Collection<Forschung> forschungsliste)
 	{
-		List<ForschungViewModel> result = new ArrayList<>();
+		List<ResearchViewModel> result = new ArrayList<>();
 		if( forschungsliste.size() == 0 ) {
 			return result;
 		}
 
 		for( Forschung forschung : forschungsliste) {
-			ForschungViewModel viewModel = new ForschungViewModel();
+			ResearchViewModel viewModel = new ResearchViewModel();
 
 			viewModel.id = forschung.getID();
 			viewModel.image = forschung.getImage();
@@ -169,15 +169,15 @@ public class TechListController extends Controller
 			}
 
 			// Benoetigte Forschungen ausgeben
-			if( !gruppenname.equals("researchable") ) {
+			if( !groupName.equals("researchable") ) {
 				for( int i=1; i <= 3; i++ ) {
 					Forschung benoetigteForschung = forschung.getRequiredResearch(i);
 					if( benoetigteForschung != null && (benoetigteForschung.isVisibile((User)getUser()) || hasPermission(WellKnownPermission.FORSCHUNG_ALLES_SICHTBAR)) )
 					{
-						BenoetigteForschungViewModel benoetigteForschungViewModel = new BenoetigteForschungViewModel();
-						benoetigteForschungViewModel.id = benoetigteForschung.getID();
-						benoetigteForschungViewModel.name = benoetigteForschung.getName();
-						viewModel.benoetigteForschungen.add(benoetigteForschungViewModel);
+						RequiredResearchViewModel requiredResearchViewModel = new RequiredResearchViewModel();
+						requiredResearchViewModel.id = benoetigteForschung.getID();
+						requiredResearchViewModel.name = benoetigteForschung.getName();
+						viewModel.benoetigteForschungen.add(requiredResearchViewModel);
 					}
 				}
 			}
@@ -188,7 +188,7 @@ public class TechListController extends Controller
 		return result;
 	}
 
-	private Map<Integer, Integer> ermittleLaufendeForschungen(Session db, User user)
+	private Map<Integer, Integer> determineCurrentResearches(Session db, User user)
 	{
 		Map<Integer,Integer> currentResearches = new HashMap<>();
 		List<?> resList = db.createQuery("from Forschungszentrum where forschung is not null and base.owner=:owner")
@@ -202,7 +202,7 @@ public class TechListController extends Controller
 		return currentResearches;
 	}
 
-	private void gruppiereForschungenNachStatus(int rasse, Session db, User user, Map<Integer, Forschung> researched, Map<Integer, Forschung> researchable, Map<Integer, Forschung> notResearchable, Map<Integer, Forschung> invisible)
+	private void groupResearchesByStatus(int rasse, Session db, User user, Map<Integer, Forschung> researched, Map<Integer, Forschung> researchable, Map<Integer, Forschung> notResearchable, Map<Integer, Forschung> invisible)
 	{
 		final Iterator<?> forschungIter = db.createQuery("from Forschung order by name")
 			.iterate();
