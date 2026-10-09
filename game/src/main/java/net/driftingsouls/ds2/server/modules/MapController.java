@@ -502,8 +502,8 @@ public class MapController extends Controller
 			posObj.fg = sectorImage.getImage();
 		}
 
-		posObj.battle = content.isSchlachtImSektor(position);
-		posObj.roterAlarm = content.isRoterAlarmImSektor(position);
+		posObj.battle = content.isBattleInSector(position);
+		posObj.roterAlarm = content.isRedAlertInSector(position);
 
 		if (endTag)
 		{

@@ -329,7 +329,7 @@ public class StarmapController implements DSController, PermissionResolver {
 			jsonData.jumpnodes.add(jnObj);
 		}
 
-		Nebel.Typ nebel = field.getNebel();
+		Nebel.Typ nebel = field.getNebula();
 		if (nebel != null)
 		{
 			jsonData.nebel = new MapController.SectorViewModel.NebulaViewModel();
@@ -400,8 +400,8 @@ public class StarmapController implements DSController, PermissionResolver {
             posObj.fg = sectorImage.getImage();
         }
 
-        posObj.battle = content.isSchlachtImSektor(position);
-        posObj.roterAlarm = content.isRoterAlarmImSektor(position);
+        posObj.battle = content.isBattleInSector(position);
+        posObj.roterAlarm = content.isRedAlertInSector(position);
 
         if (endTag)
         {

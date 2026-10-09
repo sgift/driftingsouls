@@ -44,7 +44,7 @@ public interface FieldView
 	 * Gibt, sofern an der Stelle vorhanden, den entsprechenden Nebel zurueck.
 	 * @return Der Nebel oder <code>null</code>
 	 */
-	Nebel.Typ getNebel();
+	Nebel.Typ getNebula();
 
 	/**
 	 * Gibt alle sichtbaren Schlachten zurueck.

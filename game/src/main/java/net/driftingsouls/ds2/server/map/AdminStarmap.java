@@ -99,8 +99,8 @@ public class AdminStarmap extends PlayerStarmap
 	}
 
 	@Override
-	public boolean isSchlachtImSektor(Location sektor)
+	public boolean isBattleInSector(Location sector)
 	{
-		return this.map.getBattlePositions().contains(sektor);
+		return this.map.getBattlePositions().contains(sector);
 	}
 }

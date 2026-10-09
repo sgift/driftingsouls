@@ -111,14 +111,14 @@ public class PlayerStarmap extends PublicStarmap
 	private Set<Location> findVisibleSectorsWithAlerts()
 	{
 		Set<Location> candidateSectors = new HashSet<>();
-		for (Location sektor : this.scanMap.keySet())
+		for (Location sector : this.scanMap.keySet())
 		{
 			for( int x=-1; x <= 1; x++ )
 			{
 				for( int y=-1; y <= 1; y++ )
 				{
-					Location scanSektor = new Location(sektor.getSystem(), sektor.getX()+x, sektor.getY()+y);
-					candidateSectors.add(scanSektor);
+					Location scanSector = new Location(sector.getSystem(), sector.getX()+x, sector.getY()+y);
+					candidateSectors.add(scanSector);
 				}
 			}
 		}
@@ -241,8 +241,8 @@ public class PlayerStarmap extends PublicStarmap
 			boolean isRockVisible = false;
 			if(map.isNebula(location))
 			{
-				for (var nebelscanner: nebulaScanMap.values()) {
-					isRockVisible = isRockVisible || (nebelscanner.getLocation().sameSector(nebelscanner.getScanRange(), location, 0));
+				for (var nebulaScanner: nebulaScanMap.values()) {
+					isRockVisible = isRockVisible || (nebulaScanner.getLocation().sameSector(nebulaScanner.getScanRange(), location, 0));
 					if(isRockVisible) break;
 				}
 			}
@@ -483,20 +483,20 @@ public class PlayerStarmap extends PublicStarmap
 	}
 
 	@Override
-	public boolean isSchlachtImSektor(Location sektor)
+	public boolean isBattleInSector(Location sector)
 	{
-		if( !this.scannedLocationsToScannerId.containsKey(sektor))
+		if( !this.scannedLocationsToScannerId.containsKey(sector))
 		{
 			return false;
 		}
 
-		return map.getBattlePositions().contains(sektor);
+		return map.getBattlePositions().contains(sector);
 	}
 
 	@Override
-	public boolean isRoterAlarmImSektor(Location sektor)
+	public boolean isRedAlertInSector(Location sector)
 	{
-		return this.sectorsWithAttackingShips.contains(sektor);
+		return this.sectorsWithAttackingShips.contains(sector);
 	}
 
 	public Set<Location> getSectorsWithAttackingShips()

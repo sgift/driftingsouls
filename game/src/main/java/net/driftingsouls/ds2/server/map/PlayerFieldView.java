@@ -84,7 +84,7 @@ public class PlayerFieldView implements FieldView
 
 		int minSize = getMinSize();
 
-		if(!starmap.isScanned(location) || (getNebel() != null && getNebel().isEmp())) minSize = Integer.MAX_VALUE;
+		if(!starmap.isScanned(location) || (getNebula() != null && getNebula().isEmp())) minSize = Integer.MAX_VALUE;
 
 		return ShipsRepository.getShipsInMapSector(this.location, user.getId(), minSize);
 	}
@@ -92,13 +92,13 @@ public class PlayerFieldView implements FieldView
 	protected int getMinSize()
 	{
 		int minSize;
-		if(!starmap.ownShipSectors.contains(location) && !starmap.allyShipSectors.contains(location) && getNebel() != null) {
-			minSize = getNebel().getMinScansize();
+		if(!starmap.ownShipSectors.contains(location) && !starmap.allyShipSectors.contains(location) && getNebula() != null) {
+			minSize = getNebula().getMinScansize();
 		} else {
 			minSize = 0;
 		}
 
-		if(!starmap.isScanned(location) || (getNebel() != null && getNebel().isEmp())) minSize = Integer.MAX_VALUE;
+		if(!starmap.isScanned(location) || (getNebula() != null && getNebula().isEmp())) minSize = Integer.MAX_VALUE;
 
 		return minSize;
 	}
@@ -222,11 +222,11 @@ public class PlayerFieldView implements FieldView
 	public boolean isRoterAlarm()
 	{
 		if(isNotScanned()) return false;
-		return starmap.isRoterAlarmImSektor(location);
+		return starmap.isRedAlertInSector(location);
 	}
 
 	@Override
-	public Nebel.Typ getNebel()
+	public Nebel.Typ getNebula()
 	{
 		return starmap.getNebula(location);
 	}

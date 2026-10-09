@@ -28,7 +28,7 @@ class Field
 	private final List<Base> bases;
 	private final List<JumpNode> nodes;
 	private final List<Battle> battles;
-	private final List<Jump> subraumspalten;
+	private final List<Jump> subspaceRifts;
 	private final Nebel nebula;
 	private final List<Ship> brocken;
 
@@ -64,7 +64,7 @@ class Field
 				.setParameter("y", position.getY())
 				.list());
 
-		subraumspalten = Common.cast(db.createQuery("from Jump where system=:system and x=:x and y=:y")
+		subspaceRifts = Common.cast(db.createQuery("from Jump where system=:system and x=:x and y=:y")
 				.setParameter("system", position.getSystem())
 				.setParameter("x", position.getX())
 				.setParameter("y", position.getY())
@@ -106,8 +106,8 @@ class Field
 		return Collections.unmodifiableList(battles);
 	}
 
-	List<Jump> getSubraumspalten()
+	List<Jump> getSubspaceRifts()
 	{
-		return Collections.unmodifiableList(subraumspalten);
+		return Collections.unmodifiableList(subspaceRifts);
 	}
 }

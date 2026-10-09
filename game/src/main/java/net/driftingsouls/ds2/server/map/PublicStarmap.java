@@ -145,10 +145,10 @@ public class PublicStarmap
 	/**
 	 * Gibt zurueck, ob an der gegebenen Position eine (bekannte/sichtbare)
 	 * Schlacht stattfindet.
-	 * @param sektor Die Position
+	 * @param sector Die Position
 	 * @return <code>true</code> falls dem so ist
 	 */
-	public boolean isSchlachtImSektor(Location sektor)
+	public boolean isBattleInSector(Location sector)
 	{
 		return false;
 	}
@@ -157,18 +157,18 @@ public class PublicStarmap
 	 * Gibt zurueck, ob der Sektor als Sektor mit Schiffen auf Alarmstufe
 	 * Rot bzw Gelb dargestellt werden soll, d.h. ein Spieler moeglicherweise
 	 * beim Einflug in den Sektor angegriffen wird.
-	 * @param sektor Der Sektor
+	 * @param sector Der Sektor
 	 * @return <code>true</code>, falls dem so ist
 	 */
-	public boolean isRoterAlarmImSektor(Location sektor)
+	public boolean isRedAlertInSector(Location sector)
 	{
 		return false;
 	}
 
-	public Nebel.Typ getNebula(Location sektor)
+	public Nebel.Typ getNebula(Location sector)
 	{
 		var nebulas = map.getNebulaMap();
-		return nebulas.getOrDefault(sektor, null);
+		return nebulas.getOrDefault(sector, null);
 	}
 
 	public boolean isScanned(Location location)
