@@ -213,8 +213,8 @@ public class CommandCenterBuilding extends DefaultBuilding {
 					"base.size",	base.getSize());
 
 		GtuWarenKurse kurseRow = db.find(GtuWarenKurse.class, "asti");
-		Cargo kurse = new Cargo(kurseRow.getKurse());
-		kurse.setOption( Cargo.Option.SHOWMASS, false );
+		Cargo rates = new Cargo(kurseRow.getKurse());
+		rates.setOption( Cargo.Option.SHOWMASS, false );
 
 		Cargo cargo = new Cargo(base.getCargo());
 
@@ -242,7 +242,7 @@ public class CommandCenterBuilding extends DefaultBuilding {
 
 			boolean changed = false;
 
-			ResourceList reslist = kurse.getResourceList();
+			ResourceList reslist = rates.getResourceList();
 			for( ResourceEntry res : reslist ) {
 				long tmp = context.getRequest().getParameterInt(res.getId()+"to");
 
@@ -416,7 +416,7 @@ public class CommandCenterBuilding extends DefaultBuilding {
 				Cargo stat = (Cargo)basedata.getProduction().clone();
 				stat.setResource(Resources.NAHRUNG, 0);
 
-				if( stat.getResourceCount(resid) != 0 && kurse.getResourceCount(resid) != 0 ) {
+				if( stat.getResourceCount(resid) != 0 && rates.getResourceCount(resid) != 0 ) {
 					List<AutoGTUAction> acts = base.getAutoGTUActs();
 					acts.add(new AutoGTUAction(resid,actid,count));
 					base.setAutoGTUActs(acts);
@@ -558,7 +558,7 @@ public class CommandCenterBuilding extends DefaultBuilding {
 			/*
 				Waren verkaufen
 			*/
-			ResourceList reslist = kurse.compare(cargo, false);
+			ResourceList reslist = rates.compare(cargo, false);
 			for( ResourceEntry res : reslist ) {
 				if( res.getCount2() == 0 ) {
 					continue;
@@ -604,7 +604,7 @@ public class CommandCenterBuilding extends DefaultBuilding {
 			Cargo stat = (Cargo)basedata.getProduction().clone();
 			stat.setResource( Resources.NAHRUNG, 0 );
 			stat.setOption( Cargo.Option.NOHTML, true );
-			ResourceList reslist = stat.compare(kurse, false);
+			ResourceList reslist = stat.compare(rates, false);
 			for( ResourceEntry res : reslist ) {
 				if( (res.getCount1() > 0) && (res.getCount2() > 0) ) {
 					t.setVar(	"res.id",	res.getId(),
