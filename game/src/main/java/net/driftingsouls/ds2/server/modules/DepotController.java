@@ -341,9 +341,9 @@ public class DepotController extends Controller
 		return t;
 	}
 
-	private void validateTradingPostReachable(Ship handel, Ship ship)
+	private void validateTradingPostReachable(Ship tradingPost, Ship ship)
 	{
-		if( !tradingPostService.isCommunicationPossible(handel, ship) )
+		if( !tradingPostService.isCommunicationPossible(tradingPost, ship) )
 		{
 			throw new ValidationException("Das Schiff kann keinen Kontakt zum Handelsposten aufnehmen");
 		}
