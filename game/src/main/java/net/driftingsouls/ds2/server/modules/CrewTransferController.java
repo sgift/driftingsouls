@@ -213,24 +213,24 @@ public class CrewTransferController extends Controller
 		setPageTitle("Crewtransfer");
 	}
 
-	private void validateShip(Ship schiff)
+	private void validateShip(Ship selectedShip)
 	{
 		User user = (User) getUser();
 
-		if ((schiff == null) || (schiff.getOwner() != user) || (schiff.getId() < 0))
+		if ((selectedShip == null) || (selectedShip.getOwner() != user) || (selectedShip.getId() < 0))
 		{
 			throw new ValidationException("Das angegebene Schiff existiert nicht oder gehört dir nicht", Common.buildUrl("default", "module", "schiffe"));
 		}
 
-		if (schiff.getBattle() != null)
+		if (selectedShip.getBattle() != null)
 		{
 			throw new ValidationException("Dein Schiff befindet sich in einer Schlacht. Diese verlangt die volle Aufmerksamkeit der Crew weshalb ein Crewaustausch " +
 					"momentan nicht durchgeführt werden kann.",
-					Common.buildUrl("default", "module", "schiff", "ship", schiff.getId()));
+					Common.buildUrl("default", "module", "schiff", "ship", selectedShip.getId()));
 		}
 	}
 
-	private Target ladeCrewtauschZiel(String mode, int tar, Ship ship)
+	private Target loadCrewTransferTarget(String mode, int tar, Ship ship)
 	{
 		org.hibernate.Session db = getDB();
 		Target datat;
@@ -289,7 +289,7 @@ public class CrewTransferController extends Controller
 	{
 		validateShip(ship);
 
-		Target datat = ladeCrewtauschZiel(mode, tar, ship);
+		Target datat = loadCrewTransferTarget(mode, tar, ship);
 
 		if (send < 0)
 		{
@@ -330,17 +330,17 @@ public class CrewTransferController extends Controller
 	{
 		validateShip(ship);
 
-		Target datat = ladeCrewtauschZiel(mode, tar, ship);
+		Target datat = loadCrewTransferTarget(mode, tar, ship);
 
 
 		if (rec < 0)
 		{
 			rec = 0;
 		}
-		int maxcrewf = ship.getTypeData().getCrew();
-		if (rec > maxcrewf - ship.getCrew())
+		int maxCrew = ship.getTypeData().getCrew();
+		if (rec > maxCrew - ship.getCrew())
 		{
-			rec = maxcrewf - ship.getCrew();
+			rec = maxCrew - ship.getCrew();
 		}
 		if (rec > datat.getCrew())
 		{
@@ -373,7 +373,7 @@ public class CrewTransferController extends Controller
 	{
 		validateShip(ship);
 
-		Target datat = ladeCrewtauschZiel(mode, tar, ship);
+		Target datat = loadCrewTransferTarget(mode, tar, ship);
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 
