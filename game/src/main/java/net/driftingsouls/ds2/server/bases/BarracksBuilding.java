@@ -200,7 +200,7 @@ public class BarracksBuilding extends DefaultBuilding {
 
 			Cargo cargo = new Cargo(base.getCargo());
 			Cargo buildcosts = unittype.getBuildCosts();
-			BigInteger konto = owner.getKonto();
+			BigInteger balance = owner.getKonto();
 			StringBuilder msg = new StringBuilder();
 
 			boolean ok = true;
@@ -214,10 +214,10 @@ public class BarracksBuilding extends DefaultBuilding {
 					if(res.getId().equals(Resources.RE))
 					{
 						// Genug Geld auf dem Konto
-						if(konto.intValue() >= res.getCount1()*newcount - cargo.getResourceCount(res.getId()))
+						if(balance.intValue() >= res.getCount1()*newcount - cargo.getResourceCount(res.getId()))
 						{
 							// Fresse Cargo leer danach das Konto
-							konto = konto.subtract(BigInteger.valueOf( res.getCount1()*newcount - cargo.getResourceCount(res.getId()) ));
+							balance = balance.subtract(BigInteger.valueOf( res.getCount1()*newcount - cargo.getResourceCount(res.getId()) ));
 							cargo.setResource(res.getId(), 0);
 						}
 						else
@@ -246,7 +246,7 @@ public class BarracksBuilding extends DefaultBuilding {
 				msg.append(newcount).append(" ").append(unittype.getName()).append(" werden ausgebildet.");
 
 				base.setCargo(cargo);
-				owner.setKonto(konto);
+				owner.setKonto(balance);
 
 				kaserne.addEntry(unittype, newcount);
 			}
