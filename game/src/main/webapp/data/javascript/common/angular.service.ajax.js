@@ -516,7 +516,7 @@
 		/**
 		 * @name success
 		 * @function
-		 * @param {function(data:ds.viewmodel.modules.MapController.SystemauswahlViewModel)} callback
+		 * @param {function(data:ds.viewmodel.modules.MapController.StarSystemSelectionViewModel)} callback
 		 * @memberof DsAjaxPromise_MapControllerStub_systemauswahlAction
 		 **/
 		success : function(callback) {}
@@ -1369,7 +1369,7 @@
 	 * @property {object} bases
 	 * @property {object} jumpnodes
 	 * @property {object} battles
-	 * @property {ds.viewmodel.modules.MapController.SectorViewModel.NebelViewModel} nebel
+	 * @property {ds.viewmodel.modules.MapController.SectorViewModel.NebulaViewModel} nebel
 	 **/
 	/**
 	 * @typedef {object} ds.viewmodel.modules.NpcController.RaengeMenuViewModel
@@ -1454,7 +1454,7 @@
 	 * @property {object} unsichtbar
 	 **/
 	/**
-	 * @typedef {object} ds.viewmodel.modules.MapController.SystemauswahlViewModel
+	 * @typedef {object} ds.viewmodel.modules.MapController.StarSystemSelectionViewModel
 	 * @property {number} system
 	 * @property {boolean} adminSichtVerfuegbar
 	 * @property {boolean} systemkarteEditierbar
@@ -1508,7 +1508,7 @@
 	 * @namespace ds.viewmodel.modules.MapController.SectorViewModel
 	 **/
 	/**
-	 * @typedef {object} ds.viewmodel.modules.MapController.SectorViewModel.NebelViewModel
+	 * @typedef {object} ds.viewmodel.modules.MapController.SectorViewModel.NebulaViewModel
 	 * @property {number} type
 	 * @property {string} image
 	 **/

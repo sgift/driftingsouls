@@ -332,7 +332,7 @@ public class StarmapController implements DSController, PermissionResolver {
 		Nebel.Typ nebel = field.getNebel();
 		if (nebel != null)
 		{
-			jsonData.nebel = new MapController.SectorViewModel.NebelViewModel();
+			jsonData.nebel = new MapController.SectorViewModel.NebulaViewModel();
 			jsonData.nebel.type = nebel.getCode();
 			jsonData.nebel.image = nebel.getImage();
 		}

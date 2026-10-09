@@ -51,7 +51,7 @@ import java.util.Set;
 @Module(name = "map")
 public class MapController extends Controller
 {
-	public void validiereSystem(StarSystem system)
+	public void validateSystem(StarSystem system)
 	{
 		User user = (User) getUser();
 
@@ -91,9 +91,9 @@ public class MapController extends Controller
 		return ViewMessage.success("Systeme gespeichert");
 	}
 
-	private SystemauswahlViewModel createResultObj()
+	private StarSystemSelectionViewModel createResultObj()
 	{
-		SystemauswahlViewModel result = new SystemauswahlViewModel();
+		StarSystemSelectionViewModel result = new StarSystemSelectionViewModel();
 		result.adminSichtVerfuegbar = hasPermission(WellKnownAdminPermission.STARMAP_VIEW);
 		result.systemkarteEditierbar = hasPermission(WellKnownAdminPermission.STARMAP_SYSTEMAUSWAHL);
 
@@ -101,9 +101,9 @@ public class MapController extends Controller
 	}
 
 	@ViewModel
-	public static class SystemauswahlViewModel
+	public static class StarSystemSelectionViewModel
 	{
-		public static class AllianzViewModel
+		public static class AllianceViewModel
 		{
 			public int id;
 			public String name;
@@ -121,7 +121,7 @@ public class MapController extends Controller
 			public int mapY;
 			public boolean basis;
 			public boolean schiff;
-			public AllianzViewModel allianz;
+			public AllianceViewModel allianz;
 
 			public final List<JumpNodeViewModel> sprungpunkte = new ArrayList<>();
 		}
@@ -138,20 +138,20 @@ public class MapController extends Controller
 	 * @param sys Das momentan ausgewaehlte Sternensystem
 	 */
 	@Action(value = ActionType.AJAX, readOnly = true)
-	public SystemauswahlViewModel systemauswahlAction(StarSystem sys)
+	public StarSystemSelectionViewModel systemauswahlAction(StarSystem sys)
 	{
 		User user = (User) getUser();
 		org.hibernate.Session db = getDB();
 
-		SystemauswahlViewModel result = createResultObj();
+		StarSystemSelectionViewModel result = createResultObj();
 
 		List<JumpNode> jumpNodes = Common.cast(db
 				.createQuery("from JumpNode jn where " + (!hasPermission(WellKnownAdminPermission.STARMAP_VIEW) ? "jn.hidden=false and " : "") + "jn.system!=jn.systemOut")
 				.list());
 
-		Map<Integer, Ally> systemFraktionen = ermittleDominierendeAllianzen(db);
-		Set<Integer> basen = ermittleSystemeMitEigenerBasis(db);
-		Set<Integer> schiffe = ermittleSystemeMitEigenenSchiffen(db);
+		Map<Integer, Ally> alliancesBySystem = determineDominantAlliances(db);
+		Set<Integer> systemsWithOwnBase = determineSystemsWithOwnBase(db);
+		Set<Integer> systemsWithOwnShips = determineSystemsWithOwnShips(db);
 
 		List<StarSystem> systems = Common.cast(db.createQuery("from StarSystem order by id asc").list());
 		for (StarSystem system : systems)
@@ -177,7 +177,7 @@ public class MapController extends Controller
 				systemAddInfo += "[hidden]";
 			}
 
-			SystemauswahlViewModel.SystemViewModel sysObj = new SystemauswahlViewModel.SystemViewModel();
+			StarSystemSelectionViewModel.SystemViewModel sysObj = new StarSystemSelectionViewModel.SystemViewModel();
 			sysObj.name = system.getName();
 			sysObj.id = system.getID();
 			sysObj.addinfo = systemAddInfo;
@@ -196,20 +196,20 @@ public class MapController extends Controller
 			}
 
 			// Dominierende NPC-Allianzen
-			Ally maxAlly = systemFraktionen.get(system.getID());
+			Ally maxAlly = alliancesBySystem.get(system.getID());
 			if (maxAlly != null)
 			{
-				sysObj.allianz = new SystemauswahlViewModel.AllianzViewModel();
+				sysObj.allianz = new StarSystemSelectionViewModel.AllianceViewModel();
 				sysObj.allianz.name = Common._title(maxAlly.getName());
 				sysObj.allianz.plainname = BBCodeParser.getInstance().parse(maxAlly.getName(), new String[]{"all"});
 				sysObj.allianz.id = maxAlly.getId();
 			}
 
 			// Basen
-			sysObj.basis = basen.contains(system.getID());
+			sysObj.basis = systemsWithOwnBase.contains(system.getID());
 
 			// Schiffe
-			sysObj.schiff = schiffe.contains(system.getID());
+			sysObj.schiff = systemsWithOwnShips.contains(system.getID());
 
 			result.systeme.add(sysObj);
 		}
@@ -219,7 +219,7 @@ public class MapController extends Controller
 		return result;
 	}
 
-	private Set<Integer> ermittleSystemeMitEigenenSchiffen(Session db)
+	private Set<Integer> determineSystemsWithOwnShips(Session db)
 	{
 		List<Integer> result = Common.cast(db
 										   .createQuery("select s.system from Ship s where s.owner=:user group by s.system")
@@ -229,7 +229,7 @@ public class MapController extends Controller
 		return new HashSet<>(result);
 	}
 
-	private Set<Integer> ermittleSystemeMitEigenerBasis(Session db)
+	private Set<Integer> determineSystemsWithOwnBase(Session db)
 	{
 		List<Integer> result = Common.cast(db
 										   .createQuery("select b.system from Base b where b.owner=:user group by b.system")
@@ -239,7 +239,7 @@ public class MapController extends Controller
 		return new HashSet<>(result);
 	}
 
-	private Map<Integer, Ally> ermittleDominierendeAllianzen(Session db)
+	private Map<Integer, Ally> determineDominantAlliances(Session db)
 	{
 		List<Object[]> data = Common.cast(db
 										  .createQuery("select s.system,s.owner.ally,sum(s.shiptype.size) " +
@@ -250,7 +250,7 @@ public class MapController extends Controller
 										  .setParameter("flags", "%" + ShipTypeFlag.TRADEPOST.getFlag() + "%")
 										  .list());
 
-		Map<Integer, Ally> systeme = new HashMap<>();
+		Map<Integer, Ally> alliancesBySystem = new HashMap<>();
 		int currentSys = -1;
 		Ally currentAlly = null;
 		long maxCount = 0;
@@ -258,7 +258,7 @@ public class MapController extends Controller
 		{
 			if ((Integer) entry[0] != currentSys)
 			{
-				systeme.put(currentSys, currentAlly);
+				alliancesBySystem.put(currentSys, currentAlly);
 				maxCount = 0;
 				currentAlly = null;
 				currentSys = (Integer) entry[0];
@@ -273,9 +273,9 @@ public class MapController extends Controller
 				currentAlly = null;
 			}
 		}
-		systeme.put(currentSys, currentAlly);
+		alliancesBySystem.put(currentSys, currentAlly);
 
-		return systeme;
+		return alliancesBySystem;
 	}
 
 	/**
@@ -289,7 +289,7 @@ public class MapController extends Controller
 	@Action(value = ActionType.BINARY, readOnly = true)
 	public void tileAction(StarSystem sys, int tileX, int tileY) throws IOException
 	{
-		validiereSystem(sys);
+		validateSystem(sys);
 
 		if (tileX < 0)
 		{
@@ -377,7 +377,7 @@ public class MapController extends Controller
 	@Action(value = ActionType.AJAX, readOnly = true)
 	public MapViewModel mapAction(StarSystem sys, int xstart, int xend, int ystart, int yend, boolean admin)
 	{
-		validiereSystem(sys);
+		validateSystem(sys);
 
 		MapViewModel json = new MapViewModel();
 
@@ -607,7 +607,7 @@ public class MapController extends Controller
 			public boolean blocked;
 		}
 
-		public static class NebelViewModel
+		public static class NebulaViewModel
 		{
 			public int type;
 			public String image;
@@ -633,7 +633,7 @@ public class MapController extends Controller
 		public final List<BaseViewModel> brocken = new ArrayList<>();
 		public final List<JumpNodeViewModel> jumpnodes = new ArrayList<>();
 		public final List<BattleViewModel> battles = new ArrayList<>();
-		public NebelViewModel nebel;
+		public NebulaViewModel nebel;
 	}
 
 	/**
@@ -648,7 +648,7 @@ public class MapController extends Controller
 	@Action(value = ActionType.AJAX, readOnly = true)
 	public SectorViewModel sectorAction(StarSystem sys, int x, int y, Ship scanship, boolean admin)
 	{
-		validiereSystem(sys);
+		validateSystem(sys);
 
 		SectorViewModel json = new SectorViewModel();
 
