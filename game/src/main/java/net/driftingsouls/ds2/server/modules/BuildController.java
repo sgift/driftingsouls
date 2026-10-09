@@ -60,10 +60,10 @@ public class BuildController extends Controller
 		setPageTitle("Bauen");
 	}
 
-	private void validateBase(Base basis)
+	private void validateBase(Base selectedBase)
 	{
 		User user = (User) getUser();
-		if ((basis == null) || (basis.getOwner() != user))
+		if ((selectedBase == null) || (selectedBase.getOwner() != user))
 		{
 			throw new ValidationException("Die angegebene Kolonie existiert nicht", Common.buildUrl("default", "module", "basen"));
 		}
@@ -104,10 +104,10 @@ public class BuildController extends Controller
 		}
 
 		//Anzahl der Gebaeude berechnen
-		Map<Integer, Integer> buildingcount = berechneGebaeudeanzahlDieserBasis(base);
+		Map<Integer, Integer> buildingcount = calculateBuildingCountOnThisBase(base);
 
 		//Anzahl der Gebaeude pro Spieler berechnen
-		Map<Integer, Integer> ownerbuildingcount = berechneGebaeudeanzahlAllerBasen(user);
+		Map<Integer, Integer> ownerbuildingcount = calculateBuildingCountOnAllBases(user);
 
 		//Anzahl der Gebaeude berechnen
 		if (build.getPerPlanetCount() != 0)
@@ -148,12 +148,12 @@ public class BuildController extends Controller
 
 		if (build.isUComplex())
 		{
-			int c = berechneAnzahlUnterirdischerKomplexe(getDB(), buildingcount);
-			int grenze = berechneMaximaleAnzahlUnterirdischerKomplexe(base);
+			int c = calculateUndergroundComplexCount(getDB(), buildingcount);
+			int limit = calculateMaxUndergroundComplexCount(base);
 
-			if (c > grenze - 1)
+			if (c > limit - 1)
 			{
-				addError("Es ist nicht möglich, hier mehr als " + grenze + " Unterirdische Komplexe zu installieren");
+				addError("Es ist nicht möglich, hier mehr als " + limit + " Unterirdische Komplexe zu installieren");
 
 				return new RedirectViewResult("default");
 			}
@@ -198,9 +198,9 @@ public class BuildController extends Controller
 		// Alles OK -> bauen
 		if (ok)
 		{
-			Integer[] bebauung = base.getBebauung();
-			bebauung[field] = build.getId();
-			base.setBebauung(bebauung);
+			Integer[] buildingIds = base.getBebauung();
+			buildingIds[field] = build.getId();
+			base.setBebauung(buildingIds);
 
 			Integer[] active = base.getActive();
 			// Muss das Gebaeude aufgrund von Arbeitermangel deaktiviert werden?
@@ -229,7 +229,7 @@ public class BuildController extends Controller
 		return t;
 	}
 
-	private int berechneMaximaleAnzahlUnterirdischerKomplexe(Base base)
+	private int calculateMaxUndergroundComplexCount(Base base)
 	{
 		return (base.getWidth() * base.getHeight()) / 8;
 	}
@@ -261,18 +261,18 @@ public class BuildController extends Controller
 		t.setVar("show.buildinglist", 1);
 
 		//Anzahl der Gebaeude berechnen
-		Map<Integer, Integer> buildingcount = berechneGebaeudeanzahlDieserBasis(base);
+		Map<Integer, Integer> buildingcount = calculateBuildingCountOnThisBase(base);
 
 		//Anzahl der Gebaeude pro Spieler berechnen
-		Map<Integer, Integer> ownerbuildingcount = berechneGebaeudeanzahlAllerBasen(user);
+		Map<Integer, Integer> ownerbuildingcount = calculateBuildingCountOnAllBases(user);
 
 		Cargo basecargo = base.getCargo();
 
 		//Max UComplex-Gebaeude-Check
-		int grenze = berechneMaximaleAnzahlUnterirdischerKomplexe(base);
-		int c = berechneAnzahlUnterirdischerKomplexe(db, buildingcount);
+		int limit = calculateMaxUndergroundComplexCount(base);
+		int c = calculateUndergroundComplexCount(db, buildingcount);
 
-		boolean ucomplex = c <= grenze - 1;
+		boolean ucomplex = c <= limit - 1;
 
 		t.setBlock("_BUILD", "buildings.listitem", "buildings.list");
 		t.setBlock("buildings.listitem", "buildings.res.listitem", "buildings.res.list");
@@ -350,7 +350,7 @@ public class BuildController extends Controller
 		return t;
 	}
 
-	private Map<Integer, Integer> berechneGebaeudeanzahlDieserBasis(Base base)
+	private Map<Integer, Integer> calculateBuildingCountOnThisBase(Base base)
 	{
 		Map<Integer, Integer> buildingcount = new HashMap<>();
 		for (int building : base.getBebauung())
@@ -360,7 +360,7 @@ public class BuildController extends Controller
 		return buildingcount;
 	}
 
-	private Map<Integer, Integer> berechneGebaeudeanzahlAllerBasen(User user)
+	private Map<Integer, Integer> calculateBuildingCountOnAllBases(User user)
 	{
 		Map<Integer, Integer> ownerbuildingcount = new HashMap<>();
 
@@ -374,7 +374,7 @@ public class BuildController extends Controller
 		return ownerbuildingcount;
 	}
 
-	private int berechneAnzahlUnterirdischerKomplexe(Session db, Map<Integer, Integer> buildingcount)
+	private int calculateUndergroundComplexCount(Session db, Map<Integer, Integer> buildingcount)
 	{
 		int c = 0;
 
