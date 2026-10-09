@@ -303,12 +303,12 @@ public class ShipsController extends Controller
 				break;
 			}
 
-			gibSchiffAus(only, low, t, db, ship);
+			outputShip(only, low, t, db, ship);
 		}
 		return t;
 	}
 
-	private void gibSchiffAus(String only, int low, TemplateEngine t, Session db, Ship ship)
+	private void outputShip(String only, int low, TemplateEngine t, Session db, Ship ship)
 	{
 		ShipTypeData shiptype = ship.getTypeData();
 
@@ -395,21 +395,21 @@ public class ShipsController extends Controller
 				final int totalSlots = werft.getWerftSlots();
 				int usedSlots = 0;
 				int buildingCount = 0;
-				StringBuilder imBau = new StringBuilder();
+				StringBuilder underConstruction = new StringBuilder();
 				for (WerftQueueEntry entry : entries)
 				{
 					if (entry.isScheduled())
 					{
 						usedSlots += entry.getSlots();
 						buildingCount++;
-						imBau.append("<br />Aktuell im Bau: ").append(entry.getBuildShipType().getNickname()).append(" <img src='./data/interface/time.gif' alt='Dauer: ' />").append(entry.getRemainingTime());
+						underConstruction.append("<br />Aktuell im Bau: ").append(entry.getBuildShipType().getNickname()).append(" <img src='./data/interface/time.gif' alt='Dauer: ' />").append(entry.getRemainingTime());
 					}
 				}
 
 				String popup = "Belegte Werftslots: <img style='vertical-align:middle;border:0px' src='./data/interface/schiffinfo/werftslots.png' alt='' />" + usedSlots + "/" + totalSlots + "<br />" +
 						"Im Bau: " + buildingCount + " Schiffe<br />" +
 						"In der Warteschlange: " + (entries.size() - buildingCount) +
-						imBau;
+						underConstruction;
 				t.setVar("ship.werft.popup", popup,
 						"ship.werft.entries", entries.size(),
 						"ship.werft.building", 1);
