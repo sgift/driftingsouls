@@ -49,9 +49,9 @@ public class AddGtu implements AdminPlugin {
 
 		int ship = context.getRequest().getParameterInt("ship");
 		String resource = context.getRequest().getParameterString("resource");
-		int dauer = context.getRequest().getParameterInt("dauer");
-		int preis = context.getRequest().getParameterInt("preis");
-		int menge = context.getRequest().getParameterInt("menge");
+		int duration = context.getRequest().getParameterInt("dauer");
+		int price = context.getRequest().getParameterInt("preis");
+		int amount = context.getRequest().getParameterInt("menge");
 		
 		org.hibernate.Session db = context.getDB();
 		
@@ -109,8 +109,8 @@ public class AddGtu implements AdminPlugin {
 			User gtu = (User)db.get(User.class, -2);
 			ShipType type = (ShipType)db.get(ShipType.class, ship);
 			
-			VersteigerungSchiff verst = new VersteigerungSchiff(gtu, type, preis);
-			verst.setTick(tick+dauer);
+			VersteigerungSchiff verst = new VersteigerungSchiff(gtu, type, price);
+			verst.setTick(tick+duration);
 			db.persist(verst);
 
 			echo.append("Schiff eingef&uuml;gt<br />");
@@ -119,12 +119,12 @@ public class AddGtu implements AdminPlugin {
 			int tick = context.get(ContextCommon.class).getTick();
 
 			Cargo cargo = new Cargo();
-			cargo.addResource( new ItemID(Integer.parseInt(resource)), menge );
+			cargo.addResource( new ItemID(Integer.parseInt(resource)), amount );
 
 			User gtu = (User)db.get(User.class, -2);
 			
-			VersteigerungResource verst = new VersteigerungResource(gtu, cargo, preis);
-			verst.setTick(tick+dauer);
+			VersteigerungResource verst = new VersteigerungResource(gtu, cargo, price);
+			verst.setTick(tick+duration);
 			db.persist(verst);
 
 			echo.append("Resource eingef&uuml;gt<br />");
