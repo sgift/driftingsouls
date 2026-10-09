@@ -42,7 +42,7 @@ import java.util.List;
 public class ShipAjaxController extends Controller
 {
 	@ViewModel
-	public static class SchiffsLogViewModel
+	public static class ShipLogViewModel
 	{
 		public String log;
 	}
@@ -127,7 +127,7 @@ public class ShipAjaxController extends Controller
 		}
 
 		ShipJumpService.JumpResult jumpResult = shipJumpService.jumpViaJumpNode(schiff, sprungpunkt);
-		SchiffsLogViewModel result = new SchiffsLogViewModel();
+		ShipLogViewModel result = new ShipLogViewModel();
 		result.log = jumpResult.getMessages().trim();
 		return result;
 	}
@@ -155,7 +155,7 @@ public class ShipAjaxController extends Controller
 		}
 
 		shipJumpService.jumpViaShip(schiff, sprungpunktSchiff);
-		SchiffsLogViewModel result = new SchiffsLogViewModel();
+		ShipLogViewModel result = new ShipLogViewModel();
 		result.log = Ship.MESSAGE.getMessage().trim();
 		return result;
 	}
@@ -182,7 +182,7 @@ public class ShipAjaxController extends Controller
 		var shipsMovement = new ShipsMovement(schiff.getId(), ContextMap.getContext().getActiveUser().getId());
 		var movementResult = shipsMovement.MoveShips(to);
 
-		SchiffsLogViewModel result = new SchiffsLogViewModel();
+		ShipLogViewModel result = new ShipLogViewModel();
 		result.log = movementResult.getAutomatedMessage();
 		return result;
 
