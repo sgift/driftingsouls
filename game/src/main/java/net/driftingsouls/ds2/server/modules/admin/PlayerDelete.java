@@ -242,17 +242,17 @@ public class PlayerDelete implements AdminPlugin
 			User nullUser = db.find(User.class, 0);
 
 			for (Base base : baseList) {
-				Integer[] bebauung = base.getBebauung();
-				for (int i = 0; i < bebauung.length; i++) {
-					if (bebauung[i] == 0) {
+				Integer[] buildingIds = base.getBebauung();
+				for (int i = 0; i < buildingIds.length; i++) {
+					if (buildingIds[i] == 0) {
 						continue;
 					}
 
-					Building building = Building.getBuilding(bebauung[i]);
-					building.cleanup(context, base, bebauung[i]);
-					bebauung[i] = 0;
+					Building building = Building.getBuilding(buildingIds[i]);
+					building.cleanup(context, base, buildingIds[i]);
+					buildingIds[i] = 0;
 				}
-				base.setBebauung(bebauung);
+				base.setBebauung(buildingIds);
 
 				base.setOwner(nullUser);
 				base.setName("Verlassener Asteroid");
