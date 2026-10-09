@@ -1066,7 +1066,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 
         // Nahrung nicht mit in constat rein. Dies wird im Tick benutzt, der betrachtet Nahrungsverbrauch aber separat.
 		stat.substractResource( Resources.NAHRUNG, (long)Math.ceil(base.getBewohner()/10.0) );
-		stat.substractResource( Resources.NAHRUNG, base.getUnits().getNahrung() );
+		stat.substractResource( Resources.NAHRUNG, base.getUnits().getFoodConsumption() );
         // RE nicht mit in constat rein. Dies wird im Tick benutzt, der betrachtet RE-Verbrauch aber separat.
 		Context context = ContextMap.getContext();
 
@@ -1681,7 +1681,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 			return true;
 		}
 
-		int hungryPeople = (int)Math.ceil(getUnits().getNahrung());
+		int hungryPeople = (int)Math.ceil(getUnits().getFoodConsumption());
 		int fleeingPeople = feedPeople(hungryPeople, baseCargo);
 
 		if(fleeingPeople > 0)
@@ -1707,7 +1707,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 		long re = baseCargo.getResourceCount(Resources.RE);
 
 		if (marinesold > re) {
-			getUnits().getMeuterer(re);
+			getUnits().getMutineers(re);
 			baseCargo.setResource(Resources.RE, 0);
 			return false;
 		} else {

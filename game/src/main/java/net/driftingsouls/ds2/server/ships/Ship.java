@@ -1139,7 +1139,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 		if(getUnits() != null)
 		{
 			double scale = alarm.getAlertScaleFactor();
-			return (int)Math.ceil(this.getUnits().getNahrung()*scale);
+			return (int)Math.ceil(this.getUnits().getFoodConsumption()*scale);
 		}
 		return 0;
 	}

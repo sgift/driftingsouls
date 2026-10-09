@@ -48,7 +48,7 @@ public abstract class UnitCargo implements Cloneable {
 	 * dem Schiff ueber Seiteneffekte zurueckgeben zu koennen
 	 */
 	public static class Crew {
-		int wert;
+		int value;
 
 		/**
 		 * Konstruktor.
@@ -60,11 +60,11 @@ public abstract class UnitCargo implements Cloneable {
 
 		/**
 		 * Konstruktor.
-		 * @param wert der Wert
+		 * @param value der Wert
 		 */
-		public Crew(int wert)
+		public Crew(int value)
 		{
-			this.wert = wert;
+			this.value = value;
 		}
 
 		/**
@@ -73,16 +73,16 @@ public abstract class UnitCargo implements Cloneable {
 		 */
 		public int getValue()
 		{
-			return wert;
+			return value;
 		}
 
 		/**
 		 * Setzt den Wert.
-		 * @param wert der neue Wert
+		 * @param value der neue Wert
 		 */
-		public void setValue(int wert)
+		public void setValue(int value)
 		{
-			this.wert = wert;
+			this.value = value;
 		}
 	}
 
@@ -411,21 +411,21 @@ public abstract class UnitCargo implements Cloneable {
 	 * Gibt die Anzahl an verbrauchter Nahrung durch die Einheiten im UnitCargo zurueck.
 	 * @return Die Anzahl an verbrauchter Nahrung
 	 */
-	public int getNahrung()
+	public int getFoodConsumption()
 	{
 		if(isEmpty())
 		{
 			return 0;
 		}
 
-		double nahrungsverbrauch = 0;
+		double foodConsumption = 0;
 		for(UnitCargoEntry aunit : units)
 		{
 			UnitType unittype = aunit.getUnitType();
-			nahrungsverbrauch += unittype.getNahrungCost() * aunit.getAmount();
+			foodConsumption += unittype.getNahrungCost() * aunit.getAmount();
 		}
 
-		return (int)Math.ceil(nahrungsverbrauch);
+		return (int)Math.ceil(foodConsumption);
 	}
 
 	/**
@@ -439,42 +439,42 @@ public abstract class UnitCargo implements Cloneable {
 			return 0;
 		}
 
-		double reverbrauch = 0;
+		double reConsumption = 0;
 		for(UnitCargoEntry aunit : units)
 		{
 			UnitType unittype = aunit.getUnitType();
-			reverbrauch += unittype.getReCost() * aunit.getAmount();
+			reConsumption += unittype.getReCost() * aunit.getAmount();
 		}
 
-		return (int)Math.ceil(reverbrauch);
+		return (int)Math.ceil(reConsumption);
 	}
 
 	/**
 	 * Gibt den Kaperwert der Einheiten des UnitCargos zurueck.
 	 * @return Der Kaperwert
 	 */
-	public int getKaperValue()
+	public int getBoardingValue()
 	{
 		if(isEmpty())
 		{
 			return 0;
 		}
 
-		int kapervalue = 0;
+		int boardingValue = 0;
 		for(UnitCargoEntry aunit : units)
 		{
 			UnitType unittype = aunit.getUnitType();
-			kapervalue += unittype.getKaperValue() * aunit.getAmount();
+			boardingValue += unittype.getKaperValue() * aunit.getAmount();
 		}
 
-		return kapervalue;
+		return boardingValue;
 	}
 
 	/**
 	 * Es fliehen so viele Einheiten, wie keine Nahrung mehr vorhanden ist.
-	 * @param nahrung Die Nahrung die durch die Einheiten zu viel verbraucht wird
+	 * @param food Die Nahrung die durch die Einheiten zu viel verbraucht wird
 	 */
-	public void fleeUnits(int nahrung)
+	public void fleeUnits(int food)
 	{
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		List<UnitType> unittypes = Common.cast(db.createQuery("FROM UnitType ORDER BY nahrungcost DESC").list());
@@ -485,15 +485,15 @@ public abstract class UnitCargo implements Cloneable {
 			{
 				// Aktuelle Einheiten verbrauchen weniger Nahrung als weg muss
 				// Alle Einheiten wegpacken und Nahrung reduzieren.
-				if(getUnitCount(unittype) * unittype.getNahrungCost() < nahrung)
+				if(getUnitCount(unittype) * unittype.getNahrungCost() < food)
 				{
-					nahrung -= getUnitCount(unittype) * unittype.getNahrungCost();
+					food -= getUnitCount(unittype) * unittype.getNahrungCost();
 					setUnit(unittype, 0);
 				}
 				else
 				{
-					setUnit(unittype, (long)(getUnitCount(unittype) - Math.ceil(nahrung / unittype.getNahrungCost())));
-					nahrung = 0;
+					setUnit(unittype, (long)(getUnitCount(unittype) - Math.ceil(food / unittype.getNahrungCost())));
+					food = 0;
 				}
 			}
 		}
@@ -593,62 +593,62 @@ public abstract class UnitCargo implements Cloneable {
 	/**
 	 * Diese Methode fuehrt einen Kapervorgang aus.
 	 * Dabei versuchen die Einheiten des aktuellen UnitCargos die Einheiten des uebergebenen UnitCargos zu kapern.
-	 * @param kaperunitcargo Der UnitCargo der gekapert werden soll
-	 * @param gefalleneeigeneUnits Ein UnitCargo mit den eigenen Einheiten die gefallen sind
-	 * @param gefallenefeindlicheUnits Ein UnitCargo mit den Einheiten des Gegners die gefallen sind
-	 * @param feindCrew Die Anzahl der feindlichen Crewmitglieder
+	 * @param defendingUnits Der UnitCargo der gekapert werden soll
+	 * @param ownFallenUnits Ein UnitCargo mit den eigenen Einheiten die gefallen sind
+	 * @param enemyFallenUnits Ein UnitCargo mit den Einheiten des Gegners die gefallen sind
+	 * @param enemyCrew Die Anzahl der feindlichen Crewmitglieder
 	 * @param amulti Der Multiplikator vom angreifenden Offizier
 	 * @param defmulti Der Multiplikator vom verteidigenden Offizier
 	 * @return <code>true</code>, falls der Kapervorgang verfolgreich war.
 	 */
-	public boolean kapern(UnitCargo kaperunitcargo, UnitCargo gefalleneeigeneUnits, UnitCargo gefallenefeindlicheUnits, Crew feindCrew, int amulti, int defmulti)
+	public boolean board(UnitCargo defendingUnits, UnitCargo ownFallenUnits, UnitCargo enemyFallenUnits, Crew enemyCrew, int amulti, int defmulti)
 	{
 
-		if(getKaperValue()*amulti > (kaperunitcargo.getKaperValue()+10*feindCrew.getValue())*defmulti*3 )
+		if(getBoardingValue()*amulti > (defendingUnits.getBoardingValue()+10*enemyCrew.getValue())*defmulti*3 )
 		{
 			return true;
 		}
-		if(getKaperValue()*amulti > (kaperunitcargo.getKaperValue()+10*feindCrew.getValue())*defmulti)
+		if(getBoardingValue()*amulti > (defendingUnits.getBoardingValue()+10*enemyCrew.getValue())*defmulti)
 		{
 			// Groessere Uebermacht als 3 gewaehlt, da die Truppen bereits im "Blutrausch" oder so sind. Einfach ein passender Mittelweg zwischen alles und nichts
-			double uebermacht = 6;
+			double superiority = 6;
 			// Gibt Anzahl der zu reduzierenden KaperValue auf beiden Seiten an. Formel nach X umgeformt: (offValue - X) > uebermacht*(deffValue - X). Nicht aufgerundet sondern +1, da es echt groesser sein soll.
-			int totekapervalue = (int) ((uebermacht * (kaperunitcargo.getKaperValue() + feindCrew.getValue() * 10) * defmulti - getKaperValue() * amulti) / (uebermacht - 1)) + 1;
-			reduziereKaperValue(totekapervalue / amulti, gefalleneeigeneUnits);
+			int deadBoardingValue = (int) ((superiority * (defendingUnits.getBoardingValue() + enemyCrew.getValue() * 10) * defmulti - getBoardingValue() * amulti) / (superiority - 1)) + 1;
+			reduceBoardingValue(deadBoardingValue / amulti, ownFallenUnits);
 			// Wenn mehr theoretische tote Deffeinheiten als vorhanden
-			if (totekapervalue > kaperunitcargo.getKaperValue() * defmulti)
+			if (deadBoardingValue > defendingUnits.getBoardingValue() * defmulti)
 			{
 				// Vllt noch mehr aufrunden? Wurde aber unten beim nicht-gekapert auch nicht gemacht
-				feindCrew.setValue(feindCrew.getValue() - ((totekapervalue / defmulti) - kaperunitcargo.getKaperValue()) / 10);
-				totekapervalue = kaperunitcargo.getKaperValue();
+				enemyCrew.setValue(enemyCrew.getValue() - ((deadBoardingValue / defmulti) - defendingUnits.getBoardingValue()) / 10);
+				deadBoardingValue = defendingUnits.getBoardingValue();
 			}
 			else
 			{
 				// Einheiten nur reduzieren, welche leben lassen
-				totekapervalue = totekapervalue / defmulti;
+				deadBoardingValue = deadBoardingValue / defmulti;
 			}
-			kaperunitcargo.reduziereKaperValue(totekapervalue, gefallenefeindlicheUnits);
+			defendingUnits.reduceBoardingValue(deadBoardingValue, enemyFallenUnits);
 			return true;
 		}
-		int totekapervalue = (int)Math.ceil((getKaperValue())*amulti*1.0/defmulti);
-		if(totekapervalue > kaperunitcargo.getKaperValue())
+		int deadBoardingValue = (int)Math.ceil((getBoardingValue())*amulti*1.0/defmulti);
+		if(deadBoardingValue > defendingUnits.getBoardingValue())
 		{
-			feindCrew.setValue(feindCrew.getValue() - (totekapervalue - kaperunitcargo.getKaperValue()) / 10);
-			totekapervalue = kaperunitcargo.getKaperValue();
+			enemyCrew.setValue(enemyCrew.getValue() - (deadBoardingValue - defendingUnits.getBoardingValue()) / 10);
+			deadBoardingValue = defendingUnits.getBoardingValue();
 		}
-		gefalleneeigeneUnits.addCargo(this);
+		ownFallenUnits.addCargo(this);
 		units.clear();
-		kaperunitcargo.reduziereKaperValue(totekapervalue, gefallenefeindlicheUnits);
+		defendingUnits.reduceBoardingValue(deadBoardingValue, enemyFallenUnits);
 		return false;
 	}
 
 	/**
 	 * Diese Methode reduziert diesen UnitCargo um die angegebene Menge an KaperValue.
 	 * Dabei werden zuerst Einheiten mit hoher KaperValue entfernt.
-	 * @param totekapervalue Die KaperValue die entfernt werden soll
+	 * @param deadBoardingValue Die KaperValue die entfernt werden soll
 	 * @param deadUnits Der UnitCargo der alle abgestorbenen Einheiten enthaelt
 	 */
-	public void reduziereKaperValue(int totekapervalue, UnitCargo deadUnits)
+	public void reduceBoardingValue(int deadBoardingValue, UnitCargo deadUnits)
 	{
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		List<UnitType> unitlist = Common.cast(db.createQuery("from UnitType ORDER BY kapervalue DESC").list());
@@ -660,17 +660,17 @@ public abstract class UnitCargo implements Cloneable {
 				long unitcount = getUnitCount(unit);
 
 				// Reichen die Einheiten nicht aus um den Bedarf zu decken
-				if( unit.getKaperValue() * unitcount < totekapervalue)
+				if( unit.getKaperValue() * unitcount < deadBoardingValue)
 				{
-					totekapervalue -= unit.getKaperValue() * unitcount;
+					deadBoardingValue -= unit.getKaperValue() * unitcount;
 					deadUnits.addUnit(unit, unitcount);
 					setUnit(unit,0);
 				}
 				// Die Einheiten reichen aus
 				else
 				{
-					deadUnits.addUnit(unit, totekapervalue / unit.getKaperValue());
-					substractUnit(unit, totekapervalue / unit.getKaperValue());
+					deadUnits.addUnit(unit, deadBoardingValue / unit.getKaperValue());
+					substractUnit(unit, deadBoardingValue / unit.getKaperValue());
 					return;
 				}
 			}
@@ -708,12 +708,12 @@ public abstract class UnitCargo implements Cloneable {
 	/**
 	 * Berechnet, wie viele Einheiten von der angegebenen Menge RE noch versorgt werden koennen.
 	 * Alle zusaetzlichen Einheiten werden aus dem aktuellen UnitCargo entfernt und als extra UnitCargo zurueckgegeben.
-	 * @param restre Die RE die noch zur Versorgung da sind
+	 * @param remainingRe Die RE die noch zur Versorgung da sind
 	 * @return Ein UnitCargo mit den Einheiten die nicht mehr versorgt werden konnten
 	 */
-	public UnitCargo getMeuterer(long restre)
+	public UnitCargo getMutineers(long remainingRe)
 	{
-		UnitCargo meuterer = createEmptyCargo();
+		UnitCargo mutineers = createEmptyCargo();
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 
 		List<UnitType> unitlist = Common.cast(db.createQuery("from UnitType").list());
@@ -723,20 +723,20 @@ public abstract class UnitCargo implements Cloneable {
 			if(hasUnit(unit))
 			{
 				// Es koennen nicht mehr alle Einheiten versorgt werden
-				if(getUnitCount(unit)*unit.getReCost() > restre)
+				if(getUnitCount(unit)*unit.getReCost() > remainingRe)
 				{
-					long numunits = (long)Math.ceil(restre / unit.getReCost());
+					long numunits = (long)Math.ceil(remainingRe / unit.getReCost());
 					substractUnit(unit, numunits);
-					meuterer.addUnit(unit, numunits);
-					restre -= numunits * unit.getReCost();
+					mutineers.addUnit(unit, numunits);
+					remainingRe -= numunits * unit.getReCost();
 				}
 				else
 				{
-					restre -= (long)Math.ceil(getUnitCount(unit) * unit.getReCost());
+					remainingRe -= (long)Math.ceil(getUnitCount(unit) * unit.getReCost());
 				}
 			}
 		}
 
-		return meuterer;
+		return mutineers;
 	}
 }

@@ -631,9 +631,9 @@ public class ShipTick extends TickController {
 		if(crewToFeed > 0)
 		{
 			this.log("\tCrew verhungert - ");
-			if(crewToFeed >= shipd.getUnits().getNahrung())
+			if(crewToFeed >= shipd.getUnits().getFoodConsumption())
 			{
-				crewToFeed = crewToFeed - (int) (double) shipd.getUnits().getNahrung();
+				crewToFeed = crewToFeed - (int) (double) shipd.getUnits().getFoodConsumption();
 				shipd.setUnits(new TransientUnitCargo());
 				int maxStarvationFactor = configService.getValue(WellKnownConfigValue.MAX_STARVATION);
 				int maxStarvationValue = (int)Math.ceil(shiptd.getCrew() * (maxStarvationFactor/100.0));
@@ -785,10 +785,10 @@ public class ShipTick extends TickController {
 				// Sammel alle Daten zusammmen
 				User pirate = db.find(User.class, Faction.PIRATE);
 				UnitCargo unitcargo = shipd.getUnits();
-				UnitCargo mutineers = unitcargo.getMeuterer(shipUpkeepCosts.calculateRemainingReWithoutPay(shipd, owner));
+				UnitCargo mutineers = unitcargo.getMutineers(shipUpkeepCosts.calculateRemainingReWithoutPay(shipd, owner));
 				Crew dcrew = new UnitCargo.Crew(shipd.getCrew());
 
-				if(mutineers.kapern(unitcargo, new TransientUnitCargo(), new TransientUnitCargo(), dcrew, 1, 1))
+				if(mutineers.board(unitcargo, new TransientUnitCargo(), new TransientUnitCargo(), dcrew, 1, 1))
 				{
 					shipd.setCrew(dcrew.getValue());
 					shipd.setUnits(mutineers);

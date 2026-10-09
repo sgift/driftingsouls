@@ -164,7 +164,7 @@ public class KSBoardAction extends BasicKSAction {
 			UnitCargo toteeigeneUnits = new TransientUnitCargo();
 			UnitCargo totefeindlicheUnits = new TransientUnitCargo();
 
-			if(ownUnits.kapern(enemyUnits, toteeigeneUnits, totefeindlicheUnits, dcrew, attmulti, defmulti ))
+			if(ownUnits.board(enemyUnits, toteeigeneUnits, totefeindlicheUnits, dcrew, attmulti, defmulti ))
 			{
 				ok = true;
 				if(toteeigeneUnits.isEmpty() && totefeindlicheUnits.isEmpty())
