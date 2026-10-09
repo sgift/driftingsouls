@@ -19,16 +19,16 @@ public class Notifier {
             conn.setRequestMethod("POST");
 						conn.setDoOutput(true);
 
-					String inhalt = parseToValidText(text);
-					String titel = parseToValidText(title);
+					String safeContent = parseToValidText(text);
+					String safeTitle = parseToValidText(title);
 
 	        final OutputStreamWriter out = new OutputStreamWriter(conn.getOutputStream());
 	        out.write("ApiKey=");
 	        out.write(apiKey);
 	        out.write("&PushTitle=");
-	        out.write(titel);
+	        out.write(safeTitle);
 	        out.write("&PushText=");
-	        out.write(inhalt);
+	        out.write(safeContent);
 	        out.flush();
 	        out.close();
 
