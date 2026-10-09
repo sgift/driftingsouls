@@ -1288,7 +1288,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 				continue;
 			}
 
-			result.add(new SchiffBauinformationen(sb, BauinformationenQuelle.FORSCHUNG, null));
+			result.add(new SchiffBauinformationen(sb, BuildInformationSource.FORSCHUNG, null));
 		}
 
 		//Items
@@ -1308,7 +1308,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 				continue;
 			}
 
-			result.add(new SchiffBauinformationen(effect.toShipBaubar(), BauinformationenQuelle.LOKALES_ITEM, item.getResourceID()));
+			result.add(new SchiffBauinformationen(effect.toShipBaubar(), BuildInformationSource.LOKALES_ITEM, item.getResourceID()));
 		}
 
 		for (ItemCargoEntry<Schiffsbauplan> item : allyitems.getItemsOfType(Schiffsbauplan.class))
@@ -1326,7 +1326,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 				continue;
 			}
 
-			result.add(new SchiffBauinformationen(effect.toShipBaubar(), BauinformationenQuelle.ALLIANZ_ITEM, item.getResourceID()));
+			result.add(new SchiffBauinformationen(effect.toShipBaubar(), BuildInformationSource.ALLIANZ_ITEM, item.getResourceID()));
 		}
 
 		return result;
@@ -1370,14 +1370,14 @@ public abstract class WerftObject extends DSObject implements Locatable {
 				return null;
 			}
 
-			return new SchiffBauinformationen(shipdata, BauinformationenQuelle.FORSCHUNG, null);
+			return new SchiffBauinformationen(shipdata, BuildInformationSource.FORSCHUNG, null);
 		}
 
-		BauinformationenQuelle quelle = BauinformationenQuelle.LOKALES_ITEM;
+		BuildInformationSource quelle = BuildInformationSource.LOKALES_ITEM;
 		int itemcount = this.getCargo(true).getItem(itemid).size();
 		if( itemcount == 0 )
 		{
-			quelle = BauinformationenQuelle.ALLIANZ_ITEM;
+			quelle = BuildInformationSource.ALLIANZ_ITEM;
 			itemcount = allyitems.getItem( itemid ).size();
 		}
 

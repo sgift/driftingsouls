@@ -496,7 +496,7 @@ public class WerftGUI {
 				ResourceID itemdata = ashipdata.getItem();
 
 				t.setVar("buildship.item.id", itemdata.getItemID(),
-						"buildship.item.color", ashipdata.getQuelle() == BauinformationenQuelle.LOKALES_ITEM ? "#EECC44" : "#44EE44",
+						"buildship.item.color", ashipdata.getQuelle() == BuildInformationSource.LOKALES_ITEM ? "#EECC44" : "#44EE44",
 						"buildship.item.uses", itemdata.getUses());
 			}
 
@@ -538,7 +538,7 @@ public class WerftGUI {
 
 			ShipTypeData shiptype = ashipdata.getBaudaten().getType();
 
-			t.setVar("buildship.id", ashipdata.getQuelle() == BauinformationenQuelle.FORSCHUNG ? ashipdata.getBaudaten().getId() : -1,
+			t.setVar("buildship.id", ashipdata.getQuelle() == BuildInformationSource.FORSCHUNG ? ashipdata.getBaudaten().getId() : -1,
 					"buildship.type.id", shiptype.getTypeId(),
 					"buildship.type.image", shiptype.getPicture(),
 					"buildship.flagschiff", ashipdata.getBaudaten().isFlagschiff(),

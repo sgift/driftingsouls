@@ -17,10 +17,10 @@ import java.util.Objects;
 public class SchiffBauinformationen implements Comparable<SchiffBauinformationen>
 {
 	private final ShipBaubar baudaten;
-	private final BauinformationenQuelle quelle;
+	private final BuildInformationSource quelle;
 	private final ResourceID item;
 
-	SchiffBauinformationen(ShipBaubar baudaten, BauinformationenQuelle quelle, ResourceID item)
+	SchiffBauinformationen(ShipBaubar baudaten, BuildInformationSource quelle, ResourceID item)
 	{
 		this.baudaten = baudaten;
 		this.quelle = quelle;
@@ -40,7 +40,7 @@ public class SchiffBauinformationen implements Comparable<SchiffBauinformationen
 	 * Gibt die Quelle zurueck, aus der die Bauinformationen stammen.
 	 * @return Die Quelle
 	 */
-	public BauinformationenQuelle getQuelle()
+	public BuildInformationSource getQuelle()
 	{
 		return quelle;
 	}
@@ -61,7 +61,7 @@ public class SchiffBauinformationen implements Comparable<SchiffBauinformationen
 	public String getId()
 	{
 		String id = quelle.name()+"#";
-		if( quelle == BauinformationenQuelle.FORSCHUNG )
+		if( quelle == BuildInformationSource.FORSCHUNG )
 		{
 			id += baudaten.getId();
 		}
@@ -80,7 +80,7 @@ public class SchiffBauinformationen implements Comparable<SchiffBauinformationen
 		{
 			return diff;
 		}
-		if( this.quelle == BauinformationenQuelle.FORSCHUNG )
+		if( this.quelle == BuildInformationSource.FORSCHUNG )
 		{
 			diff = this.baudaten.getType().getNickname().compareTo(schiffBauinformationen.baudaten.getType().getNickname());
 			if( diff != 0 )
@@ -115,7 +115,7 @@ public class SchiffBauinformationen implements Comparable<SchiffBauinformationen
 		{
 			return false;
 		}
-		if( quelle == BauinformationenQuelle.FORSCHUNG )
+		if( quelle == BuildInformationSource.FORSCHUNG )
 		{
 			return Objects.equals(baudaten, that.baudaten);
 		}
@@ -150,10 +150,10 @@ public class SchiffBauinformationen implements Comparable<SchiffBauinformationen
 
 		ShipBaubar baudaten;
 		ResourceID item = null;
-		BauinformationenQuelle quelle = BauinformationenQuelle.valueOf(quelleStr);
+		BuildInformationSource quelle = BuildInformationSource.valueOf(quelleStr);
 
 		Session db = ContextMap.getContext().getDB();
-		if( quelle == BauinformationenQuelle.FORSCHUNG )
+		if( quelle == BuildInformationSource.FORSCHUNG )
 		{
 			baudaten = (ShipBaubar) db.get(ShipBaubar.class, Integer.parseInt(idStr));
 		}
