@@ -452,24 +452,24 @@ public class OverviewController extends Controller
 			Cargo cargo = new Cargo(base.getCargo());
 			cargo.addResource(Resources.RE, user.getKonto().longValue());
 
-			boolean mangel = false;
+			boolean shortage = false;
 
 			ResourceList reslist = basedata.getProduction().getResourceList();
 			for (ResourceEntry res : reslist)
 			{
 				if ((res.getCount1() < 0) && (-(cargo.getResourceCount(res.getId()) / res.getCount1()) <= 9))
 				{
-					mangel = true;
+					shortage = true;
 					break;
 				}
 			}
 
 			if (basedata.getEnergy() < 0 && base.getEnergy() / -basedata.getEnergy() <= 9)
 			{
-				mangel = true;
+				shortage = true;
 			}
 
-			if (mangel)
+			if (shortage)
 			{
 				bw++;
 			}
