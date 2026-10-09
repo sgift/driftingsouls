@@ -82,13 +82,13 @@ public class FactionController extends Controller
 		setPageTitle("Fraktionen");
 	}
 
-	private FraktionsGuiEintrag ermittleFraktion(User factionUser)
+	private FraktionsGuiEintrag determineFaction(User factionUser)
 	{
 		User user = (User) getUser();
 
 		if (factionUser == null)
 		{
-			FraktionsGuiEintrag eintrag = ermittleStandardFraktionFuerSpieler(user);
+			FraktionsGuiEintrag eintrag = determineDefaultFactionForUser(user);
 			if( eintrag != null )
 			{
 				factionUser = eintrag.getUser();
@@ -101,12 +101,12 @@ public class FactionController extends Controller
 
 		FraktionsGuiEintrag faction = factionGuiEntryService.findByUser(factionUser);
 
-		validiereFraktion(faction);
+		validateFaction(faction);
 
 		return faction;
 	}
 
-	private void erstelleMenue(TemplateEngine t, FraktionsGuiEintrag faction)
+	private void createMenu(TemplateEngine t, FraktionsGuiEintrag faction)
 	{
 		User user = (User) getUser();
 		// Die Templatevariablen duerfen nur einmal gesetzt werden (redirects!)
@@ -141,7 +141,7 @@ public class FactionController extends Controller
 		}
 	}
 
-	private void validiereFraktion(FraktionsGuiEintrag faction)
+	private void validateFaction(FraktionsGuiEintrag faction)
 	{
 		if (faction == null)
 		{
@@ -149,14 +149,14 @@ public class FactionController extends Controller
 		}
 	}
 
-	private boolean istHandelErlaubt(User user, FraktionsGuiEintrag faction)
+	private boolean isTradeAllowed(User user, FraktionsGuiEintrag faction)
 	{
 		User factionUser = faction.getUser();
 		return user.getRelation(factionUser) != User.Relation.ENEMY
 				&& factionUser.getRelation(user) != User.Relation.ENEMY;
 	}
 
-	private FraktionsGuiEintrag ermittleStandardFraktionFuerSpieler(User user)
+	private FraktionsGuiEintrag determineDefaultFactionForUser(User user)
 	{
 		List<FraktionsGuiEintrag> fraktionen = factionGuiEntryService.findAll();
 		for (FraktionsGuiEintrag eintrag : fraktionen)
@@ -187,7 +187,7 @@ public class FactionController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult changeDropZoneAction(User faction, StarSystem favsys)
 	{
-		FraktionsGuiEintrag factionObj = ermittleFraktion(faction);
+		FraktionsGuiEintrag factionObj = determineFaction(faction);
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.VERSTEIGERUNG))
 		{
@@ -197,7 +197,7 @@ public class FactionController extends Controller
 		User user = (User) getUser();
 
 		String message = null;
-		if (ermittleMoeglicheDropZones().contains(favsys))
+		if (determinePossibleDropZones().contains(favsys))
 		{
 			user.setGtuDropZone(favsys.getID());
 			message = "Neue Lieferkoordinate gespeichert";
@@ -217,7 +217,7 @@ public class FactionController extends Controller
 	@Action(ActionType.DEFAULT)
 	public Object bidEntryAction(User faction, int bid, @UrlParam(name = "auk") Versteigerung entry)
 	{
-		FraktionsGuiEintrag factionObj = ermittleFraktion(faction);
+		FraktionsGuiEintrag factionObj = determineFaction(faction);
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.VERSTEIGERUNG))
 		{
@@ -226,7 +226,7 @@ public class FactionController extends Controller
 
 		User user = (User) getUser();
 
-		if (!istHandelErlaubt(user, factionObj))
+		if (!isTradeAllowed(user, factionObj))
 		{
 			addError("Die angegebene Fraktion weigert sich, mit Ihnen zu handeln, solange die Beziehungen feindlich sind.");
 			return new RedirectViewResult("default");
@@ -243,7 +243,7 @@ public class FactionController extends Controller
 		// Wenn noch kein Gebot abgegeben wurde -> Versteigerung anzeigen
 		if (bid == 0)
 		{
-			erstelleMenue(t, factionObj);
+			createMenu(t, factionObj);
 
 			int entrywidth = entry.isObjectFixedImageSize() ? 50 : 0;
 			long entrycount = entry.getObjectCount();
@@ -251,27 +251,27 @@ public class FactionController extends Controller
 			String entryimage = entry.getObjectPicture();
 			String entrylink = entry.getObjectUrl();
 
-			String bietername = "";
+			String bidderName = "";
 
 			User bieter = entry.getBieter();
 
 			if (bieter == factionObj.getUser())
 			{
-				bietername = bieter.getName();
+				bidderName = bieter.getName();
 			}
 			else if (bieter.getId() == user.getId())
 			{
-				bietername = bieter.getName();
+				bidderName = bieter.getName();
 			}
 			else if (hasPermission(WellKnownPermission.FRAKTIONEN_BIETERNAME))
 			{
-				bietername = bieter.getName();
+				bidderName = bieter.getName();
 			}
 			else if ((bieter.getAlly() != null) && (bieter.getAlly() == user.getAlly()))
 			{
 				if (bieter.getAlly().getShowGtuBieter())
 				{
-					bietername = bieter.getName();
+					bidderName = bieter.getName();
 				}
 			}
 
@@ -288,7 +288,7 @@ public class FactionController extends Controller
 					"entry.width", entrywidth,
 					"entry.height", entrywidth,
 					"entry.count", entrycount,
-					"bid.player", Common._title(bietername),
+					"bid.player", Common._title(bidderName),
 					"bid.player.id", bieter.getId(),
 					"bid.price", cost,
 					"bid.id", entry.getId());
@@ -353,7 +353,7 @@ public class FactionController extends Controller
 	 * Der Container fuer Sicherheitstokens bei Ueberweisungsvorgaengen.
 	 */
 	@ContextInstance(ContextInstance.Scope.SESSION)
-	protected static class UeberweisungsTokenContainer implements Serializable
+	protected static class TransferTokenContainer implements Serializable
 	{
 		private static final long serialVersionUID = 935839793552232133L;
 
@@ -362,7 +362,7 @@ public class FactionController extends Controller
 		/**
 		 * Konstruktor.
 		 */
-		public UeberweisungsTokenContainer()
+		public TransferTokenContainer()
 		{
 			this.token = UUID.randomUUID().toString();
 		}
@@ -399,7 +399,7 @@ public class FactionController extends Controller
 	@Action(ActionType.DEFAULT)
 	public Object ueberweisenAction(User faction, String to, String ack, int count, @UrlParam(name = "token") String requestToken)
 	{
-		FraktionsGuiEintrag factionObj = ermittleFraktion(faction);
+		FraktionsGuiEintrag factionObj = determineFaction(faction);
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.BANK))
 		{
@@ -407,7 +407,7 @@ public class FactionController extends Controller
 		}
 
 		User user = (User) getUser();
-		if (!istHandelErlaubt(user, factionObj))
+		if (!isTradeAllowed(user, factionObj))
 		{
 			addError("Die angegebene Fraktion weigert sich, mit Ihnen zu handeln, solange die Beziehungen feindlich sind.");
 			return new RedirectViewResult("default");
@@ -430,13 +430,13 @@ public class FactionController extends Controller
 			return new RedirectViewResult("bank");
 		}
 
-		UeberweisungsTokenContainer token = getContext().get(UeberweisungsTokenContainer.class);
+		TransferTokenContainer token = getContext().get(TransferTokenContainer.class);
 
 		// Falls noch keine Bestaetigung vorliegt: Bestaetigung der Ueberweisung erfragen
 		if (!ack.equals("yes") || !token.getToken().equals(requestToken))
 		{
 			TemplateEngine t = templateViewResultFactory.createFor(this);
-			erstelleMenue(t, factionObj);
+			createMenu(t, factionObj);
 
 			token.generateNewToken();
 
@@ -475,7 +475,7 @@ public class FactionController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult showKontoTransactionTypeAction(User faction, int type)
 	{
-		FraktionsGuiEintrag factionObj = ermittleFraktion(faction);
+		FraktionsGuiEintrag factionObj = determineFaction(faction);
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.VERSTEIGERUNG))
 		{
@@ -499,7 +499,7 @@ public class FactionController extends Controller
 	@Action(ActionType.DEFAULT)
 	public Object bankAction(User faction, RedirectViewResult redirect)
 	{
-		FraktionsGuiEintrag factionObj = ermittleFraktion(faction);
+		FraktionsGuiEintrag factionObj = determineFaction(faction);
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.BANK))
 		{
@@ -510,7 +510,7 @@ public class FactionController extends Controller
 		org.hibernate.Session db = getDB();
 		User user = (User) this.getUser();
 
-		erstelleMenue(t, factionObj);
+		createMenu(t, factionObj);
 
 		t.setVar("show.message", redirect != null ? redirect.getMessage() : null);
 		t.setVar("show.bank", 1);
@@ -601,7 +601,7 @@ public class FactionController extends Controller
 	@Action(ActionType.DEFAULT)
 	public Object otherAction(User faction, RedirectViewResult redirect)
 	{
-		FraktionsGuiEintrag factionObj = ermittleFraktion(faction);
+		FraktionsGuiEintrag factionObj = determineFaction(faction);
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.SONSTIGES))
 		{
@@ -609,7 +609,7 @@ public class FactionController extends Controller
 		}
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
-		erstelleMenue(t, factionObj);
+		createMenu(t, factionObj);
 		t.setVar("show.message", redirect != null ? redirect.getMessage() : null);
 
 		org.hibernate.Session db = getDB();
@@ -625,11 +625,11 @@ public class FactionController extends Controller
 		t.setBlock("kurse.listitem", "kurse.waren.listitem", "kurse.waren.list");
 		t.setBlock("kurse.listitem", "kurse.verkaufswaren.listitem", "kurse.verkaufswaren.list");
 
-		outputAstiKurse(t, db);
+		outputAsteroidRates(t, db);
 
 
 
-		List<Ship> postenList = Common.cast(db
+		List<Ship> tradingPosts = Common.cast(db
 				.createQuery("select s from Ship s left join s.modules sm left join s.shiptype st " +
 						"where s.id>0 and locate('tradepost',s.status)!=0 or " +
 						"st.flags like '%tradepost%' or " +
@@ -637,7 +637,7 @@ public class FactionController extends Controller
 						"order by s.system,s.x+s.y")
 				.list());
 
-		for (Ship tradepost : postenList)
+		for (Ship tradepost : tradingPosts)
 		{
 			if (!tradepost.isTradepostVisible(user, relationlist))
 			{
@@ -649,12 +649,12 @@ public class FactionController extends Controller
 				continue;
 			}
 
-			outputHandelspostenKurse(t, db, user, tradepost);
+			outputTradingPostRates(t, db, user, tradepost);
 		}
 		return t;
 	}
 
-	private void outputHandelspostenKurse(TemplateEngine t, org.hibernate.Session db, User user, Ship tradepost)
+	private void outputTradingPostRates(TemplateEngine t, org.hibernate.Session db, User user, Ship tradepost)
 	{
 		GtuWarenKurse kurse = (GtuWarenKurse) db.get(GtuWarenKurse.class, "p" + tradepost.getId());
 		if (kurse == null && tradepost.getOwner().getRace() == Faction.GTU_RACE)
@@ -676,12 +676,12 @@ public class FactionController extends Controller
 
 		boolean full = tradepost.getTypeData().getCargo() <= tradepost.getCargo().getMass();
 
-		Cargo kurseCargo = new Cargo(kurse.getKurse());
-		kurseCargo.setOption(Cargo.Option.SHOWMASS, false);
-		ResourceList reslist = kurseCargo.getResourceList();
+		Cargo ratesCargo = new Cargo(kurse.getKurse());
+		ratesCargo.setOption(Cargo.Option.SHOWMASS, false);
+		ResourceList reslist = ratesCargo.getResourceList();
 		for (ResourceEntry res : reslist)
 		{
-			ResourceLimit limit = fuerSchiffUndItem(tradepost, res.getId(), db);
+			ResourceLimit limit = forShipAndItem(tradepost, res.getId(), db);
 
 			// Kaufen wir diese Ware vom Spieler?
 			if (limit == null || !limit.willBuy(tradepost.getOwner(), user))
@@ -727,10 +727,10 @@ public class FactionController extends Controller
 		t.parse("kurse.list", "kurse.listitem", true);
 	}
 
-	Map<Ship, Map<Integer, ResourceLimit>> tradepostRessourceLimits = new HashMap<Ship, Map<Integer, ResourceLimit>>();
-	private ResourceLimit fuerSchiffUndItem(Ship ship, ResourceID resource, org.hibernate.Session db)
+	Map<Ship, Map<Integer, ResourceLimit>> tradepostResourceLimits = new HashMap<Ship, Map<Integer, ResourceLimit>>();
+	private ResourceLimit forShipAndItem(Ship ship, ResourceID resource, org.hibernate.Session db)
 	{
-		if (!tradepostRessourceLimits.containsKey(ship))
+		if (!tradepostResourceLimits.containsKey(ship))
 		{
 			//org.hibernate.Session db = ContextMap.getContext().getDB();
 			List<ResourceLimit> resLimits =  Common.cast(db.createQuery("from ResourceLimit where ship=:ship")
@@ -744,21 +744,21 @@ public class FactionController extends Controller
 				limits.put(res.getResourceId().getItemID(), res);
 			}
 
-			tradepostRessourceLimits.put(ship, limits);
+			tradepostResourceLimits.put(ship, limits);
 			return limits.get(resource.getItemID());
 		}
 		else
 		{
-			var limits = tradepostRessourceLimits.get(ship);
+			var limits = tradepostResourceLimits.get(ship);
 			return limits.get(resource.getItemID());
 		}
 	}
 
-	private void outputAstiKurse(TemplateEngine t, org.hibernate.Session db)
+	private void outputAsteroidRates(TemplateEngine t, org.hibernate.Session db)
 	{
 		GtuWarenKurse asti = (GtuWarenKurse) db.get(GtuWarenKurse.class, "asti");
-		Cargo kurseCargo = new Cargo(asti.getKurse());
-		kurseCargo.setOption(Cargo.Option.SHOWMASS, false);
+		Cargo ratesCargo = new Cargo(asti.getKurse());
+		ratesCargo.setOption(Cargo.Option.SHOWMASS, false);
 		t.setVar(
 				"posten.name", asti.getName(),
 				"kurse.waren.list", "",
@@ -766,7 +766,7 @@ public class FactionController extends Controller
 				"posten.owner.id", "",
 				"posten.location", "");
 
-		ResourceList reslist = kurseCargo.getResourceList();
+		ResourceList reslist = ratesCargo.getResourceList();
 		for (ResourceEntry res : reslist)
 		{
 			t.setVar("ware.image", res.getImage(),
@@ -788,7 +788,7 @@ public class FactionController extends Controller
 	@Action(ActionType.DEFAULT)
 	public Object angeboteAction(User faction, RedirectViewResult redirect)
 	{
-		FraktionsGuiEintrag factionObj = ermittleFraktion(faction);
+		FraktionsGuiEintrag factionObj = determineFaction(faction);
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.ANGEBOTE))
 		{
@@ -797,7 +797,7 @@ public class FactionController extends Controller
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		org.hibernate.Session db = getDB();
-		erstelleMenue(t, factionObj);
+		createMenu(t, factionObj);
 
 		t.setVar("show.message", redirect != null ? redirect.getMessage() : null);
 		t.setVar("show.angebote", 1);
@@ -842,8 +842,8 @@ public class FactionController extends Controller
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 
-		FraktionsGuiEintrag factionObj = ermittleFraktion(faction);
-		erstelleMenue(t, factionObj);
+		FraktionsGuiEintrag factionObj = determineFaction(faction);
+		createMenu(t, factionObj);
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.VERSTEIGERUNG))
 		{
@@ -858,7 +858,7 @@ public class FactionController extends Controller
 		 * Laufende Handelsvereinbarungen anzeigen (nur solche, die man schon selbst erfuellt hat im
 		 * Moment)
 		 */
-		handelsvereinbarungenAnzeigen(t, db, user);
+		showTradeAgreements(t, db, user);
 
 		/*
 		 * Einzelversteigerungen
@@ -875,25 +875,25 @@ public class FactionController extends Controller
 
 			int entrywidth = entry.isObjectFixedImageSize() ? 50 : 0;
 
-			String bietername = "";
+			String bidderName = "";
 
 			if (bieter == factionObj.getUser())
 			{
-				bietername = bieter.getName();
+				bidderName = bieter.getName();
 			}
 			else if (bieter == user)
 			{
-				bietername = bieter.getName();
+				bidderName = bieter.getName();
 			}
 			else if (hasPermission(WellKnownPermission.FRAKTIONEN_BIETERNAME))
 			{
-				bietername = bieter.getName();
+				bidderName = bieter.getName();
 			}
 			else if ((bieter.getAlly() != null) && (bieter.getAlly() == user.getAlly()))
 			{
 				if (bieter.getAlly().getShowGtuBieter())
 				{
-					bietername = bieter.getName();
+					bidderName = bieter.getName();
 				}
 			}
 
@@ -911,7 +911,7 @@ public class FactionController extends Controller
 					"entry.type.name", entryname,
 					"entry.type.image", entry.getObjectPicture(),
 					"entry.preis", Common.ln(entry.getPreis()),
-					"entry.bieter", Common._title(bietername),
+					"entry.bieter", Common._title(bidderName),
 					"entry.bieter.id", entry.getBieter().getId(),
 					"entry.dauer", entry.getTick() - ticks,
 					"entry.aukid", entry.getId(),
@@ -921,7 +921,7 @@ public class FactionController extends Controller
 					"entry.user.name", ownername,
 					"entry.user.id", entry.getOwner().getId(),
 					"entry.user", (entry.getOwner() != factionObj.getUser()),
-					"entry.bidAllowed", istHandelErlaubt(user, factionObj),
+					"entry.bidAllowed", isTradeAllowed(user, factionObj),
 					"entry.ownauction", (entry.getOwner() == user));
 
 			t.parse("entry.list", "entry.listitem", true);
@@ -930,15 +930,15 @@ public class FactionController extends Controller
 		t.setBlock("_ERSTEIGERN", "gtu.dropzones.listitem", "gtu.dropzones.list");
 
 
-		dropZoneAuswahlAnzeigen(t, db, user);
+		showDropZoneSelection(t, db, user);
 		return t;
 	}
 
-	private void handelsvereinbarungenAnzeigen(TemplateEngine t, Session db, User user)
+	private void showTradeAgreements(TemplateEngine t, Session db, User user)
 	{
 		t.setBlock("_ERSTEIGERN", "gtuzwischenlager.listitem", "gtuzwischenlager.list");
 
-		Set<Ship> gzlliste = new HashSet<>();
+		Set<Ship> depotShips = new HashSet<>();
 
 		List<?> entries = db.createQuery("from GtuZwischenlager where user1= :user or user2= :user")
 				.setEntity("user", user).list();
@@ -955,23 +955,23 @@ public class FactionController extends Controller
 
 			if (owncargoneed.isEmpty())
 			{
-				gzlliste.add(aentry.getPosten());
+				depotShips.add(aentry.getPosten());
 			}
 		}
 
-		for (Ship aposten : gzlliste)
+		for (Ship tradingPost : depotShips)
 		{
-			t.setVar("gtuzwischenlager.name", Common._plaintitle(aposten.getName()),
-					"gtuzwischenlager.location", aposten.getLocation().displayCoordinates(true),
-					"gtuzwischenlager.location.url", aposten.getLocation().urlFragment());
+			t.setVar("gtuzwischenlager.name", Common._plaintitle(tradingPost.getName()),
+					"gtuzwischenlager.location", tradingPost.getLocation().displayCoordinates(true),
+					"gtuzwischenlager.location.url", tradingPost.getLocation().urlFragment());
 
 			t.parse("gtuzwischenlager.list", "gtuzwischenlager.listitem", true);
 		}
 	}
 
-	private void dropZoneAuswahlAnzeigen(TemplateEngine t, Session db, User user)
+	private void showDropZoneSelection(TemplateEngine t, Session db, User user)
 	{
-		List<StarSystem> dropZones = ermittleMoeglicheDropZones();
+		List<StarSystem> dropZones = determinePossibleDropZones();
 		StarSystem aktuelleDropZone = (StarSystem) db.get(StarSystem.class, user.getGtuDropZone());
 		if (!dropZones.contains(aktuelleDropZone))
 		{
@@ -988,7 +988,7 @@ public class FactionController extends Controller
 	}
 
 
-	public List<StarSystem> ermittleMoeglicheDropZones()
+	public List<StarSystem> determinePossibleDropZones()
 	{
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
@@ -1017,7 +1017,7 @@ public class FactionController extends Controller
 	@Action(ActionType.DEFAULT)
 	public Object generalAction(User faction, RedirectViewResult redirect)
 	{
-		FraktionsGuiEintrag factionObj = ermittleFraktion(faction);
+		FraktionsGuiEintrag factionObj = determineFaction(faction);
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.ALLGEMEIN))
 		{
@@ -1025,7 +1025,7 @@ public class FactionController extends Controller
 		}
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
-		erstelleMenue(t, factionObj);
+		createMenu(t, factionObj);
 
 		t.setVar("show.message", redirect != null ? redirect.getMessage() : null);
 		t.setVar("show.general", 1, "global.faction.text", Common._text(factionObj.getText()));
@@ -1051,14 +1051,14 @@ public class FactionController extends Controller
 		User user = (User) getUser();
 		org.hibernate.Session db = getDB();
 
-		FraktionsGuiEintrag factionObj = ermittleFraktion(faction);
+		FraktionsGuiEintrag factionObj = determineFaction(faction);
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.SHOP))
 		{
 			return new RedirectViewResult("default");
 		}
 
-		if (!istHandelErlaubt(user, factionObj))
+		if (!isTradeAllowed(user, factionObj))
 		{
 			addError("Die angegebene Fraktion weigert sich mit, Ihnen zu handeln, solange die Beziehungen feindlich sind.");
 			return new RedirectViewResult("default");
@@ -1138,7 +1138,7 @@ public class FactionController extends Controller
 		}
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
-		erstelleMenue(t, factionObj);
+		createMenu(t, factionObj);
 
 		long totalcost = 0;
 		JumpNodeRouter.Result shortestpath = new JumpNodeRouter(jumpnodes)
@@ -1275,14 +1275,14 @@ public class FactionController extends Controller
 		User user = (User) getUser();
 		org.hibernate.Session db = getDB();
 
-		FraktionsGuiEintrag factionObj = ermittleFraktion(faction);
+		FraktionsGuiEintrag factionObj = determineFaction(faction);
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.SHOP))
 		{
 			return new RedirectViewResult("default");
 		}
 
-		if (!istHandelErlaubt(user, factionObj))
+		if (!isTradeAllowed(user, factionObj))
 		{
 			addError("Die angegebene Fraktion weigert sich, mit Ihnen zu handeln, solange die Beziehungen feindlich sind.");
 			return new RedirectViewResult("default");
@@ -1308,7 +1308,7 @@ public class FactionController extends Controller
 		}
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
-		erstelleMenue(t, factionObj);
+		createMenu(t, factionObj);
 
 		t.setBlock("_ERSTEIGERN", "ganytrans.sourcesystem.listitem", "ganytrans.sourcesystem.list");
 		t.setBlock("_ERSTEIGERN", "ganytrans.ganymedes.listitem", "ganytrans.ganymedes.list");
@@ -1456,14 +1456,14 @@ public class FactionController extends Controller
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 
-		FraktionsGuiEintrag factionObj = ermittleFraktion(faction);
+		FraktionsGuiEintrag factionObj = determineFaction(faction);
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.SHOP))
 		{
 			return new RedirectViewResult("default");
 		}
 
-		if (!istHandelErlaubt(user, factionObj))
+		if (!isTradeAllowed(user, factionObj))
 		{
 			addError("Die angegebene Fraktion weigert sich, mit Ihnen zu handeln, solange die Beziehungen feindlich sind.");
 			return new RedirectViewResult("default");
@@ -1525,7 +1525,7 @@ public class FactionController extends Controller
 		if (ordersys == 0 || orderx == 0 || ordery == 0)
 		{
 			TemplateEngine t = templateViewResultFactory.createFor(this);
-			erstelleMenue(t, factionObj);
+			createMenu(t, factionObj);
 
 			t.setVar("show.shopOrderLocation", 1,
 					"order.count", ordercount,
@@ -1544,11 +1544,11 @@ public class FactionController extends Controller
 
 			db.persist(order);
 
-			String bestellId = "#" + entry.getType() + entry.getResource() + "XX";
+			String orderId = "#" + entry.getType() + entry.getResource() + "XX";
 
 			if (entry.getLpKosten() > 0)
 			{
-				Loyalitaetspunkte lp = new Loyalitaetspunkte(user, factionUser, "Bestellung " + bestellId, (int) (-ordercount * entry.getLpKosten()));
+				Loyalitaetspunkte lp = new Loyalitaetspunkte(user, factionUser, "Bestellung " + orderId, (int) (-ordercount * entry.getLpKosten()));
 				user.getLoyalitaetspunkte().add(lp);
 				db.persist(lp);
 			}
@@ -1556,7 +1556,7 @@ public class FactionController extends Controller
 			if (entry.getPrice() > 0)
 			{
 				factionUser.transferMoneyFrom(user.getId(), entry.getPrice() * ordercount,
-						"&Uuml;berweisung Bestellung " + bestellId
+						"&Uuml;berweisung Bestellung " + orderId
 								+ ordercount);
 			}
 
@@ -1594,7 +1594,7 @@ public class FactionController extends Controller
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 
-		FraktionsGuiEintrag factionObj = ermittleFraktion(faction);
+		FraktionsGuiEintrag factionObj = determineFaction(faction);
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.SHOP))
 		{
@@ -1662,7 +1662,7 @@ public class FactionController extends Controller
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
 
-		FraktionsGuiEintrag factionObj = ermittleFraktion(faction);
+		FraktionsGuiEintrag factionObj = determineFaction(faction);
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.SHOP))
 		{
@@ -1718,7 +1718,7 @@ public class FactionController extends Controller
 	{
 		User user = (User) getUser();
 
-		FraktionsGuiEintrag factionObj = ermittleFraktion(faction);
+		FraktionsGuiEintrag factionObj = determineFaction(faction);
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.SHOP))
 		{
@@ -1803,7 +1803,7 @@ public class FactionController extends Controller
 		var db = getEM();
 		User user = (User) getUser();
 
-		FraktionsGuiEintrag factionObj = ermittleFraktion(faction);
+		FraktionsGuiEintrag factionObj = determineFaction(faction);
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.AUSBAU))
 		{
@@ -1811,7 +1811,7 @@ public class FactionController extends Controller
 		}
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
-		erstelleMenue(t, factionObj);
+		createMenu(t, factionObj);
 
 		t.setVar("show.message", redirect != null ? redirect.getMessage() : null);
 
@@ -1841,11 +1841,11 @@ public class FactionController extends Controller
 
 			// Alle Werte wurden übergeben, nur noch testen ob sie akzeptabel sind
 			// Für jeden Asti darf maximal ein Auftrag in der DB sein
-			UpgradeJob auftrag = db.createQuery("from UpgradeJob where base=:base", UpgradeJob.class)
+			UpgradeJob job = db.createQuery("from UpgradeJob where base=:base", UpgradeJob.class)
 					.setParameter("base", base)
 					.getResultList().stream().findFirst().orElse(null);
 
-			if (auftrag != null)
+			if (job != null)
 			{
 				addError("Für diesen Asteroid besteht bereits ein Auftrag.");
 				return new RedirectViewResult("default");
@@ -1863,19 +1863,19 @@ public class FactionController extends Controller
 			}
 
 			// Erstelle einen neuen Auftrag
-			auftrag = new UpgradeJob(base, user, bar, colonizer);
-			upgrades.stream().filter(Objects::nonNull).forEach(auftrag::addUpgrade);
+			job = new UpgradeJob(base, user, bar, colonizer);
+			upgrades.stream().filter(Objects::nonNull).forEach(job::addUpgrade);
 
 			User factionUser = factionObj.getUser();
 			if (!bar)
 			{
 				// Testen ob genuegend Geld vorhanden ist um es uns untern Nagel zu reiszen
-				if (user.getKonto().compareTo(new BigDecimal(auftrag.getPrice(db)).toBigInteger()) < 0)
+				if (user.getKonto().compareTo(new BigDecimal(job.getPrice(db)).toBigInteger()) < 0)
 				{
 					addError("Sie verfügen nicht über genug Geld.");
 					return new RedirectViewResult("default");
 				}
-				factionUser.transferMoneyFrom(user.getId(), auftrag.getPrice(db), "Ausbau von " + base.getName());
+				factionUser.transferMoneyFrom(user.getId(), job.getPrice(db), "Ausbau von " + base.getName());
 			}
 
 			// Den Besitzer des Colonizers ändern
@@ -1886,12 +1886,12 @@ public class FactionController extends Controller
 			}
 
 			// Auftrag speichern
-			db.persist(auftrag);
+			db.persist(job);
 
 			// Erstelle einen neuen Task für den Auftrag
 			Taskmanager taskmanager = Taskmanager.getInstance();
 			taskmanager.addTask(Taskmanager.Types.UPGRADE_JOB, 1,
-					Integer.toString(auftrag.getId()), "0", Integer.toString(factionObj.getUser().getId()));
+					Integer.toString(job.getId()), "0", Integer.toString(factionObj.getUser().getId()));
 
 			return new RedirectViewResult("default").withMessage("Ihr Auftrag wurde an den zuständigen Sachbearbeiter weitergeleitet. Die Baumaßnahmen werden in kürze beginnen.");
 		}
@@ -1905,13 +1905,13 @@ public class FactionController extends Controller
         t.setBlock("_ERSTEIGERN", "ausbau.upgradetypes.javascript.2.listitem", "ausbau.upgradetypes.javascript.2.list");
         t.setBlock("ausbau.upgradetypes.listitem", "ausbau.upgradetypes.mods.listitem", "ausbau.upgradetypes.mods.list");
 
-        ConfigValue configrabattfaktor = configService.get(WellKnownConfigValue.DI_DISCOUNT_FACTOR);
-        ConfigValue configzeitfaktor = configService.get(WellKnownConfigValue.DI_TIME_FACTOR);
-        double rabattfaktor = Double.parseDouble(configrabattfaktor.getValue());
-        double zeitfaktor = Double.parseDouble(configzeitfaktor.getValue());
+        ConfigValue configDiscountFactor = configService.get(WellKnownConfigValue.DI_DISCOUNT_FACTOR);
+        ConfigValue configTimeFactor = configService.get(WellKnownConfigValue.DI_TIME_FACTOR);
+        double discountFactor = Double.parseDouble(configDiscountFactor.getValue());
+        double timeFactor = Double.parseDouble(configTimeFactor.getValue());
 
-        t.setVar("ausbau.rabattfaktordi", rabattfaktor,
-                 "ausbau.zeitfaktordi", zeitfaktor );
+        t.setVar("ausbau.rabattfaktordi", discountFactor,
+                 "ausbau.zeitfaktordi", timeFactor );
 
         // Hole alle Astis des Spielers und markiere gewaehlten Asti
 		Set<Base> astis = user.getBases();
@@ -2015,7 +2015,7 @@ public class FactionController extends Controller
 		var db = getEM();
 		User user = (User) getUser();
 
-		FraktionsGuiEintrag factionObj = ermittleFraktion(faction);
+		FraktionsGuiEintrag factionObj = determineFaction(faction);
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.SHOP))
 		{
@@ -2025,7 +2025,7 @@ public class FactionController extends Controller
 		User factionUser = factionObj.getUser();
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
-		erstelleMenue(t, factionObj);
+		createMenu(t, factionObj);
 		t.setVar("show.message", redirect != null ? redirect.getMessage() : null);
 		t.setVar("show.shop", 1);
 
@@ -2035,11 +2035,11 @@ public class FactionController extends Controller
 
 		if (factionObj.getUser() != user)
 		{
-			eigeneBestellungenImShopAnzeigen(db, user, factionObj, t);
+			showOwnShopOrders(db, user, factionObj, t);
 		}
 		else
 		{
-			alleBestellungenImShopAnzeigen(db, factionObj, t);
+			showAllShopOrders(db, factionObj, t);
 		}
 
 		// Zuerst alle Ganymed-Transportdaten auslesen
@@ -2049,7 +2049,7 @@ public class FactionController extends Controller
 				.setParameter("faction", factionObj.getUser())
 				.getResultList();
 
-		final boolean handelErlaubt = istHandelErlaubt(user, factionObj);
+		final boolean tradeAllowed = isTradeAllowed(user, factionObj);
 		// Falls vorhanden jetzt eine Ganymed-Infozeile ausgeben
 		if (!ganyEntryList.isEmpty())
 		{
@@ -2065,7 +2065,7 @@ public class FactionController extends Controller
 					"entry.price", shopEntryObj.getPriceAsText(),
 					"entry.lpkosten", shopEntryObj.getLpKosten() > 0 ? Common.ln(shopEntryObj.getLpKosten()) : "",
 					"entry.showamountinput", shopEntryObj.showAmountInput(),
-					"entry.orderable", handelErlaubt);
+					"entry.orderable", tradeAllowed);
 
 			t.parse("shop.list", "shop.listitem", true);
 		}
@@ -2098,14 +2098,14 @@ public class FactionController extends Controller
 					"entry.lpkosten", shopEntryObj.getLpKosten() > 0 ? Common.ln(shopEntryObj.getLpKosten()) : "",
 					"entry.showamountinput", shopEntryObj.showAmountInput(),
 					"entry.npcrang", factionUser.getOwnGrantableRank(shopentry.getMinRank()),
-					"entry.orderable", handelErlaubt && shopentry.canBuy(user));
+					"entry.orderable", tradeAllowed && shopentry.canBuy(user));
 
 			t.parse("shop.list", "shop.listitem", true);
 		}
 		return t;
 	}
 
-	private void alleBestellungenImShopAnzeigen(EntityManager db, FraktionsGuiEintrag factionObj, TemplateEngine t)
+	private void showAllShopOrders(EntityManager db, FraktionsGuiEintrag factionObj, TemplateEngine t)
 	{
 		t.setVar("shop.owner", 1);
 
@@ -2162,7 +2162,7 @@ public class FactionController extends Controller
 		}
 	}
 
-	private void eigeneBestellungenImShopAnzeigen(EntityManager db, User user, FraktionsGuiEintrag factionObj, TemplateEngine t)
+	private void showOwnShopOrders(EntityManager db, User user, FraktionsGuiEintrag factionObj, TemplateEngine t)
 	{
 		List<FactionShopOrder> orderentryList = db.createQuery(
 						"from FactionShopOrder as fso "
@@ -2229,7 +2229,7 @@ public class FactionController extends Controller
 	@Action(ActionType.DEFAULT)
 	public Object aktionMeldenAction(User faction, RedirectViewResult redirect)
 	{
-		FraktionsGuiEintrag factionObj = ermittleFraktion(faction);
+		FraktionsGuiEintrag factionObj = determineFaction(faction);
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.AKTION_MELDEN))
 		{
@@ -2237,7 +2237,7 @@ public class FactionController extends Controller
 		}
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
-		erstelleMenue(t, factionObj);
+		createMenu(t, factionObj);
 		t.setVar("show.message", redirect != null ? redirect.getMessage() : null);
 		t.setVar("show.aktionmelden", 1);
 		return t;
@@ -2255,7 +2255,7 @@ public class FactionController extends Controller
 		var db = getEM();
 		User user = (User) getUser();
 
-		FraktionsGuiEintrag factionObj = ermittleFraktion(faction);
+		FraktionsGuiEintrag factionObj = determineFaction(faction);
 
 		if (!factionObj.getSeiten().contains(FraktionsGuiEintrag.Seite.AKTION_MELDEN))
 		{
@@ -2287,7 +2287,7 @@ public class FactionController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult defaultAction(User faction)
 	{
-		FraktionsGuiEintrag factionObj = ermittleFraktion(faction);
+		FraktionsGuiEintrag factionObj = determineFaction(faction);
 		return new RedirectViewResult(factionObj.getErsteSeite().getId());
 	}
 }
