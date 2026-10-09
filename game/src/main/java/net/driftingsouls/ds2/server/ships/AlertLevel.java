@@ -65,7 +65,7 @@ public enum AlertLevel
 	 * Gibt den Faktor fuer die Energiekosten bei dieser Alarmstufe zurueck.
 	 * @return Der Faktor
 	 */
-	public double getEnergiekostenFaktor()
+	public double getEnergyCostFactor()
 	{
 		return energyCostFactor;
 	}

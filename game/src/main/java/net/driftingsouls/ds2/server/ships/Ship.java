@@ -2682,7 +2682,7 @@ public class Ship implements Locatable,Transfering,Feeding {
 	 */
 	public int getAlertEnergyCost()
 	{
-		return (int)Math.ceil(this.getTypeData().getRm() * alarm.getEnergiekostenFaktor());
+		return (int)Math.ceil(this.getTypeData().getRm() * alarm.getEnergyCostFactor());
 	}
 
 	/**
