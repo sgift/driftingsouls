@@ -85,12 +85,12 @@ public class CollectDeuteriumController extends Controller
 		return ships;
 	}
 
-	private Nebel determineNebulaForShipList(List<Ship> schiffe)
+	private Nebel determineNebulaForShipList(List<Ship> shipList)
 	{
 		org.hibernate.Session db = getDB();
 
-		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", schiffe.get(0).getId());
-		Nebel nebel = (Nebel) db.get(Nebel.class, new MutableLocation(schiffe.get(0)));
+		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", shipList.get(0).getId());
+		Nebel nebel = (Nebel) db.get(Nebel.class, new MutableLocation(shipList.get(0)));
 		if (nebel == null)
 		{
 			throw new ValidationException("Der Nebel befindet sich nicht im selben Sektor wie das Schiff", errorurl);
@@ -103,12 +103,12 @@ public class CollectDeuteriumController extends Controller
 		return nebel;
 	}
 
-	private void filterShipList(List<Ship> schiffe, Nebel nebel)
+	private void filterShipList(List<Ship> shipList, Nebel nebel)
 	{
-		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", schiffe.get(0).getId());
+		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", shipList.get(0).getId());
 
 		String lastError = null;
-		for (Iterator<Ship> iter = schiffe.iterator(); iter.hasNext(); )
+		for (Iterator<Ship> iter = shipList.iterator(); iter.hasNext(); )
 		{
 			Ship ship = iter.next();
 			if (!nebel.getLocation().sameSector(0, ship, 0))
@@ -133,7 +133,7 @@ public class CollectDeuteriumController extends Controller
 			}
 		}
 
-		if (schiffe.isEmpty())
+		if (shipList.isEmpty())
 		{
 			throw new ValidationException(lastError, errorurl);
 		}
