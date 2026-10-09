@@ -207,7 +207,7 @@ public class BoardController extends Controller
 
 		User targetUser = (User) getDB().get(User.class, zielSchiff.getOwner().getId());
 
-		String kapermessage = "<div align=\"center\">Die Einheiten st&uuml;rmen die " + zielSchiff.getName() + ".</div><br />";
+		String boardingMessage = "<div align=\"center\">Die Einheiten st&uuml;rmen die " + zielSchiff.getName() + ".</div><br />";
 		StringBuilder msg = new StringBuilder();
 
 		//Trying to steal a ship already costs bounty or one could help another player to get a ship without any penalty
@@ -255,12 +255,12 @@ public class BoardController extends Controller
 
 			msg.append("Die Einheiten der ").append(eigenesSchiff.getName()).append(" (").append(eigenesSchiff.getId()).append("), ein(e) ").append(eigenesSchiff.getTypeData().getNickname()).append(", stürmen die ").append(zielSchiff.getName()).append(" (").append(zielSchiff.getId()).append("), ein(e) ").append(zielSchiff.getTypeData().getNickname()).append(", bei ").append(zielSchiff.getLocation().displayCoordinates(false)).append(".\n\n");
 
-			StringBuilder kapernLog = new StringBuilder();
-			ok = doFighting(kapernLog, eigenesSchiff, zielSchiff);
+			StringBuilder boardingLog = new StringBuilder();
+			ok = doFighting(boardingLog, eigenesSchiff, zielSchiff);
 
-			msg.append(kapernLog);
+			msg.append(boardingLog);
 
-			t.setVar("kapern.message", kapermessage + kapernLog.toString().replace("\n", "<br />"));
+			t.setVar("kapern.message", boardingMessage + boardingLog.toString().replace("\n", "<br />"));
 
 		}
 		// Falls keine Crew auf dem Zielschiff vorhanden ist
@@ -268,7 +268,7 @@ public class BoardController extends Controller
 		{
 			ok = true;
 
-			t.setVar("kapern.message", kapermessage + "Das Schiff wird widerstandslos &uuml;bernommen.");
+			t.setVar("kapern.message", boardingMessage + "Das Schiff wird widerstandslos &uuml;bernommen.");
 
 			msg.append("Das Schiff ").append(zielSchiff.getName()).append("(").append(zielSchiff.getId()).append("), eine ").append(zielSchiff.getTypeData().getNickname()).append(", wird bei ").append(zielSchiff.getLocation().displayCoordinates(false)).append(" an ").append(eigenesSchiff.getName()).append(" (").append(eigenesSchiff.getId()).append(") &uuml;bergeben.\n");
 		}
@@ -391,13 +391,13 @@ public class BoardController extends Controller
 		if (!ownUnits.isEmpty() && !(enemyUnits.isEmpty() && targetShip.getCrew() == 0))
 		{
 
-			UnitCargo toteeigeneUnits = new TransientUnitCargo();
-			UnitCargo totefeindlicheUnits = new TransientUnitCargo();
+			UnitCargo ownDeadUnits = new TransientUnitCargo();
+			UnitCargo enemyDeadUnits = new TransientUnitCargo();
 
-			if (ownUnits.board(enemyUnits, toteeigeneUnits, totefeindlicheUnits, dcrew, attmulti, defmulti))
+			if (ownUnits.board(enemyUnits, ownDeadUnits, enemyDeadUnits, dcrew, attmulti, defmulti))
 			{
 				ok = true;
-				if (toteeigeneUnits.isEmpty() && totefeindlicheUnits.isEmpty())
+				if (ownDeadUnits.isEmpty() && enemyDeadUnits.isEmpty())
 				{
 					if (attoffizier != null)
 					{
@@ -408,8 +408,8 @@ public class BoardController extends Controller
 				else
 				{
 					msg.append("Das Schiff ist verloren.\n");
-					Map<UnitType, Long> ownunitlist = toteeigeneUnits.getUnitMap();
-					Map<UnitType, Long> enemyunitlist = totefeindlicheUnits.getUnitMap();
+					Map<UnitType, Long> ownunitlist = ownDeadUnits.getUnitMap();
+					Map<UnitType, Long> enemyunitlist = enemyDeadUnits.getUnitMap();
 
 					if (!ownunitlist.isEmpty())
 					{
@@ -438,8 +438,8 @@ public class BoardController extends Controller
 			else
 			{
 				msg.append("Angreifer flieht.\n");
-				Map<UnitType, Long> ownunitlist = toteeigeneUnits.getUnitMap();
-				Map<UnitType, Long> enemyunitlist = totefeindlicheUnits.getUnitMap();
+				Map<UnitType, Long> ownunitlist = ownDeadUnits.getUnitMap();
+				Map<UnitType, Long> enemyunitlist = enemyDeadUnits.getUnitMap();
 
 				if (!ownunitlist.isEmpty())
 				{
