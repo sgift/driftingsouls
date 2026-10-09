@@ -125,11 +125,11 @@ public class CargoDefault implements ShipPlugin {
 			}
 			if(usenahrung > 0)
 			{
-				long maxnahrung = ship.getTypeData().getNahrungCargo();
+				long maxFood = ship.getTypeData().getNahrungCargo();
 				Cargo cargo = ship.getCargo();
-				if( (usenahrung + ship.getNahrungCargo()) > maxnahrung)
+				if( (usenahrung + ship.getNahrungCargo()) > maxFood)
 				{
-					usenahrung = maxnahrung - ship.getNahrungCargo();
+					usenahrung = maxFood - ship.getNahrungCargo();
 				}
 				if(usenahrung > cargo.getResourceCount(Resources.NAHRUNG))
 				{
