@@ -97,7 +97,7 @@ public class TradepostController extends Controller
 		// generate Maps which contain the SellLimits and den ResourceLimits of the Tradepost
 		Map<ResourceID, SellLimit> selllistmap = new LinkedHashMap<>();
 		Map<ResourceID, ResourceLimit> buylistmap = new LinkedHashMap<>();
-		GtuWarenKurse kurse = ladeAnUndVerkaufsdaten(ship, selllistmap, buylistmap);
+		GtuWarenKurse kurse = loadBuyAndSellData(ship, selllistmap, buylistmap);
 		Cargo buylistgtu = kurse.getKurse();
 
 
@@ -109,7 +109,7 @@ public class TradepostController extends Controller
 		// build form
 		for (Item aitem : itemlist)
 		{
-			itemAnzeigen(t, user, selllistmap, buylistmap, buylistgtu, aitem);
+			showItem(t, user, selllistmap, buylistmap, buylistgtu, aitem);
 		}
 
 		t.setBlock("_TRADEPOST", "tradepostvisibility.list", "tradepostvisibility.post");
@@ -124,7 +124,7 @@ public class TradepostController extends Controller
 		return t;
 	}
 
-	private void itemAnzeigen(TemplateEngine t, User user, Map<ResourceID, SellLimit> selllistmap, Map<ResourceID, ResourceLimit> buylistmap, Cargo buylistgtu, Item aitem)
+	private void showItem(TemplateEngine t, User user, Map<ResourceID, SellLimit> selllistmap, Map<ResourceID, ResourceLimit> buylistmap, Cargo buylistgtu, Item aitem)
 	{
 		ItemID itemId = new ItemID(aitem.getID());
 
@@ -190,7 +190,7 @@ public class TradepostController extends Controller
 		}
 	}
 
-	private GtuWarenKurse ladeAnUndVerkaufsdaten(Ship ship, Map<ResourceID, SellLimit> selllistmap, Map<ResourceID, ResourceLimit> buylistmap)
+	private GtuWarenKurse loadBuyAndSellData(Ship ship, Map<ResourceID, SellLimit> selllistmap, Map<ResourceID, ResourceLimit> buylistmap)
 	{
 		Session db = getDB();
 
@@ -200,7 +200,7 @@ public class TradepostController extends Controller
 		// get all ResourceLimits of this ship
 		List<ResourceLimit> buylimitlist = Common.cast(db.createQuery("from ResourceLimit where ship=:ship").setParameter("ship", ship).list());
 		// get GtuWarenKurse cause of fucking database structure
-		GtuWarenKurse kurse = ermittleKurseFuerSchiff(ship);
+		GtuWarenKurse kurse = determineRatesForShip(ship);
 
 		for (SellLimit limit : selllimitlist)
 		{
@@ -215,7 +215,7 @@ public class TradepostController extends Controller
 		return kurse;
 	}
 
-	private GtuWarenKurse ermittleKurseFuerSchiff(Ship ship)
+	private GtuWarenKurse determineRatesForShip(Ship ship)
 	{
 		User user = (User) getUser();
 		Session db = getDB();
@@ -290,7 +290,7 @@ public class TradepostController extends Controller
 		Map<ResourceID, SellLimit> selllistmap = new LinkedHashMap<>();
 		Map<ResourceID, ResourceLimit> buylistmap = new LinkedHashMap<>();
 
-		GtuWarenKurse kurse = ladeAnUndVerkaufsdaten(ship, selllistmap, buylistmap);
+		GtuWarenKurse kurse = loadBuyAndSellData(ship, selllistmap, buylistmap);
 
 		t.setVar("tradepost.id", ship.getId(),
 				"tradepost.image", ship.getTypeData().getPicture(),
