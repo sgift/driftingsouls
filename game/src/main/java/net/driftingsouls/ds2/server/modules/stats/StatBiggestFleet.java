@@ -51,7 +51,7 @@ public class StatBiggestFleet extends AbstractStatistic implements Statistic {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 
-		ShipClasses[] zuIgnorierendeSchiffsklassen = {
+		ShipClasses[] ignoredShipClasses = {
 				ShipClasses.UNBEKANNT,
 				ShipClasses.TRANSPORTER,
 				ShipClasses.TANKER,
@@ -77,7 +77,7 @@ public class StatBiggestFleet extends AbstractStatistic implements Statistic {
 					"group by o " +
 					"order by "+sumStatement+" desc, o.id asc")
 				.setInteger("minid", StatsController.MIN_USER_ID)
-				.setParameterList("classes", zuIgnorierendeSchiffsklassen)
+				.setParameterList("classes", ignoredShipClasses)
 				.setMaxResults(size)
 				.list();
 
@@ -95,7 +95,7 @@ public class StatBiggestFleet extends AbstractStatistic implements Statistic {
 					"group by ally " +
 					"order by "+sumStatement+" desc, ally.id asc")
 					.setInteger("minid", StatsController.MIN_USER_ID)
-					.setParameterList("classes", zuIgnorierendeSchiffsklassen)
+					.setParameterList("classes", ignoredShipClasses)
 					.setMaxResults(size)
 					.list();
 
