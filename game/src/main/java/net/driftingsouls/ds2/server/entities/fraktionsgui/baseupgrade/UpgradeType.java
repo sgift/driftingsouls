@@ -61,9 +61,9 @@ public enum UpgradeType
 		}
 
 		@Override
-		public String getUpgradeText(int modwert)
+		public String getUpgradeText(int modValue)
 		{
-			if (modwert > 0)
+			if (modValue > 0)
 			{
 				return "Core entfernen";
 			}
@@ -111,9 +111,9 @@ public enum UpgradeType
 		}
 
 		@Override
-		public String getUpgradeText(int modwert)
+		public String getUpgradeText(int modValue)
 		{
-			return "+" + Common.ln(modwert) + " Felder";
+			return "+" + Common.ln(modValue) + " Felder";
 		}
 	},
 	CARGO("CargoUpgrade", "Cargo-Ausbau")
@@ -145,9 +145,9 @@ public enum UpgradeType
 		}
 
 		@Override
-		public String getUpgradeText(int modwert)
+		public String getUpgradeText(int modValue)
 		{
-			return "+" + Common.ln(modwert) + " Cargo";
+			return "+" + Common.ln(modValue) + " Cargo";
 		}
 	},
     EPS("EPSUpgrade", "Energiespeicher-Ausbau")
@@ -179,9 +179,9 @@ public enum UpgradeType
         }
 
         @Override
-        public String getUpgradeText(int modwert)
+        public String getUpgradeText(int modValue)
         {
-            return "+" + Common.ln(modwert) + " Energiespeicher";
+            return "+" + Common.ln(modValue) + " Energiespeicher";
         }
     };
 
@@ -247,5 +247,5 @@ public enum UpgradeType
 	 *
 	 * @return der Text zur Auswahl
 	 */
-	public abstract String getUpgradeText(int modwert);
+	public abstract String getUpgradeText(int modValue);
 }
