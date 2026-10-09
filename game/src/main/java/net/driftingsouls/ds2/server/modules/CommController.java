@@ -567,12 +567,12 @@ public class CommController extends Controller
 				pm.setGelesen(1);
 			}
 
-			User empfaenger = pm.getEmpfaenger();
+			User recipient = pm.getEmpfaenger();
 			sender = user;
-			if (empfaenger != null)
+			if (recipient != null)
 			{
-				t.setVar("pm.empfaenger", empfaenger.getId(),
-						"pm.empfaenger.name", Common._title(empfaenger.getName()));
+				t.setVar("pm.empfaenger", recipient.getId(),
+						"pm.empfaenger.name", Common._title(recipient.getName()));
 			}
 			else
 			{
