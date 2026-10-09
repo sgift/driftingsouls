@@ -717,7 +717,7 @@
 		/**
 		 * @name success
 		 * @function
-		 * @param {function(data:ds.viewmodel.modules.NpcController.RaengeMenuViewModel)} callback
+		 * @param {function(data:ds.viewmodel.modules.NpcController.RanksMenuViewModel)} callback
 		 * @memberof DsAjaxPromise_NpcControllerStub_raengeMenuAction
 		 **/
 		success : function(callback) {}
@@ -1372,7 +1372,7 @@
 	 * @property {ds.viewmodel.modules.MapController.SectorViewModel.NebulaViewModel} nebel
 	 **/
 	/**
-	 * @typedef {object} ds.viewmodel.modules.NpcController.RaengeMenuViewModel
+	 * @typedef {object} ds.viewmodel.modules.NpcController.RanksMenuViewModel
 	 * @property {ds.viewmodel.modules.viewmodels.UserViewModel} user
 	 * @property {number} aktiverRang
 	 * @property {object} raenge

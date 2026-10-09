@@ -403,7 +403,7 @@ public class NpcController extends Controller
 	@ViewModel
 	public static class LpMenuViewModel extends NpcViewModel
 	{
-		public static class LpMenuLoyalitaetspunkteViewModel extends LoyaltyPointsViewModel
+		public static class LpMenuLoyaltyPointsViewModel extends LoyaltyPointsViewModel
 		{
 			public UserViewModel verliehenDurch;
 		}
@@ -411,7 +411,7 @@ public class NpcController extends Controller
 		public boolean alleMeldungen;
 		public final List<FactionActionReportViewModel> meldungen = new ArrayList<>();
 		public UserViewModel user;
-		public final List<LpMenuLoyalitaetspunkteViewModel> lpListe = new ArrayList<>();
+		public final List<LpMenuLoyaltyPointsViewModel> lpListe = new ArrayList<>();
 		public String rang;
 		public int lpBeiNpc;
 	}
@@ -468,7 +468,7 @@ public class NpcController extends Controller
 
 		for (Loyalitaetspunkte lp : new TreeSet<>(edituser.getLoyalitaetspunkte()))
 		{
-			LpMenuViewModel.LpMenuLoyalitaetspunkteViewModel lpObj = new LpMenuViewModel.LpMenuLoyalitaetspunkteViewModel();
+			LpMenuViewModel.LpMenuLoyaltyPointsViewModel lpObj = new LpMenuViewModel.LpMenuLoyaltyPointsViewModel();
 			LoyaltyPointsViewModel.map(lp, lpObj);
 			lpObj.verliehenDurch = UserViewModel.map(lp.getVerliehenDurch());
 
@@ -481,7 +481,7 @@ public class NpcController extends Controller
 	}
 
 	@ViewModel
-	public static class RaengeMenuViewModel extends NpcViewModel
+	public static class RanksMenuViewModel extends NpcViewModel
 	{
 		public UserViewModel user;
 		public int aktiverRang;
@@ -493,13 +493,13 @@ public class NpcController extends Controller
 	 * Zeigt die GUI fuer die Vergabe von Raengen und Orden an.
 	 */
 	@Action(ActionType.AJAX)
-	public RaengeMenuViewModel raengeMenuAction(@UrlParam(name = "edituser") String edituserID)
+	public RanksMenuViewModel raengeMenuAction(@UrlParam(name = "edituser") String edituserID)
 	{
 		User user = (User) this.getUser();
 
 		User edituser = User.lookupByIdentifier(edituserID);
 
-		RaengeMenuViewModel result = new RaengeMenuViewModel();
+		RanksMenuViewModel result = new RanksMenuViewModel();
 		fillCommonMenuResultData(result);
 
 		if (edituser == null)
@@ -682,7 +682,7 @@ public class NpcController extends Controller
 			public Integer ordercount;
 		}
 
-		public static class OrderableOffizierViewModel
+		public static class OrderableOfficerViewModel
 		{
 			public int id;
 			public String name;
@@ -691,7 +691,7 @@ public class NpcController extends Controller
 			public Integer ordercount;
 		}
 
-		public static class LieferpositionViewModel
+		public static class DeliveryLocationViewModel
 		{
 			public String name;
 			public String pos;
@@ -699,9 +699,9 @@ public class NpcController extends Controller
 
 		public int npcpunkte;
 		public String aktuelleLieferposition;
-		public final List<OrderableOffizierViewModel> offiziere = new ArrayList<>();
+		public final List<OrderableOfficerViewModel> offiziere = new ArrayList<>();
 		public final List<OrderableShipViewModel> ships = new ArrayList<>();
-		public final List<LieferpositionViewModel> lieferpositionen = new ArrayList<>();
+		public final List<DeliveryLocationViewModel> lieferpositionen = new ArrayList<>();
 	}
 
 	/**
@@ -714,7 +714,7 @@ public class NpcController extends Controller
 		User user = (User) this.getUser();
 
 		Map<ShipType, Integer> shiporders = new HashMap<>();
-		Map<Integer, Integer> offiorders = new HashMap<>();
+		Map<Integer, Integer> officerOrders = new HashMap<>();
 
 		OrderMenuViewModel result = new OrderMenuViewModel();
 		fillCommonMenuResultData(result);
@@ -731,7 +731,7 @@ public class NpcController extends Controller
 			}
 			else if (order instanceof OrderOffizier)
 			{
-				Common.safeIntInc(offiorders, ((OrderOffizier) order).getType());
+				Common.safeIntInc(officerOrders, ((OrderOffizier) order).getType());
 			}
 		}
 
@@ -772,34 +772,34 @@ public class NpcController extends Controller
 		{
 			OrderableOffizier offizier = (OrderableOffizier) offizierOrder;
 
-			offiorders.putIfAbsent(-offizier.getId(), 0);
+			officerOrders.putIfAbsent(-offizier.getId(), 0);
 
-			OrderMenuViewModel.OrderableOffizierViewModel resOffizier = new OrderMenuViewModel.OrderableOffizierViewModel();
-			resOffizier.name = offizier.getName();
-			resOffizier.rang = offizier.getRang();
-			resOffizier.cost = offizier.getCost();
-			resOffizier.id = offizier.getId();
-			resOffizier.ordercount = offiorders.get(offizier.getId());
+			OrderMenuViewModel.OrderableOfficerViewModel officerViewModel = new OrderMenuViewModel.OrderableOfficerViewModel();
+			officerViewModel.name = offizier.getName();
+			officerViewModel.rang = offizier.getRang();
+			officerViewModel.cost = offizier.getCost();
+			officerViewModel.id = offizier.getId();
+			officerViewModel.ordercount = officerOrders.get(offizier.getId());
 
-			result.offiziere.add(resOffizier);
+			result.offiziere.add(officerViewModel);
 		}
 
 		result.npcpunkte = user.getNpcPunkte();
 
-		outputLieferposition(result, user);
+		outputDeliveryLocation(result, user);
 
 		return result;
 	}
 
 
-	private void outputLieferposition(OrderMenuViewModel result, User user)
+	private void outputDeliveryLocation(OrderMenuViewModel result, User user)
 	{
 		Set<Location> uniqueLocations = new HashSet<>();
 
-		Location lieferpos = null;
+		Location deliveryLocation = null;
 		if (user.getNpcOrderLocation() != null)
 		{
-			lieferpos = Location.fromString(user.getNpcOrderLocation());
+			deliveryLocation = Location.fromString(user.getNpcOrderLocation());
 		}
 
 		for (Base base : user.getBases())
@@ -809,13 +809,13 @@ public class NpcController extends Controller
 			{
 				continue;
 			}
-			OrderMenuViewModel.LieferpositionViewModel resPos = new OrderMenuViewModel.LieferpositionViewModel();
+			OrderMenuViewModel.DeliveryLocationViewModel resPos = new OrderMenuViewModel.DeliveryLocationViewModel();
 			resPos.pos = base.getLocation().asString();
 			resPos.name = Common._plaintitle(base.getName());
 
 			result.lieferpositionen.add(resPos);
 		}
 
-		result.aktuelleLieferposition = lieferpos != null ? lieferpos.asString() : null;
+		result.aktuelleLieferposition = deliveryLocation != null ? deliveryLocation.asString() : null;
 	}
 }
