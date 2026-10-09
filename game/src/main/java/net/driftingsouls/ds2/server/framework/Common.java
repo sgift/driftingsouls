@@ -919,28 +919,28 @@ public class Common {
 	public static String ticks2Days( int ticks ) {
 		StringBuilder text = new StringBuilder();
 		
-		int dauer = ticks / TICKS_PER_DAY;
-		int wochen = dauer / 7;
-		int tage = dauer % 7;
+		int totalDays = ticks / TICKS_PER_DAY;
+		int weeks = totalDays / 7;
+		int remainingDays = totalDays % 7;
 		
-		if( wochen > 1 ) {
-			text.append(wochen).append(" Wochen");
+		if( weeks > 1 ) {
+			text.append(weeks).append(" Wochen");
 		}
-		else if( wochen == 1 ) {
-			text.append(wochen).append(" Woche");
+		else if( weeks == 1 ) {
+			text.append(weeks).append(" Woche");
 		}
 					
-		if( (tage > 0) && (wochen > 0) ) {
+		if( (remainingDays > 0) && (weeks > 0) ) {
 			text.append(", ");
 		}
 					
-		if( tage > 1 ) {
-			text.append(tage).append(" Tage");
+		if( remainingDays > 1 ) {
+			text.append(remainingDays).append(" Tage");
 		}
-		else if( tage == 1 ) {
-			text.append(tage).append(" Tag");
+		else if( remainingDays == 1 ) {
+			text.append(remainingDays).append(" Tag");
 		}
-		else if( (wochen == 0) && (tage == 0) ) {
+		else if( (weeks == 0) && (remainingDays == 0) ) {
 			text.append("wenige Stunden"); 	
 		}
 	
