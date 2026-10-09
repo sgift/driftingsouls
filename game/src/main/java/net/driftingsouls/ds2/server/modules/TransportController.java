@@ -576,7 +576,7 @@ public class TransportController extends Controller
 		}
 	}
 
-	private List<TransportTarget> parseListeDerTransportZiele(String key, String toString)
+	private List<TransportTarget> parseTransportTargetList(String key, String toString)
 	{
 		List<TransportTarget> to;
 		if (wayhandler.containsKey(key))
@@ -592,7 +592,7 @@ public class TransportController extends Controller
 		return to;
 	}
 
-	private List<TransportTarget> parseListeDerTransportQuellen(String key, String fromString)
+	private List<TransportTarget> parseTransportSourceList(String key, String fromString)
 	{
 		List<TransportTarget> from;
 		if (wayhandler.containsKey(key))
@@ -735,8 +735,8 @@ public class TransportController extends Controller
 		String[] way = StringUtils.split(rawWay, "to");
 
 
-		List<TransportTarget> from = parseListeDerTransportQuellen(way[0], fromString);
-		List<TransportTarget> to = parseListeDerTransportZiele(way[1], toString);
+		List<TransportTarget> from = parseTransportSourceList(way[0], fromString);
+		List<TransportTarget> to = parseTransportTargetList(way[1], toString);
 		validateGoodsCanBeTransferredBetweenSourceAndTarget(from, to, way[0], way[1]);
 
 		StringBuilder message = new StringBuilder();
@@ -955,8 +955,8 @@ public class TransportController extends Controller
 	{
 		String[] way = StringUtils.split(rawWay, "to");
 
-		List<TransportTarget> from = parseListeDerTransportQuellen(way[0], fromString);
-		List<TransportTarget> to = parseListeDerTransportZiele(way[1], toString);
+		List<TransportTarget> from = parseTransportSourceList(way[0], fromString);
+		List<TransportTarget> to = parseTransportTargetList(way[1], toString);
 		validateGoodsCanBeTransferredBetweenSourceAndTarget(from, to, way[0], way[1]);
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
@@ -971,22 +971,22 @@ public class TransportController extends Controller
 				"target.isbase", way[1].equals("b"));
 
 		// Die Quelle(n) ausgeben
-		transportQuelleAnzeigen(fromString, t, from);
+		showTransportSource(fromString, t, from);
 
 		// Das Ziel / die Ziele ausgeben
-		transportZielAnzeigen(toString, t, to);
+		showTransportTarget(toString, t, to);
 
 		// Transfermodi ausgeben
-		transportModusAnzeigen(fromString, toString, t, from, to);
+		showTransportMode(fromString, toString, t, from, to);
 
 
 		// Soll der Zielcargo gezeigt werden?
-		gegenstandsListeAnzeigen(t, from, to);
+		showItemList(t, from, to);
 
 		return t;
 	}
 
-	private void gegenstandsListeAnzeigen(TemplateEngine t, List<TransportTarget> from, List<TransportTarget> to)
+	private void showItemList(TemplateEngine t, List<TransportTarget> from, List<TransportTarget> to)
 	{
 		t.setBlock("_TRANSPORT", "res.listitem", "res.list");
 
@@ -1052,7 +1052,7 @@ public class TransportController extends Controller
 		}
 	}
 
-	private void transportModusAnzeigen(String rawFrom, String rawTo, TemplateEngine t, List<TransportTarget> from, List<TransportTarget> to)
+	private void showTransportMode(String rawFrom, String rawTo, TemplateEngine t, List<TransportTarget> from, List<TransportTarget> to)
 	{
 		t.setBlock("_TRANSPORT", "transfermode.listitem", "transfermode.list");
 		if ((to.size() > 1) || (from.size() > 1) || (to.get(0).getMultiTarget() != null) ||
@@ -1134,7 +1134,7 @@ public class TransportController extends Controller
 		}
 	}
 
-	private void transportZielAnzeigen(String rawTo, TemplateEngine t, List<TransportTarget> to)
+	private void showTransportTarget(String rawTo, TemplateEngine t, List<TransportTarget> to)
 	{
 		t.setBlock("_TRANSPORT", "target.targets.listitem", "target.targets.list");
 
@@ -1180,7 +1180,7 @@ public class TransportController extends Controller
 		}
 	}
 
-	private void transportQuelleAnzeigen(String rawFrom, TemplateEngine t, List<TransportTarget> from)
+	private void showTransportSource(String rawFrom, TemplateEngine t, List<TransportTarget> from)
 	{
 		t.setBlock("_TRANSPORT", "source.sources.listitem", "source.sources.list");
 
