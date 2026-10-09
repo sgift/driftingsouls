@@ -139,12 +139,12 @@ public class BasesMap implements AdminPlugin
 		}
 
 		g.setColor(red);
-		List<Object[]> nebel = Common.cast(db.createQuery("select loc.x,loc.y from Nebel where loc.system= :system")
+		List<Object[]> nebulaLocations = Common.cast(db.createQuery("select loc.x,loc.y from Nebel where loc.system= :system")
 				.setInteger("system", system.getID())
 				.list());
-		for( Object[] aNebel : nebel )
+		for( Object[] nebulaLocation : nebulaLocations )
 		{
-			g.fillRect((Integer)aNebel[0]*scale, (Integer)aNebel[1]*scale, scale, scale);
+			g.fillRect((Integer)nebulaLocation[0]*scale, (Integer)nebulaLocation[1]*scale, scale, scale);
 		}
 
 		g.setColor(yellow);
