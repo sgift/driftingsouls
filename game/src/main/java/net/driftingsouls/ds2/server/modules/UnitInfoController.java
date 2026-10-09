@@ -113,18 +113,18 @@ public class UnitInfoController extends Controller
 		}
 
 		Forschung forschung = unittype.getRes();
-		String forschungstring = "";
+		String researchName = "";
 
 		if (forschung != null && forschung.isVisibile(user))
 		{
-			forschungstring = forschung.getName();
+			researchName = forschung.getName();
 		}
 		else if (forschung != null)
 		{
-			forschungstring = "Unbekannte Technologie";
+			researchName = "Unbekannte Technologie";
 			if (hasPermission(WellKnownPermission.FORSCHUNG_ALLES_SICHTBAR))
 			{
-				forschungstring = forschungstring + " [" + forschung.getID() + "]";
+				researchName = researchName + " [" + forschung.getID() + "]";
 			}
 		}
 
@@ -139,7 +139,7 @@ public class UnitInfoController extends Controller
 				"unit.kapervalue", Common.ln(unittype.getKaperValue()),
 				"unit.description", Common._text(unittype.getDescription()),
 				"unit.baukosten", buildcosts.toString(),
-				"unit.forschung", forschungstring);
+				"unit.forschung", researchName);
 
 		return t;
 	}
