@@ -62,7 +62,7 @@ public class Races implements Iterable<Rasse>
 	 * @param id Die ID der Rasse
 	 * @return Die zur ID gehoerende Rasse
 	 */
-	public Rasse rasse(int id)
+	public Rasse race(int id)
 	{
 		return (Rasse) ContextMap.getContext().getDB().get(Rasse.class, id);
 	}

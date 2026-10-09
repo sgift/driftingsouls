@@ -196,7 +196,7 @@ public class UserProfileController extends Controller
 		}
 
 		t.setVar("user.name", Common._title(ausgewaehlterBenutzer.getName()),
-				"user.rasse.name", Races.get().rasse(ausgewaehlterBenutzer.getRace()).getName(),
+				"user.rasse.name", Races.get().race(ausgewaehlterBenutzer.getRace()).getName(),
 				"user.rang", Medals.get().rang(ausgewaehlterBenutzer.getRang()),
 				"user.signupdate", (ausgewaehlterBenutzer.getSignup() > 0 ? Common.date("d.m.Y H:i:s", ausgewaehlterBenutzer.getSignup()) : "schon immer"));
 

@@ -158,7 +158,7 @@ public class BuildController extends Controller
 				return new RedirectViewResult("default");
 			}
 		}
-		if (!Races.get().rasse(user.getRace()).isMemberIn(build.getRace()))
+		if (!Races.get().race(user.getRace()).isMemberIn(build.getRace()))
 		{
 			addError("Sie gehören der falschen Spezies an und können dieses Gebäude nicht selbst errichten.");
 			return new RedirectViewResult("default");
@@ -306,7 +306,7 @@ public class BuildController extends Controller
 			{
 				continue;
 			}
-			if (!Races.get().rasse(user.getRace()).isMemberIn(building.getRace()))
+			if (!Races.get().race(user.getRace()).isMemberIn(building.getRace()))
 			{
 				continue;
 			}

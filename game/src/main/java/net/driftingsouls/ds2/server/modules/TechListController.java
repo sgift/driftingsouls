@@ -101,11 +101,11 @@ public class TechListController extends Controller
 		{
 			rasse = user.getRace();
 		}
-		else if( Races.get().rasse(rasse) == null )
+		else if( Races.get().race(rasse) == null )
 		{
 			rasse = user.getRace();
 		}
-		else if( !Races.get().rasse(rasse).isExtPlayable() && !Races.get().rasse(rasse).isPlayable() )
+		else if( !Races.get().race(rasse).isExtPlayable() && !Races.get().race(rasse).isPlayable() )
 		{
 			rasse = user.getRace();
 		}
@@ -121,7 +121,7 @@ public class TechListController extends Controller
 			}
 		}
 
-		viewModel.rassenName = Races.get().rasse(rasse).getName();
+		viewModel.rassenName = Races.get().race(rasse).getName();
 
 		Map<Integer,Forschung> researched = new LinkedHashMap<>();
 		Map<Integer,Forschung> researchable = new LinkedHashMap<>();
@@ -209,7 +209,7 @@ public class TechListController extends Controller
 		while( forschungIter.hasNext() ) {
 			Forschung f = (Forschung)forschungIter.next();
 
-			if( !Races.get().rasse(rasse).isMemberIn(f.getRace()) ) {
+			if( !Races.get().race(rasse).isMemberIn(f.getRace()) ) {
 				continue;
 			}
 

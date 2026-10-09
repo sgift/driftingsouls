@@ -178,7 +178,7 @@ public class ResearchCenterBuilding extends DefaultBuilding {
 		{
 			Forschung tech = (Forschung) aForschungen;
 
-			if (!Races.get().rasse(user.getRace()).isMemberIn(tech.getRace()))
+			if (!Races.get().race(user.getRace()).isMemberIn(tech.getRace()))
 			{
 				continue;
 			}
@@ -314,7 +314,7 @@ public class ResearchCenterBuilding extends DefaultBuilding {
 		Forschung tech = Forschung.getInstance(researchid);
 		boolean ok = true;
 
-		if( !Races.get().rasse(user.getRace()).isMemberIn(tech.getRace()) ) {
+		if( !Races.get().race(user.getRace()).isMemberIn(tech.getRace()) ) {
 			echo.append("<a class=\"error\" href=\"./base?col=").append(base.getId()).append("\">Fehler: Diese Forschung kann von ihrer Rasse nicht erforscht werden</a>\n");
 			return;
 		}

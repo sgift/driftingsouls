@@ -93,7 +93,7 @@ public class ShipJumpService
 
 		String nodetarget = node.getName() + " (" + node.getSystemOut() + ")";
 
-		if ((user.getId() > 0) && node.isGcpColonistBlock() && Races.get().rasse(user.getRace()).isMemberIn(0) && !user.hasFlag(UserFlag.NO_JUMPNODE_BLOCK))
+		if ((user.getId() > 0) && node.isGcpColonistBlock() && Races.get().race(user.getRace()).isMemberIn(0) && !user.hasFlag(UserFlag.NO_JUMPNODE_BLOCK))
 		{
 			outputbuffer.append("<span style=\"color:red\">Die Administration hat diesen Sprungpunkt für Kolonisten gesperrt.</span><br />\n");
 			return new JumpResult(outputbuffer.toString(), false);

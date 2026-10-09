@@ -164,7 +164,7 @@ public class OverviewController extends Controller
 		String ticktime = getTickTime();
 
 		String race = "???";
-		var spezies = Races.get().rasse(user.getRace());
+		var spezies = Races.get().race(user.getRace());
 		if (spezies != null)
 		{
 			race = spezies.getName();

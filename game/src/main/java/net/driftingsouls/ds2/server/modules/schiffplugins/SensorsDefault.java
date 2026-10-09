@@ -970,7 +970,7 @@ public class SensorsDefault implements ShipPlugin {
 		for( JumpNode node : nodes )
 		{
 			int blocked = 0;
-			if( node.isGcpColonistBlock() && Races.get().rasse(user.getRace()).isMemberIn( 0 ) )
+			if( node.isGcpColonistBlock() && Races.get().race(user.getRace()).isMemberIn( 0 ) )
 			{
 				blocked = 1;
 			}

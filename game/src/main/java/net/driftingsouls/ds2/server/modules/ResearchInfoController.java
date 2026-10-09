@@ -119,12 +119,12 @@ public class ResearchInfoController extends Controller
 		if (research.getRace() != -1)
 		{
 			String rasse = "???";
-			if (Races.get().rasse(research.getRace()) != null)
+			if (Races.get().race(research.getRace()) != null)
 			{
-				rasse = Races.get().rasse(research.getRace()).getName();
+				rasse = Races.get().race(research.getRace()).getName();
 			}
 
-			if (!Races.get().rasse(user.getRace()).isMemberIn(research.getRace()))
+			if (!Races.get().race(user.getRace()).isMemberIn(research.getRace()))
 			{
 				rasse = "<span style=\"color:red\">" + rasse + "</span>";
 			}

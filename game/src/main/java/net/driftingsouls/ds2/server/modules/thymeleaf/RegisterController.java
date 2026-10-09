@@ -160,7 +160,7 @@ public class RegisterController implements DSController {
             errors.add("Diese E-Mail Adresse wird bereits genutzt.");
         }
 
-        if (!Races.get().rasse(raceId).isPlayable()) {
+        if (!Races.get().race(raceId).isPlayable()) {
             errors.add("Die Rasse existiert nicht.");
         }
 

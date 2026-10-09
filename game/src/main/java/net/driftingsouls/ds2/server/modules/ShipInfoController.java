@@ -126,7 +126,7 @@ public class ShipInfoController extends Controller
 		}
 		else
 		{
-			race = Races.get().rasse(shipBuildData.getRace()).getName();
+			race = Races.get().race(shipBuildData.getRace()).getName();
 		}
 
 		t.setVar("shiptype.race", race);

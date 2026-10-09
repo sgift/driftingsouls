@@ -112,7 +112,7 @@ public class ShipsInfoController extends Controller
 			ShipBaubar buildData = buildableShips.get(shipType.getId());
 			if (buildData != null)
 			{
-				if (Races.get().rasse(user.getRace()).isMemberIn(buildData.getRace()))
+				if (Races.get().race(user.getRace()).isMemberIn(buildData.getRace()))
 				{
 					boolean researched = user.hasResearched(buildData.getBenoetigteForschungen());
 					if (researched)

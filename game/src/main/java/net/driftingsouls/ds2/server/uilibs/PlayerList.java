@@ -147,8 +147,8 @@ public class PlayerList {
 		List<User> userlist = Common.cast(db.createQuery(query).list());
 		for( User aUser : userlist ) {
 			String race = "???";
-			if( Races.get().rasse(aUser.getRace()) != null ) {
-				race = Races.get().rasse(aUser.getRace()).getName();
+			if( Races.get().race(aUser.getRace()) != null ) {
+				race = Races.get().race(aUser.getRace()).getName();
 			}
 
 			String ally = "&nbsp;";

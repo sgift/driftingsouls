@@ -340,7 +340,7 @@ public class BaseController implements DSController {
                 return ;
             }
         }
-        if (!Races.get().rasse(user.getRace()).isMemberIn(building.getRace()))
+        if (!Races.get().race(user.getRace()).isMemberIn(building.getRace()))
         {
             JSONPostERROR("Sie geh&ouml;ren der falschen Spezies an und k&ouml;nnen dieses Geb&auml;ude nicht selbst errichten.",json,response);
             return ;
@@ -996,7 +996,7 @@ public class BaseController implements DSController {
             {
                 continue;
             }
-            if (!Races.get().rasse(user.getRace()).isMemberIn(building.getRace()))
+            if (!Races.get().race(user.getRace()).isMemberIn(building.getRace()))
             {
                 continue;
             }

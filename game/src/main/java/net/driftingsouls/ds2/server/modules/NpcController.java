@@ -83,7 +83,7 @@ public class NpcController extends Controller
 			throw new ValidationException("Nur NPCs können dieses Script nutzen.", Common.buildUrl("default", "module", "ueber"));
 		}
 
-		if (Races.get().rasse(user.getRace()).isHead(user))
+		if (Races.get().race(user.getRace()).isHead(user))
 		{
 			this.isHead = true;
 		}
@@ -744,7 +744,7 @@ public class NpcController extends Controller
 		{
 			OrderableShip ship = (OrderableShip) shipOrder;
 
-			if (!Races.get().rasse(user.getRace()).isMemberIn(ship.getRasse()))
+			if (!Races.get().race(user.getRace()).isMemberIn(ship.getRasse()))
 			{
 				continue;
 			}

@@ -411,7 +411,7 @@ public class ItemInfoController extends Controller
 				t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 
 				t.setVar("entry.name", "Rasse",
-						"entry.data", Races.get().rasse(effect.getRace()).getName());
+						"entry.data", Races.get().race(effect.getRace()).getName());
 
 				t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 

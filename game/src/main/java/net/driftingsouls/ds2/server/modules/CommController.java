@@ -621,7 +621,7 @@ public class CommController extends Controller
 		}
 		else if (sender != null && pm.hasFlag(PM.FLAGS_OFFICIAL))
 		{
-			bgimg = "pm_" + Races.get().rasse(sender.getRace()).getName() + "bg.png";
+			bgimg = "pm_" + Races.get().race(sender.getRace()).getName() + "bg.png";
 		}
 
 		String text = pm.getInhalt();
@@ -858,7 +858,7 @@ public class CommController extends Controller
 		}
 		else if ("official".equals(special))
 		{
-			bgimg = "pm_" + Races.get().rasse(user.getRace()).getName() + "bg.png";
+			bgimg = "pm_" + Races.get().race(user.getRace()).getName() + "bg.png";
 		}
 
 		t.setVar("pm.text", Smilie.parseSmilies(getEM(), Common._text(msg)),

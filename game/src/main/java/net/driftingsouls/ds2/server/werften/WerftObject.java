@@ -1274,7 +1274,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 			if( disableShips.containsKey(sb.getType()) ) {
 				continue;
 			}
-			if( !Races.get().rasse(user.getRace()).isMemberIn(sb.getRace()) ) {
+			if( !Races.get().race(user.getRace()).isMemberIn(sb.getRace()) ) {
 				continue;
 			}
 

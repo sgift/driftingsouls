@@ -373,7 +373,7 @@ public class User extends BasicUser {
 	 */
 	public PersonNameGenerator getPersonenNamenGenerator()
 	{
-		return this.personenNamenGenerator == null ? Races.get().rasse(this.race).getPersonenNamenGenerator() : this.personenNamenGenerator;
+		return this.personenNamenGenerator == null ? Races.get().race(this.race).getPersonenNamenGenerator() : this.personenNamenGenerator;
 	}
 
 	/**
@@ -382,7 +382,7 @@ public class User extends BasicUser {
 	 */
 	public void setPersonenNamenGenerator(PersonNameGenerator personenNamenGenerator)
 	{
-		this.personenNamenGenerator = Races.get().rasse(this.race).getPersonenNamenGenerator() == personenNamenGenerator ? null : personenNamenGenerator;
+		this.personenNamenGenerator = Races.get().race(this.race).getPersonenNamenGenerator() == personenNamenGenerator ? null : personenNamenGenerator;
 	}
 
 	/**
@@ -391,7 +391,7 @@ public class User extends BasicUser {
 	 */
 	public ShipClassNameGenerator getSchiffsKlassenNamenGenerator()
 	{
-		return this.schiffsKlassenNamenGenerator == null ? Races.get().rasse(this.race).getSchiffsKlassenNamenGenerator() : this.schiffsKlassenNamenGenerator;
+		return this.schiffsKlassenNamenGenerator == null ? Races.get().race(this.race).getSchiffsKlassenNamenGenerator() : this.schiffsKlassenNamenGenerator;
 	}
 
 	/**
@@ -400,7 +400,7 @@ public class User extends BasicUser {
 	 */
 	public void setSchiffsKlassenNamenGenerator(ShipClassNameGenerator schiffsKlassenNamenGenerator)
 	{
-		this.schiffsKlassenNamenGenerator = Races.get().rasse(this.race).getSchiffsKlassenNamenGenerator() == schiffsKlassenNamenGenerator ? null : schiffsKlassenNamenGenerator;
+		this.schiffsKlassenNamenGenerator = Races.get().race(this.race).getSchiffsKlassenNamenGenerator() == schiffsKlassenNamenGenerator ? null : schiffsKlassenNamenGenerator;
 	}
 
 	/**
@@ -409,7 +409,7 @@ public class User extends BasicUser {
 	 */
 	public ShipNameGenerator getSchiffsNamenGenerator()
 	{
-		return this.schiffsNamenGenerator == null ? Races.get().rasse(this.race).getSchiffsNamenGenerator() : this.schiffsNamenGenerator;
+		return this.schiffsNamenGenerator == null ? Races.get().race(this.race).getSchiffsNamenGenerator() : this.schiffsNamenGenerator;
 	}
 
 	/**
@@ -418,7 +418,7 @@ public class User extends BasicUser {
 	 */
 	public void setSchiffsNamenGenerator(ShipNameGenerator schiffsNamenGenerator)
 	{
-		this.schiffsNamenGenerator = Races.get().rasse(this.race).getSchiffsNamenGenerator() == schiffsNamenGenerator ? null : schiffsNamenGenerator;
+		this.schiffsNamenGenerator = Races.get().race(this.race).getSchiffsNamenGenerator() == schiffsNamenGenerator ? null : schiffsNamenGenerator;
 	}
 
 	/**
