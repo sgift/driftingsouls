@@ -59,7 +59,7 @@ public class CollectDeuteriumController extends Controller
 		setPageTitle("Deut. sammeln");
 	}
 
-	private List<Ship> erzeugeSchiffsliste(Ship ship, ShipFleet fleet)
+	private List<Ship> createShipList(Ship ship, ShipFleet fleet)
 	{
 		List<Ship> ships = new ArrayList<>();
 		User user = (User) getUser();
@@ -85,7 +85,7 @@ public class CollectDeuteriumController extends Controller
 		return ships;
 	}
 
-	private Nebel ermittleNebelFuerSchiffsliste(List<Ship> schiffe)
+	private Nebel determineNebulaForShipList(List<Ship> schiffe)
 	{
 		org.hibernate.Session db = getDB();
 
@@ -103,7 +103,7 @@ public class CollectDeuteriumController extends Controller
 		return nebel;
 	}
 
-	private void filtereSchiffsliste(List<Ship> schiffe, Nebel nebel)
+	private void filterShipList(List<Ship> schiffe, Nebel nebel)
 	{
 		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", schiffe.get(0).getId());
 
@@ -149,9 +149,9 @@ public class CollectDeuteriumController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult sammelnAction(Ship ship, ShipFleet fleet, long e)
 	{
-		List<Ship> shipList = erzeugeSchiffsliste(ship, fleet);
-		Nebel nebel = ermittleNebelFuerSchiffsliste(shipList);
-		filtereSchiffsliste(shipList, nebel);
+		List<Ship> shipList = createShipList(ship, fleet);
+		Nebel nebel = determineNebulaForShipList(shipList);
+		filterShipList(shipList, nebel);
 
 		StringBuilder message = new StringBuilder();
 
@@ -183,9 +183,9 @@ public class CollectDeuteriumController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine defaultAction(Ship ship, ShipFleet fleet, RedirectViewResult redirect)
 	{
-		List<Ship> shipList = erzeugeSchiffsliste(ship, fleet);
-		Nebel nebel = ermittleNebelFuerSchiffsliste(shipList);
-		filtereSchiffsliste(shipList, nebel);
+		List<Ship> shipList = createShipList(ship, fleet);
+		Nebel nebel = determineNebulaForShipList(shipList);
+		filterShipList(shipList, nebel);
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		t.setVar("deutsammeln.message", redirect != null ? redirect.getMessage() : null);
