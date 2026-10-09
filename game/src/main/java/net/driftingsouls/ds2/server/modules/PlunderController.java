@@ -310,9 +310,9 @@ public class PlunderController extends Controller
 		if (transfer)
 		{
 			// Transmission versenden
-			versendeNachrichtNachTransfer(msg, shipFrom, shipTo);
+			sendMessageAfterTransfer(msg, shipFrom, shipTo);
 
-			if( aktualisiereSchiffNachWarentransfer(shipTypeTo, newCargoTo, newCargoFrom, totaltransferfcount, shipFrom, shipTo) ) {
+			if( updateShipAfterGoodsTransfer(shipTypeTo, newCargoTo, newCargoFrom, totaltransferfcount, shipFrom, shipTo) ) {
 				message.append("[color=red]Das geplünderte Schiff beginnt zu zerfallen[/color]");
 			}
 		}
@@ -320,7 +320,7 @@ public class PlunderController extends Controller
 		return new RedirectViewResult("default").withMessage(message.toString());
 	}
 
-	private void versendeNachrichtNachTransfer(StringBuilder msg, Ship shipFrom, Ship shipTo)
+	private void sendMessageAfterTransfer(StringBuilder msg, Ship shipFrom, Ship shipTo)
 	{
 		if ((msg.length() > 0) && shipTo.getOwner().getId() != -1)
 		{
@@ -332,7 +332,7 @@ public class PlunderController extends Controller
 		}
 	}
 
-	private boolean aktualisiereSchiffNachWarentransfer(ShipTypeData shipTypeTo, Cargo newCargoTo, Cargo newCargoFrom, long totaltransferfcount, Ship shipFrom, Ship shipTo)
+	private boolean updateShipAfterGoodsTransfer(ShipTypeData shipTypeTo, Cargo newCargoTo, Cargo newCargoFrom, long totaltransferfcount, Ship shipFrom, Ship shipTo)
 	{
 		shipFrom.setCargo(newCargoFrom);
 		shipTo.setCargo(newCargoTo);
@@ -344,18 +344,18 @@ public class PlunderController extends Controller
 		// damit der Schiffstick dieses zerstoert
 		if ((totaltransferfcount > 0) && shipTypeTo.hasFlag(ShipTypeFlag.INSTABIL))
 		{
-			String statust = status;
+			String statusText = status;
 
-			if (!statust.isEmpty())
+			if (!statusText.isEmpty())
 			{
-				statust += " destroy";
+				statusText += " destroy";
 			}
 			else
 			{
-				statust += "destroy";
+				statusText += "destroy";
 			}
 
-			shipTo.setStatus(statust);
+			shipTo.setStatus(statusText);
 
 			return true;
 		}
