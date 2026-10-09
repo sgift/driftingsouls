@@ -68,7 +68,7 @@ public class StatRichestUser extends AbstractStatistic implements Statistic {
 			this.generateStatistic("Linked Markets Fortune List:", displayMap, USER_LINK_GENERATOR, false, -1);
 		}
 		else {
-			List<Object[]> allianzen = Common.cast(db
+			List<Object[]> allianceRows = Common.cast(db
 				.createQuery("select a,sum(u.konto) from User u join u.ally a " +
 						"where u.id>:minid and (u.vaccount=0 or u.wait4vac>0) group by a,u order by sum(u.konto) desc,u.id desc")
 				.setParameter("minid", StatsController.MIN_USER_ID)
@@ -76,9 +76,9 @@ public class StatRichestUser extends AbstractStatistic implements Statistic {
 				.list());
 
 			Map<Ally,Long> displayMap = new LinkedHashMap<>();
-			for( Object[] allianz : allianzen )
+			for( Object[] allianceRow : allianceRows )
 			{
-				displayMap.put((Ally)allianz[0], ((Number)allianz[1]).longValue());
+				displayMap.put((Ally)allianceRow[0], ((Number)allianceRow[1]).longValue());
 			}
 
 			this.generateStatistic("Linked Markets Fortune List:", displayMap, ALLY_LINK_GENERATOR, false, -1);
