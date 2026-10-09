@@ -5,7 +5,7 @@ import net.driftingsouls.ds2.server.config.items.effects.ItemEffect;
 
 public class ItemData {
     private final int id;
-    private final String typ;
+    private final String type;
     private final long cargo;
     private final String description;
     private final String largepicture;
@@ -14,11 +14,11 @@ public class ItemData {
     private final String quality;
     private final int accessLevel;
     private final boolean unknownItem;
-    private final boolean allianzEffekt;
-    public ItemData(int id, String typ, long cargo, String description, String largepicture, String name, String picture, String quality, int accessLevel, Byte unknownItem, Byte allianzEffekt)
+    private final boolean allianceEffect;
+    public ItemData(int id, String type, long cargo, String description, String largepicture, String name, String picture, String quality, int accessLevel, Byte unknownItem, Byte allianceEffect)
     {
         this.id = id;
-        this.typ = typ;
+        this.type = type;
         this.cargo = cargo;
         this.description = description;
         this.largepicture = largepicture;
@@ -28,13 +28,13 @@ public class ItemData {
         this.quality = quality;
         this.accessLevel = accessLevel;
         this.unknownItem = unknownItem == 1;
-        this.allianzEffekt = allianzEffekt != null && allianzEffekt == 1;
+        this.allianceEffect = allianceEffect != null && allianceEffect == 1;
     }
 
     public int getId(){ return id; }
 
     public ItemEffect.Type getType() {
-        return ItemEffect.Type.getTypeFromEffectName(typ);
+        return ItemEffect.Type.getTypeFromEffectName(type);
     }
 
     public long getCargo() {
@@ -68,5 +68,5 @@ public class ItemData {
     public boolean isUnknownItem() {
         return unknownItem;
     }
-    public boolean isAllyEffect(){ return allianzEffekt; }
+    public boolean isAllyEffect(){ return allianceEffect; }
 }
