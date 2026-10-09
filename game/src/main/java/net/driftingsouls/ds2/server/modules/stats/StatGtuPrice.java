@@ -61,38 +61,38 @@ public class StatGtuPrice extends AbstractStatistic implements Statistic {
 
 		int a = 1;
 
-		List<StatGtu> gebote = Common.cast(db
+		List<StatGtu> bids = Common.cast(db
 			.createQuery("from StatGtu order by preis desc")
 			.setMaxResults(size)
 			.list());
 
-		for( StatGtu gebot : gebote )
+		for( StatGtu bid : bids )
 		{
 			String name = null;
 
-			if( gebot.getMType() == 1 ) {
-				ShipTypeData shiptype = Ship.getShipType(Integer.parseInt(gebot.getType()));
-				name = "<a class=\"forschinfo\" onclick='ShiptypeBox.show("+gebot.getType()+");return false;' href=\"./ds?module=schiffinfo&ship="+gebot.getType()+"\">"+shiptype.getNickname()+"</a>";
+			if( bid.getMType() == 1 ) {
+				ShipTypeData shiptype = Ship.getShipType(Integer.parseInt(bid.getType()));
+				name = "<a class=\"forschinfo\" onclick='ShiptypeBox.show("+bid.getType()+");return false;' href=\"./ds?module=schiffinfo&ship="+bid.getType()+"\">"+shiptype.getNickname()+"</a>";
 			}
-			else if( gebot.getMType() == 2 ) {
-				Cargo mycargo = new Cargo( Cargo.Type.AUTO, gebot.getType() );
+			else if( bid.getMType() == 2 ) {
+				Cargo mycargo = new Cargo( Cargo.Type.AUTO, bid.getType() );
 				ResourceEntry resource = mycargo.getResourceList().iterator().next();
 
 				name = ( resource.getCount1() > 1 ? resource.getCount1()+"x " : "" )+Cargo.getResourceName(resource.getId());
 			}
 
 	   		echo.append("<tr><td>").append(Integer.toString(a)).append(".</td>\n");
-	   		User user = (User)db.get(User.class, gebot.getUserId());
+	   		User user = (User)db.get(User.class, bid.getUserId());
 	   		if( user != null )
 	   		{
 	   			echo.append("<td><a class=\"profile\" href=\"").append(url).append(Integer.toString(user.getId())).append("\">").append(Common._title(user.getName())).append(" (").append(Integer.toString(user.getId())).append(")</a></td>");
 	   		}
 	   		else
 	   		{
-	   			echo.append("<td>").append(Common._title(gebot.getUsername())).append(" (").append(Integer.toString(gebot.getUserId())).append(")</td>");
+	   			echo.append("<td>").append(Common._title(bid.getUsername())).append(" (").append(Integer.toString(bid.getUserId())).append(")</td>");
 		   	}
 	   		echo.append("<td>").append(name).append("</td>\n");
-			echo.append("<td><span class=\"nobr\">").append(Common.ln(gebot.getPrice())).append(" RE</span></td></tr>\n");
+			echo.append("<td><span class=\"nobr\">").append(Common.ln(bid.getPrice())).append(" RE</span></td></tr>\n");
 
 			a++;
 		}
