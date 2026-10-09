@@ -150,6 +150,6 @@ public class AllyRangDescriptor implements Comparable<AllyRangDescriptor>
 		{
 			return "data/dynamicContent/"+this.customImg;
 		}
-		return Medals.get().rang(this.rang).getImage();
+		return Medals.get().rank(this.rang).getImage();
 	}
 }

@@ -177,7 +177,7 @@ public class UserRank
 	 */
 	public String getName()
 	{
-		String rangName = Medals.get().rang(this.rank).getName();
+		String rangName = Medals.get().rank(this.rank).getName();
 		if( this.userRankKey.rankGiver.getAlly() != null )
 		{
 			rangName = this.userRankKey.rankGiver.getAlly().getRangName(rank);

@@ -1565,7 +1565,7 @@ public class User extends BasicUser {
 		{
 			return this.ally.getFullRangNameList();
 		}
-		return new TreeSet<>(Medals.get().raenge().values());
+		return new TreeSet<>(Medals.get().ranks().values());
 	}
 
 	/**

@@ -56,7 +56,7 @@ public class Medals {
 	 * @param id Die ID des gewuenschten Ranges
 	 * @return Der Rang oder der Standardrang
 	 */
-	public Rang rang( int id ) {
+	public Rang rank( int id ) {
 		Rang rang = (Rang)ContextMap.getContext().getDB().get(Rang.class, id);
 		if( rang == null )
 		{
@@ -69,7 +69,7 @@ public class Medals {
 	 * Gibt die Liste der Raenge zurueck.
 	 * @return die Liste der Raenge
 	 */
-	public Map<Integer,Rang> raenge() {
+	public Map<Integer,Rang> ranks() {
 		List<Rang> raenge = Common.cast(ContextMap.getContext().getDB().createCriteria(Rang.class).list());
 		return new TreeMap<>(raenge.stream().collect(Collectors.toMap(Rang::getId, r -> r)));
 	}

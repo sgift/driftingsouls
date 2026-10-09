@@ -485,7 +485,7 @@ public class Ally {
 
 	/**
 	 * Gibt die Liste aller bekannten Raenge dieser Allianz zurueck. Dies umfasst sowohl
-	 * die spezifischen Raenge dieser Allianz als auch alle allgemeinen Raenge ({@link Medals#raenge()}).
+	 * die spezifischen Raenge dieser Allianz als auch alle allgemeinen Raenge ({@link Medals#ranks()}).
 	 * @return Die nach Rangnummer sortierte Liste der Rangbezeichnungen
 	 */
 	public SortedSet<Rang> getFullRangNameList()
@@ -496,7 +496,7 @@ public class Ally {
 			result.add(new Rang(rang.getRang(), rang.getName(), rang.getImage()));
 		}
 
-		result.addAll(Medals.get().raenge().values());
+		result.addAll(Medals.get().ranks().values());
 
 		return result;
 	}
@@ -518,6 +518,6 @@ public class Ally {
 			}
 		}
 
-		return Medals.get().rang(rangNr).getName();
+		return Medals.get().rank(rangNr).getName();
 	}
 }

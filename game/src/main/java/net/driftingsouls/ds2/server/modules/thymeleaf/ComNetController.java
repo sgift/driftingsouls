@@ -518,7 +518,7 @@ public class ComNetController implements DSController, PermissionResolver {
         this.rawtitle = rawtitle;
         this.text = Smilie.parseSmilies(db, Common._text(rawtext));
         this.title = Common._title(rawtitle);
-        this.userRank = user == null? null : Medals.get().rang(user.getRang());
+        this.userRank = user == null? null : Medals.get().rank(user.getRang());
         this.ally = user == null? null : user.getAlly();
         this.username = user == null ? "" : Common._title(user.getName());
         this.post = post;
@@ -531,7 +531,7 @@ public class ComNetController implements DSController, PermissionResolver {
         this.rawtitle = rawtitle;
         this.text = Smilie.parseSmilies(db, Common._text(rawtext));
         this.title = Common._title(rawtitle);
-        this.userRank = Medals.get().rang(user.getRang());
+        this.userRank = Medals.get().rank(user.getRang());
         this.ally = null;
         this.username = Common._title(user.getName());
         this.post = post;

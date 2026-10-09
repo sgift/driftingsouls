@@ -38,7 +38,7 @@ public class TagRank implements BBCodeFunction
 			return "Unbekannter Rang (" + content + ")";
 		}
 
-		Rang rang = Medals.get().rang(Integer.parseInt(content));
+		Rang rang = Medals.get().rank(Integer.parseInt(content));
 
 		if (rang == null)
 		{
