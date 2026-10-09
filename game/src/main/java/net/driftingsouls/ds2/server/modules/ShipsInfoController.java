@@ -98,7 +98,7 @@ public class ShipsInfoController extends Controller
 
 	private Map<BuildKind, Set<ShipType>> sortTypes(User user, Map<Integer, ShipBaubar> buildableShips, List<ShipType> shipTypes)
 	{
-		int slotsOnAsteroids = berechneMaxWerftSlotsAufBasen(user);
+		int slotsOnAsteroids = calculateMaxShipyardSlotsOnBases(user);
 
 		Map<BuildKind, Set<ShipType>> sortedShipTypes = new HashMap<>();
 		sortedShipTypes.put(BuildKind.ASTEROID, new TreeSet<>(sortTypeByName));
@@ -154,7 +154,7 @@ public class ShipsInfoController extends Controller
 		return sortedShipTypes;
 	}
 
-	private int berechneMaxWerftSlotsAufBasen(User user)
+	private int calculateMaxShipyardSlotsOnBases(User user)
 	{
 		int slotsOnAsteroids = 0;
 		for (Base base : user.getBases())
