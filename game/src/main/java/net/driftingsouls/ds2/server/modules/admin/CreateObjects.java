@@ -324,7 +324,7 @@ public class CreateObjects implements AdminPlugin {
 					handleBase(context, echo, system);
 					break;
 				case "Nebel":
-					handleNebel(context, system);
+					handleNebula(context, system);
 					break;
 				case "Jumpnode":
 					handleJumpnode(context, echo, system);
@@ -471,23 +471,23 @@ public class CreateObjects implements AdminPlugin {
 				db.save(shipObj);
 				
 				// Offizier
-				Element offiElement = (Element)XMLUtils.firstNodeByTagName(ship, "offizier");
-				if( offiElement != null ) {
-					int rangcount = 0;
+				Element officerElement = (Element)XMLUtils.firstNodeByTagName(ship, "offizier");
+				if( officerElement != null ) {
+					int abilitySum = 0;
 					
-					Offizier offizier = new Offizier(ownerObj, offiElement.getAttribute("name"));
-					if( offiElement.getAttribute("all") != null ) {
-						int all = Integer.parseInt(offiElement.getAttribute("all"));
+					Offizier offizier = new Offizier(ownerObj, officerElement.getAttribute("name"));
+					if( officerElement.getAttribute("all") != null ) {
+						int all = Integer.parseInt(officerElement.getAttribute("all"));
 						for( Offizier.Ability ab : Offizier.Ability.values() ) {
 							offizier.setAbility(ab, all);
-							rangcount += all;
+							abilitySum += all;
 						}
 					}
 					
 					offizier.setSpecial(Offizier.Special.values()[ThreadLocalRandom.current().nextInt(1,7)]);
 					
-					int rangf = rangcount/5;
-					int rang = rangf/125;
+					int averageAbility = abilitySum/5;
+					int rang = averageAbility/125;
 					if( rang > Officers.MAX_RANK ) {
 						rang = Officers.MAX_RANK;
 					}
@@ -626,7 +626,7 @@ public class CreateObjects implements AdminPlugin {
 		db.persist(jn);
 	}
 
-	private void handleNebel(Context context, int system) {
+	private void handleNebula(Context context, int system) {
 		org.hibernate.Session db = context.getDB();
 		
 		final Nebel.Typ type = Nebel.Typ.valueOf(context.getRequest().getParameterString("type"));
