@@ -55,9 +55,9 @@ public class UserProfileController extends Controller
 		setPageTitle("Profil");
 	}
 
-	private void validateUser(User benutzer)
+	private void validateUser(User userToValidate)
 	{
-		if ((benutzer == null) || (benutzer.hasFlag(UserFlag.HIDE) && !hasPermission(WellKnownPermission.USER_VERSTECKTE_SICHTBAR)))
+		if ((userToValidate == null) || (userToValidate.hasFlag(UserFlag.HIDE) && !hasPermission(WellKnownPermission.USER_VERSTECKTE_SICHTBAR)))
 		{
 			throw new ValidationException("Ihnen ist kein Benutzer unter der angegebenen ID bekannt.", Common.buildUrl("default", "module", "ueber"));
 		}
@@ -149,20 +149,20 @@ public class UserProfileController extends Controller
 			t.setVar("user.ally.name", Common._title(ally.getName()),
 					"user.ally.id", ally.getId());
 
-			String pstatus = "";
+			String allyStatus = "";
 			if (ally.getPresident() == ausgewaehlterBenutzer)
 			{
-				pstatus = "<span style=\"font-weight:bold; font-style:italic\">" + Common._plaintitle(ally.getPname()) + "</span>";
+				allyStatus = "<span style=\"font-weight:bold; font-style:italic\">" + Common._plaintitle(ally.getPname()) + "</span>";
 			}
 
 			if (ausgewaehlterBenutzer.getAllyPosten() != null)
 			{
-				String postenname = ausgewaehlterBenutzer.getAllyPosten().getName();
-				t.setVar("user.ally.position", (pstatus.length() != 0 ? pstatus + ", " : "") + Common._plaintitle(postenname));
+				String postName = ausgewaehlterBenutzer.getAllyPosten().getName();
+				t.setVar("user.ally.position", (allyStatus.length() != 0 ? allyStatus + ", " : "") + Common._plaintitle(postName));
 			}
 			else
 			{
-				t.setVar("user.ally.position", pstatus);
+				t.setVar("user.ally.position", allyStatus);
 			}
 		}
 
@@ -200,10 +200,10 @@ public class UserProfileController extends Controller
 				"user.rang", Medals.get().rank(ausgewaehlterBenutzer.getRang()),
 				"user.signupdate", (ausgewaehlterBenutzer.getSignup() > 0 ? Common.date("d.m.Y H:i:s", ausgewaehlterBenutzer.getSignup()) : "schon immer"));
 
-		npcRangAnzeigen(ausgewaehlterBenutzer, t, user);
+		showNpcRank(ausgewaehlterBenutzer, t, user);
 
 		// Beziehung
-		beziehungZumBenutzerAnzeigen(ausgewaehlterBenutzer, t, user);
+		showRelationToUser(ausgewaehlterBenutzer, t, user);
 
 		// Vacstatus
 		int vaccount = ausgewaehlterBenutzer.getVacationCount();
@@ -221,17 +221,17 @@ public class UserProfileController extends Controller
 		// Faction
 
 		// History
-		historieAnzeigen(ausgewaehlterBenutzer, t);
+		showHistory(ausgewaehlterBenutzer, t);
 
 		// Orden
-		ordenAnzeigen(ausgewaehlterBenutzer, t);
+		showMedals(ausgewaehlterBenutzer, t);
 
 		return t;
 	}
 
-	private void beziehungZumBenutzerAnzeigen(User ausgewaehlterBenutzer, TemplateEngine t, User user)
+	private void showRelationToUser(User ausgewaehlterBenutzer, TemplateEngine t, User user)
 	{
-		String relname = "neutral";
+		String relationName = "neutral";
 		String relcolor = "#c7c7c7";
 		if (user.getId() != ausgewaehlterBenutzer.getId())
 		{
@@ -239,21 +239,21 @@ public class UserProfileController extends Controller
 			switch (relation)
 			{
 				case ENEMY:
-					relname = "feindlich";
+					relationName = "feindlich";
 					relcolor = "#E00000";
 					break;
 				case FRIEND:
-					relname = "freundlich";
+					relationName = "freundlich";
 					relcolor = "#00E000";
 					break;
 			}
 		}
 
-		t.setVar("user.relation", relname,
+		t.setVar("user.relation", relationName,
 				"user.relation.color", relcolor);
 	}
 
-	private void historieAnzeigen(User ausgewaehlterBenutzer, TemplateEngine t)
+	private void showHistory(User ausgewaehlterBenutzer, TemplateEngine t)
 	{
 		t.setBlock("_USERPROFILE", "history.listitem", "history.list");
 		if (ausgewaehlterBenutzer.getHistory().length() != 0)
@@ -269,7 +269,7 @@ public class UserProfileController extends Controller
 		}
 	}
 
-	private void ordenAnzeigen(User ausgewaehlterBenutzer, TemplateEngine t)
+	private void showMedals(User ausgewaehlterBenutzer, TemplateEngine t)
 	{
 		t.setBlock("_USERPROFILE", "medals.listitem", "medals.list");
 
@@ -284,7 +284,7 @@ public class UserProfileController extends Controller
 		}
 	}
 
-	private void npcRangAnzeigen(User ausgewaehlterBenutzer, TemplateEngine t, User user)
+	private void showNpcRank(User ausgewaehlterBenutzer, TemplateEngine t, User user)
 	{
 		t.setBlock("_USERPROFILE", "user.npcrang", "user.npcrang.list");
 		if (ausgewaehlterBenutzer.getId() == user.getId())
