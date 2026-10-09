@@ -39,9 +39,9 @@ public class OfficerController implements DSController {
         try{
          action = Action.valueOf(request.getParameter("action").toUpperCase());
         } catch(Exception ex){}
-        int offid = -1;
+        int officerId = -1;
         try{
-          offid = Integer.parseInt(request.getParameter("off"));
+          officerId = Integer.parseInt(request.getParameter("off"));
         }
         catch (NumberFormatException e){
           Error error = new Error("Der angegebene Offizier ist ung&uuml;ltig");
@@ -51,7 +51,7 @@ public class OfficerController implements DSController {
         }
         org.hibernate.Session db = ContextMap.getContext().getDB();
 
-        Offizier offizier = (Offizier) db.createQuery("from Offizier where id =:id").setParameter("id", offid).uniqueResult();
+        Offizier offizier = (Offizier) db.createQuery("from Offizier where id =:id").setParameter("id", officerId).uniqueResult();
         if(!validateOfficer(offizier, ctx))
         {
           templateEngine.process("choff", ctx, response.getWriter());
@@ -120,7 +120,7 @@ public class OfficerController implements DSController {
       {
         message = "<span style=\"color:red\">Sie müssen einen Namen angeben</span>";
       }
-      Inhalt i = new Inhalt(message, offizier, offizier.getStationiertAufBasis() != null ? offizier.getStationiertAufBasis().getId() : 0,offizier.getStationiertAufSchiff() != null ? offizier.getStationiertAufSchiff().getId() : 0);
+      Content i = new Content(message, offizier, offizier.getStationiertAufBasis() != null ? offizier.getStationiertAufBasis().getId() : 0,offizier.getStationiertAufSchiff() != null ? offizier.getStationiertAufSchiff().getId() : 0);
       ctx.setVariable("inhalt",i);
     }
 
@@ -131,17 +131,17 @@ public class OfficerController implements DSController {
      * @param offizier der Offizier
      */
     private void defaultAction(WebContext ctx, HttpServletRequest request, Offizier offizier){
-      Inhalt i = new Inhalt("",offizier,offizier.getStationiertAufBasis() != null ? offizier.getStationiertAufBasis().getId() : 0,offizier.getStationiertAufSchiff() != null ? offizier.getStationiertAufSchiff().getId() : 0);
+      Content i = new Content("",offizier,offizier.getStationiertAufBasis() != null ? offizier.getStationiertAufBasis().getId() : 0,offizier.getStationiertAufSchiff() != null ? offizier.getStationiertAufSchiff().getId() : 0);
       ctx.setVariable("inhalt", i);
     }
 
-    private static class Inhalt{
+    private static class Content{
       public final String text;
       public final Offizier off;
       public final int baseid;
       public final int shipid;
 
-      public Inhalt(String text,Offizier off, int baseid, int shipid){
+      public Content(String text,Offizier off, int baseid, int shipid){
         this.text = text;
         this.off = off;
         this.baseid = baseid;
