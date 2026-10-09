@@ -156,7 +156,7 @@ public class StarmapController implements DSController, PermissionResolver {
         boolean admin = false;
 
         StarSystem sys = (StarSystem) db.get(StarSystem.class, systemId);
-        validiereSystem(sys);
+        validateSystem(sys);
 
         JSONObject json = new JSONObject();
         json.put("system", systemId);
@@ -178,7 +178,7 @@ public class StarmapController implements DSController, PermissionResolver {
         boolean admin = false;
 
         StarSystem sys = (StarSystem) db.get(StarSystem.class, systemId);
-        validiereSystem(sys);
+        validateSystem(sys);
 
         MapController.MapViewModel jsonData = new MapController.MapViewModel();
 
@@ -210,7 +210,7 @@ public class StarmapController implements DSController, PermissionResolver {
         boolean admin = false;
 
         StarSystem sys = (StarSystem) db.get(StarSystem.class, systemId);
-        validiereSystem(sys);
+        validateSystem(sys);
 
         MapController.MapViewModel jsonData = new MapController.MapViewModel();
 
@@ -274,7 +274,7 @@ public class StarmapController implements DSController, PermissionResolver {
         boolean admin = false;
 
         StarSystem sys = (StarSystem) db.get(StarSystem.class, systemId);
-        validiereSystem(sys);
+        validateSystem(sys);
         int x;
         int y;
         try {
@@ -410,7 +410,7 @@ public class StarmapController implements DSController, PermissionResolver {
         return null;
     }
 
-    public void validiereSystem(StarSystem system)
+    public void validateSystem(StarSystem system)
     {
         User user = (User) context.getActiveUser();
 
