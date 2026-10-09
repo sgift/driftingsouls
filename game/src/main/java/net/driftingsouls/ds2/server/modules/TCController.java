@@ -72,7 +72,7 @@ public class TCController extends Controller
 	 * @param mode Transfermodus (shipToShip, baseToShip usw)
 	 * @param ziel Der Aufenthaltsort der Offiziere
 	 */
-	private void echoOffiList(TemplateEngine t, String mode, Object ziel)
+	private void echoOfficerList(TemplateEngine t, String mode, Object ziel)
 	{
 		t.setVar("tc.selectoffizier", 1,
 				"tc.mode", mode);
@@ -142,12 +142,12 @@ public class TCController extends Controller
 			throw new ValidationException("Das Zielschiff befindet sich in einer Schlacht", Common.buildUrl("default", "module", "schiffe"));
 		}
 
-		long officount = db.createQuery("select count(*) from Offizier where stationiertAufSchiff=:dest AND owner=:owner", Long.class)
+		long officerCount = db.createQuery("select count(*) from Offizier where stationiertAufSchiff=:dest AND owner=:owner", Long.class)
                 .setParameter("dest", ship)
                 .setParameter("owner", user)
                 .getSingleResult();
 
-		if (officount == 0)
+		if (officerCount == 0)
 		{
 			throw new ValidationException("Das Schiff hat keinen Offizier an Bord", errorurl);
 		}
@@ -168,25 +168,25 @@ public class TCController extends Controller
 		}
 
 		// Check ob noch fuer einen weiteren Offi platz ist
-		int maxoffis = 1;
+		int maxOfficers = 1;
 		if (tarShipType.hasFlag(ShipTypeFlag.OFFITRANSPORT))
 		{
-			maxoffis = tarShipType.getCrew();
+			maxOfficers = tarShipType.getCrew();
 		}
 
-		long tarOffiCount = db.createQuery("select count(*) from Offizier where stationiertAufSchiff=:dest AND owner=:owner", Long.class)
+		long targetOfficerCount = db.createQuery("select count(*) from Offizier where stationiertAufSchiff=:dest AND owner=:owner", Long.class)
 				.setParameter("dest", tarShip)
 				.setParameter("owner", tarShip.getOwner())
 				.getSingleResult();
-		if (tarOffiCount >= maxoffis)
+		if (targetOfficerCount >= maxOfficers)
 		{
 			throw new ValidationException("Das Schiff hat bereits die maximale Anzahl Offiziere an Bord", errorurl);
 		}
 
 		// Offiziersliste bei bedarf ausgeben
-		if ((officount > 1) && (off == 0))
+		if ((officerCount > 1) && (off == 0))
 		{
-			echoOffiList(t, "shipToShip", ship);
+			echoOfficerList(t, "shipToShip", ship);
 			return t;
 		}
 
@@ -271,20 +271,20 @@ public class TCController extends Controller
 			throw new ValidationException("Schiff und Basis befinden sich nicht im selben Sektor", errorurl);
 		}
 
-		long officount = ((Number) db.createQuery("select count(*) from Offizier where stationiertAufSchiff=:dest AND owner=:owner")
+		long officerCount = ((Number) db.createQuery("select count(*) from Offizier where stationiertAufSchiff=:dest AND owner=:owner")
 				.setEntity("dest", ship)
 				.setEntity("owner", user)
 				.iterate().next()
 		).longValue();
-		if (officount == 0)
+		if (officerCount == 0)
 		{
 			throw new ValidationException("Das Schiff hat keinen Offizier an Bord", errorurl);
 		}
 
 		// bei bedarf offiliste ausgeben
-		if ((officount > 1) && (off == 0))
+		if ((officerCount > 1) && (off == 0))
 		{
-			echoOffiList(t, "shipToBase", ship);
+			echoOfficerList(t, "shipToBase", ship);
 			return t;
 		}
 
@@ -453,7 +453,7 @@ public class TCController extends Controller
 		// Wenn noch kein Offizier ausgewaehlt wurde -> Liste der Offiziere in der Basis anzeigen
 		if (off == 0)
 		{
-			echoOffiList(t, "baseToShip", upBase);
+			echoOfficerList(t, "baseToShip", upBase);
 
 			if (ship.getFleet() != null)
 			{
@@ -495,13 +495,13 @@ public class TCController extends Controller
 					.iterate().next()
 			).longValue();
 
-			int maxoffis = 1;
+			int maxOfficers = 1;
 			if (tarShipType.hasFlag(ShipTypeFlag.OFFITRANSPORT))
 			{
-				maxoffis = tarShipType.getCrew();
+				maxOfficers = tarShipType.getCrew();
 			}
 
-			if (offi >= maxoffis)
+			if (offi >= maxOfficers)
 			{
 				throw new ValidationException("Das Schiff hat bereits die maximale Anzahl Offiziere an Bord", errorurl);
 			}
