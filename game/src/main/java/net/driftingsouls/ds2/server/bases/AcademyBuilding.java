@@ -46,14 +46,14 @@ import java.util.*;
 @DiscriminatorValue("net.driftingsouls.ds2.server.bases.AcademyBuilding")
 public class AcademyBuilding extends DefaultBuilding {
 	private static final Log log = LogFactory.getLog(AcademyBuilding.class);
-	private static final Map<Integer,String> offis = new HashMap<>();
+	private static final Map<Integer,String> officerTypeNames = new HashMap<>();
 	private static final Map<Integer,String> attributes = new HashMap<>();
 
 	static {
-		offis.put(1, "Ingenieur");
-		offis.put(2, "Navigator");
-		offis.put(3, "Sicherheitsexperte");
-		offis.put(4, "Captain");
+		officerTypeNames.put(1, "Ingenieur");
+		officerTypeNames.put(2, "Navigator");
+		officerTypeNames.put(3, "Sicherheitsexperte");
+		officerTypeNames.put(4, "Captain");
 
 		attributes.put(1, "Technik");
 		attributes.put(2, "Waffen");
@@ -126,24 +126,24 @@ public class AcademyBuilding extends DefaultBuilding {
 	 * Ermittelt Ausbildungskosten.
 	 *
 	 * @param acc die akademie
-	 * @param typ gibt an ob es sich um Silizium Nahrung oder Dauer handelt (0-2)
+	 * @param type gibt an ob es sich um Silizium Nahrung oder Dauer handelt (0-2)
 	 * @param offizier der auszubildende offizier
 	 * @param train Sparte/Faehigkeit die ausgebildet wird
 	 * @return nada
 	 */
-	public int getUpgradeCosts(Academy acc, int typ, Offizier offizier, Ability train, int level) {
+	public int getUpgradeCosts(Academy acc, int type, Offizier offizier, Ability train, int level) {
 		var db = ContextMap.getContext().getEM();
 
-		Map<Integer,Offizier.Ability> dTrain = new HashMap<>();
-		dTrain.put(1, Offizier.Ability.ING);
-		dTrain.put(2, Offizier.Ability.WAF);
-		dTrain.put(3, Offizier.Ability.NAV);
-		dTrain.put(4, Offizier.Ability.SEC);
-		dTrain.put(5, Offizier.Ability.COM);
+		Map<Integer,Offizier.Ability> abilityByIndex = new HashMap<>();
+		abilityByIndex.put(1, Offizier.Ability.ING);
+		abilityByIndex.put(2, Offizier.Ability.WAF);
+		abilityByIndex.put(3, Offizier.Ability.NAV);
+		abilityByIndex.put(4, Offizier.Ability.SEC);
+		abilityByIndex.put(5, Offizier.Ability.COM);
 
-		double nahrungfactor = new ConfigService(db).getValue(WellKnownConfigValue.OFFIZIER_NAHRUNG_FACTOR);
-		double siliziumfactor = new ConfigService(db).getValue(WellKnownConfigValue.OFFIZIER_SILIZIUM_FACTOR);
-		double dauerfactor = new ConfigService(db).getValue(WellKnownConfigValue.OFFIZIER_DAUER_FACTOR);
+		double foodFactor = new ConfigService(db).getValue(WellKnownConfigValue.OFFIZIER_NAHRUNG_FACTOR);
+		double siliconFactor = new ConfigService(db).getValue(WellKnownConfigValue.OFFIZIER_SILIZIUM_FACTOR);
+		double durationFactor = new ConfigService(db).getValue(WellKnownConfigValue.OFFIZIER_DAUER_FACTOR);
 
 		int plus = Math.max(level, 0);
 		List<AcademyQueueEntry> entries = acc.getQueueEntries();
@@ -154,13 +154,13 @@ public class AcademyBuilding extends DefaultBuilding {
 			}
 		}
 
-		switch ( typ ) {
+		switch ( type ) {
 		case 0:
-			return (int)((offizier.getAbility(dTrain.get(decodeAbility(train)))+plus)*siliziumfactor)+1;
+			return (int)((offizier.getAbility(abilityByIndex.get(decodeAbility(train)))+plus)*siliconFactor)+1;
 		case 1:
-			return (int)((offizier.getAbility(dTrain.get(decodeAbility(train)))+plus)*nahrungfactor)+1;
+			return (int)((offizier.getAbility(abilityByIndex.get(decodeAbility(train)))+plus)*foodFactor)+1;
 		case 2:
-			return (int)((offizier.getAbility(dTrain.get(decodeAbility(train)))+plus)*dauerfactor)+1;
+			return (int)((offizier.getAbility(abilityByIndex.get(decodeAbility(train)))+plus)*durationFactor)+1;
 		}
 		return 0;
 	}
@@ -187,7 +187,7 @@ public class AcademyBuilding extends DefaultBuilding {
 				{
 					if( entry.getTraining() < 0 ) {
 						popup.append("Bildet aus: ");
-						popup.append(offis.get(entry.getTraining() * -1));
+						popup.append(officerTypeNames.get(entry.getTraining() * -1));
 						popup.append(" Dauer: <img style='vertical-align:middle' src='");
 						popup.append("./data/interface/time.gif' alt='noch ' />");
 						popup.append(entry.getRemainingTime());
@@ -256,12 +256,12 @@ public class AcademyBuilding extends DefaultBuilding {
 		TemplateViewResultFactory templateViewResultFactory = context.getBean(TemplateViewResultFactory.class, null);
 		TemplateEngine t = templateViewResultFactory.createEmpty();
 
-		int siliziumcosts = new ConfigService(db).getValue(WellKnownConfigValue.NEW_OFF_SILIZIUM_COSTS);
-		int nahrungcosts = new ConfigService(db).getValue(WellKnownConfigValue.NEW_OFF_NAHRUNG_COSTS);
-		int dauercosts = new ConfigService(db).getValue(WellKnownConfigValue.OFF_DAUER_COSTS);
-		int maxoffstotrain = new ConfigService(db).getValue(WellKnownConfigValue.MAX_OFFS_TO_TRAIN);
+		int siliconCosts = new ConfigService(db).getValue(WellKnownConfigValue.NEW_OFF_SILIZIUM_COSTS);
+		int foodCosts = new ConfigService(db).getValue(WellKnownConfigValue.NEW_OFF_NAHRUNG_COSTS);
+		int durationCosts = new ConfigService(db).getValue(WellKnownConfigValue.OFF_DAUER_COSTS);
+		int maxOfficersToTrain = new ConfigService(db).getValue(WellKnownConfigValue.MAX_OFFS_TO_TRAIN);
 
-		int newo = context.getRequest().getParameterInt("newo");
+		int newOfficerType = context.getRequest().getParameterInt("newo");
 		int off = context.getRequest().getParameterInt("off");
 		int up = context.getRequest().getParameterInt("up");
 		int down = context.getRequest().getParameterInt("down");
@@ -318,7 +318,7 @@ public class AcademyBuilding extends DefaultBuilding {
 				"base.id",		base.getId(),
 				"base.field",	field,
 				"academy.actualbuilds", academy.getNumberScheduledQueueEntries(),
-				"academy.maxbuilds", maxoffstotrain);
+				"academy.maxbuilds", maxOfficersToTrain);
 
 		//--------------------------------
 		// Als erstes ueberpruefen wir, ob eine Aktion durchgefuehrt wurde
@@ -394,17 +394,17 @@ public class AcademyBuilding extends DefaultBuilding {
 		// Einen neuen Offizier ausbilden
 		//---------------------------------
 
-		if( newo != 0 ) {
+		if( newOfficerType != 0 ) {
 			t.setVar("academy.show.trainnewoffi", 1);
 
 			Cargo cargo = new Cargo(base.getCargo());
 
 			boolean ok = true;
-			if( cargo.getResourceCount( Resources.SILIZIUM ) < siliziumcosts ) {
+			if( cargo.getResourceCount( Resources.SILIZIUM ) < siliconCosts ) {
 				t.setVar("trainnewoffi.error", "Nicht genug Silizium");
 				ok = false;
 			}
-			if( cargo.getResourceCount( Resources.NAHRUNG ) < nahrungcosts ) {
+			if( cargo.getResourceCount( Resources.NAHRUNG ) < foodCosts ) {
 				t.setVar("trainnewoffi.error", "Nicht genug Nahrung");
 				ok = false;
 			}
@@ -412,10 +412,10 @@ public class AcademyBuilding extends DefaultBuilding {
 			if( ok ) {
 				t.setVar("trainnewoffi.train", 1);
 
-				cargo.substractResource( Resources.SILIZIUM, siliziumcosts);
-				cargo.substractResource( Resources.NAHRUNG, nahrungcosts);
+				cargo.substractResource( Resources.SILIZIUM, siliconCosts);
+				cargo.substractResource( Resources.NAHRUNG, foodCosts);
 				academy.setTrain(true);
-				AcademyQueueEntry entry = new AcademyQueueEntry(academy, -newo, dauercosts);
+				AcademyQueueEntry entry = new AcademyQueueEntry(academy, -newOfficerType, durationCosts);
 				base.setCargo(cargo);
 				db.persist(entry);
 				academy.addQueueEntry(entry);
@@ -428,34 +428,34 @@ public class AcademyBuilding extends DefaultBuilding {
 		HashMap<Ability,ArrayList<Integer>> training = new HashMap<>();
 		if( (!train.isEmpty()) && (off != 0) ) {
 			//Auch hier kann es sein dass der Offizier nicht existiert.
-            int sk = 0;
-            int nk = 0;
-            int dauer = 0;
+            int trainingSiliconCosts = 0;
+            int trainingFoodCosts = 0;
+            int trainingDuration = 0;
             if( offizier.getStationiertAufBasis() != null && offizier.getStationiertAufBasis().getId() == base.getId() ) {
                 for(Ability ability : train.keySet())
                 {
                     for(int level = 0; level < train.get(ability);level+=10)
                     {
-                        int tmp_dauer = getUpgradeCosts(academy, 2, offizier, ability, level);
-                        sk += getUpgradeCosts(academy, 0, offizier, ability, level);
-                        nk += getUpgradeCosts(academy, 1, offizier, ability, level);
-                        dauer += tmp_dauer;
-                        ArrayList<Integer> zeit = training.get(ability);
-                        if(zeit == null)
+                        int duration = getUpgradeCosts(academy, 2, offizier, ability, level);
+                        trainingSiliconCosts += getUpgradeCosts(academy, 0, offizier, ability, level);
+                        trainingFoodCosts += getUpgradeCosts(academy, 1, offizier, ability, level);
+                        trainingDuration += duration;
+                        ArrayList<Integer> durations = training.get(ability);
+                        if(durations == null)
                         {
-                            zeit = new ArrayList<>();
+                            durations = new ArrayList<>();
                         }
-                        zeit.add(tmp_dauer);
-                        training.put(ability,zeit);
+                        durations.add(duration);
+                        training.put(ability,durations);
                     }
                 }
                 t.setVar(
                         "academy.show.trainoffi", 1,
                         "trainoffi.id",			offizier.getID(),
                         "offizier.name",		Common._plaintext(offizier.getName()),
-                        "offizier.train.dauer",		dauer,
-                        "offizier.train.nahrung", 	nk,
-                        "offizier.train.silizium",	sk,
+                        "offizier.train.dauer",		trainingDuration,
+                        "offizier.train.nahrung", 	trainingFoodCosts,
+                        "offizier.train.silizium",	trainingSiliconCosts,
                         "resource.nahrung.image",	Cargo.getResourceImage(Resources.NAHRUNG),
                         "resource.silizium.image",	Cargo.getResourceImage(Resources.SILIZIUM));
 
@@ -493,11 +493,11 @@ public class AcademyBuilding extends DefaultBuilding {
 
                 Cargo cargo = new Cargo(base.getCargo());
                     boolean ok = true;
-                if( cargo.getResourceCount( Resources.SILIZIUM ) < sk) {
+                if( cargo.getResourceCount( Resources.SILIZIUM ) < trainingSiliconCosts) {
                         t.setVar("trainoffi.error", "Nicht genug Silizium");
                     ok = false;
                 }
-                if( cargo.getResourceCount( Resources.NAHRUNG ) < nk ) {
+                if( cargo.getResourceCount( Resources.NAHRUNG ) < trainingFoodCosts ) {
                     t.setVar("trainoffi.error", "Nicht genug Nahrung");
                     ok = false;
                 }
@@ -516,8 +516,8 @@ public class AcademyBuilding extends DefaultBuilding {
                 if( ok ) {
                     t.setVar("trainoffi.train", 1);
 
-                    cargo.substractResource( Resources.SILIZIUM, sk );
-                    cargo.substractResource( Resources.NAHRUNG, nk );
+                    cargo.substractResource( Resources.SILIZIUM, trainingSiliconCosts );
+                    cargo.substractResource( Resources.NAHRUNG, trainingFoodCosts );
 
                     for(Ability ability : train.keySet())
                     {
@@ -581,7 +581,7 @@ public class AcademyBuilding extends DefaultBuilding {
 				{
 					t.setVar(
 							"trainoffizier.attribute", "Neuer Offizier",
-							"trainoffizier.name", Common._plaintext(offis.get(-entry.getTraining())),
+							"trainoffizier.name", Common._plaintext(officerTypeNames.get(-entry.getTraining())),
 							"trainoffizier.offi", false
 							);
 				}
@@ -619,9 +619,9 @@ public class AcademyBuilding extends DefaultBuilding {
 				"academy.show.trainnew",	1,
 				"resource.silizium.image",	Cargo.getResourceImage(Resources.SILIZIUM),
 				"resource.nahrung.image",	Cargo.getResourceImage(Resources.NAHRUNG),
-				"resource.silizium.costs", siliziumcosts,
-				"resource.nahrung.costs", nahrungcosts,
-				"dauer.costs", dauercosts
+				"resource.silizium.costs", siliconCosts,
+				"resource.nahrung.costs", foodCosts,
+				"dauer.costs", durationCosts
 				);
 
 		t.setBlock("_BUILDING", "academy.trainnew.listitem", "academy.trainnew.list");
@@ -665,11 +665,11 @@ public class AcademyBuilding extends DefaultBuilding {
 					"offizier.nav",		offi.getAbility(Offizier.Ability.NAV),
 					"offizier.sec",		offi.getAbility(Offizier.Ability.SEC),
 					"offizier.com",		offi.getAbility(Offizier.Ability.COM),
-					"offizier.toing",	offiTargetValue(academy, offi, Offizier.Ability.ING),
-					"offizier.towaf",	offiTargetValue(academy, offi, Offizier.Ability.WAF),
-					"offizier.tonav",	offiTargetValue(academy, offi, Offizier.Ability.NAV),
-					"offizier.tosec",	offiTargetValue(academy, offi, Offizier.Ability.SEC),
-					"offizier.tocom",	offiTargetValue(academy, offi, Offizier.Ability.COM),
+					"offizier.toing",	officerTargetValue(academy, offi, Offizier.Ability.ING),
+					"offizier.towaf",	officerTargetValue(academy, offi, Offizier.Ability.WAF),
+					"offizier.tonav",	officerTargetValue(academy, offi, Offizier.Ability.NAV),
+					"offizier.tosec",	officerTargetValue(academy, offi, Offizier.Ability.SEC),
+					"offizier.tocom",	officerTargetValue(academy, offi, Offizier.Ability.COM),
 					"offizier.special",	offi.getSpecial().getName() );
 
 			t.parse("academy.offilistausb.list", "academy.offilistausb.listitem", true);
@@ -724,7 +724,7 @@ public class AcademyBuilding extends DefaultBuilding {
 	 * @param ability die Ability
 	 * @return das Level nach Abschluss des Trainings oder <code>0</code>, falls der Offizier diesen Skill nicht trainiert
 	 */
-	public int offiTargetValue(Academy acc, Offizier offi, Ability ability)
+	public int officerTargetValue(Academy acc, Offizier offi, Ability ability)
 	{
 		switch( ability ) {
 			case ING:
