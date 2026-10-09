@@ -24,12 +24,12 @@ import org.jetbrains.annotations.NotNull;
 @AdminMenuEntry(category = "Asteroiden", name = "Gebäude", permission = WellKnownAdminPermission.EDIT_BUILDING)
 public class EditBuilding implements EntityEditor<Building>
 {
-	private static int getEnergiebilanz(Building building)
+	private static int getEnergyBalance(Building building)
 	{
 		return -1 * building.getEVerbrauch() + building.getEProduktion();
 	}
 
-	private static void setEnergiebilanz(Building building, int energy)
+	private static void setEnergyBalance(Building building, int energy)
 	{
 		if (energy < 0)
 		{
@@ -60,7 +60,7 @@ public class EditBuilding implements EntityEditor<Building>
 		form.picture("Bild", Building::getDefaultPicture);
 		form.field("Arbeiter", Integer.class, Building::getArbeiter, Building::setArbeiter);
 
-		form.field("Energie", Integer.class, EditBuilding::getEnergiebilanz, EditBuilding::setEnergiebilanz);
+		form.field("Energie", Integer.class, EditBuilding::getEnergyBalance, EditBuilding::setEnergyBalance);
 		form.field("EPS", Integer.class, Building::getEPS, Building::setEps);
 		form.field("Wohnraum", Integer.class, Building::getBewohner, Building::setBewohner);
 		form.field("Forschung", Forschung.class, Building::getTechRequired, Building::setTechReq).withNullOption("[keine]");
