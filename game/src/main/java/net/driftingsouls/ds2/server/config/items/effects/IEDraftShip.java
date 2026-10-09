@@ -85,7 +85,7 @@ public class IEDraftShip extends ItemEffect {
 	 * Gibt zurueck, ob ein Flagschiff gebaut wird.
 	 * @return <code>true</code>, wenn es ein Flagschiff ist
 	 */
-	public boolean isFlagschiff() {
+	public boolean isFlagship() {
 		return schiffsbauplan.isFlagschiff();
 	}
 	
@@ -93,7 +93,7 @@ public class IEDraftShip extends ItemEffect {
 	 * Gibt die Baudauer zurueck.
 	 * @return Die Baudauer
 	 */
-	public int getDauer() {
+	public int getDuration() {
 		return schiffsbauplan.getDauer();
 	}
 
@@ -101,7 +101,7 @@ public class IEDraftShip extends ItemEffect {
 	 * Gibt alle benoetigten Forschungen zurueck.
 	 * @return Die Forschungen
 	 */
-	public Set<Forschung> getBenoetigteForschungen()
+	public Set<Forschung> getRequiredResearch()
 	{
 		return schiffsbauplan.getBenoetigteForschungen();
 	}
@@ -110,7 +110,7 @@ public class IEDraftShip extends ItemEffect {
 	 * Gibt die Werftslots zurueck, die zum Bau des Schiffes erforderlich sind.
 	 * @return Die Werftslots
 	 */
-	public int getWerftSlots() {
+	public int getShipyardSlots() {
 		return schiffsbauplan.getWerftSlots();
 	}
 
@@ -153,7 +153,7 @@ public class IEDraftShip extends ItemEffect {
 	 */
 	@Override
 	public String toString() {
-		String itemstring = "draft-ship:" + getShipType() + "&" + getRace() + "&" + isFlagschiff() + "&" + getCrew() + "&" + getE() + "&" + getDauer() + "&" + getWerftSlots() + "&" + getBuildCosts().save();
+		String itemstring = "draft-ship:" + getShipType() + "&" + getRace() + "&" + isFlagship() + "&" + getCrew() + "&" + getE() + "&" + getDuration() + "&" + getShipyardSlots() + "&" + getBuildCosts().save();
 		String techs = this.schiffsbauplan.getBenoetigteForschungen().stream().map(f -> Integer.toString(f.getID())).collect(Collectors.joining(","));
 		if( techs.equals("")) {
 			techs = ",";

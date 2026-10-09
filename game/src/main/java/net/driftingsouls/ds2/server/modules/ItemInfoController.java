@@ -417,7 +417,7 @@ public class ItemInfoController extends Controller
 
 				data.setLength(0);
 				boolean entry = false;
-				for( Forschung forschung : effect.getBenoetigteForschungen() )
+				for( Forschung forschung : effect.getRequiredResearch() )
 				{
 					if (!forschung.isVisibile(user) && !user.hasResearched(forschung.getBenoetigteForschungen()))
 					{
@@ -472,16 +472,16 @@ public class ItemInfoController extends Controller
 				t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 
 				t.setVar("entry.name", "Dauer",
-						"entry.data", "<img valign=\"middle\" src=\"./data/interface/time.gif\" alt=\"\" />" + effect.getDauer());
+						"entry.data", "<img valign=\"middle\" src=\"./data/interface/time.gif\" alt=\"\" />" + effect.getDuration());
 
 				t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 
 				t.setVar("entry.name", "Werftslots",
-						"entry.data", "<img valign=\"middle\" src=\"./data/interface/schiffinfo/werftslots.png\" alt=\"\" />" + effect.getWerftSlots());
+						"entry.data", "<img valign=\"middle\" src=\"./data/interface/schiffinfo/werftslots.png\" alt=\"\" />" + effect.getShipyardSlots());
 
 				t.parse("itemdetails.entrylist", "itemdetails.entry", true);
 
-				if (effect.isFlagschiff())
+				if (effect.isFlagship())
 				{
 					t.setVar("entry.name", "Flaggschiff",
 							"entry.data", "ja");

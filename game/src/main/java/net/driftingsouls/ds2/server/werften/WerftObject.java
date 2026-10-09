@@ -1297,13 +1297,13 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		{
 			IEDraftShip effect = item.getShipDraft().getEffect();
 
-			if (effect.getWerftSlots() > this.getWerftSlots())
+			if (effect.getShipyardSlots() > this.getWerftSlots())
 			{
 				continue;
 			}
 
 			//Forschungen checken
-			if (!user.hasResearched(effect.getBenoetigteForschungen()) )
+			if (!user.hasResearched(effect.getRequiredResearch()) )
 			{
 				continue;
 			}
@@ -1315,13 +1315,13 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		{
 			IEDraftShip effect = item.getShipDraft().getEffect();
 
-			if (effect.getWerftSlots() > this.getWerftSlots())
+			if (effect.getShipyardSlots() > this.getWerftSlots())
 			{
 				continue;
 			}
 
 			//Forschungen checken
-			if (!user.hasResearched(effect.getBenoetigteForschungen()) )
+			if (!user.hasResearched(effect.getRequiredResearch()) )
 			{
 				continue;
 			}
