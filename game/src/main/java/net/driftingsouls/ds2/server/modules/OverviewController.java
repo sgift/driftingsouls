@@ -208,19 +208,19 @@ public class OverviewController extends Controller
 		// Mangel auf Asteroiden checken
 		//------------------------------
 
-		int anzahlBasen = mangelAufAsteroidenAnzeigen(db, user, t);
+		int baseCount = showShortagesOnAsteroids(db, user, t);
 
 		//------------------------------
 		// Mangel auf Schiffen checken
 		//------------------------------
 
-		mangelAufSchiffenAnzeigen(db, user, t);
+		showShortagesOnShips(db, user, t);
 
 		//------------------------------
 		// Schlachten anzeigen
 		//------------------------------
 
-		laufendeSchlachtenAnzeigen(db, user, t);
+		showRunningBattles(db, user, t);
 		//------------------------------
 		// Logo anzeigen
 		//------------------------------
@@ -242,7 +242,7 @@ public class OverviewController extends Controller
 					"where id>0 and owner= :user")
 					.setEntity("user", user)
 					.iterate().next();
-			showTutorialPages(t, anzahlBasen, shipcount, inttutorial);
+			showTutorialPages(t, baseCount, shipcount, inttutorial);
 		}
 
 		//------------------------------------
@@ -301,7 +301,7 @@ public class OverviewController extends Controller
 		return t;
 	}
 
-	private void mangelAufSchiffenAnzeigen(Session db, User user, TemplateEngine t)
+	private void showShortagesOnShips(Session db, User user, TemplateEngine t)
 	{
 		long sw;
 		long shipNoCrew;
@@ -321,10 +321,10 @@ public class OverviewController extends Controller
 				"schiffe.nocrew", Common.ln(shipNoCrew));
 	}
 
-	private void laufendeSchlachtenAnzeigen(Session db, User user, TemplateEngine t)
+	private void showRunningBattles(Session db, User user, TemplateEngine t)
 	{
 		// Ab hier beginnt das erste Bier
-		Set<Battle> battles = erzeugeListeDerRelevantenSchlachten(db, user);
+		Set<Battle> battles = createListOfRelevantBattles(db, user);
 
 		// Ab hier beginnt das zweite Bier
 		StringBuilder battlelist = new StringBuilder();
@@ -359,15 +359,15 @@ public class OverviewController extends Controller
 			battlelist.append("<a class=\"error\" href=\"ds?module=angriff&amp;battle=").append(battle.getId()).append("\">Schlacht ").append(eparty).append(" vs ").append(eparty2).append(" bei ").append(battle.getLocation().displayCoordinates(false)).append("</a>&nbsp;");
 
 			// Nahrunganzeige der Schlacht
-			int nahrung = battle.getNahrungsBalance(user, getEM());
+			int foodBalance = battle.getNahrungsBalance(user, getEM());
 
-			if (nahrung < 0)
+			if (foodBalance < 0)
 			{
-				battlelist.append("<span style=\"color:red\">(").append(Common.ln(nahrung));
+				battlelist.append("<span style=\"color:red\">(").append(Common.ln(foodBalance));
 			}
 			else
 			{
-				battlelist.append("<span style=\"color:green\">(+").append(Common.ln(nahrung));
+				battlelist.append("<span style=\"color:green\">(+").append(Common.ln(foodBalance));
 			}
 
 			battlelist.append(" <img src=\"").append(Cargo.getResourceImage(Resources.NAHRUNG)).append("\" alt=\"Nahrung\" title=\"Nahrung\" />)</span>");
@@ -378,7 +378,7 @@ public class OverviewController extends Controller
 		t.setVar("global.battlelist", battlelist);
 	}
 
-	private Set<Battle> erzeugeListeDerRelevantenSchlachten(Session db, User user)
+	private Set<Battle> createListOfRelevantBattles(Session db, User user)
 	{
 		Set<Battle> battles = new LinkedHashSet<>();
 
@@ -434,16 +434,16 @@ public class OverviewController extends Controller
 		return battles;
 	}
 
-	private int mangelAufAsteroidenAnzeigen(Session db, User user, TemplateEngine t)
+	private int showShortagesOnAsteroids(Session db, User user, TemplateEngine t)
 	{
 		int bw = 0;
 		int bases = 0;
 
-		List<Base> basen = db.createQuery("from Base b left join fetch b.core where owner= :user order by b.id")
+		List<Base> ownBases = db.createQuery("from Base b left join fetch b.core where owner= :user order by b.id")
 				.setEntity("user", user)
 				.list();
 
-		for (Base base : basen)
+		for (Base base : ownBases)
 		{
 			bases++;
 
