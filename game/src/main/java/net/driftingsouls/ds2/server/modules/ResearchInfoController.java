@@ -133,7 +133,7 @@ public class ResearchInfoController extends Controller
 		}
 
 		// Voraussetzungen
-		benoetigteForschungenAnzeigen(t, research);
+		showRequiredResearch(t, research);
 
 		// Kosten
 		Cargo costs = research.getCosts();
@@ -151,7 +151,7 @@ public class ResearchInfoController extends Controller
 		}
 
 		// Ermoeglicht
-		ermoeglichteForschungenAnzeigen(db, t, user, research);
+		showEnabledResearch(db, t, user, research);
 
 		// Beschreibung
 		if (research.getDescription().length() > 0)
@@ -168,23 +168,23 @@ public class ResearchInfoController extends Controller
 		//
 		// Gebaeude
 		//
-		gebaeudeZurForschungAnzeigen(db, t, user, research);
+		showBuildingsForResearch(db, t, user, research);
 
 		//
 		// Cores
 		//
-		coresZurForschungAnzeigen(db, t, research);
+		showCoresForResearch(db, t, research);
 
 
 		//
 		// Schiffe
 		//
-		schiffeZurForschungAnzeigen(db, t, user, research);
+		showShipsForResearch(db, t, user, research);
 
 		//
 		// Munition
 		//
-		munitionZurForschungAnzeigen(db, t, research);
+		showAmmoForResearch(db, t, research);
 
 		if (research.getSpecializationCosts() > 0 && user.hasResearched(research))
 		{
@@ -194,7 +194,7 @@ public class ResearchInfoController extends Controller
 		return t;
 	}
 
-	private void benoetigteForschungenAnzeigen(TemplateEngine t, Forschung research)
+	private void showRequiredResearch(TemplateEngine t, Forschung research)
 	{
 		t.setBlock("_FORSCHINFO", "tech.needs.listitem", "tech.needs.list");
 		for (int i = 1; i <= 3; i++)
@@ -228,7 +228,7 @@ public class ResearchInfoController extends Controller
 		}
 	}
 
-	private void ermoeglichteForschungenAnzeigen(Session db, TemplateEngine t, User user, Forschung research)
+	private void showEnabledResearch(Session db, TemplateEngine t, User user, Forschung research)
 	{
 		t.setBlock("_FORSCHINFO", "tech.allows.listitem", "tech.allows.list");
 
@@ -264,7 +264,7 @@ public class ResearchInfoController extends Controller
 		}
 	}
 
-	private void gebaeudeZurForschungAnzeigen(Session db, TemplateEngine t, User user, Forschung research)
+	private void showBuildingsForResearch(Session db, TemplateEngine t, User user, Forschung research)
 	{
 		ResourceList reslist;
 		t.setBlock("_FORSCHINFO", "tech.buildings.listitem", "tech.buildings.list");
@@ -327,7 +327,7 @@ public class ResearchInfoController extends Controller
 		}
 	}
 
-	private void coresZurForschungAnzeigen(Session db, TemplateEngine t, Forschung research)
+	private void showCoresForResearch(Session db, TemplateEngine t, Forschung research)
 	{
 		boolean firstentry;ResourceList reslist;
 		t.setBlock("_FORSCHINFO", "tech.cores.listitem", "tech.cores.list");
@@ -390,7 +390,7 @@ public class ResearchInfoController extends Controller
 		}
 	}
 
-	private void schiffeZurForschungAnzeigen(Session db, TemplateEngine t, User user, Forschung research)
+	private void showShipsForResearch(Session db, TemplateEngine t, User user, Forschung research)
 	{
 		boolean firstentry;Cargo costs;ResourceList reslist;
 		t.setBlock("_FORSCHINFO", "tech.ships.listitem", "tech.ships.list");
@@ -453,13 +453,13 @@ public class ResearchInfoController extends Controller
 
 				//Es benoetigt weitere!
 				t.setVar("tech.ship.techs.list", "");
-				for (Forschung benoetigt : ship.getBenoetigteForschungen())
+				for (Forschung requiredResearch : ship.getBenoetigteForschungen())
 				{
-					if (benoetigt.getID() != research.getID())
+					if (requiredResearch.getID() != research.getID())
 					{
 						t.setVar("tech.ship.tech.break", !firstentry,
-								"tech.ship.tech.id", benoetigt.getID(),
-								"tech.ship.tech.name", benoetigt.getName());
+								"tech.ship.tech.id", requiredResearch.getID(),
+								"tech.ship.tech.name", requiredResearch.getName());
 
 						if (firstentry)
 						{
@@ -478,7 +478,7 @@ public class ResearchInfoController extends Controller
 		}
 	}
 
-	private void munitionZurForschungAnzeigen(Session db, TemplateEngine t, Forschung research)
+	private void showAmmoForResearch(Session db, TemplateEngine t, Forschung research)
 	{
 		boolean firstentry;ResourceList reslist;
 		t.setBlock("_FORSCHINFO", "tech.fac.listitem", "tech.fac.list");
