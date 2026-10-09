@@ -176,7 +176,7 @@ public class AcademyTick extends TickController {
 			public void doWork() {
 				var db = getEM();
 				int count = 0;
-				for( int i = Officers.MAX_RANG; i > 0; i-- ) {
+				for( int i = Officers.MAX_RANK; i > 0; i-- ) {
 					count += db.createQuery("update Offizier " +
 							"set rang= :rang " +
 					"where rang < :rang and (ing+waf+nav+sec+com)/125 >= :rang")

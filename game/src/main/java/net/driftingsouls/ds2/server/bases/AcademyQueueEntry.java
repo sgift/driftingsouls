@@ -242,15 +242,15 @@ public class AcademyQueueEntry {
 				offizier = -Officers.LIST.keySet().iterator().next();
 			}
 
-			Officers.Offiziersausbildung offi = Officers.LIST.get(-offizier);
+			Officers.OfficerTraining officerTraining = Officers.LIST.get(-offizier);
 
 			for (Offizier.Ability ability : Offizier.Ability.values())
 			{
-				offz.setAbility(ability, offi.getAbility(ability));
+				offz.setAbility(ability, officerTraining.getAbility(ability));
 			}
 
-			int spec = ThreadLocalRandom.current().nextInt(offi.getSpecials().length);
-			spec = offi.getSpecials()[spec];
+			int spec = ThreadLocalRandom.current().nextInt(officerTraining.getSpecials().length);
+			spec = officerTraining.getSpecials()[spec];
 
 			offz.setSpecial(Offizier.Special.values()[spec-1]);
 

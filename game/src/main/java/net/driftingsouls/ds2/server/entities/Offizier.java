@@ -458,8 +458,8 @@ public class Offizier extends DSObject {
 		if( newrang ) {
 			double rangf = (this.ing+this.waf+this.nav+this.sec+this.com);
 			int rang = (int)(rangf/125);
-			if( rang > Officers.MAX_RANG ) {
-				rang = Officers.MAX_RANG;
+			if( rang > Officers.MAX_RANK ) {
+				rang = Officers.MAX_RANK;
 			}
 
 			this.rang = rang;
@@ -537,8 +537,8 @@ public class Offizier extends DSObject {
 		if( count != 0 ) {
 			double rangf = (this.ing+this.waf+this.nav+this.sec+this.com)/5.0;
 			int rang = (int)(rangf/125);
-			if( rang > Officers.MAX_RANG ) {
-				rang = Officers.MAX_RANG;
+			if( rang > Officers.MAX_RANK ) {
+				rang = Officers.MAX_RANK;
 			}
 
 			if( rang > this.rang ) {

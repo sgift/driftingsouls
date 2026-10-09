@@ -35,7 +35,7 @@ public class Officers {
 	 * Beschreibt eine konkrete (initiale) Ausbildung eines Offiziers bzw
 	 * den aus der Ausbildung resultierenden Offizier.
 	 */
-	public static class Offiziersausbildung {
+	public static class OfficerTraining {
 		private final int id;
 		private final String name;
 		private final Map<Offizier.Ability,Integer> abilities;
@@ -46,7 +46,7 @@ public class Officers {
 		 * @param id Die ID der Ausbildung
 		 * @param name Der Name der Ausbildung
 		 */
-		public Offiziersausbildung(int id, String name)
+		public OfficerTraining(int id, String name)
 		{
 			this.id = id;
 			this.name = name;
@@ -92,11 +92,11 @@ public class Officers {
 		 * Setzt den Wert der angegebenen Faehigkeit des Offiziers nach der
 		 * Ausbildung.
 		 * @param ability Die Faehigkeit
-		 * @param wert Der Wert
+		 * @param value Der Wert
 		 */
-		public void setAbility(Offizier.Ability ability, int wert)
+		public void setAbility(Offizier.Ability ability, int value)
 		{
-			this.abilities.put(ability, wert);
+			this.abilities.put(ability, value);
 		}
 
 		/**
@@ -127,49 +127,49 @@ public class Officers {
 	/**
 	 * Der maximale Rang, den ein Offizier durch Erfahrung erlangen kann.
 	 */
-	public static final int MAX_RANG = 6;
+	public static final int MAX_RANK = 6;
 	
 	/**
 	 * Die Liste der Offizierstypen.
 	 */
-	public static final Map<Integer,Offiziersausbildung> LIST;
+	public static final Map<Integer,OfficerTraining> LIST;
 	
 	static {
 		// TODO: In XML auslagern...
-		Map<Integer,Offiziersausbildung> liste = new LinkedHashMap<>();
+		Map<Integer,OfficerTraining> list = new LinkedHashMap<>();
 
-		Offiziersausbildung offi = new Offiziersausbildung(1, "Ingenieur");
-		offi.setAbility(Offizier.Ability.ING, 25);
-		offi.setAbility(Offizier.Ability.WAF, 20);
-		offi.setAbility(Offizier.Ability.NAV, 10);
-		offi.setAbility(Offizier.Ability.SEC, 5);
-		offi.setAbility(Offizier.Ability.COM, 5);
-		liste.put(1, offi);
+		OfficerTraining officerTraining = new OfficerTraining(1, "Ingenieur");
+		officerTraining.setAbility(Offizier.Ability.ING, 25);
+		officerTraining.setAbility(Offizier.Ability.WAF, 20);
+		officerTraining.setAbility(Offizier.Ability.NAV, 10);
+		officerTraining.setAbility(Offizier.Ability.SEC, 5);
+		officerTraining.setAbility(Offizier.Ability.COM, 5);
+		list.put(1, officerTraining);
 		
-		offi = new Offiziersausbildung(2, "Navigator");
-		offi.setAbility(Offizier.Ability.ING, 5);
-		offi.setAbility(Offizier.Ability.WAF, 10);
-		offi.setAbility(Offizier.Ability.NAV, 30);
-		offi.setAbility(Offizier.Ability.SEC, 5);
-		offi.setAbility(Offizier.Ability.COM, 10);
-		liste.put(2, offi);
+		officerTraining = new OfficerTraining(2, "Navigator");
+		officerTraining.setAbility(Offizier.Ability.ING, 5);
+		officerTraining.setAbility(Offizier.Ability.WAF, 10);
+		officerTraining.setAbility(Offizier.Ability.NAV, 30);
+		officerTraining.setAbility(Offizier.Ability.SEC, 5);
+		officerTraining.setAbility(Offizier.Ability.COM, 10);
+		list.put(2, officerTraining);
 		
-		offi = new Offiziersausbildung(3, "Sicherheitsexperte");
-		offi.setAbility(Offizier.Ability.ING, 10);
-		offi.setAbility(Offizier.Ability.WAF, 25);
-		offi.setAbility(Offizier.Ability.NAV, 5);
-		offi.setAbility(Offizier.Ability.SEC, 35);
-		offi.setAbility(Offizier.Ability.COM, 5);
-		liste.put(3, offi);
+		officerTraining = new OfficerTraining(3, "Sicherheitsexperte");
+		officerTraining.setAbility(Offizier.Ability.ING, 10);
+		officerTraining.setAbility(Offizier.Ability.WAF, 25);
+		officerTraining.setAbility(Offizier.Ability.NAV, 5);
+		officerTraining.setAbility(Offizier.Ability.SEC, 35);
+		officerTraining.setAbility(Offizier.Ability.COM, 5);
+		list.put(3, officerTraining);
 
-		offi = new Offiziersausbildung(4, "Captain");
-		offi.setAbility(Offizier.Ability.ING, 10);
-		offi.setAbility(Offizier.Ability.WAF, 10);
-		offi.setAbility(Offizier.Ability.NAV, 15);
-		offi.setAbility(Offizier.Ability.SEC, 5);
-		offi.setAbility(Offizier.Ability.COM, 35);
-		liste.put(4, offi);
+		officerTraining = new OfficerTraining(4, "Captain");
+		officerTraining.setAbility(Offizier.Ability.ING, 10);
+		officerTraining.setAbility(Offizier.Ability.WAF, 10);
+		officerTraining.setAbility(Offizier.Ability.NAV, 15);
+		officerTraining.setAbility(Offizier.Ability.SEC, 5);
+		officerTraining.setAbility(Offizier.Ability.COM, 35);
+		list.put(4, officerTraining);
 		
-		LIST = Collections.unmodifiableMap(liste);
+		LIST = Collections.unmodifiableMap(list);
 	}
 }

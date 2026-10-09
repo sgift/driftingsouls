@@ -488,8 +488,8 @@ public class CreateObjects implements AdminPlugin {
 					
 					int rangf = rangcount/5;
 					int rang = rangf/125;
-					if( rang > Officers.MAX_RANG ) {
-						rang = Officers.MAX_RANG;
+					if( rang > Officers.MAX_RANK ) {
+						rang = Officers.MAX_RANK;
 					}
 					offizier.setRang(rang);
 					offizier.stationierenAuf(shipObj);
