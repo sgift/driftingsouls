@@ -75,7 +75,7 @@ public class ShipInfoController extends Controller
 		}
 	}
 
-	private ShipBaubar ermittleBauInformationen(Session db, int ship)
+	private ShipBaubar determineBuildInformation(Session db, int ship)
 	{
 		return (ShipBaubar) db.createQuery("from ShipBaubar where type=:type")
 				.setInteger("type", ship)
@@ -168,10 +168,10 @@ public class ShipInfoController extends Controller
 			t.setVar("shiptype.showinvisible", 1);
 		}
 
-		ShipBaubar shipBuildData = ermittleBauInformationen(db, ship.getTypeId());
+		ShipBaubar shipBuildData = determineBuildInformation(db, ship.getTypeId());
 
 		//Kann der User sehen, dass das Schiff baubar ist?
-		Forschung visible = ermittleSichtbarkeitDesSchiffstyps(user, shipBuildData);
+		Forschung visible = determineShipTypeVisibility(user, shipBuildData);
 
 		if (visible != null)
 		{
@@ -198,11 +198,11 @@ public class ShipInfoController extends Controller
 			}
 		}
 
-		zeigeWaffenlisteAn(t, ship);
+		showWeaponList(t, ship);
 
 		// Flags auflisten
-		zeigeFlagListeAn(t, ship);
-		zeigeProduktionsListeAn(t, ship);
+		showFlagList(t, ship);
+		showProductionList(t, ship);
 
 		// Module
 		StringBuilder moduletooltip = new StringBuilder();
@@ -295,7 +295,7 @@ public class ShipInfoController extends Controller
 		return t;
 	}
 
-	private void zeigeProduktionsListeAn(TemplateEngine t, ShipType ship)
+	private void showProductionList(TemplateEngine t, ShipType ship)
 	{
 		t.setBlock("_SCHIFFINFO", "shiptypeproduces.listitem", "shiptypeproduces.list");
 		t.setVar("shiptypeproduces.list", "");
@@ -307,7 +307,7 @@ public class ShipInfoController extends Controller
 		Resources.echoResList(t, reslist, "shiptypeproduces.list");
 	}
 
-	private void zeigeFlagListeAn(TemplateEngine t, ShipType ship)
+	private void showFlagList(TemplateEngine t, ShipType ship)
 	{
 		t.setBlock("_SCHIFFINFO", "shiptypeflags.listitem", "shiptypeflags.list");
 		t.setVar("shiptypeflags.list", "");
@@ -330,7 +330,7 @@ public class ShipInfoController extends Controller
 		}
 	}
 
-	private void zeigeWaffenlisteAn(TemplateEngine t, ShipType ship)
+	private void showWeaponList(TemplateEngine t, ShipType ship)
 	{
 		Map<String, Integer> weapons = ship.getWeapons();
 		Map<String, Integer> maxheat = ship.getMaxHeat();
@@ -446,7 +446,7 @@ public class ShipInfoController extends Controller
 		}
 	}
 
-	private Forschung ermittleSichtbarkeitDesSchiffstyps(User user, ShipBaubar shipBuildData)
+	private Forschung determineShipTypeVisibility(User user, ShipBaubar shipBuildData)
 	{
 		Forschung visible = null;
 
