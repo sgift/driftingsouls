@@ -50,7 +50,7 @@ public class DigBuilding extends DefaultBuilding {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Cargo getProzentProduces()
+	private Cargo getPercentProduces()
 	{
 		Cargo production = new Cargo();
 		Map<ItemID, Double> productions = getChanceRessMap();
@@ -146,7 +146,7 @@ public class DigBuilding extends DefaultBuilding {
 		buffer.append("<div align=\"center\">\n");
 
 		entry = false;
-		reslist = getProzentProduces().getResourceList();
+		reslist = getPercentProduces().getResourceList();
 		for( ResourceEntry res : reslist )
 		{
 			buffer.append("<img src=\"").append(res.getImage()).append("\" alt=\"\" />").append(res.getCount1()).append("% ");
