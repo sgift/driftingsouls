@@ -47,13 +47,13 @@ import java.util.TreeMap;
  */
 public class StatItemHistory implements Statistic, AjaxStatistic
 {
-	public static class WareViewModel
+	public static class CommodityViewModel
 	{
 		private final String label;
 		private final int key;
 		private final String picture;
 
-		private WareViewModel(int key, String label, String picture)
+		private CommodityViewModel(int key, String label, String picture)
 		{
 			this.key = key;
 			this.label = label;
@@ -88,15 +88,15 @@ public class StatItemHistory implements Statistic, AjaxStatistic
 		SortedMap<ResourceID, SortedMap<Integer, Long>> cargos = generateDataMap(db);
 		echo.append("<div id='warenstats'></div><script type='text/javascript'>$(document).ready(function(){\n");
 		echo.append("Stats.chart('warenstats',");
-		List<WareViewModel> waren = erstelleViewModelDerWarenListe(db, user, cargos);
-		echo.append(new Gson().toJson(waren));
+		List<CommodityViewModel> commodities = createCommodityViewModels(db, user, cargos);
+		echo.append(new Gson().toJson(commodities));
 		echo.append(",{xaxis:{label:'Tick',pad:0,tickInterval:49}, yaxis:{label:'Menge'}, selection:'single'});\n");
 		echo.append("});</script>");
 	}
 
-	private List<WareViewModel> erstelleViewModelDerWarenListe(Session db, User user, SortedMap<ResourceID, SortedMap<Integer, Long>> cargos)
+	private List<CommodityViewModel> createCommodityViewModels(Session db, User user, SortedMap<ResourceID, SortedMap<Integer, Long>> cargos)
 	{
-		List<WareViewModel> waren = new ArrayList<>();
+		List<CommodityViewModel> commodities = new ArrayList<>();
 		for (Map.Entry<ResourceID, SortedMap<Integer, Long>> entry : cargos.entrySet())
 		{
 			if (!isImportantResource(entry.getValue()))
@@ -109,9 +109,9 @@ public class StatItemHistory implements Statistic, AjaxStatistic
 			{
 				continue;
 			}
-			waren.add(new WareViewModel(item.getID(), item.getName(), item.getPicture()));
+			commodities.add(new CommodityViewModel(item.getID(), item.getName(), item.getPicture()));
 		}
-		return waren;
+		return commodities;
 	}
 
 	private boolean isImportantResource(SortedMap<Integer, Long> values)
