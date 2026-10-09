@@ -296,8 +296,8 @@ public class AutoFire
             log.info("\t\tMaximum possible damage on target: " + possibleDamage);
 
             int fighterDefense = currentFiringAction.getFighterDefense(battle);
-            int torpedoDefense = currentFiringAction.getAntiTorpTrefferWS(possibleTarget.getTypeData(), possibleTarget);
-            int hitChance = currentFiringAction.calculateTrefferWS(battle, possibleTarget.getTypeData(), fighterDefense, torpedoDefense, firingShip.getNavigationalValue(), possibleTarget.getDefensiveValue(), false);
+            int torpedoDefense = currentFiringAction.getAntiTorpHitChance(possibleTarget.getTypeData(), possibleTarget);
+            int hitChance = currentFiringAction.calculateHitChance(battle, possibleTarget.getTypeData(), fighterDefense, torpedoDefense, firingShip.getNavigationalValue(), possibleTarget.getDefensiveValue(), false);
             int currentDamage = 0;
             log.info("\t\tBase damage for weapon: " + baseDamage);
             log.info("\t\tHit chance: " + hitChance);

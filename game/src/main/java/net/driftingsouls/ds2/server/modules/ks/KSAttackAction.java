@@ -56,7 +56,7 @@ public class KSAttackAction extends BasicKSAction {
 	/**
 	 * Basisklasse fuer beim Feuern verwendete Waffenbeschreibungen.
 	 */
-	private static abstract class Waffenbeschreibung {
+	private static abstract class WeaponDescription {
 		private int count;
 
 		public abstract boolean isArmorRedux();
@@ -77,7 +77,7 @@ public class KSAttackAction extends BasicKSAction {
 
 		public abstract int getShotsPerShot();
 
-		public abstract int getSubWs();
+		public abstract int getSubsystemHitChance();
 
 		@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 		public abstract boolean isVeryLongRange();
@@ -90,7 +90,7 @@ public class KSAttackAction extends BasicKSAction {
 
 		public abstract int getShieldDamage();
 
-		public abstract int getDefTrefferWs();
+		public abstract int getDefenseHitChance();
 
 		public abstract String getName();
 
@@ -104,25 +104,25 @@ public class KSAttackAction extends BasicKSAction {
 	/**
 	 * Eine Waffenbeschreibung fuer eine Munition verschiessende Waffe.
 	 */
-	private static class AmmoBasierteWaffenbeschreibung extends Waffenbeschreibung
+	private static class AmmoBasedWeaponDescription extends WeaponDescription
 	{
 		private final Munitionsdefinition ammo;
 		private final Weapon weapon;
-		private final boolean kleinesZiel;
+		private final boolean smallTarget;
 		private final ItemCargoEntry<Munition> ammoitem;
 
-		private AmmoBasierteWaffenbeschreibung(Weapon weapon, Munitionsdefinition ammo, ItemCargoEntry<Munition> ammoitem, boolean kleinesZiel)
+		private AmmoBasedWeaponDescription(Weapon weapon, Munitionsdefinition ammo, ItemCargoEntry<Munition> ammoitem, boolean smallTarget)
 		{
 			this.weapon = weapon;
 			this.ammo = ammo;
 			this.ammoitem = ammoitem;
-			this.kleinesZiel = kleinesZiel;
+			this.smallTarget = smallTarget;
 		}
 
 		@Override
-		public int getDefTrefferWs()
+		public int getDefenseHitChance()
 		{
-			if( this.kleinesZiel )
+			if( this.smallTarget )
 			{
 				return ammo.getSmallTrefferWS();
 			}
@@ -154,7 +154,7 @@ public class KSAttackAction extends BasicKSAction {
 		}
 
 		@Override
-		public int getSubWs()
+		public int getSubsystemHitChance()
 		{
 			return this.ammo.getSubWS();
 		}
@@ -217,14 +217,14 @@ public class KSAttackAction extends BasicKSAction {
 	/**
 	 * Eine Waffenbeschreibung fuer eine regulaere Waffe.
 	 */
-	private static class WaffenBasierteWaffenbeschreibung extends Waffenbeschreibung
+	private static class WeaponBasedWeaponDescription extends WeaponDescription
 	{
 		private final Weapon weapon;
-		private final boolean kleinesZiel;
+		private final boolean smallTarget;
 
-		private WaffenBasierteWaffenbeschreibung(Weapon weapon, boolean kleinesZiel)
+		private WeaponBasedWeaponDescription(Weapon weapon, boolean smallTarget)
 		{
-			this.kleinesZiel = kleinesZiel;
+			this.smallTarget = smallTarget;
 			this.weapon = weapon;
 		}
 
@@ -247,9 +247,9 @@ public class KSAttackAction extends BasicKSAction {
 		}
 
 		@Override
-		public int getDefTrefferWs()
+		public int getDefenseHitChance()
 		{
-			if( this.kleinesZiel ) {
+			if( this.smallTarget ) {
 				return this.weapon.getDefSmallTrefferWS();
 			}
 			return this.weapon.getDefTrefferWS();
@@ -286,7 +286,7 @@ public class KSAttackAction extends BasicKSAction {
 		}
 
 		@Override
-		public int getSubWs()
+		public int getSubsystemHitChance()
 		{
 			return this.weapon.getDefSubWS();
 		}
@@ -325,7 +325,7 @@ public class KSAttackAction extends BasicKSAction {
 	private final Weapon weapon;
 	private BattleShip ownShip;
 	private BattleShip enemyShip;
-	private Waffenbeschreibung localweapon;
+	private WeaponDescription localweapon;
     private String weaponName;
 	private String attmode;
 
@@ -442,68 +442,68 @@ public class KSAttackAction extends BasicKSAction {
     }
 	}
 
-	private int getTrefferWS(int defTrefferWS, BattleShip eShip, ShipTypeData eShipType, int defensivskill, int navskill) {
+	private int getHitChance(int defenseHitChance, BattleShip eShip, ShipTypeData eShipType, int defensiveSkill, int navskill) {
 		ShipTypeData ownShipType = this.ownShip.getTypeData();
 
 		if( (eShip.getCrew() == 0) && (eShipType.getMinCrew() > 0) ) {
 			return 100;
 		}
-		if( (defTrefferWS <= 0) && (eShipType.getCost() > 0) && (eShip.getShip().getEngine() > 0) ) {
+		if( (defenseHitChance <= 0) && (eShipType.getCost() > 0) && (eShip.getShip().getEngine() > 0) ) {
 			return 0;
 		}
 
 		// Das Objekt kann sich nicht bewegen - also 100% trefferws
-		int trefferWS = 100;
+		int hitChance = 100;
 
 		// Das Objekt hat einen Antrieb - also TrefferWS anpassen
 		if( ( eShipType.getCost() > 0 ) && ( eShip.getShip().getEngine() > 0 ) ) {
-			trefferWS = calcTWSthroughDifference(defensivskill, navskill, eShipType, defTrefferWS, ownShipType);
+			hitChance = calcHitChanceFromDifference(defensiveSkill, navskill, eShipType, defenseHitChance, ownShipType);
 		}
 
 
-		if( trefferWS < 0 ) {
-			trefferWS = 0;
+		if( hitChance < 0 ) {
+			hitChance = 0;
 		}
-		if( trefferWS > 100 ) {
-			trefferWS = 100;
+		if( hitChance > 100 ) {
+			hitChance = 100;
 		}
 
 		// Nun die TrefferWS anteilig senken, wenn Crew/Sensoren nicht auf 100 sind
-		trefferWS *= (this.ownShip.getShip().getSensors()/100d);
+		hitChance *= (this.ownShip.getShip().getSensors()/100d);
 		if( (ownShipType.getMinCrew() > 0) && (this.ownShip.getCrew() < ownShipType.getMinCrew()) ) {
-			trefferWS *= this.ownShip.getCrew()/(double)ownShipType.getMinCrew();
+			hitChance *= this.ownShip.getCrew()/(double)ownShipType.getMinCrew();
 		}
 
 		// Und nun die TrefferWS anteilig steigern, wenn die Gegnerische Crew/Antrie nicht auf 100 sind
-		int restws = 100-trefferWS;
-		trefferWS += restws*((100-eShip.getShip().getEngine())/100d);
+		int remainingHitChance = 100-hitChance;
+		hitChance += remainingHitChance*((100-eShip.getShip().getEngine())/100d);
 		if( eShip.getCrew() < eShipType.getMinCrew() ) {
-			trefferWS += restws*((eShipType.getMinCrew()-eShip.getCrew())/(double)eShipType.getMinCrew());
+			hitChance += remainingHitChance*((eShipType.getMinCrew()-eShip.getCrew())/(double)eShipType.getMinCrew());
 		}
 
-		if( trefferWS < 0 ) {
-			trefferWS = 0;
+		if( hitChance < 0 ) {
+			hitChance = 0;
 		}
-		if( trefferWS > 100 ) {
-			trefferWS = 100;
+		if( hitChance > 100 ) {
+			hitChance = 100;
 		}
 
-		return trefferWS;
+		return hitChance;
 	}
 
-	private int calcTWSthroughDifference(double defensivskill, double navskill, ShipTypeData eShipType, int defTrefferWS, ShipTypeData ownShipType) {
+	private int calcHitChanceFromDifference(double defensiveSkill, double navskill, ShipTypeData eShipType, int defenseHitChance, ShipTypeData ownShipType) {
 		double differenceSkillz;
 		double differenceSize;
 		double eSize = eShipType.getSize();
 		double ownSize = ownShipType.getSize();
-		if ( defensivskill > navskill ){
-			differenceSkillz = ((defensivskill/navskill) - 1) * - 1;
+		if ( defensiveSkill > navskill ){
+			differenceSkillz = ((defensiveSkill/navskill) - 1) * - 1;
 			if ( differenceSkillz < -0.4) {
 				differenceSkillz = -0.4;
 			}
 		}
-		else if ( defensivskill < navskill ){
-			differenceSkillz = (( navskill/defensivskill) - 1);
+		else if ( defensiveSkill < navskill ){
+			differenceSkillz = (( navskill/defensiveSkill) - 1);
 			if ( differenceSkillz > 0.4){
 				differenceSkillz = 0.4;
 			}
@@ -530,49 +530,49 @@ public class KSAttackAction extends BasicKSAction {
 			differenceSize=0.0;
 		}
 
-		return (int) Math.round(defTrefferWS + (defTrefferWS * differenceSize) + (defTrefferWS * differenceSkillz));
+		return (int) Math.round(defenseHitChance + (defenseHitChance * differenceSize) + (defenseHitChance * differenceSkillz));
 	}
 
-	private boolean calcDamage(StringBuilder logMsg, Battle battle, BattleShip eShip, ShipTypeData eShipType, int hit, int absSchaden, int schaden, int[] subdmgs) {
+	private boolean calcDamage(StringBuilder logMsg, Battle battle, BattleShip eShip, ShipTypeData eShipType, int hit, int absoluteDamage, int hitDamage, int[] subdmgs) {
 		boolean ship_intact = true;
 
 		if(!this.weapon.getMunitionstypen().isEmpty()){
 			if ( this.localweapon.isArmorRedux()){
-				int tmppanzerung = eShip.getArmor();
-				if (tmppanzerung <= 0){
-					tmppanzerung = 1;
+				int tmpArmor = eShip.getArmor();
+				if (tmpArmor <= 0){
+					tmpArmor = 1;
 				}
-				if (tmppanzerung >= 10){
-					tmppanzerung = 10;
+				if (tmpArmor >= 10){
+					tmpArmor = 10;
 				}
-				schaden = schaden*(10-tmppanzerung)/10;
+				hitDamage = hitDamage*(10-tmpArmor)/10;
 
 			}
 		}
 
 
 		if( (hit != 0) && (eShip.getShields() > 0) ) {
-			if( eShip.getShields() >= absSchaden*hit ) {
-				eShip.setShields(eShip.getShields() - absSchaden*hit);
+			if( eShip.getShields() >= absoluteDamage*hit ) {
+				eShip.setShields(eShip.getShields() - absoluteDamage*hit);
 				if( eShip.getShields() == 0 ) {
 					battle.logme( "+ Schilde ausgefallen\n" );
 					logMsg.append("+ Schilde ausgefallen\n");
 				}
 				else {
-					battle.logme( "+ Schaden (Schilde): "+Common.ln(hit*absSchaden)+"\n" );
-					logMsg.append("+ Schilde: ").append(Common.ln(hit * absSchaden)).append(" Schaden\n");
+					battle.logme( "+ Schaden (Schilde): "+Common.ln(hit*absoluteDamage)+"\n" );
+					logMsg.append("+ Schilde: ").append(Common.ln(hit * absoluteDamage)).append(" Schaden\n");
 				}
 				hit = 0;
 			}
 			else {
-				hit -= eShip.getShields()/absSchaden;
+				hit -= eShip.getShields()/absoluteDamage;
 				eShip.setShields(0);
 				battle.logme( "+ Schilde ausgefallen\n" );
 				logMsg.append("+ Schilde ausgefallen\n");
 			}
 		}
 		if( hit != 0 ) {
-			int hulldamage = hit*schaden;
+			int hulldamage = hit*hitDamage;
 
 			if( eShipType.hasFlag(ShipTypeFlag.ZERSTOERERPANZERUNG) ) {
 				int dmgThisTurn = eShip.getShip().getHull()-eShip.getHull()+hulldamage;
@@ -644,22 +644,22 @@ public class KSAttackAction extends BasicKSAction {
 					final int COMM = 2;
 					final int SENSORS = 3;
 
-					List<Integer> subsysteme = new ArrayList<>();
-					subsysteme.add(SENSORS);
-					subsysteme.add(COMM);
+					List<Integer> subsystems = new ArrayList<>();
+					subsystems.add(SENSORS);
+					subsystems.add(COMM);
 
-					List<String> subsysteme_name = new ArrayList<>();
-					subsysteme_name.add("Sensoren");
-					subsysteme_name.add("Kommunikation");
+					List<String> subsystemNames = new ArrayList<>();
+					subsystemNames.add("Sensoren");
+					subsystemNames.add("Kommunikation");
 
 					if( eShipType.getCost() > 0 ) {
-						subsysteme.add(ENGINE);
-						subsysteme_name.add("Antrieb");
+						subsystems.add(ENGINE);
+						subsystemNames.add("Antrieb");
 					}
 
 					if( eShipType.isMilitary() ) {
-						subsysteme.add(WEAPONS);
-						subsysteme_name.add("Waffen");
+						subsystems.add(WEAPONS);
+						subsystemNames.add("Waffen");
 					}
 
 					for (int subdmg : subdmgs)
@@ -669,8 +669,8 @@ public class KSAttackAction extends BasicKSAction {
 							continue;
 						}
 
-						int rnd = ThreadLocalRandom.current().nextInt(subsysteme.size());
-						int subsys = subsysteme.get(rnd);
+						int rnd = ThreadLocalRandom.current().nextInt(subsystems.size());
+						int subsys = subsystems.get(rnd);
 
 						int value = 0;
 						switch (subsys)
@@ -695,13 +695,13 @@ public class KSAttackAction extends BasicKSAction {
 
 						if (value > 0)
 						{
-							battle.logme("+ " + subsysteme_name.get(rnd) + ": " + Common.ln(subdmg) + " Schaden\n");
-							logMsg.append("+ ").append(subsysteme_name.get(rnd)).append(": ").append(Common.ln(subdmg)).append(" Schaden\n");
+							battle.logme("+ " + subsystemNames.get(rnd) + ": " + Common.ln(subdmg) + " Schaden\n");
+							logMsg.append("+ ").append(subsystemNames.get(rnd)).append(": ").append(Common.ln(subdmg)).append(" Schaden\n");
 						}
 						else
 						{
-							battle.logme("+ " + subsysteme_name.get(rnd) + ": ausgefallen\n");
-							logMsg.append("+ ").append(subsysteme_name.get(rnd)).append(": ausgefallen\n");
+							battle.logme("+ " + subsystemNames.get(rnd) + ": ausgefallen\n");
+							logMsg.append("+ ").append(subsystemNames.get(rnd)).append(": ausgefallen\n");
 						}
 					}
 				}
@@ -754,13 +754,13 @@ public class KSAttackAction extends BasicKSAction {
 		return ship_intact;
 	}
 
-	private Waffenbeschreibung getWeaponData() {
+	private WeaponDescription getWeaponData() {
 		ShipTypeData enemyShipType = this.enemyShip.getTypeData();
 
-		return new WaffenBasierteWaffenbeschreibung(this.weapon, enemyShipType.getSize() <= ShipType.SMALL_SHIP_MAXSIZE);
+		return new WeaponBasedWeaponDescription(this.weapon, enemyShipType.getSize() <= ShipType.SMALL_SHIP_MAXSIZE);
 	}
 
-	private Waffenbeschreibung getAmmoBasedWeaponData( Battle battle, final String weaponName, final Munition munition) {
+	private WeaponDescription getAmmoBasedWeaponData( Battle battle, final String weaponName, final Munition munition) {
 		BattleShip ownShip = this.ownShip;
 
 		ShipTypeData enemyShipType = this.enemyShip.getTypeData();
@@ -835,10 +835,10 @@ public class KSAttackAction extends BasicKSAction {
 
 		battle.logme( "Feuere "+munitionsdefinition.getName()+" ab...\n" );
 
-		return new AmmoBasierteWaffenbeschreibung(this.weapon, munitionsdefinition, ammoitem, enemyShipType.getSize() <= ShipType.SMALL_SHIP_MAXSIZE);
+		return new AmmoBasedWeaponDescription(this.weapon, munitionsdefinition, ammoitem, enemyShipType.getSize() <= ShipType.SMALL_SHIP_MAXSIZE);
 	}
 
-	public int getAntiTorpTrefferWS(ShipTypeData enemyShipType, BattleShip enemyShip) {
+	public int getAntiTorpHitChance(ShipTypeData enemyShipType, BattleShip enemyShip) {
         if(this.localweapon.getDestroyable() == 0.0d)
         {
             return 0;
@@ -846,14 +846,14 @@ public class KSAttackAction extends BasicKSAction {
 
 		Cargo enemyCargo = enemyShip.getCargo();
 		Map<String,Integer> eweapons = enemyShipType.getWeapons();
-		double antitorptrefferws = 0;
+		double antiTorpHitChance = 0;
 
 		for( Map.Entry<String,Integer> wpn : eweapons.entrySet() ) {
 			final int count = wpn.getValue();
 			final Weapon weapon = Weapons.get().weapon(wpn.getKey());
 
 			if( weapon.getTorpTrefferWS() != 0 ) {
-				antitorptrefferws += weapon.getTorpTrefferWS()*count;
+				antiTorpHitChance += weapon.getTorpTrefferWS()*count;
 			}
 			else if( !weapon.getMunitionstypen().isEmpty() )
 			{
@@ -868,7 +868,7 @@ public class KSAttackAction extends BasicKSAction {
 						if(	ammocount >= shots && munitionsdefinition.getTorpTrefferWS() != 0)
 						{
 							// increase antitorptws
-							antitorptrefferws += munitionsdefinition.getTorpTrefferWS()*count;
+							antiTorpHitChance += munitionsdefinition.getTorpTrefferWS()*count;
 							// reduce amount of ammo in cargo
 							enemyCargo.setResource(entry.getResourceID(), ammocount - shots);
 							enemyShip.getShip().setCargo(enemyCargo);
@@ -881,9 +881,9 @@ public class KSAttackAction extends BasicKSAction {
 			}
 
 		}
-		antitorptrefferws *= (this.enemyShip.getShip().getWeapons()/100d);
+		antiTorpHitChance *= (this.enemyShip.getShip().getWeapons()/100d);
 
-		return (int)antitorptrefferws;
+		return (int)antiTorpHitChance;
 	}
 
 	public int getFighterDefense( Battle battle )
@@ -1171,8 +1171,8 @@ public class KSAttackAction extends BasicKSAction {
 		return areashiplist;
 	}
 
-	private int[] getSubDamages(int subPanzerung, int subWS, double damageMod) {
-		int subDamage = (int)Math.round(this.localweapon.getSubDamage()*((10-subPanzerung)/10d)*damageMod);
+	private int[] getSubDamages(int subsystemArmor, int subsystemHitChance, double damageMod) {
+		int subDamage = (int)Math.round(this.localweapon.getSubDamage()*((10-subsystemArmor)/10d)*damageMod);
 
 		int[] tmpSubDmgs = new int[this.localweapon.getCount()*this.localweapon.getShotsPerShot()];
 		int totalSize = 0;
@@ -1180,8 +1180,8 @@ public class KSAttackAction extends BasicKSAction {
 		for( int i=1; i <= this.localweapon.getCount()*this.localweapon.getShotsPerShot(); i++) {
 			int rnd = ThreadLocalRandom.current().nextInt(101);
 
-			if( rnd <= subWS ) {
-				tmpSubDmgs[totalSize++] = (int)Math.round((rnd/(double)subWS)*subDamage);
+			if( rnd <= subsystemHitChance ) {
+				tmpSubDmgs[totalSize++] = (int)Math.round((rnd/(double)subsystemHitChance)*subDamage);
 			}
 		}
 
@@ -1196,7 +1196,7 @@ public class KSAttackAction extends BasicKSAction {
 		return tmpSubDmgs;
 	}
 
-	private void calcADStep(StringBuilder logMsg, Battle battle, int navskill, BattleShip aeShip, int hit, int schaden, int shieldSchaden, double damagemod) {
+	private void calcADStep(StringBuilder logMsg, Battle battle, int navskill, BattleShip aeShip, int hit, int hitDamage, int shieldDamage, double damagemod) {
 		battle.logme("\n"+aeShip.getName()+" ("+aeShip.getId()+"):\n");
 		logMsg.append("\n").append(aeShip.getName()).append(" (").append(aeShip.getId()).append("):\n");
 
@@ -1205,41 +1205,41 @@ public class KSAttackAction extends BasicKSAction {
 		int[] tmpsubdmgs = null;
 
 		if( this.localweapon.getSubDamage() > 0 ) {
-			int tmppanzerung = aeShip.getArmor();
+			int tmpArmor = aeShip.getArmor();
 
-			int defensivskill = aeShip.getDefensiveValue();
+			int defensiveSkill = aeShip.getDefensiveValue();
 
-			int subWS = this.getTrefferWS(this.localweapon.getSubWs(), aeShip, aeShipType, defensivskill, navskill );
-			battle.logme( "SubsystemTWS: "+subWS+"%\n" );
+			int subsystemHitChance = this.getHitChance(this.localweapon.getSubsystemHitChance(), aeShip, aeShipType, defensiveSkill, navskill );
+			battle.logme( "SubsystemTWS: "+subsystemHitChance+"%\n" );
 
-			int subPanzerung = tmppanzerung;
-			if( subPanzerung > 10 ) {
-				subPanzerung = 10;
+			int subsystemArmor = tmpArmor;
+			if( subsystemArmor > 10 ) {
+				subsystemArmor = 10;
 				battle.logme("Panzerung absorbiert Subsystemschaden\n");
 			}
-			else if( subPanzerung > 0 ) {
-				battle.logme("Panzerung reduziert Subsystemschaden ("+(subPanzerung*10)+"%)\n");
+			else if( subsystemArmor > 0 ) {
+				battle.logme("Panzerung reduziert Subsystemschaden ("+(subsystemArmor*10)+"%)\n");
 			}
 
-			tmpsubdmgs = getSubDamages(subPanzerung, subWS, damagemod);
+			tmpsubdmgs = getSubDamages(subsystemArmor, subsystemHitChance, damagemod);
 		}
 
-		boolean mydamage = this.calcDamage(logMsg, battle, aeShip, aeShipType, hit, (int)(shieldSchaden*damagemod), (int)(schaden*damagemod), tmpsubdmgs);
+		boolean mydamage = this.calcDamage(logMsg, battle, aeShip, aeShipType, hit, (int)(shieldDamage*damagemod), (int)(hitDamage*damagemod), tmpsubdmgs);
 		if( !mydamage && new ConfigService(getController().getEM()).getValue(WellKnownConfigValue.DESTROYABLE_SHIPS) ) {
 			this.destroyShip(logMsg, this.ownShip.getOwner().getId(), battle, aeShip);
 		}
 	}
 
-	private int getDamage(int damage, int offensivskill, ShipTypeData enemyShipType) {
-		int schaden = (int)Math.round( (damage + damage*offensivskill/1500d) *
+	private int getDamage(int damage, int offensiveSkill, ShipTypeData enemyShipType) {
+		int hitDamage = (int)Math.round( (damage + damage*offensiveSkill/1500d) *
 				(this.ownShip.getShip().getWeapons()/100d) *
 				this.weapon.getBaseDamageModifier(enemyShipType));
 
-		if( schaden < 0 ) {
-			schaden = 0;
+		if( hitDamage < 0 ) {
+			hitDamage = 0;
 		}
 
-		return schaden;
+		return hitDamage;
 	}
 
 	@Override
@@ -1264,7 +1264,7 @@ public class KSAttackAction extends BasicKSAction {
         /*
         * 	Die konkreten Waffendaten ermitteln
         */
-        Waffenbeschreibung localweapon;
+        WeaponDescription localweapon;
 
         if( !this.weapon.getMunitionstypen().isEmpty() )
         {
@@ -1540,13 +1540,13 @@ public class KSAttackAction extends BasicKSAction {
 				/*
 				 * 	Anti-Torp-Verteidigungswerte ermitteln
 				 */
-				int antitorptrefferws = this.getAntiTorpTrefferWS(enemyShipType, this.enemyShip);
+				int antiTorpHitChance = this.getAntiTorpHitChance(enemyShipType, this.enemyShip);
 
-				if (antitorptrefferws > 0) {
-					battle.logme("Anti-Torp.-Treffer-WS: " + this.getTWSText(antitorptrefferws) + "\n");
+				if (antiTorpHitChance > 0) {
+					battle.logme("Anti-Torp.-Treffer-WS: " + this.getHitChanceText(antiTorpHitChance) + "\n");
 				}
 				if (fighterdef > 0) {
-					battle.logme("Verteidigung durch Schiffe: " + this.getTWSText(fighterdef) + "\n");
+					battle.logme("Verteidigung durch Schiffe: " + this.getHitChanceText(fighterdef) + "\n");
 				}
 
 				ownShipType = this.ownShip.getTypeData();
@@ -1556,33 +1556,33 @@ public class KSAttackAction extends BasicKSAction {
 				ownShipType = ownST;
 				enemyShipType = enemyST;
 
-				int offensivskill = ownShip.getOffensiveValue();
+				int offensiveSkill = ownShip.getOffensiveValue();
 				int navskill = ownShip.getNavigationalValue();
-				int defensivskill = enemyShip.getDefensiveValue();
+				int defensiveSkill = enemyShip.getDefensiveValue();
 
 				if (battle.getCommander(ownShip.getSide()).hasFlag(UserFlag.KS_DEBUG)) {
-					battle.logme("Offensivskill: " + offensivskill + "\n");
+					battle.logme("Offensivskill: " + offensiveSkill + "\n");
 					battle.logme("Navigationsskill: " + navskill + "\n");
-					battle.logme("Defensivskill: " + defensivskill + "\n");
+					battle.logme("Defensivskill: " + defensiveSkill + "\n");
 				}
 
 				/*
 				 * 	Schadenswerte, Panzerung & TrefferWS ermitteln
 				 */
-				int absSchaden = this.getDamage(this.localweapon.getBaseDamage(), offensivskill, enemyShipType);
-				int shieldSchaden = this.getDamage(this.localweapon.getShieldDamage(), offensivskill, enemyShipType);
+				int absoluteDamage = this.getDamage(this.localweapon.getBaseDamage(), offensiveSkill, enemyShipType);
+				int shieldDamage = this.getDamage(this.localweapon.getShieldDamage(), offensiveSkill, enemyShipType);
 
-				int panzerung = enemyShip.getArmor();
-				int schaden = absSchaden;
+				int armor = enemyShip.getArmor();
+				int hitDamage = absoluteDamage;
 
-				int trefferWS = calculateTrefferWS(battle, enemyShipType, fighterdef,
-						antitorptrefferws, navskill, defensivskill, true);
+				int hitChance = calculateHitChance(battle, enemyShipType, fighterdef,
+						antiTorpHitChance, navskill, defensiveSkill, true);
 
-				int[] subdmgs = calculateSubsystemTrefferWS(battle, enemyShipType, navskill,
-						defensivskill, panzerung);
+				int[] subdmgs = calculateSubsystemHitChance(battle, enemyShipType, navskill,
+						defensiveSkill, armor);
 
-				if (schaden < 0) {
-					schaden = 0;
+				if (hitDamage < 0) {
+					hitDamage = 0;
 				}
 
 				if (firstentry) {
@@ -1592,15 +1592,15 @@ public class KSAttackAction extends BasicKSAction {
 				/*
 				 * 	Treffer berechnen
 				 */
-				int hit = calculateHits(logMsg, battle, fighterdef, trefferWS, attoffizier);
+				int hit = calculateHits(logMsg, battle, fighterdef, hitChance, attoffizier);
 
-				boolean savedamage = this.calcDamage(logMsg, battle, this.enemyShip, enemyShipType, hit, shieldSchaden, schaden, subdmgs);
+				boolean savedamage = this.calcDamage(logMsg, battle, this.enemyShip, enemyShipType, hit, shieldDamage, hitDamage, subdmgs);
 
 				/*
 				 *  Areadamage - falls notwendig - berechnen
 				 */
 				if ((this.localweapon.getAreaDamage() != 0) && (hit != 0)) {
-					doAreaDamage(logMsg, battle, navskill, shieldSchaden, schaden, hit);
+					doAreaDamage(logMsg, battle, navskill, shieldDamage, hitDamage, hit);
 				}
 
 				/*
@@ -1689,7 +1689,7 @@ public class KSAttackAction extends BasicKSAction {
         return result;
     }
 
-	private void doAreaDamage(StringBuilder logMsg, Battle battle, int navskill, int shieldSchaden, int schaden,
+	private void doAreaDamage(StringBuilder logMsg, Battle battle, int navskill, int shieldDamage, int hitDamage,
 							  int hit)
 	{
 		List<BattleShip> areashiplist = this.getADShipList(battle);
@@ -1713,29 +1713,29 @@ public class KSAttackAction extends BasicKSAction {
 			{
 				BattleShip aeShip = areashiplist.get(targetindex-i);
 
-				this.calcADStep(logMsg, battle, navskill, aeShip, hit, schaden, shieldSchaden, 1-i*damagemod);
+				this.calcADStep(logMsg, battle, navskill, aeShip, hit, hitDamage, shieldDamage, 1-i*damagemod);
 			}
 			if( (targetindex+i < areashiplist.size()) && areashiplist.get(targetindex+i).getBattle() != null )
 			{
 				BattleShip aeShip = areashiplist.get(targetindex+i);
 
-				this.calcADStep(logMsg, battle, navskill, aeShip, hit, schaden, shieldSchaden, 1-i*damagemod);
+				this.calcADStep(logMsg, battle, navskill, aeShip, hit, hitDamage, shieldDamage, 1-i*damagemod);
 			}
 		}
 	}
 
-	private int calculateHits(StringBuilder logMsg, Battle battle, int fighterdef, int trefferWS, Offizier attoffizier)
+	private int calculateHits(StringBuilder logMsg, Battle battle, int fighterdef, int hitChance, Offizier attoffizier)
 	{
 		int hit = 0;
 		int def = 0;
-		int gesamtSchuesse = this.localweapon.getCount() * this.localweapon.getShotsPerShot();
-		for( int i=1; i <= gesamtSchuesse; i++)
+		int totalShots = this.localweapon.getCount() * this.localweapon.getShotsPerShot();
+		for( int i=1; i <= totalShots; i++)
 		{
 			int rnd = ThreadLocalRandom.current().nextInt(1,101);
 			if( battle.getCommander(ownShip.getSide()).hasFlag( UserFlag.KS_DEBUG )) {
 				battle.logme( i + ". Schuss: " + rnd + "%\n");
 			}
-			if( rnd <= trefferWS )
+			if( rnd <= hitChance )
 			{
 				hit++;
 				if( attoffizier != null)
@@ -1755,23 +1755,23 @@ public class KSAttackAction extends BasicKSAction {
 					}
 				}
 			}
-			else if((rnd <= trefferWS+fighterdef) && (this.localweapon.getDestroyable() > 0) )
+			else if((rnd <= hitChance+fighterdef) && (this.localweapon.getDestroyable() > 0) )
 			{
 				def++;
 			}
 		}
-		battle.logme( this.weapon.getName()+": "+hit+" von "+ gesamtSchuesse +" Sch&uuml;ssen haben getroffen\n" );
+		battle.logme( this.weapon.getName()+": "+hit+" von "+ totalShots +" Sch&uuml;ssen haben getroffen\n" );
 		logMsg.append(Battle.log_shiplink(this.ownShip.getShip())).append(" feuert auf ").append(Battle.log_shiplink(this.enemyShip.getShip())).append("\n+ Waffe: ").append(this.localweapon.getName()).append("\n");
 		if( this.localweapon.getDestroyable() > 0 && (def != 0) )
 		{
-			battle.logme( this.weapon.getName()+": "+def+" von "+ gesamtSchuesse +" Sch&uuml;ssen wurden abgefangen\n" );
-			logMsg.append("+ ").append(this.weapon.getName()).append(": ").append(def).append(" von ").append(gesamtSchuesse).append(" Schüssen wurden abgefangen\n");
+			battle.logme( this.weapon.getName()+": "+def+" von "+ totalShots +" Sch&uuml;ssen wurden abgefangen\n" );
+			logMsg.append("+ ").append(this.weapon.getName()).append(": ").append(def).append(" von ").append(totalShots).append(" Schüssen wurden abgefangen\n");
 		}
 		return hit;
 	}
 
-	private int[] calculateSubsystemTrefferWS(Battle battle, ShipTypeData enemyShipType,
-											  int navskill, int defensivskill, int panzerung)
+	private int[] calculateSubsystemHitChance(Battle battle, ShipTypeData enemyShipType,
+											  int navskill, int defensiveSkill, int armor)
 	{
 		int[] subdmgs = null;
 
@@ -1780,70 +1780,70 @@ public class KSAttackAction extends BasicKSAction {
 		 */
 		if( this.localweapon.getSubDamage() > 0 )
 		{
-			int subWS = this.getTrefferWS(this.localweapon.getSubWs(), this.enemyShip, enemyShipType, defensivskill, navskill );
+			int subsystemHitChance = this.getHitChance(this.localweapon.getSubsystemHitChance(), this.enemyShip, enemyShipType, defensiveSkill, navskill );
 			if( battle.getCommander(ownShip.getSide()).hasFlag( UserFlag.KS_DEBUG )) {
-				battle.logme( "Subsystem-TWS: "+ subWS +"%\n" );
+				battle.logme( "Subsystem-TWS: "+ subsystemHitChance +"%\n" );
 			}
 			else
 			{
-				battle.logme( "Subsystem-TWS: "+ this.getTWSText(subWS) +"\n");
+				battle.logme( "Subsystem-TWS: "+ this.getHitChanceText(subsystemHitChance) +"\n");
 			}
 
-			int subPanzerung = panzerung;
-			if( subPanzerung > 10 )
+			int subsystemArmor = armor;
+			if( subsystemArmor > 10 )
 			{
-				subPanzerung = 10;
+				subsystemArmor = 10;
 				battle.logme("Panzerung absorbiert Subsystemschaden\n");
 			}
-			else if( subPanzerung > 0 )
+			else if( subsystemArmor > 0 )
 			{
-				battle.logme("Panzerung reduziert Subsystemschaden ("+(subPanzerung*10)+"%)\n");
+				battle.logme("Panzerung reduziert Subsystemschaden ("+(subsystemArmor*10)+"%)\n");
 			}
 
-			subdmgs = this.getSubDamages( subPanzerung, subWS, 1);
+			subdmgs = this.getSubDamages( subsystemArmor, subsystemHitChance, 1);
 		}
 		return subdmgs;
 	}
 
-	public int calculateTrefferWS(Battle battle, ShipTypeData enemyShipType, int fighterdef,
-			int antitorptrefferws, int navskill, int defensivskill, boolean useBattleLog)
+	public int calculateHitChance(Battle battle, ShipTypeData enemyShipType, int fighterdef,
+			int antiTorpHitChance, int navskill, int defensiveSkill, boolean useBattleLog)
 	{
-		int trefferWS = this.getTrefferWS(this.localweapon.getDefTrefferWs(), this.enemyShip, enemyShipType, defensivskill, navskill);
+		int hitChance = this.getHitChance(this.localweapon.getDefenseHitChance(), this.enemyShip, enemyShipType, defensiveSkill, navskill);
 
         if(useBattleLog)
         {
             if( battle.getCommander(ownShip.getSide()).hasFlag( UserFlag.KS_DEBUG )) {
-                battle.logme( "Basis-Treffer-WS: "+ trefferWS +"%\n");
+                battle.logme( "Basis-Treffer-WS: "+ hitChance +"%\n");
                 battle.logme( "Jäger-Torp.-Verteidigung: "+ fighterdef +"%\n");
-                battle.logme( "Anti-Torp.-Treffer-WS: "+ antitorptrefferws +"%\n");
+                battle.logme( "Anti-Torp.-Treffer-WS: "+ antiTorpHitChance +"%\n");
             }
             else
             {
-                battle.logme( "Basis-Treffer-WS: "+ this.getTWSText(trefferWS) +"\n");
+                battle.logme( "Basis-Treffer-WS: "+ this.getHitChanceText(hitChance) +"\n");
             }
         }
 
 
 		// Minimum bei 5% bei zerstoerbaren Waffen
-		if( this.localweapon.getDestroyable() > 0 && trefferWS > 5) {
-            trefferWS -= antitorptrefferws;
-            trefferWS -= fighterdef;
-            if(trefferWS < 5)
+		if( this.localweapon.getDestroyable() > 0 && hitChance > 5) {
+            hitChance -= antiTorpHitChance;
+            hitChance -= fighterdef;
+            if(hitChance < 5)
             {
-                trefferWS = 5;
+                hitChance = 5;
             }
 		}
 		if( battle.getCommander(ownShip.getSide()).hasFlag( UserFlag.KS_DEBUG )) {
-			battle.logme( "Treffer-WS: "+ trefferWS +"%\n" );
+			battle.logme( "Treffer-WS: "+ hitChance +"%\n" );
 		}
 		else
 		{
-			battle.logme( "Treffer-WS: "+ this.getTWSText(trefferWS) +"\n");
+			battle.logme( "Treffer-WS: "+ this.getHitChanceText(hitChance) +"\n");
 		}
-		return trefferWS;
+		return hitChance;
 	}
 
-	private String getTWSText(int chance)
+	private String getHitChanceText(int chance)
 	{
 		String answer;
 		if (chance == 0)
