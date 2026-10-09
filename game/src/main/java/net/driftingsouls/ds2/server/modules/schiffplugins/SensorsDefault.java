@@ -155,7 +155,7 @@ public class SensorsDefault implements ShipPlugin {
 				Nebel
 			*/
 
-			outputNebel(caller, t);
+			outputNebula(caller, t);
 
 			/*
 				Jumpnodes
@@ -172,7 +172,7 @@ public class SensorsDefault implements ShipPlugin {
 				Subraumspalten (durch Sprungantriebe)
 			*/
 
-			outputSubraumspalten(caller, t);
+			outputSubspaceRifts(caller, t);
 
 			/*
 				Schiffe
@@ -649,19 +649,19 @@ public class SensorsDefault implements ShipPlugin {
 				}
 
 				//Offiziere: Captain transferieren
-				boolean hasoffizier = aShip.getStatus().contains("offizier");
-				if (!disableIFF && (caller.offizier != null) && (!hasoffizier || ashiptype.hasFlag(ShipTypeFlag.OFFITRANSPORT)) && !(ashiptype.getShipClass() == ShipClasses.FELSBROCKEN))
+				boolean hasOfficer = aShip.getStatus().contains("offizier");
+				if (!disableIFF && (caller.offizier != null) && (!hasOfficer || ashiptype.hasFlag(ShipTypeFlag.OFFITRANSPORT)) && !(ashiptype.getShipClass() == ShipClasses.FELSBROCKEN))
 				{
 					if (ashiptype.getSize() > ShipType.SMALL_SHIP_MAXSIZE)
 					{
 						boolean ok = true;
 						if (ashiptype.hasFlag(ShipTypeFlag.OFFITRANSPORT))
 						{
-							long officount = db.createQuery("select count(*) from Offizier where stationiertAufSchiff=:dest", Long.class)
+							long officerCount = db.createQuery("select count(*) from Offizier where stationiertAufSchiff=:dest", Long.class)
 									.setParameter("dest", aShip)
 									.getSingleResult();
 
-							if (officount >= ashiptype.getCrew())
+							if (officerCount >= ashiptype.getCrew())
 							{
 								ok = false;
 							}
@@ -831,7 +831,7 @@ public class SensorsDefault implements ShipPlugin {
 	private void outputBases(Parameters caller, User user,
 			TemplateEngine t, String order)
 	{
-		final long dataOffizierCount = db.createQuery("SELECT COUNT(o) FROM Offizier o WHERE o.stationiertAufSchiff = :dest", Long.class)
+		final long dataOfficerCount = db.createQuery("SELECT COUNT(o) FROM Offizier o WHERE o.stationiertAufSchiff = :dest", Long.class)
 				.setParameter("dest", caller.ship)
 				.getSingleResult();
 
@@ -885,15 +885,15 @@ public class SensorsDefault implements ShipPlugin {
 			// Offizier transferieren
 			if (base.getOwner() == user)
 			{
-				boolean hasoffizier = caller.offizier != null;
-				if (!hasoffizier || caller.shiptype.hasFlag(ShipTypeFlag.OFFITRANSPORT))
+				boolean hasOfficer = caller.offizier != null;
+				if (!hasOfficer || caller.shiptype.hasFlag(ShipTypeFlag.OFFITRANSPORT))
 				{
 					if (caller.shiptype.getSize() > ShipType.SMALL_SHIP_MAXSIZE)
 					{
 						boolean ok = true;
 						if (caller.shiptype.hasFlag(ShipTypeFlag.OFFITRANSPORT))
 						{
-							if (dataOffizierCount >= caller.shiptype.getCrew())
+							if (dataOfficerCount >= caller.shiptype.getCrew())
 							{
 								ok = false;
 							}
@@ -942,7 +942,7 @@ public class SensorsDefault implements ShipPlugin {
 		}
 	}
 
-	private void outputNebel(Parameters caller, TemplateEngine t)
+	private void outputNebula(Parameters caller, TemplateEngine t)
 	{
 		ShipTypeData shiptype = caller.shiptype;
 		Ship ship = caller.ship;
@@ -1041,7 +1041,7 @@ public class SensorsDefault implements ShipPlugin {
 		}
 	}
 
-	private void outputSubraumspalten(Parameters caller, TemplateEngine t)
+	private void outputSubspaceRifts(Parameters caller, TemplateEngine t)
 	{
 		Ship ship = caller.ship;
 		final long jumps = db.createQuery("select count(*) from Jump where x=:x and y=:y and system=:sys", Long.class)
