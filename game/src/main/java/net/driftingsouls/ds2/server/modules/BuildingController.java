@@ -62,20 +62,20 @@ public class BuildingController extends Controller
 		setPageTitle("Gebäude");
 	}
 
-	public Building getGebaeudeFuerFeld(Base basis, int feld)
+	public Building getBuildingForField(Base base, int field)
 	{
-		return Building.getBuilding(basis.getBebauung()[feld]);
+		return Building.getBuilding(base.getBebauung()[field]);
 	}
 
-	public void validateBaseAndField(Base basis, int feld)
+	public void validateBaseAndField(Base base, int field)
 	{
 		User user = (User) getUser();
-		if ((basis == null) || (basis.getOwner() != user))
+		if ((base == null) || (base.getOwner() != user))
 		{
 			throw new ValidationException("Die angegebene Kolonie existiert nicht", Common.buildUrl("default", "module", "basen"));
 		}
 
-		if ((feld >= basis.getBebauung().length) || (basis.getBebauung()[feld] == 0))
+		if ((field >= base.getBebauung().length) || (base.getBebauung()[field] == 0))
 		{
 			throw new ValidationException("Es existiert kein Gebäude an dieser Stelle");
 		}
@@ -91,7 +91,7 @@ public class BuildingController extends Controller
 	public BuildingActionViewModel startAjaxAction(@UrlParam(name = "col") Base base, int field)
 	{
 		validateBaseAndField(base, field);
-		Building building = getGebaeudeFuerFeld(base, field);
+		Building building = getBuildingForField(base, field);
 
 		BuildingActionViewModel response = new BuildingActionViewModel();
 		response.col = base.getId();
@@ -135,7 +135,7 @@ public class BuildingController extends Controller
 	public RedirectViewResult startAction(@UrlParam(name = "col") Base base, int field) throws IOException
 	{
 		validateBaseAndField(base, field);
-		Building building = getGebaeudeFuerFeld(base, field);
+		Building building = getBuildingForField(base, field);
 
 		Writer echo = getResponse().getWriter();
 
@@ -173,7 +173,7 @@ public class BuildingController extends Controller
 	public BuildingActionViewModel shutdownAjaxAction(@UrlParam(name = "col") Base base, int field)
 	{
 		validateBaseAndField(base, field);
-		Building building = getGebaeudeFuerFeld(base, field);
+		Building building = getBuildingForField(base, field);
 
 		BuildingActionViewModel response = new BuildingActionViewModel();
 		response.col = base.getId();
@@ -210,7 +210,7 @@ public class BuildingController extends Controller
 	public RedirectViewResult shutdownAction(@UrlParam(name = "col") Base base, int field) throws IOException
 	{
 		validateBaseAndField(base, field);
-		Building building = getGebaeudeFuerFeld(base, field);
+		Building building = getBuildingForField(base, field);
 
 		Writer echo = getResponse().getWriter();
 
@@ -255,7 +255,7 @@ public class BuildingController extends Controller
 	@Action(ActionType.AJAX)
 	public DemoViewModel demoAjaxAction(@UrlParam(name="col") Base base, int field) {
 		validateBaseAndField(base, field);
-		Building building = getGebaeudeFuerFeld(base, field);
+		Building building = getBuildingForField(base, field);
 
 		DemoViewModel response = new DemoViewModel();
 		response.col = base.getId();
@@ -282,13 +282,13 @@ public class BuildingController extends Controller
 		baseCargo.addCargo( addcargo );
 		base.setCargo(baseCargo);
 
-		Integer[] bebauung = base.getBebauung();
+		Integer[] buildingIds = base.getBebauung();
 
 
-		building.cleanup( getContext(), base, bebauung[field] );
+		building.cleanup( getContext(), base, buildingIds[field] );
 
-		bebauung[field] = 0;
-		base.setBebauung(bebauung);
+		buildingIds[field] = 0;
+		base.setBebauung(buildingIds);
 
 		Integer[] active = base.getActive();
 		if(active[field] == 1)
@@ -313,7 +313,7 @@ public class BuildingController extends Controller
 	@Action(ActionType.DEFAULT)
 	public void demoAction(@UrlParam(name="col") Base base, int field, String conf) throws IOException {
 		validateBaseAndField(base, field);
-		Building building = getGebaeudeFuerFeld(base, field);
+		Building building = getBuildingForField(base, field);
 
 		User user = (User)getUser();
 		Writer echo = getResponse().getWriter();
@@ -352,12 +352,12 @@ public class BuildingController extends Controller
 		baseCargo.addCargo( addcargo );
 		base.setCargo(baseCargo);
 
-		Integer[] bebauung = base.getBebauung();
+		Integer[] buildingIds = base.getBebauung();
 
-		building.cleanup( getContext(), base, bebauung[field] );
+		building.cleanup( getContext(), base, buildingIds[field] );
 
-		bebauung[field] = 0;
-		base.setBebauung(bebauung);
+		buildingIds[field] = 0;
+		base.setBebauung(buildingIds);
 
 		Integer[] active = base.getActive();
 		active[field] = 0;
@@ -391,7 +391,7 @@ public class BuildingController extends Controller
 	public AjaxViewModel ajaxAction(@UrlParam(name="col") Base base, int field)
 	{
 		validateBaseAndField(base, field);
-		Building building = getGebaeudeFuerFeld(base, field);
+		Building building = getBuildingForField(base, field);
 
 		AjaxViewModel json = new AjaxViewModel();
 
@@ -419,7 +419,7 @@ public class BuildingController extends Controller
 	public String defaultAction(@UrlParam(name = "col") Base base, int field)
 	{
 		validateBaseAndField(base, field);
-		Building building = getGebaeudeFuerFeld(base, field);
+		Building building = getBuildingForField(base, field);
 
 		User user = (User) getUser();
 		StringBuilder echo = new StringBuilder();
