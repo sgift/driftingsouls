@@ -623,7 +623,7 @@ public class SensorsDefault implements ShipPlugin {
 				}
 
 				//Bemannen, Kapern, Einheiten tranferieren
-				if (!disableIFF && (aShip.getOwner().getId() != user.getId()) && ashiptype.getShipClass().isKaperbar() &&
+				if (!disableIFF && (aShip.getOwner().getId() != user.getId()) && ashiptype.getShipClass().isBoardable() &&
 						((aShip.getOwner().getId() != -1) || (ashiptype.getShipClass() == ShipClasses.SCHROTT )))
 				{
 					if ((user.getAlly() == null) || (aShip.getOwner().getAlly() != user.getAlly()))
@@ -1020,7 +1020,7 @@ public class SensorsDefault implements ShipPlugin {
 				party2 = "<a class=\"profile\" href=\""+Common.buildUrl("default", "module", "allylist", "details", ally.getId())+"\">"+Common._title(ally.getName())+"</a>";
 			}
 			boolean fixedjoin = battle.getSchlachtMitglied(user) != -1;
-			boolean viewable = shiptype.getShipClass().isDarfSchlachtenAnsehen() && !fixedjoin;
+			boolean viewable = shiptype.getShipClass().isAllowedToViewBattles() && !fixedjoin;
 
             boolean joinable = shiptype.getShipClass() != ShipClasses.GESCHUETZ;
 

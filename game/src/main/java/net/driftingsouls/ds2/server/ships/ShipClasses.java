@@ -126,32 +126,32 @@ public enum ShipClasses {
 
 	private final String singular;
 	private final String plural;
-	private final boolean kaperbar;
+	private final boolean boardable;
 
-	private final boolean darfSchlachtenAnsehen;
+	private final boolean mayViewBattles;
 
-	ShipClasses(String singular, String plural, boolean kaperbar, boolean darfSchlachtenAnsehen) {
+	ShipClasses(String singular, String plural, boolean boardable, boolean mayViewBattles) {
 		this.singular = singular;
 		this.plural = plural;
-		this.kaperbar = kaperbar;
-		this.darfSchlachtenAnsehen = darfSchlachtenAnsehen;
+		this.boardable = boardable;
+		this.mayViewBattles = mayViewBattles;
 	}
 
 	/**
 	 * Gibt zurueck, ob diese Schiffsklasse laufende Schlachten ansehen darf ohne ihnen beitreten zu muessen.
 	 * @return <code>true</code> falls dem so ist
 	 */
-	public boolean isDarfSchlachtenAnsehen()
+	public boolean isAllowedToViewBattles()
 	{
-		return darfSchlachtenAnsehen;
+		return mayViewBattles;
 	}
 
 	/**
 	 * Gibt zurueck, ob der Schiffstyp grundsaetzlich kaperbar oder pluenderbar ist.
 	 * @return <code>true</code> falls dem so ist
 	 */
-	public boolean isKaperbar() {
-		return this.kaperbar;
+	public boolean isBoardable() {
+		return this.boardable;
 	}
 
 	/**
@@ -175,11 +175,11 @@ public enum ShipClasses {
 	 * @return Die Schiffsklassen
 	 * @see #isDarfSchlachtenAnsehen()
 	 */
-	public static Set<ShipClasses> darfSchlachtenAnsehen() {
+	public static Set<ShipClasses> allowedToViewBattles() {
 		Set<ShipClasses> result = new HashSet<>();
 		for (ShipClasses shipClasses : values())
 		{
-			if( shipClasses.isDarfSchlachtenAnsehen() )
+			if( shipClasses.isAllowedToViewBattles() )
 			{
 				result.add(shipClasses);
 			}

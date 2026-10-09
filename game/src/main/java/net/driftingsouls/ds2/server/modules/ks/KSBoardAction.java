@@ -81,7 +81,7 @@ public class KSBoardAction extends BasicKSAction {
 		ShipTypeData enemyShipType = enemyShip.getTypeData();
 
 		//		 Geschuetze sind nicht kaperbar
-		if(!enemyShipType.getShipClass().isKaperbar() ||
+		if(!enemyShipType.getShipClass().isBoardable() ||
 				((enemyShipType.getCost() != 0) && (enemyShip.getShip().getEngine() != 0) && (enemyShip.getCrew() != 0)) ||
 				enemyShipType.hasFlag(ShipTypeFlag.NICHT_KAPERBAR)) {
 			return Result.ERROR;

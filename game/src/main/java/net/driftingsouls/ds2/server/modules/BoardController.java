@@ -138,7 +138,7 @@ public class BoardController extends Controller
 		}
 
 		// Wenn das Ziel ein Geschtz (10) ist....
-		if (!dshipTypeData.getShipClass().isKaperbar())
+		if (!dshipTypeData.getShipClass().isBoardable())
 		{
 			throw new ValidationException("Sie k&ouml;nnen " + dshipTypeData.getShipClass().getPlural() + " weder kapern noch pl&uuml;ndern.", errorurl);
 		}

@@ -953,7 +953,7 @@ public boolean hasFrontRow( int side) {
 							.setParameter("x", this.x)
 							.setParameter("y", this.y)
 							.setParameter("sys", this.system)
-							.setParameter("shipClasses", ShipClasses.darfSchlachtenAnsehen())
+							.setParameter("shipClasses", ShipClasses.allowedToViewBattles())
 							.getSingleResult();
 					if( shipcount > 0 ) {
 						this.guest = true;

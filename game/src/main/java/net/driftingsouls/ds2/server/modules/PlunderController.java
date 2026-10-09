@@ -104,7 +104,7 @@ public class PlunderController extends Controller
 			throw new ValidationException("Eines der Schiffe ist in einen Kampf verwickelt", errorurl);
 		}
 
-		if (!shipTypeTo.getShipClass().isKaperbar())
+		if (!shipTypeTo.getShipClass().isBoardable())
 		{
 			throw new ValidationException("Sie k&ouml;nnen " + shipTypeTo.getShipClass().getPlural() + " weder kapern noch pl&uuml;ndern", errorurl);
 		}
