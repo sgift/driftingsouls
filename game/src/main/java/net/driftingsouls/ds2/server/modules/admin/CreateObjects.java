@@ -598,13 +598,13 @@ public class CreateObjects implements AdminPlugin {
 		}
 	}
 
-	private void createPlanet( org.hibernate.Session db, Location loc, BaseType baseTypeId ) {
-		int height = baseTypeId.getHeight();
-		int width = baseTypeId.getWidth();
+	private void createPlanet( org.hibernate.Session db, Location loc, BaseType baseType ) {
+		int height = baseType.getHeight();
+		int width = baseType.getWidth();
 
 		User nullUser = (User)db.get(User.class, 0);
 
-		Base base = new Base(loc, nullUser, baseTypeId);
+		Base base = new Base(loc, nullUser, baseType);
 		base.setMaxTiles(width*height);
 		base.setMaxEnergy(1000);
 		db.persist(base);
