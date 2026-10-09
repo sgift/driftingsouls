@@ -64,11 +64,11 @@ public class SpanishNameGenerator
 	public String generate()
 	{
 		String nachname = generateLastName();
-		String zweiterNachname;
+		String secondSurname;
 		do {
-			zweiterNachname = generateLastName();
-		} while( nachname.equals(zweiterNachname) );
+			secondSurname = generateLastName();
+		} while( nachname.equals(secondSurname) );
 
-		return firstName.generateNext() + " " + nachname + " " + zweiterNachname;
+		return firstName.generateNext() + " " + nachname + " " + secondSurname;
 	}
 }

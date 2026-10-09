@@ -325,7 +325,7 @@ public class OptionsController extends Controller
 
 		for (int i = 0; i < 5; i++)
 		{
-			result.namen.add(generator.generiere());
+			result.namen.add(generator.generate());
 		}
 		return result;
 	}
@@ -391,7 +391,7 @@ public class OptionsController extends Controller
 				continue;
 			}
 
-			String name = (schiffsKlassenNamenGenerator.generiere(cls) + " " + schiffsNamenGenerator.generiere(std)).trim();
+			String name = (schiffsKlassenNamenGenerator.generate(cls) + " " + schiffsNamenGenerator.generate(std)).trim();
 			if( name.isEmpty() ) {
 				continue;
 			}

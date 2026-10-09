@@ -38,7 +38,7 @@ public enum PersonNameGenerator
 		private final NameProducer markov = NameProducerManager.INSTANCE.getMarkovNameProducer(PersonNameGenerator.class.getResource("aegyptische_nachnamen.txt"));
 
 		@Override
-		public String generiere()
+		public String generate()
 		{
 			String name = markov.generateNext();
 
@@ -57,7 +57,7 @@ public enum PersonNameGenerator
 		private final NameProducer markov = NameProducerManager.INSTANCE.getMarkovNameProducer(PersonNameGenerator.class.getResource("altvasudanische_namen.txt"));
 
 		@Override
-		public String generiere()
+		public String generate()
 		{
 			String name = markov.generateNext();
 
@@ -76,7 +76,7 @@ public enum PersonNameGenerator
 		private final FirstLastNameGenerator generator = new FirstLastNameGenerator("englisch_vornamen.txt", "englisch_nachnamen.txt", new String[]{"Mc", "-", "'", " "});
 
 		@Override
-		public String generiere()
+		public String generate()
 		{
 			return generator.generate();
 		}
@@ -89,7 +89,7 @@ public enum PersonNameGenerator
 		private final FirstLastNameGenerator generator = new FirstLastNameGenerator("franzoesische_vornamen.txt", "franzoesische_nachnamen.txt", new String[]{"-", "'", " "});
 
 		@Override
-		public String generiere()
+		public String generate()
 		{
 			return generator.generate();
 		}
@@ -102,7 +102,7 @@ public enum PersonNameGenerator
 		private final SpanishNameGenerator generator = new SpanishNameGenerator("spanische_vornamen.txt", "spanische_nachnamen.txt", new String[]{"-", "'", " "});
 
 		@Override
-		public String generiere()
+		public String generate()
 		{
 			return generator.generate();
 		}
@@ -130,5 +130,5 @@ public enum PersonNameGenerator
 	 *
 	 * @return Der generierte Namen
 	 */
-	public abstract String generiere();
+	public abstract String generate();
 }

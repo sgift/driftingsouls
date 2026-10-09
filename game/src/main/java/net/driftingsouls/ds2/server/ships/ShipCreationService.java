@@ -29,7 +29,7 @@ public class ShipCreationService
 		ship.setHull(shiptype.getHull());
 		ship.setCargo(new Cargo());
 		ship.setEnergy(shiptype.getEps());
-		ship.setName((auser.getSchiffsKlassenNamenGenerator().generiere(shiptype.getShipClass()) + " " + auser.getSchiffsNamenGenerator().generiere(shiptype)).trim());
+		ship.setName((auser.getSchiffsKlassenNamenGenerator().generate(shiptype.getShipClass()) + " " + auser.getSchiffsNamenGenerator().generate(shiptype)).trim());
 		ship.setEngine(100);
 		ship.setWeapons(100);
 		ship.setComm(100);

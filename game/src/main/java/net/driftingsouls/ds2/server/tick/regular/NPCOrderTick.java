@@ -70,7 +70,7 @@ public class NPCOrderTick extends TickController {
 	private String getOfficerName(User user) {
 		PersonNameGenerator generator = user.getPersonenNamenGenerator();
 		if( generator != null ) {
-			return generator.generiere();
+			return generator.generate();
 		}
 
 		return "NPC-Lieferservice";

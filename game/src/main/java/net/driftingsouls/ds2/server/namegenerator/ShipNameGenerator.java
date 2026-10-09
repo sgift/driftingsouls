@@ -15,19 +15,19 @@ public enum ShipNameGenerator
 {
 	SCHIFFSTYP("Schiffstyp") {
 		@Override
-		public String generiere(ShipTypeData schiffstyp)
+		public String generate(ShipTypeData shipType)
 		{
-			return schiffstyp.getNickname();
+			return shipType.getNickname();
 		}
 	},
 	STAEDTE("Städtenamen") {
 		private final NameProducer nameProducer = NameProducerManager.INSTANCE.getListBasedNameProducer(ShipNameGenerator.class.getResource("staedtenamen.txt"), false);
 
 		@Override
-		public String generiere(ShipTypeData schiffsTyp)
+		public String generate(ShipTypeData shipType)
 		{
-			ShipClasses schiffsKlasse = schiffsTyp.getShipClass();
-			switch(schiffsKlasse) {
+			ShipClasses shipClass = shipType.getShipClass();
+			switch(shipClass) {
 				case UNBEKANNT:
 				case EMTPY:
 					return "";
@@ -49,10 +49,10 @@ public enum ShipNameGenerator
 		private final NameProducer nameProducer = NameProducerManager.INSTANCE.getListBasedNameProducer(ShipNameGenerator.class.getResource("altvasudanische_namen.txt"), false);
 
 		@Override
-		public String generiere(ShipTypeData schiffsTyp)
+		public String generate(ShipTypeData shipType)
 		{
-			ShipClasses schiffsKlasse = schiffsTyp.getShipClass();
-			switch(schiffsKlasse) {
+			ShipClasses shipClass = shipType.getShipClass();
+			switch(shipClass) {
 				case UNBEKANNT:
 				case EMTPY:
 					return "";
@@ -74,10 +74,10 @@ public enum ShipNameGenerator
 		private final NameProducer markov = NameProducerManager.INSTANCE.getMarkovNameProducer(PersonNameGenerator.class.getResource("aegyptische_nachnamen.txt"));
 
 		@Override
-		public String generiere(ShipTypeData schiffsTyp)
+		public String generate(ShipTypeData shipType)
 		{
-			ShipClasses schiffsKlasse = schiffsTyp.getShipClass();
-			switch(schiffsKlasse) {
+			ShipClasses shipClass = shipType.getShipClass();
+			switch(shipClass) {
 				case UNBEKANNT:
 				case EMTPY:
 					return "";
@@ -125,8 +125,8 @@ public enum ShipNameGenerator
 
 	/**
 	 * Generiert einen Namen.
-	 * @param schiffsTyp Der Schiffstyp fuer den der Name generiert werden soll
+	 * @param shipType Der Schiffstyp fuer den der Name generiert werden soll
 	 * @return Der Name
 	 */
-	public abstract String generiere(ShipTypeData schiffsTyp);
+	public abstract String generate(ShipTypeData shipType);
 }

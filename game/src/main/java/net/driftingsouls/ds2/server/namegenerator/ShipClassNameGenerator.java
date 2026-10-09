@@ -9,16 +9,16 @@ public enum ShipClassNameGenerator
 {
 	KEIN_KUERZEL("Nichts") {
 		@Override
-		public String generiere(ShipClasses schiffsKlasse)
+		public String generate(ShipClasses shipClass)
 		{
 			return "";
 		}
 	},
 	TERRANISCH("Terranisch") {
 		@Override
-		public String generiere(ShipClasses schiffsKlasse)
+		public String generate(ShipClasses shipClass)
 		{
-			switch(schiffsKlasse) {
+			switch(shipClass) {
 				case TRANSPORTER:
 					return "GTT";
 				case ZERSTOERER:
@@ -53,9 +53,9 @@ public enum ShipClassNameGenerator
 	},
 	VASUDANISCH("Vasudanisch") {
 		@Override
-		public String generiere(ShipClasses schiffsKlasse)
+		public String generate(ShipClasses shipClass)
 		{
-			switch(schiffsKlasse) {
+			switch(shipClass) {
 				case TRANSPORTER:
 					return "GVT";
 				case ZERSTOERER:
@@ -111,5 +111,5 @@ public enum ShipClassNameGenerator
 	 *
 	 * @return Das Kuerzel
 	 */
-	public abstract String generiere(ShipClasses schiffsKlasse);
+	public abstract String generate(ShipClasses shipClass);
 }

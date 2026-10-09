@@ -234,7 +234,7 @@ public class AcademyQueueEntry {
 			/*
 			 * Neuer Offizier wurde ausgebildet
 			 */
-			String offiname = owner.getPersonenNamenGenerator().generiere();
+			String offiname = owner.getPersonenNamenGenerator().generate();
 
 			Offizier offz = new Offizier(owner, offiname);
 
