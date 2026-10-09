@@ -35,11 +35,11 @@ import net.driftingsouls.ds2.server.entities.FactoryEntry;
  *
  */
 public class IEDraftAmmo extends ItemEffect {
-	private final FactoryEntry fabrikeintrag;
+	private final FactoryEntry factoryEntry;
 
 	public IEDraftAmmo(boolean allyEffect, FactoryEntry ammo) {
 		super(ItemEffect.Type.DRAFT_AMMO, allyEffect);
-		this.fabrikeintrag = ammo;
+		this.factoryEntry = ammo;
 	}
 	
 	/**
@@ -47,7 +47,7 @@ public class IEDraftAmmo extends ItemEffect {
 	 * @return Die Ammodaten
 	 */
 	public FactoryEntry getAmmo() {
-		return fabrikeintrag;
+		return factoryEntry;
 	}
 
 	/**
@@ -56,6 +56,6 @@ public class IEDraftAmmo extends ItemEffect {
 	 */
 	@Override
 	public String toString() {
-		return "draft-ammo:" + fabrikeintrag.getId() + "&" + hasAllyEffect();
+		return "draft-ammo:" + factoryEntry.getId() + "&" + hasAllyEffect();
 	}
 }
