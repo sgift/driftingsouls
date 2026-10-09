@@ -127,7 +127,7 @@ public class FactoryBuilding extends DefaultBuilding
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 
-		StringBuilder wfreason = new StringBuilder(100);
+		StringBuilder stopReason = new StringBuilder(100);
 
 		if (!vars.stats.containsKey(buildingid))
 		{
@@ -155,9 +155,9 @@ public class FactoryBuilding extends DefaultBuilding
 			thisitemslist.add(entry);
 		}
 
-		Factory wf = loadFactoryEntity(base, buildingid);
+		Factory factory = loadFactoryEntity(base, buildingid);
 
-		if (wf == null)
+		if (factory == null)
 		{
 			vars.usedcapacity.put(buildingid, BigDecimal.valueOf(-1));
 
@@ -165,7 +165,7 @@ public class FactoryBuilding extends DefaultBuilding
 			return "Basis " + base.getId() + " verfügt über keinen Fabrik-Eintrag, obwohl es eine Fabrik hat.";
 		}
 
-		Factory.Task[] plist = wf.getProduces();
+		Factory.Task[] plist = factory.getProduces();
 		for (int i = 0; i < plist.length; i++)
 		{
 			int id = plist[i].getId();
@@ -183,7 +183,7 @@ public class FactoryBuilding extends DefaultBuilding
 			if ((count > 0) && !thisitemslist.contains(entry))
 			{
 				ok = false;
-				wfreason.append("Es existieren nicht die nötigen Baupläne für ").append(entry.getName()).append("\n");
+				stopReason.append("Es existieren nicht die nötigen Baupläne für ").append(entry.getName()).append("\n");
 				break;
 			}
 		}
@@ -221,7 +221,7 @@ public class FactoryBuilding extends DefaultBuilding
 		else
 		{
 			String basename = base.getName();
-			wfreason.insert(0, "[b]" + basename + "[/b] - Die Arbeiten in der Fabrik sind zeitweise eingestellt.\nGrund:\n");
+			stopReason.insert(0, "[b]" + basename + "[/b] - Die Arbeiten in der Fabrik sind zeitweise eingestellt.\nGrund:\n");
 		}
 
 		if (!vars.usedcapacity.containsKey(buildingid) || (vars.usedcapacity.get(buildingid).doubleValue() <= 0))
@@ -229,7 +229,7 @@ public class FactoryBuilding extends DefaultBuilding
 			vars.usedcapacity.put(buildingid, new BigDecimal(-1));
 		}
 
-		return wfreason.toString();
+		return stopReason.toString();
 	}
 
 	private Factory loadFactoryEntity(Base base, int buildingid)
@@ -280,16 +280,16 @@ public class FactoryBuilding extends DefaultBuilding
 		super.build(base, buildingid);
 
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		Factory wf = loadFactoryEntity(base, buildingid);
+		Factory factory = loadFactoryEntity(base, buildingid);
 
-		if (wf != null)
+		if (factory != null)
 		{
-			wf.setCount(wf.getCount() + 1);
+			factory.setCount(factory.getCount() + 1);
 		}
 		else
 		{
-			wf = new Factory(base, buildingid);
-			db.persist(wf);
+			factory = new Factory(base, buildingid);
+			db.persist(factory);
 		}
 	}
 
@@ -310,17 +310,17 @@ public class FactoryBuilding extends DefaultBuilding
 	{
 		var db = context.getEM();
 
-		Factory wf = loadFactoryEntity(base, buildingid);
-		if (wf == null)
+		Factory factory = loadFactoryEntity(base, buildingid);
+		if (factory == null)
 		{
 			return;
 		}
 
-		if (wf.getCount() > 1)
+		if (factory.getCount() > 1)
 		{
 			BigDecimal usedcapacity = new BigDecimal(0, MathContext.DECIMAL32);
 
-			Factory.Task[] plist = wf.getProduces();
+			Factory.Task[] plist = factory.getProduces();
 			for (Factory.Task aPlist : plist)
 			{
 				int id = aPlist.getId();
@@ -331,9 +331,9 @@ public class FactoryBuilding extends DefaultBuilding
 				usedcapacity = usedcapacity.add(entry.getDauer().multiply(new BigDecimal(count)));
 			}
 
-			if (usedcapacity.compareTo(new BigDecimal(wf.getCount() - 1)) > 0)
+			if (usedcapacity.compareTo(new BigDecimal(factory.getCount() - 1)) > 0)
 			{
-				BigDecimal targetCapacity = new BigDecimal(wf.getCount() - 1);
+				BigDecimal targetCapacity = new BigDecimal(factory.getCount() - 1);
 
 				for (int i = 0; i < plist.length; i++)
 				{
@@ -360,15 +360,15 @@ public class FactoryBuilding extends DefaultBuilding
 						break;
 					}
 				}
-				wf.setProduces(plist);
+				factory.setProduces(plist);
 			}
 
-			wf.setCount(wf.getCount() - 1);
+			factory.setCount(factory.getCount() - 1);
 		}
 		else
 		{
-			db.remove(wf);
-			base.getFactories().remove(wf);
+			db.remove(factory);
+			base.getFactories().remove(factory);
 		}
 	}
 
@@ -384,8 +384,8 @@ public class FactoryBuilding extends DefaultBuilding
 
 		if (vars.usedcapacity.get(building).doubleValue() > 0)
 		{
-			Factory wf = Objects.requireNonNull(loadFactoryEntity(base, building));
-			Factory.Task[] prodlist = wf.getProduces();
+			Factory factory = Objects.requireNonNull(loadFactoryEntity(base, building));
+			Factory.Task[] prodlist = factory.getProduces();
 
 			StringBuilder popup = new StringBuilder(200);
 
@@ -495,9 +495,9 @@ public class FactoryBuilding extends DefaultBuilding
 
 		StringBuilder echo = new StringBuilder(2000);
 
-		Factory wf = loadFactoryEntity(base, building);
+		Factory factory = loadFactoryEntity(base, building);
 
-		if (wf == null)
+		if (factory == null)
 		{
 			echo.append("<div style=\"color:red\">FEHLER: Diese Fabrik besitzt keinen Eintrag.<br /></div>\n");
 			return echo.toString();
@@ -563,7 +563,7 @@ public class FactoryBuilding extends DefaultBuilding
 			{
 				BigDecimal usedcapacity = new BigDecimal(0, MathContext.DECIMAL32);
 
-				Factory.Task[] plist = wf.getProduces();
+				Factory.Task[] plist = factory.getProduces();
 				for (Factory.Task aPlist : plist)
 				{
 					final int aId = aPlist.getId();
@@ -572,15 +572,15 @@ public class FactoryBuilding extends DefaultBuilding
 					final FactoryEntry aEntry = (FactoryEntry) db.get(FactoryEntry.class, aId);
 					usedcapacity = usedcapacity.add(aEntry.getDauer().multiply(new BigDecimal(aCount)));
 				}
-				if (usedcapacity.add(new BigDecimal(count).multiply(entry.getDauer())).doubleValue() > wf.getCount())
+				if (usedcapacity.add(new BigDecimal(count).multiply(entry.getDauer())).doubleValue() > factory.getCount())
 				{
-					BigDecimal availableCap = usedcapacity.multiply(new BigDecimal(-1)).add(new BigDecimal(wf.getCount()));
+					BigDecimal availableCap = usedcapacity.multiply(new BigDecimal(-1)).add(new BigDecimal(factory.getCount()));
 					count = availableCap.divide(entry.getDauer(), RoundingMode.DOWN).intValue();
 				}
 
 				if (count != 0)
 				{
-					List<Factory.Task> producelist = new ArrayList<>(Arrays.asList(wf.getProduces()));
+					List<Factory.Task> producelist = new ArrayList<>(Arrays.asList(factory.getProduces()));
 
 					// clean up entries which shouldn't exist anyway
 					producelist.removeIf(task -> {
@@ -602,7 +602,7 @@ public class FactoryBuilding extends DefaultBuilding
 						producelist.add(new Factory.Task(entry.getId(), newCount));
 					}
 
-					wf.setProduces(producelist.toArray(new Factory.Task[0]));
+					factory.setProduces(producelist.toArray(new Factory.Task[0]));
 
 					echo.append(Math.abs(count)).append(" ").append(entry.getName()).append(" wurden ").append((count >= 0 ? "hinzugefügt" : "abgezogen")).append("<br /><br />");
 				}
@@ -624,9 +624,9 @@ public class FactoryBuilding extends DefaultBuilding
 		consumes.setOption(Cargo.Option.SHOWMASS, false);
 		produceCargo.setOption(Cargo.Option.SHOWMASS, false);
 
-		if (wf.getProduces().length > 0)
+		if (factory.getProduces().length > 0)
 		{
-			Factory.Task[] plist = wf.getProduces();
+			Factory.Task[] plist = factory.getProduces();
 			for (Factory.Task aPlist : plist)
 			{
 				final int id = aPlist.getId();
@@ -664,7 +664,7 @@ public class FactoryBuilding extends DefaultBuilding
 		*/
 		echo.append("<div class='gfxbox' style='width:1100px'>");
 
-		echo.append("<img style=\"vertical-align:middle\" src=\"./data/interface/time.gif\" alt=\"Zeiteinheiten\" />").append(Common.ln(usedcapacity)).append("/").append(wf.getCount()).append(" ausgelastet<br />\n");
+		echo.append("<img style=\"vertical-align:middle\" src=\"./data/interface/time.gif\" alt=\"Zeiteinheiten\" />").append(Common.ln(usedcapacity)).append("/").append(factory.getCount()).append(" ausgelastet<br />\n");
 		echo.append("Verbrauch: ");
 		ResourceList reslist = consumes.getResourceList();
 		for (ResourceEntry res : reslist)
@@ -747,11 +747,11 @@ public class FactoryBuilding extends DefaultBuilding
 			echo.append("</div>\n");
 			echo.append("</form></td>\n");
 
-			fabrikEintragButton(echo, entry, base, field, productlist.containsKey(entry) ? -productlist.get(entry) : 0, "reset");
-			fabrikEintragButton(echo, entry, base, field, 1, "+ 1");
-			fabrikEintragButton(echo, entry, base, field, 5, "+ 5");
-			fabrikEintragButton(echo, entry, base, field, -1, "- 1");
-			fabrikEintragButton(echo, entry, base, field, -5, "- 5");
+			factoryEntryButton(echo, entry, base, field, productlist.containsKey(entry) ? -productlist.get(entry) : 0, "reset");
+			factoryEntryButton(echo, entry, base, field, 1, "+ 1");
+			factoryEntryButton(echo, entry, base, field, 5, "+ 5");
+			factoryEntryButton(echo, entry, base, field, -1, "- 1");
+			factoryEntryButton(echo, entry, base, field, -5, "- 5");
 
 			echo.append("</tr>\n");
 		}
@@ -786,7 +786,7 @@ public class FactoryBuilding extends DefaultBuilding
 		return currentCount + count;
 	}
 
-	private void fabrikEintragButton(StringBuilder echo, FactoryEntry entry, Base base, int field, int count, String label)
+	private void factoryEntryButton(StringBuilder echo, FactoryEntry entry, Base base, int field, int count, String label)
 	{
 		echo.append("<td class=\"noBorderX\" style=\"vertical-align:top; width:30px\">\n");
 		echo.append("<form action=\"./ds\" method=\"post\">\n");
