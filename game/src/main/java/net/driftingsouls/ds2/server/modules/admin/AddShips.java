@@ -243,8 +243,8 @@ public class AddShips implements AdminPlugin {
 			int x = context.getRequest().getParameterInt("x");
 			int y = context.getRequest().getParameterInt("y");
 			String name = context.getRequest().getParameterString("name");
-			int offitype = context.getRequest().getParameterInt("offitype");
-			String offiname = context.getRequest().getParameterString("offiname");
+			int officerType = context.getRequest().getParameterInt("offitype");
+			String officerName = context.getRequest().getParameterString("offiname");
 			final int jaegerTypeId = context.getRequest().getParameterInt("jaeger");
 			int inteliid = context.getRequest().getParameterInt("inteliid");
 			int lowid = context.getRequest().getParameterInt("lowid");
@@ -312,12 +312,12 @@ public class AddShips implements AdminPlugin {
 				echo.append("<a href='ds?module=schiff&action=default&ship=").append(ship.getId()).append("'>Schiff (").append(ship.getId()).append(")</a> hinzugef&uuml;gt<br />");
 
 				// Offizier einfuegen
-				if( (offitype > 0) && (offiname.length() > 0) &&
+				if( (officerType > 0) && (officerName.length() > 0) &&
 						((ship.getTypeData().getSize() > ShipType.SMALL_SHIP_MAXSIZE) ||
 								ship.getTypeData().getShipClass() == ShipClasses.RETTUNGSKAPSEL) ) {
-					OrderableOffizier offi = (OrderableOffizier)db.get(OrderableOffizier.class, offitype);
+					OrderableOffizier offi = (OrderableOffizier)db.get(OrderableOffizier.class, officerType);
 					if( offi != null ) {
-						Offizier offizier = new Offizier(auser, offiname);
+						Offizier offizier = new Offizier(auser, officerName);
 						offizier.setRang(offi.getRang());
 						offizier.setAbility(Offizier.Ability.ING, offi.getIng());
 						offizier.setAbility(Offizier.Ability.WAF, offi.getWaf());
@@ -328,7 +328,7 @@ public class AddShips implements AdminPlugin {
 						offizier.setSpecial(Offizier.Special.values()[ThreadLocalRandom.current().nextInt(Offizier.Special.values().length)]);
 						db.persist(offizier);
 
-						echo.append("Offizier '").append(offiname).append("' hinzugef&uuml;gt<br />\n");
+						echo.append("Offizier '").append(officerName).append("' hinzugef&uuml;gt<br />\n");
 					}
 				}
 
