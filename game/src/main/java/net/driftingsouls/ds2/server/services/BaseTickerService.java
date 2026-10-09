@@ -109,12 +109,12 @@ public class BaseTickerService
 	{
 		StringBuilder msg = new StringBuilder();
 		Cargo baseCargo = (Cargo)base.getCargo().clone();
-		Cargo nettoproduction = state.getNettoProduction();
-		Cargo nettoconsumption = state.getNettoConsumption();
+		Cargo netProduction = state.getNetProduction();
+		Cargo netConsumption = state.getNetConsumption();
 		org.hibernate.Session db = ContextMap.getContext().getDB();
 		boolean ok = true;
 
-		if(state.getArbeiter() > base.getBewohner())
+		if(state.getWorkers() > base.getBewohner())
 		{
 			return "Sie haben mehr Arbeiter als (Maximal)-Bevölkerung. Die Produktion fällt aus.";
 		}
@@ -123,32 +123,32 @@ public class BaseTickerService
 
 		Base.SpawnableRessMap ressMap = base.getSpawnableRessMap();
 
-		for(ResourceEntry entry : nettoproduction.getResourceList())
+		for(ResourceEntry entry : netProduction.getResourceList())
 		{
 			// Auf Spawn Resource pruefen und ggf Produktion anpassen
 			Item item = (Item)db.get(Item.class,entry.getId().getItemID());
 			if(item.isSpawnableRess()) {
 				// Genug auf dem Asteroiden vorhanden
 				// und abziehen
-				if(base.getSpawnableRessAmount(item.getID()) > nettoproduction.getResourceCount(entry.getId())) {
-					base.setSpawnableRessAmount(item.getID(), base.getSpawnableRessAmount(item.getID()) - nettoproduction.getResourceCount(entry.getId()));
+				if(base.getSpawnableRessAmount(item.getID()) > netProduction.getResourceCount(entry.getId())) {
+					base.setSpawnableRessAmount(item.getID(), base.getSpawnableRessAmount(item.getID()) - netProduction.getResourceCount(entry.getId()));
 				}
 				// Ueberhaupt nichts auf dem Asteroiden vorhanden
 				else if (base.getSpawnableRessAmount(item.getID()) < 0 && !ressMap.containsRess(item) ) {
 					// Dann ziehen wir die Production eben ab
-					nettoproduction.setResource(entry.getId(), 0);
+					netProduction.setResource(entry.getId(), 0);
 					msg.append("Ihre Arbeiter konnten keine Vorkommen der Ressource ").append(item.getName()).append(" finden.\n");
 				}
 				// Es kann nicht mehr die volle Produktion gefoerdert werden
 				else {
 					// Produktion drosseln und neue Ressource spawnen
-					nettoproduction.setResource(entry.getId(), base.getSpawnableRessAmount(item.getID()));
+					netProduction.setResource(entry.getId(), base.getSpawnableRessAmount(item.getID()));
 					respawnResource(base, item.getID());
 				}
 			}
 		}
-		Cargo fullproduction = (Cargo)nettoproduction.clone();
-		fullproduction.substractCargo(nettoconsumption);
+		Cargo fullproduction = (Cargo)netProduction.clone();
+		fullproduction.substractCargo(netConsumption);
 
 		ResourceList resources = baseCargo.compare(fullproduction, true);
 		for(ResourceEntry entry: resources)
@@ -197,7 +197,7 @@ public class BaseTickerService
 		if(ok)
 		{
 			// Alles OK ggf müssen wir Konto anpassen und darauf achten das Produktion der Basis auch Bargeld liefert
-			long baseRE = base.getCargo().getResourceCount(Resources.RE) + nettoproduction.getResourceCount(Resources.RE);
+			long baseRE = base.getCargo().getResourceCount(Resources.RE) + netProduction.getResourceCount(Resources.RE);
 
 			long newRE = baseCargo.getResourceCount(Resources.RE);
 

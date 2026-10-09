@@ -30,23 +30,23 @@ import net.driftingsouls.ds2.server.cargo.Cargo;
  */
 public class BaseStatus {
 	private final Cargo status;
-    private final Cargo nettoproductionstatus;
-    private final Cargo nettoconsumptionstatus;
+    private final Cargo netProduction;
+    private final Cargo netConsumption;
 	private final int e;
 	private final int livingSpace;
-	private final int arbeiter;
-	private final Map<Integer,Integer> blocations;
+	private final int workers;
+	private final Map<Integer,Integer> buildingLocations;
 	private final Integer[] active;
 	
-	protected BaseStatus(Cargo status, Cargo nettoproductionstatus, Cargo nettoconsumptionstatus, int e, int bewohner, int arbeiter, Map<Integer,Integer> blocations, Integer[] active ) {
+	protected BaseStatus(Cargo status, Cargo netProduction, Cargo netConsumption, int e, int livingSpace, int workers, Map<Integer,Integer> buildingLocations, Integer[] active ) {
 		super();
 		this.status = status;
-        this.nettoproductionstatus = nettoproductionstatus;
-        this.nettoconsumptionstatus = nettoconsumptionstatus;
+        this.netProduction = netProduction;
+        this.netConsumption = netConsumption;
 		this.e = e;
-		this.livingSpace = bewohner;
-		this.arbeiter = arbeiter;
-		this.blocations = blocations;
+		this.livingSpace = livingSpace;
+		this.workers = workers;
+		this.buildingLocations = buildingLocations;
 		this.active = active;
 	}
 
@@ -68,8 +68,8 @@ public class BaseStatus {
 	 * Gibt die Arbeiter zurueck.
 	 * @return die Arbeiter.
 	 */
-	public int getArbeiter() {
-		return arbeiter;
+	public int getWorkers() {
+		return workers;
 	}
 
 	/**
@@ -88,7 +88,7 @@ public class BaseStatus {
 	 * @return Die Gebaeudepositionen
 	 */
 	public Map<Integer,Integer> getBuildingLocations() {
-		return blocations;
+		return buildingLocations;
 	}
 
 	/**
@@ -113,12 +113,12 @@ public class BaseStatus {
      *
      * @return Der produzierte Cargo
      */
-    public Cargo getNettoProduction() { return nettoproductionstatus; }
+    public Cargo getNetProduction() { return netProduction; }
 
     /**
      * Gibt den pro Tick verbrauchten Cargo zurueck.
      *
      * @return Der verbrauchte Cargo
      */
-    public Cargo getNettoConsumption() { return nettoconsumptionstatus; }
+    public Cargo getNetConsumption() { return netConsumption; }
 }

@@ -462,12 +462,12 @@ public class BaseController implements DSController {
     public void addBevoelkerungToJSON(JSONObject json, Base base, Building building, boolean aktiviert){
         JSONObject bev = new JSONObject();
         BaseStatus basedata = Base.getStatus(base);
-        bev.put("arbeiter", basedata.getArbeiter());
+        bev.put("arbeiter", basedata.getWorkers());
         bev.put("arbeiteraenderung", building != null && aktiviert? building.getArbeiter() > 0 : false);
         bev.put("einwohner",base.getBewohner());
         bev.put("wohnraum",base.getWohnraum());
         bev.put("wohnraumaenderung", building != null && aktiviert? building.getBewohner() > 0 : false);
-        bev.put("arbeitslos",Math.max(base.getBewohner()-basedata.getArbeiter(),0));
+        bev.put("arbeitslos",Math.max(base.getBewohner()-basedata.getWorkers(),0));
         bev.put("wohnraumfrei",Math.max(basedata.getLivingSpace()-base.getBewohner(),0));
         bev.put("wohnraumfehlt",Math.max(base.getBewohner()-basedata.getLivingSpace(),0));
         json.put("stats",bev);
@@ -785,7 +785,7 @@ public class BaseController implements DSController {
 		// Waren
 		//----------------
 
-		base.setArbeiter(basedata.getArbeiter());
+		base.setArbeiter(basedata.getWorkers());
 
 		ResourceList reslist = base.getCargo().compare(basedata.getProduction(), true,true);
         reslist.sortByID(false);
@@ -1318,8 +1318,8 @@ public class BaseController implements DSController {
         public final long wohnraumFrei;
         public final long wohnraumFehlt;
         public Bevoelkerung(Base base, BaseStatus basedata) {
-            this.arbeiter = basedata.getArbeiter();
-            this.arbeitslos = Math.max(base.getBewohner()-basedata.getArbeiter(),0);
+            this.arbeiter = basedata.getWorkers();
+            this.arbeitslos = Math.max(base.getBewohner()-basedata.getWorkers(),0);
             this.wohnraumFrei = Math.max(basedata.getLivingSpace()-base.getBewohner(),0);
             this.wohnraumFehlt = Math.max(base.getBewohner()-basedata.getLivingSpace(),0);
         }

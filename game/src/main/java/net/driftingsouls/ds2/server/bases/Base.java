@@ -1860,7 +1860,7 @@ public class Base implements Cloneable, Lifecycle, Locatable, Transfering, Feedi
 	}
 
 	public String getArbeitetNeeded_formated(){
-		return Common.ln(Base.getStatus(this).getArbeiter());
+		return Common.ln(Base.getStatus(this).getWorkers());
 	}
 
 	public String getLivingSpace_formated(){
