@@ -26,28 +26,28 @@ public class TradingPostDefault implements ShipPlugin
 	@Action(ActionType.DEFAULT)
 	public String action(Parameters caller, Ship communicate, String option)
 	{
-		Integer versteigerungsbetrag = null;
+		Integer auctionAmount = null;
 		switch( option )
 		{
 			case "versteigern_100":
-				versteigerungsbetrag = 100;
+				auctionAmount = 100;
 				break;
 			case "versteigern_1000":
-				versteigerungsbetrag = 1000;
+				auctionAmount = 1000;
 				break;
 			case "versteigern_10000":
-				versteigerungsbetrag = 10000;
+				auctionAmount = 10000;
 				break;
 			case "versteigern_50000":
-				versteigerungsbetrag = 50000;
+				auctionAmount = 50000;
 				break;
 			case "versteigern_100000":
-				versteigerungsbetrag = 100000;
+				auctionAmount = 100000;
 				break;
 		}
-		if( versteigerungsbetrag != null )
+		if( auctionAmount != null )
 		{
-			tradingPostService.auctionShip(caller.ship, versteigerungsbetrag);
+			tradingPostService.auctionShip(caller.ship, auctionAmount);
 
 			return "Ihr Schiff wurde nun in die Liste der aktuell laufenden Versteigerungen eingetragen. Wir benachichtigen Sie sobald die Versteigerung abgelaufen ist.";
 		}
