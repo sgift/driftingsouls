@@ -23,7 +23,7 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.werften.BaseWerft;
-import net.driftingsouls.ds2.server.werften.WerftGUI;
+import net.driftingsouls.ds2.server.werften.ShipyardGui;
 import net.driftingsouls.ds2.server.werften.WerftObject;
 import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
 
@@ -162,7 +162,7 @@ public class ShipyardBuilding extends DefaultBuilding {
 
 		TemplateViewResultFactory templateViewResultFactory = context.getBean(TemplateViewResultFactory.class, null);
 		TemplateEngine t = templateViewResultFactory.createEmpty();
-		WerftGUI werftgui = new WerftGUI( context, t );
+		ShipyardGui werftgui = new ShipyardGui( context, t );
 		response.append(werftgui.execute( werft ));
 
 		response.append("<br /></div>\n");

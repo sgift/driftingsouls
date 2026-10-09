@@ -51,7 +51,7 @@ import java.util.Map;
  * @author bktheg
  *
  */
-public class WerftGUI {
+public class ShipyardGui {
 	private final Context context;
 	private final TemplateEngine t;
 
@@ -60,7 +60,7 @@ public class WerftGUI {
 	 * @param context Der Kontext
 	 * @param t Das zu verwendende TemplateEngine
 	 */
-	public WerftGUI( Context context,TemplateEngine t ) {
+	public ShipyardGui( Context context,TemplateEngine t ) {
 		this.context = context;
 		this.t = t;
 	}

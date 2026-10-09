@@ -29,7 +29,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidationExc
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
-import net.driftingsouls.ds2.server.werften.WerftGUI;
+import net.driftingsouls.ds2.server.werften.ShipyardGui;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -37,7 +37,7 @@ import java.io.Writer;
 
 /**
  * <h1>Anzeige einer Schiffswerft.</h1>
- * Die GUI selbst wird von {@link net.driftingsouls.ds2.server.werften.WerftGUI} gezeichnet
+ * Die GUI selbst wird von {@link net.driftingsouls.ds2.server.werften.ShipyardGui} gezeichnet
  *
  * @author Christopher Jung
  */
@@ -138,7 +138,7 @@ public class ShipyardController extends Controller
 			echo.append("</span><br />\n");
 		}
 
-		WerftGUI werftgui = new WerftGUI(getContext(), templateViewResultFactory.createEmpty());
+		ShipyardGui werftgui = new ShipyardGui(getContext(), templateViewResultFactory.createEmpty());
 		echo.append(werftgui.execute(werft));
 
 		echo.append("<br /><a class=\"back\" href=\"").append(Common.buildUrl("default", "module", "schiff", "ship", ship.getId())).append("\">zurück zum Schiff</a><br />\n");
