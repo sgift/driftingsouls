@@ -395,7 +395,7 @@ public class CreateObjects implements AdminPlugin {
 				}
 				
 				int size = Integer.parseInt(object.getAttribute("size"));
-				int klasse = Integer.parseInt(object.getAttribute("klasse"));
+				int baseTypeId = Integer.parseInt(object.getAttribute("klasse"));
 				int owner = Integer.parseInt(object.getAttribute("owner"));
 				String name = object.getAttribute("name");
 				
@@ -405,7 +405,7 @@ public class CreateObjects implements AdminPlugin {
 					return;
 				}
 
-				BaseType type = (BaseType) db.get(BaseType.class, klasse);
+				BaseType type = (BaseType) db.get(BaseType.class, baseTypeId);
 				Base base = new Base(source, ownerObj, type);
 				base.setSize(size);
 				base.setName(name);
@@ -487,11 +487,11 @@ public class CreateObjects implements AdminPlugin {
 					offizier.setSpecial(Offizier.Special.values()[ThreadLocalRandom.current().nextInt(1,7)]);
 					
 					int averageAbility = abilitySum/5;
-					int rang = averageAbility/125;
-					if( rang > Officers.MAX_RANK ) {
-						rang = Officers.MAX_RANK;
+					int rank = averageAbility/125;
+					if( rank > Officers.MAX_RANK ) {
+						rank = Officers.MAX_RANK;
 					}
-					offizier.setRang(rang);
+					offizier.setRang(rank);
 					offizier.stationierenAuf(shipObj);
 
 					db.persist(offizier);
@@ -598,13 +598,13 @@ public class CreateObjects implements AdminPlugin {
 		}
 	}
 
-	private void createPlanet( org.hibernate.Session db, Location loc, BaseType klasse ) {
-		int height = klasse.getHeight();
-		int width = klasse.getWidth();
+	private void createPlanet( org.hibernate.Session db, Location loc, BaseType baseTypeId ) {
+		int height = baseTypeId.getHeight();
+		int width = baseTypeId.getWidth();
 
 		User nullUser = (User)db.get(User.class, 0);
 
-		Base base = new Base(loc, nullUser, klasse);
+		Base base = new Base(loc, nullUser, baseTypeId);
 		base.setMaxTiles(width*height);
 		base.setMaxEnergy(1000);
 		db.persist(base);
@@ -630,13 +630,13 @@ public class CreateObjects implements AdminPlugin {
 		org.hibernate.Session db = context.getDB();
 		
 		final Nebel.Typ type = Nebel.Typ.valueOf(context.getRequest().getParameterString("type"));
-		final int anzahl = context.getRequest().getParameterInt("anzahl");
+		final int count = context.getRequest().getParameterInt("anzahl");
 		final int minX = context.getRequest().getParameterInt("minX");
 		final int minY = context.getRequest().getParameterInt("minY");
 		final int maxX = context.getRequest().getParameterInt("maxX");
 		final int maxY = context.getRequest().getParameterInt("maxY");
 		
-		for( int i=1; i <= anzahl; i++ ) {
+		for( int i=1; i <= count; i++ ) {
 			int x = ThreadLocalRandom.current().nextInt(minX,maxX+1);
 			int y = ThreadLocalRandom.current().nextInt(minY,maxY+1);
 
@@ -647,8 +647,8 @@ public class CreateObjects implements AdminPlugin {
 	private void handleBase(Context context, StringBuilder echo, int system) {
 		org.hibernate.Session db = context.getDB();
 		
-		final int anzahl = context.getRequest().getParameterInt("anzahl");
-		final int klasse = context.getRequest().getParameterInt("klasse");
+		final int count = context.getRequest().getParameterInt("anzahl");
+		final int baseTypeId = context.getRequest().getParameterInt("klasse");
 		final String availablespawnableress = context.getRequest().getParameterString("availspawnress");
 		final int minX = context.getRequest().getParameterInt("minX");
 		final int minY = context.getRequest().getParameterInt("minY");
@@ -656,7 +656,7 @@ public class CreateObjects implements AdminPlugin {
 		final int maxY = context.getRequest().getParameterInt("maxY");
 
 		final User nullUser = (User)db.get(User.class, 0);
-		BaseType type = (BaseType)db.get(BaseType.class, klasse);
+		BaseType type = (BaseType)db.get(BaseType.class, baseTypeId);
 		
 		if(type == null)
 		{
@@ -664,7 +664,7 @@ public class CreateObjects implements AdminPlugin {
 			return;
 		}
 		
-		for( int i=1; i <= anzahl; i++ ) {
+		for( int i=1; i <= count; i++ ) {
 			int x = ThreadLocalRandom.current().nextInt(minX,maxX+1);
 			int y = ThreadLocalRandom.current().nextInt(minY,maxY+1);
 
