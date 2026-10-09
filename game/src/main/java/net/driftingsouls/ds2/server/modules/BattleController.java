@@ -460,13 +460,13 @@ public class BattleController extends Controller
 
 		int destcount;
 		int hitcount;
-		int fluchtcount;
+		int retreatCount;
 		int joincount;
 		int shotcount;
 		int srcount;
-		int fluchtnextcount;
-		int mangelnahrungcount;
-    int mangelreaktorcount;
+		int nextRetreatCount;
+		int foodShortageCount;
+    int reactorShortageCount;
     int landedcount;
     int dockedcount;
     int haslandedcount;
@@ -973,7 +973,7 @@ public class BattleController extends Controller
                     data.hitcount++;
                 }
                 if (aship.hasFlag(BattleShipFlag.FLUCHT)) {
-                    data.fluchtcount++;
+                    data.retreatCount++;
                 }
                 if (aship.hasFlag(BattleShipFlag.JOIN)) {
                     data.joincount++;
@@ -986,10 +986,10 @@ public class BattleController extends Controller
                         data.shotcount++;
                     }
                     if (aship.getShip().getStatus().contains("mangel_nahrung")) {
-                        data.mangelnahrungcount++;
+                        data.foodShortageCount++;
                     }
                     if (aship.getShip().getStatus().contains("mangel_reaktor")) {
-                        data.mangelreaktorcount++;
+                        data.reactorShortageCount++;
                     }
                     if (aship.getShip().getTypeData().getADocks()>0){
                         data.adockcount+=aship.getShip().getTypeData().getADocks();
@@ -1046,14 +1046,14 @@ public class BattleController extends Controller
 								"shiptypelist.otherside.id",	battle.getEnemyShipGroup(),
 								"shiptypelist.destcount",	data.destcount,
 								"shiptypelist.hitcount",	data.hitcount,
-								"shiptypelist.fluchtcount",	data.fluchtcount,
+								"shiptypelist.fluchtcount",	data.retreatCount,
 								"shiptypelist.joincount",	data.joincount,
 								"shiptypelist.shotcount",	!battle.isGuest()?data.shotcount:0,
 								"shiptypelist.fluchtnextcount",	0,
 								"shiptypelist.secondrowcount",	data.srcount,
 								"shiptypelist.secondrowstatus",	count-data.srcount,
-								"shiptypelist.mangelnahrungcount",	!battle.isGuest()?data.mangelnahrungcount:0,
-                "shiptypelist.mangelreaktorcount",	!battle.isGuest()?data.mangelreaktorcount:0,
+								"shiptypelist.mangelnahrungcount",	!battle.isGuest()?data.foodShortageCount:0,
+                "shiptypelist.mangelreaktorcount",	!battle.isGuest()?data.reactorShortageCount:0,
                 "shiptypelist.landedcount", !battle.isGuest()?data.landedcount:0,
                 "shiptypelist.dockedcount", data.dockedcount,
                 "shiptypelist.haslandedcount",  !battle.isGuest()?data.haslandedcount:0,
@@ -1256,13 +1256,13 @@ public class BattleController extends Controller
                         data.shotcount++;
                     }
                     if (aship.hasFlag(BattleShipFlag.FLUCHTNEXT)) {
-                        data.fluchtnextcount++;
+                        data.nextRetreatCount++;
                     }
                     if (aship.getShip().getStatus().contains("mangel_nahrung")) {
-                        data.mangelnahrungcount++;
+                        data.foodShortageCount++;
                     }
                     if (aship.getShip().getStatus().contains("mangel_reaktor")) {
-                        data.mangelreaktorcount++;
+                        data.reactorShortageCount++;
                     }
                     if (aship.getShip().isLanded()){
                         data.landedcount++;
@@ -1326,11 +1326,11 @@ public class BattleController extends Controller
 								"shiptypelist.fluchtcount",	0,
 								"shiptypelist.joincount",	0,
 								"shiptypelist.shotcount",	!battle.isGuest()?data.shotcount:0,
-								"shiptypelist.fluchtnextcount",	data.fluchtnextcount,
+								"shiptypelist.fluchtnextcount",	data.nextRetreatCount,
 								"shiptypelist.secondrowcount",	data.srcount,
 								"shiptypelist.secondrowstatus",	count-data.srcount,
-								"shiptypelist.mangelnahrungcount",	!battle.isGuest()?data.mangelnahrungcount:0,
-                "shiptypelist.mangelreaktorcount",	!battle.isGuest()?data.mangelreaktorcount:0,
+								"shiptypelist.mangelnahrungcount",	!battle.isGuest()?data.foodShortageCount:0,
+                "shiptypelist.mangelreaktorcount",	!battle.isGuest()?data.reactorShortageCount:0,
                 "shiptypelist.landedcount", !battle.isGuest()?data.landedcount:0,
                 "shiptypelist.dockedcount", data.dockedcount,
                 "shiptypelist.haslandedcount",  !battle.isGuest()?data.haslandedcount:0,
@@ -1541,13 +1541,13 @@ public class BattleController extends Controller
                         data.shotcount++;
                     }
                     if (aship.hasFlag(BattleShipFlag.FLUCHTNEXT)) {
-                        data.fluchtnextcount++;
+                        data.nextRetreatCount++;
                     }
                     if (aship.getShip().getStatus().contains("mangel_nahrung")) {
-                        data.mangelnahrungcount++;
+                        data.foodShortageCount++;
                     }
                     if (aship.getShip().getStatus().contains("mangel_reaktor")) {
-                        data.mangelreaktorcount++;
+                        data.reactorShortageCount++;
                     }
                     if (aship.getShip().isLanded()){
                         data.landedcount++;
@@ -1613,11 +1613,11 @@ public class BattleController extends Controller
 								"shiptypelist.fluchtcount",	0,
 								"shiptypelist.joincount",	0,
 								"shiptypelist.shotcount",	data.shotcount,
-								"shiptypelist.fluchtnextcount",	data.fluchtnextcount,
+								"shiptypelist.fluchtnextcount",	data.nextRetreatCount,
 								"shiptypelist.secondrowcount",	0,
 								"shiptypelist.secondrowstatus",	count-data.srcount,
-								"shiptypelist.mangelnahrungcount",	!battle.isGuest()?data.mangelnahrungcount:0,
-                "shiptypelist.mangelreaktorcount",	!battle.isGuest()?data.mangelreaktorcount:0,
+								"shiptypelist.mangelnahrungcount",	!battle.isGuest()?data.foodShortageCount:0,
+                "shiptypelist.mangelreaktorcount",	!battle.isGuest()?data.reactorShortageCount:0,
                 "shiptypelist.landedcount", !battle.isGuest()?data.landedcount:0,
                 "shiptypelist.dockedcount", data.dockedcount,
                 "shiptypelist.haslandedcount",  !battle.isGuest()?data.haslandedcount:0,
@@ -2215,7 +2215,7 @@ public class BattleController extends Controller
                     data.hitcount++;
                 }
                 if (aship.hasFlag(BattleShipFlag.FLUCHT)) {
-                    data.fluchtcount++;
+                    data.retreatCount++;
                 }
                 if (aship.hasFlag(BattleShipFlag.JOIN)) {
                     data.joincount++;
@@ -2262,7 +2262,7 @@ public class BattleController extends Controller
 								"shiptypelist.joincount",		data.joincount,
 								"shiptypelist.secondrowcount",	data.srcount,
 								"shiptypelist.secondrowstatus",	count-data.srcount,
-								"shiptypelist.fluchtcount",		data.fluchtcount,
+								"shiptypelist.fluchtcount",		data.retreatCount,
 								"shiptypelist.alarmred",   0,
 								"shiptypelist.alarmyellow",   0);
 
