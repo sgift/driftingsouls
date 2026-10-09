@@ -68,14 +68,14 @@ public class ImpObjectsController extends Controller
 			public String targetname;
 		}
 
-		public static class HandelspostenViewModel
+		public static class TradingPostViewModel
 		{
 			public int x;
 			public int y;
 			public String name;
 		}
 
-		public static class BasisViewModel
+		public static class BaseViewModel
 		{
 			public int x;
 			public int y;
@@ -84,8 +84,8 @@ public class ImpObjectsController extends Controller
 
 		public SystemViewModel system;
 		public final List<JumpNodeViewModel> jumpnodes = new ArrayList<>();
-		public final List<HandelspostenViewModel> posten = new ArrayList<>();
-		public final List<BasisViewModel> bases = new ArrayList<>();
+		public final List<TradingPostViewModel> posten = new ArrayList<>();
+		public final List<BaseViewModel> bases = new ArrayList<>();
 	}
 
 	/**
@@ -137,25 +137,25 @@ public class ImpObjectsController extends Controller
 				Handelsposten
 			*/
 
-			List<?> postenList = db.createQuery("select s from Ship s join s.shiptype st left join s.modules sm " +
+			List<?> tradingPosts = db.createQuery("select s from Ship s join s.shiptype st left join s.modules sm " +
 					"where s.id>0 and s.system=:sys and (locate('tradepost',s.status)!=0 or locate('tradepost', coalesce(sm.flags, st.flags))!=0)")
 					.setInteger("sys", system.getID())
 					.list();
-			for (Object aPostenList : postenList)
+			for (Object aTradingPost : tradingPosts)
 			{
-				Ship posten = (Ship) aPostenList;
+				Ship tradingPost = (Ship) aTradingPost;
 
-				if (!posten.isTradepostVisible(user, user.getRelations()))
+				if (!tradingPost.isTradepostVisible(user, user.getRelations()))
 				{
 					continue;
 				}
 
-				JsonViewModel.HandelspostenViewModel postenObj = new JsonViewModel.HandelspostenViewModel();
-				postenObj.x = posten.getX();
-				postenObj.y = posten.getY();
-				postenObj.name = posten.getName();
+				JsonViewModel.TradingPostViewModel tradingPostObj = new JsonViewModel.TradingPostViewModel();
+				tradingPostObj.x = tradingPost.getX();
+				tradingPostObj.y = tradingPost.getY();
+				tradingPostObj.name = tradingPost.getName();
 
-				json.posten.add(postenObj);
+				json.posten.add(tradingPostObj);
 			}
 		}
 
@@ -170,7 +170,7 @@ public class ImpObjectsController extends Controller
 		{
 			Base base = (Base) aBaseList;
 
-			JsonViewModel.BasisViewModel baseObj = new JsonViewModel.BasisViewModel();
+			JsonViewModel.BaseViewModel baseObj = new JsonViewModel.BaseViewModel();
 			baseObj.x = base.getX();
 			baseObj.y = base.getY();
 			baseObj.name = base.getName();
