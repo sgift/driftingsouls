@@ -74,12 +74,12 @@ public class GtuPrices implements AdminPlugin {
 			}
 			ResourceEntry res = reslist.iterator().next();
 			double avprice = ((Number)row[1]).doubleValue();
-			long menge = ((Number)row[2]).longValue();
+			long amount = ((Number)row[2]).longValue();
 
 			echo.append("<tr><td>");
 			echo.append(res.getCount1()).append("x</td><td><img src=\"").append(res.getImage()).append("\" alt=\"\" />").append(res.getName());
 			echo.append("</td>\n");
-			echo.append("<td>").append(Common.ln(menge)).append("x</td>\n");
+			echo.append("<td>").append(Common.ln(amount)).append("x</td>\n");
 			echo.append("<td>").append(Common.ln(avprice)).append(" RE\n");
 			if( res.getCount1() > 1 ) {
 				echo.append(" &#216;").append(Common.ln(avprice / res.getCount1())).append("/E\n");
