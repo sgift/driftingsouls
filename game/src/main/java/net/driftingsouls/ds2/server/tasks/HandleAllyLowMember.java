@@ -63,7 +63,7 @@ public class HandleAllyLowMember implements TaskHandler {
 				return;
 			}
 
-			User source = db.find(User.class, configService.getValue(WellKnownConfigValue.ALLIANZAUFLOESUNG_PM_SENDER));
+			User source = db.find(User.class, configService.getValue(WellKnownConfigValue.ALLIANCE_DISSOLUTION_PM_SENDER));
 
 			PM.sendToAlly(source, ally, "Allianzauflösung", "[Automatische Nachricht]\n\nDeine Allianz wurde mit sofortiger Wirkung aufgel&ouml;st. Der Grund ist Spielermangel. Grunds&auml;tzlich m&uuml;ssen Allianzen mindestens 2 Mitglieder haben um bestehen zu k&ouml;nnen. Da deine Allianz in der vorgegebenen Zeit dieses Ziel nicht erreichen konnte war die Aufl&ouml;sung unumg&auml;nglich.", db);
 

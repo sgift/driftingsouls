@@ -141,9 +141,9 @@ public class AcademyBuilding extends DefaultBuilding {
 		abilityByIndex.put(4, Offizier.Ability.SEC);
 		abilityByIndex.put(5, Offizier.Ability.COM);
 
-		double foodFactor = new ConfigService(db).getValue(WellKnownConfigValue.OFFIZIER_NAHRUNG_FACTOR);
-		double siliconFactor = new ConfigService(db).getValue(WellKnownConfigValue.OFFIZIER_SILIZIUM_FACTOR);
-		double durationFactor = new ConfigService(db).getValue(WellKnownConfigValue.OFFIZIER_DAUER_FACTOR);
+		double foodFactor = new ConfigService(db).getValue(WellKnownConfigValue.OFFICER_FOOD_FACTOR);
+		double siliconFactor = new ConfigService(db).getValue(WellKnownConfigValue.OFFICER_SILICON_FACTOR);
+		double durationFactor = new ConfigService(db).getValue(WellKnownConfigValue.OFFICER_DURATION_FACTOR);
 
 		int plus = Math.max(level, 0);
 		List<AcademyQueueEntry> entries = acc.getQueueEntries();
@@ -256,10 +256,10 @@ public class AcademyBuilding extends DefaultBuilding {
 		TemplateViewResultFactory templateViewResultFactory = context.getBean(TemplateViewResultFactory.class, null);
 		TemplateEngine t = templateViewResultFactory.createEmpty();
 
-		int siliconCosts = new ConfigService(db).getValue(WellKnownConfigValue.NEW_OFF_SILIZIUM_COSTS);
-		int foodCosts = new ConfigService(db).getValue(WellKnownConfigValue.NEW_OFF_NAHRUNG_COSTS);
-		int durationCosts = new ConfigService(db).getValue(WellKnownConfigValue.OFF_DAUER_COSTS);
-		int maxOfficersToTrain = new ConfigService(db).getValue(WellKnownConfigValue.MAX_OFFS_TO_TRAIN);
+		int siliconCosts = new ConfigService(db).getValue(WellKnownConfigValue.NEW_OFFICER_SILICON_COSTS);
+		int foodCosts = new ConfigService(db).getValue(WellKnownConfigValue.NEW_OFFICER_FOOD_COSTS);
+		int durationCosts = new ConfigService(db).getValue(WellKnownConfigValue.NEW_OFFICER_DURATION);
+		int maxOfficersToTrain = new ConfigService(db).getValue(WellKnownConfigValue.MAX_OFFICERS_TO_TRAIN);
 
 		int newOfficerType = context.getRequest().getParameterInt("newo");
 		int off = context.getRequest().getParameterInt("off");

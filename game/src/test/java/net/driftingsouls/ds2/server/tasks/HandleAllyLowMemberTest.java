@@ -54,7 +54,7 @@ public class HandleAllyLowMemberTest extends DBSingleTransactionTest
 	@Before
 	public void setUp() {
 		this.sender = persist(new User("senderUser", "***", 0, "", new Cargo(), "testSender@localhost"));
-		ConfigValue configValue = new ConfigService(getEM()).get(WellKnownConfigValue.ALLIANZAUFLOESUNG_PM_SENDER);
+		ConfigValue configValue = new ConfigService(getEM()).get(WellKnownConfigValue.ALLIANCE_DISSOLUTION_PM_SENDER);
 		configValue.setValue(String.valueOf(sender.getId()));
 
 		this.user1 = persist(new User("testUser1", "***", 0, "", new Cargo(), "test1@localhost"));

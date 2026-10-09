@@ -43,7 +43,7 @@ public class TradingPostService
 			return false;
 		}
 		if( !tradingPost.isTradepost() ||
-				tradingPost.getOwner().getRace() != Faction.GTU_RASSE ||
+				tradingPost.getOwner().getRace() != Faction.GTU_RACE ||
 				!tradingShip.canUseSrs() ||
 				tradingShip.getSensors() < 30 ||
 				tradingShip.getCrew() < tradingShip.getTypeData().getMinCrew() / 4) {

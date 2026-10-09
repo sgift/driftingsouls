@@ -657,7 +657,7 @@ public class FactionController extends Controller
 	private void outputHandelspostenKurse(TemplateEngine t, org.hibernate.Session db, User user, Ship tradepost)
 	{
 		GtuWarenKurse kurse = (GtuWarenKurse) db.get(GtuWarenKurse.class, "p" + tradepost.getId());
-		if (kurse == null && tradepost.getOwner().getRace() == Faction.GTU_RASSE)
+		if (kurse == null && tradepost.getOwner().getRace() == Faction.GTU_RACE)
 		{
 			kurse = (GtuWarenKurse) db.get(GtuWarenKurse.class, "tradepost");
 		}
@@ -1905,8 +1905,8 @@ public class FactionController extends Controller
         t.setBlock("_ERSTEIGERN", "ausbau.upgradetypes.javascript.2.listitem", "ausbau.upgradetypes.javascript.2.list");
         t.setBlock("ausbau.upgradetypes.listitem", "ausbau.upgradetypes.mods.listitem", "ausbau.upgradetypes.mods.list");
 
-        ConfigValue configrabattfaktor = configService.get(WellKnownConfigValue.DI_FAKTOR_RABATT);
-        ConfigValue configzeitfaktor = configService.get(WellKnownConfigValue.DI_FAKTOR_ZEIT);
+        ConfigValue configrabattfaktor = configService.get(WellKnownConfigValue.DI_DISCOUNT_FACTOR);
+        ConfigValue configzeitfaktor = configService.get(WellKnownConfigValue.DI_TIME_FACTOR);
         double rabattfaktor = Double.parseDouble(configrabattfaktor.getValue());
         double zeitfaktor = Double.parseDouble(configzeitfaktor.getValue());
 

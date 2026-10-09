@@ -107,7 +107,7 @@ public class BattleCreationService
 
 		for (Ship aShip : shiplist) {
 			// Loot-Truemmer sollten in keine Schlacht wandern... (nicht schoen, gar nicht schoen geloest)
-			if ((aShip.getOwner().getId() == -1) && (aShip.getType() == configService.getValue(WellKnownConfigValue.TRUEMMER_SHIPTYPE))) {
+			if ((aShip.getOwner().getId() == -1) && (aShip.getType() == configService.getValue(WellKnownConfigValue.WRECKAGE_SHIPTYPE))) {
 				continue;
 			}
 			User tmpUser = aShip.getOwner();

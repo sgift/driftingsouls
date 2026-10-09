@@ -281,7 +281,7 @@ public class UpgradeJob
         {
             price += upgrade.getPrice();
         }
-        ConfigValue value = new ConfigService(db).get(WellKnownConfigValue.DI_FAKTOR_RABATT);
+        ConfigValue value = new ConfigService(db).get(WellKnownConfigValue.DI_DISCOUNT_FACTOR);
         double factor = Double.parseDouble(value.getValue());
         price = (int)(Math.pow(factor,upgradelist.size()-1) * price);
         return price;
@@ -326,7 +326,7 @@ public class UpgradeJob
         {
             ticks += upgrade.getMinTicks();
         }
-        ConfigValue value = new ConfigService(db).get(WellKnownConfigValue.DI_FAKTOR_ZEIT);
+        ConfigValue value = new ConfigService(db).get(WellKnownConfigValue.DI_TIME_FACTOR);
         double factor = Double.parseDouble(value.getValue());
         ticks = (int)(Math.pow(factor,upgradelist.size()-1) * ticks);
         return ticks;
@@ -342,7 +342,7 @@ public class UpgradeJob
         for (UpgradeInfo upgrade : upgradelist) {
             ticks += upgrade.getMaxTicks();
         }
-        ConfigValue value = new ConfigService(db).get(WellKnownConfigValue.DI_FAKTOR_ZEIT);
+        ConfigValue value = new ConfigService(db).get(WellKnownConfigValue.DI_TIME_FACTOR);
         double factor = Double.parseDouble(value.getValue());
         ticks = (int)(Math.pow(factor,upgradelist.size()-1) * ticks);
         return ticks;

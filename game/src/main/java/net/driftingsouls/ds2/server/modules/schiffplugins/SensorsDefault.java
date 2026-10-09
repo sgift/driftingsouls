@@ -116,7 +116,7 @@ public class SensorsDefault implements ShipPlugin {
 				"ship.sensors.location", ship.getLocation().displayCoordinates(true),
 				"global.awac", shiptype.hasFlag(ShipTypeFlag.SRS_AWAC) || shiptype.hasFlag(ShipTypeFlag.SRS_EXT_AWAC),
 				"global.astiscan", shiptype.hasFlag(ShipTypeFlag.ASTISCAN),
-				"global.astiscan.cost", configService.getValue(WellKnownConfigValue.ASTI_SCAN_COST)
+				"global.astiscan.cost", configService.getValue(WellKnownConfigValue.ASTEROID_SCAN_COST)
 				);
 
 		String order = user.getUserValue(WellKnownUserValue.TBLORDER_SCHIFF_SENSORORDER);

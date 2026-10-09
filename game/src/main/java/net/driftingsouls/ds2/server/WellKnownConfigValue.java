@@ -24,31 +24,31 @@ public class WellKnownConfigValue<T> implements ConfigValueDescriptor<T>
 	/**
 	 * Der Faktor für Nahrungskosten bei Offiziersweiterbildung.
 	 */
-	public static final ConfigValueDescriptor<Double> OFFIZIER_NAHRUNG_FACTOR = new WellKnownConfigValue<>(Double.class, "offnahrungfactor", "1.5", "Der Faktor für Nahrungskosten bei Offiziersweiterbildung");
+	public static final ConfigValueDescriptor<Double> OFFICER_FOOD_FACTOR = new WellKnownConfigValue<>(Double.class, "offnahrungfactor", "1.5", "Der Faktor für Nahrungskosten bei Offiziersweiterbildung");
 	/**
 	 * Der Faktor für Siliziumkosten bei Offiziersweiterbildung.
 	 */
-	public static final ConfigValueDescriptor<Double> OFFIZIER_SILIZIUM_FACTOR = new WellKnownConfigValue<>(Double.class, "offsiliziumfactor", "1", "Der Faktor für Siliziumkosten bei Offiziersweiterbildung");
+	public static final ConfigValueDescriptor<Double> OFFICER_SILICON_FACTOR = new WellKnownConfigValue<>(Double.class, "offsiliziumfactor", "1", "Der Faktor für Siliziumkosten bei Offiziersweiterbildung");
 	/**
 	 * Der Faktor für die Dauer bei Offiziersweiterbildung.
 	 */
-	public static final ConfigValueDescriptor<Double> OFFIZIER_DAUER_FACTOR = new WellKnownConfigValue<>(Double.class, "offdauerfactor", "0.25", "Der Faktor für die Dauer bei Offiziersweiterbildung ");
+	public static final ConfigValueDescriptor<Double> OFFICER_DURATION_FACTOR = new WellKnownConfigValue<>(Double.class, "offdauerfactor", "0.25", "Der Faktor für die Dauer bei Offiziersweiterbildung ");
 	/**
 	 * Die Siliziumkosten eines neu gebauten Offiziers.
 	 */
-	public static final ConfigValueDescriptor<Integer> NEW_OFF_SILIZIUM_COSTS = new WellKnownConfigValue<>(Integer.class, "newoffsiliziumcosts", "25", "Die Siliziumkosten eines neu gebauten Offiziers");
+	public static final ConfigValueDescriptor<Integer> NEW_OFFICER_SILICON_COSTS = new WellKnownConfigValue<>(Integer.class, "newoffsiliziumcosts", "25", "Die Siliziumkosten eines neu gebauten Offiziers");
 	/**
 	 * Die Nahrungskosten eines neu gebauten Offiziers.
 	 */
-	public static final ConfigValueDescriptor<Integer> NEW_OFF_NAHRUNG_COSTS = new WellKnownConfigValue<>(Integer.class, "newoffnahrungcosts", "35", "Die Nahrungskosten eines neu gebauten Offiziers");
+	public static final ConfigValueDescriptor<Integer> NEW_OFFICER_FOOD_COSTS = new WellKnownConfigValue<>(Integer.class, "newoffnahrungcosts", "35", "Die Nahrungskosten eines neu gebauten Offiziers");
 	/**
 	 * Die Dauer eines neu gebauten Offiziers.
 	 */
-	public static final ConfigValueDescriptor<Integer> OFF_DAUER_COSTS = new WellKnownConfigValue<>(Integer.class, "offdauercosts", "8", "Die Dauer eines neu gebauten Offiziers");
+	public static final ConfigValueDescriptor<Integer> NEW_OFFICER_DURATION = new WellKnownConfigValue<>(Integer.class, "offdauercosts", "8", "Die Dauer eines neu gebauten Offiziers");
 	/**
 	 * Laenge der Offiziersbauschlange.
 	 */
-	public static final ConfigValueDescriptor<Integer> MAX_OFFS_TO_TRAIN = new WellKnownConfigValue<>(Integer.class, "maxoffstotrain", "5", "Laenge der Offiziersbauschlange");
+	public static final ConfigValueDescriptor<Integer> MAX_OFFICERS_TO_TRAIN = new WellKnownConfigValue<>(Integer.class, "maxoffstotrain", "5", "Laenge der Offiziersbauschlange");
 	/**
 	 * Wert zwischen 0 und 1, der angibt welcher Anteil des freien Platzes maximal von neuen Einwanderern belegt wird.
 	 */
@@ -96,7 +96,7 @@ public class WellKnownConfigValue<T> implements ConfigValueDescriptor<T>
 	/**
 	 * Die maximale Anzahl an Gegenstaenden (Items/Waren) pro Schiffs-Truemmerteil.
 	 */
-	public static final ConfigValueDescriptor<Integer> TRUEMMER_MAX_ITEMS = new WellKnownConfigValue<>(Integer.class, "truemmer_maxitems", "4", "Die maximale Anzahl an Gegenstaenden (Items/Waren) pro Schiffs-Truemmerteil");
+	public static final ConfigValueDescriptor<Integer> WRECKAGE_MAX_ITEMS = new WellKnownConfigValue<>(Integer.class, "truemmer_maxitems", "4", "Die maximale Anzahl an Gegenstaenden (Items/Waren) pro Schiffs-Truemmerteil");
 	/**
 	 * Sperrt Accounts waehrend des Ticks. 0 fuer keine Sperre, 1 fuer Sperre.
 	 */
@@ -108,7 +108,7 @@ public class WellKnownConfigValue<T> implements ConfigValueDescriptor<T>
 	/**
 	 * Prozentsatz der Crew die maximal pro Tick verhungert.
 	 */
-	public static final ConfigValueDescriptor<Integer> MAX_VERHUNGERN = new WellKnownConfigValue<>(Integer.class, "maxverhungern", "10", "Prozentsatz der Crew die maximal pro Tick verhungert");
+	public static final ConfigValueDescriptor<Integer> MAX_STARVATION = new WellKnownConfigValue<>(Integer.class, "maxverhungern", "10", "Prozentsatz der Crew die maximal pro Tick verhungert");
 	/**
 	 * Skalierungsfaktor fuer den Huellenschaden durch zu wenig Crew.
 	 */
@@ -128,7 +128,7 @@ public class WellKnownConfigValue<T> implements ConfigValueDescriptor<T>
 	/**
 	 * Schiffstyp, der fuer Truemmerobjekte (Loot) verwendet wird.
 	 */
-	public static final ConfigValueDescriptor<Integer> TRUEMMER_SHIPTYPE = new WellKnownConfigValue<>(Integer.class, "truemmer_shiptype", "49", "Schiffstyp, der fuer Truemmerobjekte (Loot) verwendet wird");
+	public static final ConfigValueDescriptor<Integer> WRECKAGE_SHIPTYPE = new WellKnownConfigValue<>(Integer.class, "truemmer_shiptype", "49", "Schiffstyp, der fuer Truemmerobjekte (Loot) verwendet wird");
 	/**
 	 * Ist das zerstoeren von Schiffen in einer Schlacht erlaubt?
 	 */
@@ -148,15 +148,15 @@ public class WellKnownConfigValue<T> implements ConfigValueDescriptor<T>
 	/**
 	 * Absender der PM bei einer zwangsweisen Allianzaufloesung wegen zu weniger Mitglieder.
 	 */
-	public static final ConfigValueDescriptor<Integer> ALLIANZAUFLOESUNG_PM_SENDER = new WellKnownConfigValue<>(Integer.class, "allianzaufloesung_pm_sender", "0", "Absender der PM bei einer zwangsweisen Allianzauflösung wegen zu weniger Mitglieder");
+	public static final ConfigValueDescriptor<Integer> ALLIANCE_DISSOLUTION_PM_SENDER = new WellKnownConfigValue<>(Integer.class, "allianzaufloesung_pm_sender", "0", "Absender der PM bei einer zwangsweisen Allianzauflösung wegen zu weniger Mitglieder");
     /**
      * Der Rabatt Faktor fuer DI Auftraege
      */
-    public static final ConfigValueDescriptor<Double> DI_FAKTOR_RABATT = new WellKnownConfigValue<>(Double.class, "rabattfaktordi", "1", "Der Rabatt den DI bei mehreren Upgrades gleichzeitig gibt.");
+    public static final ConfigValueDescriptor<Double> DI_DISCOUNT_FACTOR = new WellKnownConfigValue<>(Double.class, "rabattfaktordi", "1", "Der Rabatt den DI bei mehreren Upgrades gleichzeitig gibt.");
     /**
      * Der Zeit Faktor fuer DI Auftraege
      */
-    public static final ConfigValueDescriptor<Double> DI_FAKTOR_ZEIT = new WellKnownConfigValue<>(Double.class, "zeitfaktordi", "1", "Der Zeitfaktor bei mehreren DI Ausbauten gleichzeitig.");
+    public static final ConfigValueDescriptor<Double> DI_TIME_FACTOR = new WellKnownConfigValue<>(Double.class, "zeitfaktordi", "1", "Der Zeitfaktor bei mehreren DI Ausbauten gleichzeitig.");
 	/**
 	 * Die Accounts, die administrative PMs (z.B. Loeschantraege) erhalten sollen. Mehrere IDs sind mit einem Komma zu separieren.
 	 */
@@ -204,7 +204,7 @@ public class WellKnownConfigValue<T> implements ConfigValueDescriptor<T>
 	/**
 	 * Meldung, wenn AGB nicht akzeptiert sind
 	 */
-	public static final ConfigValueDescriptor<String> ACCEPT_AGB_MESSAGE = new WellKnownConfigValue<>(String.class, "agb_accept_message", "Die AGB müssen akzeptiert werden zur Registrierung", "Text, wenn die Checkbox AGB akzeptieren nicht angehakt wurde");
+	public static final ConfigValueDescriptor<String> ACCEPT_TERMS_MESSAGE = new WellKnownConfigValue<>(String.class, "agb_accept_message", "Die AGB müssen akzeptiert werden zur Registrierung", "Text, wenn die Checkbox AGB akzeptieren nicht angehakt wurde");
 
 	/**
 	 * Schaden an Schilden durch Schadensnebel (Prozent der maximalen Schilde)
@@ -228,7 +228,7 @@ public class WellKnownConfigValue<T> implements ConfigValueDescriptor<T>
 	/**
 	 * Energiekosten fuer einen Asteroidenscan
 	 */
-	public static final ConfigValueDescriptor<Integer> ASTI_SCAN_COST = new WellKnownConfigValue<>(Integer.class, "asti_scan_cost", "75", "Energiekosten für einen Asteroidenscan");
+	public static final ConfigValueDescriptor<Integer> ASTEROID_SCAN_COST = new WellKnownConfigValue<>(Integer.class, "asti_scan_cost", "75", "Energiekosten für einen Asteroidenscan");
 
 	private final String name;
 	private final String description;

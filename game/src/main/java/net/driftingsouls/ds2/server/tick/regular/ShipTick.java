@@ -635,7 +635,7 @@ public class ShipTick extends TickController {
 			{
 				crewToFeed = crewToFeed - (int) (double) shipd.getUnits().getNahrung();
 				shipd.setUnits(new TransientUnitCargo());
-				int maxStarvationFactor = configService.getValue(WellKnownConfigValue.MAX_VERHUNGERN);
+				int maxStarvationFactor = configService.getValue(WellKnownConfigValue.MAX_STARVATION);
 				int maxStarvationValue = (int)Math.ceil(shiptd.getCrew() * (maxStarvationFactor/100.0));
 				int crew = shipd.getCrew();
 				if( crewToFeed*10 > maxStarvationValue)

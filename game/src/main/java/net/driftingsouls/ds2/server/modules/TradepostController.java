@@ -224,7 +224,7 @@ public class TradepostController extends Controller
 		GtuWarenKurse kurse = (GtuWarenKurse) db.get(GtuWarenKurse.class, "p" + ship.getId());
 		if (kurse == null)
 		{
-			if (user.getRace() == Faction.GTU_RASSE)
+			if (user.getRace() == Faction.GTU_RACE)
 			{
 				GtuWarenKurse tmpKurse = (GtuWarenKurse) db.get(GtuWarenKurse.class, "tradepost");
 				buylistgtu = new Cargo(tmpKurse.getKurse());

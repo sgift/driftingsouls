@@ -142,7 +142,7 @@ public class Academy {
 	 * 
 	 */
 	public void rescheduleQueue(EntityManager db) {
-		int maxoffstotrain = new ConfigService(db).getValue(WellKnownConfigValue.MAX_OFFS_TO_TRAIN);
+		int maxoffstotrain = new ConfigService(db).getValue(WellKnownConfigValue.MAX_OFFICERS_TO_TRAIN);
 		int trainingoffs = 0;
 		
 		List<AcademyQueueEntry> queue = this.queue;

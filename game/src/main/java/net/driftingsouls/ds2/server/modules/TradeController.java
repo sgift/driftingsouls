@@ -98,7 +98,7 @@ public class TradeController extends Controller
 	{
 		GtuWarenKurse kurse = (GtuWarenKurse) db.get(GtuWarenKurse.class, "p" + handelsposten.getId());
 
-		if (kurse == null && handelsposten.getOwner().getRace() == Faction.GTU_RASSE)
+		if (kurse == null && handelsposten.getOwner().getRace() == Faction.GTU_RACE)
 		{
 			kurse = (GtuWarenKurse) db.get(GtuWarenKurse.class, "tradepost");
 		}

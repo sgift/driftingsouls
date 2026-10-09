@@ -31,7 +31,7 @@ public class Faction {
 	/**
 	 * Die Rassen-ID der GTU.
 	 */
-	public static final int GTU_RASSE = 8;
+	public static final int GTU_RACE = 8;
 
 	/**
 	 * Die Spieler-ID des Piraten-Accounts.

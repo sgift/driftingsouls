@@ -252,7 +252,7 @@ public class RTCTick extends TickController {
 	private Ship findBestTradepostForLocation(EntityManager db, Location loc)
 	{
 		List<User> gtuUsers = db.createQuery("from User where race=:rasse", User.class)
-			.setParameter("rasse", Faction.GTU_RASSE)
+			.setParameter("rasse", Faction.GTU_RACE)
 			.getResultList();
 		Ship tradingPost = db.createQuery("from Ship " +
 				"where id>0 and locate('tradepost',status)!=0 and owner in (:userlist) and system=:sys and x=:x and y=:y", Ship.class)
