@@ -196,7 +196,7 @@ public class PlunderController extends Controller
 		Cargo newCargoTo = (Cargo) cargoto.clone();
 		Cargo newCargoFrom = (Cargo) cargofrom.clone();
 
-		long totaltransferfcount = 0;
+		long totalTransferredCount = 0;
 		boolean transfer = false;
 
 		StringBuilder message = new StringBuilder();
@@ -286,7 +286,7 @@ public class PlunderController extends Controller
 					}
 				}
 
-				totaltransferfcount += transf;
+				totalTransferredCount += transf;
 
 				newCargoFrom.addResource(res.getId(), transf);
 				newCargoTo.substractResource(res.getId(), transf);
@@ -312,7 +312,7 @@ public class PlunderController extends Controller
 			// Transmission versenden
 			sendMessageAfterTransfer(msg, shipFrom, shipTo);
 
-			if( updateShipAfterGoodsTransfer(shipTypeTo, newCargoTo, newCargoFrom, totaltransferfcount, shipFrom, shipTo) ) {
+			if( updateShipAfterGoodsTransfer(shipTypeTo, newCargoTo, newCargoFrom, totalTransferredCount, shipFrom, shipTo) ) {
 				message.append("[color=red]Das geplünderte Schiff beginnt zu zerfallen[/color]");
 			}
 		}
@@ -332,7 +332,7 @@ public class PlunderController extends Controller
 		}
 	}
 
-	private boolean updateShipAfterGoodsTransfer(ShipTypeData shipTypeTo, Cargo newCargoTo, Cargo newCargoFrom, long totaltransferfcount, Ship shipFrom, Ship shipTo)
+	private boolean updateShipAfterGoodsTransfer(ShipTypeData shipTypeTo, Cargo newCargoTo, Cargo newCargoFrom, long totalTransferredCount, Ship shipFrom, Ship shipTo)
 	{
 		shipFrom.setCargo(newCargoFrom);
 		shipTo.setCargo(newCargoTo);
@@ -342,7 +342,7 @@ public class PlunderController extends Controller
 
 		// Falls das Schiff instabil ist, dann diesem den "destory"-Status geben,
 		// damit der Schiffstick dieses zerstoert
-		if ((totaltransferfcount > 0) && shipTypeTo.hasFlag(ShipTypeFlag.INSTABIL))
+		if ((totalTransferredCount > 0) && shipTypeTo.hasFlag(ShipTypeFlag.INSTABIL))
 		{
 			String statusText = status;
 
