@@ -110,7 +110,7 @@ public class ShipController extends Controller
 		}
 	}
 
-	private Map<String, ShipPlugin> ermittlePluginsFuer(ShipTypeData shiptype, Ship communicate)
+	private Map<String, ShipPlugin> determinePluginsFor(ShipTypeData shiptype, Ship communicate)
 	{
 		Context context = ContextMap.getContext();
 		Map<String, ShipPlugin> pluginMapper = new LinkedHashMap<>();
@@ -372,7 +372,7 @@ public class ShipController extends Controller
 		parameters.put("caller", caller);
 		parameters.put("communicate", communicate);
 
-		Map<String, ShipPlugin> pluginMapper = ermittlePluginsFuer(shiptype, communicate);
+		Map<String, ShipPlugin> pluginMapper = determinePluginsFor(shiptype, communicate);
 		if (!pluginMapper.containsKey(plugin))
 		{
 			return new RedirectViewResult("default");
@@ -804,11 +804,11 @@ public class ShipController extends Controller
 		}
 
 		// Aktion: Schnelllink GTU-Handelsdepot
-		Ship handelShip = tradingPostService.findTradingPostInSector(ship);
-		if ( handelShip != null )
+		Ship tradingPost = tradingPostService.findTradingPostInSector(ship);
+		if ( tradingPost != null )
 		{
-			t.setVar("sector.handel", handelShip.getId(),
-					"sector.handel.name", Common._plaintitle(handelShip.getName()));
+			t.setVar("sector.handel", tradingPost.getId(),
+					"sector.handel.name", Common._plaintitle(tradingPost.getName()));
 		}
 
 		// Tooltip: Tradepost
@@ -923,7 +923,7 @@ public class ShipController extends Controller
 				}
 			}
 			//Dann berechnen wir doch mal die Produktion, die durch Module hinzukommt und schreiben den Effekt weg
-			String produktion = "";
+			String production = "";
 
 			//for(ItemCargoEntry<Item> item : type.getProduces().getItems())
 			for(ResourceEntry res : type.getProduces().getResourceList())
@@ -934,21 +934,21 @@ public class ShipController extends Controller
 				if(mod_count - org_count  != 0)
 				{
 					{
-						produktion+="<img style=\"vertical-align:middle\" src=\""+Cargo.getResourceImage(res.getId())+"\" alt=\"\" />"+res.getCount1();
+						production+="<img style=\"vertical-align:middle\" src=\""+Cargo.getResourceImage(res.getId())+"\" alt=\"\" />"+res.getCount1();
 						if (mod_count > org_count)
 						{
-							produktion += " (<span class='nobr' style='color:green'>+" + (mod_count - org_count) + "</span>)<br />";
+							production += " (<span class='nobr' style='color:green'>+" + (mod_count - org_count) + "</span>)<br />";
 						}
 						else if (mod_count < org_count)
 						{
-							produktion += " (<span class='nobr' style='color:red'>" + (mod_count - org_count) + "</span>)<br />";
+							production += " (<span class='nobr' style='color:red'>" + (mod_count - org_count) + "</span>)<br />";
 						}
 					}
 				}
 			}
-			if (!produktion.equals(""))
+			if (!production.equals(""))
 			{
-				tooltiplines.add("Produktion<br /> "+produktion);
+				tooltiplines.add("Produktion<br /> "+production);
 			}
 			// Weapons
 			Map<String, Integer> weaponlist = type.getWeapons();
@@ -1085,7 +1085,7 @@ public class ShipController extends Controller
 		parameters.put("caller", caller);
 		parameters.put("communicate", communicate);
 
-		Map<String, ShipPlugin> pluginMapper = ermittlePluginsFuer(shiptype, communicate);
+		Map<String, ShipPlugin> pluginMapper = determinePluginsFor(shiptype, communicate);
 		if (pluginMapper.containsKey("navigation"))
 		{
 			ShipPlugin plugin = pluginMapper.get("navigation");
