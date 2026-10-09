@@ -44,7 +44,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction {
 	private boolean showOK;
 	private boolean showTakeCommand;
 	
-	private final StringBuilder history_text = new StringBuilder();
+	private final StringBuilder historyText = new StringBuilder();
 	private int historyPage = -1;
 	private int historyCurrentpage = 0;
 	private int historyMaxpage = 0;
@@ -181,7 +181,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction {
 			t.parse("global.showlog.turnlist.list", "global.showlog.turnlist.item", true);
 		}
 
-		t.setVar("global.showlog.log", bbcodeparser.parse(this.history_text.toString()).replace("\n", "<br />"));
+		t.setVar("global.showlog.log", bbcodeparser.parse(this.historyText.toString()).replace("\n", "<br />"));
 
 		return Result.OK;
 	}
@@ -191,20 +191,20 @@ public class KSMenuHistoryAction extends BasicKSMenuAction {
 		{
 			if( eintrag instanceof SchlachtLogAktion )
 			{
-				erzeugeAnzeige((SchlachtLogAktion)eintrag);
+				createDisplay((SchlachtLogAktion)eintrag);
 			}
 			else if( eintrag instanceof SchlachtLogKommandantWechselt )
 			{
-				erzeugeAnzeige((SchlachtLogKommandantWechselt)eintrag);
+				createDisplay((SchlachtLogKommandantWechselt)eintrag);
 			}
 			else if( eintrag instanceof SchlachtLogRundeBeendet )
 			{
-				erzeugeAnzeige((SchlachtLogRundeBeendet) eintrag);
+				createDisplay((SchlachtLogRundeBeendet) eintrag);
 			}
 		}
 	}
 
-	private void erzeugeAnzeige(SchlachtLogAktion eintrag)
+	private void createDisplay(SchlachtLogAktion eintrag)
 	{
 		if ((eintrag.getSeite() > -1) && !this.filter.get(eintrag.getSeite()))
 		{
@@ -212,13 +212,13 @@ public class KSMenuHistoryAction extends BasicKSMenuAction {
 		}
 
 		if( showCurrentPage() ) {
-			this.history_text.append("[tooltip=").append(Common.date("d.m.Y H:i:s", eintrag.getZeitpunkt())).append("][img]./data/interface/ks/icon_side").append(eintrag.getSeite()).append(".png[/img][/tooltip] ");
-			this.history_text.append(eintrag.getText().trim());
-			this.history_text.append("\n\n");
+			this.historyText.append("[tooltip=").append(Common.date("d.m.Y H:i:s", eintrag.getZeitpunkt())).append("][img]./data/interface/ks/icon_side").append(eintrag.getSeite()).append(".png[/img][/tooltip] ");
+			this.historyText.append(eintrag.getText().trim());
+			this.historyText.append("\n\n");
 		}
 	}
 
-	private void erzeugeAnzeige(SchlachtLogKommandantWechselt eintrag)
+	private void createDisplay(SchlachtLogKommandantWechselt eintrag)
 	{
 		int thisSide = eintrag.getSeite();
 		Context context = ContextMap.getContext();
@@ -233,7 +233,7 @@ public class KSMenuHistoryAction extends BasicKSMenuAction {
 		}
 	}
 
-	private void erzeugeAnzeige(SchlachtLogRundeBeendet rbEintrag)
+	private void createDisplay(SchlachtLogRundeBeendet rbEintrag)
 	{
 		if( rbEintrag.getTyp() == SchlachtLogRundeBeendet.Modus.ALLE )
 		{
@@ -241,17 +241,17 @@ public class KSMenuHistoryAction extends BasicKSMenuAction {
 			{
 				if( (rbEintrag.getSeite() == -1) || this.filter.get(rbEintrag.getSeite()) )
 				{
-					this.history_text.append("[tooltip=").append(Common.date("d.m.Y H:i:s", rbEintrag.getZeitpunkt())).append("]");
-					this.history_text.append("[img]./data/interface/ks/icon_side").append(rbEintrag.getSeite()).append(".png[/img][/tooltip] ");
-					this.history_text.append(this.historySides.get(rbEintrag.getSeite())).append(" hat die Runde beendet\n");
-					this.history_text.append("\n\n");
+					this.historyText.append("[tooltip=").append(Common.date("d.m.Y H:i:s", rbEintrag.getZeitpunkt())).append("]");
+					this.historyText.append("[img]./data/interface/ks/icon_side").append(rbEintrag.getSeite()).append(".png[/img][/tooltip] ");
+					this.historyText.append(this.historySides.get(rbEintrag.getSeite())).append(" hat die Runde beendet\n");
+					this.historyText.append("\n\n");
 				}
 			}
 			this.historyCurrentpage++;
 			this.historyMaxpage++;
 			if( this.historyPage == -1 )
 			{
-				this.history_text.setLength(0);
+				this.historyText.setLength(0);
 			}
 		}
 		else
@@ -262,9 +262,9 @@ public class KSMenuHistoryAction extends BasicKSMenuAction {
 				{
 					return;
 				}
-				this.history_text.append("[tooltip=").append(Common.date("d.m.Y H:i:s", rbEintrag.getZeitpunkt())).append("][img]./data/interface/ks/icon_side").append(rbEintrag.getSeite()).append(".png[/img][/tooltip] ");
-				this.history_text.append(this.historySides.get(rbEintrag.getSeite())).append(" hat die Runde beendet\n");
-				this.history_text.append("\n\n");
+				this.historyText.append("[tooltip=").append(Common.date("d.m.Y H:i:s", rbEintrag.getZeitpunkt())).append("][img]./data/interface/ks/icon_side").append(rbEintrag.getSeite()).append(".png[/img][/tooltip] ");
+				this.historyText.append(this.historySides.get(rbEintrag.getSeite())).append(" hat die Runde beendet\n");
+				this.historyText.append("\n\n");
 			}
 		}
 	}
