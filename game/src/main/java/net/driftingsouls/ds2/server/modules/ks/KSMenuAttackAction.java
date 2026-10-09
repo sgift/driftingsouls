@@ -204,12 +204,12 @@ public class KSMenuAttackAction extends BasicKSMenuAction {
 				continue;
 			}
 
-			String schaden;
+			String damageLabel;
 			if( !weapon.getMunitionstypen().isEmpty() ) {
-				schaden = "Munitionstyp";
+				damageLabel = "Munitionstyp";
 			}
 			else {
-				schaden = weapon.getBaseDamage()+"/Schuss";
+				damageLabel = weapon.getBaseDamage()+"/Schuss";
 			}
 
 			String action = "attack2";
@@ -219,7 +219,7 @@ public class KSMenuAttackAction extends BasicKSMenuAction {
 
 			if( ask.length() != 0 ) {
 				menuEntryAsk( t, weaponcount+" "+weapon.getName()+"<br /><span style=\"font-weight:normal;font-size:14px\"> "+
-							  		"Schaden: "+schaden+"<br /> "+
+							  		"Schaden: "+damageLabel+"<br /> "+
 							 		"Kosten: n*"+weapon.getECost()+"Energie</span>",
 							 		new Object[] {
 											"ship",		ownShip.getId(),
@@ -231,7 +231,7 @@ public class KSMenuAttackAction extends BasicKSMenuAction {
 			}
 			else {
 				menuEntry( t, weaponcount+" "+weapon.getName()+"<span style=\"font-weight:normal;font-size:14px\"><br /> "+
-							  		"Schaden: "+schaden+"<br /> "+
+							  		"Schaden: "+damageLabel+"<br /> "+
 							 		"Kosten: n*"+weapon.getECost()+"Energie</span>",
 							 		"ship",		ownShip.getId(),
 						 			"attack",	enemyShip.getId(),
