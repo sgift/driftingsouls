@@ -954,7 +954,7 @@
 		/**
 		 * @name success
 		 * @function
-		 * @param {function(data:ds.viewmodel.modules.OptionsController.GenerierePersonenNamenBeispieleViewModel)} callback
+		 * @param {function(data:ds.viewmodel.modules.OptionsController.GeneratePersonNameExamplesViewModel)} callback
 		 * @memberof DsAjaxPromise_OptionsControllerStub_generierePersonenNamenBeispiele
 		 **/
 		success : function(callback) {}
@@ -966,7 +966,7 @@
 		/**
 		 * @name success
 		 * @function
-		 * @param {function(data:ds.viewmodel.modules.OptionsController.GeneriereSchiffsNamenBeispieleViewModel)} callback
+		 * @param {function(data:ds.viewmodel.modules.OptionsController.GenerateShipNameExamplesViewModel)} callback
 		 * @memberof DsAjaxPromise_OptionsControllerStub_generiereSchiffsNamenBeispiele
 		 **/
 		success : function(callback) {}
@@ -1294,7 +1294,7 @@
 	 * @namespace ds.viewmodel.modules.OptionsController
 	 **/
 	/**
-	 * @typedef {object} ds.viewmodel.modules.OptionsController.GenerierePersonenNamenBeispieleViewModel
+	 * @typedef {object} ds.viewmodel.modules.OptionsController.GeneratePersonNameExamplesViewModel
 	 * @property {object} namen
 	 **/
 	/**
@@ -1461,7 +1461,7 @@
 	 * @property {object} systeme
 	 **/
 	/**
-	 * @typedef {object} ds.viewmodel.modules.OptionsController.GeneriereSchiffsNamenBeispieleViewModel
+	 * @typedef {object} ds.viewmodel.modules.OptionsController.GenerateShipNameExamplesViewModel
 	 **/
 	/**
 	 * @namespace ds.viewmodel.modules.viewmodels

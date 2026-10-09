@@ -95,11 +95,11 @@ public class OptionsController extends Controller
 				addhistory = true;
 			}
 
-			String newname = name;
+			String newName = name;
 			if (user.getAlly() != null)
 			{
-				newname = user.getAlly().getAllyTag();
-				newname = newname.replace("[name]", name);
+				newName = user.getAlly().getAllyTag();
+				newName = newName.replace("[name]", name);
 			}
 
 			changemsg += "<span style=\"color:green\">Der Ingame-Name <span style=\"color:white\">" + Common._title(user.getNickname()) + "</span> wurde in <span style=\"color:white\">" + Common._title(name) + "</span> geändert</span><br />\n";
@@ -108,10 +108,10 @@ public class OptionsController extends Controller
 
 			if (addhistory)
 			{
-				user.addHistory(Common.getIngameTime(getContext().get(ContextCommon.class).getTick()) + ": Umbenennung in " + newname);
+				user.addHistory(Common.getIngameTime(getContext().get(ContextCommon.class).getTick()) + ": Umbenennung in " + newName);
 			}
 
-			user.setName(newname);
+			user.setName(newName);
 			user.setNickname(name);
 		}
 
@@ -309,15 +309,15 @@ public class OptionsController extends Controller
 	}
 
 	@ViewModel
-	public static class GenerierePersonenNamenBeispieleViewModel
+	public static class GeneratePersonNameExamplesViewModel
 	{
 		public final List<String> namen = new ArrayList<>();
 	}
 
 	@Action(ActionType.AJAX)
-	public GenerierePersonenNamenBeispieleViewModel generierePersonenNamenBeispiele(PersonNameGenerator generator)
+	public GeneratePersonNameExamplesViewModel generierePersonenNamenBeispiele(PersonNameGenerator generator)
 	{
-		GenerierePersonenNamenBeispieleViewModel result = new GenerierePersonenNamenBeispieleViewModel();
+		GeneratePersonNameExamplesViewModel result = new GeneratePersonNameExamplesViewModel();
 		if (generator == null)
 		{
 			return result;
@@ -330,11 +330,11 @@ public class OptionsController extends Controller
 		return result;
 	}
 
-	public static class SchiffsKlasseNameBeispiel {
+	public static class ShipClassNameExample {
 		private String klasse;
 		private String name;
 
-		public SchiffsKlasseNameBeispiel(String klasse, String name)
+		public ShipClassNameExample(String klasse, String name)
 		{
 			this.klasse = klasse;
 			this.name = name;
@@ -362,17 +362,17 @@ public class OptionsController extends Controller
 	}
 
 	@ViewModel
-	public static class GeneriereSchiffsNamenBeispieleViewModel
+	public static class GenerateShipNameExamplesViewModel
 	{
-		final List<SchiffsKlasseNameBeispiel> namen = new ArrayList<>();
+		final List<ShipClassNameExample> namen = new ArrayList<>();
 	}
 
 	@Action(ActionType.AJAX)
-	public GeneriereSchiffsNamenBeispieleViewModel generiereSchiffsNamenBeispiele(
+	public GenerateShipNameExamplesViewModel generiereSchiffsNamenBeispiele(
 			ShipClassNameGenerator schiffsKlassenNamenGenerator,
 			ShipNameGenerator schiffsNamenGenerator)
 	{
-		GeneriereSchiffsNamenBeispieleViewModel result = new GeneriereSchiffsNamenBeispieleViewModel();
+		GenerateShipNameExamplesViewModel result = new GenerateShipNameExamplesViewModel();
 		if (schiffsKlassenNamenGenerator == null || schiffsNamenGenerator == null)
 		{
 			return result;
@@ -395,7 +395,7 @@ public class OptionsController extends Controller
 			if( name.isEmpty() ) {
 				continue;
 			}
-			result.namen.add(new SchiffsKlasseNameBeispiel(cls.getSingular(), name));
+			result.namen.add(new ShipClassNameExample(cls.getSingular(), name));
 		}
 
 		return result;
