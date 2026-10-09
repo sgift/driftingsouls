@@ -65,14 +65,14 @@ public class ShipyardDefault implements ShipPlugin {
 			final int totalSlots = werft.getWerftSlots();
 			int usedSlots = 0;
 			int buildingCount = 0;
-			StringBuilder imBau = new StringBuilder();
+			StringBuilder underConstruction = new StringBuilder();
 			for (WerftQueueEntry entry : entries)
 			{
 				if (entry.isScheduled())
 				{
 					usedSlots += entry.getSlots();
 					buildingCount++;
-					imBau.append("<br />Aktuell im Bau: ").append(entry.getBuildShipType().getNickname()).append(" <img src='data/interface/time.gif' alt='Dauer: ' />").append(entry.getRemainingTime());
+					underConstruction.append("<br />Aktuell im Bau: ").append(entry.getBuildShipType().getNickname()).append(" <img src='data/interface/time.gif' alt='Dauer: ' />").append(entry.getRemainingTime());
 				}
 			}
 			t.setVar(
@@ -82,7 +82,7 @@ public class ShipyardDefault implements ShipPlugin {
 					"schiff.werft.totalslots",	totalSlots,
 					"schiff.werft.scheduled",	buildingCount,
 					"schiff.werft.waiting",		entries.size()-buildingCount,
-					"schiff.werft.bau", imBau.toString()
+					"schiff.werft.bau", underConstruction.toString()
 					);
 
 			t.parse(caller.target,"_PLUGIN_"+pluginid);
