@@ -67,16 +67,16 @@ public class BuildingsController extends Controller
 		User user = (User) getUser();
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		org.hibernate.Session db = getDB();
-		int userrasse = user.getRace();
+		int userRace = user.getRace();
 
 
-		gebaeudeListeAnzeigen(user, t, db, userrasse);
+		showBuildingList(user, t, db, userRace);
 
 		//
 		// Cores
 		//
 
-		coreListeAnzeigen(user, t, db);
+		showCoreList(user, t, db);
 
 		t.setVar("base.id", col,
 				"base.field", field);
@@ -84,7 +84,7 @@ public class BuildingsController extends Controller
 		return t;
 	}
 
-	private void gebaeudeListeAnzeigen(User user, TemplateEngine t, Session db, int userrasse)
+	private void showBuildingList(User user, TemplateEngine t, Session db, int userRace)
 	{
 		t.setBlock("_BUILDINGS", "buildings.listitem", "buildings.list");
 		t.setBlock("buildings.listitem", "building.buildcosts.listitem", "building.buildcosts.list");
@@ -136,19 +136,19 @@ public class BuildingsController extends Controller
 			StringBuilder addinfo = new StringBuilder(20);
 
 
-			int buildingrasse = building.getRace();
+			int buildingRace = building.getRace();
 
-			if (buildingrasse == 0)
+			if (buildingRace == 0)
 			{
-				addinfo.append("<span style=\"color:#FFFFFF; font-weight:normal\">").append(Races.get().race(buildingrasse).getName()).append(" <br /></span>");
+				addinfo.append("<span style=\"color:#FFFFFF; font-weight:normal\">").append(Races.get().race(buildingRace).getName()).append(" <br /></span>");
 			}
-			else if (userrasse == buildingrasse)
+			else if (userRace == buildingRace)
 			{
-				addinfo.append("<span style=\"color:#00FF00; font-weight:normal\">").append(Races.get().race(buildingrasse).getName()).append(" <br /></span>");
+				addinfo.append("<span style=\"color:#00FF00; font-weight:normal\">").append(Races.get().race(buildingRace).getName()).append(" <br /></span>");
 			}
 			else
 			{
-				addinfo.append("<span style=\"color:#FF0000; font-weight:normal\">").append(Races.get().race(buildingrasse).getName()).append(" <br /></span>");
+				addinfo.append("<span style=\"color:#FF0000; font-weight:normal\">").append(Races.get().race(buildingRace).getName()).append(" <br /></span>");
 			}
 
 
@@ -179,7 +179,7 @@ public class BuildingsController extends Controller
 		}
 	}
 
-	private void coreListeAnzeigen(User user, TemplateEngine t, Session db)
+	private void showCoreList(User user, TemplateEngine t, Session db)
 	{
 		t.setBlock("_BUILDINGS", "cores.listitem", "cores.list");
 		t.setBlock("cores.listitem", "core.buildcosts.listitem", "core.buildcosts.list");
