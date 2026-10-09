@@ -76,7 +76,7 @@ public class EditSystem implements EntityEditor<StarSystem>
 						.setInteger("width", s.getWidth())
 						.setInteger("height", s.getHeight())
 						.list()),
-				this::aktualisiereSchiffe
+				this::updateShips
 		);
 		form.postUpdateTask("Schlachten an Systemgrenzen anpassen",
 				(s) -> Common.cast(ContextMap.getContext().getDB().createQuery("select id from Battle where system = :system and (x>:width or y>:height)")
@@ -84,7 +84,7 @@ public class EditSystem implements EntityEditor<StarSystem>
 						.setInteger("width", s.getWidth())
 						.setInteger("height", s.getHeight())
 						.list()),
-				this::aktualisiereSchlachten
+				this::updateBattles
 		);
 		form.postUpdateTask("Basen an Systemgrenzen anpassen",
 				(s) -> Common.cast(ContextMap.getContext().getDB().createQuery("select id from Base where system = :system and (x>:width or y>:height)")
@@ -92,7 +92,7 @@ public class EditSystem implements EntityEditor<StarSystem>
 						.setInteger("width", s.getWidth())
 						.setInteger("height", s.getHeight())
 						.list()),
-				this::aktualisiereBasen
+				this::updateBases
 		);
 		form.postUpdateTask("Ueberfluessige Nebel entfernen",
 				(s) -> Common.cast(ContextMap.getContext().getDB().createQuery("select loc from Nebel where loc.system = :system and (loc.x>:width or loc.y>:height)")
@@ -100,7 +100,7 @@ public class EditSystem implements EntityEditor<StarSystem>
 						.setInteger("width", s.getWidth())
 						.setInteger("height", s.getHeight())
 						.list()),
-				this::entferneNebel
+				this::removeNebula
 		);
 
 		form.postUpdateTask("Basen cache leeren", (oldSystem, newSystem) -> {
@@ -113,7 +113,7 @@ public class EditSystem implements EntityEditor<StarSystem>
 				(s) -> Common.cast(ContextMap.getContext().getDB().createQuery("select loc from Nebel where loc.system = :system")
 						.setInteger("system", s.getID())
 						.list()),
-				this::entferneNebel
+				this::removeNebula
 		);
 
 		form.preDeleteTask("Schlachten beenden",
@@ -157,16 +157,16 @@ public class EditSystem implements EntityEditor<StarSystem>
 		Session db = ContextMap.getContext().getDB();
 		Base base = (Base)db.get(Base.class, baseid);
 
-		Integer[] bebauung = base.getBebauung();
-		for (Integer aBebauung : bebauung)
+		Integer[] buildingIds = base.getBebauung();
+		for (Integer buildingId : buildingIds)
 		{
-			if (aBebauung == 0)
+			if (buildingId == 0)
 			{
 				continue;
 			}
 
-			Building building = Building.getBuilding(aBebauung);
-			building.cleanup(ContextMap.getContext(), base, aBebauung);
+			Building building = Building.getBuilding(buildingId);
+			building.cleanup(ContextMap.getContext(), base, buildingId);
 		}
 
 		db.delete(base);
@@ -201,7 +201,7 @@ public class EditSystem implements EntityEditor<StarSystem>
 		ship.destroy();
 	}
 
-	private void entferneNebel(StarSystem oldsystem, StarSystem system, MutableLocation loc)
+	private void removeNebula(StarSystem oldsystem, StarSystem system, MutableLocation loc)
 	{
 		if( loc.getX() > system.getWidth() || loc.getY() > system.getHeight() )
 		{
@@ -210,7 +210,7 @@ public class EditSystem implements EntityEditor<StarSystem>
 		}
 	}
 
-	private void aktualisiereBasen(StarSystem oldsystem, StarSystem system, Integer id)
+	private void updateBases(StarSystem oldsystem, StarSystem system, Integer id)
 	{
 		Base base = (Base) ContextMap.getContext().getDB().get(Base.class, id);
 		if (base.getX() > system.getWidth())
@@ -223,7 +223,7 @@ public class EditSystem implements EntityEditor<StarSystem>
 		}
 	}
 
-	private void aktualisiereSchlachten(StarSystem oldsystem, StarSystem system, Integer id)
+	private void updateBattles(StarSystem oldsystem, StarSystem system, Integer id)
 	{
 		Battle battle = (Battle) ContextMap.getContext().getDB().get(Battle.class, id);
 		if (battle.getX() > system.getWidth())
@@ -236,7 +236,7 @@ public class EditSystem implements EntityEditor<StarSystem>
 		}
 	}
 
-	private void aktualisiereSchiffe(StarSystem oldsystem, StarSystem system, Integer id)
+	private void updateShips(StarSystem oldsystem, StarSystem system, Integer id)
 	{
 		Ship ship = (Ship) ContextMap.getContext().getDB().get(Ship.class, id);
 		if (ship.getX() > system.getWidth())
