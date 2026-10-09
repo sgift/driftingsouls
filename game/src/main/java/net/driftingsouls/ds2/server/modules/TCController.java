@@ -53,7 +53,7 @@ public class TCController extends Controller
 		setPageTitle("Offizierstransfer");
 	}
 
-	private void validiereSchiff(Ship ship)
+	private void validateShip(Ship ship)
 	{
 		if ((ship == null) || (ship.getOwner() != getUser()) || (ship.getId() < 0))
 		{
@@ -115,7 +115,7 @@ public class TCController extends Controller
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
 
-		validiereSchiff(ship);
+		validateShip(ship);
 		t.setVar("global.shipid", ship.getId());
 
 		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", ship.getId());
@@ -253,7 +253,7 @@ public class TCController extends Controller
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
 
-		validiereSchiff(ship);
+		validateShip(ship);
 		t.setVar("global.shipid", ship.getId());
 
 
@@ -344,7 +344,7 @@ public class TCController extends Controller
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
 
-		validiereSchiff(ship);
+		validateShip(ship);
 		t.setVar("global.shipid", ship.getId());
 
 
@@ -421,7 +421,7 @@ public class TCController extends Controller
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
 
-		validiereSchiff(ship);
+		validateShip(ship);
 		t.setVar("global.shipid", ship.getId());
 
 

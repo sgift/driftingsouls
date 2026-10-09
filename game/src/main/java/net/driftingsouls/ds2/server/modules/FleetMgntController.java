@@ -82,7 +82,7 @@ public class FleetMgntController extends Controller
 		return shipid;
 	}
 
-	private void validiereGueltigeFlotteVorhanden(ShipFleet fleet)
+	private void validateFleetExists(ShipFleet fleet)
 	{
 		if (fleet == null)
 		{
@@ -281,7 +281,7 @@ public class FleetMgntController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine addFromSRSGroupAction(ShipFleet fleet, @UrlParam(name = "sector") Ship sectorShip, int type, int count)
 	{
-		validiereGueltigeFlotteVorhanden(fleet);
+		validateFleetExists(fleet);
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
@@ -357,7 +357,7 @@ public class FleetMgntController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine renameAction(ShipFleet fleet, RedirectViewResult redirect)
 	{
-		validiereGueltigeFlotteVorhanden(fleet);
+		validateFleetExists(fleet);
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 
@@ -379,7 +379,7 @@ public class FleetMgntController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult rename2Action(ShipFleet fleet, String fleetname)
 	{
-		validiereGueltigeFlotteVorhanden(fleet);
+		validateFleetExists(fleet);
 
 		if (fleetname.length() > 0)
 		{
@@ -399,7 +399,7 @@ public class FleetMgntController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine killAction(ShipFleet fleet)
 	{
-		validiereGueltigeFlotteVorhanden(fleet);
+		validateFleetExists(fleet);
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 
@@ -417,7 +417,7 @@ public class FleetMgntController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine kill2Action(ShipFleet fleet)
 	{
-		validiereGueltigeFlotteVorhanden(fleet);
+		validateFleetExists(fleet);
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		org.hibernate.Session db = getDB();
@@ -443,7 +443,7 @@ public class FleetMgntController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine newownerAction(ShipFleet fleet, RedirectViewResult redirect)
 	{
-		validiereGueltigeFlotteVorhanden(fleet);
+		validateFleetExists(fleet);
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 
@@ -464,7 +464,7 @@ public class FleetMgntController extends Controller
 	@Action(ActionType.DEFAULT)
 	public Object newowner2Action(ShipFleet fleet, @UrlParam(name = "ownerid") User newowner)
 	{
-		validiereGueltigeFlotteVorhanden(fleet);
+		validateFleetExists(fleet);
 
 		if (newowner != null)
 		{
@@ -494,7 +494,7 @@ public class FleetMgntController extends Controller
 	@Action(ActionType.DEFAULT)
 	public Object newowner3Action(ShipFleet fleet, @UrlParam(name = "ownerid") User newowner)
 	{
-		validiereGueltigeFlotteVorhanden(fleet);
+		validateFleetExists(fleet);
 
 		User user = (User) this.getUser();
 		org.hibernate.Session db = getDB();
@@ -541,7 +541,7 @@ public class FleetMgntController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult shupAction(ShipFleet fleet)
 	{
-		validiereGueltigeFlotteVorhanden(fleet);
+		validateFleetExists(fleet);
 
 		org.hibernate.Session db = getDB();
 
@@ -671,7 +671,7 @@ public class FleetMgntController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine exportAction(ShipFleet fleet)
 	{
-		validiereGueltigeFlotteVorhanden(fleet);
+		validateFleetExists(fleet);
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		org.hibernate.Session db = getDB();
@@ -705,7 +705,7 @@ public class FleetMgntController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult undockAction(ShipFleet fleet)
 	{
-		validiereGueltigeFlotteVorhanden(fleet);
+		validateFleetExists(fleet);
 
 		fleet.undockContainers();
 
@@ -718,7 +718,7 @@ public class FleetMgntController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult redockAction(ShipFleet fleet)
 	{
-		validiereGueltigeFlotteVorhanden(fleet);
+		validateFleetExists(fleet);
 
 		User user = (User) getUser();
 
@@ -733,7 +733,7 @@ public class FleetMgntController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult redock2Action(ShipFleet fleet)
 	{
-		validiereGueltigeFlotteVorhanden(fleet);
+		validateFleetExists(fleet);
 
 		User user = (User) getUser();
 
@@ -748,7 +748,7 @@ public class FleetMgntController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult jstartAction(ShipFleet fleet)
 	{
-		validiereGueltigeFlotteVorhanden(fleet);
+		validateFleetExists(fleet);
 
 		fleet.startFighters();
 
@@ -761,7 +761,7 @@ public class FleetMgntController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult jlandAction(ShipFleet fleet, int jaegertype)
 	{
-		validiereGueltigeFlotteVorhanden(fleet);
+		validateFleetExists(fleet);
 
 		User user = (User) getUser();
 
@@ -778,7 +778,7 @@ public class FleetMgntController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult fleetcombineAction(ShipFleet fleet, @UrlParam(name = "fleetcombine") ShipFleet targetFleet)
 	{
-		validiereGueltigeFlotteVorhanden(fleet);
+		validateFleetExists(fleet);
 
 		User user = (User) getUser();
 
@@ -808,7 +808,7 @@ public class FleetMgntController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult alarmAction(ShipFleet fleet, AlertLevel alarm)
 	{
-		validiereGueltigeFlotteVorhanden(fleet);
+		validateFleetExists(fleet);
 
 		fleet.setAlarm(alarm);
 
@@ -823,7 +823,7 @@ public class FleetMgntController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult schnelleKampfbereitschaftAction(ShipFleet fleet, boolean schnelleKampfbereitschaft)
 	{
-		validiereGueltigeFlotteVorhanden(fleet);
+		validateFleetExists(fleet);
 
 		for(Ship ship : fleet.getShips())
 		{
@@ -841,7 +841,7 @@ public class FleetMgntController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine renameShipsAction(ShipFleet fleet)
 	{
-		validiereGueltigeFlotteVorhanden(fleet);
+		validateFleetExists(fleet);
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 
@@ -861,7 +861,7 @@ public class FleetMgntController extends Controller
 	@SuppressWarnings("unchecked")
 	public RedirectViewResult buildAction(ShipFleet fleet, int buildcount, String buildid)
 	{
-		validiereGueltigeFlotteVorhanden(fleet);
+		validateFleetExists(fleet);
 
 		if (buildcount <= 0)
 		{
@@ -927,7 +927,7 @@ public class FleetMgntController extends Controller
 	 */
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult fillFoodAction(ShipFleet fleet) {
-		validiereGueltigeFlotteVorhanden(fleet);
+		validateFleetExists(fleet);
 
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
@@ -961,7 +961,7 @@ public class FleetMgntController extends Controller
 
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult fillFoodFromAstiAction(ShipFleet fleet){
-		validiereGueltigeFlotteVorhanden(fleet);
+		validateFleetExists(fleet);
 		StringBuilder message = new StringBuilder(100);
 
 		org.hibernate.Session db = getDB();
@@ -1192,7 +1192,7 @@ public class FleetMgntController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult renameShips2Action(ShipFleet fleet, String name)
 	{
-		validiereGueltigeFlotteVorhanden(fleet);
+		validateFleetExists(fleet);
 
 		org.hibernate.Session db = getDB();
 		List<NamePatternElement> nameParts = parseNamePattern(name);
@@ -1220,7 +1220,7 @@ public class FleetMgntController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult getCrewAction(ShipFleet fleet, int crewinpercent)
 	{
-		validiereGueltigeFlotteVorhanden(fleet);
+		validateFleetExists(fleet);
 
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
@@ -1254,7 +1254,7 @@ public class FleetMgntController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine askDismantleAction(ShipFleet fleet)
 	{
-		validiereGueltigeFlotteVorhanden(fleet);
+		validateFleetExists(fleet);
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 
@@ -1271,7 +1271,7 @@ public class FleetMgntController extends Controller
 	@Action(ActionType.DEFAULT)
 	public Object dismantleAction(ShipFleet fleet)
 	{
-		validiereGueltigeFlotteVorhanden(fleet);
+		validateFleetExists(fleet);
 
 		List<WerftObject> shipyards = new ArrayList<>();
 
@@ -1331,7 +1331,7 @@ public class FleetMgntController extends Controller
     @Action(ActionType.DEFAULT)
     public TemplateEngine askRepairAction(ShipFleet fleet)
     {
-        validiereGueltigeFlotteVorhanden(fleet);
+        validateFleetExists(fleet);
 
         TemplateEngine t = templateViewResultFactory.createFor(this);
 
@@ -1348,7 +1348,7 @@ public class FleetMgntController extends Controller
     @Action(ActionType.DEFAULT)
     public Object repairAction(ShipFleet fleet)
     {
-        validiereGueltigeFlotteVorhanden(fleet);
+        validateFleetExists(fleet);
 
         List<WerftObject> shipyards = new ArrayList<>();
 
@@ -1428,7 +1428,7 @@ public class FleetMgntController extends Controller
     @Action(value = ActionType.DEFAULT)
     public RedirectViewResult activateTanker(ShipFleet fleet)
     {
-        validiereGueltigeFlotteVorhanden(fleet);
+        validateFleetExists(fleet);
 
         org.hibernate.Session db = getDB();
         User user = (User) getUser();
@@ -1454,7 +1454,7 @@ public class FleetMgntController extends Controller
     @Action(value = ActionType.DEFAULT)
     public RedirectViewResult deactivateTanker(ShipFleet fleet)
     {
-        validiereGueltigeFlotteVorhanden(fleet);
+        validateFleetExists(fleet);
 
         org.hibernate.Session db = getDB();
         User user = (User) getUser();
@@ -1480,7 +1480,7 @@ public class FleetMgntController extends Controller
 	@Action(value = ActionType.DEFAULT, readOnly = true)
 	public TemplateEngine defaultAction(ShipFleet fleet, RedirectViewResult redirect)
 	{
-		validiereGueltigeFlotteVorhanden(fleet);
+		validateFleetExists(fleet);
 
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();

@@ -72,7 +72,7 @@ public class TradeController extends Controller
 		setPageTitle("Handelsposten");
 	}
 
-	private void validiereSchiff(Ship ship)
+	private void validateShip(Ship ship)
 	{
 		if ((ship == null) || (ship.getId() < 0) || (ship.getOwner() != getUser()))
 		{
@@ -80,7 +80,7 @@ public class TradeController extends Controller
 		}
 	}
 
-	private void validiereHandelsposten(Ship handelndesSchiff, Ship handelsposten)
+	private void validateTradingPost(Ship handelndesSchiff, Ship handelsposten)
 	{
 		if (handelsposten == null || !handelsposten.isTradepost() || !handelsposten.getLocation().equals(handelndesSchiff.getLocation()))
 		{
@@ -118,8 +118,8 @@ public class TradeController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult buyAction(@UrlParam(name = "#from") Map<String, Long> fromMap, Ship tradepost, Ship ship)
 	{
-		validiereSchiff(ship);
-		validiereHandelsposten(ship, tradepost);
+		validateShip(ship);
+		validateTradingPost(ship, tradepost);
 
 		ResourceList resourceList = tradepost.getCargo().getResourceList();
 		Cargo tradepostCargo = tradepost.getCargo();
@@ -228,8 +228,8 @@ public class TradeController extends Controller
 		User user = (User) getUser();
 		StringBuilder pmText = new StringBuilder(ship.getOwner().getName() + " verkauft:\n ");
 
-		validiereSchiff(ship);
-		validiereHandelsposten(ship, tradepost);
+		validateShip(ship);
+		validateTradingPost(ship, tradepost);
 
 		GtuWarenKurse kurse = ermittleWarenKurseFuerHandelsposten(db, ship, tradepost);
 
@@ -406,8 +406,8 @@ public class TradeController extends Controller
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		org.hibernate.Session db = getDB();
 
-		validiereSchiff(ship);
-		validiereHandelsposten(ship, tradepost);
+		validateShip(ship);
+		validateTradingPost(ship, tradepost);
 
 		GtuWarenKurse kurse = ermittleWarenKurseFuerHandelsposten(db, ship, tradepost);
 

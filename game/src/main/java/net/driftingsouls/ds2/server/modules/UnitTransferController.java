@@ -557,7 +557,7 @@ public class UnitTransferController extends Controller
 		wayhandler.put("b", new BaseTransportFactory());
 	}
 
-	private void validiereEinheitenKoennenZwischenQuelleUndZielTransferiertWerden(List<TransportTarget> from, List<TransportTarget> to, String fromKey, String toKey)
+	private void validateUnitsCanBeTransferredBetweenSourceAndTarget(List<TransportTarget> from, List<TransportTarget> to, String fromKey, String toKey)
 	{
 		if ((from.size() == 0) || (to.size() == 0))
 		{
@@ -605,13 +605,13 @@ public class UnitTransferController extends Controller
 			throw new ValidationException("Ungültiges Transportziel.", "./ds?module=ueber");
 		}
 
-		validiereAlleTransportZieleImSelbenSektor(to);
-		validiereAlleTransportZieleImSelbenSektor(to);
+		validateAllTransportTargetsInSameSector(to);
+		validateAllTransportTargetsInSameSector(to);
 		return to;
 	}
 
 
-	private void validiereAlleTransportZieleGehoerenDenSpieler(List<TransportTarget> from)
+	private void validateAllTransportTargetsBelongToUser(List<TransportTarget> from)
 	{
 		for (TransportTarget afrom : from)
 		{
@@ -634,13 +634,13 @@ public class UnitTransferController extends Controller
 			throw new ValidationException("Ungültige Transportquelle.", "./ds?module=ueber");
 		}
 
-		validiereAlleTransportZieleGehoerenDenSpieler(from);
-		validiereAlleTransportZieleImSelbenSektor(from);
+		validateAllTransportTargetsBelongToUser(from);
+		validateAllTransportTargetsInSameSector(from);
 
 		return from;
 	}
 
-	private void validiereAlleTransportZieleImSelbenSektor(List<TransportTarget> to)
+	private void validateAllTransportTargetsInSameSector(List<TransportTarget> to)
 	{
 		Location toLoc = to.get(0).getLocation();
 		for (int i = 1; i < to.size(); i++)
@@ -769,7 +769,7 @@ public class UnitTransferController extends Controller
 		List<TransportTarget> from = parseListeDerTransportQuellen(way[0], rawFrom);
 		List<TransportTarget> to = parseListeDerTransportZiele(way[1], rawTo);
 
-		validiereEinheitenKoennenZwischenQuelleUndZielTransferiertWerden(from, to, way[0], way[1]);
+		validateUnitsCanBeTransferredBetweenSourceAndTarget(from, to, way[0], way[1]);
 
 		StringBuilder message = new StringBuilder();
 
@@ -964,7 +964,7 @@ public class UnitTransferController extends Controller
 		List<TransportTarget> from = parseListeDerTransportQuellen(way[0], rawFrom);
 		List<TransportTarget> to = parseListeDerTransportZiele(way[1], rawTo);
 
-		validiereEinheitenKoennenZwischenQuelleUndZielTransferiertWerden(from, to, way[0], way[1]);
+		validateUnitsCanBeTransferredBetweenSourceAndTarget(from, to, way[0], way[1]);
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 

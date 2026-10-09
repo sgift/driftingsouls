@@ -60,7 +60,7 @@ public class BuildController extends Controller
 		setPageTitle("Bauen");
 	}
 
-	private void validiereBasis(Base basis)
+	private void validateBase(Base basis)
 	{
 		User user = (User) getUser();
 		if ((basis == null) || (basis.getOwner() != user))
@@ -69,7 +69,7 @@ public class BuildController extends Controller
 		}
 	}
 
-	private void validiereGebaeude(Building building)
+	private void validateBuilding(Building building)
 	{
 		if (building == null)
 		{
@@ -86,8 +86,8 @@ public class BuildController extends Controller
 	@Action(ActionType.DEFAULT)
 	public Object buildAction(@UrlParam(name = "col") Base base, Building build, int field)
 	{
-		validiereBasis(base);
-		validiereGebaeude(build);
+		validateBase(base);
+		validateBuilding(build);
 
 		User user = (User) getUser();
 		TemplateEngine t = templateViewResultFactory.createFor(this);
@@ -243,7 +243,7 @@ public class BuildController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine defaultAction(@UrlParam(name = "col") Base base, int field, int cat)
 	{
-		validiereBasis(base);
+		validateBase(base);
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();

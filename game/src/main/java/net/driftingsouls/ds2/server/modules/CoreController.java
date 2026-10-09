@@ -56,7 +56,7 @@ public class CoreController extends Controller
 		setPageTitle("Core");
 	}
 
-	private void validiereBasis(Base base)
+	private void validateBase(Base base)
 	{
 		User user = (User) getUser();
 		if ((base == null) || (base.getOwner() != user))
@@ -74,7 +74,7 @@ public class CoreController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine buildAction(@UrlParam(name = "col") Base base, @UrlParam(name = "build") Core core)
 	{
-		validiereBasis(base);
+		validateBase(base);
 
 		User user = (User) getUser();
 		TemplateEngine t = templateViewResultFactory.createFor(this);
@@ -170,7 +170,7 @@ public class CoreController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult deactivateAction(@UrlParam(name = "col") Base base)
 	{
-		validiereBasis(base);
+		validateBase(base);
 
 		if (!base.isCoreActive())
 		{
@@ -194,7 +194,7 @@ public class CoreController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult activateAction(@UrlParam(name = "col") Base base)
 	{
-		validiereBasis(base);
+		validateBase(base);
 
 		if (base.isCoreActive())
 		{
@@ -350,7 +350,7 @@ public class CoreController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine defaultAction(@UrlParam(name = "col") Base base, RedirectViewResult redirect)
 	{
-		validiereBasis(base);
+		validateBase(base);
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		t.setVar("core.message", redirect != null ? redirect.getMessage() : null);

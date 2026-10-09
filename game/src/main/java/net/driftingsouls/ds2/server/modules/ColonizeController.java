@@ -65,7 +65,7 @@ public class ColonizeController extends Controller
 		setPageTitle("Kolonisieren");
 	}
 
-	private void validiereSchiffUndBasis(Ship ship, Base base)
+	private void validateShipAndBase(Ship ship, Base base)
 	{
 		User user = (User) getUser();
 		if ((ship == null) || (ship.getOwner() != user))
@@ -98,7 +98,7 @@ public class ColonizeController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine defaultAction(Ship ship, @UrlParam(name = "col") Base base)
 	{
-		validiereSchiffUndBasis(ship, base);
+		validateShipAndBase(ship, base);
 
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();

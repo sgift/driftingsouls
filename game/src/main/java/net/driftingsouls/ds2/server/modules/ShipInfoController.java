@@ -63,7 +63,7 @@ public class ShipInfoController extends Controller
 		setPageTitle("Schiffstyp");
 	}
 
-	private void validiereSchiffstype(ShipType ship)
+	private void validateShipType(ShipType ship)
 	{
 		User user = (User) getUser();
 
@@ -155,7 +155,7 @@ public class ShipInfoController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine defaultAction(ShipType ship)
 	{
-		validiereSchiffstype(ship);
+		validateShipType(ship);
 
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();

@@ -79,7 +79,7 @@ public class BoardController extends Controller
 		this.configService = configService;
 	}
 
-	private void validiereEigenesUndZielschiff(Ship eigenesSchiff, Ship zielSchiff)
+	private void validateOwnAndTargetShip(Ship eigenesSchiff, Ship zielSchiff)
 	{
 		User user = (User) this.getUser();
 
@@ -188,7 +188,7 @@ public class BoardController extends Controller
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) this.getUser();
 
-		validiereEigenesUndZielschiff(eigenesSchiff, zielSchiff);
+		validateOwnAndTargetShip(eigenesSchiff, zielSchiff);
 
 		t.setVar(
 				"ownship.id", eigenesSchiff.getId(),
@@ -557,7 +557,7 @@ public class BoardController extends Controller
 	{
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 
-		validiereEigenesUndZielschiff(eigenesSchiff, zielSchiff);
+		validateOwnAndTargetShip(eigenesSchiff, zielSchiff);
 
 		t.setVar(
 				"ownship.id", eigenesSchiff.getId(),

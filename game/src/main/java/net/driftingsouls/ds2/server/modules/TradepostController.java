@@ -45,7 +45,7 @@ public class TradepostController extends Controller
 		setPageTitle("Tradepost");
 	}
 
-	private void validiereSchiff(Ship ship)
+	private void validateShip(Ship ship)
 	{
 		// get variables
 		if (ship == null)
@@ -72,7 +72,7 @@ public class TradepostController extends Controller
 		User user = (User) getUser();
 		org.hibernate.Session db = getDB();
 
-		validiereSchiff(ship);
+		validateShip(ship);
 
 		List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
 
@@ -267,7 +267,7 @@ public class TradepostController extends Controller
 		User user = (User) getUser();
 		org.hibernate.Session db = getDB();
 
-		validiereSchiff(ship);
+		validateShip(ship);
 
 		List<Item> itemlist = Common.cast(db.createQuery("from Item").list());
 

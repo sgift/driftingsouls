@@ -65,7 +65,7 @@ public class ResearchInfoController extends Controller
 		setPageTitle("Forschung");
 	}
 
-	private void validiereForschung(Forschung forschung)
+	private void validateResearch(Forschung forschung)
 	{
 		User user = (User) getUser();
 
@@ -86,7 +86,7 @@ public class ResearchInfoController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult dropAction(@UrlParam(name = "res") Forschung research)
 	{
-		validiereForschung(research);
+		validateResearch(research);
 
 		User user = (User) getUser();
 		if (!user.hasResearched(research))
@@ -101,7 +101,7 @@ public class ResearchInfoController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine defaultAction(@UrlParam(name = "res") Forschung research)
 	{
-		validiereForschung(research);
+		validateResearch(research);
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();

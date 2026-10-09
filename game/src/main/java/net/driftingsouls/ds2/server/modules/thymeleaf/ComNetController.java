@@ -82,7 +82,7 @@ public class ComNetController implements DSController, PermissionResolver {
           return;
         }
         ComNetChannel channel = ComNetChannel.getChannelByNr(channelnr, context);
-        if(!validiereComNetChannel(channel,ctx))
+        if(!validateComNetChannel(channel,ctx))
         {
           templateEngine.process("comnet", ctx, response.getWriter());
           return;
@@ -111,7 +111,7 @@ public class ComNetController implements DSController, PermissionResolver {
         templateEngine.process("comnet", ctx, response.getWriter());
     }
 
-  private boolean validiereComNetChannel(ComNetChannel comNetChannel, WebContext ctx)
+  private boolean validateComNetChannel(ComNetChannel comNetChannel, WebContext ctx)
   {
     if (comNetChannel == null)
     {

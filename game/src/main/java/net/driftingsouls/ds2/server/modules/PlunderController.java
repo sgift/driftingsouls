@@ -55,7 +55,7 @@ public class PlunderController extends Controller
 		setPageTitle("Pluendern");
 	}
 
-	private void validiereEigenesUndZielschiff(Ship eigenesSchiff, Ship zielSchiff) {
+	private void validateOwnAndTargetShip(Ship eigenesSchiff, Ship zielSchiff) {
 		User user = (User) this.getUser();
 
 		if ((eigenesSchiff == null) || (eigenesSchiff.getId() < 0) || (eigenesSchiff.getOwner() != user))
@@ -181,7 +181,7 @@ public class PlunderController extends Controller
 		User user = (User) this.getUser();
 		org.hibernate.Session db = getDB();
 
-		validiereEigenesUndZielschiff(shipFrom, shipTo);
+		validateOwnAndTargetShip(shipFrom, shipTo);
 
 		Cargo cargofrom = shipFrom.getCargo();
 		Cargo cargoto = shipTo.getCargo();
@@ -373,7 +373,7 @@ public class PlunderController extends Controller
 	{
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 
-		validiereEigenesUndZielschiff(shipFrom, shipTo);
+		validateOwnAndTargetShip(shipFrom, shipTo);
 
 		if( redirect != null )
 		{

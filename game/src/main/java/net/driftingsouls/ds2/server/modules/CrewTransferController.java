@@ -213,7 +213,7 @@ public class CrewTransferController extends Controller
 		setPageTitle("Crewtransfer");
 	}
 
-	private void validiereSchiff(Ship schiff)
+	private void validateShip(Ship schiff)
 	{
 		User user = (User) getUser();
 
@@ -287,7 +287,7 @@ public class CrewTransferController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult sendAction(Ship ship, int tar, String mode, int send)
 	{
-		validiereSchiff(ship);
+		validateShip(ship);
 
 		Target datat = ladeCrewtauschZiel(mode, tar, ship);
 
@@ -328,7 +328,7 @@ public class CrewTransferController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult recAction(Ship ship, int tar, String mode, int rec)
 	{
-		validiereSchiff(ship);
+		validateShip(ship);
 
 		Target datat = ladeCrewtauschZiel(mode, tar, ship);
 
@@ -371,7 +371,7 @@ public class CrewTransferController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine defaultAction(Ship ship, int tar, String mode, RedirectViewResult redirect)
 	{
-		validiereSchiff(ship);
+		validateShip(ship);
 
 		Target datat = ladeCrewtauschZiel(mode, tar, ship);
 

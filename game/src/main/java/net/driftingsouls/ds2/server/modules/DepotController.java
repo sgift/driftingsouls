@@ -75,7 +75,7 @@ public class DepotController extends Controller
 		setPageTitle("GTU-Lager");
 	}
 
-	private void validiereSchiff(Ship ship)
+	private void validateShip(Ship ship)
 	{
 		User user = (User) this.getUser();
 		if ((ship == null) || (ship.getId() < 0) || (ship.getOwner() != user))
@@ -96,9 +96,9 @@ public class DepotController extends Controller
 		org.hibernate.Session db = getDB();
 		User user = (User) this.getUser();
 
-		validiereSchiff(ship);
+		validateShip(ship);
 
-		validiereGtuZwischenlager(tradeentry, ship, handelsposten);
+		validateDepot(tradeentry, ship, handelsposten);
 
 		//  Der Handelspartner
 		// Die (zukuenftig) eigenen Waren
@@ -181,7 +181,7 @@ public class DepotController extends Controller
 		return new RedirectViewResult("viewEntry").withMessage("Transferiere Waren\n\n"+Resources.resourceListToBBCode(reslist));
 	}
 
-	private void validiereGtuZwischenlager(GtuZwischenlager tradeentry, Ship ship, Ship handelsposten)
+	private void validateDepot(GtuZwischenlager tradeentry, Ship ship, Ship handelsposten)
 	{
 		User user = (User) this.getUser();
 
@@ -211,7 +211,7 @@ public class DepotController extends Controller
 		User user = (User) this.getUser();
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 
-		validiereSchiff(ship);
+		validateShip(ship);
 
 		if( redirect != null )
 		{
@@ -220,7 +220,7 @@ public class DepotController extends Controller
 		t.setVar("global.shipid", ship.getId());
 		t.setVar("global.handelsposten", handelsposten.getId());
 
-		validiereGtuZwischenlager(tradeentry, ship, handelsposten);
+		validateDepot(tradeentry, ship, handelsposten);
 
 		t.setVar("global.entry", 1);
 
@@ -275,7 +275,7 @@ public class DepotController extends Controller
 		User user = (User) this.getUser();
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 
-		validiereSchiff(ship);
+		validateShip(ship);
 
 		t.setVar("global.shipid", ship.getId());
 		t.setVar("global.handelsposten", handelsposten.getId());
@@ -284,7 +284,7 @@ public class DepotController extends Controller
 		t.setBlock("_GTUZWISCHENLAGER", "tradelist.listitem", "tradelist.list");
 		t.setBlock("tradelist.listitem", "res.listitem", "res.list");
 
-		validiereHandelspostenKontaktierbar(handelsposten, ship);
+		validateTradingPostReachable(handelsposten, ship);
 
 		List<?> tradelist = db.createQuery("from GtuZwischenlager where posten=:posten and (user1= :user or user2= :user)")
 				.setEntity("posten", handelsposten)
@@ -341,7 +341,7 @@ public class DepotController extends Controller
 		return t;
 	}
 
-	private void validiereHandelspostenKontaktierbar(Ship handel, Ship ship)
+	private void validateTradingPostReachable(Ship handel, Ship ship)
 	{
 		if( !tradingPostService.isCommunicationPossible(handel, ship) )
 		{

@@ -54,7 +54,7 @@ public class ShipyardController extends Controller
 		setPageTitle("Werft");
 	}
 
-	private void validiereSchiff(Ship ship)
+	private void validateShip(Ship ship)
 	{
 		User user = (User) getUser();
 
@@ -64,7 +64,7 @@ public class ShipyardController extends Controller
 		}
 	}
 
-	private void validiereWerft(Ship ship, ShipWerft werft)
+	private void validateShipyard(Ship ship, ShipWerft werft)
 	{
 		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", ship.getId());
 
@@ -84,7 +84,7 @@ public class ShipyardController extends Controller
 	@Action(ActionType.DEFAULT)
 	public void defaultAction(Ship ship, int linkedbase) throws IOException
 	{
-		validiereSchiff(ship);
+		validateShip(ship);
 
 		org.hibernate.Session db = getDB();
 
@@ -92,7 +92,7 @@ public class ShipyardController extends Controller
 				.setEntity("ship", ship)
 				.uniqueResult();
 
-		validiereWerft(ship, werft);
+		validateShipyard(ship, werft);
 
 		// Ueberpruefen, ob die Werft inzwischen verschoben wurde (und ggf. der link aufgeloesst werden muss)
 		if (werft.isLinked())

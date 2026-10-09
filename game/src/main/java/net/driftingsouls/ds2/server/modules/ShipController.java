@@ -96,7 +96,7 @@ public class ShipController extends Controller
 		}
 	}
 
-	private void validiereSchiff(Ship ship)
+	private void validateShip(Ship ship)
 	{
 		User user = (User) getUser();
 		if ((ship == null) || (ship.getId() < 0) || (ship.getOwner() != user))
@@ -159,7 +159,7 @@ public class ShipController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult alarmAction(Ship ship, AlertLevel alarm)
 	{
-		validiereSchiff(ship);
+		validateShip(ship);
 
 		User user = (User)getUser();
 		if (user.isNoob())
@@ -195,7 +195,7 @@ public class ShipController extends Controller
 	@Action(ActionType.DEFAULT)
 	public Object consignAction(Ship ship, @UrlParam(name = "newowner") String newownerID, int conf)
 	{
-		validiereSchiff(ship);
+		validateShip(ship);
 
 		var db = getEM();
 		User user = (User) getUser();
@@ -261,7 +261,7 @@ public class ShipController extends Controller
 	@Action(ActionType.DEFAULT)
 	public Object destroyAction(Ship ship, int conf)
 	{
-		validiereSchiff(ship);
+		validateShip(ship);
 
 		if (ship.isNoSuicide())
 		{
@@ -290,7 +290,7 @@ public class ShipController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult jumpAction(Ship ship, JumpNode node)
 	{
-		validiereSchiff(ship);
+		validateShip(ship);
 
 		ShipTypeData shiptype = ship.getTypeData();
 		if ((shiptype.getCost() == 0) || (ship.getEngine() == 0))
@@ -316,7 +316,7 @@ public class ShipController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult kjumpAction(Ship ship, Ship knode)
 	{
-		validiereSchiff(ship);
+		validateShip(ship);
 
 		ShipTypeData shiptype = ship.getTypeData();
 		if ((shiptype.getCost() == 0) || (ship.getEngine() == 0))
@@ -342,7 +342,7 @@ public class ShipController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult renameAction(Ship ship, String newname)
 	{
-		validiereSchiff(ship);
+		validateShip(ship);
 
 		ship.setName(newname);
 
@@ -358,7 +358,7 @@ public class ShipController extends Controller
 	@Action(ActionType.DEFAULT)
 	public Object pluginAction(Ship ship, String plugin, Ship communicate) throws ReflectiveOperationException
 	{
-		validiereSchiff(ship);
+		validateShip(ship);
 
 		ShipTypeData shiptype = ship.getTypeData();
 		Parameters caller = new Parameters();
@@ -398,7 +398,7 @@ public class ShipController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult landAction(Ship ship, @UrlParam(name = "shiplist") String shipIdList)
 	{
-		validiereSchiff(ship);
+		validateShip(ship);
 
 		if (shipIdList.equals(""))
 		{
@@ -431,7 +431,7 @@ public class ShipController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult startAction(Ship ship, @UrlParam(name = "shiplist") String shipIdList)
 	{
-		validiereSchiff(ship);
+		validateShip(ship);
 
 		if (shipIdList.equals(""))
 		{
@@ -464,7 +464,7 @@ public class ShipController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult aufladenAction(Ship ship, @UrlParam(name = "tar") String shipIdList)
 	{
-		validiereSchiff(ship);
+		validateShip(ship);
 
 		User user = (User) getUser();
 
@@ -519,7 +519,7 @@ public class ShipController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult abladenAction(Ship ship, @UrlParam(name = "tar") String shipIdList)
 	{
-		validiereSchiff(ship);
+		validateShip(ship);
 
 		if (shipIdList.equals(""))
 		{
@@ -552,7 +552,7 @@ public class ShipController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult joinAction(Ship ship, int join)
 	{
-		validiereSchiff(ship);
+		validateShip(ship);
 
 		org.hibernate.Session db = getDB();
 		User user = (User) getUser();
@@ -603,7 +603,7 @@ public class ShipController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult shupAction(Ship ship, int shup)
 	{
-		validiereSchiff(ship);
+		validateShip(ship);
 
 		ShipTypeData shiptype = ship.getTypeData();
 		int shieldfactor = 100;
@@ -645,7 +645,7 @@ public class ShipController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult inselAction(Ship ship)
 	{
-		validiereSchiff(ship);
+		validateShip(ship);
 
 		User user = (User) getUser();
 
@@ -705,7 +705,7 @@ public class ShipController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine defaultAction(Ship ship, Ship communicate, RedirectViewResult redirect) throws ReflectiveOperationException
 	{
-		validiereSchiff(ship);
+		validateShip(ship);
 
 		User user = (User) getUser();
 		TemplateEngine t = templateViewResultFactory.createFor(this);

@@ -52,7 +52,7 @@ public class OfficerController implements DSController {
         org.hibernate.Session db = ContextMap.getContext().getDB();
 
         Offizier offizier = (Offizier) db.createQuery("from Offizier where id =:id").setParameter("id", offid).uniqueResult();
-        if(!validiereOffizier(offizier, ctx))
+        if(!validateOfficer(offizier, ctx))
         {
           templateEngine.process("choff", ctx, response.getWriter());
           return;
@@ -72,7 +72,7 @@ public class OfficerController implements DSController {
     /**
      * prueft, ob der Spieler diesen Offizier ansehen darf
      */
-    private boolean validiereOffizier(Offizier offizier, WebContext ctx)
+    private boolean validateOfficer(Offizier offizier, WebContext ctx)
     {
       Context context = ContextMap.getContext();
       User user = (User) context.getActiveUser();

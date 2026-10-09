@@ -57,7 +57,7 @@ public class ShipAjaxController extends Controller
 		this.shipJumpService = shipJumpService;
 	}
 
-	private void validiereSchiff(Ship ship)
+	private void validateShip(Ship ship)
 	{
 		User user = (User) getUser();
 
@@ -81,7 +81,7 @@ public class ShipAjaxController extends Controller
 	@Action(ActionType.AJAX)
 	public ViewMessage alarmAction(Ship schiff, AlertLevel alarm)
 	{
-		validiereSchiff(schiff);
+		validateShip(schiff);
 
 		User user = (User) getUser();
 		if (user.isNoob())
@@ -113,7 +113,7 @@ public class ShipAjaxController extends Controller
 	@Action(ActionType.AJAX)
 	public Object springenAction(Ship schiff, JumpNode sprungpunkt)
 	{
-		validiereSchiff(schiff);
+		validateShip(schiff);
 
 		ShipTypeData shiptype = schiff.getTypeData();
 		if ((shiptype.getCost() == 0) || (schiff.getEngine() == 0))
@@ -141,7 +141,7 @@ public class ShipAjaxController extends Controller
 	@Action(ActionType.AJAX)
 	public Object springenViaSchiffAction(Ship schiff, Ship sprungpunktSchiff)
 	{
-		validiereSchiff(schiff);
+		validateShip(schiff);
 
 		ShipTypeData shiptype = schiff.getTypeData();
 		if ((shiptype.getCost() == 0) || (schiff.getEngine() == 0))
@@ -170,7 +170,7 @@ public class ShipAjaxController extends Controller
 	@Action(value = ActionType.AJAX)
 	public Object fliegeSchiffAction(Ship schiff, int x, int y)
 	{
-		validiereSchiff(schiff);
+		validateShip(schiff);
 
 		RouteFactory router = new RouteFactory();
 		boolean forceLowHeat = false;

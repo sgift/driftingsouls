@@ -67,7 +67,7 @@ public class BuildingController extends Controller
 		return Building.getBuilding(basis.getBebauung()[feld]);
 	}
 
-	public void validiereBasisUndFeld(Base basis, int feld)
+	public void validateBaseAndField(Base basis, int feld)
 	{
 		User user = (User) getUser();
 		if ((basis == null) || (basis.getOwner() != user))
@@ -90,7 +90,7 @@ public class BuildingController extends Controller
 	@Action(ActionType.AJAX)
 	public BuildingActionViewModel startAjaxAction(@UrlParam(name = "col") Base base, int field)
 	{
-		validiereBasisUndFeld(base, field);
+		validateBaseAndField(base, field);
 		Building building = getGebaeudeFuerFeld(base, field);
 
 		BuildingActionViewModel response = new BuildingActionViewModel();
@@ -134,7 +134,7 @@ public class BuildingController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult startAction(@UrlParam(name = "col") Base base, int field) throws IOException
 	{
-		validiereBasisUndFeld(base, field);
+		validateBaseAndField(base, field);
 		Building building = getGebaeudeFuerFeld(base, field);
 
 		Writer echo = getResponse().getWriter();
@@ -172,7 +172,7 @@ public class BuildingController extends Controller
 	@Action(ActionType.AJAX)
 	public BuildingActionViewModel shutdownAjaxAction(@UrlParam(name = "col") Base base, int field)
 	{
-		validiereBasisUndFeld(base, field);
+		validateBaseAndField(base, field);
 		Building building = getGebaeudeFuerFeld(base, field);
 
 		BuildingActionViewModel response = new BuildingActionViewModel();
@@ -209,7 +209,7 @@ public class BuildingController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult shutdownAction(@UrlParam(name = "col") Base base, int field) throws IOException
 	{
-		validiereBasisUndFeld(base, field);
+		validateBaseAndField(base, field);
 		Building building = getGebaeudeFuerFeld(base, field);
 
 		Writer echo = getResponse().getWriter();
@@ -254,7 +254,7 @@ public class BuildingController extends Controller
 	 */
 	@Action(ActionType.AJAX)
 	public DemoViewModel demoAjaxAction(@UrlParam(name="col") Base base, int field) {
-		validiereBasisUndFeld(base, field);
+		validateBaseAndField(base, field);
 		Building building = getGebaeudeFuerFeld(base, field);
 
 		DemoViewModel response = new DemoViewModel();
@@ -312,7 +312,7 @@ public class BuildingController extends Controller
 	 */
 	@Action(ActionType.DEFAULT)
 	public void demoAction(@UrlParam(name="col") Base base, int field, String conf) throws IOException {
-		validiereBasisUndFeld(base, field);
+		validateBaseAndField(base, field);
 		Building building = getGebaeudeFuerFeld(base, field);
 
 		User user = (User)getUser();
@@ -390,7 +390,7 @@ public class BuildingController extends Controller
 	@Action(ActionType.AJAX)
 	public AjaxViewModel ajaxAction(@UrlParam(name="col") Base base, int field)
 	{
-		validiereBasisUndFeld(base, field);
+		validateBaseAndField(base, field);
 		Building building = getGebaeudeFuerFeld(base, field);
 
 		AjaxViewModel json = new AjaxViewModel();
@@ -418,7 +418,7 @@ public class BuildingController extends Controller
 	@Action(ActionType.DEFAULT)
 	public String defaultAction(@UrlParam(name = "col") Base base, int field)
 	{
-		validiereBasisUndFeld(base, field);
+		validateBaseAndField(base, field);
 		Building building = getGebaeudeFuerFeld(base, field);
 
 		User user = (User) getUser();

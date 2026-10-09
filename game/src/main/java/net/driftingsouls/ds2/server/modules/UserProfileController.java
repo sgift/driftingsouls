@@ -55,7 +55,7 @@ public class UserProfileController extends Controller
 		setPageTitle("Profil");
 	}
 
-	private void validiereBenutzer(User benutzer)
+	private void validateUser(User benutzer)
 	{
 		if ((benutzer == null) || (benutzer.hasFlag(UserFlag.HIDE) && !hasPermission(WellKnownPermission.USER_VERSTECKTE_SICHTBAR)))
 		{
@@ -71,7 +71,7 @@ public class UserProfileController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult changeRelationAction(@UrlParam(name = "user") User ausgewaehlterBenutzer, User.Relation relation)
 	{
-		validiereBenutzer(ausgewaehlterBenutzer);
+		validateUser(ausgewaehlterBenutzer);
 
 		User user = (User) getUser();
 
@@ -94,7 +94,7 @@ public class UserProfileController extends Controller
 	@Action(ActionType.DEFAULT)
 	public RedirectViewResult changeRelationAllyAction(@UrlParam(name = "user") User ausgewaehlterBenutzer, User.Relation relation)
 	{
-		validiereBenutzer(ausgewaehlterBenutzer);
+		validateUser(ausgewaehlterBenutzer);
 
 		User user = (User) getUser();
 
@@ -134,7 +134,7 @@ public class UserProfileController extends Controller
 	@Action(ActionType.DEFAULT)
 	public TemplateEngine defaultAction(@UrlParam(name = "user") User ausgewaehlterBenutzer, RedirectViewResult redirect)
 	{
-		validiereBenutzer(ausgewaehlterBenutzer);
+		validateUser(ausgewaehlterBenutzer);
 
 		TemplateEngine t = templateViewResultFactory.createFor(this);
 		User user = (User) getUser();
