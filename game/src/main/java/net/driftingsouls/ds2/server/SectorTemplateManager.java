@@ -233,9 +233,9 @@ public class SectorTemplateManager {
 
 		for( FleetEntry flship : fleet ) {
 			if( !fleetlist.containsKey(flship.fleetid) ) {
-				ShipFleet flotte = db.find(ShipFleet.class, flship.fleetid);
+				ShipFleet templateFleet = db.find(ShipFleet.class, flship.fleetid);
 
-				ShipFleet newfleet = new ShipFleet(flotte.getName());
+				ShipFleet newfleet = new ShipFleet(templateFleet.getName());
 				db.persist(newfleet);
 				fleetlist.put( flship.fleetid, newfleet.getId() );
 			}
