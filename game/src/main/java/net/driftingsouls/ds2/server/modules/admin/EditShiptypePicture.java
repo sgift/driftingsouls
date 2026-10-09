@@ -37,16 +37,16 @@ import java.util.List;
 @AdminMenuEntry(category = "Schiffe", name = "Typengrafik", permission = WellKnownAdminPermission.EDIT_SHIPTYPE_PICTRUE)
 public class EditShiptypePicture implements EntityEditor<ShipType>
 {
-	private List<Integer> liefereZuAktualisierendeSchiffe(ShipType shipType)
+	private List<Integer> getShipsToUpdate(ShipType shipType)
 	{
 		return Common.cast(ContextMap.getContext().getDB().createQuery("select s.id from Ship s where s.shiptype=:type and s.modules is not null")
 								   .setEntity("type", shipType)
 								   .list());
 	}
 
-	private void aktualisiereSchiff(ShipType oldshipType, ShipType shipType, Integer schiffsId)
+	private void updateShip(ShipType oldshipType, ShipType shipType, Integer shipId)
 	{
-		Ship ship = (Ship)ContextMap.getContext().getDB().get(Ship.class, schiffsId);
+		Ship ship = (Ship)ContextMap.getContext().getDB().get(Ship.class, shipId);
 		ship.recalculateModules();
 	}
 
@@ -62,6 +62,6 @@ public class EditShiptypePicture implements EntityEditor<ShipType>
 		form.label("Name", ShipType::getNickname);
 		form.dynamicContentField("Bild", ShipType::getPicture, ShipType::setPicture);
 
-		form.postUpdateTask("Schiffe mit Modulen neu berechnen", this::liefereZuAktualisierendeSchiffe, this::aktualisiereSchiff);
+		form.postUpdateTask("Schiffe mit Modulen neu berechnen", this::getShipsToUpdate, this::updateShip);
 	}
 }
