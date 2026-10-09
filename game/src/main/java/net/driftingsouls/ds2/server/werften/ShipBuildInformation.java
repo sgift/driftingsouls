@@ -14,13 +14,13 @@ import java.util.Objects;
 /**
  * Die Bauinformationen fuer ein Schiff zusammen mit ihren Quellinformationen.
  */
-public class SchiffBauinformationen implements Comparable<SchiffBauinformationen>
+public class ShipBuildInformation implements Comparable<ShipBuildInformation>
 {
 	private final ShipBaubar baudaten;
 	private final BuildInformationSource quelle;
 	private final ResourceID item;
 
-	SchiffBauinformationen(ShipBaubar baudaten, BuildInformationSource quelle, ResourceID item)
+	ShipBuildInformation(ShipBaubar baudaten, BuildInformationSource quelle, ResourceID item)
 	{
 		this.baudaten = baudaten;
 		this.quelle = quelle;
@@ -73,7 +73,7 @@ public class SchiffBauinformationen implements Comparable<SchiffBauinformationen
 	}
 
 	@Override
-	public int compareTo(@NotNull SchiffBauinformationen schiffBauinformationen)
+	public int compareTo(@NotNull ShipBuildInformation schiffBauinformationen)
 	{
 		int diff = this.quelle.compareTo(schiffBauinformationen.quelle);
 		if( diff != 0 )
@@ -105,7 +105,7 @@ public class SchiffBauinformationen implements Comparable<SchiffBauinformationen
 			return false;
 		}
 
-		SchiffBauinformationen that = (SchiffBauinformationen) o;
+		ShipBuildInformation that = (ShipBuildInformation) o;
 
 		if (quelle != that.quelle)
 		{
@@ -139,7 +139,7 @@ public class SchiffBauinformationen implements Comparable<SchiffBauinformationen
 	 * @return Die Bauinformationen
 	 * @see #getId()
 	 */
-	public static SchiffBauinformationen fromId(String id)
+	public static ShipBuildInformation fromId(String id)
 	{
 		if( id == null || id.trim().length() < 3 || !id.contains("#") )
 		{
@@ -167,6 +167,6 @@ public class SchiffBauinformationen implements Comparable<SchiffBauinformationen
 			baudaten = ((IEDraftShip)itemData.getEffect()).toShipBaubar();
 		}
 
-		return new SchiffBauinformationen(baudaten, quelle, item);
+		return new ShipBuildInformation(baudaten, quelle, item);
 	}
 }

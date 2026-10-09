@@ -31,7 +31,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.*;
-import net.driftingsouls.ds2.server.werften.SchiffBauinformationen;
+import net.driftingsouls.ds2.server.werften.ShipBuildInformation;
 import net.driftingsouls.ds2.server.werften.ShipWerft;
 import net.driftingsouls.ds2.server.werften.WerftObject;
 import org.apache.commons.lang3.StringUtils;
@@ -809,7 +809,7 @@ public class FleetMgntController extends Controller
 				{
 					shipyard = shipyard.getKomplex();
 				}
-				if (shipyard.buildShip(SchiffBauinformationen.fromId(buildid), false, false))
+				if (shipyard.buildShip(ShipBuildInformation.fromId(buildid), false, false))
 				{
 					buildcount--;
 				}
@@ -1509,7 +1509,7 @@ public class FleetMgntController extends Controller
 			t.parse("ships.list", "ships.listitem", true);
 		}
 
-		Set<SchiffBauinformationen> buildableShips = new TreeSet<>();
+		Set<ShipBuildInformation> buildableShips = new TreeSet<>();
 		for (WerftObject werft : werften)
 		{
 			buildableShips.addAll(werft.getBuildShipList());
@@ -1519,7 +1519,7 @@ public class FleetMgntController extends Controller
 		if (!buildableShips.isEmpty())
 		{
 			t.setBlock("_FLEETMGNT", "buildableships.listitem", "buildableships.list");
-			for (SchiffBauinformationen ship : buildableShips)
+			for (ShipBuildInformation ship : buildableShips)
 			{
 				t.setVar("buildableships.id", ship.getId(),
 						"buildableships.name", ship.getBaudaten().getType().getNickname());

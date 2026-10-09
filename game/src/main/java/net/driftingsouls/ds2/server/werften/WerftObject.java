@@ -1234,8 +1234,8 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * 			'_item' => array( ('local' | 'ally'), $resourceid) oder '_item' => false
 	 * 			zur Bestimmung ob und wenn ja welcher Bauplan benoetigt wird zum bauen
 	 */
-	public @Nonnull List<SchiffBauinformationen> getBuildShipList() {
-		List<SchiffBauinformationen> result = new ArrayList<>();
+	public @Nonnull List<ShipBuildInformation> getBuildShipList() {
+		List<ShipBuildInformation> result = new ArrayList<>();
 
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
@@ -1288,7 +1288,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 				continue;
 			}
 
-			result.add(new SchiffBauinformationen(sb, BuildInformationSource.FORSCHUNG, null));
+			result.add(new ShipBuildInformation(sb, BuildInformationSource.FORSCHUNG, null));
 		}
 
 		//Items
@@ -1308,7 +1308,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 				continue;
 			}
 
-			result.add(new SchiffBauinformationen(effect.toShipBaubar(), BuildInformationSource.LOKALES_ITEM, item.getResourceID()));
+			result.add(new ShipBuildInformation(effect.toShipBaubar(), BuildInformationSource.LOKALES_ITEM, item.getResourceID()));
 		}
 
 		for (ItemCargoEntry<Schiffsbauplan> item : allyitems.getItemsOfType(Schiffsbauplan.class))
@@ -1326,7 +1326,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 				continue;
 			}
 
-			result.add(new SchiffBauinformationen(effect.toShipBaubar(), BuildInformationSource.ALLIANZ_ITEM, item.getResourceID()));
+			result.add(new ShipBuildInformation(effect.toShipBaubar(), BuildInformationSource.ALLIANZ_ITEM, item.getResourceID()));
 		}
 
 		return result;
@@ -1343,7 +1343,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 *
 	 * @return schiffsbaudaten
 	 */
-	public @Nullable SchiffBauinformationen getShipBuildData( int build, int itemid ) {
+	public @Nullable ShipBuildInformation getShipBuildData( int build, int itemid ) {
 		Context context = ContextMap.getContext();
 		org.hibernate.Session db = context.getDB();
 		User user = this.getOwner();
@@ -1370,7 +1370,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 				return null;
 			}
 
-			return new SchiffBauinformationen(shipdata, BuildInformationSource.FORSCHUNG, null);
+			return new ShipBuildInformation(shipdata, BuildInformationSource.FORSCHUNG, null);
 		}
 
 		BuildInformationSource quelle = BuildInformationSource.LOKALES_ITEM;
@@ -1393,7 +1393,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 		IEDraftShip effect = (IEDraftShip)item.getEffect();
 		shipdata = effect.toShipBaubar();
 
-		return new SchiffBauinformationen(shipdata, quelle, new ItemID(itemid));
+		return new ShipBuildInformation(shipdata, quelle, new ItemID(itemid));
 	}
 
 	/**
@@ -1408,7 +1408,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 */
 	public boolean buildShip( int build, int item, boolean costsPerTick, boolean testonly )
 	{
-		SchiffBauinformationen shipdata = this.getShipBuildData( build, item );
+		ShipBuildInformation shipdata = this.getShipBuildData( build, item );
 		if( shipdata == null )
 		{
 			MESSAGE.get().append("Diese Werft dieses Bauprojekt nicht durchführen");
@@ -1426,7 +1426,7 @@ public abstract class WerftObject extends DSObject implements Locatable {
 	 * @param testonly Soll nur getestet (true) oder wirklich gebaut (false) werden?
 	 * @return true, wenn kein Fehler aufgetreten ist
 	 */
-	public boolean buildShip( @Nonnull SchiffBauinformationen build, boolean costsPerTick, boolean testonly ) {
+	public boolean buildShip( @Nonnull ShipBuildInformation build, boolean costsPerTick, boolean testonly ) {
 		StringBuilder output = MESSAGE.get();
 
 		if( this.type == ShipyardType.ONE_WAY )

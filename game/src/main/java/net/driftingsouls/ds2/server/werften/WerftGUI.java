@@ -154,10 +154,10 @@ public class WerftGUI {
 					);
 
 			// Resourcenliste
-			List<SchiffBauinformationen> shipdata = werft.getBuildShipList();
+			List<ShipBuildInformation> shipdata = werft.getBuildShipList();
 
 			Cargo costs = new Cargo();
-			for (SchiffBauinformationen aShipdata : shipdata)
+			for (ShipBuildInformation aShipdata : shipdata)
 			{
 				costs.addCargo(aShipdata.getBaudaten().getCosts());
 			}
@@ -473,7 +473,7 @@ public class WerftGUI {
 		}
 	}
 
-	private void out_buildShipList(WerftObject werft, List<SchiffBauinformationen> shipdata) {
+	private void out_buildShipList(WerftObject werft, List<ShipBuildInformation> shipdata) {
 		t.setVar("werftgui.buildshiplist", 1);
 		t.setBlock("_WERFT.WERFTGUI", "buildshiplist.listitem", "buildshiplist.list");
 		t.setBlock("buildshiplist.listitem", "buildship.res.listitem", "buildship.res.list");
@@ -483,7 +483,7 @@ public class WerftGUI {
 		int energy = werft.getEnergy();
 		int crew = werft.getCrew();
 
-		for (SchiffBauinformationen ashipdata : shipdata)
+		for (ShipBuildInformation ashipdata : shipdata)
 		{
 			t.start_record();
 
@@ -1006,7 +1006,7 @@ public class WerftGUI {
 
 		Cargo cargo = werft.getCargo(false);
 
-		SchiffBauinformationen shipBuildData = werft.getShipBuildData(build, itemid);
+		ShipBuildInformation shipBuildData = werft.getShipBuildData(build, itemid);
 		if( (shipBuildData == null) )
 		{
 			t.setVar("werftgui.msg", "<span style=\"color:red\">"+werft.getMessage()+"</span>");
