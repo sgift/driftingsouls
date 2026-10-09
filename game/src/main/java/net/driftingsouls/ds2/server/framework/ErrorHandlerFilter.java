@@ -83,7 +83,7 @@ public class ErrorHandlerFilter implements Filter
 			}
 			while(ex != null);
 
-			String infos = erzeugeRequestInformationen((HttpServletRequest) request);
+			String infos = createRequestInformation((HttpServletRequest) request);
 
 			Throwable mailThrowable = e;
 			while( mailThrowable.getCause() != null ) {
@@ -97,7 +97,7 @@ public class ErrorHandlerFilter implements Filter
 		}
 	}
 
-	private String erzeugeRequestInformationen(HttpServletRequest request)
+	private String createRequestInformation(HttpServletRequest request)
 	{
 		StringBuilder infos = new StringBuilder(100);
 		Map<String, String[]> params = request.getParameterMap();
