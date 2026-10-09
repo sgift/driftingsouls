@@ -1517,7 +1517,7 @@ public class FactionController extends Controller
 		}
 
 		User factionUser = factionObj.getUser();
-		if (user.getLoyalitaetspunkteTotalBeiNpc(factionUser) < entry.getLpKosten() * ordercount)
+		if (user.getLoyalitaetspunkteTotalBeiNpc(factionUser) < entry.getLpCosts() * ordercount)
 		{
 			return new RedirectViewResult("shop").withMessage("<span style=\"color:red\">Sie verfügen nicht über genug Loyalitätspunkte.</span>");
 		}
@@ -1539,16 +1539,16 @@ public class FactionController extends Controller
 			FactionShopOrder order = new FactionShopOrder(shopentry, user);
 			order.setCount(ordercount);
 			order.setPrice(ordercount * entry.getPrice());
-			order.setLpKosten(ordercount * entry.getLpKosten());
+			order.setLpKosten(ordercount * entry.getLpCosts());
 			order.setAddData(ordersys + ":" + orderx + "/" + ordery);
 
 			db.persist(order);
 
 			String orderId = "#" + entry.getType() + entry.getResource() + "XX";
 
-			if (entry.getLpKosten() > 0)
+			if (entry.getLpCosts() > 0)
 			{
-				Loyalitaetspunkte lp = new Loyalitaetspunkte(user, factionUser, "Bestellung " + orderId, (int) (-ordercount * entry.getLpKosten()));
+				Loyalitaetspunkte lp = new Loyalitaetspunkte(user, factionUser, "Bestellung " + orderId, (int) (-ordercount * entry.getLpCosts()));
 				user.getLoyalitaetspunkte().add(lp);
 				db.persist(lp);
 			}
@@ -1572,7 +1572,7 @@ public class FactionController extends Controller
 							+ entry.getName()
 							+ " für "
 							+ Common.ln(entry.getPrice() * ordercount) + " RE"
-							+ (entry.getLpKosten() > 0 ? " und " + Common.ln(entry.getLpKosten()) + " LP " : "")
+							+ (entry.getLpCosts() > 0 ? " und " + Common.ln(entry.getLpCosts()) + " LP " : "")
 							+ " erhalten und vom System bestätigt.<br />Sollten noch Rückfragen bestehen, so wird sich ein Sachbearbeiter bei Ihnen melden.<br />Einen angenehmen Tag noch!";
 
 			return new RedirectViewResult("shop").withMessage(message);
@@ -2063,7 +2063,7 @@ public class FactionController extends Controller
 					"entry.availability.color", shopEntryObj.getAvailabilityColor(),
 					"entry.availability", shopEntryObj.getAvailability(),
 					"entry.price", shopEntryObj.getPriceAsText(),
-					"entry.lpkosten", shopEntryObj.getLpKosten() > 0 ? Common.ln(shopEntryObj.getLpKosten()) : "",
+					"entry.lpkosten", shopEntryObj.getLpCosts() > 0 ? Common.ln(shopEntryObj.getLpCosts()) : "",
 					"entry.showamountinput", shopEntryObj.showAmountInput(),
 					"entry.orderable", tradeAllowed);
 
@@ -2095,7 +2095,7 @@ public class FactionController extends Controller
 					"entry.availability.color", shopEntryObj.getAvailabilityColor(),
 					"entry.availability", shopEntryObj.getAvailability(),
 					"entry.price", shopEntryObj.getPriceAsText(),
-					"entry.lpkosten", shopEntryObj.getLpKosten() > 0 ? Common.ln(shopEntryObj.getLpKosten()) : "",
+					"entry.lpkosten", shopEntryObj.getLpCosts() > 0 ? Common.ln(shopEntryObj.getLpCosts()) : "",
 					"entry.showamountinput", shopEntryObj.showAmountInput(),
 					"entry.npcrang", factionUser.getOwnGrantableRank(shopentry.getMinRank()),
 					"entry.orderable", tradeAllowed && shopentry.canBuy(user));

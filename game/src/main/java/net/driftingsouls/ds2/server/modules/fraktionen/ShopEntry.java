@@ -16,7 +16,7 @@ abstract class ShopEntry
 	private final FactionShopEntry.Type type;
 	private final String resource;
 	private final long price;
-	private final long lpKosten;
+	private final long lpCosts;
 	private final int availability;
 
 	/**
@@ -31,7 +31,7 @@ abstract class ShopEntry
 		this.type = data.getType();
 		this.resource = data.getResource();
 		this.price = data.getPrice();
-		this.lpKosten = data.getLpKosten();
+		this.lpCosts = data.getLpKosten();
 		this.availability = data.getAvailability();
 	}
 
@@ -92,9 +92,9 @@ abstract class ShopEntry
 	 *
 	 * @return Die LP-Kosten
 	 */
-	public long getLpKosten()
+	public long getLpCosts()
 	{
-		return this.lpKosten;
+		return this.lpCosts;
 	}
 
 	/**

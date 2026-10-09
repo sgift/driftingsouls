@@ -43,7 +43,7 @@ class ShopGanyTransportEntry extends ShopEntry
 	}
 
 	@Override
-	public long getLpKosten()
+	public long getLpCosts()
 	{
 		return 0;
 	}
