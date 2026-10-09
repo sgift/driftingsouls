@@ -680,10 +680,10 @@ public class Cargo implements Cloneable {
 	 * @param cargoObj Das Cargoobjekt, gegen das geprueft werden soll.
 	 * @param echoBothSides Soll gegenseitig geprueft werden (<code>true</code>)?
 	 * @param basis Soll fuer den BaseController geprueft werden (<code>true</code>)?
-	 * @param baukosten Soll fuer den BaseController geprueft werden (<code>true</code>)?
+	 * @param buildCosts Soll fuer den BaseController geprueft werden (<code>true</code>)?
 	 * @return Die Resourcenliste mit dem Ergebnis.
 	 */
-	public ResourceList compare( Cargo cargoObj, boolean echoBothSides, boolean basis, boolean baukosten) {
+	public ResourceList compare( Cargo cargoObj, boolean echoBothSides, boolean basis, boolean buildCosts) {
 		ResourceList reslist = new ResourceList();
 
 		var itemDao = ItemRepository.getInstance();
@@ -806,13 +806,13 @@ public class Cargo implements Cloneable {
 
 				if( !nohtml )
 				{
-					if( diff > 0 && baukosten )
+					if( diff > 0 && buildCosts )
 					{
 						fcargo1 = "<a "+style+" class=\"cargo1 negativ tooltip\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem.toString()+"\">"+
 							fcargo1+
 							"<span class=\"ttcontent ttitem\" ds-item-id=\""+aitem.toString()+"\">"+tooltiptext+"</span></a>";
 					}
-					else if( diff <= 0 && baukosten )
+					else if( diff <= 0 && buildCosts )
 					{
 						fcargo1 = "<a "+style+" class=\"cargo1 positiv tooltip\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem.toString()+"\">"+
 							fcargo1+
