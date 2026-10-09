@@ -378,16 +378,16 @@ public class ShipController extends Controller
 			return new RedirectViewResult("default");
 		}
 
-		String ergebnis = (String)rufeAlsSubActionAuf(plugin+"_ops", pluginMapper.get(plugin), "action", parameters);
+		String pluginResult = (String)rufeAlsSubActionAuf(plugin+"_ops", pluginMapper.get(plugin), "action", parameters);
 
 		if( ship.isDestroyed() )
 		{
 			TemplateEngine t = templateViewResultFactory.createFor(this);
-			t.setVar("ship.message", ergebnis);
+			t.setVar("ship.message", pluginResult);
 			return t;
 		}
 
-		return new RedirectViewResult("default").withMessage(ergebnis);
+		return new RedirectViewResult("default").withMessage(pluginResult);
 	}
 
 	/**
