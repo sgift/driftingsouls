@@ -181,12 +181,12 @@ public class ComNetController implements DSController, PermissionResolver {
 
       User user = (User) context.getActiveUser();
       Channel c = new Channel(channel);
-      var searchtitel = request.getParameter("searchtitel");
-      var searchinhalt = request.getParameter("searchinhalt");
-      Integer searchsender = (request.getParameter("searchsender") == null ||request.getParameter("searchsender").isBlank() )? null : Integer.parseInt(request.getParameter("searchsender"));
+      var titleSearchText = request.getParameter("searchtitel");
+      var contentSearchText = request.getParameter("searchinhalt");
+      Integer senderSearchId = (request.getParameter("searchsender") == null ||request.getParameter("searchsender").isBlank() )? null : Integer.parseInt(request.getParameter("searchsender"));
 
 
-      if( (searchtitel == null || searchtitel.isBlank() ) && (searchsender == null) && (searchinhalt == null || searchinhalt.isBlank()) )
+      if( (titleSearchText == null || titleSearchText.isBlank() ) && (senderSearchId == null) && (contentSearchText == null || contentSearchText.isBlank()) )
       {
         c.setShowsearchform(true);
         ctx.setVariable("channel",c);
@@ -208,7 +208,7 @@ public class ComNetController implements DSController, PermissionResolver {
       }
       ComNetService service = new ComNetService();
       service.markChannelAsRead(channel, user);
-      Search s = new Search(searchinhalt, searchsender, searchtitel);
+      Search s = new Search(contentSearchText, senderSearchId, titleSearchText);
       ctx.setVariable("search", s);
 
       if (channel.isWriteable(user, this))
@@ -217,7 +217,7 @@ public class ComNetController implements DSController, PermissionResolver {
       }
       List<Post> posts = new ArrayList<>();
       try{
-        List<ComNetEntry> entries = service.searchChannel(channel, searchinhalt, searchtitel, searchsender, back, 10);
+        List<ComNetEntry> entries = service.searchChannel(channel, contentSearchText, titleSearchText, senderSearchId, back, 10);
 
         if (entries.isEmpty())
         {
@@ -549,14 +549,14 @@ public class ComNetController implements DSController, PermissionResolver {
     }
 
     private static class Search{
-      public final String searchinhalt;
-      public final Integer searchsender;
-      public final String searchtitel;
+      public final String contentSearchText;
+      public final Integer senderSearchId;
+      public final String titleSearchText;
 
-      public Search(String searchinhalt, Integer searchsender, String searchtitel) {
-        this.searchinhalt = searchinhalt;
-        this.searchsender = searchsender;
-        this.searchtitel = searchtitel;
+      public Search(String contentSearchText, Integer senderSearchId, String titleSearchText) {
+        this.contentSearchText = contentSearchText;
+        this.senderSearchId = senderSearchId;
+        this.titleSearchText = titleSearchText;
       }
     }
 
