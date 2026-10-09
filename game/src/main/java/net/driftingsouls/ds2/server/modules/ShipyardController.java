@@ -138,8 +138,8 @@ public class ShipyardController extends Controller
 			echo.append("</span><br />\n");
 		}
 
-		ShipyardGui werftgui = new ShipyardGui(getContext(), templateViewResultFactory.createEmpty());
-		echo.append(werftgui.execute(werft));
+		ShipyardGui shipyardGui = new ShipyardGui(getContext(), templateViewResultFactory.createEmpty());
+		echo.append(shipyardGui.execute(werft));
 
 		echo.append("<br /><a class=\"back\" href=\"").append(Common.buildUrl("default", "module", "schiff", "ship", ship.getId())).append("\">zurück zum Schiff</a><br />\n");
 	}

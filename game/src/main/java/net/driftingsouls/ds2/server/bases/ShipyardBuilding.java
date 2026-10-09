@@ -162,8 +162,8 @@ public class ShipyardBuilding extends DefaultBuilding {
 
 		TemplateViewResultFactory templateViewResultFactory = context.getBean(TemplateViewResultFactory.class, null);
 		TemplateEngine t = templateViewResultFactory.createEmpty();
-		ShipyardGui werftgui = new ShipyardGui( context, t );
-		response.append(werftgui.execute( werft ));
+		ShipyardGui shipyardGui = new ShipyardGui( context, t );
+		response.append(shipyardGui.execute( werft ));
 
 		response.append("<br /></div>\n");
 		return response.toString();

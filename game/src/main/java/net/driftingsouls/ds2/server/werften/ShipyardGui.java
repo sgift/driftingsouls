@@ -237,7 +237,7 @@ public class ShipyardGui {
 				case "options":
 					t.setVar("werftgui.main.options", 1);
 
-					outWerftOptions(werft);
+					outShipyardOptions(werft);
 					break;
 			}
 		}
@@ -245,7 +245,7 @@ public class ShipyardGui {
 		return t.getVar("OUT");
 	}
 
-	private void outWerftOptions(WerftObject werft) {
+	private void outShipyardOptions(WerftObject werft) {
 		org.hibernate.Session db = context.getDB();
 
 		if( werft instanceof WerftKomplex ) {
@@ -554,7 +554,7 @@ public class ShipyardGui {
 		t.setBlock("_WERFT.WERFTGUI", "reslist.res.listitem", "reslist.res.list");
 
 		Cargo cargo = werft.getCargo(false);
-		int frei = werft.getCrew();
+		int freeCrew = werft.getCrew();
 
 		ResourceList reslist = showonly.compare(cargo, false);
 		for( ResourceEntry res : reslist ) {
@@ -570,7 +570,7 @@ public class ShipyardGui {
 
 		t.setVar(	"res.image",		"./data/interface/arbeitslos.gif",
 					"res.plainname",	"Crew",
-					"res.cargo",		frei );
+					"res.cargo",		freeCrew );
 		t.parse("reslist.res.list", "reslist.res.listitem", true);
 	}
 
@@ -719,7 +719,7 @@ public class ShipyardGui {
 		int itemid = request.getParameterInt("item");
 		int slot = request.getParameterInt("slot");
 		String moduleaction = request.getParameterString("moduleaction");
-		boolean flotte = request.getParameterInt("flotte") != 0;
+		boolean wholeFleet = request.getParameterInt("flotte") != 0;
 
 		//Gehoert das Schiff dem User?
 		if( (ship == null) || (ship.getId() < 0) || (ship.getOwner() != user) ) {
@@ -758,10 +758,10 @@ public class ShipyardGui {
 				"ws.modules.flotte", targetShips.size()>1 ? 1 : 0,
 				"ws.modules.flotte.typname", shiptype.getNickname(),
 				"ws.modules.flotte.anzahl", targetShips.size(),
-				"ws.modules.flotte.aktiv", flotte ? 1 : 0);
+				"ws.modules.flotte.aktiv", wholeFleet ? 1 : 0);
 
 
-		if ( targetShips.size() <= 1 || !flotte )
+		if ( targetShips.size() <= 1 || !wholeFleet )
 		{
 			targetShips.clear();
 			targetShips.add(ship);
@@ -1056,14 +1056,14 @@ public class ShipyardGui {
 		t.parse("build.res.list", "build.res.listitem", true);
 
 		// Crew
-		final int frei = werft.getCrew();
+		final int freeCrew = werft.getCrew();
 
 		t.setVar(	"res.image",			"./data/interface/arbeitslos.gif",
 					"res.plainname",		"Crew",
 					"res.cargo.pertick",	"",
-					"res.cargo.available",	frei,
+					"res.cargo.available",	freeCrew,
 					"res.cargo.needed",		shipdata.getCrew(),
-					"res.cargo.mangel",		(shipdata.getCrew() > frei ? shipdata.getCrew() - frei : 0));
+					"res.cargo.mangel",		(shipdata.getCrew() > freeCrew ? shipdata.getCrew() - freeCrew : 0));
 		t.parse("build.othercosts.list", "build.res.listitem", true);
 
 		// Werftslots
