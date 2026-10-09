@@ -54,25 +54,25 @@ public class KSMenuRetreatAction extends BasicKSMenuAction {
 		
 		BattleShip enemyShip = battle.getEnemyShip();
 		
-		String fluchtmode = context.getRequest().getParameterString("fluchtmode");
+		String retreatMode = context.getRequest().getParameterString("fluchtmode");
 		
-		if(!fluchtmode.equals("next")) 
+		if(!retreatMode.equals("next")) 
 		{
-			fluchtmode = "next";	
+			retreatMode = "next";	
 		}
 		
-		Map<String,String> fluchtmodes = new HashMap<>();
-		fluchtmodes.put("next", "N&auml;chste Runde");
+		Map<String,String> retreatModes = new HashMap<>();
+		retreatModes.put("next", "N&auml;chste Runde");
 							
-		Map<String,String> nextfluchtmode = new HashMap<>();
-		nextfluchtmode.put("next", "current");
+		Map<String,String> nextRetreatMode = new HashMap<>();
+		nextRetreatMode.put("next", "current");
 							  
-		this.menuEntry(t, "<span style=\"font-size:3px\">&nbsp;<br /></span>Fluchtzeitpunkt: "+fluchtmodes.get(fluchtmode)+"<br />\n"+
+		this.menuEntry(t, "<span style=\"font-size:3px\">&nbsp;<br /></span>Fluchtzeitpunkt: "+retreatModes.get(retreatMode)+"<br />\n"+
 						"<span style=\"font-size:12px\">&lt; Klicken um Fluchtzeitpunkt zu &auml;ndern &gt;</span><span style=\"font-size:4px\"><br />&nbsp;</span>",
 						"ship",		ownShip.getId(),
 						"attack",	enemyShip.getId(),
 						"ksaction",	"flucht",
-						"fluchtmode",	nextfluchtmode.get(fluchtmode) );
+						"fluchtmode",	nextRetreatMode.get(retreatMode) );
 
         boolean gotone = false;
         if( ownShipType.hasFlag(ShipTypeFlag.DROHNE) ) {
@@ -98,12 +98,12 @@ public class KSMenuRetreatAction extends BasicKSMenuAction {
                         "ship",		ownShip.getId(),
                         "attack",	enemyShip.getId(),
                         "ksaction",	"flucht_single",
-                        "fluchtmode",	fluchtmode );
+                        "fluchtmode",	retreatMode );
             }
         }
 
-        int fluchtidlist = 0;
-        Map<ShipClasses,Integer> fluchtclasslist = new HashMap<>();
+        int retreatShipCount = 0;
+        Map<ShipClasses,Integer> retreatClassCounts = new HashMap<>();
 
         List<BattleShip> ownShips = battle.getOwnShips();
         for (BattleShip aship : ownShips)
@@ -115,22 +115,22 @@ public class KSMenuRetreatAction extends BasicKSMenuAction {
                     gotone)
             {
 
-                fluchtidlist++;
-                Common.safeIntInc(fluchtclasslist, ashiptype.getShipClass());
+                retreatShipCount++;
+                Common.safeIntInc(retreatClassCounts, ashiptype.getShipClass());
             }
         }
 
-        if( fluchtidlist > 0 ) {
+        if( retreatShipCount > 0 ) {
             this.menuEntryAsk(t, "Alle Fl&uuml;chten",
                     new Object[] {
                         "ship",		ownShip.getId(),
                         "attack",	enemyShip.getId(),
                         "ksaction",	"flucht_all",
-                        "fluchtmode",	fluchtmode  },
+                        "fluchtmode",	retreatMode  },
                     "Wollen sie wirklich mit allen Schiffen fl&uuml;chten?" );
         }
 
-        for( Map.Entry<ShipClasses, Integer> entry: fluchtclasslist.entrySet()) {
+        for( Map.Entry<ShipClasses, Integer> entry: retreatClassCounts.entrySet()) {
             ShipClasses classID = entry.getKey();
             int idlist = entry.getValue();
             if( idlist == 0 ) {
@@ -142,7 +142,7 @@ public class KSMenuRetreatAction extends BasicKSMenuAction {
                         "attack",	enemyShip.getId(),
                         "ksaction",	"flucht_class",
                         "fluchtclass",	classID.ordinal(),
-                        "fluchtmode",	fluchtmode },
+                        "fluchtmode",	retreatMode },
                     "Wollen sie wirklich mit allen Schiffen der Klasse '"+classID.getSingular()+"' fl&uuml;chten?" );
         }
 				
