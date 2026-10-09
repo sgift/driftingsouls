@@ -161,13 +161,13 @@ public class KSBoardAction extends BasicKSAction {
 			battle.logme("Die Einheiten st&uuml;rmen das Schiff\n");
 			msg = new StringBuilder("Die Einheiten der " + Battle.log_shiplink(ownShip.getShip()) + " stürmen die " + Battle.log_shiplink(enemyShip.getShip()) + "\n");
 
-			UnitCargo toteeigeneUnits = new TransientUnitCargo();
-			UnitCargo totefeindlicheUnits = new TransientUnitCargo();
+			UnitCargo ownDeadUnits = new TransientUnitCargo();
+			UnitCargo enemyDeadUnits = new TransientUnitCargo();
 
-			if(ownUnits.board(enemyUnits, toteeigeneUnits, totefeindlicheUnits, dcrew, attmulti, defmulti ))
+			if(ownUnits.board(enemyUnits, ownDeadUnits, enemyDeadUnits, dcrew, attmulti, defmulti ))
 			{
 				ok = true;
-				if(toteeigeneUnits.isEmpty() && totefeindlicheUnits.isEmpty())
+				if(ownDeadUnits.isEmpty() && enemyDeadUnits.isEmpty())
 				{
 					battle.logme("Angriff erfolgreich. Schiff wird widerstandslos &uuml;bernommen.\n");
 					msg.append("Das Schiff ist kampflos verloren.\n");
@@ -180,8 +180,8 @@ public class KSBoardAction extends BasicKSAction {
 				{
 					battle.logme("Angriff erfolgreich.\n");
 					msg.append("Das Schiff ist verloren.\n");
-					Map<UnitType, Long> ownunitlist = toteeigeneUnits.getUnitMap();
-					Map<UnitType, Long> enemyunitlist = totefeindlicheUnits.getUnitMap();
+					Map<UnitType, Long> ownunitlist = ownDeadUnits.getUnitMap();
+					Map<UnitType, Long> enemyunitlist = enemyDeadUnits.getUnitMap();
 
 					if(!ownunitlist.isEmpty())
 					{
@@ -217,8 +217,8 @@ public class KSBoardAction extends BasicKSAction {
 			{
 				battle.logme("Angriff abgebrochen.\n");
 				msg.append("Angreifer flieht.\n");
-				Map<UnitType, Long> ownunitlist = toteeigeneUnits.getUnitMap();
-				Map<UnitType, Long> enemyunitlist = totefeindlicheUnits.getUnitMap();
+				Map<UnitType, Long> ownunitlist = ownDeadUnits.getUnitMap();
+				Map<UnitType, Long> enemyunitlist = enemyDeadUnits.getUnitMap();
 
 				if(!ownunitlist.isEmpty())
 				{
@@ -307,8 +307,8 @@ public class KSBoardAction extends BasicKSAction {
                 enemyShip.getShip().setDocked("");
             }
 
-			List<Integer> kaperlist = new ArrayList<>();
-			kaperlist.add(enemyShip.getId());
+			List<Integer> boardedShipIds = new ArrayList<>();
+			boardedShipIds.add(enemyShip.getId());
 
 			List<Ship> docked = db.createQuery("from Ship where id>0 and docked in (:docked,:landed)", Ship.class)
 					.setParameter("docked", Integer.toString(enemyShip.getId()))
@@ -340,7 +340,7 @@ public class KSBoardAction extends BasicKSAction {
 					}
 				}
 
-				kaperlist.add(bDockShip.getId());
+				boardedShipIds.add(bDockShip.getId());
 			}
 
 			for( Offizier offi : enemyShip.getShip().getOffiziere() )
@@ -371,7 +371,7 @@ public class KSBoardAction extends BasicKSAction {
 			for( int i=0; i < enemyShips.size(); i++ ) {
 				BattleShip eship = enemyShips.get(i);
 
-				if( kaperlist.contains(eship.getId()) ) {
+				if( boardedShipIds.contains(eship.getId()) ) {
 					enemyShips.remove(i);
 					i--;
 					battle.getOwnShips().add(eship);
