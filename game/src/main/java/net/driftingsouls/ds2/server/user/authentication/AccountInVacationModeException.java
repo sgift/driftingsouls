@@ -27,22 +27,22 @@ package net.driftingsouls.ds2.server.user.authentication;
 public class AccountInVacationModeException extends RuntimeException {
 	private static final long serialVersionUID = 4226868012372360527L;
 	
-	private final int dauer;
+	private final int duration;
 	
 	/**
 	 * Konstruktor.
-	 * @param dauer Die verbleibende Vacationdauer in Ticks
+	 * @param duration Die verbleibende Vacationdauer in Ticks
 	 */
-	public AccountInVacationModeException(int dauer) {
+	public AccountInVacationModeException(int duration) {
 		super("Der Account befindet sich im Vacationmodus");
-		this.dauer = dauer;
+		this.duration = duration;
 	}
 
 	/**
 	 * Gibt die noch verbleibende Zeit im Vacationmodus in Ticks zurueck.
 	 * @return Die Restdauer in Ticks
 	 */
-	public int getDauer() {
-		return this.dauer;
+	public int getDuration() {
+		return this.duration;
 	}
 }

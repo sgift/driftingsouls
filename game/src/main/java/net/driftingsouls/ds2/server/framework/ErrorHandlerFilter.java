@@ -172,13 +172,13 @@ public class ErrorHandlerFilter implements Filter
 		@Override
 		public void reportInVacation(AccountInVacationModeException e) throws IOException
 		{
-			if(e.getDauer() > 1)
+			if(e.getDuration() > 1)
 			{
-				printBoxedErrorMessage(response, "Du bist noch " + e.getDauer() + " Ticks im Vacation-Modus.");
+				printBoxedErrorMessage(response, "Du bist noch " + e.getDuration() + " Ticks im Vacation-Modus.");
 			}
 			else
 			{
-				printBoxedErrorMessage(response, "Du bist noch " + e.getDauer() + " Tick im Vacation-Modus.");
+				printBoxedErrorMessage(response, "Du bist noch " + e.getDuration() + " Tick im Vacation-Modus.");
 			}
 		}
 
@@ -277,13 +277,13 @@ public class ErrorHandlerFilter implements Filter
 		{
 
 			ViewMessage obj;
-			if(e.getDauer() > 1)
+			if(e.getDuration() > 1)
 			{
-				obj = ViewMessage.error("Du bist noch " + e.getDauer() + " Ticks im Vacation-Modus.");
+				obj = ViewMessage.error("Du bist noch " + e.getDuration() + " Ticks im Vacation-Modus.");
 			}
 			else
 			{
-				obj = ViewMessage.error("Du bist noch " + e.getDauer() + " Tick im Vacation-Modus.");
+				obj = ViewMessage.error("Du bist noch " + e.getDuration() + " Tick im Vacation-Modus.");
 			}
 			obj.message.cls = e.getClass().getSimpleName();
 			obj.message.redirect = true;

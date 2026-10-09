@@ -60,7 +60,7 @@ public class DefaultAuthenticationManagerTest extends DBSingleTransactionTest
 			fail("AccountInVacationModeException erwartet");
 		}
 		catch( AccountInVacationModeException e ) {
-			assertEquals(10, e.getDauer());
+			assertEquals(10, e.getDuration());
 		}
 		catch (AuthenticationException e)
 		{
