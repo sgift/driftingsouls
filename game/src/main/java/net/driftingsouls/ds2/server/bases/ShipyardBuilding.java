@@ -108,13 +108,13 @@ public class ShipyardBuilding extends DefaultBuilding {
 				final int totalSlots = werftObj.getWerftSlots();
 				int usedSlots = 0;
 				int buildingCount = 0;
-				StringBuilder imBau = new StringBuilder();
+				StringBuilder underConstruction = new StringBuilder();
 				for (WerftQueueEntry entry : entries)
 				{
 					if( entry.isScheduled() ) {
 						usedSlots += entry.getSlots();
 						buildingCount++;
-						imBau.append("<br />Aktuell im Bau: ").append(entry.getBuildShipType().getNickname()).append(" <img src='./data/interface/time.gif' alt='Dauer: ' />").append(entry.getRemainingTime());
+						underConstruction.append("<br />Aktuell im Bau: ").append(entry.getBuildShipType().getNickname()).append(" <img src='./data/interface/time.gif' alt='Dauer: ' />").append(entry.getRemainingTime());
 					}
 				}
 
@@ -129,7 +129,7 @@ public class ShipyardBuilding extends DefaultBuilding {
 						"Belegte Werftslots: <img style='vertical-align:middle;border:0px' src='./data/interface/schiffinfo/werftslots.png' alt='' />" + usedSlots + "/" + totalSlots + "<br />" +
 						"Im Bau: " + buildingCount + " Schiffe<br />" +
 						"In der Warteschlange: " + (entries.size() - buildingCount) +
-						imBau;
+						underConstruction;
 				result.append("</span><span class='ttcontent'>").append(popup).append("</span></a>");
 			}
 		}
