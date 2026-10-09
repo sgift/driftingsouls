@@ -106,8 +106,8 @@ public class ColonizeController extends Controller
 
 		t.setVar("ship.id", ship.getId());
 
-		Integer[] bebauung = base.getBebauung();
-		Integer[] bebon = base.getActive();
+		Integer[] buildingIds = base.getBebauung();
+		Integer[] active = base.getActive();
 
 		Map<Integer, Integer> bases = new HashMap<>();
 		bases.put(base.getSystem(), 1);
@@ -147,7 +147,7 @@ public class ColonizeController extends Controller
 		 *
 		 */
 
-		nichtErlaubteGebaeudeEntfernen(base, db, user, bebauung, bebon);
+		removeForbiddenBuildings(base, db, user, buildingIds, active);
 
 		/*
 		 *
@@ -181,11 +181,11 @@ public class ColonizeController extends Controller
 		ship.destroy();
 
 		// Die Kommandozentrale setzen
-		bebauung[0] = 1;
-		bebon[0] = 1;
+		buildingIds[0] = 1;
+		active[0] = 1;
 
-		base.setBebauung(bebauung);
-		base.setActive(bebon);
+		base.setBebauung(buildingIds);
+		base.setActive(active);
 		base.setCargo(cargo);
 		base.setOwner(user);
 		base.setBewohner(crew);
@@ -203,7 +203,7 @@ public class ColonizeController extends Controller
 		return t;
 	}
 
-	private void nichtErlaubteGebaeudeEntfernen(Base base, Session db, User user, Integer[] bebauung, Integer[] bebon)
+	private void removeForbiddenBuildings(Base base, Session db, User user, Integer[] buildingIds, Integer[] active)
 	{
 		//Anzahl der Gebaeude pro Spieler berechnen
 		Map<Integer, Integer> ownerBuildingCount = new HashMap<>();
@@ -234,16 +234,16 @@ public class ColonizeController extends Controller
 		}
 
 		// Nun die Gebaeude auf dem Asti durchlaufen und bei Bedarf einige entfernen
-		for (int index = 0; index < bebauung.length; index++)
+		for (int index = 0; index < buildingIds.length; index++)
 		{
-			final Integer building = bebauung[index];
+			final Integer building = buildingIds[index];
 			if (problematicBuildings.containsKey(building) && ownerBuildingCount.containsKey(building) &&
 					(ownerBuildingCount.get(building) + 1 > problematicBuildings.get(building)))
 			{
-				bebauung[index] = 0;
-				bebon[index] = 0;
-				Building gebaeude = Building.getBuilding(building);
-				gebaeude.cleanup(getContext(), base, building);
+				buildingIds[index] = 0;
+				active[index] = 0;
+				Building buildingType = Building.getBuilding(building);
+				buildingType.cleanup(getContext(), base, building);
 			}
 			if (!ownerBuildingCount.containsKey(building))
 			{
