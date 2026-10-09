@@ -158,7 +158,7 @@ public class ShipsController extends Controller
 				"user.race", user.getRace());
 
 		String ord = user.getUserValue(WellKnownUserValue.TBLORDER_SCHIFFE_ORDER);
-		int showjaeger = user.getUserValue(WellKnownUserValue.TBLORDER_SCHIFFE_SHOWJAEGER);
+		int showFighters = user.getUserValue(WellKnownUserValue.TBLORDER_SCHIFFE_SHOWJAEGER);
 		boolean showHandelsposten = user.getUserValue(WellKnownUserValue.TBLORDER_SCHIFFE_SHOWHANDELSPOSTEN);
 
 		Map<String, String> ordermapper = new HashMap<>();
@@ -185,7 +185,7 @@ public class ShipsController extends Controller
 			query += "((s.modules is not null and s.crew < (select crew from ShipModules where id=s.modules)) or s.crew < (select crew from ShipType where id = s.shiptype)) and ";
 		}
 
-		if (only.equals("kampf") && (showjaeger == 0))
+		if (only.equals("kampf") && (showFighters == 0))
 		{
 			query += "locate('l ',s.docked)=0 and ";
 		}
@@ -255,7 +255,7 @@ public class ShipsController extends Controller
 				break;
 			case "kampf":
 				t.setVar("only.kampf", 1,
-						"only.kampf.showljaeger", (showjaeger == 1 ? "checked=\"checked\"" : ""));
+						"only.kampf.showljaeger", (showFighters == 1 ? "checked=\"checked\"" : ""));
 
 				if (kampfOnly == 0)
 				{
