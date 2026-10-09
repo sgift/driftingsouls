@@ -29,7 +29,7 @@ import net.driftingsouls.ds2.server.ships.ShipTypeData;
  *
  */
 public class KSRetreatClassAction extends KSRetreatAllAction {
-	private final ShipClasses fluchtclass;
+	private final ShipClasses retreatClass;
 
 	/**
 	 * Konstruktor.
@@ -37,12 +37,12 @@ public class KSRetreatClassAction extends KSRetreatAllAction {
 	 */
 	public KSRetreatClassAction() 
 	{
-		this.fluchtclass  = ShipClasses.values()[ContextMap.getContext().getRequest().getParameterInt("fluchtclass")];
+		this.retreatClass  = ShipClasses.values()[ContextMap.getContext().getRequest().getParameterInt("fluchtclass")];
 	}
 	
 	@Override
 	protected boolean validateShipExt( BattleShip ship, ShipTypeData shiptype) {
-		return shiptype.getShipClass() == this.fluchtclass;
+		return shiptype.getShipClass() == this.retreatClass;
 	}
 	
 }
