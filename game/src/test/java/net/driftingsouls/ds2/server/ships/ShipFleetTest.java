@@ -50,7 +50,7 @@ public class ShipFleetTest extends DBSingleTransactionTest
 	 * Testet die Flottenuebergabe bei der ersten Flotte
 	 */
 	@Test
-	public void gegebenEineFlotteMitDreiSchiffen_consign_sollteAlleSchiffeAnDenNeuenBesitzerUebergeben() {
+	public void givenAFleetWithThreeShips_consign_shouldTransferAllShipsToTheNewOwner() {
 		// setup
 		User currentOwner = this.user1;
 		User targetOwner = this.user2;
@@ -77,7 +77,7 @@ public class ShipFleetTest extends DBSingleTransactionTest
 	 * Testet die Flottenuebergabe bei der zweiten Flotte
 	 */
 	@Test
-	public void gegebenEineFlotteMitZweiSchiffen_consignFleet_sollteAlleSchiffeAnDenNeuenBesitzerUebergeben() {
+	public void givenAFleetWithTwoShips_consignFleet_shouldTransferAllShipsToTheNewOwner() {
 		// setup
 		User currentOwner = this.user1;
 		User targetOwner = this.user2;
@@ -104,7 +104,7 @@ public class ShipFleetTest extends DBSingleTransactionTest
 	 * Testet das Entfernen eines Schiffes aus einer Flotte
 	 */
 	@Test
-	public void gegebenEineFlotteMitDreiSchiffen_removeShip_sollteEinSchiffEntfernenUndDieFlotteBestehenLassen() {
+	public void givenAFleetWithThreeShips_removeShip_shouldRemoveOneShipAndKeepTheFleet() {
 		// setup
 		Ship ship = this.fleet1.getShips().get(0);
 
@@ -127,7 +127,7 @@ public class ShipFleetTest extends DBSingleTransactionTest
 	 * dessen die Flotte anschliessend zu wenig Schiffe hat
 	 */
 	@Test
-	public void gegebenEineFlotteMitZweiSchiffen_removeShip_sollteAlleSchiffeEntfernenUndDieFlotteAufloesen() {
+	public void givenAFleetWithTwoShips_removeShip_shouldRemoveAllShipsAndDissolveTheFleet() {
 		// setup
 		Ship ship = this.fleet2.getShips().get(0);
 		Ship ship2 = this.fleet2.getShips().get(1);
