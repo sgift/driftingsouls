@@ -27,7 +27,7 @@ public class ConfigServiceTest extends DBTest
 	}
 
 	@Test
-	public void gegebenEineLeereDatenbank_get_sollteDenDefaultWertZurueckgebenUndEinenEintragInDerDBAnlegen()
+	public void givenAnEmptyDatabase_get_shouldReturnTheDefaultValueAndCreateADbEntry()
 	{
 		mitTransaktion(() -> {
 			// setup
@@ -52,7 +52,7 @@ public class ConfigServiceTest extends DBTest
 	}
 
 	@Test
-	public void gegebenEineDatenbankMitGesetztemConfigWert_get_sollteGenauDiesenWertZurueckgeben()
+	public void givenADatabaseWithAConfigValueSet_get_shouldReturnExactlyThisValue()
 	{
 		// setup
 		mitTransaktion(() -> {
@@ -75,7 +75,7 @@ public class ConfigServiceTest extends DBTest
 	}
 
 	@Test
-	public void gegebenEineLeereDatenbank_getValue_sollteDenDefaultWertZurueckgeben()
+	public void givenAnEmptyDatabase_getValue_shouldReturnTheDefaultValue()
 	{
 		mitTransaktion(() -> {
 			// setup
@@ -96,7 +96,7 @@ public class ConfigServiceTest extends DBTest
 	}
 
 	@Test
-	public void gegebenEineDatenbankMitGesetztemConfigWert_getValue_sollteGenauDiesenWertZurueckgeben()
+	public void givenADatabaseWithAConfigValueSet_getValue_shouldReturnExactlyThisValue()
 	{
 		// setup
 		mitTransaktion(() -> {
