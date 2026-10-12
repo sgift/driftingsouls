@@ -15,7 +15,7 @@ import static org.junit.Assert.*;
 public class DefaultAuthenticationManagerTest extends DBSingleTransactionTest
 {
 	@Test
-	public void gegebenEinNormalerAccountUndDiePassendenLogindaten_login_sollteDenLoginDurchfuehren() throws AuthenticationException
+	public void givenARegularAccountAndMatchingCredentials_login_shouldLogIn() throws AuthenticationException
 	{
 		// setup
 		ConfigService configService = new ConfigService(getEM());
@@ -31,7 +31,7 @@ public class DefaultAuthenticationManagerTest extends DBSingleTransactionTest
 	}
 
 	@Test(expected = WrongPasswordException.class)
-	public void gegebenEinNormalerAccountAberDasFalschePasswort_login_sollteEineWrongPasswordExceptionWerfen() throws AuthenticationException
+	public void givenARegularAccountButTheWrongPassword_login_shouldThrowAWrongPasswordException() throws AuthenticationException
 	{
 		// setup
 		ConfigService configService = new ConfigService(getEM());
@@ -43,7 +43,7 @@ public class DefaultAuthenticationManagerTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinAccountImVacationModus_login_sollteDieZugehoerigeExceptionWerfen()
+	public void givenAnAccountInVacationMode_login_shouldThrowTheMatchingException()
 	{
 		// setup
 		ConfigService configService = new ConfigService(getEM());
