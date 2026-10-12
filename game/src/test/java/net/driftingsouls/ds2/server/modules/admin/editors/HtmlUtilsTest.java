@@ -11,7 +11,7 @@ import static org.junit.Assert.*;
 public class HtmlUtilsTest
 {
 	@Test
-	public void gegebenMinimaleParameter_select_sollteEinPassendesHtmlSelectErzeugen()
+	public void givenMinimalParameters_select_shouldCreateAMatchingHtmlSelect()
 	{
 		// setup
 		StringBuilder out = new StringBuilder();
@@ -27,7 +27,7 @@ public class HtmlUtilsTest
 	}
 
 	@Test
-	public void gegebenGenauEineOption_select_sollteEinPassendesHtmlSelectErzeugen()
+	public void givenExactlyOneOption_select_shouldCreateAMatchingHtmlSelect()
 	{
 		// setup
 		StringBuilder out = new StringBuilder();
@@ -44,7 +44,7 @@ public class HtmlUtilsTest
 	}
 
 	@Test
-	public void gegebenMehrereOptions_select_sollteEinPassendesHtmlSelectErzeugen()
+	public void givenSeveralOptions_select_shouldCreateAMatchingHtmlSelect()
 	{
 		// setup
 		StringBuilder out = new StringBuilder();
@@ -63,7 +63,7 @@ public class HtmlUtilsTest
 	}
 
 	@Test
-	public void gegebenReadOnlyUndMinimaleParameter_select_sollteEinPassendesHtmlSelectErzeugen()
+	public void givenReadOnlyAndMinimalParameters_select_shouldCreateAMatchingHtmlSelect()
 	{
 		// setup
 		StringBuilder out = new StringBuilder();
@@ -79,7 +79,7 @@ public class HtmlUtilsTest
 	}
 
 	@Test
-	public void gegebenMinimaleParameterUndEinNichtInDenOptionsVorkommenderAktiverWert_select_sollteEinPassendesHtmlSelectErzeugenUndDenWertIgnorieren()
+	public void givenMinimalParametersAndASelectedValueNotAmongTheOptions_select_shouldCreateAMatchingHtmlSelectAndIgnoreTheValue()
 	{
 		// setup
 		StringBuilder out = new StringBuilder();
@@ -95,7 +95,7 @@ public class HtmlUtilsTest
 	}
 
 	@Test
-	public void gegebenMehrereOptionsUndEinAktiverWert_select_sollteEinPassendesHtmlSelectErzeugenUndDiePassendeOptionAktivieren()
+	public void givenSeveralOptionsAndASelectedValue_select_shouldCreateAMatchingHtmlSelectAndSelectTheMatchingOption()
 	{
 		// setup
 		StringBuilder out = new StringBuilder();
@@ -114,7 +114,7 @@ public class HtmlUtilsTest
 	}
 
 	@Test
-	public void gegebenMehrereOptionsMitEinemAktivenNullEintrag_select_sollteEinPassendesHtmlSelectErzeugen()
+	public void givenSeveralOptionsWithASelectedNullEntry_select_shouldCreateAMatchingHtmlSelect()
 	{
 		// setup
 		StringBuilder out = new StringBuilder();
@@ -133,7 +133,7 @@ public class HtmlUtilsTest
 	}
 
 	@Test
-	public void gegebenMehrereOptionsMitEinemNichtAktivenNullEintrag_select_sollteEinPassendesHtmlSelectErzeugen()
+	public void givenSeveralOptionsWithAnUnselectedNullEntry_select_shouldCreateAMatchingHtmlSelect()
 	{
 		// setup
 		StringBuilder out = new StringBuilder();
@@ -164,7 +164,7 @@ public class HtmlUtilsTest
 	}
 
 	@Test
-	public void gegebenMehrereEnumOptions_select_sollteEinPassendesHtmlSelectErzeugenUndDabeiNameStattToStringFuerDenValueVerwenden()
+	public void givenSeveralEnumOptions_select_shouldCreateAMatchingHtmlSelectUsingNameInsteadOfToStringForTheValue()
 	{
 		// setup
 		StringBuilder out = new StringBuilder();
@@ -187,7 +187,7 @@ public class HtmlUtilsTest
 
 
 	@Test
-	public void gegebenMinimaleParameter_jsSelect_sollteEinPassendesViewModelErzeugen()
+	public void givenMinimalParameters_jsSelect_shouldCreateAMatchingViewModel()
 	{
 		// setup
 		String name = "test";
@@ -207,7 +207,7 @@ public class HtmlUtilsTest
 	}
 
 	@Test
-	public void gegebenGenauEineOption_jsSelect_sollteEinPassendesViewModelErzeugen()
+	public void givenExactlyOneOption_jsSelect_shouldCreateAMatchingViewModel()
 	{
 		// setup
 		String name = "test";
@@ -228,7 +228,7 @@ public class HtmlUtilsTest
 	}
 
 	@Test
-	public void gegebenMehrereOptions_jsSelect_sollteEinPassendesViewModelErzeugen()
+	public void givenSeveralOptions_jsSelect_shouldCreateAMatchingViewModel()
 	{
 		// setup
 		String name = "test";
@@ -253,7 +253,7 @@ public class HtmlUtilsTest
 	}
 
 	@Test
-	public void gegebenReadOnlyUndMinimaleParameter_jsSelect_sollteEinPassendesViewModelErzeugen()
+	public void givenReadOnlyAndMinimalParameters_jsSelect_shouldCreateAMatchingViewModel()
 	{
 		// setup
 		String name = "test";
@@ -272,7 +272,7 @@ public class HtmlUtilsTest
 	}
 
 	@Test
-	public void gegebenMehrereOptionsUndEinAktiverWert_jsSelect_sollteEinPassendesViewModelErzeugenUndDiePassendeOptionAktivieren()
+	public void givenSeveralOptionsAndASelectedValue_jsSelect_shouldCreateAMatchingViewModelAndSelectTheMatchingOption()
 	{
 		// setup
 		String name = "test";
@@ -297,7 +297,7 @@ public class HtmlUtilsTest
 	}
 
 	@Test
-	public void gegebenMehrereOptionsMitEinemNullEintrag_jsSelect_sollteEinPassendesViewModelErzeugen()
+	public void givenSeveralOptionsWithANullEntry_jsSelect_shouldCreateAMatchingViewModel()
 	{
 		// setup
 		String name = "test";
@@ -321,7 +321,7 @@ public class HtmlUtilsTest
 	}
 
 	@Test
-	public void gegebenMehrereEnumOptions_jsSelect_sollteEinPassendesViewModelErzeugenUndDabeiNameStattToStringFuerDenValueVerwenden()
+	public void givenSeveralEnumOptions_jsSelect_shouldCreateAMatchingViewModelUsingNameInsteadOfToStringForTheValue()
 	{
 		// setup
 		String name = "test";
@@ -347,7 +347,7 @@ public class HtmlUtilsTest
 
 
 	@Test
-	public void gegebenMinimaleParameter_jsTextInput_sollteEinPassendesViewModelErzeugen()
+	public void givenMinimalParameters_jsTextInput_shouldCreateAMatchingViewModel()
 	{
 		// setup
 		String name = "test";
@@ -367,7 +367,7 @@ public class HtmlUtilsTest
 	}
 
 	@Test
-	public void gegebenNullAlsWert_jsTextInput_sollteEinPassendesViewModelErzeugen()
+	public void givenNullAsValue_jsTextInput_shouldCreateAMatchingViewModel()
 	{
 		// setup
 		String name = "test";
@@ -386,7 +386,7 @@ public class HtmlUtilsTest
 	}
 
 	@Test
-	public void gegebenEinIntegerWert_jsTextInput_sollteEinPassendesViewModelErzeugen()
+	public void givenAnIntegerValue_jsTextInput_shouldCreateAMatchingViewModel()
 	{
 		// setup
 		String name = "test";
@@ -409,7 +409,7 @@ public class HtmlUtilsTest
 	}
 
 	@Test
-	public void gegebenEinNurLesbaresFeld_jsTextInput_sollteEinPassendesViewModelErzeugen()
+	public void givenAReadonlyField_jsTextInput_shouldCreateAMatchingViewModel()
 	{
 		// setup
 		String name = "test";
