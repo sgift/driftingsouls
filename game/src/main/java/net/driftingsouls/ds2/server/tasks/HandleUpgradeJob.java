@@ -73,7 +73,7 @@ public class HandleUpgradeJob implements TaskHandler
 		int orderid = Integer.parseInt(task.getData1());
 		int tick = context.get(ContextCommon.class).getTick();
 		UpgradeJob order = db.find(UpgradeJob.class, orderid);
-		int preis = order.getPrice(db);
+		int price = order.getPrice(db);
 		Base base = order.getBase();
 		User user = order.getUser();
 		Ship colonizer = order.getColonizer();
@@ -143,16 +143,16 @@ public class HandleUpgradeJob implements TaskHandler
 		else if( order.getBar() && !order.getPayed() )
 		{
 			// Teste ob das Geld auf dem Colonizer ist
-			if( colonizer.getCargo().hasResource(new ItemID(ITEM_RE), preis) )
+			if( colonizer.getCargo().hasResource(new ItemID(ITEM_RE), price) )
 			{
 				// Genug Geld vorhanden
-				colonizer.getCargo().substractResource(new ItemID(ITEM_RE), preis);
+				colonizer.getCargo().substractResource(new ItemID(ITEM_RE), price);
 				order.setPayed(true);
 			}
-            else if( base.getCargo().hasResource(new ItemID(ITEM_RE), preis))
+            else if( base.getCargo().hasResource(new ItemID(ITEM_RE), price))
             {
                 // Genug Geld vorhanden
-                base.getCargo().substractResource(new ItemID(ITEM_RE), preis);
+                base.getCargo().substractResource(new ItemID(ITEM_RE), price);
                 order.setPayed(true);
             }
 			else
@@ -191,9 +191,9 @@ public class HandleUpgradeJob implements TaskHandler
 				colonizer.destroy();
 
 				// Setzen wann wir fertig sind
-                int dauer = new Random().nextInt(order.getMaxTicks(db)-order.getMinTicks(db)+1)+order.getMinTicks(db);
-				order.setEnd( tick + dauer );
-                task.setTimeout(dauer);
+                int duration = new Random().nextInt(order.getMaxTicks(db)-order.getMinTicks(db)+1)+order.getMinTicks(db);
+				order.setEnd( tick + duration );
+                task.setTimeout(duration);
 			}
 			else
 			{
