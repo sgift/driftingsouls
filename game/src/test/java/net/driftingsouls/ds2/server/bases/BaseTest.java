@@ -21,7 +21,7 @@ public class BaseTest
 	}
 
 	@Test
-	public void keineAvailableSpawnableRess_setSpawnableRessAmount_sollteDieEntsprechendeAnzahlSetzen()
+	public void noAvailableSpawnableRess_setSpawnableRessAmount_shouldSetTheAmount()
 	{
 		// setup
 		Base base = new Base();
@@ -35,7 +35,7 @@ public class BaseTest
 	}
 
 	@Test
-	public void vorhandeneAvailableSpawnableRess_setSpawnableRessAmount_sollteDieEntsprechendeAnzahlAktualisieren()
+	public void existingAvailableSpawnableRess_setSpawnableRessAmount_shouldUpdateTheAmount()
 	{
 		// setup
 		Base base = new Base();
@@ -49,7 +49,7 @@ public class BaseTest
 	}
 
 	@Test
-	public void vorhandeneAndereAvailableSpawnableRess_setSpawnableRessAmount_sollteDieNeueAnzahlHinzufuegen()
+	public void existingOtherAvailableSpawnableRess_setSpawnableRessAmount_shouldAddTheNewAmount()
 	{
 		// setup
 		Base base = new Base();
