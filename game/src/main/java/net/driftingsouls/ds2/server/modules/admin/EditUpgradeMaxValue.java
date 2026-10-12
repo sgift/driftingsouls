@@ -20,8 +20,8 @@ package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.bases.BaseType;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeMaxValues;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeType;
+import net.driftingsouls.ds2.server.entities.factiongui.baseupgrade.UpgradeMaxValues;
+import net.driftingsouls.ds2.server.entities.factiongui.baseupgrade.UpgradeType;
 import net.driftingsouls.ds2.server.modules.admin.editors.EditorForm8;
 import net.driftingsouls.ds2.server.modules.admin.editors.EntityEditor;
 

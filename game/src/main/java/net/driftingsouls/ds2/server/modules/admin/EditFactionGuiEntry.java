@@ -2,8 +2,8 @@ package net.driftingsouls.ds2.server.modules.admin;
 
 import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.FactionShopEntry;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.FraktionsGuiEintrag;
+import net.driftingsouls.ds2.server.entities.factiongui.FactionShopEntry;
+import net.driftingsouls.ds2.server.entities.factiongui.FraktionsGuiEintrag;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.admin.editors.EditorForm8;

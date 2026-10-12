@@ -1,6 +1,6 @@
 package net.driftingsouls.ds2.server.modules.factions;
 
-import net.driftingsouls.ds2.server.entities.fraktionsgui.FactionShopEntry;
+import net.driftingsouls.ds2.server.entities.factiongui.FactionShopEntry;
 import net.driftingsouls.ds2.server.framework.Common;
 
 /**

@@ -5,7 +5,7 @@ import net.driftingsouls.ds2.server.Locatable;
 import net.driftingsouls.ds2.server.Location;
 import net.driftingsouls.ds2.server.config.Faction;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.VersteigerungSchiff;
+import net.driftingsouls.ds2.server.entities.factiongui.VersteigerungSchiff;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipClasses;

@@ -1,4 +1,4 @@
-package net.driftingsouls.ds2.server.entities.fraktionsgui;
+package net.driftingsouls.ds2.server.entities.factiongui;
 
 import net.driftingsouls.ds2.server.entities.User;
 import org.hibernate.annotations.ForeignKey;

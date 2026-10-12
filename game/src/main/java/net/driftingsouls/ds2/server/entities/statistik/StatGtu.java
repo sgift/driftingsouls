@@ -18,9 +18,9 @@
  */
 package net.driftingsouls.ds2.server.entities.statistik;
 
-import net.driftingsouls.ds2.server.entities.fraktionsgui.Versteigerung;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.VersteigerungResource;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.VersteigerungSchiff;
+import net.driftingsouls.ds2.server.entities.factiongui.Versteigerung;
+import net.driftingsouls.ds2.server.entities.factiongui.VersteigerungResource;
+import net.driftingsouls.ds2.server.entities.factiongui.VersteigerungSchiff;
 import org.hibernate.annotations.Index;
 
 import javax.persistence.Column;

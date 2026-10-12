@@ -6,9 +6,9 @@ import net.driftingsouls.ds2.server.bases.Base;
 import net.driftingsouls.ds2.server.bases.BaseType;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeInfo;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeJob;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeType;
+import net.driftingsouls.ds2.server.entities.factiongui.baseupgrade.UpgradeInfo;
+import net.driftingsouls.ds2.server.entities.factiongui.baseupgrade.UpgradeJob;
+import net.driftingsouls.ds2.server.entities.factiongui.baseupgrade.UpgradeType;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.nullValue;

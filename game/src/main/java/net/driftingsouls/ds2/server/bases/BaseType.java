@@ -19,8 +19,8 @@
 package net.driftingsouls.ds2.server.bases;
 
 import net.driftingsouls.ds2.server.Location;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeInfo;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.baseupgrade.UpgradeMaxValues;
+import net.driftingsouls.ds2.server.entities.factiongui.baseupgrade.UpgradeInfo;
+import net.driftingsouls.ds2.server.entities.factiongui.baseupgrade.UpgradeMaxValues;
 import net.driftingsouls.ds2.server.framework.Common;
 
 import javax.persistence.Column;

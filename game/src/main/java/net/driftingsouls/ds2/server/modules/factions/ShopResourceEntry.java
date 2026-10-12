@@ -3,7 +3,7 @@ package net.driftingsouls.ds2.server.modules.factions;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.cargo.ResourceEntry;
 import net.driftingsouls.ds2.server.cargo.Resources;
-import net.driftingsouls.ds2.server.entities.fraktionsgui.FactionShopEntry;
+import net.driftingsouls.ds2.server.entities.factiongui.FactionShopEntry;
 import net.driftingsouls.ds2.server.framework.Common;
 
 /**
