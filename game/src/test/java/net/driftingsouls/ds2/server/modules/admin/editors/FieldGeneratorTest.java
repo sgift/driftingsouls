@@ -19,7 +19,7 @@ public class FieldGeneratorTest
 	}
 
 	@Test
-	public void gegebenEinBooleanFeldMitWertFalse_generate_sollteEineCheckboxErzeugen() throws IOException
+	public void givenABooleanFieldWithValueFalse_generate_shouldCreateACheckbox() throws IOException
 	{
 		// setup
 		FieldGenerator<DummyEntity,Boolean> generator = new FieldGenerator<>("Test", "foobar", Boolean.class, Boolean.class, (e) -> e.bool, (e,b) -> e.bool = b);
@@ -34,7 +34,7 @@ public class FieldGeneratorTest
 	}
 
 	@Test
-	public void gegebenEinStringFeldOhneWert_generate_sollteEinTextfeldErzeugen() throws IOException
+	public void givenAStringFieldWithoutValue_generate_shouldCreateATextField() throws IOException
 	{
 		// setup
 		FieldGenerator<DummyEntity,String> generator = new FieldGenerator<>("Test", "foobar", String.class, String.class, (e) -> e.string, (e,b) -> e.string = b);
@@ -49,7 +49,7 @@ public class FieldGeneratorTest
 	}
 
 	@Test
-	public void gegebenEinIntegerFeld_generate_sollteEinTextfeldErzeugen() throws IOException
+	public void givenAnIntegerField_generate_shouldCreateATextField() throws IOException
 	{
 		// setup
 		FieldGenerator<DummyEntity,Integer> generator = new FieldGenerator<>("Test", "foobar", Integer.class, Integer.class, (e) -> e.zahl, (e,b) -> e.zahl = b);
@@ -64,7 +64,7 @@ public class FieldGeneratorTest
 	}
 
 	@Test
-	public void gegebenEinBooleanFeldMitWertTrue_generate_sollteEineAktivierteCheckboxErzeugen() throws IOException
+	public void givenABooleanFieldWithValueTrue_generate_shouldCreateACheckedCheckbox() throws IOException
 	{
 		// setup
 		FieldGenerator<DummyEntity,Boolean> generator = new FieldGenerator<>("Test", "foobar", Boolean.class, Boolean.class, (e) -> e.bool, (e,b) -> e.bool = b);
@@ -80,7 +80,7 @@ public class FieldGeneratorTest
 	}
 
 	@Test
-	public void gegebenEinStringFeldMitWert_generate_sollteEinTextfeldMitEntsprechendemInhaltErzeugen() throws IOException
+	public void givenAStringFieldWithValue_generate_shouldCreateATextFieldWithThatContent() throws IOException
 	{
 		// setup
 		FieldGenerator<DummyEntity,String> generator = new FieldGenerator<>("Test", "foobar", String.class, String.class, (e) -> e.string, (e,b) -> e.string = b);
@@ -96,7 +96,7 @@ public class FieldGeneratorTest
 	}
 
 	@Test
-	public void gegebenEinStringFeldMitHtmlZeichenImWert_generate_sollteEinTextfeldMitEntsprechendemEscaptenInhaltErzeugen() throws IOException
+	public void givenAStringFieldWithHtmlCharactersInTheValue_generate_shouldCreateATextFieldWithThatContentEscaped() throws IOException
 	{
 		// setup
 		FieldGenerator<DummyEntity,String> generator = new FieldGenerator<>("Test", "foobar", String.class, String.class, (e) -> e.string, (e,b) -> e.string = b);
@@ -112,7 +112,7 @@ public class FieldGeneratorTest
 	}
 
 	@Test
-	public void gegebenEinReadonlyBooleanFeldMitWertTrue_generate_sollteEineAktivierteNurLesbareCheckboxErzeugen() throws IOException
+	public void givenAReadonlyBooleanFieldWithValueTrue_generate_shouldCreateACheckedReadonlyCheckbox() throws IOException
 	{
 		// setup
 		FieldGenerator<DummyEntity,Boolean> generator = new FieldGenerator<>("Test", "foobar", Boolean.class, Boolean.class, (e) -> e.bool, (e,b) -> e.bool = b);
@@ -129,7 +129,7 @@ public class FieldGeneratorTest
 	}
 
 	@Test
-	public void gegebenEinReadonlyIntegerFeld_generate_sollteEinTextfeldErzeugen() throws IOException
+	public void givenAReadonlyIntegerField_generate_shouldCreateATextField() throws IOException
 	{
 		// setup
 		FieldGenerator<DummyEntity,Integer> generator = new FieldGenerator<>("Test", "foobar", Integer.class, Integer.class, (e) -> e.zahl, (e,b) -> e.zahl = b);
@@ -145,7 +145,7 @@ public class FieldGeneratorTest
 	}
 
 	@Test
-	public void gegebenEinReadonlyStringFeldMitWert_generate_sollteEinTextfeldMitEntsprechendemInhaltNurLesbarErzeugen() throws IOException
+	public void givenAReadonlyStringFieldWithValue_generate_shouldCreateAReadonlyTextFieldWithThatContent() throws IOException
 	{
 		// setup
 		FieldGenerator<DummyEntity,String> generator = new FieldGenerator<>("Test", "foobar", String.class, String.class, (e) -> e.string, (e,b) -> e.string = b);
@@ -162,7 +162,7 @@ public class FieldGeneratorTest
 	}
 
 	@Test
-	public void gegebenEinBooleanFeldUndEineRequestMitWertTrue_applyRequestValues_sollteDasFeldEntsprechendAufTrueSetzen() {
+	public void givenABooleanFieldAndARequestWithValueTrue_applyRequestValues_shouldSetTheFieldToTrue() {
 		// setup
 		FieldGenerator<DummyEntity,Boolean> generator = new FieldGenerator<>("Test", "foobar", Boolean.class, Boolean.class, (e) -> e.bool, (e,b) -> e.bool = b);
 		DummyEntity entity = new DummyEntity();
@@ -176,7 +176,7 @@ public class FieldGeneratorTest
 	}
 
 	@Test
-	public void gegebenEinStringFeldUndEineRequestMitWert_applyRequestValues_sollteDasFeldEntsprechendAufDenWertSetzen() {
+	public void givenAStringFieldAndARequestWithValue_applyRequestValues_shouldSetTheFieldToThatValue() {
 		// setup
 		FieldGenerator<DummyEntity,String> generator = new FieldGenerator<>("Test", "foobar", String.class, String.class, (e) -> e.string, (e,b) -> e.string = b);
 		DummyEntity entity = new DummyEntity();
@@ -190,7 +190,7 @@ public class FieldGeneratorTest
 	}
 
 	@Test
-	public void gegebenEinBooleanFeldUndEineRequestOhneWert_applyRequestValues_sollteDasFeldEntsprechendAufFalseSetzen() {
+	public void givenABooleanFieldAndARequestWithoutValue_applyRequestValues_shouldSetTheFieldToFalse() {
 		// setup
 		FieldGenerator<DummyEntity,Boolean> generator = new FieldGenerator<>("Test", "foobar", Boolean.class, Boolean.class, (e) -> e.bool, (e,b) -> e.bool = b);
 		DummyEntity entity = new DummyEntity();
@@ -205,7 +205,7 @@ public class FieldGeneratorTest
 	}
 
 	@Test
-	public void gegebenEinIntegerFeldUndEineRequestMitWert10_applyRequestValues_sollteEinDasFeldAuf10Setzen() {
+	public void givenAnIntegerFieldAndARequestWithValue10_applyRequestValues_shouldSetTheFieldTo10() {
 		// setup
 		FieldGenerator<DummyEntity,Integer> generator = new FieldGenerator<>("Test", "foobar", Integer.class, Integer.class, (e) -> e.zahl, (e,b) -> e.zahl = b);
 		DummyEntity entity = new DummyEntity();
@@ -219,7 +219,7 @@ public class FieldGeneratorTest
 	}
 
 	@Test
-	public void gegebenEinStringFeldUndEineRequestOhneWert_applyRequestValues_sollteDasFeldNichtAktualisieren() {
+	public void givenAStringFieldAndARequestWithoutValue_applyRequestValues_shouldNotUpdateTheField() {
 		// setup
 		FieldGenerator<DummyEntity,String> generator = new FieldGenerator<>("Test", "foobar", String.class, String.class, (e) -> e.string, (e,b) -> e.string = b);
 		DummyEntity entity = new DummyEntity();
@@ -234,7 +234,7 @@ public class FieldGeneratorTest
 	}
 
 	@Test
-	public void gegebenEinIntegerFeldUndEineRequestOhneWert_applyRequestValues_sollteEinDasFeldNichtAktualisieren() {
+	public void givenAnIntegerFieldAndARequestWithoutValue_applyRequestValues_shouldNotUpdateTheField() {
 		// setup
 		FieldGenerator<DummyEntity,Integer> generator = new FieldGenerator<>("Test", "foobar", Integer.class, Integer.class, (e) -> e.zahl, (e,b) -> e.zahl = b);
 		DummyEntity entity = new DummyEntity();
@@ -249,7 +249,7 @@ public class FieldGeneratorTest
 	}
 
 	@Test
-	public void gegebenEinBooleanMitWertFalse_serializedValueOf_sollteFalseZurueckgeben() {
+	public void givenABooleanWithValueFalse_serializedValueOf_shouldReturnFalse() {
 		// setup
 		FieldGenerator<DummyEntity,Boolean> generator = new FieldGenerator<>("Test", "foobar", Boolean.class, Boolean.class, (e) -> e.bool, (e,b) -> e.bool = b);
 		DummyEntity entity = new DummyEntity();
@@ -262,7 +262,7 @@ public class FieldGeneratorTest
 	}
 
 	@Test
-	public void gegebenEinStringFeldMitWert_serializedValueOf_sollteDenWertZurueckgeben() {
+	public void givenAStringFieldWithValue_serializedValueOf_shouldReturnTheValue() {
 		// setup
 		FieldGenerator<DummyEntity,String> generator = new FieldGenerator<>("Test", "foobar", String.class, String.class, (e) -> e.string, (e,b) -> e.string = b);
 		DummyEntity entity = new DummyEntity();
@@ -276,7 +276,7 @@ public class FieldGeneratorTest
 	}
 
 	@Test
-	public void gegebenEinIntegerFeldMitWert_serializedValueOf_sollteDenWertZurueckgeben() {
+	public void givenAnIntegerFieldWithValue_serializedValueOf_shouldReturnTheValue() {
 		// setup
 		FieldGenerator<DummyEntity,Integer> generator = new FieldGenerator<>("Test", "foobar", Integer.class, Integer.class, (e) -> e.zahl, (e,b) -> e.zahl = b);
 		DummyEntity entity = new DummyEntity();
@@ -290,7 +290,7 @@ public class FieldGeneratorTest
 	}
 
 	@Test
-	public void gegebenEinBooleanFeldMitWertTrue_serializedValueOf_sollteTrueZurueckgeben() {
+	public void givenABooleanFieldWithValueTrue_serializedValueOf_shouldReturnTrue() {
 		// setup
 		FieldGenerator<DummyEntity,Boolean> generator = new FieldGenerator<>("Test", "foobar", Boolean.class, Boolean.class, (e) -> e.bool, (e,b) -> e.bool = b);
 		DummyEntity entity = new DummyEntity();
@@ -304,7 +304,7 @@ public class FieldGeneratorTest
 	}
 
 	@Test
-	public void gegebenEinStringMitWertNull_serializedValueOf_sollteEinenLeerstringZurueckgeben() {
+	public void givenAStringWithValueNull_serializedValueOf_shouldReturnAnEmptyString() {
 		// setup
 		FieldGenerator<DummyEntity,String> generator = new FieldGenerator<>("Test", "foobar", String.class, String.class, (e) -> e.string, (e,b) -> e.string = b);
 		DummyEntity entity = new DummyEntity();
