@@ -294,12 +294,12 @@ public class AllyController extends Controller
 		return new RedirectViewResult("showRaenge").withMessage(message);
 	}
 
-	private AllyRangDescriptor findAllianceRankByNumber(int rangnr)
+	private AllyRangDescriptor findAllianceRankByNumber(int rankNumber)
 	{
 		AllyRangDescriptor rang = null;
 		for (AllyRangDescriptor desc : this.ally.getRangDescriptors())
 		{
-			if (desc.getRang() == rangnr)
+			if (desc.getRang() == rankNumber)
 			{
 				rang = desc;
 				break;

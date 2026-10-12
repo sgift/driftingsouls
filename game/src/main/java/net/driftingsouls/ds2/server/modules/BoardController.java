@@ -79,38 +79,38 @@ public class BoardController extends Controller
 		this.configService = configService;
 	}
 
-	private void validateOwnAndTargetShip(Ship eigenesSchiff, Ship zielSchiff)
+	private void validateOwnAndTargetShip(Ship ownShip, Ship targetShip)
 	{
 		User user = (User) this.getUser();
 
-		if (eigenesSchiff == null || eigenesSchiff.getOwner().getId() != user.getId())
+		if (ownShip == null || ownShip.getOwner().getId() != user.getId())
 		{
 			throw new ValidationException("Das angegebene Schiff existiert nicht oder geh&ouml;rt nicht Ihnen.", Common.buildUrl("default", "module", "schiffe"));
 		}
 
-		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", eigenesSchiff.getId());
+		String errorurl = Common.buildUrl("default", "module", "schiff", "ship", ownShip.getId());
 
 		if (user.isNoob())
 		{
 			throw new ValidationException("Sie k&ouml;nnen weder kapern noch pl&uuml;ndern, solange Sie unter Neuspieler-Schutz stehen.<br />Hinweis: Der Neuspieler-Schutz kann unter den Account-Optionen vorzeitig beendet werden.", errorurl);
 		}
 
-		if ((eigenesSchiff.getEngine() == 0) || (eigenesSchiff.getWeapons() == 0))
+		if ((ownShip.getEngine() == 0) || (ownShip.getWeapons() == 0))
 		{
 			throw new ValidationException("Diese Schrottm&uuml;hle wird nichts kapern k&ouml;nnen.", errorurl);
 		}
 
-		if (eigenesSchiff.getUnits().isEmpty())
+		if (ownShip.getUnits().isEmpty())
 		{
 			throw new ValidationException("Sie ben&ouml;tigen Einheiten, um zu kapern", errorurl);
 		}
 
-		if (zielSchiff == null)
+		if (targetShip == null)
 		{
 			throw new ValidationException("Das angegebene Zielschiff existiert nicht", errorurl);
 		}
 
-		User taruser = zielSchiff.getOwner();
+		User taruser = targetShip.getOwner();
 		if (taruser.isNoob())
 		{
 			throw new ValidationException("Der Kolonist steht unter Neuspieler-Schutz", errorurl);
@@ -121,18 +121,18 @@ public class BoardController extends Controller
 			throw new ValidationException("Sie k&ouml;nnen Schiffe dieses Spielers nicht kapern oder pl&uuml;ndern, solange er sich im Urlaubs-Modus befindet.", errorurl);
 		}
 
-		if (zielSchiff.getOwner().getId() == eigenesSchiff.getOwner().getId())
+		if (targetShip.getOwner().getId() == ownShip.getOwner().getId())
 		{
 			throw new ValidationException("Sie k&ouml;nnen Ihre eigenen Schiffe nicht kapern.", errorurl);
 		}
 
-		if (!eigenesSchiff.getLocation().sameSector(0, zielSchiff.getLocation(), 0))
+		if (!ownShip.getLocation().sameSector(0, targetShip.getLocation(), 0))
 		{
 			throw new ValidationException("Das Zielschiff befindet sich nicht im selben Sektor.", errorurl);
 		}
 
-		ShipTypeData dshipTypeData = zielSchiff.getTypeData();
-		if ((dshipTypeData.getCost() != 0) && (zielSchiff.getEngine() != 0) && (zielSchiff.getCrew() != 0 || !zielSchiff.getUnits().isEmpty()))
+		ShipTypeData dshipTypeData = targetShip.getTypeData();
+		if ((dshipTypeData.getCost() != 0) && (targetShip.getEngine() != 0) && (targetShip.getCrew() != 0 || !targetShip.getUnits().isEmpty()))
 		{
 			throw new ValidationException("Das feindliche Schiff ist noch bewegungsf&auml;hig.", errorurl);
 		}
@@ -143,14 +143,14 @@ public class BoardController extends Controller
 			throw new ValidationException("Sie k&ouml;nnen " + dshipTypeData.getShipClass().getPlural() + " weder kapern noch pl&uuml;ndern.", errorurl);
 		}
 
-		if (zielSchiff.isDocked() || zielSchiff.isLanded())
+		if (targetShip.isDocked() || targetShip.isLanded())
 		{
-			if (zielSchiff.isLanded())
+			if (targetShip.isLanded())
 			{
 				throw new ValidationException("Sie k&ouml;nnen gelandete Schiffe weder kapern noch pl&uuml;ndern.", errorurl);
 			}
 
-			Ship mship = zielSchiff.getBaseShip();
+			Ship mship = targetShip.getBaseShip();
 			if ((mship.getEngine() != 0) && (mship.getCrew() != 0 || !mship.getUnits().isEmpty()))
 			{
 				throw new ValidationException("Das Schiff, an das das feindliche Schiff angedockt hat, ist noch bewegungsf&auml;hig.", errorurl);
@@ -158,17 +158,17 @@ public class BoardController extends Controller
 		}
 
 		//In einem Kampf?
-		if ((eigenesSchiff.getBattle() != null) || (zielSchiff.getBattle() != null))
+		if ((ownShip.getBattle() != null) || (targetShip.getBattle() != null))
 		{
 			throw new ValidationException("Eines der Schiffe ist zurzeit in einen Kampf verwickelt.", errorurl);
 		}
 
-		if (zielSchiff.getStatus().contains("disable_iff"))
+		if (targetShip.getStatus().contains("disable_iff"))
 		{
 			throw new ValidationException("Das Schiff besitzt keine IFF-Kennung und kann daher nicht gekapert/gepl&uuml;ndert werden.", errorurl);
 		}
 		org.hibernate.Session db = ContextMap.getContext().getDB();
-		StarSystem system = (StarSystem) db.get(StarSystem.class, eigenesSchiff.getSystem());
+		StarSystem system = (StarSystem) db.get(StarSystem.class, ownShip.getSystem());
 		if(!system.isBattleAllowed() || system.getAccess() == Access.HOMESYSTEM)
 		{
 			throw new ValidationException("In diesem System sind Kaperungen und Pl&uuml;nderungen nicht erlaubt.", errorurl);
