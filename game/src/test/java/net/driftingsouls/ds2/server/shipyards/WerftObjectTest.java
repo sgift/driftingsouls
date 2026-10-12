@@ -102,7 +102,7 @@ public class WerftObjectTest extends DBSingleTransactionTest
 	 * Testet die Destroy-Operation
 	 */
 	@Test
-	public void gegebenEineWerftMitZweiZuBauendenSchiffen_destroy_sollteDieWerftUndBeideZuBauendenSchiffeEntfernen()
+	public void givenAShipyardWithTwoShipsToBuild_destroy_shouldRemoveTheShipyardAndBothShipsToBuild()
 	{
 		// setup
 
@@ -119,7 +119,7 @@ public class WerftObjectTest extends DBSingleTransactionTest
 	 * Testet die Destroy-Operation bei Werftkomplexen
 	 */
 	@Test
-	public void gegebenEinWerftKomplexMitZweiZuBauendenSchiffen_destroy_sollteDenKomplexAufloesenUndAlleBauauftraegeVerwerfen()
+	public void givenAShipyardComplexWithTwoShipsToBuild_destroy_shouldDissolveTheComplexAndDiscardAllBuildOrders()
 	{
 		// setup
 		WerftObject[] members = this.werftKomplex.getMembers();
@@ -137,7 +137,7 @@ public class WerftObjectTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinWerftKomplexAusDreiWerftenMitZweiZuBauendenSchiffenUndEineDarausZuLoeschendeWerft_destroy_sollteDieseEineWerftEntfernenUndDenKomplexBestehenLassen()
+	public void givenAShipyardComplexOfThreeShipyardsWithTwoShipsToBuildAndOneShipyardToDelete_destroy_shouldRemoveThatShipyardAndKeepTheComplex()
 	{
 		// setup
 
@@ -152,7 +152,7 @@ public class WerftObjectTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinWerftKomplexAusZweiWerftenMitZweiZuBauendenSchiffenUndEineDarausZuLoeschendeWerft_destroy_sollteDieseEineWerftEntfernenUndDenKomplexBestehenLassen()
+	public void givenAShipyardComplexOfTwoShipyardsWithTwoShipsToBuildAndOneShipyardToDelete_destroy_shouldRemoveThatShipyardAndKeepTheComplex()
 	{
 		// setup
 		this.werftKomplexPart.destroy();
@@ -170,7 +170,7 @@ public class WerftObjectTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEineWerftMitZweiBauauftraegen_getBuildQueue_sollteDieseSortiertNachPositionZurueckgeben()
+	public void givenAShipyardWithTwoBuildOrders_getBuildQueue_shouldReturnThemSortedByPosition()
 	{
 		// setup
 		this.werft.getBuildQueue().forEach(qe -> qe.setPosition(3 - qe.getPosition()));
@@ -186,7 +186,7 @@ public class WerftObjectTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEineWerftOhneBauauftraege_getBuildQueue_sollteEineLeereListeZurueckgeben()
+	public void givenAShipyardWithoutBuildOrders_getBuildQueue_shouldReturnAnEmptyList()
 	{
 		// setup
 		// run
@@ -198,7 +198,7 @@ public class WerftObjectTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEineWerftAusEinemWerftKomplex_getKomplex_sollteDiesenKomplexZurueckgeben()
+	public void givenAShipyardInAShipyardComplex_getKomplex_shouldReturnThatComplex()
 	{
 		// setup
 		// run
@@ -208,7 +208,7 @@ public class WerftObjectTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEineBasisWerft_getKomplex_sollteNullZurueckgeben()
+	public void givenABaseShipyard_getKomplex_shouldReturnNull()
 	{
 		// setup
 		// run
@@ -218,7 +218,7 @@ public class WerftObjectTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinWerftKomplex_getKomplex_sollteNullZurueckgeben()
+	public void givenAShipyardComplex_getKomplex_shouldReturnNull()
 	{
 		// setup
 		// run
@@ -229,7 +229,7 @@ public class WerftObjectTest extends DBSingleTransactionTest
 
 	@SuppressWarnings("ConstantConditions")
 	@Test
-	public void gegebenEineWerftMitZuBauendenSchiffenUndEineGueltigePosition_getBuildQueueEntry_sollteDasPassendeZuBauendeSchiffZurueckgeben()
+	public void givenAShipyardWithShipsToBuildAndAValidPosition_getBuildQueueEntry_shouldReturnTheMatchingShipToBuild()
 	{
 		// setup
 
@@ -242,7 +242,7 @@ public class WerftObjectTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEineWerftMitZuBauendenSchiffenUndEineUngueltigePosition_getBuildQueueEntry_sollteNullZurueckgeben()
+	public void givenAShipyardWithShipsToBuildAndAnInvalidPosition_getBuildQueueEntry_shouldReturnNull()
 	{
 		// setup
 
