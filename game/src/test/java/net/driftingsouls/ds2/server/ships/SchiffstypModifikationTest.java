@@ -14,7 +14,7 @@ import static org.junit.Assert.*;
 public class SchiffstypModifikationTest
 {
 	@Test
-	public void gegebenEinSchiffOhneWaffenUndEinModulMitWaffen_applyTo_sollteDemSchiffDieseWaffenHinzufuegen()
+	public void givenAShipWithoutWeaponsAndAModuleWithWeapons_applyTo_shouldAddTheseWeaponsToTheShip()
 	{
 		// setup
 		SchiffstypModifikation mod = new SchiffstypModifikation();
@@ -35,7 +35,7 @@ public class SchiffstypModifikationTest
 	}
 
 	@Test
-	public void gegebenEinSchiffMitWaffenUndEinModulMitWaffen_applyTo_sollteDemSchiffDieseWaffenHinzufuegen()
+	public void givenAShipWithWeaponsAndAModuleWithWeapons_applyTo_shouldAddTheseWeaponsToTheShip()
 	{
 		// setup
 		SchiffstypModifikation mod = new SchiffstypModifikation();
@@ -65,7 +65,7 @@ public class SchiffstypModifikationTest
 	}
 
 	@Test
-	public void gegebenEinSchiffMitWaffenUndEinModulMitGleichenWaffen_applyTo_sollteDieWaffenDesSchiffsModifizieren()
+	public void givenAShipWithWeaponsAndAModuleWithTheSameWeapons_applyTo_shouldModifyTheShipsWeapons()
 	{
 		// setup
 		SchiffstypModifikation mod = new SchiffstypModifikation();
@@ -93,7 +93,7 @@ public class SchiffstypModifikationTest
 	}
 
 	@Test
-	public void gegebenEinSchiffMitWaffenUndEinModulMitZuEntfernendenWaffen_applyTo_sollteDieWaffenDesSchiffsModifizieren()
+	public void givenAShipWithWeaponsAndAModuleWithWeaponsToRemove_applyTo_shouldModifyTheShipsWeapons()
 	{
 		// setup
 		SchiffstypModifikation mod = new SchiffstypModifikation();
@@ -119,7 +119,7 @@ public class SchiffstypModifikationTest
 	}
 
 	@Test
-	public void gegebenEinSchiffMitWaffenUndEinModulMitAnderenWaffenUndEinSlotDerWaffenErsetzt_applyTo_sollteDieWaffenDesSchiffsErsetzen()
+	public void givenAShipWithWeaponsAndAModuleWithOtherWeaponsAndASlotThatReplacesWeapons_applyTo_shouldReplaceTheShipsWeapons()
 	{
 		// setup
 		SchiffstypModifikation mod = new SchiffstypModifikation();
