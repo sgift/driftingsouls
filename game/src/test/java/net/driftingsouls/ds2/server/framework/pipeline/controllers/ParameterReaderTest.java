@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
 public class ParameterReaderTest extends DBSingleTransactionTest
 {
 	@Test
-	public void gegebenEinStringAlsZieltypUndEineLeereRequest_readParameterAsType_sollteEinenLeerstringZurueckgeben()
+	public void givenStringAsTargetTypeAndAnEmptyRequest_readParameterAsType_shouldReturnAnEmptyString()
 	{
 		// setup
 		Request req = new TestRequest();
@@ -32,7 +32,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinStringAlsZieltypUndEineRequestMitPassendemWert_readParameterAsType_sollteEinenLeerstringZurueckgeben()
+	public void givenStringAsTargetTypeAndARequestWithMatchingValue_readParameterAsType_shouldReturnAnEmptyString()
 	{
 		// setup
 		Request req = new TestRequest("test", "123").addParameter("nichtRelevant", "foobar");
@@ -47,7 +47,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEineMapAlsZieltypUndEineLeereRequest_readParameterAsType_sollteEineLeereMapZurueckgeben()
+	public void givenMapAsTargetTypeAndAnEmptyRequest_readParameterAsType_shouldReturnAnEmptyMap()
 	{
 		// setup
 		Request req = new TestRequest();
@@ -64,7 +64,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinIntAlsZieltypUndEineLeereRequest_readParameterAsType_sollte0Zurueckgeben()
+	public void givenIntAsTargetTypeAndAnEmptyRequest_readParameterAsType_shouldReturn0()
 	{
 		// setup
 		Request req = new TestRequest();
@@ -79,7 +79,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinIntAlsZieltypUndEineRequestMitPassendemWert_readParameterAsType_sollteDenTransformiertenWertZurueckgeben()
+	public void givenIntAsTargetTypeAndARequestWithMatchingValue_readParameterAsType_shouldReturnTheConvertedValue()
 	{
 		// setup
 		Request req = new TestRequest("test", "123").addParameter("nichtRelevant", "foobar");
@@ -94,7 +94,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinIntegerAlsZieltypUndEineLeereRequest_readParameterAsType_sollteNullZurueckgeben()
+	public void givenIntegerAsTargetTypeAndAnEmptyRequest_readParameterAsType_shouldReturnNull()
 	{
 		// setup
 		Request req = new TestRequest();
@@ -109,7 +109,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinIntegerAlsZieltypUndEineRequestMitPassendemWert_readParameterAsType_sollteDenTransformiertenWertZurueckgeben()
+	public void givenIntegerAsTargetTypeAndARequestWithMatchingValue_readParameterAsType_shouldReturnTheConvertedValue()
 	{
 		// setup
 		Request req = new TestRequest("test", "123").addParameter("nichtRelevant", "foobar");
@@ -124,7 +124,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinPrimitivesBooleanAlsZieltypUndEineRequestMitPassendemTrueWert_readParameterAsType_sollteDenTransformiertenWertZurueckgeben()
+	public void givenPrimitiveBooleanAsTargetTypeAndARequestWithMatchingTrueValue_readParameterAsType_shouldReturnTheConvertedValue()
 	{
 		// setup
 		Request req = new TestRequest("test", "1").addParameter("nichtRelevant", "foobar");
@@ -139,7 +139,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinPrimitivesBooleanAlsZieltypUndEineRequestMitPassendemWert_readParameterAsType_sollteDenTransformiertenWertZurueckgeben()
+	public void givenPrimitiveBooleanAsTargetTypeAndARequestWithMatchingValue_readParameterAsType_shouldReturnTheConvertedValue()
 	{
 		// setup
 		Request req = new TestRequest("test", "0").addParameter("nichtRelevant", "foobar");
@@ -154,7 +154,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinPrimitivesBooleanAlsZieltypUndEineLeereRequest_readParameterAsType_sollteFalseZurueckgeben()
+	public void givenPrimitiveBooleanAsTargetTypeAndAnEmptyRequest_readParameterAsType_shouldReturnFalse()
 	{
 		// setup
 		Request req = new TestRequest();
@@ -169,7 +169,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinBooleanAlsZieltypUndEineLeereRequest_readParameterAsType_sollteNullZurueckgeben()
+	public void givenBooleanAsTargetTypeAndAnEmptyRequest_readParameterAsType_shouldReturnNull()
 	{
 		// setup
 		Request req = new TestRequest();
@@ -184,7 +184,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinBooleanAlsZieltypUndEineRequestMitPassendemWert_readParameterAsType_sollteDenTransformiertenWertZurueckgeben()
+	public void givenBooleanAsTargetTypeAndARequestWithMatchingValue_readParameterAsType_shouldReturnTheConvertedValue()
 	{
 		// setup
 		Request req = new TestRequest("test", "0").addParameter("nichtRelevant", "foobar");
@@ -199,7 +199,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinBooleanAlsZieltypUndEineRequestMitPassendemTrueWert_readParameterAsType_sollteDenTransformiertenWertZurueckgeben()
+	public void givenBooleanAsTargetTypeAndARequestWithMatchingTrueValue_readParameterAsType_shouldReturnTheConvertedValue()
 	{
 		// setup
 		Request req = new TestRequest("test", "1").addParameter("nichtRelevant", "foobar");
@@ -214,7 +214,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEineEntityAlsZieltypUndEineRequestMitPassendemWert_readParameterAsType_sollteDenTransformiertenWertZurueckgeben()
+	public void givenEntityAsTargetTypeAndARequestWithMatchingValue_readParameterAsType_shouldReturnTheConvertedValue()
 	{
 		// setup
 		Rasse rasse = persist(new Rasse("test", false));
@@ -230,7 +230,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEineEntityAlsZieltypUndEineRequestMitNichtInDerDBVorhandenemWert_readParameterAsType_sollteNullZurueckgeben()
+	public void givenEntityAsTargetTypeAndARequestWithAValueMissingFromTheDb_readParameterAsType_shouldReturnNull()
 	{
 		// setup
 		Request req = new TestRequest("test", "1").addParameter("nichtRelevant", "foobar");
@@ -245,7 +245,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEineEntityAlsZieltypUndEineLeereRequest_readParameterAsType_sollteNullZurueckgeben()
+	public void givenEntityAsTargetTypeAndAnEmptyRequest_readParameterAsType_shouldReturnNull()
 	{
 		// setup
 		Request req = new TestRequest();
@@ -260,7 +260,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEineMapAlsZieltypUndPassendeRequestParameter_readParameterAsType_sollteEineMapMitDenTransformiertenParameternZurueckgeben()
+	public void givenMapAsTargetTypeAndMatchingRequestParameters_readParameterAsType_shouldReturnAMapOfTheConvertedParameters()
 	{
 		// setup
 		Request req = new TestRequest("testABC", "1").addParameter("testDEF", "2").addParameter("testGHI", "3");
@@ -281,7 +281,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEineMapAlsZieltypUndPassendeRequestParameterSowieEinNachDemPrefixBenannterParameter_readParameterAsType_sollteEineMapNurMitDenTransformiertenParameternZurueckgeben()
+	public void givenMapAsTargetTypeAndMatchingRequestParametersPlusOneNamedAfterThePrefix_readParameterAsType_shouldReturnAMapOfOnlyTheConvertedParameters()
 	{
 		// setup
 		Request req = new TestRequest("testABC", "1").addParameter("testDEF", "2").addParameter("testGHI", "3").addParameter("test", "FEHLER");
@@ -302,7 +302,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEineMapAlsZieltypUndPassendeRequestParameterSowieEinigeUnpassende_readParameterAsType_sollteEineMapNurMitDenPassendenTransformiertenParameternZurueckgeben()
+	public void givenMapAsTargetTypeAndMatchingRequestParametersPlusSomeNonMatching_readParameterAsType_shouldReturnAMapOfOnlyTheMatchingConvertedParameters()
 	{
 		// setup
 		Request req = new TestRequest("testABC", "1").addParameter("testDEF", "2").addParameter("testGHI", "3").addParameter("abc", "PASST NICHT").addParameter("def", "PASST NICHT");
@@ -323,7 +323,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEineMapAlsZieltypUndPassendeRequestParameterSowieEinPrefixUndSuffix_readParameterAsType_sollteEineMapMitDenTransformiertenParameternZurueckgeben()
+	public void givenMapAsTargetTypeAndMatchingRequestParametersWithPrefixAndSuffix_readParameterAsType_shouldReturnAMapOfTheConvertedParameters()
 	{
 		// setup
 		Request req = new TestRequest("testABC42", "1").addParameter("testDEF42", "2").addParameter("testGHI42", "3");
@@ -344,7 +344,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEineMapAlsZieltypUndPassendeRequestParameterSowieNurEinSuffix_readParameterAsType_sollteEineMapMitDenTransformiertenParameternZurueckgeben()
+	public void givenMapAsTargetTypeAndMatchingRequestParametersWithOnlyASuffix_readParameterAsType_shouldReturnAMapOfTheConvertedParameters()
 	{
 		// setup
 		Request req = new TestRequest("ABC42", "1").addParameter("DEF42", "2").addParameter("GHI42", "3");
@@ -365,7 +365,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEineMapAlsZieltypUndPassendeRequestParameterOhnePrefixUndSuffix_readParameterAsType_sollteEineMapMitDenTransformiertenParameternZurueckgeben()
+	public void givenMapAsTargetTypeAndMatchingRequestParametersWithoutPrefixAndSuffix_readParameterAsType_shouldReturnAMapOfTheConvertedParameters()
 	{
 		// setup
 		Request req = new TestRequest("ABC", "1").addParameter("DEF", "2").addParameter("GHI", "3");
@@ -386,7 +386,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEineStringIntegerMapAlsZieltypUndPassendeRequestParameter_readParameterAsType_sollteEineMapMitDenTransformiertenParameternZurueckgeben()
+	public void givenStringIntegerMapAsTargetTypeAndMatchingRequestParameters_readParameterAsType_shouldReturnAMapOfTheConvertedParameters()
 	{
 		// setup
 		Request req = new TestRequest("testABC", "1").addParameter("testDEF", "2").addParameter("testGHI", "3");
@@ -407,7 +407,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEineIntegerIntegerMapAlsZieltypUndPassendeRequestParameter_readParameterAsType_sollteEineMapMitDenTransformiertenParameternZurueckgeben()
+	public void givenIntegerIntegerMapAsTargetTypeAndMatchingRequestParameters_readParameterAsType_shouldReturnAMapOfTheConvertedParameters()
 	{
 		// setup
 		Request req = new TestRequest("test2", "1").addParameter("test3", "2").addParameter("test42", "3");
@@ -428,7 +428,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEineEnumEnumMapAlsZieltypUndPassendeRequestParameter_readParameterAsType_sollteEineMapMitDenTransformiertenParameternZurueckgeben()
+	public void givenEnumEnumMapAsTargetTypeAndMatchingRequestParameters_readParameterAsType_shouldReturnAMapOfTheConvertedParameters()
 	{
 		// setup
 		Request req = new TestRequest("testTEST1", "TEST2").addParameter("testTEST2", "TEST3").addParameter("testTEST3", "TEST1");
@@ -449,7 +449,7 @@ public class ParameterReaderTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEineEntityEntityMapAlsZieltypUndPassendeRequestParameter_readParameterAsType_sollteEineMapMitDenTransformiertenParameternZurueckgeben()
+	public void givenEntityEntityMapAsTargetTypeAndMatchingRequestParameters_readParameterAsType_shouldReturnAMapOfTheConvertedParameters()
 	{
 		// setup
 		Rasse rasse1 = persist(new Rasse("Test1", false));
