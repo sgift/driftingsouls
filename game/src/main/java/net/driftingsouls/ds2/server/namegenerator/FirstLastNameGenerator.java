@@ -34,16 +34,16 @@ public class FirstLastNameGenerator
 {
 	private final NameProducer lastname;
 	private final NameProducer firstName;
-	private final String[] kapitalisierungen;
+	private final String[] capitalizations;
 
 	/**
 	 * Konstruktor.
 	 */
-	public FirstLastNameGenerator(String vornamenDatei, String nachnamenDatei, String[] kapitalisierungen)
+	public FirstLastNameGenerator(String firstNamesFile, String lastNamesFile, String[] capitalizations)
 	{
-		this.lastname = NameProducerManager.INSTANCE.getMarkovNameProducer(FirstLastNameGenerator.class.getResource(nachnamenDatei));
-		this.firstName = NameProducerManager.INSTANCE.getListBasedNameProducer(FirstLastNameGenerator.class.getResource(vornamenDatei), true);
-		this.kapitalisierungen = kapitalisierungen;
+		this.lastname = NameProducerManager.INSTANCE.getMarkovNameProducer(FirstLastNameGenerator.class.getResource(lastNamesFile));
+		this.firstName = NameProducerManager.INSTANCE.getListBasedNameProducer(FirstLastNameGenerator.class.getResource(firstNamesFile), true);
+		this.capitalizations = capitalizations;
 	}
 
 	private String generateLastName()
@@ -56,7 +56,7 @@ public class FirstLastNameGenerator
 
 		name = name.toLowerCase();
 		name = Character.toUpperCase(name.charAt(0)) + name.substring(1);
-		name = upperAfterStrings(name, kapitalisierungen);
+		name = upperAfterStrings(name, capitalizations);
 
 		return name;
 	}

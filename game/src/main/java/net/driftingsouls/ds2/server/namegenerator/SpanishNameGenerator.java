@@ -34,16 +34,16 @@ public class SpanishNameGenerator
 {
 	private final NameProducer lastname;
 	private final NameProducer firstName;
-	private final String[] kapitalisierungen;
+	private final String[] capitalizations;
 
 	/**
 	 * Konstruktor.
 	 */
-	public SpanishNameGenerator(String vornamenDatei, String nachnamenDatei, String[] kapitalisierungen)
+	public SpanishNameGenerator(String firstNamesFile, String lastNamesFile, String[] capitalizations)
 	{
-		this.lastname = NameProducerManager.INSTANCE.getMarkovNameProducer(SpanishNameGenerator.class.getResource(nachnamenDatei));
-		this.firstName = NameProducerManager.INSTANCE.getListBasedNameProducer(SpanishNameGenerator.class.getResource(vornamenDatei), true);
-		this.kapitalisierungen = kapitalisierungen;
+		this.lastname = NameProducerManager.INSTANCE.getMarkovNameProducer(SpanishNameGenerator.class.getResource(lastNamesFile));
+		this.firstName = NameProducerManager.INSTANCE.getListBasedNameProducer(SpanishNameGenerator.class.getResource(firstNamesFile), true);
+		this.capitalizations = capitalizations;
 	}
 
 	private String generateLastName()
@@ -56,7 +56,7 @@ public class SpanishNameGenerator
 
 		name = name.toLowerCase();
 		name = Character.toUpperCase(name.charAt(0)) + name.substring(1);
-		name = upperAfterStrings(name, kapitalisierungen);
+		name = upperAfterStrings(name, capitalizations);
 
 		return name;
 	}
