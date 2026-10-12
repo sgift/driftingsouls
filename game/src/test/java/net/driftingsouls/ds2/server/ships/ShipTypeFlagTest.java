@@ -10,7 +10,7 @@ import static org.junit.Assert.assertTrue;
 public class ShipTypeFlagTest
 {
 	@Test
-	public void gegebenEineIdEinesFlags_byFlag_sollteDasZugehoerigeEnumZurueckgeben()
+	public void givenAFlagId_byFlag_shouldReturnTheMatchingEnum()
 	{
 		// setup
 		String id = ShipTypeFlag.COLONIZER.getFlag();
@@ -24,7 +24,7 @@ public class ShipTypeFlagTest
 	}
 
 	@Test
-	public void gegebenEinStringVonFlagIds_parseFlags_sollteDieZugehoerigenEnumsAlsSetZurueckgeben()
+	public void givenAStringOfFlagIds_parseFlags_shouldReturnTheMatchingEnumsAsSet()
 	{
 		// setup
 		String str = ShipTypeFlag.COLONIZER.getFlag()+" "+ShipTypeFlag.JAEGER.getFlag()+" "+ShipTypeFlag.TRADEPOST.getFlag();
@@ -40,7 +40,7 @@ public class ShipTypeFlagTest
 	}
 
 	@Test
-	public void gegebenEinStringMitGenauEinerFlagId_parseFlags_sollteDasZugehoerigeEnumAlsSetZurueckgeben()
+	public void givenAStringWithExactlyOneFlagId_parseFlags_shouldReturnTheMatchingEnumAsSet()
 	{
 		// setup
 		String str = ShipTypeFlag.COLONIZER.getFlag();
@@ -54,7 +54,7 @@ public class ShipTypeFlagTest
 	}
 
 	@Test
-	public void gegebenEinStringVonFlagIdsMitZusaetzlichenLeerzeichen_parseFlags_sollteDieZugehoerigenEnumsAlsSetZurueckgeben()
+	public void givenAStringOfFlagIdsWithExtraWhitespace_parseFlags_shouldReturnTheMatchingEnumsAsSet()
 	{
 		// setup
 		String str = " "+ShipTypeFlag.COLONIZER.getFlag()+"  "+ShipTypeFlag.JAEGER.getFlag()+"  "+ShipTypeFlag.TRADEPOST.getFlag()+" ";
@@ -70,7 +70,7 @@ public class ShipTypeFlagTest
 	}
 
 	@Test
-	public void gegebenEinLeererString_parseFlags_sollteEinLeeresSetZurueckgeben()
+	public void givenAnEmptyString_parseFlags_shouldReturnAnEmptySet()
 	{
 		// setup
 		String str = "";
