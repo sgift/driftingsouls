@@ -10,7 +10,7 @@ import static org.junit.Assert.*;
 public class StringToTypeConverterTest
 {
 	@Test
-	public void gegebenEinZahlAlsStringUndIntegerAlsZieldatentyp_convert_sollteDenStringInEinIntegerWertKonvertieren() {
+	public void givenANumberAsStringAndIntegerAsTargetType_convert_shouldConvertTheStringToAnInteger() {
 		// setup
 		String valueStr = "42";
 
@@ -22,7 +22,7 @@ public class StringToTypeConverterTest
 	}
 
 	@Test
-	public void gegebenEinStringUndStringAlsZieldatentyp_convert_sollteDenStringUnveraendertZurueckgeben() {
+	public void givenAStringAndStringAsTargetType_convert_shouldReturnTheStringUnchanged() {
 		// setup
 		String valueStr = "ABCtest42";
 
@@ -34,7 +34,7 @@ public class StringToTypeConverterTest
 	}
 
 	@Test
-	public void gegebenEinBooleanAlsStringUndBooleanAlsZieldatentyp_convert_sollteDenStringInEinBooleanKonvertieren() {
+	public void givenABooleanAsStringAndBooleanAsTargetType_convert_shouldConvertTheStringToABoolean() {
 		// setup
 		String valueStr = Boolean.TRUE.toString();
 
@@ -46,7 +46,7 @@ public class StringToTypeConverterTest
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void gegebenEinDoubleAlsStringUndIntegerAlsZieldatentyp_convert_sollteEineIllegalArgumentExceptionWerfen() {
+	public void givenADoubleAsStringAndIntegerAsTargetType_convert_shouldThrowAnIllegalArgumentException() {
 		// setup
 		String valueStr = "1.42";
 
@@ -55,7 +55,7 @@ public class StringToTypeConverterTest
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
-	public void gegebenEinBeliebigerStringUndDieseKlasseAlsZieldatentyp_convert_sollteEineUnsupportedOperationExceptionWerfen() {
+	public void givenAnyStringAndThisClassAsTargetType_convert_shouldThrowAnUnsupportedOperationException() {
 		// setup
 		String valueStr = "1.42";
 
@@ -65,7 +65,7 @@ public class StringToTypeConverterTest
 
 	@SuppressWarnings("ConstantConditions")
 	@Test
-	public void gegebenNullAlsWertUndEineBeliebigeKlasseAlsZieldatentyp_convert_sollteNullZurueckgeben() {
+	public void givenNullAsValueAndAnyClassAsTargetType_convert_shouldReturnNull() {
 		// setup
 		String valueStr = null;
 
@@ -77,7 +77,7 @@ public class StringToTypeConverterTest
 	}
 
 	@Test
-	public void gegebenEinDoubleAlsWertUndBigDecimalAlsZieldatentyp_convert_sollteDenStringInEinBigDecimalKonvertieren() {
+	public void givenADoubleAsValueAndBigDecimalAsTargetType_convert_shouldConvertTheStringToABigDecimal() {
 		// setup
 		String valueStr = "42.01";
 
@@ -89,7 +89,7 @@ public class StringToTypeConverterTest
 	}
 
 	@Test
-	public void gegebenEinIntegerAlsWertUndBigIntegerAlsZieldatentyp_convert_sollteDenStringInEinBigIntegerKonvertieren() {
+	public void givenAnIntegerAsValueAndBigIntegerAsTargetType_convert_shouldConvertTheStringToABigInteger() {
 		// setup
 		String valueStr = "4242";
 
@@ -101,7 +101,7 @@ public class StringToTypeConverterTest
 	}
 
 	@Test
-	public void gegebenEinEinfachesIntAlsWert_convert_sollteEinIntegerZurueckgeben() {
+	public void givenAPrimitiveIntAsValue_convert_shouldReturnAnInteger() {
 		// setup
 		String valueStr = "42";
 
@@ -113,7 +113,7 @@ public class StringToTypeConverterTest
 	}
 
 	@Test
-	public void gegebenEinEinfachesBooleanAlsWert_convert_sollteEinBooleanZurueckgeben() {
+	public void givenAPrimitiveBooleanAsValue_convert_shouldReturnABoolean() {
 		// setup
 		String valueStr = Boolean.TRUE.toString();
 
