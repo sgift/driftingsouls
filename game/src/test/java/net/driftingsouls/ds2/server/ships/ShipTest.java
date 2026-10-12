@@ -87,7 +87,7 @@ public class ShipTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinSchiffOhneAngedockteContainer_dock_sollteDenContainerAndockenUndDenCargoZusammenlegen()
+	public void givenAShipWithoutDockedContainers_dock_shouldDockTheContainerAndMergeTheCargo()
 	{
 		// setup
 		assertThat(this.container1.isLanded() || this.container1.isDocked(), is(false));
@@ -112,7 +112,7 @@ public class ShipTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinSchiffMitEinemAngedockteContainer_dock_sollteDenContainerAndockenUndDenCargoZusammenlegen()
+	public void givenAShipWithOneDockedContainer_dock_shouldDockTheContainerAndMergeTheCargo()
 	{
 		// setup
 		assertThat(this.tanker.dock(this.container1), is(false));
@@ -133,7 +133,7 @@ public class ShipTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinSchiffMitEinemAngedockteContainerUndGenauDiesenContainerAlsNeuesZiel_dock_sollteDenContainerNichtErneutAndocken()
+	public void givenAShipWithOneDockedContainerAndThatContainerAsNewTarget_dock_shouldNotDockTheContainerAgain()
 	{
 		// setup
 		assertThat(this.tanker.dock(this.container1), is(false));
@@ -157,7 +157,7 @@ public class ShipTest extends DBSingleTransactionTest
 	 * Testet das Andocken von Containern an ein Schiff
 	 */
 	@Test
-	public void gegebenEinSchiffEinesSpielersMitSuperDockRechtenUndEinContainerEinesAnderenSpielers_dock_sollteDiesenContainerAndocken()
+	public void givenAShipOfAUserWithSuperDockRightsAndAContainerOfAnotherUser_dock_shouldDockThisContainer()
 	{
 		// setup
 		this.tanker.setOwner(user2);
@@ -182,7 +182,7 @@ public class ShipTest extends DBSingleTransactionTest
 	 * Testet das Andocken von Containern an ein Schiff
 	 */
 	@Test
-	public void gegebenEinSchiffEinesSpielersOhneSuperDockRechtenUndEinContainerEinesAnderenSpielers_dock_sollteDiesenContainerNichtAndocken()
+	public void givenAShipOfAUserWithoutSuperDockRightsAndAContainerOfAnotherUser_dock_shouldNotDockThisContainer()
 	{
 		// setup
 		this.tanker.setOwner(user3);
@@ -207,7 +207,7 @@ public class ShipTest extends DBSingleTransactionTest
 	 * Testet das Andocken von mehreren Containern auf einmal an ein Schiff
 	 */
 	@Test
-	public void gegebenEinSchiffUndMehrereGleichzeitigAnzudockendeContainer_dock_sollteDieseAlleAndockenUndDieCargosZusammenlegen()
+	public void givenAShipAndSeveralContainersToDockAtOnce_dock_shouldDockThemAllAndMergeTheCargo()
 	{
 		// setup
 		assertThat(this.container1.isLanded() || this.container1.isDocked(), is(false));
@@ -235,7 +235,7 @@ public class ShipTest extends DBSingleTransactionTest
 	 * Testet das Abdocken von Containern an ein Schiff
 	 */
 	@Test
-	public void gegebenEinSchiffMitZweiAngedocktenContainernUndEinemDavonAbzudockendenContainer_undock_sollteEinenContainerAbdocken()
+	public void givenAShipWithTwoDockedContainersAndOneOfThemToUndock_undock_shouldUndockOneContainer()
 	{
 		// setup
 		assertThat(this.tanker.dock(this.container1, this.container2), is(false));
@@ -260,7 +260,7 @@ public class ShipTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinSchiffMitZweiAngedocktenContainernUndSehrVielCargoUndEinemDavonAbzudockendenContainer_undock_sollteEinenContainerAbdockenUndDenCargoAufteilen()
+	public void givenAShipWithTwoDockedContainersAndLotsOfCargoAndOneOfThemToUndock_undock_shouldUndockOneContainerAndSplitTheCargo()
 	{
 		// setup
 		assertThat(this.tanker.dock(this.container1, this.container2), is(false));
@@ -291,7 +291,7 @@ public class ShipTest extends DBSingleTransactionTest
 	 * Testet das Abdocken aller Container an ein Schiff auf einmal
 	 */
 	@Test
-	public void gegebenEinSchiffMitMehrerenGedocktenContainern_undock_sollteAlleContainerAbdocken()
+	public void givenAShipWithSeveralDockedContainers_undock_shouldUndockAllContainers()
 	{
 		// setup
 		assertThat(this.tanker.dock(this.container1, this.container2), is(false));
@@ -319,7 +319,7 @@ public class ShipTest extends DBSingleTransactionTest
 	 * Testet das Abdocken einer Liste von Container von ein Schiff
 	 */
 	@Test
-	public void gegebenEinSchiffMitZweiAngedocktenContainernUndEineListeAbzudockenderContainer_undock_sollteDieseContainerAbdocken()
+	public void givenAShipWithTwoDockedContainersAndAListOfContainersToUndock_undock_shouldUndockTheseContainers()
 	{
 		// setup
 		assertThat(this.tanker.dock(this.container1, this.container2), is(false));
@@ -344,7 +344,7 @@ public class ShipTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinSchiffMitZweiGelandetenJaegernUndEinemZustartendenJaeger_start_sollteDiesenJaegerStarten()
+	public void givenAShipWithTwoLandedFightersAndOneFighterToLaunch_start_shouldLaunchThisFighter()
 	{
 		// setup
 		assertThat(this.tanker.land(this.jaeger1, this.jaeger2), is(false));
@@ -372,7 +372,7 @@ public class ShipTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinSchiffMitEinemGelandetenJaegerUndDiesemZuStartendenJaeger_start_sollteDiesenJaegerStarten()
+	public void givenAShipWithOneLandedFighterAndThatFighterToLaunch_start_shouldLaunchThisFighter()
 	{
 		// setup
 		assertThat(this.tanker.land(this.jaeger2), is(false));
@@ -403,7 +403,7 @@ public class ShipTest extends DBSingleTransactionTest
 	 * Testet das Starten aller Jaegern von einem Schiff
 	 */
 	@Test
-	public void gegebenEinSchiffMitZweiGelandetenJaegern_start_sollteAlleJaegerStarten()
+	public void givenAShipWithTwoLandedFighters_start_shouldLaunchAllFighters()
 	{
 		// setup
 		assertThat(this.tanker.land(this.jaeger1, this.jaeger2), is(false));
@@ -436,7 +436,7 @@ public class ShipTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinSchiffOhneGedockteContainer_getDockedShips_sollteEineLeereListeZurueckgeben()
+	public void givenAShipWithoutDockedContainers_getDockedShips_shouldReturnAnEmptyList()
 	{
 		// setup
 		// run
@@ -447,7 +447,7 @@ public class ShipTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinSchiffMitZweiGedocktenContainern_getDockedShips_sollteEineListeMitDiesenBeidenContainerZurueckgeben()
+	public void givenAShipWithTwoDockedContainers_getDockedShips_shouldReturnAListOfBothContainers()
 	{
 		// setup
 		assertThat(this.tanker.dock(this.container1, this.container2), is(false));
@@ -464,7 +464,7 @@ public class ShipTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinSchiffMitEinemGedocktenContainer_getDockedShips_sollteEineListeMitDiesemContainerZurueckgeben()
+	public void givenAShipWithOneDockedContainer_getDockedShips_shouldReturnAListWithThisContainer()
 	{
 		// setup
 		assertThat(this.tanker.dock(this.container1), is(false));
@@ -482,7 +482,7 @@ public class ShipTest extends DBSingleTransactionTest
 
 
 	@Test
-	public void gegebenEinSchiffOhneGelandeteJaeger_land_sollteDenJaegerLandenUndDenCargoNichtVeraendern()
+	public void givenAShipWithoutLandedFighters_land_shouldLandTheFighterAndLeaveTheCargoUnchanged()
 	{
 		// setup
 		assertThat(this.jaeger1.isLanded() || this.jaeger1.isDocked(), is(false));
@@ -507,7 +507,7 @@ public class ShipTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinSchiffMitEinemGelandetenJaeger_land_sollteDenJaegerLandenUndDenCargoNichtVeraendern()
+	public void givenAShipWithOneLandedFighter_land_shouldLandTheFighterAndLeaveTheCargoUnchanged()
 	{
 		// setup
 		assertThat(this.tanker.land(this.jaeger1), is(false));
@@ -527,7 +527,7 @@ public class ShipTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinSchiffMitEinemGelandetenjaegerUndGenauDiesenJaegerAlsZiel_land_sollteDenJaegerNichtErneutLanden()
+	public void givenAShipWithOneLandedFighterAndThatFighterAsTarget_land_shouldNotLandTheFighterAgain()
 	{
 		// setup
 		assertThat(this.tanker.land(this.jaeger1), is(false));
@@ -548,7 +548,7 @@ public class ShipTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinSchiffEinesSpielersMitSuperDockRechtenUndEinJaegerEinesAnderenSpielers_land_sollteDiesenJaegerNichtLanden()
+	public void givenAShipOfAUserWithSuperDockRightsAndAFighterOfAnotherUser_land_shouldNotLandThisFighter()
 	{
 		// setup
 		this.tanker.setOwner(user2);
@@ -570,7 +570,7 @@ public class ShipTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinSchiffEinesSpielersOhneSuperDockRechtenUndEinJaegerEinesAnderenSpielers_land_sollteDiesenJaegerNichtLanden()
+	public void givenAShipOfAUserWithoutSuperDockRightsAndAFighterOfAnotherUser_land_shouldNotLandThisFighter()
 	{
 		// setup
 		this.tanker.setOwner(user3);
@@ -592,7 +592,7 @@ public class ShipTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinSchiffUndMehrereGleichzeitigZuLandendeJaeger_land_sollteDieseAlleLandenAberDenCargoNichtVeraendern()
+	public void givenAShipAndSeveralFightersToLandAtOnce_land_shouldLandThemAllButLeaveTheCargoUnchanged()
 	{
 		// setup
 		assertThat(this.jaeger1.isLanded() || this.jaeger1.isDocked(), is(false));
@@ -617,7 +617,7 @@ public class ShipTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinSchiffUndEinZuLandenderContainer_land_sollteDiesenNichtLanden()
+	public void givenAShipAndAContainerToLand_land_shouldNotLandIt()
 	{
 		// setup
 		assertThat(this.jaeger1.isLanded() || this.jaeger1.isDocked(), is(false));
