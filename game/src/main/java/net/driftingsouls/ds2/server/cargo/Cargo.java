@@ -662,11 +662,11 @@ public class Cargo implements Cloneable {
 	 *
 	 * @param cargoObj Das Cargoobjekt, gegen das geprueft werden soll.
 	 * @param echoBothSides Soll gegenseitig geprueft werden (<code>true</code>)?
-	 * @param basis Soll fuer den BaseController geprueft werden (<code>true</code>)?
+	 * @param forBase Soll fuer den BaseController geprueft werden (<code>true</code>)?
 	 * @return Die Resourcenliste mit dem Ergebnis.
 	 */
-  public ResourceList compare( Cargo cargoObj, boolean echoBothSides, boolean basis) {
-    return compare(cargoObj,echoBothSides,basis,false);
+  public ResourceList compare( Cargo cargoObj, boolean echoBothSides, boolean forBase) {
+    return compare(cargoObj,echoBothSides,forBase,false);
   }
 
 	/**
@@ -679,11 +679,11 @@ public class Cargo implements Cloneable {
 	 *
 	 * @param cargoObj Das Cargoobjekt, gegen das geprueft werden soll.
 	 * @param echoBothSides Soll gegenseitig geprueft werden (<code>true</code>)?
-	 * @param basis Soll fuer den BaseController geprueft werden (<code>true</code>)?
+	 * @param forBase Soll fuer den BaseController geprueft werden (<code>true</code>)?
 	 * @param buildCosts Soll fuer den BaseController geprueft werden (<code>true</code>)?
 	 * @return Die Resourcenliste mit dem Ergebnis.
 	 */
-	public ResourceList compare( Cargo cargoObj, boolean echoBothSides, boolean basis, boolean buildCosts) {
+	public ResourceList compare( Cargo cargoObj, boolean echoBothSides, boolean forBase, boolean buildCosts) {
 		ResourceList reslist = new ResourceList();
 
 		var itemDao = ItemRepository.getInstance();
@@ -824,13 +824,13 @@ public class Cargo implements Cloneable {
 							fcargo1+
 							"<span class=\"ttcontent ttitem\" ds-item-id=\""+aitem.toString()+"\">"+tooltiptext+"</span></a>";
 					}
-					if( cargo2 > 0 && basis )
+					if( cargo2 > 0 && forBase )
 					{
 						fcargo2 = "<a "+style+" class=\"cargo2 positiv tooltip\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem.toString()+"\">"+
 							fcargo2+
 							"<span class=\"ttcontent ttitem\" ds-item-id=\""+aitem.toString()+"\">"+tooltiptext+"</span></a>";
 					}
-					else if( cargo2 < 0 && basis )
+					else if( cargo2 < 0 && forBase )
 					{
 						fcargo2 = "<a "+style+" class=\"cargo2 negativ tooltip\" href=\"./ds?module=iteminfo&amp;itemlist="+aitem.toString()+"\">"+
 							fcargo2+
