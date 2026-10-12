@@ -16,7 +16,7 @@
  *	License along with this library; if not, write to the Free Software
  *	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package net.driftingsouls.ds2.server.modules.schiffplugins;
+package net.driftingsouls.ds2.server.modules.shipplugins;
 
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.framework.Common;
@@ -31,12 +31,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Schiffsmodul fuer die Anzeige von externen Docks.
+ * Schiffsmodul fuer die Anzeige der Jaegerdocks.
  * @author Christopher Jung
  *
  */
 @Component
-public class ADocksDefault implements ShipPlugin {
+public class JDocksDefault implements ShipPlugin {
 	@Action(ActionType.DEFAULT)
 	public String action(Parameters caller, String act) {
 		Ship ship = caller.ship;
@@ -45,13 +45,13 @@ public class ADocksDefault implements ShipPlugin {
 		String output = "";
 
 		if( !act.equals("") ) {
-			output += "Entlade gedockte Schiffe<br />\n";
+			output += "Entlade J&auml;ger<br />\n";
 			Cargo cargo = ship.getCargo();
 
 			long cargocount = cargo.getMass();
 
-			for( Ship dship : ship.getDockedShips() ) {
-				Cargo dcargo = dship.getCargo();
+			for( Ship lship : ship.getLandedShips() ) {
+				Cargo dcargo = lship.getCargo();
 				long dcargocount = dcargo.getMass();
 
 				if( cargocount + dcargocount > shiptype.getCargo() ) {
@@ -63,7 +63,7 @@ public class ADocksDefault implements ShipPlugin {
 
 				cargocount += dcargocount;
 
-				dship.setCargo(new Cargo());
+				lship.setCargo(new Cargo());
 			}
 
 			ship.setCargo(cargo);
@@ -75,48 +75,53 @@ public class ADocksDefault implements ShipPlugin {
 	@Action(ActionType.DEFAULT)
 	public void output(Parameters caller) {
 		String pluginid = caller.pluginId;
-		Ship ship = caller.ship;
-		ShipTypeData shiptype = caller.shiptype;
+		Ship data = caller.ship;
+		ShipTypeData datatype = caller.shiptype;
 
 		TemplateEngine t = caller.t;
-		t.setFile("_PLUGIN_"+pluginid, "schiff.adocks.default.html");
+		t.setFile("_PLUGIN_"+pluginid, "schiff.jdocks.default.html");
 
-		List<Ship> dockedShips = new ArrayList<>();
-		List<Integer> dockedids = new ArrayList<>();
+		boolean nofleet = true;
+		List<Integer> jdockedid = new ArrayList<>();
+		List<Ship> jdockedShip = new ArrayList<>();
 
-		for( Ship aship : ship.getDockedShips() ) {
-			dockedShips.add(aship);
-			dockedids.add(aship.getId());
+		for( Ship aship : data.getLandedShips() ) {
+			jdockedid.add(aship.getId());
+			jdockedShip.add(aship);
+			if( aship.getFleet() != null ) {
+				nofleet = false;
+			}
 		}
 
 		String idlist = "";
-		if( dockedShips.size() > 0 ) {
-			idlist = Common.implode("|",dockedids);
+		if( jdockedid.size() > 0 ) {
+			idlist = Common.implode("|",jdockedid);
 		}
 
 		t.setVar(	"global.pluginid",		pluginid,
-					"ship.id",				ship.getId(),
+					"ship.id",				data.getId(),
 					"ship.docklist",		idlist,
-					"ship.adocks",			shiptype.getADocks(),
-					"docks.width",			100/(Math.min(shiptype.getADocks(), 4)) );
+					"ship.jdocks",			datatype.getJDocks(),
+					"docks.width",			100/Math.min(datatype.getJDocks(), 5),
+					"ship.docklist.nofleet",	nofleet );
 
-		t.setBlock("_PLUGIN_"+pluginid,"adocks.listitem","adocks.list");
-		for( int j = 0; j < shiptype.getADocks(); j++ ) {
+		t.setBlock("_PLUGIN_"+pluginid,"jdocks.listitem","jdocks.list");
+		for( int j = 0; j < datatype.getJDocks(); j++ ) {
 			t.start_record();
-			if( (j > 0) && (j % 4 == 0) )
+			if( (j > 0) && (j % 5 == 0) )
 			{
 				t.setVar("docks.endrow",1);
 			}
 
-			if( dockedShips.size() > j ) {
-				Ship aship = dockedShips.get(j);
+			if( jdockedShip.size() > j ) {
+				Ship aship = jdockedShip.get(j);
+
 				t.setVar(	"docks.entry.id",		aship.getId(),
 							"docks.entry.name",		aship.getName(),
 							"docks.entry.type",		aship.getType(),
 							"docks.entry.image",	aship.getTypeData().getPicture() );
 			}
-
-			t.parse("adocks.list","adocks.listitem",true);
+			t.parse("jdocks.list","jdocks.listitem",true);
 			t.stop_record();
 			t.clear_record();
 		}

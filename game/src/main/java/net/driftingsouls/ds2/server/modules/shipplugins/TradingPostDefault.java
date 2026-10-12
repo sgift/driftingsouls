@@ -1,4 +1,4 @@
-package net.driftingsouls.ds2.server.modules.schiffplugins;
+package net.driftingsouls.ds2.server.modules.shipplugins;
 
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
