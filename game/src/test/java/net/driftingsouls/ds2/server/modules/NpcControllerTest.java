@@ -45,7 +45,7 @@ public class NpcControllerTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinZuBestellenderOffizier_orderAction_sollteEineEntsprechendeBestellungErzeugen()
+	public void givenAnOfficerToOrder_orderAction_shouldCreateAMatchingOrder()
 	{
 		// setup
 		OrderableOffizier offi = persist(new OrderableOffizier("Testoffi", 1, 1, 42, 42, 42, 42, 42));
@@ -68,7 +68,7 @@ public class NpcControllerTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinZuUnbekannterZuBestellenderOffizier_orderAction_sollteEineFehlermeldungZurueckgeben()
+	public void givenAnUnknownOfficerToOrder_orderAction_shouldReturnAnErrorMessage()
 	{
 		// setup
 		getUser().setNpcPunkte(10);
@@ -81,7 +81,7 @@ public class NpcControllerTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinZuBestellenderOffizierUndZuWenigeNpcPunkte_orderAction_sollteEineFehlermeldungZurueckgebenUndKeineBestellungEintragen()
+	public void givenAnOfficerToOrderAndTooFewNpcPoints_orderAction_shouldReturnAnErrorMessageAndCreateNoOrder()
 	{
 		// setup
 		OrderableOffizier offi = persist(new OrderableOffizier("Testoffi", 20, 1, 42, 42, 42, 42, 42));
@@ -103,7 +103,7 @@ public class NpcControllerTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinZuBestellendesSchiff_orderShipsAction_sollteEineEntsprechendeBestellungErzeugen()
+	public void givenAShipToOrder_orderShipsAction_shouldCreateAMatchingOrder()
 	{
 		// setup
 		ShipType type = persist(new ShipType());
@@ -132,7 +132,7 @@ public class NpcControllerTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenMehrereZuBestellendeSchiffe_orderShipsAction_sollteEntsprechendeBestellungenErzeugen()
+	public void givenSeveralShipsToOrder_orderShipsAction_shouldCreateMatchingOrders()
 	{
 		// setup
 		ShipType type1 = persist(new ShipType());
@@ -164,7 +164,7 @@ public class NpcControllerTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenKeinZuBestellendesSchiff_orderShipsAction_sollteEineFehlermeldungZurueckgeben()
+	public void givenNoShipToOrder_orderShipsAction_shouldReturnAnErrorMessage()
 	{
 		// setup
 		getUser().setNpcPunkte(10);
@@ -185,7 +185,7 @@ public class NpcControllerTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenKeinePosition_changeOrderLocationAction_sollteDieOrderPositionZuruecksetzen()
+	public void givenNoLocation_changeOrderLocationAction_shouldResetTheOrderLocation()
 	{
 		// setup
 		getUser().setNpcOrderLocation("1:2/3");
@@ -200,7 +200,7 @@ public class NpcControllerTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinePositionMitEinerEigenenBasis_changeOrderLocationAction_sollteDieOrderPositionAendern()
+	public void givenALocationWithAnOwnBase_changeOrderLocationAction_shouldChangeTheOrderLocation()
 	{
 		// setup
 		Location loc = new Location(2, 3, 4);
@@ -218,7 +218,7 @@ public class NpcControllerTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinePositionOhneEigeneBasis_changeOrderLocationAction_sollteEinenFehlerZurueckgeben()
+	public void givenALocationWithoutAnOwnBase_changeOrderLocationAction_shouldReturnAnError()
 	{
 		// setup
 		Location loc = new Location(2, 3, 4);
@@ -233,7 +233,7 @@ public class NpcControllerTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinOrden_awardMedalAction_sollteDenOrdenDemBenutzerHinzufuegenUndEinePmVersenden()
+	public void givenAMedal_awardMedalAction_shouldAwardTheMedalToTheUserAndSendAPm()
 	{
 		// setup
 		User zielUser = persist(new User("Test2", "1234", 0, "", new Cargo(), "test@localhost"));
@@ -260,7 +260,7 @@ public class NpcControllerTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinNurFuerAdminsVerwendbarerOrden_awardMedalAction_sollteEinenFehlerMelden()
+	public void givenAnAdminOnlyMedal_awardMedalAction_shouldReportAnError()
 	{
 		// setup
 		User zielUser = persist(new User("Test2", "1234", 0, "", new Cargo(), "test@localhost"));
@@ -278,7 +278,7 @@ public class NpcControllerTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinNichtBekannterBenutzer_awardMedalAction_sollteEinenFehlerMelden()
+	public void givenAnUnknownUser_awardMedalAction_shouldReportAnError()
 	{
 		// setup
 		Medal medal = persist(new Medal("Testorden", "", ""));
@@ -293,7 +293,7 @@ public class NpcControllerTest extends DBSingleTransactionTest
 	}
 
 	@Test
-	public void gegebenEinNpcDerNichtKopfSeinerRasseIst_awardMedalAction_sollteEinenFehlerMelden()
+	public void givenAnNpcThatIsNotHeadOfItsRace_awardMedalAction_shouldReportAnError()
 	{
 		// setup
 		Rasse rasse = (Rasse)getDB().get(Rasse.class,getUser().getRace());
