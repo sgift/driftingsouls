@@ -21,7 +21,7 @@ public class DBSingleTransactionTest
 	public static void setUpDatabase() throws IOException {
 		DBTestUtils.ladeHibernateKonfiguration();
 		DBTestUtils.starteHibernate();
-		DBTestUtils.erzeugeContext();
+		DBTestUtils.createContext();
 	}
 
 	@Before

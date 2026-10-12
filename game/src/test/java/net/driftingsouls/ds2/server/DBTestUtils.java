@@ -28,7 +28,7 @@ final class DBTestUtils
 		// EMPTY
 	}
 
-	public static void erzeugeContext()
+	public static void createContext()
 	{
 		ApplicationContext springContext = new AnnotationConfigApplicationContext(TestAppConfig.class);
 

@@ -26,7 +26,7 @@ public class DBTest
 	public void setUpDB()
 	{
 		DBTestUtils.starteHibernate();
-		DBTestUtils.erzeugeContext();
+		DBTestUtils.createContext();
 
 		HibernateUtil.getCurrentEntityManager();
 	}
