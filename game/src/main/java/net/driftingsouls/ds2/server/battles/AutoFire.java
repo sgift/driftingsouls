@@ -7,8 +7,8 @@ import net.driftingsouls.ds2.server.config.items.Munition;
 import net.driftingsouls.ds2.server.config.items.effects.IEAmmo;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.Weapon;
-import net.driftingsouls.ds2.server.modules.ks.BasicKSAction;
-import net.driftingsouls.ds2.server.modules.ks.KSAttackAction;
+import net.driftingsouls.ds2.server.modules.ks.BasicBattleAction;
+import net.driftingsouls.ds2.server.modules.ks.BattleAttackAction;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
 import org.apache.commons.logging.Log;
@@ -112,10 +112,10 @@ public class AutoFire
                             break;
                         }
 
-                        KSAttackAction firingAction = findTarget(battle.getCommander(0), firingShip, weapon, ammo, attackedShips);
+                        BattleAttackAction firingAction = findTarget(battle.getCommander(0), firingShip, weapon, ammo, attackedShips);
                         if(firingAction != null)
                         {
-                            BasicKSAction.Result result = null;
+                            BasicBattleAction.Result result = null;
                             try
                             {
                                 log.info("\t\tFiring at ship: " + firingAction.getAttackedShip().getId() + " Shields: " + firingAction.getAttackedShip().getShields() + " Ablative Armor: " + firingAction.getAttackedShip().getAblativeArmor() + " Hull: " + firingAction.getAttackedShip().getHull());
@@ -130,7 +130,7 @@ public class AutoFire
                                 log.info("Exception while firing weapon", e);
                             }
 
-                            if(result != BasicKSAction.Result.OK)
+                            if(result != BasicBattleAction.Result.OK)
                             {
                                 continueFire = false;
                             }
@@ -208,7 +208,7 @@ public class AutoFire
         return filteredAmmos;
     }
 
-    private KSAttackAction findTarget(User user, BattleShip firingShip, Map.Entry<Weapon, Integer> shipWeapon, Munition ammo, List<BattleShip> possibleTargets)
+    private BattleAttackAction findTarget(User user, BattleShip firingShip, Map.Entry<Weapon, Integer> shipWeapon, Munition ammo, List<BattleShip> possibleTargets)
     {
         log.info("\t\tCalculating best target");
         if(possibleTargets.isEmpty())
@@ -231,7 +231,7 @@ public class AutoFire
         }
 
         //Find the ship we want to damage most
-        KSAttackAction firingAction = null;
+        BattleAttackAction firingAction = null;
         Ship target = null;
         int killDesire = 0;
         int baseDamage = 0;
@@ -285,7 +285,7 @@ public class AutoFire
                 continue;
             }
 
-            KSAttackAction currentFiringAction = new KSAttackAction(user, weapon, "single");
+            BattleAttackAction currentFiringAction = new BattleAttackAction(user, weapon, "single");
             if(!currentFiringAction.init(battle, weapon.getId(), ammo))
             {
                 log.info("\t\tWeapon cannot attack Ship. Ignoring.");

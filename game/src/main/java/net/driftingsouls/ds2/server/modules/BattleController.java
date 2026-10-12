@@ -66,8 +66,8 @@ public class BattleController extends Controller
 
 	private static final int SHIPGROUPSIZE = 10000;
 
-	private final Map<String,Class<? extends BasicKSAction>> actions = new HashMap<>();
-	private final Map<String,Class<? extends BasicKSMenuAction>> menuActions = new HashMap<>();
+	private final Map<String,Class<? extends BasicBattleAction>> actions = new HashMap<>();
+	private final Map<String,Class<? extends BasicBattleMenuAction>> menuActions = new HashMap<>();
 
 	private final TemplateViewResultFactory templateViewResultFactory;
 	private final BattleCreationService battleCreationService;
@@ -81,52 +81,48 @@ public class BattleController extends Controller
 
 		setPageTitle("Schlacht");
 
-		menuActions.put("attack", KSMenuAttackAction.class);
-		menuActions.put("attack_select", KSMenuAttackMuniSelectAction.class);
-        menuActions.put("groupattack", KSMenuGroupAttackAction.class);
-        menuActions.put("groupattack_select", KSMenuGroupAttackMuniSelectAction.class);
-		//menuActions.put("batterien", KSMenuBatteriesAction.class);
-		menuActions.put("default", KSMenuDefaultAction.class);
-		menuActions.put("flucht", KSMenuRetreatAction.class);
-		menuActions.put("history", KSMenuHistoryAction.class);
-		menuActions.put("new_commander", KSMenuBattleConsignAction.class);
-		menuActions.put("other", KSMenuOtherAction.class);
-		menuActions.put("shields", KSMenuShieldsAction.class);
-        menuActions.put("undock", KSMenuUndockAction.class);
+		menuActions.put("attack", BattleMenuAttackAction.class);
+		menuActions.put("attack_select", BattleMenuAttackAmmoSelectAction.class);
+        menuActions.put("groupattack", BattleMenuGroupAttackAction.class);
+        menuActions.put("groupattack_select", BattleMenuGroupAttackAmmoSelectAction.class);
+		menuActions.put("default", BattleMenuDefaultAction.class);
+		menuActions.put("flucht", BattleMenuRetreatAction.class);
+		menuActions.put("history", BattleMenuHistoryAction.class);
+		menuActions.put("new_commander", BattleMenuBattleConsignAction.class);
+		menuActions.put("other", BattleMenuOtherAction.class);
+		menuActions.put("shields", BattleMenuShieldsAction.class);
+        menuActions.put("undock", BattleMenuUndockAction.class);
 		if( configService.getValue(WellKnownConfigValue.ENABLE_CHEATS) ) {
-			menuActions.put("cheats", KSMenuCheatsAction.class);
+			menuActions.put("cheats", BattleMenuCheatsAction.class);
 		}
 
-		actions.put("flucht_single", KSRetreatSingleAction.class);
-		actions.put("flucht_all", KSRetreatAllAction.class);
-		actions.put("flucht_class", KSRetreatClassAction.class);
-        actions.put("undock_single", KSUndockAction.class);
-        actions.put("undock_class", KSUndockClassAction.class);
-        actions.put("undock_all", KSUndockAllAction.class);
-        actions.put("groupattack2", KSGroupAttackAction.class);
-		actions.put("attack2", KSAttackAction.class);
-		actions.put("kapern", KSBoardAction.class);
-		actions.put("secondrow", KSSecondRowAction.class);
-		actions.put("leavesecondrow", KSLeaveSecondRowAction.class);
-		actions.put("secondrowengage", KSSecondRowEngageAction.class);
-		actions.put("secondrowattack", KSSecondRowAttackAction.class);
-		actions.put("endbattleequal", KSEndBattleEqualAction.class);
-		actions.put("endturn", KSEndTurnAction.class);
-        actions.put("activatear", KSActivateAR.class);
-        actions.put("deactivatear", KSDeactivateAR.class);
-		actions.put("new_commander2", KSNewCommanderAction.class);
-		actions.put("take_command", KSTakeCommandAction.class);
-		actions.put("stop_take_command", KSStopTakeCommandAction.class);
-		actions.put("endbattle", KSEndBattleCivilAction.class);
-		actions.put("shields_single", KSRegenerateShieldsSingleAction.class);
-		actions.put("shields_all", KSRegenerateShieldsAllAction.class);
-		actions.put("shields_class", KSRegenerateShieldsClassAction.class);
-		//actions.put("batterien_single", KSDischargeBatteriesSingleAction.class);
-		//actions.put("batterien_all", KSDischargeBatteriesAllAction.class);
-		//actions.put("batterien_class", KSDischargeBatteriesClassAction.class);
+		actions.put("flucht_single", BattleRetreatSingleAction.class);
+		actions.put("flucht_all", BattleRetreatAllAction.class);
+		actions.put("flucht_class", BattleRetreatClassAction.class);
+        actions.put("undock_single", BattleUndockAction.class);
+        actions.put("undock_class", BattleUndockClassAction.class);
+        actions.put("undock_all", BattleUndockAllAction.class);
+        actions.put("groupattack2", BattleGroupAttackAction.class);
+		actions.put("attack2", BattleAttackAction.class);
+		actions.put("kapern", BattleBoardAction.class);
+		actions.put("secondrow", BattleSecondRowAction.class);
+		actions.put("leavesecondrow", BattleLeaveSecondRowAction.class);
+		actions.put("secondrowengage", BattleSecondRowEngageAction.class);
+		actions.put("secondrowattack", BattleSecondRowAttackAction.class);
+		actions.put("endbattleequal", BattleEndBattleEqualAction.class);
+		actions.put("endturn", BattleEndTurnAction.class);
+        actions.put("activatear", BattleActivateAR.class);
+        actions.put("deactivatear", BattleDeactivateAR.class);
+		actions.put("new_commander2", BattleNewCommanderAction.class);
+		actions.put("take_command", BattleTakeCommandAction.class);
+		actions.put("stop_take_command", BattleStopTakeCommandAction.class);
+		actions.put("endbattle", BattleEndBattleCivilAction.class);
+		actions.put("shields_single", BattleRegenerateShieldsSingleAction.class);
+		actions.put("shields_all", BattleRegenerateShieldsAllAction.class);
+		actions.put("shields_class", BattleRegenerateShieldsClassAction.class);
 		if( configService.getValue(WellKnownConfigValue.ENABLE_CHEATS) ) {
-			actions.put("cheat_regenerate", KSCheatRegenerateOwnAction.class);
-			actions.put("cheat_regenerateenemy", KSCheatRegenerateEnemyAction.class);
+			actions.put("cheat_regenerate", BattleCheatRegenerateOwnAction.class);
+			actions.put("cheat_regenerateenemy", BattleCheatRegenerateEnemyAction.class);
 		}
 	}
 
@@ -364,7 +360,7 @@ public class BattleController extends Controller
 								"battle.takecommand.name",	"<span style=\"color:#000050\">"+auser.getProfileLink(Common._titleNoFormat(auser.getName()))+"</span>");
 				}
 				else if( battle.isReady(battle.getOwnSide()) ) {
-					KSMenuHistoryAction historyobj = new KSMenuHistoryAction();
+					BattleMenuHistoryAction historyobj = new BattleMenuHistoryAction();
 
 					historyobj.setController(this);
 
@@ -391,14 +387,14 @@ public class BattleController extends Controller
 
 					if( menuActions.containsKey(action.toString()) ) {
 						try {
-							BasicKSMenuAction actionobj = menuActions.get(action.toString()).getDeclaredConstructor().newInstance();
+							BasicBattleMenuAction actionobj = menuActions.get(action.toString()).getDeclaredConstructor().newInstance();
 							actionobj.setController(this);
 
-							BasicKSAction.Result result = actionobj.execute(t, battle);
-							if( result == BasicKSAction.Result.HALT ) {
+							BasicBattleAction.Result result = actionobj.execute(t, battle);
+							if( result == BasicBattleAction.Result.HALT ) {
 								return false;
 							}
-							else if( result == BasicKSAction.Result.ERROR ) {
+							else if( result == BasicBattleAction.Result.ERROR ) {
 								action.setLength(0);
 							}
 						}
@@ -412,7 +408,7 @@ public class BattleController extends Controller
 				}
 			}
 			else {
-				KSMenuHistoryAction historyobj = new KSMenuHistoryAction();
+				BattleMenuHistoryAction historyobj = new BattleMenuHistoryAction();
 
 				historyobj.setController(this);
 
@@ -432,7 +428,7 @@ public class BattleController extends Controller
 				historyobj.setText("<div style=\"text-align:center\">Nur der Oberkommandierende einer Seite kann Befehle erteilen.</div>\n");
 				historyobj.showOK(false);
 
-				if( historyobj.execute(t, battle) == BasicKSAction.Result.HALT ) {
+				if( historyobj.execute(t, battle) == BasicBattleAction.Result.HALT ) {
 					return false;
 				}
 			}
@@ -579,10 +575,10 @@ public class BattleController extends Controller
 
 		if( (ksaction.length() > 0) && actions.containsKey(ksaction) ) {
 			try {
-				BasicKSAction actionobj = actions.get(ksaction).getDeclaredConstructor().newInstance();
+				BasicBattleAction actionobj = actions.get(ksaction).getDeclaredConstructor().newInstance();
 				actionobj.setController(this);
 
-				if( actionobj.execute(t, battle) == BasicKSAction.Result.HALT ) {
+				if( actionobj.execute(t, battle) == BasicBattleAction.Result.HALT ) {
 					return null;
 				}
 
