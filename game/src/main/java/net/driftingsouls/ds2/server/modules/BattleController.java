@@ -39,7 +39,7 @@ import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
-import net.driftingsouls.ds2.server.modules.ks.*;
+import net.driftingsouls.ds2.server.modules.battle.*;
 import net.driftingsouls.ds2.server.services.BattleCreationService;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipTypeData;
