@@ -35,7 +35,7 @@ public class ShipTickDestroyStatusTest extends DBTest
 	private static final int SHIP_COUNT = 5;
 
 	@Test
-	public void schiffsTick_withSeveralShipsFlaggedForDestruction_destroysAllOfThem()
+	public void shipTick_withSeveralShipsFlaggedForDestruction_destroysAllOfThem()
 	{
 		List<Integer> shipIds = new ArrayList<>();
 
