@@ -75,7 +75,7 @@ public class HandleAllyLowMemberTest extends DBSingleTransactionTest
 	 * Testet die Task
      */
 	@Test
-	public void gegebenEineAllianzUndEineAllyLowMemberTask_handleTask_sollteDieAllianzAufloesen() {
+	public void givenAnAllianceAndAnAllyLowMemberTask_handleTask_shouldDissolveTheAlliance() {
 		// setup
 
 		// run
