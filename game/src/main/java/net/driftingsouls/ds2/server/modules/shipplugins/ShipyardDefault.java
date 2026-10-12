@@ -23,8 +23,8 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.modules.ShipController;
 import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.werften.WerftObject;
-import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
+import net.driftingsouls.ds2.server.shipyards.WerftObject;
+import net.driftingsouls.ds2.server.shipyards.WerftQueueEntry;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

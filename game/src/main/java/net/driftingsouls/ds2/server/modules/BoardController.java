@@ -44,7 +44,7 @@ import net.driftingsouls.ds2.server.units.TransientUnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo;
 import net.driftingsouls.ds2.server.units.UnitCargo.Crew;
 import net.driftingsouls.ds2.server.units.UnitType;
-import net.driftingsouls.ds2.server.werften.ShipWerft;
+import net.driftingsouls.ds2.server.shipyards.ShipWerft;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.EntityManager;

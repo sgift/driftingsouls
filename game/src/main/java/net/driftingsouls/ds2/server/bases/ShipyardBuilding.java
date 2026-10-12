@@ -22,10 +22,10 @@ import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
-import net.driftingsouls.ds2.server.werften.BaseWerft;
-import net.driftingsouls.ds2.server.werften.ShipyardGui;
-import net.driftingsouls.ds2.server.werften.WerftObject;
-import net.driftingsouls.ds2.server.werften.WerftQueueEntry;
+import net.driftingsouls.ds2.server.shipyards.BaseWerft;
+import net.driftingsouls.ds2.server.shipyards.ShipyardGui;
+import net.driftingsouls.ds2.server.shipyards.WerftObject;
+import net.driftingsouls.ds2.server.shipyards.WerftQueueEntry;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;

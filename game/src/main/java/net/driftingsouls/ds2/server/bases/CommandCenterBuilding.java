@@ -49,7 +49,7 @@ import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactor
 import net.driftingsouls.ds2.server.repositories.BasesRepository;
 import net.driftingsouls.ds2.server.repositories.ItemRepository;
 import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.werften.BaseWerft;
+import net.driftingsouls.ds2.server.shipyards.BaseWerft;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;

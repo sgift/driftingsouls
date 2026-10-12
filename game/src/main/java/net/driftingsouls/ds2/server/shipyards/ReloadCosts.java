@@ -1,4 +1,4 @@
-package net.driftingsouls.ds2.server.werften;
+package net.driftingsouls.ds2.server.shipyards;
 
 
 

@@ -28,8 +28,8 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidationException;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.Ship;
-import net.driftingsouls.ds2.server.werften.ShipWerft;
-import net.driftingsouls.ds2.server.werften.ShipyardGui;
+import net.driftingsouls.ds2.server.shipyards.ShipWerft;
+import net.driftingsouls.ds2.server.shipyards.ShipyardGui;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -37,7 +37,7 @@ import java.io.Writer;
 
 /**
  * <h1>Anzeige einer Schiffswerft.</h1>
- * Die GUI selbst wird von {@link net.driftingsouls.ds2.server.werften.ShipyardGui} gezeichnet
+ * Die GUI selbst wird von {@link net.driftingsouls.ds2.server.shipyards.ShipyardGui} gezeichnet
  *
  * @author Christopher Jung
  */

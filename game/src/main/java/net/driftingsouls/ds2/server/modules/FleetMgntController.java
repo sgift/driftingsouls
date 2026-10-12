@@ -31,9 +31,9 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.*;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
 import net.driftingsouls.ds2.server.ships.*;
-import net.driftingsouls.ds2.server.werften.ShipBuildInformation;
-import net.driftingsouls.ds2.server.werften.ShipWerft;
-import net.driftingsouls.ds2.server.werften.WerftObject;
+import net.driftingsouls.ds2.server.shipyards.ShipBuildInformation;
+import net.driftingsouls.ds2.server.shipyards.ShipWerft;
+import net.driftingsouls.ds2.server.shipyards.WerftObject;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 

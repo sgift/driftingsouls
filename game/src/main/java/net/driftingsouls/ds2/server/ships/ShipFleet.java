@@ -23,7 +23,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextLocalMessage;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.werften.WerftObject;
+import net.driftingsouls.ds2.server.shipyards.WerftObject;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 
