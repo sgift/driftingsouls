@@ -37,7 +37,7 @@ import net.driftingsouls.ds2.server.entities.FactoryEntry;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.Munitionsdefinition;
 import net.driftingsouls.ds2.server.entities.Rasse;
-import net.driftingsouls.ds2.server.entities.statistik.StatCargo;
+import net.driftingsouls.ds2.server.entities.statistics.StatCargo;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.modules.admin.editors.EditorForm8;

@@ -25,7 +25,7 @@ import net.driftingsouls.ds2.server.cargo.ResourceID;
 import net.driftingsouls.ds2.server.cargo.ResourceIDComparator;
 import net.driftingsouls.ds2.server.config.items.Item;
 import net.driftingsouls.ds2.server.entities.User;
-import net.driftingsouls.ds2.server.entities.statistik.StatCargo;
+import net.driftingsouls.ds2.server.entities.statistics.StatCargo;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;

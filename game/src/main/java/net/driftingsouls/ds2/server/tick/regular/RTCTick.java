@@ -32,7 +32,7 @@ import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
 import net.driftingsouls.ds2.server.entities.factiongui.Versteigerung;
 import net.driftingsouls.ds2.server.entities.factiongui.VersteigerungResource;
 import net.driftingsouls.ds2.server.entities.factiongui.VersteigerungSchiff;
-import net.driftingsouls.ds2.server.entities.statistik.StatGtu;
+import net.driftingsouls.ds2.server.entities.statistics.StatGtu;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.ships.Ship;
 import net.driftingsouls.ds2.server.ships.ShipType;
