@@ -28,12 +28,12 @@ import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ValidationException;
 import net.driftingsouls.ds2.server.modules.admin.AdminMenuEntry;
 import net.driftingsouls.ds2.server.modules.admin.AdminPlugin;
-import net.driftingsouls.ds2.server.modules.admin.editoren.EditPlugin8;
-import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
-import net.driftingsouls.ds2.server.modules.admin.editoren.EntitySelectionViewModel;
-import net.driftingsouls.ds2.server.modules.admin.editoren.JqGridSortOrder;
-import net.driftingsouls.ds2.server.modules.admin.editoren.JqGridTableDataViewModel;
-import net.driftingsouls.ds2.server.modules.admin.editoren.JqGridViewModel;
+import net.driftingsouls.ds2.server.modules.admin.editors.EditPlugin8;
+import net.driftingsouls.ds2.server.modules.admin.editors.EntityEditor;
+import net.driftingsouls.ds2.server.modules.admin.editors.EntitySelectionViewModel;
+import net.driftingsouls.ds2.server.modules.admin.editors.JqGridSortOrder;
+import net.driftingsouls.ds2.server.modules.admin.editors.JqGridTableDataViewModel;
+import net.driftingsouls.ds2.server.modules.admin.editors.JqGridViewModel;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 

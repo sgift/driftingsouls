@@ -23,8 +23,8 @@ import net.driftingsouls.ds2.server.bases.BaseType;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.map.TileCache;
-import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
-import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
+import net.driftingsouls.ds2.server.modules.admin.editors.EditorForm8;
+import net.driftingsouls.ds2.server.modules.admin.editors.EntityEditor;
 import org.hibernate.Session;
 
 import javax.annotation.Nonnull;

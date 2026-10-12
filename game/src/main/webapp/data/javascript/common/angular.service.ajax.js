@@ -35,7 +35,7 @@
 		/**
 		 * @name success
 		 * @function
-		 * @param {function(data:ds.viewmodel.modules.admin.editoren.JqGridTableDataViewModel)} callback
+		 * @param {function(data:ds.viewmodel.modules.admin.editors.JqGridTableDataViewModel)} callback
 		 * @memberof DsAjaxPromise_AdminControllerStub_tableDataAction
 		 **/
 		success : function(callback) {}
@@ -1287,8 +1287,8 @@
 	 **/
 	/**
 	 * @typedef {object} ds.viewmodel.modules.AdminController.EntityPluginOverviewViewModel
-	 * @property {ds.viewmodel.modules.admin.editoren.JqGridViewModel} table
-	 * @property {ds.viewmodel.modules.admin.editoren.EntitySelectionViewModel} entitySelection
+	 * @property {ds.viewmodel.modules.admin.editors.JqGridViewModel} table
+	 * @property {ds.viewmodel.modules.admin.editors.EntitySelectionViewModel} entitySelection
 	 **/
 	/**
 	 * @namespace ds.viewmodel.modules.OptionsController
@@ -1432,10 +1432,10 @@
 	 * @namespace ds.viewmodel.modules.admin
 	 **/
 	/**
-	 * @namespace ds.viewmodel.modules.admin.editoren
+	 * @namespace ds.viewmodel.modules.admin.editors
 	 **/
 	/**
-	 * @typedef {object} ds.viewmodel.modules.admin.editoren.JqGridTableDataViewModel
+	 * @typedef {object} ds.viewmodel.modules.admin.editors.JqGridTableDataViewModel
 	 * @property {number} page
 	 * @property {number} total
 	 * @property {number} records
@@ -1474,7 +1474,7 @@
 	 * @property {string} plainname
 	 **/
 	/**
-	 * @typedef {object} ds.viewmodel.modules.admin.editoren.JqGridViewModel
+	 * @typedef {object} ds.viewmodel.modules.admin.editors.JqGridViewModel
 	 * @property {string} url
 	 * @property {string} datatype
 	 * @property {string} mtype
@@ -1546,7 +1546,7 @@
 	 * @property {number} id
 	 **/
 	/**
-	 * @typedef {object} ds.viewmodel.modules.admin.editoren.EntitySelectionViewModel
+	 * @typedef {object} ds.viewmodel.modules.admin.editors.EntitySelectionViewModel
 	 * @property {boolean} allowSelection
 	 * @property {boolean} allowAdd
 	 * @property {object} input

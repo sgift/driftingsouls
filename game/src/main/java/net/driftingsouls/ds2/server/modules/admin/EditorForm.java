@@ -5,7 +5,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.DynamicContent;
 import net.driftingsouls.ds2.server.framework.DynamicContentManager;
-import net.driftingsouls.ds2.server.modules.admin.editoren.HtmlUtils;
+import net.driftingsouls.ds2.server.modules.admin.editors.HtmlUtils;
 
 import javax.persistence.Entity;
 import java.io.IOException;

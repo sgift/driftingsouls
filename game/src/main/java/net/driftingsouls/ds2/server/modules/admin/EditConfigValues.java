@@ -6,7 +6,7 @@ import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.ConfigValue;
 import net.driftingsouls.ds2.server.framework.Context;
 import net.driftingsouls.ds2.server.framework.ContextMap;
-import net.driftingsouls.ds2.server.modules.admin.editoren.HtmlUtils;
+import net.driftingsouls.ds2.server.modules.admin.editors.HtmlUtils;
 
 /**
  * Ein Tool, um die diversen globalen Konfigurationswerte zu aendern.

@@ -29,8 +29,8 @@ import net.driftingsouls.ds2.server.cargo.Resources;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.map.TileCache;
-import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
-import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
+import net.driftingsouls.ds2.server.modules.admin.editors.EditorForm8;
+import net.driftingsouls.ds2.server.modules.admin.editors.EntityEditor;
 import net.driftingsouls.ds2.server.repositories.BasesRepository;
 import org.apache.commons.lang3.StringUtils;
 

@@ -22,8 +22,8 @@ import net.driftingsouls.ds2.server.WellKnownAdminPermission;
 import net.driftingsouls.ds2.server.cargo.Cargo;
 import net.driftingsouls.ds2.server.entities.Forschung;
 import net.driftingsouls.ds2.server.entities.Rasse;
-import net.driftingsouls.ds2.server.modules.admin.editoren.EditorForm8;
-import net.driftingsouls.ds2.server.modules.admin.editoren.EntityEditor;
+import net.driftingsouls.ds2.server.modules.admin.editors.EditorForm8;
+import net.driftingsouls.ds2.server.modules.admin.editors.EntityEditor;
 
 import javax.annotation.Nonnull;
 
