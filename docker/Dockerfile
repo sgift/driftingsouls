@@ -1,4 +1,4 @@
-FROM tomcat:9-jdk11
+FROM tomcat:9-jdk17
 
 # The WAR must already be built (mvnw -pl game -am package -DskipTests) before
 # building this image. We explode it at build time (rather than dropping the
