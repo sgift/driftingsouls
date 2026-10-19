@@ -25,7 +25,6 @@ import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.authentication.AuthenticationException;
 import net.driftingsouls.ds2.server.framework.authentication.AuthenticationManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 
 import java.io.IOException;
 
@@ -43,7 +42,6 @@ public class PlayerLoginSuper implements AdminPlugin {
 	 * @param authManager Der AuthenticationManager
 	 */
 	@Autowired
-	@Required
 	public void setAuthenticationManager(AuthenticationManager authManager) {
 		this.authManager = authManager;
 	}

@@ -26,7 +26,6 @@ import org.quartz.CronTrigger;
 import org.quartz.JobDataMap;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
-import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Implementiert Admin-Kommandos rund um das Ticksystem.
@@ -45,7 +44,6 @@ public class TickAdminCommand
 	 * Injiziert den Quartz-Trigger fuer den normalen DS-Tick.
 	 * @param regularTick Der Trigger
 	 */
-	@Required
 	public void setRegularTickCronTrigger(CronTrigger regularTick) {
 		this.regularTick = regularTick;
 	}
@@ -54,7 +52,6 @@ public class TickAdminCommand
 	 * Injiziert den Quartz-Trigger fuer den seltenen DS-Tick.
 	 * @param rareTick Der Trigger
 	 */
-	@Required
 	public void setRareTickCronTrigger(CronTrigger rareTick) {
 		this.rareTick = rareTick;
 	}
@@ -63,7 +60,6 @@ public class TickAdminCommand
 	 * Injiziert den Quartz-Scheduler zum Ausfuehren von Quartz-Jobs.
 	 * @param bean Der Scheduler
 	 */
-	@Required
 	public void setScheduler(Scheduler bean) {
 		this.scheduler = bean;
 	}
