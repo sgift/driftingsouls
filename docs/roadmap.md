@@ -77,6 +77,9 @@ change under test. Point Maven at a JDK 11 — `JAVA_HOME=C:/Users/sebas/.jdks/m
 -am verify`, green at 187 tests / 3 skipped on 2026-07-26 — and set the same SDK in the IntelliJ run
 configurations. That constraint disappears with 2.2.
 
+Since 2.2 the build targets Java 17 and the plain `./mvnw -pl game -am verify` runs the suite on the
+default JDK 17. IntelliJ run configurations pinned to the JDK 11 SDK need switching back.
+
 ---
 
 ## 1. Track Zero — rename to English
@@ -105,6 +108,17 @@ already new enough. `spring.xml` uses 2.5 XSDs, which 5.3 still accepts.
 **2.2 Java 11 → 17.** Verified blocked until 2.1 lands: Spring 4.3's repackaged cglib fails on JDK 16+
 with `InaccessibleObjectException` on `ClassLoader.defineClass`. Hibernate 4.1.12 was verified to boot
 cleanly on 17, so it is not an obstacle.
+
+**2.1 done** in `90959a045`: Spring 5.3.39, the final 5.3 release. The custom scope, the Quartz factory
+beans and the 2.5 XSDs needed no changes. The only code change was dropping `@Required`, which Spring
+stopped enforcing in 5.1. Still to confirm by hand: the web context starts on the dev system and the
+tick admin command still reaches the Quartz scheduler. The tests use `TestAppConfig`, so they never
+load `spring.xml`.
+
+**2.2 done** in `bc1ad566e`: `maven.compiler.release` 17, CI and CodeQL on JDK 17, `docker/Dockerfile`
+on `tomcat:9-jdk17`. Green on JDK 17.0.2 at 201 tests / 3 skipped with no other changes: Hibernate
+4.1.12, javassist, reflections 0.9.9-RC1 and Mockito 3.5 all run as they are. Before deploying, the
+dev system's Tomcat has to run on a JDK 17.
 
 **2.3 Dependency housekeeping.** Log4j 1.x → reload4j or logback, `reflections` 0.9.9-RC1 → current,
 `commons-fileupload`, `mysql-connector-java` → `mysql-connector-j`, drop unused `spring-tx` and Derby.
