@@ -52,6 +52,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 
 	private final ConfigService configService;
 	private final EntityManager db;
+	private final PasswordHasher passwordHasher = new PasswordHasher();
 
 	@Autowired
 	public DefaultAuthenticationManager(ConfigService configService, EntityManager db)
@@ -80,8 +81,6 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 
 		log.info("Login disabled checked");
 
-		String enc_pw = Common.md5(password);
-
 		log.info("Loading user from DB");
 
 		BasicUser user = (BasicUser)db.createQuery("from BasicUser where un=:username", BasicUser.class)
@@ -100,13 +99,18 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 
 		log.info("Checking password");
 
-		if( !user.getPassword().equals(enc_pw) ) {
+		if( !passwordHasher.matches(password, user.getPassword()) ) {
 			user.setLoginFailedCount(user.getLoginFailedCount()+1);
 			Common.writeLog("login.log", Common.date("j.m.Y H:i:s")+": <"+request.getRemoteAddress()+"> ("+user.getId()+") <"+username+"> Password <"+password+"> ***LOGIN GESCHEITERT*** von Browser <"+request.getUserAgent()+">\n");
 
 			log.info("Wrong password");
 
 			throw new WrongPasswordException();
+		}
+
+		if( passwordHasher.needsRehash(user.getPassword()) ) {
+			user.setPassword(passwordHasher.hash(password));
+			log.info("Legacy password hash upgraded to bcrypt");
 		}
 
 		log.info("Password checked, checking vacation");
