@@ -20,7 +20,6 @@ package net.driftingsouls.ds2.server.ships;
 import net.driftingsouls.ds2.server.cargo.*;
 import net.driftingsouls.ds2.server.config.items.Item;
 
-import org.apache.log4j.lf5.util.Resource;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Type;
 
