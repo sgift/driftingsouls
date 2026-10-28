@@ -121,9 +121,35 @@ on `tomcat:9-jdk17`. Green on JDK 17.0.2 at 201 tests / 3 skipped with no other 
 dev system's Tomcat has to run on a JDK 17.
 
 **2.3 Dependency housekeeping.** Log4j 1.x → reload4j or logback, `reflections` 0.9.9-RC1 → current,
-`commons-fileupload`, `mysql-connector-java` → `mysql-connector-j`, drop unused `spring-tx` and Derby.
+`commons-fileupload`, `mysql-connector-java` → `mysql-connector-j`, drop unused Derby.
 `feature/jakarta` researched many of these versions and is worth reading — not merging.
 *Done when:* build and tests green on JDK 17 with Spring 5.3.
+
+**2.3 done** in `585450d6a`..`eaf2a224d`, one commit per item. Green on JDK 17.0.2 at 201 tests / 3
+skipped after each one.
+- Derby removed. Nothing referenced it.
+- `com.mysql:mysql-connector-j` 8.4.0, the 8.x LTS line, in the managed dependency and all three plugin
+  blocks. The driver class `com.mysql.cj.jdbc.Driver` is unchanged.
+- `commons-fileupload` 1.6.0, which needs `commons-io` 2.19.0. The old 2.7 pin would have downgraded it,
+  so both moved together.
+- `reflections` 0.10.2: `TypeAnnotationsScanner` became `Scanners.TypesAnnotated`. The scan returns the
+  same 128 entities, 51 modules, 55 admin menu entries and 1 URL converter as before. 0.9.9 had been
+  pulling in Guava 11 transitively; its one caller (`Splitter` in `AbstractTickExecuter`) now uses
+  `String.split`.
+- Log4j 1.2.17 → reload4j 1.2.26 via `slf4j-reload4j` 2.0.17. It is a drop-in, so both
+  `log4j.properties` files and the 16 classes calling the Log4j API directly stay as they are. The one
+  exception was an unused `log4j.lf5` import, a package reload4j no longer ships. `slf4j-api` is now
+  pinned at 2.0.17; it used to resolve to 1.7.16 by accident, via rome. Logback stays an option for later.
+- The `commons-logging` jar is gone and is excluded from `commons-beanutils`. `spring-jcl` provides the
+  `org.apache.commons.logging` API for the 58 classes using it and routes it to SLF4J. Those classes are
+  unchanged.
+- `spring-tx` stays, contrary to the original plan. `SchedulerFactoryBean` references
+  `PlatformTransactionManager`, but spring-context-support's published pom doesn't declare `spring-tx`,
+  so our explicit dependency is what puts it on the classpath. `spring-jdbc` (ADR-0002) will depend on
+  it as well.
+
+Before deploying, `mvn clean`: the exploded WAR directory still contains the old
+`mysql-connector-java` and `commons-logging` jars from earlier builds.
 
 **2.4 bcrypt password hashing.** **ADR-0007.** Add `org.springframework.security:spring-security-crypto`,
 put password hashing behind its own abstraction (leaving `Common.md5` alone — `Task.java` mints task IDs
