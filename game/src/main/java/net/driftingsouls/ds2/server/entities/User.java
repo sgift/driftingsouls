@@ -272,7 +272,7 @@ public class User extends BasicUser {
 	 * Legt einen neuen Spieler an.
 	 *
 	 * @param name Loginname des Spielers.
-	 * @param password Passwort - md5-verschluesselt.
+	 * @param password The password hash, see {@link net.driftingsouls.ds2.server.framework.authentication.PasswordHasher}
 	 * @param race Rasse des Spielers.
 	 * @param history Bisherige Geschichte des Spielers.
 	 * @param cargo Ressourcen im Spielercargo.

@@ -4,6 +4,7 @@ import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.authentication.PasswordGenerator;
+import net.driftingsouls.ds2.server.framework.authentication.PasswordHasher;
 import net.driftingsouls.ds2.server.framework.authentication.PasswordMailer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,6 +19,7 @@ public class SendPasswordController extends StaticController {
 
     private final DSController errorController;
     private final PasswordGenerator passwordGenerator = new PasswordGenerator();
+    private final PasswordHasher passwordHasher = new PasswordHasher();
     private final PasswordMailer passwordMailer = new PasswordMailer();
 
     public SendPasswordController(DSController errorController) {
@@ -46,9 +48,7 @@ public class SendPasswordController extends StaticController {
         if (user != null) {
             if (!"".equals(user.getEmail())) {
                 String password = passwordGenerator.generate();
-                String enc_pw = Common.md5(password);
-
-                user.setPassword(enc_pw);
+                user.setPassword(passwordHasher.hash(password));
 
                 passwordMailer.sendNewPasswordMail(username, user.getEmail(), password);
 

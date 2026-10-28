@@ -20,6 +20,7 @@ import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.ContextMap;
 import net.driftingsouls.ds2.server.framework.authentication.PasswordGenerator;
+import net.driftingsouls.ds2.server.framework.authentication.PasswordHasher;
 import net.driftingsouls.ds2.server.framework.authentication.PasswordMailer;
 import net.driftingsouls.ds2.server.units.TransientUnitCargo;
 import org.hibernate.Session;
@@ -39,6 +40,7 @@ import java.util.stream.Collectors;
 //TODO: Whole class should be autowired, don't get your own config service
 public class RegisterController implements DSController {
     private final PasswordGenerator passwordGenerator = new PasswordGenerator();
+    private final PasswordHasher passwordHasher = new PasswordHasher();
     private final PasswordMailer passwordMailer = new PasswordMailer();
 
     // The EntityManager is fetched per call rather than held in a field. DSApplication now builds a
@@ -175,7 +177,7 @@ public class RegisterController implements DSController {
 
 
         String password = passwordGenerator.generate();
-        String enc_pw = Common.md5(password);
+        String passwordHash = passwordHasher.hash(password);
 
         int maxid = (Integer) db.createQuery("SELECT max(id) FROM User").iterate().next();
         int newId = maxid + 1;
@@ -184,7 +186,7 @@ public class RegisterController implements DSController {
 
         String history = "Kolonistenlizenz erworben am " + Common.getIngameTime(ticks) + " [" + Common.date("d.m.Y H:i:s") + " Uhr]";
 
-        User newUser = new User(loginName, enc_pw, raceId, history, new Cargo(), email);
+        User newUser = new User(loginName, passwordHash, raceId, history, new Cargo(), email);
 
         // Startgeld festlegen
         newUser.setKonto(BigInteger.valueOf(50000));

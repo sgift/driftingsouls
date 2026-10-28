@@ -230,7 +230,7 @@ public abstract class BasicUser {
 
 	/**
 	 * Setzt das Passwort fuer den Spieler.
-	 * @param pw Das neue (mittels MD5 kodierte) Passwort
+	 * @param pw The new password hash, see {@link net.driftingsouls.ds2.server.framework.authentication.PasswordHasher}
 	 */
 	public void setPassword( String pw ) {
 		this.passwort = pw;

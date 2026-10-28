@@ -29,6 +29,7 @@ import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.ConfigService;
 import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.ViewModel;
+import net.driftingsouls.ds2.server.framework.authentication.PasswordHasher;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
@@ -63,6 +64,7 @@ public class OptionsController extends Controller
 	private static final Log log = LogFactory.getLog(OptionsController.class);
 	private final TemplateViewResultFactory templateViewResultFactory;
 	private final ConfigService configService;
+	private final PasswordHasher passwordHasher = new PasswordHasher();
 
 	@Autowired
 	public OptionsController(TemplateViewResultFactory templateViewResultFactory, ConfigService configService)
@@ -117,9 +119,7 @@ public class OptionsController extends Controller
 
 		if ((pw.length() != 0) && pw.equals(pw2))
 		{
-			String enc_pw = Common.md5(pw);
-
-			user.setPassword(enc_pw);
+			user.setPassword(passwordHasher.hash(pw));
 			changemsg += "<span style=\"color:red\">Das Passwort wurde geändert</span><br />\n";
 
 			String subject = "Drifting Souls - Passwortänderung";
