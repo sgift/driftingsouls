@@ -3,7 +3,7 @@ package net.driftingsouls.ds2.server.framework;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.reflections.Reflections;
-import org.reflections.scanners.TypeAnnotationsScanner;
+import org.reflections.scanners.Scanners;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
@@ -25,7 +25,7 @@ public class AnnotationUtils
 	{
 		Collection<URL> urls = ClasspathHelper.forPackage("net.driftingsouls.ds2.server");
 		LOG.info("Scanning urls " + urls);
-		reflections = new Reflections(new ConfigurationBuilder().setUrls(urls).setScanners(new TypeAnnotationsScanner()));
+		reflections = new Reflections(new ConfigurationBuilder().setUrls(urls).setScanners(Scanners.TypesAnnotated));
 	}
 
 	/**

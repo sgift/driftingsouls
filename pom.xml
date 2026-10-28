@@ -155,11 +155,10 @@
                 <version>2.3.2</version>
             </dependency>
 
-            <!-- don't use 0.9.11 - buggy module declaration, doesn't compile with jdk9 -->
             <dependency>
                 <groupId>org.reflections</groupId>
                 <artifactId>reflections</artifactId>
-                <version>0.9.9-RC1</version>
+                <version>0.10.2</version>
             </dependency>
 
             <dependency>

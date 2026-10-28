@@ -18,7 +18,6 @@
  */
 package net.driftingsouls.ds2.server.tick;
 
-import com.google.common.base.Splitter;
 import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.framework.Common;
 import net.driftingsouls.ds2.server.framework.Configuration;
@@ -46,8 +45,6 @@ public abstract class AbstractTickExecuter extends TickController
 	private String name = "";
 	private String status = null;
 	private final Map<Class<? extends TickController>, Long> tickTimes = new LinkedHashMap<>();
-
-	private final Splitter systemSplitter = Splitter.on(';');
 
 	public AbstractTickExecuter()
 	{
@@ -196,7 +193,7 @@ public abstract class AbstractTickExecuter extends TickController
 		this.affectedSystems = new HashSet<>();
 		String affectedSystems = getContext().getRequest().getParameter("affectedSystems");
 		if(affectedSystems != null && !affectedSystems.isBlank()) {
-			for(String part: systemSplitter.split(affectedSystems)) {
+			for(String part: affectedSystems.split(";", -1)) {
 				this.affectedSystems.add(Integer.valueOf(part));
 			}
 		}
