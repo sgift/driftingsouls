@@ -49,6 +49,9 @@ services:
       DB_URL: "jdbc:mysql://db:3306/ds?serverTimezone=UTC&allowPublicKeyRetrieval=true&useSSL=false"
       DB_USER: "root"
       DB_PASSWORD: "ds"
+      # Discord-Bot: optional, haben Vorrang vor den Werten im Adminbereich und landen so in keinem DB-Dump
+      DS_DISCORD_BOT_TOKEN: "${DS_DISCORD_BOT_TOKEN:-}"
+      DS_DISCORD_CLIENT_SECRET: "${DS_DISCORD_CLIENT_SECRET:-}"
 
 volumes:
   db-data:

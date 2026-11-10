@@ -24,7 +24,7 @@ public class WellKnownUserValue<T>
 	public static final WellKnownUserValue<String> TBLORDER_SCHIFFE_ORDER = new WellKnownUserValue<>(String.class, "TBLORDER/schiffe/order", "id");
 	public static final WellKnownUserValue<Integer> TBLORDER_SCHIFFE_SHOWJAEGER = new WellKnownUserValue<>(Integer.class, "TBLORDER/schiffe/showjaeger", "0");
 	public static final WellKnownUserValue<Boolean> TBLORDER_SCHIFFE_SHOWHANDELSPOSTEN = new WellKnownUserValue<>(Boolean.class, "TBLORDER/schiffe/showhandelsposten", "false");
-	public static final WellKnownUserValue<String> TBLORDER_UEBERSICHT_BOX = new WellKnownUserValue<>(String.class, "TBLORDER/uebersicht/box", "bookmarks");
+	public static final WellKnownUserValue<String> TBLORDER_UEBERSICHT_BOX = new WellKnownUserValue<>(String.class, "TBLORDER/uebersicht/box", "fleets");
 	public static final WellKnownUserValue<String> TBLORDER_KS_ATTACKMODE = new WellKnownUserValue<>(String.class, "TBLORDER/ks/attackmode", "");
 	public static final WellKnownUserValue<String> TBLORDER_SCHIFF_SENSORORDER = new WellKnownUserValue<>(String.class, "TBLORDER/schiff/sensororder", "id");
 	public static final WellKnownUserValue<Integer> GTU_AUCTION_USER_COST = new WellKnownUserValue<>(Integer.class, "GTU_AUCTION_USER_COST", "10");
@@ -36,6 +36,19 @@ public class WellKnownUserValue<T>
 	public static final WellKnownUserValue<Boolean> GAMEPLAY_USER_SOUNDS_MUTE = new WellKnownUserValue<>(Boolean.class, "GAMEPLAY/user/sounds_mute", "true");
 	public static final WellKnownUserValue<Integer> GAMEPLAY_USER_SOUNDS_VOLUME = new WellKnownUserValue<>(Integer.class, "GAMEPLAY/user/sounfs_volume", "50");
 	public static final WellKnownUserValue<Boolean> GAMEPLAY_USER_HANDELSPOSTEN_PM = new WellKnownUserValue<>(Boolean.class, "GAMEPLAY/user/handelsposten_pm", "true");
+	public static final WellKnownUserValue<String> DISCORD_USER_ID = new WellKnownUserValue<>(String.class, "DISCORD/user_id", "");
+	public static final WellKnownUserValue<String> DISCORD_USERNAME = new WellKnownUserValue<>(String.class, "DISCORD/username", "");
+	public static final WellKnownUserValue<String> DISCORD_AVATAR = new WellKnownUserValue<>(String.class, "DISCORD/avatar", "");
+	public static final WellKnownUserValue<String> DISCORD_OAUTH_STATE = new WellKnownUserValue<>(String.class, "DISCORD/oauth_state", "");
+	/**
+	 * Wann der Spieler die Verknuepfung zuletzt bei Discord bestaetigt hat (Millisekunden).
+	 */
+	public static final WellKnownUserValue<Long> DISCORD_LINKED_AT = new WellKnownUserValue<>(Long.class, "DISCORD/linked_at", "0");
+	/**
+	 * Ob der Spieler zugestimmt hat, dass der Chat Inhalte (Avatare, Bilder) direkt von Discord laedt.
+	 */
+	public static final WellKnownUserValue<Boolean> DISCORD_CONTENT_ALLOWED = new WellKnownUserValue<>(Boolean.class, "DISCORD/content_allowed", "false");
+	public static final WellKnownUserValue<String> TBLORDER_UEBERSICHT_DISCORD_CHANNEL = new WellKnownUserValue<>(String.class, "TBLORDER/uebersicht/discord_channel", "");
 
 	private final Class<T> type;
 	private final String name;

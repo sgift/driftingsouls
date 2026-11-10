@@ -115,13 +115,78 @@
 	
 	<table class="noBorder">
 	<tr>
-		<td class="noBorderS">
-			<div class="gfxbox" style="width:480px">
-				<div style="text-align:center; font-weight:bold">
-					Bookmarks
+		<td class="noBorderS" valign="top">
+			<div class="gfxbox ueber-box" style="width:480px">
+				<div class="ueber-box-titel">Discord-Chat</div>
+				{if discord.chat}
+				<div id="discord-chat" data-channel="{discord.channel}" data-guild="{discord.guild}">
+					<div class="discord-kanaele">
+						<!-- BEGIN discordchannels.listitem -->
+						<span class="discord-kanal link {discordchannel.aktiv}" data-channel="{discordchannel.id}" data-name="{discordchannel.name}" data-schreiben="{discordchannel.schreiben}">#{discordchannel.name}</span>
+						<!-- END discordchannels.listitem -->
+						<a class="discord-extern" href="https://discord.com/channels/{discord.guild}/{discord.channel}" target="_blank" rel="noopener noreferrer" title="In Discord öffnen">&#8599;</a>
+					</div>
+					<div class="discord-nachrichten">
+						{if discord.inhalte}
+						<div class="discord-hinweis">Lade Nachrichten...</div>
+						{else}
+						<div class="discord-zustimmung">
+							Der Chat zeigt die Nachrichten unseres Discord-Servers. Dein Browser lädt dafür Avatare, Emojis und Bilder
+							direkt von Discord, das dabei deine IP-Adresse erfährt.
+							<br /><br />
+							<input type="button" class="discord-zustimmen" value="Discord-Chat anzeigen" />
+							<br /><br />
+							<span class="discord-klein">Widerrufen kannst du das jederzeit in den Einstellungen.</span>
+						</div>
+						{/endif}
+					</div>
+					{if discord.connected}
+					{if discord.bestaetigen}
+					<div class="discord-eingabe discord-hinweis">
+						<a href="#" class="discord-bestaetigen">Bestätige die Verknüpfung mit Discord erneut</a>, um mitzuschreiben.
+					</div>
+					{else}
+					<form class="discord-eingabe" action="#">
+						<input type="text" name="text" maxlength="{discord.maxlength}" placeholder="Nachricht an #{discord.channel.name}" autocomplete="off" />
+						<input type="submit" value="Senden" />
+					</form>
+					{/endif}
+					{else}
+					<div class="discord-eingabe discord-hinweis">
+						{if discord.login}
+						<a href="./ds?module=options&amp;action=xtra">Verbinde deinen Account in den Einstellungen mit Discord</a>, um mitzuschreiben.
+						{else}
+						Mitschreiben ist im Moment nur direkt in Discord möglich.
+						{/endif}
+					</div>
+					{/endif}
 				</div>
-				<div style="height:260px; overflow:auto; padding:4px; font-size:13px">
-					<!-- BEGIN bookmarks.listitem -->
+				{else}
+				<div class="discord-nachrichten">
+					<div class="discord-hinweis">
+						Im Moment ist kein Discord-Kanal verfügbar.
+						{if discord.inviteurl}<br />Besuche uns auf unserem <a href="{discord.inviteurl}" target="_blank" rel="noopener noreferrer">Discord-Server</a>.{/endif}
+					</div>
+				</div>
+				{/endif}
+			</div>
+		</td>
+		<td class="noBorderS" valign="top">
+			<div class="gfxbox ueber-box" style="width:480px">
+				<div id="ueber-flotten" style="{box.fleets.style}">
+					<div class="ueber-box-titel">Flotten</div>
+					<div class="ueber-box-inhalt">
+						<!-- BEGIN fleets.listitem -->
+							{if fleet.jaegerfleet}<br />+++ gelandete Jäger- / Bomberstaffeln +++<br />{/endif}
+							{!link_to $fleet.name, default, css_style:font-size:13px, module:schiff, ship:$fleet.shipid}
+							- {fleet.shipcount} Schiffe - {fleet.location}<br />
+						<!-- END fleets.listitem -->
+					</div>
+				</div>
+				<div id="ueber-bookmarks" style="{box.bookmarks.style}">
+					<div class="ueber-box-titel">Bookmarks</div>
+					<div class="ueber-box-inhalt">
+						<!-- BEGIN bookmarks.listitem -->
 						<a style="font-size:13px" class="forschinfo tooltip" href="./ds?module=schiff&amp;ship={bookmark.shipid}">
 							{bookmark.shipname}
 							<div class="ttcontent">
@@ -129,21 +194,16 @@
 							</div>
 						</a> ({bookmark.shipid})
 						- {bookmark.shiptype} - {bookmark.location}<br />
-					<!-- END bookmarks.listitem -->
+						<!-- END bookmarks.listitem -->
+					</div>
 				</div>
-			</div>
-		</td>
-		<td class="noBorderS" valign="top">
-			<div class="gfxbox" style="width:480px">
-				<div style="text-align:center; font-weight:bold">
-					Flotten
-				</div>
-				<div style="height:260px; overflow:auto; padding:4px; font-size:13px">
-					<!-- BEGIN fleets.listitem -->
-						{if fleet.jaegerfleet}<br />+++ gelandete Jäger- / Bomberstaffeln +++<br />{/endif}
-						{!link_to $fleet.name, default, css_style:font-size:13px, module:schiff, ship:$fleet.shipid}
-						- {fleet.shipcount} Schiffe - {fleet.location}<br />
-					<!-- END fleets.listitem -->
+				<div id="ueber-box-umschalter" class="ueber-box-buttons">
+					<button type="button" class="fsbutton link ueber-box-button-links {box.fleets.aktiv}" data-box="fleets">
+						<span class="button-text">Flotten</span>
+					</button>
+					<button type="button" class="fsbutton link ueber-box-button-rechts {box.bookmarks.aktiv}" data-box="bookmarks">
+						<span class="button-text">Bookmarks</span>
+					</button>
 				</div>
 			</div>
 		</td>

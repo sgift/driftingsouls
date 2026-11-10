@@ -8,6 +8,7 @@ import net.driftingsouls.ds2.server.framework.PermissionDescriptor;
 public enum WellKnownAdminPermission implements PermissionDescriptor
 {
 	CONSOLE("AdminConsole"),
+	DISCORD("Discord"),
 	SICHTBAR("sichtbar"),
 	STARMAP_VIEW("starmapView"),
 	STARMAP_SYSTEMAUSWAHL("starmapSystemauswahl"),
