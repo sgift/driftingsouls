@@ -90,7 +90,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 		log.info("User loaded");
 
 		if( user == null ) {
-			Common.writeLog("login.log", Common.date("j.m.Y H:i:s")+": <"+request.getRemoteAddress()+"> ("+username+") <"+username+"> Password <"+password+"> ***UNGUELTIGER ACCOUNT*** von Browser <"+request.getUserAgent()+">\n");
+			Common.writeLog("login.log", Common.date("j.m.Y H:i:s")+": <"+request.getRemoteAddress()+"> ("+username+") <"+username+"> ***UNGUELTIGER ACCOUNT*** von Browser <"+request.getUserAgent()+">\n");
 
 			log.info("User does not exist: " + username);
 
@@ -101,7 +101,7 @@ public class DefaultAuthenticationManager implements AuthenticationManager {
 
 		if( !passwordHasher.matches(password, user.getPassword()) ) {
 			user.setLoginFailedCount(user.getLoginFailedCount()+1);
-			Common.writeLog("login.log", Common.date("j.m.Y H:i:s")+": <"+request.getRemoteAddress()+"> ("+user.getId()+") <"+username+"> Password <"+password+"> ***LOGIN GESCHEITERT*** von Browser <"+request.getUserAgent()+">\n");
+			Common.writeLog("login.log", Common.date("j.m.Y H:i:s")+": <"+request.getRemoteAddress()+"> ("+user.getId()+") <"+username+"> ***LOGIN GESCHEITERT*** von Browser <"+request.getUserAgent()+">\n");
 
 			log.info("Wrong password");
 
