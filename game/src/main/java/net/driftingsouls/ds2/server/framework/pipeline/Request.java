@@ -128,7 +128,17 @@ public interface Request {
 	 * @return Die URL
 	 */
     String getRequestURL();
-	
+
+	/**
+	 * Gibt zurueck, ob die Anfrage per POST gestellt wurde. Aktionen mit Seiteneffekten,
+	 * die sich nicht per Bild-URL (z.B. <code>[img]</code> in PMs) ausloesen lassen sollen, pruefen das.
+	 * @return <code>true</code>, falls es eine POST-Anfrage ist
+	 */
+	default boolean isPost()
+	{
+		return false;
+	}
+
 	/**
 	 * Gibt den User-Agent des Aufrufers zurueck.
 	 * @return Der User-Agent

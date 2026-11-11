@@ -196,6 +196,11 @@ public class HttpRequest implements Request {
 	}
 
 	@Override
+	public boolean isPost() {
+		return "POST".equalsIgnoreCase(request.getMethod());
+	}
+
+	@Override
 	public String getUserAgent() {
 		return request.getHeader("user-agent");
 	}

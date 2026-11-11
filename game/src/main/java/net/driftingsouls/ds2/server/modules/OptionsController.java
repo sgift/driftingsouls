@@ -22,6 +22,11 @@ import net.driftingsouls.ds2.server.ContextCommon;
 import net.driftingsouls.ds2.server.WellKnownConfigValue;
 import net.driftingsouls.ds2.server.WellKnownPermission;
 import net.driftingsouls.ds2.server.comm.PM;
+import net.driftingsouls.ds2.server.discord.DiscordException;
+import net.driftingsouls.ds2.server.discord.DiscordConfiguration;
+import net.driftingsouls.ds2.server.discord.DiscordSentMessage;
+import net.driftingsouls.ds2.server.discord.DiscordService;
+import net.driftingsouls.ds2.server.discord.DiscordUser;
 import net.driftingsouls.ds2.server.entities.User;
 import net.driftingsouls.ds2.server.entities.UserFlag;
 import net.driftingsouls.ds2.server.entities.WellKnownUserValue;
@@ -31,9 +36,11 @@ import net.driftingsouls.ds2.server.framework.Configuration;
 import net.driftingsouls.ds2.server.framework.ViewModel;
 import net.driftingsouls.ds2.server.framework.bbcode.BBCodeParser;
 import net.driftingsouls.ds2.server.framework.pipeline.Module;
+import net.driftingsouls.ds2.server.framework.pipeline.ViewResult;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Action;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.ActionType;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.Controller;
+import net.driftingsouls.ds2.server.framework.pipeline.controllers.EmptyHeaderFooterOutputHandler;
 import net.driftingsouls.ds2.server.framework.pipeline.controllers.RedirectViewResult;
 import net.driftingsouls.ds2.server.framework.templates.TemplateEngine;
 import net.driftingsouls.ds2.server.framework.templates.TemplateViewResultFactory;
@@ -49,6 +56,8 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,12 +72,15 @@ public class OptionsController extends Controller
 	private static final Log log = LogFactory.getLog(OptionsController.class);
 	private final TemplateViewResultFactory templateViewResultFactory;
 	private final ConfigService configService;
+	private final DiscordService discordService;
+	private final SecureRandom random = new SecureRandom();
 
 	@Autowired
-	public OptionsController(TemplateViewResultFactory templateViewResultFactory, ConfigService configService)
+	public OptionsController(TemplateViewResultFactory templateViewResultFactory, ConfigService configService, DiscordService discordService)
 	{
 		this.templateViewResultFactory = templateViewResultFactory;
 		this.configService = configService;
+		this.discordService = discordService;
 	}
 
 	/**
@@ -431,6 +443,18 @@ public class OptionsController extends Controller
 				"user.soundsvolume", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_SOUNDS_VOLUME),
 				"user.handelspostenpm", user.getUserValue(WellKnownUserValue.GAMEPLAY_USER_HANDELSPOSTEN_PM));
 
+		DiscordConfiguration discordConfiguration = DiscordConfiguration.load(getEM());
+		String discordUserId = user.getUserValue(WellKnownUserValue.DISCORD_USER_ID);
+		t.setVar("discord.configured", discordConfiguration.isLoginConfigured(),
+				"discord.connected", !discordUserId.isEmpty(),
+				"discord.bestaetigen", !discordUserId.isEmpty() && !DiscordUser.isLinkCurrent(user.getUserValue(WellKnownUserValue.DISCORD_LINKED_AT)),
+				"discord.gueltigtage", DiscordUser.LINK_VALID_DAYS,
+				"discord.aufbewahrungtage", DiscordSentMessage.RETENTION_DAYS,
+				"discord.inhalte", user.getUserValue(WellKnownUserValue.DISCORD_CONTENT_ALLOWED),
+				"discord.username", Common.escapeHTML(user.getUserValue(WellKnownUserValue.DISCORD_USERNAME)),
+				"discord.avatar", DiscordUser.avatarUrl(discordUserId, user.getUserValue(WellKnownUserValue.DISCORD_AVATAR)),
+				"discord.inviteurl", discordInviteUrl(discordConfiguration));
+
 		t.setBlock("_OPTIONS", "personenNamenGenerator.listitem", "personenNamenGenerator.list");
 		for (PersonNameGenerator png : PersonNameGenerator.values())
 		{
@@ -459,6 +483,149 @@ public class OptionsController extends Controller
 		}
 
 		return t;
+	}
+
+	/**
+	 * Leitet zur Bestaetigung der Discord-Verknuepfung auf Discord weiter.
+	 * Wird in einem Popup geoeffnet, da Discord sich nicht in einem Frame anzeigen laesst.
+	 */
+	@Action(value = ActionType.DEFAULT, outputHandler = EmptyHeaderFooterOutputHandler.class)
+	public ViewResult discordConnectAction()
+	{
+		User user = (User) getUser();
+		DiscordConfiguration configuration = DiscordConfiguration.load(getEM());
+		if (!configuration.isLoginConfigured())
+		{
+			return discordPopup(false, "Die Discord-Anbindung ist auf diesem Server nicht eingerichtet.");
+		}
+
+		String state = new BigInteger(130, random).toString(32);
+		user.setUserValue(WellKnownUserValue.DISCORD_OAUTH_STATE, state);
+		String url = discordService.getAuthorizeUrl(configuration, configuration.getRedirectUri(), state);
+		return response -> response.redirectTo(url);
+	}
+
+	/**
+	 * Empfaengt die Antwort von Discord und verknuepft den Discord-Account mit dem Spieler.
+	 * Ist der Account noch kein Mitglied des Discord-Servers, wird er hinzugefuegt.
+	 * Mit der Verknuepfung stimmt der Spieler auch zu, dass der Chat Inhalte von Discord laedt.
+	 * <p>
+	 * Discord ruft diese Aktion per GET auf. Gegen untergeschobene Aufrufe schuetzt der <code>state</code>.
+	 *
+	 * @param code Der Code zum Abholen des Access-Tokens
+	 * @param state Der beim Weiterleiten erzeugte Zufallswert
+	 * @param error Gesetzt, falls der Spieler die Verknuepfung abgelehnt hat
+	 */
+	@Action(value = ActionType.DEFAULT, outputHandler = EmptyHeaderFooterOutputHandler.class)
+	public ViewResult discordCallbackAction(String code, String state, String error)
+	{
+		User user = (User) getUser();
+		String expectedState = user.getUserValue(WellKnownUserValue.DISCORD_OAUTH_STATE);
+		user.setUserValue(WellKnownUserValue.DISCORD_OAUTH_STATE, "");
+
+		if (error != null && !error.isEmpty())
+		{
+			return discordPopup(false, "Die Verknüpfung mit Discord wurde abgebrochen.");
+		}
+		if (expectedState.isEmpty() || !expectedState.equals(state) || code == null || code.isEmpty())
+		{
+			return discordPopup(false, "Die Anfrage ist ungültig oder abgelaufen. Bitte starte die Verknüpfung erneut.");
+		}
+
+		DiscordConfiguration configuration = DiscordConfiguration.load(getEM());
+		if (!configuration.isLoginConfigured())
+		{
+			return discordPopup(false, "Die Discord-Anbindung ist auf diesem Server nicht eingerichtet.");
+		}
+
+		try
+		{
+			String accessToken = discordService.exchangeCode(configuration, configuration.getRedirectUri(), code);
+			DiscordUser discordUser = discordService.fetchUser(accessToken);
+			boolean member = discordService.joinGuild(configuration, discordUser, accessToken);
+
+			user.setUserValue(WellKnownUserValue.DISCORD_USER_ID, discordUser.id);
+			user.setUserValue(WellKnownUserValue.DISCORD_USERNAME, discordUser.displayName);
+			user.setUserValue(WellKnownUserValue.DISCORD_AVATAR, discordUser.avatar != null ? discordUser.avatar : "");
+			user.setUserValue(WellKnownUserValue.DISCORD_LINKED_AT, System.currentTimeMillis());
+			user.setUserValue(WellKnownUserValue.DISCORD_CONTENT_ALLOWED, true);
+
+			String message = "Dein Account ist jetzt mit dem Discord-Account <b>" + Common.escapeHTML(discordUser.displayName) + "</b> verknüpft.";
+			if (!member)
+			{
+				message += "<br />Tritt noch unserem <a href=\"" + discordInviteUrl(configuration) + "\" target=\"_blank\" rel=\"noopener noreferrer\">Discord-Server</a> bei, um im Chat schreiben zu können.";
+			}
+			return discordPopup(true, message);
+		}
+		catch (DiscordException e)
+		{
+			return discordPopup(false, Common.escapeHTML(e.getMessage()));
+		}
+	}
+
+	/**
+	 * Hebt die Verknuepfung mit dem Discord-Account auf und loescht die Zuordnung der aus dem
+	 * Spiel gesendeten Nachrichten. Nur per POST, damit sie sich nicht per Bild-URL ausloesen laesst.
+	 */
+	@Action(ActionType.DEFAULT)
+	public RedirectViewResult discordDisconnectAction()
+	{
+		if (!getRequest().isPost())
+		{
+			return new RedirectViewResult("xtra");
+		}
+		User user = (User) getUser();
+		discordService.forgetMember(user.getUserValue(WellKnownUserValue.DISCORD_USER_ID));
+		user.setUserValue(WellKnownUserValue.DISCORD_USER_ID, "");
+		user.setUserValue(WellKnownUserValue.DISCORD_USERNAME, "");
+		user.setUserValue(WellKnownUserValue.DISCORD_AVATAR, "");
+		user.setUserValue(WellKnownUserValue.DISCORD_LINKED_AT, 0L);
+		DiscordSentMessage.deleteFor(getEM(), user.getId());
+
+		return new RedirectViewResult("xtra").withMessage("Die Verknüpfung mit Discord wurde aufgehoben.<br />\n");
+	}
+
+	/**
+	 * Widerruft die Zustimmung, dass der Chat auf der Uebersicht Inhalte von Discord laedt. Nur per POST.
+	 */
+	@Action(ActionType.DEFAULT)
+	public RedirectViewResult discordRevokeContentAction()
+	{
+		if (!getRequest().isPost())
+		{
+			return new RedirectViewResult("xtra");
+		}
+		User user = (User) getUser();
+		user.setUserValue(WellKnownUserValue.DISCORD_CONTENT_ALLOWED, false);
+
+		return new RedirectViewResult("xtra").withMessage("Der Discord-Chat lädt keine Inhalte mehr von Discord.<br />\n");
+	}
+
+	private static String discordInviteUrl(DiscordConfiguration configuration)
+	{
+		String url = configuration.getSafeInviteUrl();
+		return url != null ? Common.escapeHTML(url) : "https://discord.com";
+	}
+
+	/**
+	 * Erzeugt die Ergebnisseite im Discord-Popup. Bei Erfolg wird das Spiel neu geladen
+	 * und das Popup geschlossen.
+	 */
+	private ViewResult discordPopup(boolean success, String messageHtml)
+	{
+		String html = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\" /><title>Discord - Drifting Souls</title>"
+				+ "<style>body{background-color:#0f1513;color:#C7C7C7;font-family:arial,helvetica,sans-serif;font-size:14px;padding:40px 20px;text-align:center}"
+				+ "a{color:#FEB626}.ok{color:#4ec94e}.error{color:#ff6060}</style></head><body>"
+				+ "<p class=\"" + (success ? "ok" : "error") + "\">" + messageHtml + "</p>"
+				+ "<p><a href=\"./ds?module=main\" onclick=\"if(window.opener){window.close();return false;}\">Zurück zum Spiel</a></p>"
+				+ "<script>"
+				+ "if(window.opener&&!window.opener.closed){try{window.opener.location.reload();}catch(e){}}"
+				+ (success ? "setTimeout(function(){if(window.opener){window.close();}else{location.href='./ds?module=main';}},2500);" : "")
+				+ "</script></body></html>";
+		return response -> {
+			response.setContentType("text/html", "UTF-8");
+			response.getWriter().append(html);
+		};
 	}
 
 	private static final int MAX_UPLOAD_SIZE = 307200;
