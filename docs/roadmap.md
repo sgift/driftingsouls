@@ -161,6 +161,28 @@ path locks out the playerbase — worth doing on a stack that is already upgrade
 *Done when:* new and changed passwords are bcrypt; login transparently upgrades legacy hashes; a
 straggler force-reset is scheduled and the legacy path has a deletion date.
 
+**2.4 done** in `f4e179532`..`85baf0572`, apart from the two dates below. Green on JDK 17.0.2 at 214 tests /
+3 skipped.
+- `spring-security-crypto` 5.8.16, the last 5.8.x release. Its published pom declares no dependencies,
+  so nothing from Spring 6 comes along. It logs through `commons-logging`, which `spring-jcl` provides.
+- `PasswordHasher` (`framework/authentication/`) hashes with bcrypt (cost 10) and verifies both schemes,
+  telling them apart by the `$2` prefix. The legacy verifier is a frozen copy of `Common.md5`'s lossy
+  encoding rather than a call to it, so a later fix to `Common.md5` cannot lock out unconverted accounts.
+  `Common.md5` itself is unchanged and now only used by `Task.java`.
+- `DefaultAuthenticationManager` verifies through `PasswordHasher` and rehashes a legacy hash right after
+  a successful check. Tests cover legacy verify (including a 31-character hash), the rehash, a second
+  login via bcrypt, a wrong password leaving the legacy hash alone, and bcrypt verify without rehash.
+- Registration, password reset and the password change in the options page store bcrypt. Those three
+  controllers have no tests, so check them by hand on the dev system: register, reset, change, log in.
+- bcrypt only considers the first 72 bytes of a password. Generated passwords are 16 characters, so this
+  only affects users who choose a longer one themselves.
+
+To do after deployment:
+- Pick the date for the straggler force-reset and record it here. Confirm production email works first;
+  the reset mails the new password.
+- Pick the date for deleting the legacy path (`PasswordHasher.legacyHash` and the non-bcrypt branch of
+  `matches`) and record it here. It must come after the force-reset, which leaves no legacy hashes behind.
+
 ---
 
 ## 3. Persistence foundation
