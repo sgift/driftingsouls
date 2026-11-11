@@ -1,0 +1,228 @@
+/*
+	Uebersicht: Discord-Chat und Flotten/Bookmark-Box
+*/
+
+.ueber-box {
+	position: relative;
+	height: 300px;
+}
+
+.ueber-box-titel {
+	text-align: center;
+	font-weight: bold;
+	height: 20px;
+}
+
+.ueber-box-inhalt {
+	height: 236px;
+	overflow: auto;
+	padding: 4px;
+	font-size: 13px;
+}
+
+.ueber-box .ueber-box-buttons {
+	position: absolute;
+	right: -19px;
+	bottom: -18px;
+	display: flex;
+	flex-direction: row;
+	z-index: 10;
+}
+
+.ueber-box .ueber-box-buttons .fsbutton {
+	width: 150px;
+	height: 50px;
+	padding: 0;
+	border: none;
+	background-color: transparent;
+}
+
+/* Wie bei Cargo/Einheiten der Basis ueberlappen sich die Grafiken um 10px, der linke Button liegt oben */
+.ueber-box .ueber-box-buttons .ueber-box-button-links {
+	position: relative;
+	z-index: 11;
+	background-image: url(../interface/green/button150_tl.svg);
+}
+
+.ueber-box .ueber-box-buttons .ueber-box-button-rechts {
+	margin-left: -10px;
+	background-image: url(../interface/green/button150_BR.svg);
+}
+
+/* Discord-Chat */
+
+.discord-kanaele {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	border-bottom: 1px solid #464B48;
+	padding-bottom: 2px;
+	font-size: 13px;
+}
+
+.discord-kanal {
+	padding: 1px 6px;
+	color: #C7C7C7;
+}
+
+.discord-kanal:hover {
+	color: #FFFFFF;
+}
+
+.discord-kanal.aktiv {
+	color: #FEB626;
+	font-weight: bold;
+}
+
+.discord-extern {
+	margin-left: auto;
+	padding: 0 4px;
+	text-decoration: none;
+}
+
+.discord-nachrichten {
+	height: 222px;
+	overflow-y: auto;
+	overflow-x: hidden;
+	padding: 2px 4px;
+	font-size: 13px;
+}
+
+#discord-chat .discord-nachrichten {
+	height: 210px;
+}
+
+.discord-nachricht {
+	position: relative;
+	min-height: 24px;
+	padding: 3px 0 3px 30px;
+}
+
+.discord-avatar {
+	position: absolute;
+	left: 0;
+	top: 4px;
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+}
+
+.discord-autor {
+	font-weight: bold;
+	color: #FFFFFF;
+}
+
+/* Wie die APP-Marke in Discord: kennzeichnet Nachrichten, die aus dem Spiel gesendet wurden */
+.discord-ingame-marke {
+	margin-left: 5px;
+	padding: 0 3px;
+	border-radius: 3px;
+	background-color: #3a4a3f;
+	color: #FEB626;
+	font-size: 10px;
+	font-weight: bold;
+	vertical-align: 1px;
+}
+
+/* Webhook-Nachrichten anderer Integrationen: nicht aus dem Spiel */
+.discord-app-marke {
+	margin-left: 5px;
+	padding: 0 3px;
+	border-radius: 3px;
+	background-color: #3a3f4a;
+	color: #A0B4FF;
+	font-size: 10px;
+	font-weight: bold;
+	vertical-align: 1px;
+}
+
+.discord-zeit {
+	margin-left: 6px;
+	font-size: 11px;
+	color: #808080;
+}
+
+.discord-text {
+	white-space: pre-wrap;
+	word-wrap: break-word;
+}
+
+.discord-anhang {
+	display: block;
+}
+
+.discord-emoji {
+	width: 18px;
+	height: 18px;
+	vertical-align: -4px;
+}
+
+/* Bilder und Videos aus dem Chat; width/height setzt das Script, damit der Platz schon vor dem Laden feststeht */
+.discord-medium {
+	display: block;
+	max-width: 100%;
+	max-height: 220px;
+	height: auto;
+	margin-top: 4px;
+	border-radius: 4px;
+}
+
+.discord-hinweis {
+	color: #A0A0A0;
+	text-align: center;
+	padding: 8px 4px;
+}
+
+/* Bevor der Spieler zustimmt, laedt der Chat nichts von Discord */
+.discord-zustimmung {
+	color: #C7C7C7;
+	text-align: center;
+	padding: 24px 12px;
+	font-size: 12px;
+}
+
+.discord-klein {
+	font-size: 11px;
+	color: #808080;
+}
+
+.discord-fehler {
+	color: #FF6060;
+	font-size: 12px;
+	padding: 2px 4px;
+}
+
+.discord-eingabe {
+	display: flex;
+	margin-top: 4px;
+}
+
+.discord-eingabe.discord-hinweis {
+	display: block;
+	padding: 4px;
+	font-size: 12px;
+}
+
+.discord-eingabe input[type=text] {
+	flex-grow: 1;
+	margin-right: 4px;
+}
+
+/* Einstellungen */
+
+.discord-account img {
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	vertical-align: middle;
+	margin-right: 6px;
+}
+
+.discord-warnung {
+	color: #FEB626;
+}
+
+.discord-datenschutz {
+	font-size: 12px;
+	color: #A0A0A0;
+}

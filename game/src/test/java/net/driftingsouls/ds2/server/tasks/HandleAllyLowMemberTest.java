@@ -92,7 +92,11 @@ public class HandleAllyLowMemberTest extends DBSingleTransactionTest
 			assertThat(user.getAllyPosten(), nullValue());
 		}
 
-		List<PM> pms = Common.cast(getDB().createCriteria(PM.class).list());
+		// Nur die PMs an die eigenen Mitglieder: Alle Tests eines Builds teilen sich eine Datenbank,
+		// und Tests auf Basis von DBTest (z.B. RestTickThreadReuseTest) hinterlassen dort eigene PMs.
+		List<PM> pms = Common.cast(getDB().createQuery("from PM where empfaenger in (:empfaenger)")
+				.setParameterList("empfaenger", Arrays.asList(user1, user2))
+				.list());
 		assertThat(pms.size(), is(2));
 		for (PM pm : pms)
 		{

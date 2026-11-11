@@ -211,6 +211,64 @@
 	</div>
 
 	</form>
+
+	<div class="gfxbox discord-options" style="width:560px">
+		<div style="text-align:center; font-weight:bold">Discord-Chat</div>
+		<br />
+		{if discord.configured}
+			{if discord.connected}
+				<div class="discord-account">
+					<img src="{discord.avatar}" alt="" />
+					Verbunden als <b>{discord.username}</b>
+				</div>
+				<br />
+				Du kannst im Chat auf der Übersicht in den Kanälen unseres Discord-Servers mitlesen und schreiben.
+				Deine Nachrichten erscheinen dort wie in Discord unter deinem Namen auf unserem Discord-Server
+				(Server-Alias, sonst dein Discord-Anzeigename) und mit deinem Discord-Avatar.
+				Es gelten deine Rechte auf dem Discord-Server, auch Timeouts und Slowmode.
+				{if discord.bestaetigen}
+				<br /><br />
+				<span class="discord-warnung">Bitte bestätige die Verknüpfung erneut, um weiter mitzuschreiben.
+				Das ist alle {discord.gueltigtage} Tage nötig, damit Drifting Souls nicht in deinem Namen schreibt, nachdem du der Anwendung in Discord die Berechtigung entzogen hast.</span>
+				<br /><br />
+				<div style="text-align:center">
+					<input type="button" value="Verknüpfung bestätigen"
+						   onclick="window.open('./ds?module=options&amp;action=discordConnect', 'dsDiscord', 'width=520,height=800');" />
+				</div>
+				{/endif}
+				<br /><br />
+				<form action="ds" method="post" style="text-align:center">
+					{!form_create_hidden discordDisconnect}
+					<input type="submit" value="Verbindung trennen" />
+				</form>
+			{else}
+				Verbinde deinen Account mit Discord, um im Chat auf der Übersicht mitzuschreiben.
+				Du meldest dich dafür direkt bei Discord an; dein Discord-Passwort wird nicht an Drifting Souls übermittelt.
+				Falls du noch nicht auf unserem <a href="{discord.inviteurl}" target="_blank" rel="noopener noreferrer">Discord-Server</a> bist, wirst du dabei hinzugefügt.
+				<br /><br />
+				<div style="text-align:center">
+					<input type="button" value="Mit Discord verbinden"
+						   onclick="window.open('./ds?module=options&amp;action=discordConnect', 'dsDiscord', 'width=520,height=800');" />
+				</div>
+			{/endif}
+		{else}
+			Die Discord-Anbindung ist auf diesem Server noch nicht eingerichtet.
+		{/endif}
+		<br /><br />
+		<div class="discord-datenschutz">
+			<b>Datenschutz:</b> Damit der Chat Avatare, Emojis und Bilder anzeigen kann, lädt dein Browser sie direkt von Discord
+			(cdn.discordapp.com, media.discordapp.net). Discord erfährt dabei deine IP-Adresse. Das geschieht erst, wenn du im Chat
+			zustimmst oder deinen Account verknüpfst. Welcher Discord-Account eine aus dem Spiel gesendete Nachricht geschrieben hat,
+			speichert Drifting Souls {discord.aufbewahrungtage} Tage lang; beim Trennen der Verknüpfung wird das gelöscht.
+			{if discord.inhalte}
+			<br /><br />
+			<form action="ds" method="post" style="text-align:center">
+				{!form_create_hidden discordRevokeContent}
+				<input type="submit" value="Keine Inhalte mehr von Discord laden" />
+			</form>
+			{/endif}
+		</div>
+	</div>
 {/endif}
 
 {if options.general}
